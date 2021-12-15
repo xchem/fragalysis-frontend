@@ -62,10 +62,10 @@ export const getFileSizeString = fileSizeInBytes => {
     } else {
       const fileSizeInMB = fileSizeInKB / stepSize;
       if (fileSizeInMB < stepSize) {
-        result = `${fileSizeInMB.toFixed(1)}KB`;
+        result = `${fileSizeInMB.toFixed(1)}MB`;
       } else {
         const fileSizeInGB = fileSizeInMB / stepSize;
-        result = `${fileSizeInGB.toFixed(1)}KB`;
+        result = `${fileSizeInGB.toFixed(1)}GB`;
       }
     }
   }

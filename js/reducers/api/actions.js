@@ -112,6 +112,20 @@ export const setNoTagsReceived = noTagsReceived => {
   };
 };
 
+export const setDownloadTags = downloadTags => {
+  return {
+    type: constants.SET_DOWNLOAD_TAGS,
+    downloadTags: downloadTags
+  };
+};
+
+export const appendToDownloadTags = tag => {
+  return {
+    type: constants.APPEND_TO_DOWNLOAD_TAGS,
+    tag: tag
+  };
+};
+
 export const appendMoleculeTag = moleculeTag => {
   return {
     type: constants.APPEND_MOLECULE_TAG,

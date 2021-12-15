@@ -42,7 +42,8 @@ export const INITIAL_STATE = {
   direct_access: {},
   direct_access_processed: false,
   open_discourse_error_modal: false,
-  noTagsReceived: true
+  noTagsReceived: true,
+  downloadTags: []
 };
 
 export const RESET_TARGET_STATE = {
@@ -75,8 +76,9 @@ export const RESET_TARGET_STATE = {
   sessionTitle: undefined,
   user_id: undefined,
   direct_access: {},
-  open_discourse_error_modal: false
+  open_discourse_error_modal: false,
   // direct_access_processed: false
+  downloadTags: []
 };
 
 export default function apiReducers(state = INITIAL_STATE, action = {}) {
@@ -214,6 +216,12 @@ export default function apiReducers(state = INITIAL_STATE, action = {}) {
 
     case constants.SET_DIRECT_ACCESS_PROCESSED:
       return { ...state, direct_access_processed: action.direct_access_processed };
+
+    case constants.SET_DOWNLOAD_TAGS:
+      return { ...state, downloadTags: [...action.downloadTags] };
+
+    case constants.APPEND_TO_DOWNLOAD_TAGS:
+      return { ...state, downloadTags: [...state.downloadTags, action.tag] };
 
     case constants.SET_SESSION_ID_LIST:
       let sessionSummaryNew = [];

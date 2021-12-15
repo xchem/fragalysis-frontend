@@ -26,7 +26,13 @@ import {
   setVectorOnList,
   updateTag
 } from '../../../../reducers/selection/actions';
-import { setMolGroupOn, updateMoleculeTag, setAllMolLists, setMoleculeTags } from '../../../../reducers/api/actions';
+import {
+  setMolGroupOn,
+  updateMoleculeTag,
+  setAllMolLists,
+  setMoleculeTags,
+  setDownloadTags
+} from '../../../../reducers/api/actions';
 import { setSortDialogOpen } from '../../molecule/redux/actions';
 import { resetCurrentCompoundsSettings } from '../../compounds/redux/actions';
 import { getRandomColor } from '../../molecule/utils/color';
@@ -39,6 +45,7 @@ import {
   getCategoryIds
 } from '../utils/tagUtils';
 import { DJANGO_CONTEXT } from '../../../../utils/djangoContext';
+import { diffBetweenDatesInDays } from '../../../../utils/common';
 
 export const setTagSelectorData = (categories, tags) => dispatch => {
   dispatch(setCategoryList(categories));
@@ -201,6 +208,7 @@ export const unselectTag = tag => (dispatch, getState) => {
 export const loadMoleculesAndTags = targetId => async (dispatch, getState) => {
   return getAllData(targetId).then(data => {
     let tags_info = [];
+    let downloadTags = [];
     data.tags_info.forEach(tag => {
       let newObject = {};
       Object.keys(tag.data[0]).forEach(prop => {
@@ -216,6 +224,17 @@ export const loadMoleculesAndTags = targetId => async (dispatch, getState) => {
 
       if (!newObject.additional_info) {
         tags_info.push(newObject);
+      } else if (newObject.additional_info.requestObject && newObject.additional_info.downloadName) {
+        if (DJANGO_CONTEXT.pk) {
+          if (newObject.user_id === DJANGO_CONTEXT.pk) {
+            downloadTags.push(newObject);
+          }
+        } else {
+          const diffInDays = diffBetweenDatesInDays(new Date(newObject.create_date), new Date());
+          if (diffInDays <= 5) {
+            downloadTags.push(newObject);
+          }
+        }
       }
     });
 
@@ -239,6 +258,7 @@ export const loadMoleculesAndTags = targetId => async (dispatch, getState) => {
       return 0;
     });
     dispatch(setAllMolLists([...allMolecules]));
+    dispatch(setDownloadTags(downloadTags));
 
     // const categories = data.tag_categories;
     //need to do this this way because only categories which have at least one tag assigned are sent from backend

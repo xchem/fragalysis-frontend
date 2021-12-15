@@ -10,3 +10,10 @@ export const isURL = str => {
   ); // fragment locator
   return !!pattern.test(str);
 };
+
+export const diffBetweenDatesInDays = (date1, date2) => {
+  const diffInTime = date2.getTime() - date1.getTime();
+  const diffInDays = diffInTime / (1000 * 3600 * 24);
+
+  return diffInDays;
+};

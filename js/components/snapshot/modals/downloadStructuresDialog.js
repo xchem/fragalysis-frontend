@@ -1,4 +1,4 @@
-import React, { memo, useState } from 'react';
+import React, { memo, useState, useContext } from 'react';
 import Modal from '../../common/Modal';
 import { useDispatch, useSelector } from 'react-redux';
 import {
@@ -14,11 +14,14 @@ import {
   Radio,
   Button,
   Box,
-  Typography
+  Typography,
+  Select,
+  MenuItem
 } from '@material-ui/core';
 import { selectJoinedMoleculeList } from '../../preview/molecule/redux/selectors';
 import { getDownloadStructuresUrl, downloadStructuresZip, getDownloadFileSize } from '../api/api';
-import { setDownloadStructuresDialogOpen } from '../redux/actions';
+import { setDownloadStructuresDialogOpen, setDontShowShareSnapshot, setSharedSnapshot } from '../redux/actions';
+import { saveAndShareSnapshot } from '../redux/dispatchActions';
 import { getFileSizeString } from '../../../utils/api';
 import { v4 as uuidv4 } from 'uuid';
 import { createMoleculeTagObject, DEFAULT_TAG_COLOR } from '../../preview/tags/utils/tagUtils';
@@ -27,12 +30,32 @@ import { DJANGO_CONTEXT } from '../../../utils/djangoContext';
 import { createNewDownloadTag } from '../../preview/tags/api/tagsApi';
 import { base_url } from '../../routes/constants';
 import { updateClipboard } from '../helpers';
+import { NglContext } from '../../nglView/nglProvider';
+import { initSharedSnapshot } from '../redux/reducer';
+import moment from 'moment';
+import { appendToDownloadTags } from '../../../reducers/api/actions';
 
-const useStyles = makeStyles(theme => ({}));
+const useStyles = makeStyles(theme => ({
+  select: {
+    color: 'inherit',
+    fill: 'inherit',
+    '&:hover:not(.Mui-disabled):before': {
+      borderColor: 'inherit'
+    },
+    '&:before': {
+      borderColor: 'inherit'
+    },
+    '&:not(.Mui-disabled)': {
+      fill: theme.palette.white
+    }
+  }
+}));
 
 export const DownloadStructureDialog = memo(({}) => {
+  const newDownload = '--- NEW DOWNLOAD ---';
   const dispatch = useDispatch();
   const classes = useStyles();
+  const { nglViewList } = useContext(NglContext);
 
   const isOpen = useSelector(state => state.snapshotReducers.downloadStructuresDialogOpen);
   const targetId = useSelector(state => state.apiReducers.target_on);
@@ -41,6 +64,7 @@ export const DownloadStructureDialog = memo(({}) => {
   const ligandsTurnedOnIds = useSelector(state => state.selectionReducers.proteinList);
   const selectedMoleculesIds = useSelector(state => state.selectionReducers.moleculesToEdit);
   const taggedMolecules = useSelector(state => selectJoinedMoleculeList(state));
+  const downloadTags = useSelector(state => state.apiReducers.downloadTags);
 
   const [structuresSelection, setStructuresSelection] = useState('allStructures');
   const [bound, setBound] = useState(true);
@@ -60,6 +84,7 @@ export const DownloadStructureDialog = memo(({}) => {
   const [fileSize, setFileSize] = useState(null);
   const [zipPreparing, setZipPreparing] = useState(false);
   const [downloadTagUrl, setDownloadTagUrl] = useState(null);
+  const [selectedDownload, setSelectedDownload] = useState(newDownload);
 
   const getRequestObject = (structuresToDownload, allStructures = false) => {
     let proteinNames = '';
@@ -92,41 +117,71 @@ export const DownloadStructureDialog = memo(({}) => {
     return requestObject;
   };
 
-  const prepareDownloadClicked = () => {
-    setZipPreparing(true);
-    let structuresToDownload = [];
-    let isAllStructures = false;
-    if (structuresSelection === 'allStructures') {
-      structuresToDownload = allMolecules;
-      isAllStructures = true;
-    } else if (structuresSelection === 'displayedStructures') {
-      structuresToDownload = allMolecules.filter(m => ligandsTurnedOnIds.some(id => id === m.id));
-    } else if (structuresSelection === 'selectedStructures') {
-      structuresToDownload = allMolecules.filter(m => selectedMoleculesIds.some(id => id === m.id));
-    } else if (structuresSelection === 'tagged') {
-      structuresToDownload = taggedMolecules;
-    }
+  const prepareDownloadClicked = () => (dispatch, getState) => {
+    if (selectedDownload !== newDownload) {
+      const donwloadTag = findDownload(selectedDownload);
+      if (donwloadTag) {
+        setZipPreparing(true);
+        getDownloadStructuresUrl(donwloadTag.additional_info.requestObject)
+          .then(resp => {
+            setDownloadUrl(resp.data.file_url);
+            return getDownloadFileSize(resp.data.file_url);
+          })
+          .then(resp => {
+            const fileSizeInBytes = resp.headers['content-length'];
+            setFileSize(getFileSizeString(fileSizeInBytes));
+            setDownloadTagUrl(generateUrlFromTagName(donwloadTag.tag));
+            setZipPreparing(false);
+          });
+      }
+    } else {
+      setZipPreparing(true);
+      let structuresToDownload = [];
+      let isAllStructures = false;
+      if (structuresSelection === 'allStructures') {
+        structuresToDownload = allMolecules;
+        isAllStructures = true;
+      } else if (structuresSelection === 'displayedStructures') {
+        structuresToDownload = allMolecules.filter(m => ligandsTurnedOnIds.some(id => id === m.id));
+      } else if (structuresSelection === 'selectedStructures') {
+        structuresToDownload = allMolecules.filter(m => selectedMoleculesIds.some(id => id === m.id));
+      } else if (structuresSelection === 'tagged') {
+        structuresToDownload = taggedMolecules;
+      }
 
-    const requestObject = getRequestObject(structuresToDownload, isAllStructures);
-    getDownloadStructuresUrl(requestObject)
-      .then(resp => {
-        setDownloadUrl(resp.data.file_url);
-        return getDownloadFileSize(resp.data.file_url);
-      })
-      .then(resp => {
-        const fileSizeInBytes = resp.headers['content-length'];
-        setFileSize(getFileSizeString(fileSizeInBytes));
-      })
-      .then(resp => {
-        return createDownloadTag(requestObject);
-      })
-      .then(molTag => {
-        setDownloadTagUrl(generateUrl(molTag));
-        setZipPreparing(false);
-      })
-      .catch(e => {
-        console.log(e);
-      });
+      const requestObject = getRequestObject(structuresToDownload, isAllStructures);
+      const tagData = { requestObject: requestObject, structuresSelection: structuresSelection };
+      dispatch(setDontShowShareSnapshot(true));
+      dispatch(saveAndShareSnapshot(nglViewList, false))
+        .then(() => {
+          const state = getState();
+          const sharedSnapshot = state.snapshotReducers.sharedSnapshot;
+          tagData['snapshot'] = sharedSnapshot;
+          tagData['downloadName'] = moment().format('-- YYYY-MM-DD -- HH:mm:ss');
+          dispatch(setSharedSnapshot(initSharedSnapshot));
+          dispatch(setDontShowShareSnapshot(false));
+          return getDownloadStructuresUrl(requestObject);
+        })
+        .then(resp => {
+          setDownloadUrl(resp.data.file_url);
+          return getDownloadFileSize(resp.data.file_url);
+        })
+        .then(resp => {
+          const fileSizeInBytes = resp.headers['content-length'];
+          setFileSize(getFileSizeString(fileSizeInBytes));
+        })
+        .then(resp => {
+          return createDownloadTag(tagData);
+        })
+        .then(molTag => {
+          dispatch(appendToDownloadTags(molTag));
+          setDownloadTagUrl(generateUrl(molTag));
+          setZipPreparing(false);
+        })
+        .catch(e => {
+          console.log(e);
+        });
+    }
   };
 
   const generateTagName = () => {
@@ -134,10 +189,14 @@ export const DownloadStructureDialog = memo(({}) => {
   };
 
   const generateUrl = tag => {
-    return `${base_url}/viewer/react/download/tag/${tag.tag}`;
+    return generateUrlFromTagName(tag.tag);
   };
 
-  const createDownloadTag = requestObject => {
+  const generateUrlFromTagName = tagName => {
+    return `${base_url}/viewer/react/download/tag/${tagName}`;
+  };
+
+  const createDownloadTag = tagData => {
     const tagName = generateTagName();
     const tagObject = createMoleculeTagObject(
       tagName,
@@ -148,7 +207,7 @@ export const DownloadStructureDialog = memo(({}) => {
       'something/something/something',
       [],
       new Date(),
-      { requestObject: requestObject }
+      tagData
     );
 
     return createNewDownloadTag(tagObject);
@@ -166,6 +225,40 @@ export const DownloadStructureDialog = memo(({}) => {
     dispatch(setDownloadStructuresDialogOpen(false));
   };
 
+  const findDownload = downloadName => {
+    const selectedTag = downloadTags.find(t => t.additional_info.downloadName === downloadName);
+    return selectedTag;
+  };
+
+  const onUpdateExistingDownload = event => {
+    setSelectedDownload(event.target.value);
+    if (event.target.value !== newDownload) {
+      const selectedTag = findDownload(event.target.value);
+      if (selectedTag) {
+        setStructuresSelection(selectedTag.additional_info.structuresSelection || 'allStructures');
+        setBound(selectedTag.additional_info.requestObject.bound_info);
+        setCif(selectedTag.additional_info.requestObject.cif_info);
+        setDiff(selectedTag.additional_info.requestObject.diff_info);
+        setEvent(selectedTag.additional_info.requestObject.event_info);
+        setSigmaa(selectedTag.additional_info.requestObject.sigmaa_info);
+        setSdf(selectedTag.additional_info.requestObject.sdf_info);
+        setTransformMatrix(selectedTag.additional_info.requestObject.trans_matrix_info);
+        setMetadata(selectedTag.additional_info.requestObject.metadata_info);
+        setSmiles(selectedTag.additional_info.requestObject.smiles_info);
+        setPdb(selectedTag.additional_info.requestObject.pdb_info);
+        setMtz(selectedTag.additional_info.requestObject.mtz_info);
+        setSingleSdf(selectedTag.additional_info.requestObject.single_sdf_file);
+      }
+    }
+  };
+
+  const showSnapshotClicked = () => {
+    const download = findDownload(selectedDownload);
+    if (download && download.additional_info && download.additional_info.snapshot) {
+      window.open(download.additional_info.snapshot.url, '_blank');
+    }
+  };
+
   return (
     <Modal open={isOpen}>
       {!zipPreparing && (
@@ -181,6 +274,27 @@ export const DownloadStructureDialog = memo(({}) => {
       )}
       <DialogContent>
         <Grid container direction="column">
+          <Grid item container direction="row">
+            <Grid item>
+              <Select className={classes.select} value={selectedDownload} onChange={onUpdateExistingDownload}>
+                <MenuItem value={newDownload}>{newDownload}</MenuItem>
+                {downloadTags.map(dt => (
+                  <MenuItem value={dt.additional_info.downloadName}>{dt.additional_info.downloadName}</MenuItem>
+                ))}
+              </Select>
+            </Grid>
+            <Grid item>
+              <Button
+                color="primary"
+                disabled={!(selectedDownload && selectedDownload !== newDownload)}
+                onClick={() => {
+                  showSnapshotClicked();
+                }}
+              >
+                Show snapshot
+              </Button>
+            </Grid>
+          </Grid>
           <Grid container item direction="row">
             <Grid container item direction="column" xs={4}>
               <RadioGroup
@@ -325,7 +439,7 @@ export const DownloadStructureDialog = memo(({}) => {
           disabled={zipPreparing}
           color="primary"
           onClick={() => {
-            prepareDownloadClicked();
+            dispatch(prepareDownloadClicked());
           }}
         >
           Prepare download
