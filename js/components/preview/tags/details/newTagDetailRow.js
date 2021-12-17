@@ -2,21 +2,10 @@ import React, { memo, useState, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { CATEGORY_TYPE, CATEGORY_ID, CATEGORY_TYPE_BY_ID } from '../../../../constants/constants';
 import { ColorPicker } from '../../../common/Components/ColorPicker';
-import {
-  DEFAULT_TAG_COLOR,
-  augumentTagObjectWithId,
-  createMoleculeTagObject
-} from '../utils/tagUtils';
+import { DEFAULT_TAG_COLOR, augumentTagObjectWithId, createMoleculeTagObject } from '../utils/tagUtils';
 import { DJANGO_CONTEXT } from '../../../../utils/djangoContext';
 import { updateTagProp, removeSelectedTag } from '../redux/dispatchActions';
-import {
-  Grid,
-  TextField,
-  makeStyles,
-  Button,
-  Select,
-  MenuItem
-} from '@material-ui/core';
+import { Grid, TextField, makeStyles, Button, Select, MenuItem } from '@material-ui/core';
 import { createNewTag, deleteExistingTag } from '../api/tagsApi';
 import { appendTagList, setTagToEdit, removeFromTagList } from '../../../../reducers/selection/actions';
 import { appendMoleculeTag, updateMoleculeInMolLists } from '../../../../reducers/api/actions';
@@ -86,16 +75,16 @@ const NewTagDetailRow = memo(({ moleculesToEditIds, moleculesToEdit }) => {
     let defaultColor = DEFAULT_TAG_COLOR;
     switch (CATEGORY_TYPE_BY_ID[event.target.value]) {
       case CATEGORY_TYPE.SITE:
-        defaultColor = "#d7191c";
+        defaultColor = '#d7191c';
         break;
       case CATEGORY_TYPE.SERIES:
-        defaultColor = "#fdae61";
+        defaultColor = '#fdae61';
         break;
       case CATEGORY_TYPE.FORUM:
-        defaultColor = "#abd9e9";
+        defaultColor = '#abd9e9';
         break;
       case CATEGORY_TYPE.OTHER:
-        defaultColor = "#2c7bb6";
+        defaultColor = '#2c7bb6';
         break;
       default:
         break;
@@ -109,7 +98,6 @@ const NewTagDetailRow = memo(({ moleculesToEditIds, moleculesToEdit }) => {
 
   const createTag = () => {
     if (newTagName && newTagCategory) {
-      const newTag = { tag: newTagName, colour: newTagColor, category_id: newTagCategory, discourse_url: newTagLink };
       const tagObject = createMoleculeTagObject(
         newTagName,
         moleculesToEdit.length ? moleculesToEdit[0].proteinData.target_id : targetId,
@@ -120,7 +108,21 @@ const NewTagDetailRow = memo(({ moleculesToEditIds, moleculesToEdit }) => {
         [...moleculesToEditIds]
       );
       createNewTag(tagObject, targetName).then(molTag => {
-        let augMolTagObject = augumentTagObjectWithId(newTag, molTag.id);
+        let augMolTagObject = augumentTagObjectWithId(
+          {
+            tag: molTag.tag,
+            category_id: molTag.category,
+            target_id: molTag.target,
+            user_id: molTag.user,
+            create_date: molTag.create_date,
+            colour: molTag.colour,
+            discourse_url: molTag.discourse_url,
+            help_text: molTag.help_text,
+            additional_info: molTag.additional_info,
+            mol_group_id: molTag.mol_group
+          },
+          molTag.id
+        );
         dispatch(appendTagList(augMolTagObject));
         dispatch(appendMoleculeTag(molTag));
       });
@@ -132,12 +134,18 @@ const NewTagDetailRow = memo(({ moleculesToEditIds, moleculesToEdit }) => {
   const updateTag = () => {
     if (tagToEdit && newTagCategory && newTagName) {
       // update all props at once
-      dispatch(updateTagProp(Object.assign({}, tagToEdit, {
-        category_id: newTagCategory,
-        colour: newTagColor,
-        tag: newTagName,
-        discourse_url: newTagLink
-      }), newTagName, "tag"));
+      dispatch(
+        updateTagProp(
+          Object.assign({}, tagToEdit, {
+            category_id: newTagCategory,
+            colour: newTagColor,
+            tag: newTagName,
+            discourse_url: newTagLink
+          }),
+          newTagName,
+          'tag'
+        )
+      );
       // reset tag/fields after updating selected one
       resetTagToEditState();
     }
@@ -205,7 +213,7 @@ const NewTagDetailRow = memo(({ moleculesToEditIds, moleculesToEdit }) => {
         </Select>
       </Grid>
       <Grid item xs={4}>
-        {tagToEdit ?
+        {tagToEdit ? (
           <Grid container item direction="row" alignItems="center" justify="center" xs={12}>
             <Grid item xs={6}>
               <Button onClick={updateTag} color="primary" variant="contained" disabled={!DJANGO_CONTEXT.pk}>
@@ -218,13 +226,13 @@ const NewTagDetailRow = memo(({ moleculesToEditIds, moleculesToEdit }) => {
               </Button>
             </Grid>
           </Grid>
-          :
+        ) : (
           <Grid container item direction="row" alignItems="center" justify="center">
             <Button onClick={createTag} color="primary" variant="contained" disabled={!DJANGO_CONTEXT.pk}>
               Create
             </Button>
           </Grid>
-        }
+        )}
       </Grid>
     </Grid>
   );
