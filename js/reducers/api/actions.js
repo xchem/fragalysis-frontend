@@ -231,6 +231,20 @@ export const setDirectAccessProcessed = directAccessProcessedParams => {
   };
 };
 
+export const setDirectDownloadInProgress = directDownloadInProgress => {
+  return {
+    type: constants.SET_DIRECT_DOWNLOAD_IN_PROGRESS,
+    directDownloadInProgress: directDownloadInProgress
+  };
+};
+
+export const setSnapshotDownloadUrl = snapshotDownloadUrl => {
+  return {
+    type: constants.SET_SNAPSHOT_DOWNLOAD_URL,
+    snapshotDownloadUrl: snapshotDownloadUrl
+  };
+};
+
 export const reloadApiState = function(apiReducers) {
   const cachedMolList = apiReducers.cached_mol_lists;
   let fixedCachedMolList = {};

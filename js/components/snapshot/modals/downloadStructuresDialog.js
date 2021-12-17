@@ -85,6 +85,11 @@ export const DownloadStructureDialog = memo(({}) => {
   const [zipPreparing, setZipPreparing] = useState(false);
   const [downloadTagUrl, setDownloadTagUrl] = useState(null);
   const [selectedDownload, setSelectedDownload] = useState(newDownload);
+  const [linkType, setLinkType] = useState('incremental');
+
+  const isStaticDownload = () => {
+    return linkType !== 'incremental';
+  };
 
   const getRequestObject = (structuresToDownload, allStructures = false) => {
     let proteinNames = '';
@@ -111,7 +116,9 @@ export const DownloadStructureDialog = memo(({}) => {
       single_sdf_file: singleSdf,
       trans_matrix_info: transformMatrix,
       metadata_info: metadata,
-      smiles_info: smiles
+      smiles_info: smiles,
+      static_link: isStaticDownload(),
+      file_url: ''
     };
 
     return requestObject;
@@ -166,6 +173,9 @@ export const DownloadStructureDialog = memo(({}) => {
         })
         .then(resp => {
           setDownloadUrl(resp.data.file_url);
+          if (isStaticDownload()) {
+            tagData.requestObject.file_url = resp.data.file_url;
+          }
           return getDownloadFileSize(resp.data.file_url);
         })
         .then(resp => {
@@ -249,6 +259,7 @@ export const DownloadStructureDialog = memo(({}) => {
         setPdb(selectedTag.additional_info.requestObject.pdb_info);
         setMtz(selectedTag.additional_info.requestObject.mtz_info);
         setSingleSdf(selectedTag.additional_info.requestObject.single_sdf_file);
+        setLinkType(selectedTag.additional_info.requestObject.static_link ? 'static' : 'incremental');
       }
     }
   };
@@ -295,6 +306,26 @@ export const DownloadStructureDialog = memo(({}) => {
                 Show snapshot
               </Button>
             </Grid>
+          </Grid>
+          <Grid item>
+            <RadioGroup
+              value={linkType}
+              name="radio-group-download-type"
+              onChange={event => {
+                setLinkType(event.currentTarget.value);
+              }}
+            >
+              <FormControlLabel
+                value="incremental"
+                control={<Radio disabled={zipPreparing} />}
+                label="Incremental always up to date download"
+              />
+              <FormControlLabel
+                value="static"
+                control={<Radio disabled={zipPreparing} />}
+                label="Preserve snapshot of the download"
+              />
+            </RadioGroup>
           </Grid>
           <Grid container item direction="row">
             <Grid container item direction="column" xs={4}>
