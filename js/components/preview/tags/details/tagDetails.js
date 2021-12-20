@@ -20,7 +20,7 @@ import {
   compareTagsByDateAsc,
   compareTagsByDateDesc
 } from '../utils/tagUtils';
-import { Sort, ArrowDropDown, ArrowDropUp } from '@material-ui/icons';
+import { UnfoldMore, KeyboardArrowDown, KeyboardArrowUp } from '@material-ui/icons';
 import {
   getMoleculeForId
 } from '../redux/dispatchActions';
@@ -38,27 +38,25 @@ const useStyles = makeStyles(theme => ({
     width: '100%'
   },
   headerRow: {
-    maxHeight: "20%"
-  },
-  headerTitleCreator: {
-    marginLeft: -6
-  },
-  headerTitleCategory: {
-    marginLeft: -10
-  },
-  headerButtonCategory: {
-    marginLeft: 5
-  },
-  headerButtonTitle: {
-    marginLeft: -5
-  },
-  newTagRow: {
-    maxHeight: "30%"
+    maxHeight: "36px"
   },
   tagListWrapper: {
     overflowY: 'auto',
     overflowX: 'hidden',
     height: '100%'
+  },
+  newTagRow: {
+    maxHeight: "42px"
+  },
+  headerTitleCreator: {
+    marginLeft: 7
+  },
+  headerTitleCategory: {
+    marginLeft: -20
+  },
+  sortButton: {
+    width: "0.75em",
+    height: "0.75em"
   }
 }));
 
@@ -242,97 +240,104 @@ const TagDetails = memo(({ handleHeightChange }) => {
         }
       }}
     >
-      <Grid ref={elementRef} className={classes.containerExpanded}>
+      <Grid ref={elementRef} className={classes.containerExpanded} container direction="column" alignItems="center" wrap="nowrap" xs={12}>
         <Grid item container spacing={1} className={classes.headerRow} wrap="nowrap" alignItems="center" direction="row" xs={12}>
-          <Grid item container direction="row" xs={3}>
-            <Grid item xs={9}>
-              <Typography variant="h6">
+          {/* tag name */}
+          <Grid item container direction="row" wrap="nowrap" alignItems="center" xs={3}>
+            <Grid item className={classes.headerTitleCreator}>
+              <Typography variant="subtitle1">
                 Tag name
               </Typography>
             </Grid>
-            <Grid item className={classes.headerButtonTitle} xs={3}>
+            <Grid item>
               <IconButton
                 size="small"
                 onClick={() => handleHeaderSort("name")}
               >
-                <Tooltip title="Sort">
-                  {[1, 2].includes(sortSwitch - offsetName) ? sortSwitch % offsetName < 2 ? <ArrowDropDown /> : <ArrowDropUp /> : <Sort />}
+                <Tooltip title="Sort" className={classes.sortButton}>
+                  {[1, 2].includes(sortSwitch - offsetName) ? sortSwitch % offsetName < 2 ? <KeyboardArrowDown /> : <KeyboardArrowUp /> : <UnfoldMore />}
                 </Tooltip>
               </IconButton>
             </Grid>
           </Grid>
-          <Grid item container direction="row" xs={2}>
-            <Grid item className={classes.headerTitleCategory} xs={11}>
-              <Typography variant="h6">
+          {/* category */}
+          <Grid item container direction="row" wrap="nowrap" alignItems="center" xs={2}>
+            <Grid item className={classes.headerTitleCategory}>
+              <Typography variant="subtitle1">
                 Category
               </Typography>
             </Grid>
-            <Grid item className={classes.headerButtonCategory} xs={1}>
+            <Grid item>
               <IconButton
                 size="small"
                 onClick={() => handleHeaderSort("category")}
               >
-                <Tooltip title="Sort">
-                  {[1, 2].includes(sortSwitch - offsetCategory) ? sortSwitch % offsetCategory < 2 ? <ArrowDropDown /> : <ArrowDropUp /> : <Sort />}
+                <Tooltip title="Sort" className={classes.sortButton}>
+                  {[1, 2].includes(sortSwitch - offsetCategory) ? sortSwitch % offsetCategory < 2 ? <KeyboardArrowDown /> : <KeyboardArrowUp /> : <UnfoldMore />}
                 </Tooltip>
               </IconButton>
             </Grid>
           </Grid>
+          {/* empty select hits */}
           <Grid item xs={1}>
-            <Typography variant="h6" noWrap>
+            <Typography variant="subtitle1" noWrap>
             </Typography>
           </Grid>
+          {/* empty discourse */}
           <Grid item xs={1}>
-            <Typography variant="h6" noWrap>
+            <Typography variant="subtitle1" noWrap>
             </Typography>
           </Grid>
-          <Grid item container direction="row" xs={2}>
-            <Grid item className={classes.headerTitleCreator} xs={10}>
-              <Typography variant="h6">
+          {/* creator */}
+          <Grid item container direction="row" wrap="nowrap" alignItems="center" xs={2}>
+            <Grid item>
+              <Typography variant="subtitle1">
                 Creator
               </Typography>
             </Grid>
-            <Grid item xs={2}>
+            <Grid item>
               <IconButton
                 size="small"
                 onClick={() => handleHeaderSort("creator")}
               >
-                <Tooltip title="Sort">
-                  {[1, 2].includes(sortSwitch - offsetCreator) ? sortSwitch % offsetCreator < 2 ? <ArrowDropDown /> : <ArrowDropUp /> : <Sort />}
+                <Tooltip title="Sort" className={classes.sortButton}>
+                  {[1, 2].includes(sortSwitch - offsetCreator) ? sortSwitch % offsetCreator < 2 ? <KeyboardArrowDown /> : <KeyboardArrowUp /> : <UnfoldMore />}
                 </Tooltip>
               </IconButton>
             </Grid>
           </Grid>
-          <Grid item container direction="row" xs={2}>
-            <Grid item xs={6}>
-              <Typography variant="h6">
+          {/* date */}
+          <Grid item container direction="row" wrap="nowrap" alignItems="center" xs={2}>
+            <Grid item>
+              <Typography variant="subtitle1">
                 Date
               </Typography>
             </Grid>
-            <Grid item xs={5}>
+            <Grid item>
               <IconButton
                 size="small"
                 onClick={() => handleHeaderSort("date")}
               >
-                <Tooltip title="Sort">
-                  {[1, 2].includes(sortSwitch - offsetDate) ? sortSwitch % offsetDate < 2 ? <ArrowDropDown /> : <ArrowDropUp /> : <Sort />}
+                <Tooltip title="Sort" className={classes.sortButton}>
+                  {[1, 2].includes(sortSwitch - offsetDate) ? sortSwitch % offsetDate < 2 ? <KeyboardArrowDown /> : <KeyboardArrowUp /> : <UnfoldMore />}
                 </Tooltip>
               </IconButton>
             </Grid>
           </Grid>
+          {/* empty edit */}
           <Grid item xs={1}>
-            <Typography variant="h6" noWrap>
+            <Typography variant="subtitle1" noWrap>
             </Typography>
           </Grid>
         </Grid>
-        <Grid item container className={classes.tagListWrapper} direction="row" xs={12}>
+        <Grid item container className={classes.tagListWrapper} wrap="nowrap" direction="column" xs={12}>
           {/*<div className={classes.content}>*/}
             {tagList && tagList.map((tag, idx) => {
               return (<TagDetailRow tag={tag} moleculesToEditIds={moleculesToEditIds} moleculesToEdit={moleculesToEdit} key={tag.id} />);
             })}
           {/*</div>*/}
         </Grid>
-        <Grid item container spacing={1} className={classes.newTagRow}  alignItems="flex-end" xs={12}>
+        <Grid item container spacing={1} className={classes.newTagRow} wrap="nowrap" direction="row" alignItems="flex-end" xs={12}>
           <NewTagDetailRow moleculesToEditIds={moleculesToEditIds} moleculesToEdit={moleculesToEdit} />
         </Grid>
       </Grid>

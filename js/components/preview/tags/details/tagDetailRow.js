@@ -63,6 +63,14 @@ const useStyles = makeStyles(theme => ({
       backgroundColor: theme.palette.success.dark,
       color: theme.palette.success.contrastText
     }
+  },
+  editButtonIcon: {
+    width: "0.75em",
+    height: "0.75em"
+  },
+  unselectButtonWrapper: {
+    paddingLeft: "1px !important",
+    paddingRight: "1px !important"
   }
 }));
 
@@ -156,7 +164,7 @@ const TagDetailRow = memo(({ tag, moleculesToEditIds, moleculesToEdit }) => {
         </Tooltip>
       </Grid>
       {/* select hits button */}
-      <Grid item xs={2}>
+      <Grid item xs={2} className={hasSelectedMolecule() ? classes.unselectButtonWrapper : null}>
         <Tooltip title="Select hits">
           <Grid item>
             <Button
@@ -207,7 +215,7 @@ const TagDetailRow = memo(({ tag, moleculesToEditIds, moleculesToEdit }) => {
         <Typography variant="body2">{tag.user_id}</Typography>
       </Grid>
       {/* date */}
-      <Grid item xs={2}>
+      <Grid item xs={2} container alignContent="center" justifyContent="center">
         <Typography variant="body2" noWrap>
           {navigator.language
             ? new Date(tag.create_date).toLocaleDateString(navigator.language)
@@ -224,7 +232,7 @@ const TagDetailRow = memo(({ tag, moleculesToEditIds, moleculesToEdit }) => {
           disabled={!DJANGO_CONTEXT.pk}
           aria-label="edit tag"
         >
-          <Tooltip title="Edit">
+          <Tooltip title="Edit" className={classes.editButtonIcon}>
             <Edit />
           </Tooltip>
         </IconButton>
