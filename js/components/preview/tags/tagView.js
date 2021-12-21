@@ -98,11 +98,12 @@ const TagView = memo(
     const isTagDisabled = false;
 
     const determineDisabled = () => {
-      let result = false;
-      if (isEdit && disabled) {
-        result = true;
-      }
-      return result;
+      // let result = false;
+      // if (isEdit && disabled) {
+      //   result = true;
+      // }
+      // return result;
+      return disabled;
     };
 
     const handleDelete = () => {

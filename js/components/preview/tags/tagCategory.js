@@ -15,7 +15,7 @@ const useStyles = makeStyles(theme => ({
   }
 }));
 
-const TagCategory = memo(({ headerPadding = 0, tagClickCallback }) => {
+const TagCategory = memo(({ headerPadding = 0, tagClickCallback, disabled = false }) => {
   const classes = useStyles();
 
   const categoryList = useSelector(state => state.selectionReducers.categoryList);
@@ -37,17 +37,17 @@ const TagCategory = memo(({ headerPadding = 0, tagClickCallback }) => {
   return (
     <>
       <Grid className={classes.category} style={{ paddingRight: headerPadding + 'px' }}>
-        <TagCategoryView name={CATEGORY_TYPE.SITE} />
-        <TagCategoryView name={CATEGORY_TYPE.SERIES} />
-        <TagCategoryView name={CATEGORY_TYPE.FORUM} />
-        <TagCategoryView name={CATEGORY_TYPE.OTHER} />
+        <TagCategoryView name={CATEGORY_TYPE.SITE} disabled={disabled} />
+        <TagCategoryView name={CATEGORY_TYPE.SERIES} disabled={disabled} />
+        <TagCategoryView name={CATEGORY_TYPE.FORUM} disabled={disabled} />
+        <TagCategoryView name={CATEGORY_TYPE.OTHER} disabled={disabled} />
       </Grid>
 
       <Grid className={classes.categoryScrollable}>
-        <TagCategoryView tags={siteTags} clickCallback={tagClickCallback} />
-        <TagCategoryView tags={seriesTags} clickCallback={tagClickCallback} />
-        <TagCategoryView tags={forumTags} clickCallback={tagClickCallback} />
-        <TagCategoryView tags={otherTags} clickCallback={tagClickCallback} />
+        <TagCategoryView tags={siteTags} clickCallback={tagClickCallback} disabled={disabled} />
+        <TagCategoryView tags={seriesTags} clickCallback={tagClickCallback} disabled={disabled} />
+        <TagCategoryView tags={forumTags} clickCallback={tagClickCallback} disabled={disabled} />
+        <TagCategoryView tags={otherTags} clickCallback={tagClickCallback} disabled={disabled} />
       </Grid>
     </>
   );

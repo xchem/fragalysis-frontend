@@ -29,7 +29,7 @@ const useStyles = makeStyles(theme => ({
  *  -if is- behaves as Assign tag element and assignes tags to hits
  *  -if is NOT- behaves as Hit filter element and filters hits in Hit navigator
  */
-const TagCategoryView = memo(({ name, tags, specialTags, clickCallback }) => {
+const TagCategoryView = memo(({ name, tags, specialTags, clickCallback, disabled = false }) => {
   const classes = useStyles();
   const selectedTagList = useSelector(state => state.selectionReducers.selectedTagList);
   const dispatch = useDispatch();
@@ -42,7 +42,12 @@ const TagCategoryView = memo(({ name, tags, specialTags, clickCallback }) => {
     moleculesToEditIds = [];
     moleculesToEditIds.push(molId);
   }
-  const moleculesToEdit = moleculesToEditIds && moleculesToEditIds.length > 0 && !(moleculesToEditIds.length === 1 && moleculesToEditIds[0] === null) ? moleculesToEditIds.map(id => dispatch(getMoleculeForId(id))) : [];
+  const moleculesToEdit =
+    moleculesToEditIds &&
+    moleculesToEditIds.length > 0 &&
+    !(moleculesToEditIds.length === 1 && moleculesToEditIds[0] === null)
+      ? moleculesToEditIds.map(id => dispatch(getMoleculeForId(id)))
+      : [];
 
   const handleTagClick = (selected, tag, allTags) => {
     if (clickCallback !== undefined) {
@@ -91,6 +96,7 @@ const TagCategoryView = memo(({ name, tags, specialTags, clickCallback }) => {
                     tag={tag}
                     selected={clickCallback !== undefined ? isTagSelected(tag) : selected}
                     handleClick={handleTagClick}
+                    disabled={disabled}
                   ></TagView>
                 );
               })}
