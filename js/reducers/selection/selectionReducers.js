@@ -48,7 +48,9 @@ export const INITIAL_STATE = {
   moleculesToEdit: [],
 
   // tags
-  tagToEdit: null
+  tagToEdit: null,
+  //display all molecules in hit navigator regardless of the tag selection
+  displayAllMolecules: false
 };
 
 export function selectionReducers(state = INITIAL_STATE, action = {}) {
@@ -492,6 +494,10 @@ export function selectionReducers(state = INITIAL_STATE, action = {}) {
       return Object.assign({}, state, {
         tagToEdit: action.tagToEdit
       });
+    }
+
+    case constants.SET_DISPLAY_ALL_MOLECULES: {
+      return { ...state, displayAllMolecules: action.displayAllMolecules };
     }
 
     // Cases like: @@redux/INIT

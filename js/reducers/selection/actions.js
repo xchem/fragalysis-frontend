@@ -550,3 +550,10 @@ export const setTagToEdit = tag => {
     tagToEdit: tag
   };
 };
+
+export const setDisplayAllMolecules = displayAllMolecules => {
+  return {
+    type: constants.SET_DISPLAY_ALL_MOLECULES,
+    displayAllMolecules: displayAllMolecules
+  };
+};

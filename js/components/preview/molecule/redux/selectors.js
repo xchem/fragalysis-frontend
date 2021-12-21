@@ -5,16 +5,18 @@ const getAllMolecules = state => state.apiReducers.all_mol_lists;
 const getAllSelectedTags = state => state.selectionReducers.selectedTagList;
 const getTagFilteringMode = state => state.selectionReducers.tagFilteringMode;
 const getNoTagsReceived = state => state.apiReducers.noTagsReceived;
+const getDisplayAllMolecules = state => state.selectionReducers.displayAllMolecules;
 
 export const selectJoinedMoleculeList = createSelector(
   getAllMolecules,
   getAllSelectedTags,
   getTagFilteringMode,
   getNoTagsReceived,
-  (all_mol_lists, selectedTagList, filteringMode, noTagsReceived) => {
+  getDisplayAllMolecules,
+  (all_mol_lists, selectedTagList, filteringMode, noTagsReceived, displayAllMolecules) => {
     let allMoleculesList = [];
 
-    if (!noTagsReceived) {
+    if (!noTagsReceived && !displayAllMolecules) {
       let tagListToUse = [];
       tagListToUse = selectedTagList;
 

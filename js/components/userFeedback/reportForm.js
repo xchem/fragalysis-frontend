@@ -287,6 +287,7 @@ export const ReportForm = memo(({ formType }) => {
         size="small"
         className={getButtonStyle()}
         onClick={handleOpenDialog}
+        disabled={true}
       >
         {getTitle()}
       </Button>
