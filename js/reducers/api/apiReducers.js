@@ -46,6 +46,7 @@ export const INITIAL_STATE = {
   downloadTags: [],
   directDownloadInProgress: false,
   snapshotDownloadUrl: null
+
 };
 
 export const RESET_TARGET_STATE = {

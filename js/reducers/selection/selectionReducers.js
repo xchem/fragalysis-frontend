@@ -499,7 +499,7 @@ export function selectionReducers(state = INITIAL_STATE, action = {}) {
     case constants.SET_DISPLAY_ALL_MOLECULES: {
       return { ...state, displayAllMolecules: action.displayAllMolecules };
     }
-
+      
     // Cases like: @@redux/INIT
     default:
       return state;
