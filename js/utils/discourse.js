@@ -24,6 +24,10 @@ export const isDiscourseAvailable = () => {
   return DJANGO_CONTEXT && DJANGO_CONTEXT['authenticated'] && DJANGO_CONTEXT['discourse_available'];
 };
 
+export const isDiscourseAvailableNotSignedIn = () => {
+  return DJANGO_CONTEXT && DJANGO_CONTEXT['discourse_available'];
+};
+
 export const isDiscourseUserAvailable = () => {
   return DJANGO_CONTEXT && DJANGO_CONTEXT['user_present_on_discourse'];
 };

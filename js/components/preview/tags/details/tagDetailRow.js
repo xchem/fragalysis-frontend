@@ -9,7 +9,7 @@ import { Grid, Tooltip, makeStyles, Button, Typography, IconButton } from '@mate
 import { Edit } from '@material-ui/icons';
 import { isURL } from '../../../../utils/common';
 import classNames from 'classnames';
-import { createTagPost, isDiscourseAvailable } from '../../../../utils/discourse';
+import { createTagPost, isDiscourseAvailableNotSignedIn } from '../../../../utils/discourse';
 import { setTagToEdit, appendToMolListToEdit, removeFromMolListToEdit } from '../../../../reducers/selection/actions';
 
 const useStyles = makeStyles(theme => ({
@@ -65,12 +65,12 @@ const useStyles = makeStyles(theme => ({
     }
   },
   editButtonIcon: {
-    width: "0.75em",
-    height: "0.75em"
+    width: '0.75em',
+    height: '0.75em'
   },
   unselectButtonWrapper: {
-    paddingLeft: "1px !important",
-    paddingRight: "1px !important"
+    paddingLeft: '1px !important',
+    paddingRight: '1px !important'
   }
 }));
 
@@ -174,7 +174,7 @@ const TagDetailRow = memo(({ tag, moleculesToEditIds, moleculesToEdit }) => {
                 [classes.contColButtonHalfSelected]: false
               })}
               onClick={() => handleSelectHits()}
-              disabled={!DJANGO_CONTEXT.pk}
+              disabled={false}
             >
               {hasSelectedMolecule() ? 'Unselect hits' : 'Select hits'}
             </Button>
@@ -203,7 +203,7 @@ const TagDetailRow = memo(({ tag, moleculesToEditIds, moleculesToEdit }) => {
                   });
                 }
               }}
-              disabled={!isDiscourseAvailable()}
+              disabled={!isDiscourseAvailableNotSignedIn()}
             >
               Discourse
             </Button>
