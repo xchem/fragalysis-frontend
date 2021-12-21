@@ -1,18 +1,10 @@
 import React, { forwardRef, memo } from 'react';
-import {
-  Grid,
-  Popper,
-  IconButton,
-  Tooltip,
-  makeStyles
-} from '@material-ui/core';
+import { Grid, Popper, IconButton, Tooltip, makeStyles } from '@material-ui/core';
 import { Panel } from '../../../common';
 import { Close } from '@material-ui/icons';
 import { useDispatch, useSelector } from 'react-redux';
 import { updateMoleculeInMolLists, updateMoleculeTag } from '../../../../reducers/api/actions';
-import {
-  getMoleculeForId
-} from '../redux/dispatchActions';
+import { getMoleculeForId } from '../redux/dispatchActions';
 import { setMoleculeForTagEdit, setIsTagGlobalEdit } from '../../../../reducers/selection/actions';
 import { updateExistingTag } from '../api/tagsApi';
 import { DJANGO_CONTEXT } from '../../../../utils/djangoContext';
@@ -201,7 +193,7 @@ export const TagEditor = memo(
           ]}
         >
           <Grid>
-            <TagCategory tagClickCallback={handleTagClick} />
+            <TagCategory tagClickCallback={handleTagClick} disabled={!DJANGO_CONTEXT.pk} />
           </Grid>
         </Panel>
       </Popper>

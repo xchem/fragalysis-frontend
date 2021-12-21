@@ -150,7 +150,8 @@ const TagDetailRow = memo(({ tag, moleculesToEditIds, moleculesToEdit }) => {
           tag={tag}
           selected={selectedTagList.some(i => i.id === tag.id)}
           handleClick={handleTagClick}
-          disabled={!DJANGO_CONTEXT.pk}
+          // disabled={!DJANGO_CONTEXT.pk}
+          disabled={false}
           isEdit={true}
           isTagEditor={true}
         ></TagView>
