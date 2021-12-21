@@ -78,9 +78,10 @@ import {
   setFilterProperties,
   setFilterSettings,
   updateFilterShowedScoreProperties,
-  setFilterShowedScoreProperties
+  setFilterShowedScoreProperties,
+  setDragDropState,
+  resetDragDropState
 } from '../../components/datasets/redux/actions';
-import { setAllMolLists } from '../api/actions';
 import { getUrl, loadAllMolsFromMolGroup } from '../../../js/utils/genericList';
 import {
   removeComponentRepresentation,
@@ -148,7 +149,11 @@ import { selectVectorAndResetCompounds } from '../../../js/reducers/selection/di
 import { ActionCreators as UndoActionCreators } from '../../undoredo/actions';
 import { hideShapeRepresentations } from '../../components/nglView/redux/dispatchActions';
 import { MAP_TYPE } from '../ngl/constants';
-import { removeSelectedTag, addSelectedTag } from '../../components/preview/tags/redux/dispatchActions';
+import {
+  removeSelectedTag,
+  addSelectedTag,
+  loadMoleculesAndTags
+} from '../../components/preview/tags/redux/dispatchActions';
 
 export const addCurrentActionsListToSnapshot = (snapshot, project, nglViewList) => async (dispatch, getState) => {
   let projectID = project && project.projectID;
@@ -175,7 +180,8 @@ const saveActionsList = (project, snapshot, actionList, nglViewList) => async (d
   if (snapshotID) {
     const currentTargetOn = state.apiReducers.target_on;
     const currentSites = state.selectionReducers.mol_group_selection;
-    const currentTags = state.selectionReducers.selectedTagList;
+    const currentTags =
+      state.selectionReducers.selectedTagList && state.selectionReducers.selectedTagList.map(value => value.id);
     const currentLigands = state.selectionReducers.fragmentDisplayList;
     const currentProteins = state.selectionReducers.proteinList;
     const currentComplexes = state.selectionReducers.complexList;
@@ -423,6 +429,14 @@ const saveActionsList = (project, snapshot, actionList, nglViewList) => async (d
     getCommonLastActionByType(orderedActionList, actionType.COLOR_DIFF, currentActions);
     getCommonLastActionByType(orderedActionList, actionType.WARNING_ICON, currentActions);
 
+    // Since drag and drop state can be influenced by filter as well, determine its state by the last influential action
+    const action = orderedActionList.find(action =>
+      [actionType.DRAG_DROP_FINISHED, actionType.DATASET_FILTER].includes(action.type)
+    );
+    if (action) {
+      currentActions.push({ ...action, type: actionType.DRAG_DROP_FINISHED });
+    }
+
     if (nglViewList) {
       let nglStateList = nglViewList.map(nglView => {
         return { id: nglView.id, orientation: nglView.stage.viewerControls.getOrientation() };
@@ -517,6 +531,10 @@ export const saveTrackingActions = (currentActions, snapshotID) => async (dispat
     return Promise.resolve();
   }
 };
+
+// const getCurrentActionListForTags = (orderedActionList, type, collection, currentActions) => {
+//   let actionList = orderedActionList.filter(action => action.type === type);
+// };
 
 const getCurrentActionList = (orderedActionList, type, collection, currentActions) => {
   let actionList = orderedActionList.filter(action => action.type === type);
@@ -789,13 +807,11 @@ export const restoreAfterTargetActions = (stages, projectId) => async (dispatch,
 
   if (targetId && stages && stages.length > 0) {
     const majorView = stages.find(view => view.id === VIEWS.MAJOR_VIEW);
-    const summaryView = stages.find(view => view.id === VIEWS.SUMMARY_VIEW);
 
     await dispatch(loadProteinOfRestoringActions({ nglViewList: stages }));
 
     await dispatch(
       loadMoleculeGroupsOfTarget({
-        summaryView: summaryView.stage,
         isStateLoaded: false,
         setOldUrl: url => {},
         target_on: targetId
@@ -807,8 +823,8 @@ export const restoreAfterTargetActions = (stages, projectId) => async (dispatch,
       .finally(() => {});
 
     await dispatch(restoreSitesActions(orderedActionList));
-    await dispatch(restoreTagActions(orderedActionList));
     await dispatch(loadData(orderedActionList, targetId, majorView));
+    await dispatch(restoreTagActions(orderedActionList));
     await dispatch(restoreMoleculesActions(orderedActionList, majorView.stage));
     await dispatch(restoreRepresentationActions(orderedActionList, stages));
     await dispatch(restoreProject(projectId));
@@ -816,7 +832,7 @@ export const restoreAfterTargetActions = (stages, projectId) => async (dispatch,
     await dispatch(restoreCartActions(orderedActionList, majorView.stage));
     dispatch(restoreSnapshotImageActions(projectId));
     dispatch(restoreNglStateAction(orderedActionList, stages));
-    dispatch(restoreNglSettingsAction(orderedActionList, majorView.stage, summaryView.stage));
+    dispatch(restoreNglSettingsAction(orderedActionList, majorView.stage));
     dispatch(setIsActionsRestoring(false, true));
   }
 };
@@ -824,23 +840,22 @@ export const restoreAfterTargetActions = (stages, projectId) => async (dispatch,
 export const restoreNglViewSettings = stages => (dispatch, getState) => {
   const state = getState();
   const majorViewStage = stages.find(view => view.id === VIEWS.MAJOR_VIEW).stage;
-  const summaryViewStage = stages.find(view => view.id === VIEWS.SUMMARY_VIEW).stage;
 
   const currentActionList = state.trackingReducers.track_actions_list;
   const orderedActionList = currentActionList.reverse((a, b) => a.timestamp - b.timestamp);
-  dispatch(restoreNglSettingsAction(orderedActionList, majorViewStage, summaryViewStage));
+  dispatch(restoreNglSettingsAction(orderedActionList, majorViewStage));
 };
 
-const restoreNglSettingsAction = (orderedActionList, majorViewStage, summaryViewStage) => (dispatch, getState) => {
+const restoreNglSettingsAction = (orderedActionList, majorViewStage) => (dispatch, getState) => {
   const state = getState();
   const viewParams = state.nglReducers.viewParams;
 
   let backgroundAction = orderedActionList.find(action => action.type === actionType.BACKGROUND_COLOR_CHANGED);
   if (backgroundAction && backgroundAction.newSetting !== undefined) {
     let value = backgroundAction.newSetting;
-    dispatch(setNglBckGrndColor(value, majorViewStage, summaryViewStage));
+    dispatch(setNglBckGrndColor(value, majorViewStage));
   } else {
-    dispatch(setNglBckGrndColor(NGL_VIEW_DEFAULT_VALUES[NGL_PARAMS.backgroundColor], majorViewStage, summaryViewStage));
+    dispatch(setNglBckGrndColor(NGL_VIEW_DEFAULT_VALUES[NGL_PARAMS.backgroundColor], majorViewStage));
   }
 
   let clipNearAction = orderedActionList.find(action => action.type === actionType.CLIP_NEAR);
@@ -1159,7 +1174,7 @@ const restoreNglStateAction = (orderedActionList, stages) => (dispatch, getState
 };
 
 const loadData = (orderedActionList, targetId, majorView) => async (dispatch, getState) => {
-  await dispatch(loadAllMolecules(orderedActionList, targetId, majorView.stage));
+  await dispatch(loadAllMolecules(targetId));
   await dispatch(loadAllDatasets(orderedActionList, targetId, majorView.stage));
 };
 
@@ -1173,33 +1188,8 @@ const loadAllDatasets = (orderedActionList, target_on, stage) => async (dispatch
   dispatch(restoreCompoundsActions(orderedActionList, stage));
 };
 
-const loadAllMolecules = (orderedActionList, target_on, stage) => async (dispatch, getState) => {
-  const state = getState();
-  const list_type = listType.MOLECULE;
-
-  let molGroupList = state.apiReducers.mol_group_list;
-
-  let promises = [];
-  molGroupList.forEach(molGroup => {
-    let id = molGroup.id;
-    let url = getUrl({ list_type, target_on, mol_group_on: id });
-    promises.push(
-      loadAllMolsFromMolGroup({
-        url,
-        mol_group: id
-      })
-    );
-  });
-  try {
-    const results = await Promise.all(promises);
-    let listToSet = {};
-    results.forEach(molResult => {
-      listToSet[molResult.mol_group] = molResult.molecules;
-    });
-    dispatch(setAllMolLists(listToSet));
-  } catch (error) {
-    throw new Error(error);
-  }
+const loadAllMolecules = target_on => async (dispatch, getState) => {
+  return dispatch(loadMoleculesAndTags(target_on));
 };
 
 const restoreSitesActions = orderedActionList => (dispatch, getState) => {
@@ -1477,12 +1467,18 @@ const restoreTabActions = moleculesAction => (dispatch, getState) => {
     }
   }
 
+  const dragDropFinishedAction = moleculesAction.find(action => action.type === actionType.DRAG_DROP_FINISHED);
+  if (dragDropFinishedAction) {
+    const { datasetID, newDragDropState } = dragDropFinishedAction;
+    dispatch(setDragDropState(datasetID, newDragDropState));
+  }
+
   let filterAction = moleculesAction.find(action => action.type === actionType.DATASET_FILTER);
   if (filterAction) {
     let datasetID = filterAction.dataset_id;
     let newFilterProperties = filterAction.newProperties;
     let newFilterSettings = filterAction.newSettings;
-    dispatch(setDatasetFilter(datasetID, newFilterProperties, newFilterSettings, filterAction.key));
+    dispatch(setDatasetFilter(datasetID, newFilterProperties, newFilterSettings, filterAction.key, null));
     dispatch(setFilterProperties(datasetID, newFilterProperties));
     dispatch(setFilterSettings(datasetID, newFilterSettings));
   }
@@ -1607,16 +1603,18 @@ const addNewType = (moleculesAction, actionType, type, stage, state, skipTrackin
               if (i && i.length > 0) {
                 const proteinData = i[0];
                 data.proteinData = proteinData;
-                data.proteinData.render_event = action.render_event ? action.render_event : false;
-                data.proteinData.render_diff = action.render_diff ? action.render_diff : false;
-                data.proteinData.render_sigmaa = action.render_sigmaa ? action.render_sigmaa : false;
+                data.proteinData.render_event = !!action.render_event;
+                data.proteinData.render_diff = !!action.render_diff;
+                data.proteinData.render_sigmaa = !!action.render_sigmaa;
+                data.proteinData.render_quality = !!action.render_quality;
               }
             });
             await dispatch(addType[type](stage, data, colourList[data.id % colourList.length], true, skipTracking));
           } else {
-            data.proteinData.render_event = action.render_event ? action.render_event : false;
-            data.proteinData.render_diff = action.render_diff ? action.render_diff : false;
-            data.proteinData.render_sigmaa = action.render_sigmaa ? action.render_sigmaa : false;
+            data.proteinData.render_event = !!action.render_event;
+            data.proteinData.render_diff = !!action.render_diff;
+            data.proteinData.render_sigmaa = !!action.render_sigmaa;
+            data.proteinData.render_quality = !!action.render_quality;
             await dispatch(addType[type](stage, data, colourList[data.id % colourList.length], true, skipTracking));
           }
         } else {
@@ -1691,15 +1689,8 @@ const getMolecule = (moleculeName, state) => {
   let moleculeList = state.apiReducers.all_mol_lists;
   let molecule = null;
 
-  if (moleculeList) {
-    for (const group in moleculeList) {
-      let molecules = moleculeList[group];
-      molecule = molecules.find(m => m.protein_code === moleculeName);
-      if (molecule && molecule != null) {
-        break;
-      }
-    }
-  }
+  molecule = moleculeList.find(m => m.protein_code === moleculeName);
+
   return molecule;
 };
 
@@ -1943,6 +1934,9 @@ const handleUndoAction = (action, stages) => (dispatch, getState) => {
       case actionType.DATASET_FILTER_SCORE:
         dispatch(handleFilterScoreAction(action, false));
         break;
+      case actionType.DRAG_DROP_FINISHED:
+        dispatch(handleDragDropFinished(action, false));
+        break;
       case actionType.REPRESENTATION_VISIBILITY_UPDATED:
         dispatch(handleUpdateRepresentationVisibilityAction(action, false, majorView));
         break;
@@ -2175,6 +2169,9 @@ const handleRedoAction = (action, stages) => (dispatch, getState) => {
         break;
       case actionType.DATASET_FILTER_SCORE:
         dispatch(handleFilterScoreAction(action, true));
+        break;
+      case actionType.DRAG_DROP_FINISHED:
+        dispatch(handleDragDropFinished(action, true));
         break;
       case actionType.REPRESENTATION_VISIBILITY_UPDATED:
         dispatch(handleUpdateRepresentationVisibilityAction(action, true, majorView));
@@ -2526,12 +2523,23 @@ const handleTabAction = (action, isSelected) => (dispatch, getState) => {
 
 const handleFilterAction = (action, isSelected) => (dispatch, getState) => {
   if (action) {
-    let datasetID = action.dataset_id;
-    let newFilterProperties = isSelected === true ? action.newProperties : action.oldProperties;
-    let newFilterSettings = isSelected === true ? action.newSettings : action.oldSettings;
-    dispatch(setDatasetFilter(datasetID, newFilterProperties, newFilterSettings, action.key));
+    const {
+      datasetID,
+      key,
+      newProperties,
+      oldProperties,
+      newSettings,
+      oldSettings,
+      oldDragDropState,
+      newDragDropState
+    } = action;
+    const newFilterProperties = isSelected ? newProperties : oldProperties;
+    const newFilterSettings = isSelected ? newSettings : oldSettings;
+    const newFilterDragDropState = isSelected ? newDragDropState : oldDragDropState;
+    dispatch(setDatasetFilter(datasetID, newFilterProperties, newFilterSettings, key, newFilterDragDropState));
     dispatch(setFilterProperties(datasetID, newFilterProperties));
     dispatch(setFilterSettings(datasetID, newFilterSettings));
+    dispatch(setDragDropState(datasetID, newFilterDragDropState));
   }
 };
 
@@ -2541,6 +2549,13 @@ const handleFilterScoreAction = (action, isSelected) => (dispatch, getState) => 
     let isChecked = isSelected === true ? action.isChecked : !action.isChecked;
     let scoreName = action.object_name;
     dispatch(selectScoreProperty({ isChecked, datasetID, scoreName }));
+  }
+};
+
+const handleDragDropFinished = (action, isSelected) => dispatch => {
+  if (action) {
+    const { oldDragDropState, newDragDropState, datasetID } = action;
+    dispatch(setDragDropState(datasetID, isSelected ? newDragDropState : oldDragDropState));
   }
 };
 

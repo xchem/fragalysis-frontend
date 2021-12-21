@@ -15,6 +15,9 @@ import { NglContext } from '../../nglView/nglProvider';
 export const heightOfProjectHistory = '164px';
 
 const useStyles = makeStyles(theme => ({
+  root: {
+    marginTop: theme.spacing()
+  },
   containerExpanded: {
     width: '100%',
     height: heightOfProjectHistory,
@@ -65,7 +68,7 @@ const options = {
   orientation: Orientation.Horizontal
 };
 
-export const ProjectHistory = memo(({ setHeight, showFullHistory }) => {
+export const ProjectHistory = memo(({ showFullHistory }) => {
   const classes = useStyles();
   const ref = useRef(null);
   let history = useHistory();
@@ -124,7 +127,7 @@ export const ProjectHistory = memo(({ setHeight, showFullHistory }) => {
   }, [currentSnapshotID, dispatch, projectID, snapshotId]);
 
   return (
-    <>
+    <div className={classes.root}>
       <Panel
         ref={ref}
         hasHeader
@@ -136,11 +139,6 @@ export const ProjectHistory = memo(({ setHeight, showFullHistory }) => {
         ]}
         hasExpansion
         defaultExpanded
-        onExpandChange={expand => {
-          if (ref.current && setHeight instanceof Function) {
-            setHeight(ref.current.offsetHeight);
-          }
-        }}
       >
         <div className={classes.containerExpanded}>
           {isLoadingTree === false &&
@@ -170,6 +168,6 @@ export const ProjectHistory = memo(({ setHeight, showFullHistory }) => {
             )}
         </div>
       </Panel>
-    </>
+    </div>
   );
 });

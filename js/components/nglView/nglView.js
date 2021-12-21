@@ -3,7 +3,7 @@
  */
 
 import { Stage } from 'ngl';
-import React, { memo, useEffect, useCallback, useContext, useState } from 'react';
+import React, { memo, useEffect, useCallback, useContext, useState, useRef } from 'react';
 import { connect } from 'react-redux';
 import * as nglActions from '../../reducers/ngl/actions';
 import * as nglDispatchActions from '../../reducers/ngl/dispatchActions';
@@ -25,7 +25,11 @@ const useStyles = makeStyles(theme => ({
       '0px 1px 1px 0px rgba(0,0,0,0.14)',
       '0px 1px 3px 0px rgba(0,0,0,0.12)'
     ],
-    marginBottom: theme.spacing(1)
+    marginBottom: theme.spacing(1),
+    width: '100%',
+    '& canvas': {
+      width: '100% !important'
+    }
   }
 }));
 
@@ -74,7 +78,6 @@ const NglView = memo(({ div_id, height, setOrientation, removeAllNglComponents, 
   const unregisterStageEvents = useCallback(
     (newStage, getNglView) => {
       if (newStage) {
-        window.addEventListener('resize', handleResize);
         window.removeEventListener('resize', handleResize);
         newStage.mouseControls.remove('clickPick-left', (st, pickingProxy) =>
           handleNglViewPick(st, pickingProxy, getNglView)
@@ -131,14 +134,32 @@ const NglView = memo(({ div_id, height, setOrientation, removeAllNglComponents, 
   ]);
   // End of Initialization NGL View component
 
+  // If the size of the div is changed (due to layout shift with flexbox for instance) notify NGL to change its size
+  const ref = useRef();
+  useEffect(() => {
+    const node = ref.current;
+    const resizeObserver = new ResizeObserver(() => {
+      handleResize();
+    });
+
+    resizeObserver.observe(node);
+
+    return () => {
+      resizeObserver.unobserve(node);
+    };
+  }, [handleResize]);
+
   return (
-    <div
-      id={div_id}
-      className={div_id === VIEWS.MAJOR_VIEW ? classes.paper : {}}
-      style={{
-        height: `calc(${height || '600px'} - ${theme.spacing(1)}px)`
-      }}
-    />
+    <>
+      <div
+        ref={ref}
+        id={div_id}
+        className={div_id === VIEWS.MAJOR_VIEW ? classes.paper : {}}
+        style={{
+          height: `calc(${height || '600px'} - ${theme.spacing(1)}px)`
+        }}
+      />
+    </>
   );
 });
 

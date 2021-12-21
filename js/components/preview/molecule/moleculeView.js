@@ -321,6 +321,7 @@ const MoleculeView = memo(
     const [densityModalOpen, setDensityModalOpen] = useState(false);
     const [tagAddModalOpen, setTagAddModalOpen] = useState(false);
     const [moleculeTooltipOpen, setMoleculeTooltipOpen] = useState(false);
+    const [tagEditorTooltipOpen, setTagEditorTooltipOpen] = useState(false);
     const moleculeImgRef = useRef(null);
     const openMoleculeTooltip = () => {
       setMoleculeTooltipOpen(true);
@@ -331,17 +332,11 @@ const MoleculeView = memo(
 
     const proteinData = data?.proteinData;
     const isMolSelectedForEdit = moleculesToEdit.some(mid => mid === currentID);
+    const isTagEditorInvokedByMolecule = data && molIdForTagEditor === data.id;
 
     const getDataForTagsTooltip = () => {
       const assignedTags = getAllTagsForMol(data, tagList);
       return assignedTags;
-      /*const dataForTooltip = [];
-      assignedTags &&
-        assignedTags.forEach(tag => {
-          dataForTooltip.push(tag.tag);
-        });
-
-      return dataForTooltip;*/
     };
 
     const generateTooltip = () => {
@@ -350,7 +345,7 @@ const MoleculeView = memo(
         <Paper className={classes.tooltip}>
           {data.map((t, idx) => (
             /*<Typography color="inherit">{t}</Typography>*/
-            <TagView key={t.id} tag={t} selected={true} ></TagView>
+            <TagView key={t.id} tag={t} selected={true}></TagView>
           ))}
         </Paper>
       );
@@ -672,7 +667,7 @@ const MoleculeView = memo(
           <Grid item container justify="space-between" direction="column" className={classes.site}>
             <Grid item>
               <Checkbox
-                checked={isMolSelectedForEdit || molIdForTagEditor === data.id}
+                checked={isMolSelectedForEdit || isTagEditorInvokedByMolecule}
                 className={classes.checkbox}
                 size="small"
                 color="primary"
@@ -826,20 +821,6 @@ const MoleculeView = memo(
                     </Button>
                   </Grid>
                 </Tooltip>
-                <Tooltip title="atom quality">
-                  <Grid item>
-                    <Button
-                      variant="outlined"
-                      className={classNames(classes.contColButton, {
-                        [classes.contColButtonSelected]: isQualityOn
-                      })}
-                      onClick={() => onQuality()}
-                      disabled={!hasAdditionalInformation}
-                    >
-                      Q
-                    </Button>
-                  </Grid>
-                </Tooltip>
                 <Tooltip title="vectors">
                   <Grid item>
                     <Button
@@ -926,17 +907,17 @@ const MoleculeView = memo(
               item
               xs={
                 warningIconVisible === true
-                  ? moleculeTooltipOpen === true
+                  ? moleculeTooltipOpen === true || isTagEditorInvokedByMolecule
                     ? 8
                     : 10
-                  : moleculeTooltipOpen === true
+                  : moleculeTooltipOpen === true || isTagEditorInvokedByMolecule
                   ? 10
                   : 12
               }
             >
               {svg_image}
             </Grid>
-            {moleculeTooltipOpen === true && (
+            {(moleculeTooltipOpen === true || isTagEditorInvokedByMolecule) && (
               <Grid item xs={2}>
                 <IconButton
                   color="primary"
@@ -944,7 +925,7 @@ const MoleculeView = memo(
                   className={classes.tagIcon}
                   onClick={() => {
                     // setTagAddModalOpen(!tagAddModalOpen);
-                    if (molIdForTagEditor === data.id) {
+                    if (isTagEditorInvokedByMolecule) {
                       dispatch(setTagEditorOpen(!isTagEditorOpen));
                       dispatch(setMoleculeForTagEdit(null));
                       dispatch(setTagEditorOpen(false));
@@ -957,9 +938,16 @@ const MoleculeView = memo(
                     }
                   }}
                 >
-                  <Tooltip title={generateTooltip()}>
+                  <Tooltip
+                    title={generateTooltip()}
+                    /* show tooltip even when this molecule prompted edit in tag editor */
+                    open={tagEditorTooltipOpen || isTagEditorInvokedByMolecule}
+                    onOpen={() => setTagEditorTooltipOpen(true)}
+                    onClose={() => setTagEditorTooltipOpen(false)}
+                    placement={isTagEditorInvokedByMolecule ? 'bottom-end' : 'bottom'}
+                  >
                     <Checkbox
-                      checked={molIdForTagEditor === data.id}
+                      checked={isTagEditorInvokedByMolecule}
                       className={classes.checkbox}
                       size="small"
                       color="primary"
@@ -991,6 +979,7 @@ const MoleculeView = memo(
           setOpenDialog={setDensityModalOpen}
           data={data}
           setDensity={addNewDensity}
+          isQualityOn={isQualityOn}
         />
       </>
     );

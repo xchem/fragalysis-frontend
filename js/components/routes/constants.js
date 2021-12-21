@@ -12,7 +12,8 @@ export const URLS = {
   // Projects feature
   projects: '/viewer/react/projects/',
   // Direct feature
-  direct: '/viewer/react/preview/direct/'
+  direct: '/viewer/react/preview/direct/',
+  download: '/viewer/react/download/'
 };
 
 export const base_url = window.location.protocol + '//' + window.location.host;

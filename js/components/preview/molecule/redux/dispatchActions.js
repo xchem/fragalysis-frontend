@@ -351,16 +351,26 @@ const setDensity = (stage, data, colourToggle, isWireframeStyle, skipTracking = 
             molDataId['render_event'] = data.proteinData.render_event;
             molDataId['render_sigmaa'] = data.proteinData.render_sigmaa;
             molDataId['render_diff'] = data.proteinData.render_diff;
+            molDataId['render_quality'] = data.proteinData.render_quality;
+
             dispatch(appendDensityList(generateMoleculeId(data), skipTracking));
             dispatch(appendToDensityListType(molDataId, skipTracking));
+            if (data.proteinData.render_quality) {
+              dispatch(addQuality(stage, data, colourToggle, true));
+            }
           }
         });
       } else {
         molDataId['render_event'] = data.proteinData.render_event;
         molDataId['render_sigmaa'] = data.proteinData.render_sigmaa;
         molDataId['render_diff'] = data.proteinData.render_diff;
+        molDataId['render_quality'] = data.proteinData.render_quality;
+
         dispatch(appendDensityList(generateMoleculeId(data), skipTracking));
         dispatch(appendToDensityListType(molDataId, skipTracking));
+        if (data.proteinData.render_quality) {
+          dispatch(addQuality(stage, data, colourToggle, true));
+        }
       }
     })
   );
@@ -482,6 +492,9 @@ export const removeDensity = (
   dispatch(removeFromDensityList(molId, skipTracking));
   dispatch(removeFromDensityListCustom(molId, true));
   dispatch(removeFromDensityListType(molId, skipTracking));
+  if (data.proteinData.render_quality) {
+    dispatch(removeQuality(stage, data, colourToggle, true));
+  }
 };
 
 const deleteDensityObject = (data, colourToggle, stage, isWireframeStyle) => dispatch => {

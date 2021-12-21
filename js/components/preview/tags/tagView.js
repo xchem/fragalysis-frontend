@@ -50,6 +50,9 @@ const useStyles = makeStyles(theme => ({
     }
   },
   chipSelected: {
+    '& .MuiChip-iconSmall': {
+      width: '18px'
+    },
     '& .MuiChip-deleteIcon': {
       display: 'none'
     },

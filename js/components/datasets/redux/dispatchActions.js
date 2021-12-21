@@ -27,7 +27,10 @@ import {
   setIsOpenCrossReferenceDialog,
   setCrossReferenceCompoundName,
   setIsLoadingCrossReferenceScores,
-  setSearchStringOfCompoundSet
+  setSearchStringOfCompoundSet,
+  dragDropStarted,
+  setDragDropState,
+  dragDropFinished
 } from './actions';
 import { base_url } from '../../routes/constants';
 import {
@@ -1034,3 +1037,33 @@ export const moveSelectedMoleculeSettings = (
 };
 
 export const getDatasetMoleculeID = (datasetID, moleculeID) => `datasetID-${datasetID}_moleculeID-${moleculeID}`;
+
+export const dragDropMoleculeStarted = (datasetID, dragIndex) => (dispatch, getState) => {
+  const state = getState();
+  const { dragDropStatus } = state.datasetsReducers;
+
+  if (!dragDropStatus.inProgress) {
+    dispatch(dragDropStarted(datasetID, dragIndex));
+  }
+};
+
+export const dragDropMoleculeInProgress = (datasetID, moleculeList, dragIndex, hoverIndex) => (dispatch, getState) => {
+  const movedMoleculeList = [...moleculeList];
+  const draggedElement = movedMoleculeList[dragIndex];
+
+  movedMoleculeList.splice(dragIndex, 1);
+  movedMoleculeList.splice(hoverIndex, 0, draggedElement);
+
+  const dragDropState = Object.fromEntries(movedMoleculeList.map((molecule, index) => [molecule.name, index]));
+
+  dispatch(setDragDropState(datasetID, dragDropState));
+};
+
+export const dragDropMoleculeFinished = (datasetID, draggedMolecule, destinationIndex) => (dispatch, getState) => {
+  const state = getState();
+  const { dragDropStatus } = state.datasetsReducers;
+
+  if (dragDropStatus.startingIndex !== destinationIndex) {
+    dispatch(dragDropFinished(datasetID, draggedMolecule, destinationIndex));
+  }
+};

@@ -43,8 +43,7 @@ export const SummaryView = memo(({ setSummaryViewHeight, summaryViewHeight }) =>
         setPanelRef(ref);
       }}
       hasHeader
-      headerActions={[
-      ]}
+      headerActions={[]}
       title="Summary Info"
     >
       <ComputeSize componentRef={panelRef} setHeight={setSummaryViewHeight} height={summaryViewHeight}>

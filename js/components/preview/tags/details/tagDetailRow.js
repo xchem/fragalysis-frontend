@@ -2,25 +2,10 @@ import React, { memo, useState, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { CATEGORY_TYPE_BY_ID } from '../../../../constants/constants';
 import TagView from '../tagView';
-import {
-  getDefaultTagDiscoursePostText
-} from '../utils/tagUtils';
+import { getDefaultTagDiscoursePostText } from '../utils/tagUtils';
 import { DJANGO_CONTEXT } from '../../../../utils/djangoContext';
-import {
-  updateTagProp,
-  selectTag,
-  unselectTag,
-  removeSelectedTag,
-  addSelectedTag
-} from '../redux/dispatchActions';
-import {
-  Grid,
-  Tooltip,
-  makeStyles,
-  Button,
-  Typography,
-  IconButton
-} from '@material-ui/core';
+import { updateTagProp, selectTag, unselectTag, removeSelectedTag, addSelectedTag } from '../redux/dispatchActions';
+import { Grid, Tooltip, makeStyles, Button, Typography, IconButton } from '@material-ui/core';
 import { Edit } from '@material-ui/icons';
 import { isURL } from '../../../../utils/common';
 import classNames from 'classnames';
@@ -78,6 +63,14 @@ const useStyles = makeStyles(theme => ({
       backgroundColor: theme.palette.success.dark,
       color: theme.palette.success.contrastText
     }
+  },
+  editButtonIcon: {
+    width: "0.75em",
+    height: "0.75em"
+  },
+  unselectButtonWrapper: {
+    paddingLeft: "1px !important",
+    paddingRight: "1px !important"
   }
 }));
 
@@ -95,10 +88,12 @@ const TagDetailRow = memo(({ tag, moleculesToEditIds, moleculesToEdit }) => {
 
   useEffect(() => {
     if (allMolList.length) {
-      setAllMoleculesOfTag(allMolList.filter(mol => {
-        const tags = mol.tags_set.filter(id => id === tag.id);
-        return tags && tags.length ? true : false;
-      }));
+      setAllMoleculesOfTag(
+        allMolList.filter(mol => {
+          const tags = mol.tags_set.filter(id => id === tag.id);
+          return tags && tags.length ? true : false;
+        })
+      );
     }
   }, [allMolList, tag]);
 
@@ -132,7 +127,7 @@ const TagDetailRow = memo(({ tag, moleculesToEditIds, moleculesToEdit }) => {
       }
     }
     return result;
-  }
+  };
 
   const handleTagClick = (selected, tag) => {
     if (selected) {
@@ -142,20 +137,13 @@ const TagDetailRow = memo(({ tag, moleculesToEditIds, moleculesToEdit }) => {
     }
   };
 
-  const handleEditTag = (tag) => {
+  const handleEditTag = tag => {
     dispatch(setTagToEdit(tag));
   };
 
   return (
-    <Grid
-      container
-      item
-      className={classes.divContainer}
-      spacing={1}
-      wrap="nowrap"
-      alignItems="center"
-      xs={12}
-    >
+    <Grid container item className={classes.divContainer} spacing={1} wrap="nowrap" alignItems="center" xs={12}>
+      {/* TagView Chip */}
       <Grid item xs={3}>
         <TagView
           key={`tag-item-editor${tag.id}`}
@@ -167,14 +155,16 @@ const TagDetailRow = memo(({ tag, moleculesToEditIds, moleculesToEdit }) => {
           isTagEditor={true}
         ></TagView>
       </Grid>
-      <Grid item xs={1}>
+      {/* category */}
+      <Grid item xs={1} wrap="nowrap">
         <Tooltip title={CATEGORY_TYPE_BY_ID[tag.category_id]}>
-          <Typography variant="body2">
+          <Typography variant="body2" noWrap>
             {CATEGORY_TYPE_BY_ID[tag.category_id]}
           </Typography>
         </Tooltip>
       </Grid>
-      <Grid item xs={2}>
+      {/* select hits button */}
+      <Grid item xs={2} className={hasSelectedMolecule() ? classes.unselectButtonWrapper : null}>
         <Tooltip title="Select hits">
           <Grid item>
             <Button
@@ -186,11 +176,12 @@ const TagDetailRow = memo(({ tag, moleculesToEditIds, moleculesToEdit }) => {
               onClick={() => handleSelectHits()}
               disabled={!DJANGO_CONTEXT.pk}
             >
-              {hasSelectedMolecule() ? "Unselect hits" : "Select hits"}
+              {hasSelectedMolecule() ? 'Unselect hits' : 'Select hits'}
             </Button>
           </Grid>
         </Tooltip>
       </Grid>
+      {/* discourse button */}
       <Grid item xs={2}>
         <Tooltip title="Discourse link">
           <Grid item>
@@ -219,33 +210,20 @@ const TagDetailRow = memo(({ tag, moleculesToEditIds, moleculesToEdit }) => {
           </Grid>
         </Tooltip>
       </Grid>
+      {/* user */}
       <Grid item xs={1}>
-        <Typography variant="body2">
-          {tag.user_id}
-        </Typography>
+        <Typography variant="body2">{tag.user_id}</Typography>
       </Grid>
-      <Grid item xs={2}>
+      {/* date */}
+      <Grid item xs={2} container alignContent="center" justifyContent="center">
         <Typography variant="body2" noWrap>
-          {navigator.language ?
-            (new Date(tag.create_date)).toLocaleDateString(navigator.language) :
-            (new Date(tag.create_date)).toLocaleDateString()
-          }
+          {navigator.language
+            ? new Date(tag.create_date).toLocaleDateString(navigator.language)
+            : new Date(tag.create_date).toLocaleDateString()}
         </Typography>
       </Grid>
+      {/* edit button */}
       <Grid item xs={1}>
-        {/*<Tooltip title="Edit">
-          <Grid item>
-            <Button
-              variant="contained"
-              className={classes.editButton}
-              size="small"
-              onClick={() => handleEditTag(tag)}
-              disabled={!DJANGO_CONTEXT.pk}
-            >
-              Edit
-            </Button>
-          </Grid>{theme.palette.error.light}
-        </Tooltip>*/}
         <IconButton
           variant="contained"
           className={classes.editButton}
@@ -254,7 +232,7 @@ const TagDetailRow = memo(({ tag, moleculesToEditIds, moleculesToEdit }) => {
           disabled={!DJANGO_CONTEXT.pk}
           aria-label="edit tag"
         >
-          <Tooltip title="Edit">
+          <Tooltip title="Edit" className={classes.editButtonIcon}>
             <Edit />
           </Tooltip>
         </IconButton>

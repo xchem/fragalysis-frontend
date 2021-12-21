@@ -19,6 +19,7 @@ import { SessionRedirect } from '../snapshot/sessionRedirect';
 import { DirectDisplay } from '../direct/directDisplay';
 import { setSnapshotJustSaved } from '../snapshot/redux/actions';
 import { useDispatch } from 'react-redux';
+import { DirectDownload } from '../direct/directDownload';
 
 const useStyles = makeStyles(theme => ({
   content: {
@@ -33,7 +34,7 @@ const Routes = memo(() => {
   const { headerHeight, setHeaderHeight, snackBarTitle, setSnackBarTitle } = useContext(HeaderContext);
   const contentHeight = `calc(100vh - ${headerHeight}px - ${2 * theme.spacing(1)}px)`;
   const contentWidth = `100%`;
-  
+
   const dispatch = useDispatch();
   const location = useLocation();
 
@@ -47,7 +48,7 @@ const Routes = memo(() => {
   useEffect(() => {
     // Reset the snapshot just saved flag on each route change
     dispatch(setSnapshotJustSaved(undefined));
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [location]);
 
   return (
@@ -70,6 +71,7 @@ const Routes = memo(() => {
           />
           <Route exact path={URLS.funders} component={Funders} />
           <Route path={`${URLS.direct}*`} component={DirectDisplay} />
+          <Route path={`${URLS.download}*`} component={DirectDownload} />
         </Switch>
       </Box>
       <BrowserCheck />

@@ -404,7 +404,8 @@ export const createNewSnapshotWithoutStateModification = ({
   author,
   parent,
   session_project,
-  nglViewList
+  nglViewList,
+  axuData = {}
 }) => (dispatch, getState) => {
   if (!session_project) {
     return Promise.reject('Project ID is missing!');
@@ -417,18 +418,21 @@ export const createNewSnapshotWithoutStateModification = ({
       newType = SnapshotType.INIT;
     }
 
+    const dataToSend = {
+      title,
+      description,
+      type: newType,
+      author,
+      parent,
+      session_project,
+      data: JSON.stringify(axuData),
+      children: []
+    };
+    const dataString = JSON.stringify(dataToSend);
+
     return api({
       url: `${base_url}/api/snapshots/`,
-      data: {
-        title,
-        description,
-        type: newType,
-        author,
-        parent,
-        session_project,
-        data: '[]',
-        children: []
-      },
+      data: dataString,
       method: METHOD.POST
     }).then(res => {
       if (res.data.id && session_project) {
@@ -449,7 +453,7 @@ export const createNewSnapshotWithoutStateModification = ({
   });
 };
 
-export const saveAndShareSnapshot = (nglViewList, showDialog = true) => async (dispatch, getState) => {
+export const saveAndShareSnapshot = (nglViewList, showDialog = true, axuData = {}) => async (dispatch, getState) => {
   const state = getState();
   const targetId = state.apiReducers.target_on;
   const loggedInUserID = DJANGO_CONTEXT['pk'];
@@ -490,7 +494,8 @@ export const saveAndShareSnapshot = (nglViewList, showDialog = true) => async (d
           author,
           parent,
           session_project,
-          nglViewList
+          nglViewList,
+          axuData
         })
       );
 

@@ -38,16 +38,25 @@ const drawers = {
 const initDrawers = { [drawers.settings]: false, [drawers.display]: false, [drawers.mouse]: false };
 
 const useStyles = makeStyles(theme => ({
+  root: {
+    display: 'flex',
+    justifyContent: 'space-between',
+    alignItems: 'flex-start',
+    gap: theme.spacing(2)
+  },
   button: {
     padding: theme.spacing(1)
   },
-  buttonMargin: {
-    padding: theme.spacing(1),
-    marginLeft: theme.spacing(1)
+  nglButtons: {
+    flexBasis: 0,
+    display: 'flex',
+    justifyContent: 'center',
+    flexWrap: 'wrap',
+    gap: theme.spacing()
   }
 }));
 
-export const ViewerControls = memo(({}) => {
+export const ViewerControls = memo(({ leftColumnOpen, setLeftColumnOpen, rightColumnOpen, setRightColumnOpen }) => {
   const [drawerSettings, setDrawerSettings] = useState(JSON.parse(JSON.stringify(initDrawers)));
   const classes = useStyles();
   const dispatch = useDispatch();
@@ -136,8 +145,20 @@ export const ViewerControls = memo(({}) => {
 
   return (
     <>
-      <Grid container justify="center">
-        <Grid item>
+      <div className={classes.root}>
+        <Tooltip title={leftColumnOpen ? 'Close left hand side' : 'Open left hand side'}>
+          <Button
+            variant={leftColumnOpen ? 'contained' : 'outlined'}
+            size="small"
+            color="primary"
+            onClick={() => setLeftColumnOpen(!leftColumnOpen)}
+            className={classes.button}
+          >
+            LHS
+          </Button>
+        </Tooltip>
+
+        <div className={classes.nglButtons}>
           <ButtonGroup variant="contained" color="primary">
             <Tooltip title={nglUndoTooltip}>
               <Button
@@ -217,19 +238,31 @@ export const ViewerControls = memo(({}) => {
               </Button>
             </Tooltip>
           </ButtonGroup>
-        </Grid>
 
-        <Tooltip title="Restore ngl view settings">
+          <Tooltip title="Restore ngl view settings">
+            <Button
+              color="primary"
+              onClick={() => dispatch(restoreNglViewSettings(nglViewList))}
+              startIcon={<Restore />}
+              className={classes.button}
+            >
+              Restore clip/slab/centre
+            </Button>
+          </Tooltip>
+        </div>
+
+        <Tooltip title={rightColumnOpen ? 'Close right hand side' : 'Open right hand side'}>
           <Button
+            variant={rightColumnOpen ? 'contained' : 'outlined'}
+            size="small"
             color="primary"
-            onClick={() => dispatch(restoreNglViewSettings(nglViewList))}
-            startIcon={<Restore />}
-            className={classes.buttonMargin}
+            onClick={() => setRightColumnOpen(!rightColumnOpen)}
+            className={classes.button}
           >
-            Restore clip/slab/centre
+            RHS
           </Button>
         </Tooltip>
-      </Grid>
+      </div>
       <SettingControls open={drawerSettings[drawers.settings]} onClose={closeAllDrawers} />
       <DisplayControls open={drawerSettings[drawers.display]} onClose={closeAllDrawers} />
       <MouseControls open={drawerSettings[drawers.mouse]} onClose={closeAllDrawers} />

@@ -112,6 +112,20 @@ export const setNoTagsReceived = noTagsReceived => {
   };
 };
 
+export const setDownloadTags = downloadTags => {
+  return {
+    type: constants.SET_DOWNLOAD_TAGS,
+    downloadTags: downloadTags
+  };
+};
+
+export const appendToDownloadTags = tag => {
+  return {
+    type: constants.APPEND_TO_DOWNLOAD_TAGS,
+    tag: tag
+  };
+};
+
 export const appendMoleculeTag = moleculeTag => {
   return {
     type: constants.APPEND_MOLECULE_TAG,
@@ -214,6 +228,20 @@ export const setDirectAccessProcessed = directAccessProcessedParams => {
   return {
     type: constants.SET_DIRECT_ACCESS_PROCESSED,
     direct_access_processed: directAccessProcessedParams
+  };
+};
+
+export const setDirectDownloadInProgress = directDownloadInProgress => {
+  return {
+    type: constants.SET_DIRECT_DOWNLOAD_IN_PROGRESS,
+    directDownloadInProgress: directDownloadInProgress
+  };
+};
+
+export const setSnapshotDownloadUrl = snapshotDownloadUrl => {
+  return {
+    type: constants.SET_SNAPSHOT_DOWNLOAD_URL,
+    snapshotDownloadUrl: snapshotDownloadUrl
   };
 };
 
