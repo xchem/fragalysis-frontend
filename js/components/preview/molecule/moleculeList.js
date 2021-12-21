@@ -293,6 +293,7 @@ export const MoleculeList = memo(({ height, setFilterItemsHeight, filterItemsHei
     getJoinedMoleculeList = [...all_mol_lists];
   }
 
+
   // const disableUserInteraction = useDisableUserInteraction();
 
   if (directDisplay && directDisplay.target) {
