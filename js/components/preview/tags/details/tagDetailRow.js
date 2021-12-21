@@ -9,7 +9,7 @@ import { Grid, Tooltip, makeStyles, Button, Typography, IconButton } from '@mate
 import { Edit } from '@material-ui/icons';
 import { isURL } from '../../../../utils/common';
 import classNames from 'classnames';
-import { createTagPost, isDiscourseAvailableNotSignedIn } from '../../../../utils/discourse';
+import { createTagPost, isDiscourseAvailableNotSignedIn, isDiscourseAvailable } from '../../../../utils/discourse';
 import { setTagToEdit, appendToMolListToEdit, removeFromMolListToEdit } from '../../../../reducers/selection/actions';
 
 const useStyles = makeStyles(theme => ({
@@ -203,7 +203,7 @@ const TagDetailRow = memo(({ tag, moleculesToEditIds, moleculesToEdit }) => {
                   });
                 }
               }}
-              disabled={!isDiscourseAvailableNotSignedIn()}
+              disabled={!(isDiscourseAvailable() || (isDiscourseAvailableNotSignedIn() && tag.discourse_url))}
             >
               Discourse
             </Button>
