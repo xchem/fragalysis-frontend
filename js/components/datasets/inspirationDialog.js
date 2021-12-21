@@ -103,8 +103,8 @@ const useStyles = makeStyles(theme => ({
     borderColor: theme.palette.primary.main,
     backgroundColor: theme.palette.primary.light,
     '&:hover': {
-      backgroundColor: theme.palette.primary.main,
-      color: theme.palette.primary.contrastText
+      backgroundColor: theme.palette.primary.light
+      //color: theme.palette.primary.contrastText
     },
     '&:disabled': {
       borderRadius: 0,
@@ -115,16 +115,16 @@ const useStyles = makeStyles(theme => ({
     backgroundColor: theme.palette.primary.main,
     color: theme.palette.primary.contrastText,
     '&:hover': {
-      backgroundColor: theme.palette.primary.light,
-      color: theme.palette.black
+      backgroundColor: theme.palette.primary.main
+      //color: theme.palette.black
     }
   },
   contColButtonHalfSelected: {
     backgroundColor: theme.palette.primary.semidark,
     color: theme.palette.primary.contrastText,
     '&:hover': {
-      backgroundColor: theme.palette.primary.light,
-      color: theme.palette.black
+      backgroundColor: theme.palette.primary.semidark
+      //color: theme.palette.black
     }
   }
 }));

@@ -64,18 +64,25 @@ const useStyles = makeStyles(theme => ({
     },
     '& .MuiButton-label': {
       paddingTop: '4px'
+    },
+    '&:hover': {
+      // backgroundColor: theme.palette.primary.light
+      backgroundColor: 'primary'
     }
   },
   headerButtonActive: {
-    backgroundColor: '#4472C4',
+    backgroundColor: theme.palette.primary.semidark,
     '& .MuiButton-root': {
       minWidth: '0px'
     },
     '& .MuiButton-containedPrimary': {
-      backgroundColor: '#4472C4'
+      backgroundColor: theme.palette.primary.semidark
     },
     '& .MuiButton-label': {
       paddingTop: '4px'
+    },
+    '&:hover': {
+      backgroundColor: theme.palette.primary.semidark
     }
   }
 }));
@@ -221,7 +228,7 @@ const TagSelector = memo(({ handleHeightChange }) => {
               data-id="tagSelectionButton"
               className={displayAllMolecules ? classes.headerButtonActive : classes.headerButtonInactive}
             >
-              Select all hits
+              Show all hits
             </Button>
           </Grid>
           <Grid item>
