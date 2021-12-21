@@ -17,7 +17,8 @@ import {
 import { Button } from '../common/Inputs/Button';
 import classNames from 'classnames';
 // import { useDisableUserInteraction } from '../helpers/useEnableUserInteracion';
-import { colourList, DatasetMoleculeView } from './datasetMoleculeView';
+import { DatasetMoleculeView } from './datasetMoleculeView';
+import { colourList } from '../preview/molecule/utils/color';
 import { NglContext } from '../nglView/nglProvider';
 import { VIEWS } from '../../constants/constants';
 import { Panel } from '../common/Surfaces/Panel';

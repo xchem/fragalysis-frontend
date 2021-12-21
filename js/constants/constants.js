@@ -30,3 +30,29 @@ export const ARROW_TYPE = {
   UP: 'UP',
   DOWN: 'DOWN'
 };
+
+export const CATEGORY_TYPE = {
+  SITE: 'Sites',
+  SERIES: 'Series',
+  FORUM: 'Discussion',
+  OTHER: 'Other'
+};
+
+export const CATEGORY_ID = {
+  [CATEGORY_TYPE.SITE]: 1,
+  [CATEGORY_TYPE.SERIES]: 2,
+  [CATEGORY_TYPE.FORUM]: 3,
+  [CATEGORY_TYPE.OTHER]: 4
+};
+
+export const CATEGORY_TYPE_BY_ID = {
+  1: CATEGORY_TYPE.SITE,
+  2: CATEGORY_TYPE.SERIES,
+  3: CATEGORY_TYPE.FORUM,
+  4: CATEGORY_TYPE.OTHER
+};
+
+export const TAG_TYPE = {
+  ALL: 'ALL',
+  UNTAGGED: 'UNTAGGED'
+};

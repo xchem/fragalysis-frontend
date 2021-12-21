@@ -16,7 +16,8 @@ import {
 } from '@material-ui/core';
 import React, { useState, useEffect, memo, useRef, useContext } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { DatasetMoleculeView, colourList } from './datasetMoleculeView';
+import { DatasetMoleculeView } from './datasetMoleculeView';
+import { colourList } from '../preview/molecule/utils/color';
 import InfiniteScroll from 'react-infinite-scroller';
 import { Button } from '../common/Inputs/Button';
 import { Panel } from '../common/Surfaces/Panel';
@@ -36,7 +37,7 @@ import {
   removeDatasetSurface,
   autoHideDatasetDialogsOnScroll,
   moveMoleculeInspirationsSettings,
-  removeAllSelectedDatasetMolecules
+  removeSelectedDatasetMolecules
 } from './redux/dispatchActions';
 import { setFilterDialogOpen, setSearchStringOfCompoundSet } from './redux/actions';
 import { DatasetFilter } from './datasetFilter';
@@ -272,7 +273,9 @@ export const DatasetMoleculeList = memo(
     const fragmentDisplayListMolecule = useSelector(state => state.selectionReducers.fragmentDisplayList);
     const surfaceListMolecule = useSelector(state => state.selectionReducers.surfaceList);
     const densityListMolecule = useSelector(state => state.selectionReducers.densityList);
+    const densityListCustomMolecule = useSelector(state => state.selectionReducers.densityListCustom);
     const vectorOnListMolecule = useSelector(state => state.selectionReducers.vectorOnList);
+    const qualityListMolecule = useSelector(state => state.selectionReducers.qualityList);
 
     const ligandList = useSelector(state => state.datasetsReducers.ligandLists[datasetID]);
     const proteinList = useSelector(state => state.datasetsReducers.proteinLists[datasetID]);
@@ -296,17 +299,19 @@ export const DatasetMoleculeList = memo(
       surface: removeDatasetSurface
     };
 
-    const removeOfAllSelectedTypesOfInspirations = skipTracking => {
-      let molecules = [...getJoinedMoleculeList, ...inspirationMoleculeDataList];
+    const removeSelectedTypesOfInspirations = (skipMolecules = [], skipTracking = false) => {
+      const molecules = [...getJoinedMoleculeList, ...inspirationMoleculeDataList].filter(
+        molecule => !skipMolecules.includes(molecule)
+      );
       dispatch(hideAllSelectedMolecules(stage, [...molecules], false, skipTracking));
     };
 
-    const removeOfAllSelectedTypes = skipTracking => {
-      dispatch(removeAllSelectedDatasetMolecules(stage, skipTracking));
+    const removeOSelectedTypes = (skipMolecules = {}, skipTracking = false) => {
+      dispatch(removeSelectedDatasetMolecules(stage, skipTracking, skipMolecules));
     };
 
     const moveSelectedMoleculeInspirationsSettings = (data, newItemData, skipTracking) => (dispatch, getState) => {
-      dispatch(
+      return dispatch(
         moveMoleculeInspirationsSettings(
           data,
           newItemData,
@@ -317,7 +322,9 @@ export const DatasetMoleculeList = memo(
           complexListMolecule,
           surfaceListMolecule,
           densityListMolecule,
+          densityListCustomMolecule,
           vectorOnListMolecule,
+          qualityListMolecule,
           skipTracking
         )
       );
@@ -661,8 +668,8 @@ export const DatasetMoleculeList = memo(
                           showCrossReferenceModal
                           previousItemData={index > 0 && array[index - 1]}
                           nextItemData={index < array?.length && array[index + 1]}
-                          removeOfAllSelectedTypes={removeOfAllSelectedTypes}
-                          removeOfAllSelectedTypesOfInspirations={removeOfAllSelectedTypesOfInspirations}
+                          removeSelectedTypes={removeOSelectedTypes}
+                          removeSelectedTypesOfInspirations={removeSelectedTypesOfInspirations}
                           moveSelectedMoleculeInspirationsSettings={moveSelectedMoleculeInspirationsSettings}
                           L={ligandList.includes(data.id)}
                           P={proteinList.includes(data.id)}

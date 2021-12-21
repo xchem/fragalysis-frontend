@@ -11,8 +11,8 @@ import {
   DialogContentText,
   DialogActions,
   Grid,
-  CircularProgress,
-  makeStyles
+  makeStyles,
+  CircularProgress
 } from '@material-ui/core';
 import { Button } from '../../common/Inputs/Button';
 import { updateClipboard } from '../helpers';

@@ -152,6 +152,22 @@ export const removeFromSurfaceList = function(item, skipTracking = false) {
   };
 };
 
+export const appendToDensityListType = (item, skipTracking = false) => {
+  return {
+    type: constants.APPEND_DENSITY_TYPE,
+    item: item,
+    skipTracking
+  };
+};
+
+export const removeFromDensityListType = (item, skipTracking = false) => {
+  return {
+    type: constants.REMOVE_DENSITY_TYPE,
+    item: item,
+    skipTracking
+  };
+};
+
 export const setDensityList = function(densityList) {
   return {
     type: constants.SET_DENSITY_LIST,
@@ -159,17 +175,128 @@ export const setDensityList = function(densityList) {
   };
 };
 
-export const appendDensityList = function(item) {
+export const appendDensityList = function(item, skipTracking = false) {
   return {
     type: constants.APPEND_DENSITY_LIST,
+    item: item,
+    skipTracking
+  };
+};
+
+export const removeFromDensityList = function(item, skipTracking = false) {
+  return {
+    type: constants.REMOVE_FROM_DENSITY_LIST,
+    item: item,
+    skipTracking
+  };
+};
+
+export const setDensityListCustom = function(densityListCustom) {
+  return {
+    type: constants.SET_DENSITY_LIST_CUSTOM,
+    densityListCustom: densityListCustom
+  };
+};
+
+export const appendDensityListCustom = function(item, skipTracking = false) {
+  return {
+    type: constants.APPEND_DENSITY_LIST_CUSTOM,
+    item: item,
+    skipTracking
+  };
+};
+
+export const removeFromDensityListCustom = function(item, skipTracking = false) {
+  return {
+    type: constants.REMOVE_FROM_DENSITY_LIST_CUSTOM,
+    item: item,
+    skipTracking
+  };
+};
+
+export const setListAllForTagList = (listAll, skipTracking = false) => {
+  return {
+    type: constants.SET_LIST_ALL_FOR_TAG_LIST,
+    listAll: listAll,
+    skipTracking
+  };
+};
+
+export const appendToListAllForTagList = (item, skipTracking = false) => {
+  return {
+    type: constants.APPEND_TO_LIST_ALL_FOR_TAG_LIST,
+    item: item,
+    skipTracking
+  };
+};
+
+export const removeFromListAllForTagList = (item, skipTracking = false) => {
+  return {
+    type: constants.REMOVE_FROM_LIST_ALL_FOR_TAG_LIST,
+    item: item,
+    skipTracking
+  };
+};
+
+export const setDisplayAllNGLList = (displayAllInNGLList, skipTracking = false) => {
+  return {
+    type: constants.SET_DISPLAY_ALL_NGL_LIST,
+    displayAllInNGLList: displayAllInNGLList,
+    skipTracking
+  };
+};
+
+export const appendToDisplayAllNGLList = (item, skipTracking = false) => {
+  return {
+    type: constants.APPEND_TO_DISPLAY_ALL_NGL_LIST,
+    item: item,
+    skipTracking
+  };
+};
+
+export const removeFromDisplayAllNGLList = (item, skipTracking = false) => {
+  return {
+    type: constants.REMOVE_FROM_DISPLAY_ALL_NGL_LIST,
+    item: item,
+    skipTracking
+  };
+};
+
+export const setQualityList = function(qualityList, skipTracking = false) {
+  return {
+    type: constants.SET_QUALITY_LIST,
+    qualityList: qualityList,
+    skipTracking
+  };
+};
+
+export const appendInformationList = function(item) {
+  return {
+    type: constants.APPEND_INFORMATION_LIST,
     item: item
   };
 };
 
-export const removeFromDensityList = function(item) {
+export const removeFromInformationList = function(item) {
   return {
-    type: constants.REMOVE_FROM_DENSITY_LIST,
+    type: constants.REMOVE_FROM_INFORMATION_LIST,
     item: item
+  };
+};
+
+export const appendQualityList = function(item, skipTracking = false) {
+  return {
+    type: constants.APPEND_QUALITY_LIST,
+    item: item,
+    skipTracking: skipTracking
+  };
+};
+
+export const removeFromQualityList = function(item, skipTracking = false) {
+  return {
+    type: constants.REMOVE_FROM_QUALITY_LIST,
+    item: item,
+    skipTracking: skipTracking
   };
 };
 
@@ -295,3 +422,131 @@ export const setArrowUpDown = (item, newItem, arrowType, data) => ({
     data
   }
 });
+
+export const setSelectedTagList = function(selectedTagList, skipTracking = false) {
+  return {
+    type: constants.SET_SELECTED_TAG_LIST,
+    selectedTagList: selectedTagList,
+    skipTracking
+  };
+};
+
+export const appendSelectedTagList = function(item, skipTracking = false) {
+  return {
+    type: constants.APPEND_SELECTED_TAG_LIST,
+    item: item,
+    skipTracking: skipTracking
+  };
+};
+
+export const removeFromSelectedTagList = function(item, skipTracking = false) {
+  return {
+    type: constants.REMOVE_FROM_SELECTED_TAG_LIST,
+    item: item,
+    skipTracking: skipTracking
+  };
+};
+
+export const setCategoryList = function(categoryList, skipTracking = false) {
+  return {
+    type: constants.SET_CATEGORY_LIST,
+    categoryList: categoryList,
+    skipTracking
+  };
+};
+
+export const setTagList = function(tagList, skipTracking = false) {
+  return {
+    type: constants.SET_TAG_LIST,
+    tagList: tagList,
+    skipTracking
+  };
+};
+
+export const appendTagList = function(item, skipTracking = false) {
+  return {
+    type: constants.APPEND_TAG_LIST,
+    item: item,
+    skipTracking
+  };
+};
+
+export const removeFromTagList = function(item, skipTracking = false) {
+  return {
+    type: constants.REMOVE_FROM_TAG_LIST,
+    item: item,
+    skipTracking
+  };
+};
+
+export const setTagEditorOpen = isOpen => {
+  return {
+    type: constants.SET_TAG_EDITOR_OPEN,
+    isOpen: isOpen
+  };
+};
+
+export const setMoleculeForTagEdit = molId => {
+  return {
+    type: constants.SET_MOLECULE_FOR_TAG_EDIT,
+    molId: molId
+  };
+};
+
+export const setTagFilteringMode = isExclusive => {
+  return {
+    type: constants.SWITCH_TAG_FILTERING_MODE,
+    mode: isExclusive
+  };
+};
+
+export const updateTag = (item, skipTracking = false) => {
+  return {
+    type: constants.UPDATE_TAG,
+    item: item,
+    skipTracking
+  };
+};
+
+export const setDisplayedMoleculesInHitNav = (list, skipTracking = true) => {
+  return {
+    type: constants.SET_DISPLAYED_MOLECULES_HIT_NAV,
+    list: list,
+    skipTracking
+  };
+};
+
+export const setIsTagGlobalEdit = isGlobalEdit => {
+  return {
+    type: constants.SET_IS_TAG_GLOBAL_EDIT,
+    isGlobalEdit: isGlobalEdit
+  };
+};
+
+export const setMolListToEdit = list => {
+  return {
+    type: constants.SET_MOL_LIST_TO_EDIT,
+    list: list
+  };
+};
+
+export const appendToMolListToEdit = molId => {
+  return {
+    type: constants.APPEND_TO_MOL_LIST_TO_EDIT,
+    molId: molId
+  };
+};
+
+export const removeFromMolListToEdit = molId => {
+  return {
+    type: constants.REMOVE_FROM_MOL_LIST_TO_EDIT,
+    molId: molId
+  };
+};
+
+export const setTagToEdit = tag => {
+  return {
+    type: constants.SET_TAG_TO_EDIT,
+    tagToEdit: tag
+  };
+};

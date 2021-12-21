@@ -12,5 +12,10 @@ export const reloadMoleculeReducer = newState => ({
 
 export const addImageToCache = (molId, image) => ({
   type: constants.ADD_IMAGE_TO_CACHE,
-  payload: {molId: molId, image: image}
+  payload: { molId: molId, image: image }
+});
+
+export const addProteindDataToCache = (molId, proteinData) => ({
+  type: constants.ADD_PROTEIN_DATA_TO_CACHE,
+  payload: { molId: molId, proteinData: proteinData }
 });
