@@ -587,10 +587,10 @@ export const MoleculeList = memo(({ height, setFilterItemsHeight, filterItemsHei
   };
 
   const selectMoleculeTags = moleculeTagsSet => {
-    const moleculeTags = tags.filter(tag => moleculeTagsSet.includes(tag.id));
-    moleculeTags.forEach(tag => {
+    const moleculeTags = tags.filter((tag) => moleculeTagsSet.includes(tag.id));
+    moleculeTags.forEach((tag) => {
       dispatch(selectTag(tag));
-    });
+    })
   };
 
   const addNewType = (type, skipTracking = false) => {
