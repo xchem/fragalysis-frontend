@@ -244,7 +244,7 @@ export const MoleculeList = memo(({ height, setFilterItemsHeight, filterItemsHei
   const imgWidth = 150;
   const sortDialogOpen = useSelector(state => state.previewReducers.molecule.sortDialogOpen);
   const filter = useSelector(state => state.selectionReducers.filter);
-  const getJoinedMoleculeList = useSelector(state => selectJoinedMoleculeList(state));
+  let getJoinedMoleculeList = useSelector(state => selectJoinedMoleculeList(state));
   const allMoleculesList = useSelector(state => selectAllMoleculeList(state));
 
   const selectedAll = useRef(false);
@@ -287,6 +287,11 @@ export const MoleculeList = memo(({ height, setFilterItemsHeight, filterItemsHei
   const filterRef = useRef();
   const tagEditorRef = useRef();
   const [tagEditorAnchorEl, setTagEditorAnchorEl] = useState(null);
+  const [showAllMoleculesOn, setShowAllMoleculesOn] = useState(false);
+  //quick hack for urgent fix - should be incorporated into the selector selectJoinedMoleculeList
+  if (showAllMoleculesOn) {
+    getJoinedMoleculeList = [...all_mol_lists];
+  }
 
   // const disableUserInteraction = useDisableUserInteraction();
 
@@ -587,10 +592,10 @@ export const MoleculeList = memo(({ height, setFilterItemsHeight, filterItemsHei
   };
 
   const selectMoleculeTags = moleculeTagsSet => {
-    const moleculeTags = tags.filter((tag) => moleculeTagsSet.includes(tag.id));
-    moleculeTags.forEach((tag) => {
+    const moleculeTags = tags.filter(tag => moleculeTagsSet.includes(tag.id));
+    moleculeTags.forEach(tag => {
       dispatch(selectTag(tag));
-    })
+    });
   };
 
   const addNewType = (type, skipTracking = false) => {
@@ -844,65 +849,84 @@ export const MoleculeList = memo(({ height, setFilterItemsHeight, filterItemsHei
                     {moleculeProperty[key]}
                   </Grid>
                 ))}
-                {currentMolecules.length > 0 && (
-                  <Grid item>
-                    <Grid
-                      container
-                      direction="row"
-                      justify="flex-start"
-                      alignItems="center"
-                      wrap="nowrap"
-                      className={classes.contButtonsMargin}
-                    >
-                      <Tooltip title="all ligands">
-                        <Grid item>
-                          <Button
-                            variant="outlined"
-                            className={classNames(classes.contColButton, {
-                              [classes.contColButtonSelected]: isLigandOn === true,
-                              [classes.contColButtonHalfSelected]: isLigandOn === null
-                            })}
-                            onClick={() => onButtonToggle('ligand')}
-                            disabled={false}
-                          >
-                            L
-                          </Button>
-                        </Grid>
-                      </Tooltip>
-                      <Tooltip title="all sidechains">
-                        <Grid item>
-                          <Button
-                            variant="outlined"
-                            className={classNames(classes.contColButton, {
-                              [classes.contColButtonSelected]: isProteinOn,
-                              [classes.contColButtonHalfSelected]: isProteinOn === null
-                            })}
-                            onClick={() => onButtonToggle('protein')}
-                            disabled={false}
-                          >
-                            P
-                          </Button>
-                        </Grid>
-                      </Tooltip>
-                      <Tooltip title="all interactions">
-                        <Grid item>
-                          {/* C stands for contacts now */}
-                          <Button
-                            variant="outlined"
-                            className={classNames(classes.contColButton, {
-                              [classes.contColButtonSelected]: isComplexOn,
-                              [classes.contColButtonHalfSelected]: isComplexOn === null
-                            })}
-                            onClick={() => onButtonToggle('complex')}
-                            disabled={false}
-                          >
-                            C
-                          </Button>
-                        </Grid>
-                      </Tooltip>
-                    </Grid>
+                <Grid item>
+                  <Grid
+                    container
+                    direction="row"
+                    justify="flex-start"
+                    alignItems="center"
+                    wrap="nowrap"
+                    className={classes.contButtonsMargin}
+                  >
+                    {currentMolecules.length > 0 && (
+                      <>
+                        <Tooltip title="all ligands">
+                          <Grid item>
+                            <Button
+                              variant="outlined"
+                              className={classNames(classes.contColButton, {
+                                [classes.contColButtonSelected]: isLigandOn === true,
+                                [classes.contColButtonHalfSelected]: isLigandOn === null
+                              })}
+                              onClick={() => onButtonToggle('ligand')}
+                              disabled={false}
+                            >
+                              L
+                            </Button>
+                          </Grid>
+                        </Tooltip>
+                        <Tooltip title="all sidechains">
+                          <Grid item>
+                            <Button
+                              variant="outlined"
+                              className={classNames(classes.contColButton, {
+                                [classes.contColButtonSelected]: isProteinOn,
+                                [classes.contColButtonHalfSelected]: isProteinOn === null
+                              })}
+                              onClick={() => onButtonToggle('protein')}
+                              disabled={false}
+                            >
+                              P
+                            </Button>
+                          </Grid>
+                        </Tooltip>
+                        <Tooltip title="all interactions">
+                          <Grid item>
+                            {/* C stands for contacts now */}
+                            <Button
+                              variant="outlined"
+                              className={classNames(classes.contColButton, {
+                                [classes.contColButtonSelected]: isComplexOn,
+                                [classes.contColButtonHalfSelected]: isComplexOn === null
+                              })}
+                              onClick={() => onButtonToggle('complex')}
+                              disabled={false}
+                            >
+                              C
+                            </Button>
+                          </Grid>
+                        </Tooltip>
+                      </>
+                    )}
+                    <Tooltip title="Display all molecules">
+                      <Grid item>
+                        <Button
+                          variant="outlined"
+                          className={classNames(classes.contColButton, {
+                            [classes.contColButtonSelected]: showAllMoleculesOn,
+                            [classes.contColButtonHalfSelected]: false
+                          })}
+                          onClick={() => {
+                            setShowAllMoleculesOn(!showAllMoleculesOn);
+                          }}
+                          disabled={false}
+                        >
+                          Display all molecules
+                        </Button>
+                      </Grid>
+                    </Tooltip>
                   </Grid>
-                )}
+                </Grid>
               </Grid>
             </Grid>
           </Grid>
