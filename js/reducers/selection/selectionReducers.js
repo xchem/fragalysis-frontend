@@ -50,7 +50,8 @@ export const INITIAL_STATE = {
   // tags
   tagToEdit: null,
   //display all molecules in hit navigator regardless of the tag selection
-  displayAllMolecules: false
+  displayAllMolecules: false,
+  associatedDownloadTagName: null
 };
 
 export function selectionReducers(state = INITIAL_STATE, action = {}) {
@@ -499,7 +500,10 @@ export function selectionReducers(state = INITIAL_STATE, action = {}) {
     case constants.SET_DISPLAY_ALL_MOLECULES: {
       return { ...state, displayAllMolecules: action.displayAllMolecules };
     }
-      
+
+    case constants.SET_ASSOCIATED_DOWNLOAD_TAG_NAME:
+      return { ...state, associatedDownloadTagName: action.tagName };
+
     // Cases like: @@redux/INIT
     default:
       return state;

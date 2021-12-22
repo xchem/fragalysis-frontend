@@ -155,7 +155,7 @@ export const loadSnapshotByProjectID = projectID => (dispatch, getState) => {
               created: response.data.results[0].created,
               children: response.data.results[0].children,
               parent: response.data.results[0].parent,
-              data: '[]'
+              data: response.data.results[0].data
             })
           );
           return Promise.resolve(response.data.results[0].id);
@@ -192,7 +192,7 @@ export const loadCurrentSnapshotByID = snapshotID => (dispatch, getState) => {
               created: response.data.created,
               children: response.data.children,
               parent: response.data.parent,
-              data: '[]'
+              data: response.data.data
             })
           );
           return Promise.resolve(response.data);

@@ -557,3 +557,10 @@ export const setDisplayAllMolecules = displayAllMolecules => {
     displayAllMolecules: displayAllMolecules
   };
 };
+
+export const setAssociatedDownloadTagName = tagName => {
+  return {
+    type: constants.SET_ASSOCIATED_DOWNLOAD_TAG_NAME,
+    tagName: tagName
+  };
+};
