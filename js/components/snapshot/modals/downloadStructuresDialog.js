@@ -1,4 +1,4 @@
-import React, { memo, useState, useContext } from 'react';
+import React, { memo, useState, useContext, useEffect, useCallback } from 'react';
 import Modal from '../../common/Modal';
 import { useDispatch, useSelector } from 'react-redux';
 import {
@@ -36,6 +36,8 @@ import { NglContext } from '../../nglView/nglProvider';
 import { initSharedSnapshot } from '../redux/reducer';
 import moment from 'moment';
 import { appendToDownloadTags } from '../../../reducers/api/actions';
+import { getTagByName } from '../../preview/tags/api/tagsApi';
+import { withStyles } from '@material-ui/core/styles';
 
 const useStyles = makeStyles(theme => ({
   select: {
@@ -67,6 +69,7 @@ export const DownloadStructureDialog = memo(({}) => {
   const selectedMoleculesIds = useSelector(state => state.selectionReducers.moleculesToEdit);
   const taggedMolecules = useSelector(state => selectJoinedMoleculeList(state));
   const downloadTags = useSelector(state => state.apiReducers.downloadTags);
+  const currentSnapshot = useSelector(state => state.projectReducers.currentSnapshot);
 
   const [structuresSelection, setStructuresSelection] = useState('allStructures');
   const [bound, setBound] = useState(true);
@@ -88,6 +91,27 @@ export const DownloadStructureDialog = memo(({}) => {
   const [downloadTagUrl, setDownloadTagUrl] = useState(null);
   const [selectedDownload, setSelectedDownload] = useState(newDownload);
   const [linkType, setLinkType] = useState('incremental');
+  const [error, setError] = useState(false);
+
+  useEffect(() => {
+    if (currentSnapshot && currentSnapshot.data && currentSnapshot.data !== '[]') {
+      const dataObj = JSON.parse(currentSnapshot.data);
+      if (dataObj.downloadTag && downloadTags) {
+        const associatedDownloadTag = downloadTags.find(dt => dt.tag === dataObj.downloadTag);
+        if (associatedDownloadTag) {
+          updateExistingDownload(associatedDownloadTag.additional_info.downloadName);
+        } else {
+          //download may just not be shown in the dropdown for variety reasons (e.g
+          // I'm not the author of the download or it's anonymous download older than 5 days)
+          getTagByName(dataObj.downloadTag).then(tag => {
+            if (tag.additional_info) {
+              dispatch(appendToDownloadTags(tag));
+            }
+          });
+        }
+      }
+    }
+  }, [currentSnapshot, downloadTags, updateExistingDownload, dispatch]);
 
   const isStaticDownload = () => {
     return linkType !== 'incremental';
@@ -149,6 +173,7 @@ export const DownloadStructureDialog = memo(({}) => {
     if (selectedDownload !== newDownload) {
       const donwloadTag = findDownload(selectedDownload);
       if (donwloadTag) {
+        setError(false);
         setZipPreparing(true);
         getDownloadStructuresUrl(donwloadTag.additional_info.requestObject)
           .then(resp => {
@@ -163,6 +188,7 @@ export const DownloadStructureDialog = memo(({}) => {
           });
       }
     } else {
+      setError(false);
       setZipPreparing(true);
 
       const requestObject = prepareRequestObject();
@@ -200,6 +226,8 @@ export const DownloadStructureDialog = memo(({}) => {
           setZipPreparing(false);
         })
         .catch(e => {
+          setZipPreparing(false);
+          setError(true);
           console.log(e);
         });
     }
@@ -245,33 +273,43 @@ export const DownloadStructureDialog = memo(({}) => {
     dispatch(setDownloadStructuresDialogOpen(false));
   };
 
-  const findDownload = downloadName => {
-    const selectedTag = downloadTags.find(t => t.additional_info.downloadName === downloadName);
-    return selectedTag;
-  };
+  const findDownload = useCallback(
+    downloadName => {
+      const selectedTag = downloadTags.find(t => t.additional_info.downloadName === downloadName);
+      return selectedTag;
+    },
+    [downloadTags]
+  );
 
   const onUpdateExistingDownload = event => {
-    setSelectedDownload(event.target.value);
-    if (event.target.value !== newDownload) {
-      const selectedTag = findDownload(event.target.value);
-      if (selectedTag) {
-        setStructuresSelection(selectedTag.additional_info.structuresSelection || 'allStructures');
-        setBound(selectedTag.additional_info.requestObject.bound_info);
-        setCif(selectedTag.additional_info.requestObject.cif_info);
-        setDiff(selectedTag.additional_info.requestObject.diff_info);
-        setEvent(selectedTag.additional_info.requestObject.event_info);
-        setSigmaa(selectedTag.additional_info.requestObject.sigmaa_info);
-        setSdf(selectedTag.additional_info.requestObject.sdf_info);
-        setTransformMatrix(selectedTag.additional_info.requestObject.trans_matrix_info);
-        setMetadata(selectedTag.additional_info.requestObject.metadata_info);
-        setSmiles(selectedTag.additional_info.requestObject.smiles_info);
-        setPdb(selectedTag.additional_info.requestObject.pdb_info);
-        setMtz(selectedTag.additional_info.requestObject.mtz_info);
-        setSingleSdf(selectedTag.additional_info.requestObject.single_sdf_file);
-        setLinkType(selectedTag.additional_info.requestObject.static_link ? 'static' : 'incremental');
-      }
-    }
+    updateExistingDownload(event.target.value);
   };
+
+  const updateExistingDownload = useCallback(
+    downloadName => {
+      setSelectedDownload(downloadName);
+      if (downloadName !== newDownload) {
+        const selectedTag = findDownload(downloadName);
+        if (selectedTag) {
+          setStructuresSelection(selectedTag.additional_info.structuresSelection || 'allStructures');
+          setBound(selectedTag.additional_info.requestObject.bound_info);
+          setCif(selectedTag.additional_info.requestObject.cif_info);
+          setDiff(selectedTag.additional_info.requestObject.diff_info);
+          setEvent(selectedTag.additional_info.requestObject.event_info);
+          setSigmaa(selectedTag.additional_info.requestObject.sigmaa_info);
+          setSdf(selectedTag.additional_info.requestObject.sdf_info);
+          setTransformMatrix(selectedTag.additional_info.requestObject.trans_matrix_info);
+          setMetadata(selectedTag.additional_info.requestObject.metadata_info);
+          setSmiles(selectedTag.additional_info.requestObject.smiles_info);
+          setPdb(selectedTag.additional_info.requestObject.pdb_info);
+          setMtz(selectedTag.additional_info.requestObject.mtz_info);
+          setSingleSdf(selectedTag.additional_info.requestObject.single_sdf_file);
+          setLinkType(selectedTag.additional_info.requestObject.static_link ? 'static' : 'incremental');
+        }
+      }
+    },
+    [findDownload]
+  );
 
   const showSnapshotClicked = () => {
     const download = findDownload(selectedDownload);
@@ -286,18 +324,35 @@ export const DownloadStructureDialog = memo(({}) => {
     updateClipboard(jsonString);
   };
 
+  const ErrorMsg = withStyles({
+    root: {
+      color: 'red'
+    }
+  })(Typography);
+
   return (
     <Modal open={isOpen}>
-      {!zipPreparing && (
-        <DialogTitle id="form-dialog-structures-title">{`Download structures for target ${targetName}`}</DialogTitle>
+      {!zipPreparing && !error && (
+        <DialogTitle id="form-dialog-structures-title">
+          <Typography variant="h5">{`Download structures for target ${targetName}`}</Typography>
+        </DialogTitle>
       )}
       {zipPreparing && (
         <>
           <Box sx={{ width: '100%' }}>
             <LinearProgress />
           </Box>
-          <DialogTitle id="form-dialog-structures-title">{'Preparing download...'}</DialogTitle>
+          {!error && (
+            <DialogTitle id="form-dialog-structures-title">
+              <Typography variant="h5">{'Preparing download...'}</Typography>
+            </DialogTitle>
+          )}
         </>
+      )}
+      {error && (
+        <DialogTitle id="form-dialog-structures-title">
+          <ErrorMsg variant="h4">{'Download failed!!!'}</ErrorMsg>
+        </DialogTitle>
       )}
       <DialogContent>
         <Grid container direction="column">
@@ -453,14 +508,6 @@ export const DownloadStructureDialog = memo(({}) => {
               </Grid>
             </Grid>
           </Grid>
-          {/* {downloadTagUrl && (
-            <Grid container item directio="row">
-              <Grid item>
-                <Typography>{downloadTagUrl}</Typography>
-              </Grid>
-              <Grid item></Grid>
-            </Grid>
-          )} */}
         </Grid>
       </DialogContent>
       <DialogActions>
