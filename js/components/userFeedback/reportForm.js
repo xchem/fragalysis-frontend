@@ -281,16 +281,18 @@ export const ReportForm = memo(({ formType }) => {
 
   return (
     <div>
-      <Button
-        startIcon={getButtonIcon()}
-        variant="text"
-        size="small"
-        className={getButtonStyle()}
-        onClick={handleOpenDialog}
-        disabled={true}
-      >
-        {getTitle()}
-      </Button>
+      {false && (
+        <Button
+          startIcon={getButtonIcon()}
+          variant="text"
+          size="small"
+          className={getButtonStyle()}
+          onClick={handleOpenDialog}
+          disabled={false}
+        >
+          {getTitle()}
+        </Button>
+      )}
       <Modal open={openDialog}>
         <Grid container direction="column" className={classes.pt}>
           <Grid item>

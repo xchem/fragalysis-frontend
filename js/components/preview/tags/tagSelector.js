@@ -207,8 +207,8 @@ const TagSelector = memo(({ handleHeightChange }) => {
             <Tooltip
               title={
                 tagMode
-                  ? 'Any compound labelled with any of the active tags will be selected'
-                  : 'Only the compounds labelled with all the active tags will be selected'
+                  ? 'Intersection: Only the compounds labelled with all the active tags will be selected'
+                  : 'Union: Any compound labelled with any of the active tags will be selected'
               }
             >
               <FormControlLabel
