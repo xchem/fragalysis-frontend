@@ -16,7 +16,8 @@ import {
   Box,
   Typography,
   Select,
-  MenuItem
+  MenuItem,
+  Tooltip
 } from '@material-ui/core';
 import { selectJoinedMoleculeList } from '../../preview/molecule/redux/selectors';
 import { getDownloadStructuresUrl, downloadStructuresZip, getDownloadFileSize } from '../api/api';
@@ -91,6 +92,25 @@ export const DownloadStructureDialog = memo(({}) => {
     return linkType !== 'incremental';
   };
 
+  const prepareRequestObject = () => {
+    let structuresToDownload = [];
+    let isAllStructures = false;
+    if (structuresSelection === 'allStructures') {
+      structuresToDownload = allMolecules;
+      isAllStructures = true;
+    } else if (structuresSelection === 'displayedStructures') {
+      structuresToDownload = allMolecules.filter(m => ligandsTurnedOnIds.some(id => id === m.id));
+    } else if (structuresSelection === 'selectedStructures') {
+      structuresToDownload = allMolecules.filter(m => selectedMoleculesIds.some(id => id === m.id));
+    } else if (structuresSelection === 'tagged') {
+      structuresToDownload = taggedMolecules;
+    }
+
+    const requestObject = getRequestObject(structuresToDownload, isAllStructures);
+
+    return requestObject;
+  };
+
   const getRequestObject = (structuresToDownload, allStructures = false) => {
     let proteinNames = '';
     if (!allStructures) {
@@ -143,20 +163,8 @@ export const DownloadStructureDialog = memo(({}) => {
       }
     } else {
       setZipPreparing(true);
-      let structuresToDownload = [];
-      let isAllStructures = false;
-      if (structuresSelection === 'allStructures') {
-        structuresToDownload = allMolecules;
-        isAllStructures = true;
-      } else if (structuresSelection === 'displayedStructures') {
-        structuresToDownload = allMolecules.filter(m => ligandsTurnedOnIds.some(id => id === m.id));
-      } else if (structuresSelection === 'selectedStructures') {
-        structuresToDownload = allMolecules.filter(m => selectedMoleculesIds.some(id => id === m.id));
-      } else if (structuresSelection === 'tagged') {
-        structuresToDownload = taggedMolecules;
-      }
 
-      const requestObject = getRequestObject(structuresToDownload, isAllStructures);
+      const requestObject = prepareRequestObject();
       const tagData = { requestObject: requestObject, structuresSelection: structuresSelection };
       dispatch(setDontShowShareSnapshot(true));
       const tagName = generateTagName();
@@ -269,6 +277,12 @@ export const DownloadStructureDialog = memo(({}) => {
     if (download && download.additional_info && download.additional_info.snapshot) {
       window.open(download.additional_info.snapshot.url, '_blank');
     }
+  };
+
+  const copyPOSTJson = () => {
+    const requestObject = prepareRequestObject();
+    const jsonString = JSON.stringify(requestObject);
+    updateClipboard(jsonString);
   };
 
   return (
@@ -449,6 +463,16 @@ export const DownloadStructureDialog = memo(({}) => {
         </Grid>
       </DialogContent>
       <DialogActions>
+        <Tooltip title={`Prepend ${base_url} to the the URL returned by the POST request`}>
+          <Button
+            color="primary"
+            onClick={() => {
+              copyPOSTJson();
+            }}
+          >
+            (for coders) Copy POST request json
+          </Button>
+        </Tooltip>
         <Button
           disabled={!(downloadUrl && fileSize) || zipPreparing}
           color="primary"
