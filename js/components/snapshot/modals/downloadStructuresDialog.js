@@ -17,7 +17,8 @@ import {
   Typography,
   Select,
   MenuItem,
-  Tooltip
+  Tooltip,
+  Paper
 } from '@material-ui/core';
 import { selectJoinedMoleculeList } from '../../preview/molecule/redux/selectors';
 import { getDownloadStructuresUrl, downloadStructuresZip, getDownloadFileSize } from '../api/api';
@@ -463,7 +464,15 @@ export const DownloadStructureDialog = memo(({}) => {
         </Grid>
       </DialogContent>
       <DialogActions>
-        <Tooltip title={`Prepend ${base_url} to the the URL returned by the POST request`}>
+        <Tooltip
+          title={
+            <Paper>
+              <Typography varian="h6">
+                {`Get a json for a POST request (${base_url}/api/download_structures/) that will generate a FILE_URL. Download your data at ${base_url}/api/download_structures/?file_url=<FILE_URL>`}
+              </Typography>
+            </Paper>
+          }
+        >
           <Button
             color="primary"
             onClick={() => {
