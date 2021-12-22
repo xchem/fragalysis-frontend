@@ -904,23 +904,25 @@ export const MoleculeList = memo(({ height, setFilterItemsHeight, filterItemsHei
                         </Tooltip>
                       </>
                     )}
-                    <Tooltip title="Show all hits">
-                      <Grid item>
-                        <Button
-                          variant="outlined"
-                          className={classNames(classes.contColButton, {
-                            [classes.contColButtonSelected]: displayAllMolecules,
-                            [classes.contColButtonHalfSelected]: false
-                          })}
-                          onClick={() => {
-                            dispatch(setDisplayAllMolecules(!displayAllMolecules));
-                          }}
-                          disabled={false}
-                        >
-                          Display all molecules
-                        </Button>
-                      </Grid>
-                    </Tooltip>
+                    {false && (
+                      <Tooltip title="Show all hits">
+                        <Grid item>
+                          <Button
+                            variant="outlined"
+                            className={classNames(classes.contColButton, {
+                              [classes.contColButtonSelected]: displayAllMolecules,
+                              [classes.contColButtonHalfSelected]: false
+                            })}
+                            onClick={() => {
+                              dispatch(setDisplayAllMolecules(!displayAllMolecules));
+                            }}
+                            disabled={false}
+                          >
+                            Display all molecules
+                          </Button>
+                        </Grid>
+                      </Tooltip>
+                    )}
                   </Grid>
                 </Grid>
               </Grid>
