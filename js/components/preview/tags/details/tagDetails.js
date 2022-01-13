@@ -1,4 +1,4 @@
-import React, { memo, useRef, useEffect, useCallback, useState } from 'react';
+import React, { memo, useRef, useEffect, useCallback, useState, useMemo } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { Grid, Typography, makeStyles, IconButton, Tooltip } from '@material-ui/core';
 import { Panel } from '../../../common/Surfaces/Panel';
@@ -17,6 +17,7 @@ import {
 import { UnfoldMore, KeyboardArrowDown, KeyboardArrowUp } from '@material-ui/icons';
 import { getMoleculeForId } from '../redux/dispatchActions';
 import classNames from 'classnames';
+import SearchField from '../../../common/Components/SearchField';
 
 export const heightOfBody = '164px';
 export const defaultHeaderPadding = 15;
@@ -58,6 +59,9 @@ const useStyles = makeStyles(theme => ({
   },
   dateLabel: {
     gridColumn: '6 / span 2'
+  },
+  search: {
+    width: 140
   }
 }));
 
@@ -75,6 +79,14 @@ const TagDetails = memo(({ handleHeightChange }) => {
 
   const preTagList = useSelector(state => state.selectionReducers.tagList);
   const [tagList, setTagList] = useState([]);
+
+  const [searchString, setSearchString] = useState(null);
+  const filteredTagList = useMemo(() => {
+    if (searchString) {
+      return tagList.filter(tag => tag.tag.toLowerCase().includes(searchString.toLowerCase()));
+    }
+    return tagList;
+  }, [searchString, tagList]);
 
   useEffect(() => {
     setTagList([...preTagList].sort(compareTagsAsc));
@@ -250,6 +262,7 @@ const TagDetails = memo(({ handleHeightChange }) => {
           handleHeightChange(ref.current.offsetHeight);
         }
       }}
+      headerActions={[<SearchField className={classes.search} id="search-tag-details" onChange={setSearchString} />]}
     >
       <div ref={elementRef} className={classes.containerExpanded}>
         <div className={classes.container}>
@@ -325,8 +338,8 @@ const TagDetails = memo(({ handleHeightChange }) => {
             </IconButton>
           </div>
 
-          {tagList &&
-            tagList.map((tag, idx) => {
+          {filteredTagList &&
+            filteredTagList.map((tag, idx) => {
               return (
                 <TagDetailRow
                   tag={tag}

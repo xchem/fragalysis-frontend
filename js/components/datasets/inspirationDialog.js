@@ -1,15 +1,6 @@
-import React, { forwardRef, memo, useContext, useEffect, useRef, useState } from 'react';
-import {
-  CircularProgress,
-  Grid,
-  Popper,
-  IconButton,
-  Typography,
-  InputAdornment,
-  TextField,
-  Tooltip
-} from '@material-ui/core';
-import { Close, Search } from '@material-ui/icons';
+import React, { forwardRef, memo, useContext, useRef, useState } from 'react';
+import { CircularProgress, Grid, Popper, IconButton, Typography, Tooltip } from '@material-ui/core';
+import { Close } from '@material-ui/icons';
 import { makeStyles } from '@material-ui/styles';
 import { useDispatch, useSelector } from 'react-redux';
 import {
@@ -25,7 +16,6 @@ import {
 } from '../preview/molecule/redux/dispatchActions';
 import MoleculeView from '../preview/molecule/moleculeView';
 import { moleculeProperty } from '../preview/molecule/helperConstants';
-import { debounce } from 'lodash';
 import { setIsOpenInspirationDialog } from './redux/actions';
 import { Button } from '../common/Inputs/Button';
 import classNames from 'classnames';
@@ -36,6 +26,7 @@ import { VIEWS } from '../../constants/constants';
 import { Panel } from '../common/Surfaces/Panel';
 import { changeButtonClassname } from './helpers';
 import { setSelectedAllByType, setDeselectedAllByType } from '../../reducers/selection/actions';
+import SearchField from '../common/Components/SearchField';
 
 const useStyles = makeStyles(theme => ({
   paper: {
@@ -71,17 +62,7 @@ const useStyles = makeStyles(theme => ({
     height: 214
   },
   search: {
-    margin: theme.spacing(1),
-    width: 140,
-    '& .MuiInputBase-root': {
-      color: theme.palette.white
-    },
-    '& .MuiInput-underline:before': {
-      borderBottomColor: theme.palette.white
-    },
-    '& .MuiInput-underline:after': {
-      borderBottomColor: theme.palette.white
-    }
+    width: 140
   },
   notFound: {
     paddingTop: theme.spacing(2)
@@ -158,19 +139,6 @@ export const InspirationDialog = memo(
 
     const dispatch = useDispatch();
     // const disableUserInteraction = useDisableUserInteraction();
-
-    let debouncedFn;
-
-    const handleSearch = event => {
-      /* signal to React not to nullify the event object */
-      event.persist();
-      if (!debouncedFn) {
-        debouncedFn = debounce(() => {
-          setSearchString(event.target.value !== '' ? event.target.value : null);
-        }, 350);
-      }
-      debouncedFn();
-    };
 
     let moleculeList = [];
     if (searchString !== null) {
@@ -300,19 +268,12 @@ export const InspirationDialog = memo(
           title="Inspirations"
           className={classes.paper}
           headerActions={[
-            <TextField
+            <SearchField
               className={classes.search}
               id="search-inspiration-dialog"
               placeholder="Search"
               size="small"
-              InputProps={{
-                startAdornment: (
-                  <InputAdornment position="start">
-                    <Search color="inherit" />
-                  </InputAdornment>
-                )
-              }}
-              onChange={handleSearch}
+              onChange={setSearchString}
               disabled={!(isLoadingInspirationListOfMolecules === false && moleculeList)}
             />,
             <Tooltip title="Close inspirations">

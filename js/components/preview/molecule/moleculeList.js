@@ -12,8 +12,6 @@ import {
   FormControl,
   Select,
   MenuItem,
-  TextField,
-  InputAdornment,
   IconButton,
   ButtonGroup
 } from '@material-ui/core';
@@ -51,9 +49,8 @@ import {
   removeQuality
 } from './redux/dispatchActions';
 import { DEFAULT_FILTER, PREDEFINED_FILTERS } from '../../../reducers/selection/constants';
-import { Edit, FilterList, Search } from '@material-ui/icons';
+import { Edit, FilterList } from '@material-ui/icons';
 import { selectAllMoleculeList, selectJoinedMoleculeList } from './redux/selectors';
-import { debounce } from 'lodash';
 import { MOL_ATTRIBUTES } from './redux/constants';
 import { setFilter, setDisplayAllMolecules } from '../../../reducers/selection/actions';
 import { initializeFilter } from '../../../reducers/selection/dispatchActions';
@@ -70,6 +67,7 @@ import {
 } from '../../../reducers/selection/actions';
 import { TagEditor } from '../tags/modal/tagEditor';
 import { getMoleculeForId, selectTag } from '../tags/redux/dispatchActions';
+import SearchField from '../../common/Components/SearchField';
 
 const useStyles = makeStyles(theme => ({
   container: {
@@ -205,17 +203,7 @@ const useStyles = makeStyles(theme => ({
     fill: 'inherit'
   },
   search: {
-    margin: theme.spacing(1),
-    width: 116,
-    '& .MuiInputBase-root': {
-      color: 'inherit'
-    },
-    '& .MuiInput-underline:before': {
-      borderBottomColor: 'inherit'
-    },
-    '& .MuiInput-underline:after': {
-      borderBottomColor: 'inherit'
-    }
+    width: 116
   },
   total: {
     ...theme.typography.button,
@@ -665,19 +653,6 @@ export const MoleculeList = memo(({ height, setFilterItemsHeight, filterItemsHei
     return molecules;
   };
 
-  let debouncedFn;
-
-  const handleSearch = event => {
-    /* signal to React not to nullify the event object */
-    event.persist();
-    if (!debouncedFn) {
-      debouncedFn = debounce(() => {
-        setSearchString(event.target.value !== '' ? event.target.value : null);
-      }, 350);
-    }
-    debouncedFn();
-  };
-
   const openGlobalTagEditor = () => {};
 
   const actions = [
@@ -701,18 +676,10 @@ export const MoleculeList = memo(({ height, setFilterItemsHeight, filterItemsHei
         ))}
       </Select>
     </FormControl>,
-    <TextField
+    <SearchField
       className={classes.search}
       id="search-hit-navigator"
-      placeholder="Search"
-      InputProps={{
-        startAdornment: (
-          <InputAdornment position="start">
-            <Search color="inherit" />
-          </InputAdornment>
-        )
-      }}
-      onChange={handleSearch}
+      onChange={setSearchString}
       disabled={false || (getJoinedMoleculeList && getJoinedMoleculeList.length === 0)}
     />,
 

@@ -9,8 +9,6 @@ import {
   CircularProgress,
   Divider,
   Typography,
-  TextField,
-  InputAdornment,
   IconButton,
   ButtonGroup
 } from '@material-ui/core';
@@ -43,9 +41,8 @@ import {
 } from './redux/dispatchActions';
 import { setFilterDialogOpen, setSearchStringOfCompoundSet } from './redux/actions';
 import { DatasetFilter } from './datasetFilter';
-import { FilterList, Search, Link } from '@material-ui/icons';
+import { FilterList, Link } from '@material-ui/icons';
 import { getFilteredDatasetMoleculeList } from './redux/selectors';
-import { debounce } from 'lodash';
 import { InspirationDialog } from './inspirationDialog';
 import { CrossReferenceDialog } from './crossReferenceDialog';
 import { AlertModal } from '../common/Modal/AlertModal';
@@ -56,6 +53,7 @@ import { setSelectedAllByType, setDeselectedAllByType } from './redux/actions';
 import { DndProvider } from 'react-dnd';
 import { HTML5Backend } from 'react-dnd-html5-backend';
 import { sortMoleculesByDragDropState } from './helpers';
+import SearchField from '../common/Components/SearchField';
 
 const useStyles = makeStyles(theme => ({
   container: {
@@ -180,17 +178,7 @@ const useStyles = makeStyles(theme => ({
     fontWeight: 'bolder'
   },
   search: {
-    margin: theme.spacing(1),
-    width: 140,
-    '& .MuiInputBase-root': {
-      color: theme.palette.white
-    },
-    '& .MuiInput-underline:before': {
-      borderBottomColor: theme.palette.white
-    },
-    '& .MuiInput-underline:after': {
-      borderBottomColor: theme.palette.white
-    }
+    width: 140
   },
   loading: {
     paddingTop: theme.spacing(2)
@@ -417,31 +405,12 @@ export const DatasetMoleculeList = memo(
       return data;
     };
 
-    let debouncedFn;
-
-    const handleSearch = event => {
-      /* signal to React not to nullify the event object */
-      event.persist();
-      if (!debouncedFn) {
-        debouncedFn = debounce(() => {
-          dispatch(setSearchStringOfCompoundSet(event.target.value !== '' ? event.target.value : null));
-        }, 350);
-      }
-      debouncedFn();
-    };
     const actions = [
-      <TextField
+      <SearchField
         className={classes.search}
         id="input-with-icon-textfield"
         placeholder="Search"
-        InputProps={{
-          startAdornment: (
-            <InputAdornment position="start">
-              <Search color="inherit" />
-            </InputAdornment>
-          )
-        }}
-        onChange={handleSearch}
+        onChange={setSearchStringOfCompoundSet}
         disabled={isLoadingMoleculeList}
       />,
       <IconButton color={'inherit'} onClick={() => window.open(url, '_blank')}>
