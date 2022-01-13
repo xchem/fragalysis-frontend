@@ -5,7 +5,7 @@ import TagView from '../tagView';
 import { getDefaultTagDiscoursePostText } from '../utils/tagUtils';
 import { DJANGO_CONTEXT } from '../../../../utils/djangoContext';
 import { updateTagProp, selectTag, unselectTag, removeSelectedTag, addSelectedTag } from '../redux/dispatchActions';
-import { Grid, Tooltip, makeStyles, Button, Typography, IconButton } from '@material-ui/core';
+import { Tooltip, makeStyles, Button, Typography, IconButton } from '@material-ui/core';
 import { Edit } from '@material-ui/icons';
 import { isURL } from '../../../../utils/common';
 import classNames from 'classnames';
@@ -43,13 +43,6 @@ const useStyles = makeStyles(theme => ({
       backgroundColor: theme.palette.primary.light,
       color: theme.palette.black
     }
-  },
-  divContainer: {
-    width: '100%',
-    display: 'grid',
-    gridTemplateColumns: '1fr 75px 75px min-content 20px min-content min-content',
-    alignItems: 'center',
-    gap: theme.spacing()
   },
   editButton: {
     backgroundColor: theme.palette.success.light,
@@ -133,7 +126,7 @@ const TagDetailRow = memo(({ tag, moleculesToEditIds, moleculesToEdit }) => {
   };
 
   return (
-    <div className={classes.divContainer}>
+    <>
       {/* TagView Chip */}
       <TagView
         key={`tag-item-editor${tag.id}`}
@@ -212,7 +205,7 @@ const TagDetailRow = memo(({ tag, moleculesToEditIds, moleculesToEdit }) => {
           <Edit />
         </Tooltip>
       </IconButton>
-    </div>
+    </>
   );
 });
 
