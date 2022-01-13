@@ -15,10 +15,7 @@ import { setTagToEdit, appendToMolListToEdit, removeFromMolListToEdit } from '..
 const useStyles = makeStyles(theme => ({
   contColButton: {
     minWidth: 'fit-content',
-    paddingLeft: theme.spacing(1) / 4,
-    paddingRight: theme.spacing(1) / 4,
-    paddingBottom: 0,
-    paddingTop: 0,
+    padding: '0 1px',
     fontWeight: 'bold',
     fontSize: 9,
     borderRadius: 7,
@@ -167,7 +164,7 @@ const TagDetailRow = memo(({ tag, moleculesToEditIds, moleculesToEdit }) => {
       {/* select hits button */}
       <Grid item xs={2} className={hasSelectedMolecule() ? classes.unselectButtonWrapper : null}>
         <Tooltip title="Select hits">
-          <Grid item>
+          <Grid item container justify="center">
             <Button
               variant="outlined"
               className={classNames(classes.contColButton, {
@@ -185,7 +182,7 @@ const TagDetailRow = memo(({ tag, moleculesToEditIds, moleculesToEdit }) => {
       {/* discourse button */}
       <Grid item xs={2}>
         <Tooltip title="Discourse link">
-          <Grid item>
+          <Grid item container justify="center">
             <Button
               variant="outlined"
               className={classNames(classes.contColButton, {
