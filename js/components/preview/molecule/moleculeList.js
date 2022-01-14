@@ -290,7 +290,10 @@ export const MoleculeList = memo(({ height, setFilterItemsHeight, filterItemsHei
   const tagEditorRef = useRef();
   const [tagEditorAnchorEl, setTagEditorAnchorEl] = useState(null);
 
-  const [disableAllNglControlButtonsMap, withDisabledNglControlButton] = useDisableNglControlButtons();
+  // Disables all buttons - the buttons on top of the list (L, P, C) as well as individual buttons of each molecule
+  const [disableAllNglControlButtonsMap, withDisabledAllNglControlButton] = useDisableNglControlButtons();
+  // Disables buttons only on top of the list (L, P, C)
+  const [disableListNglControlButtonsMap, withDisabledListNglControlButton] = useDisableNglControlButtons();
 
   // const disableUserInteraction = useDisableUserInteraction();
 
@@ -598,7 +601,7 @@ export const MoleculeList = memo(({ height, setFilterItemsHeight, filterItemsHei
   };
 
   const addNewType = (type, skipTracking = false) => {
-    withDisabledNglControlButton(type, async () => {
+    withDisabledAllNglControlButton(type, async () => {
       const promises = [];
 
       if (type === 'ligand') {
@@ -879,7 +882,7 @@ export const MoleculeList = memo(({ height, setFilterItemsHeight, filterItemsHei
                                 [classes.contColButtonHalfSelected]: isLigandOn === null
                               })}
                               onClick={() => onButtonToggle('ligand')}
-                              disabled={disableAllNglControlButtonsMap.ligand}
+                              disabled={disableAllNglControlButtonsMap.ligand || disableListNglControlButtonsMap.ligand}
                             >
                               L
                             </Button>
@@ -894,7 +897,9 @@ export const MoleculeList = memo(({ height, setFilterItemsHeight, filterItemsHei
                                 [classes.contColButtonHalfSelected]: isProteinOn === null
                               })}
                               onClick={() => onButtonToggle('protein')}
-                              disabled={disableAllNglControlButtonsMap.protein}
+                              disabled={
+                                disableAllNglControlButtonsMap.protein || disableListNglControlButtonsMap.protein
+                              }
                             >
                               P
                             </Button>
@@ -910,7 +915,9 @@ export const MoleculeList = memo(({ height, setFilterItemsHeight, filterItemsHei
                                 [classes.contColButtonHalfSelected]: isComplexOn === null
                               })}
                               onClick={() => onButtonToggle('complex')}
-                              disabled={disableAllNglControlButtonsMap.complex}
+                              disabled={
+                                disableAllNglControlButtonsMap.complex || disableListNglControlButtonsMap.complex
+                              }
                             >
                               C
                             </Button>
@@ -989,6 +996,7 @@ export const MoleculeList = memo(({ height, setFilterItemsHeight, filterItemsHei
                       sigmaaInfo={data?.proteinData?.sigmaa_info}
                       diffInfo={data?.proteinData?.diff_info}
                       disableAllNglControlsButtonMap={disableAllNglControlButtonsMap}
+                      withDisabledListNglControlButton={withDisabledListNglControlButton}
                     />
                   ))}
                 </InfiniteScroll>

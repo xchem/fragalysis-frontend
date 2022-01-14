@@ -262,7 +262,8 @@ export const DatasetMoleculeView = memo(
     V,
     fromSelectedCompounds = false,
     moveMolecule,
-    disableAllNglControlsButtonMap
+    disableAllNglControlsButtonMap,
+    withDisabledListNglControlButton
   }) => {
     const ref = useRef(null);
 
@@ -352,8 +353,10 @@ export const DatasetMoleculeView = memo(
     const current_style = isLigandOn || isProteinOn || isComplexOn || isSurfaceOn ? selected_style : not_selected_style;
 
     const addNewLigand = (skipTracking = false) => {
-      withDisabledNglControlButton('ligand', async () => {
-        await dispatch(addDatasetLigand(stage, data, colourToggle, datasetID, skipTracking));
+      withDisabledListNglControlButton('ligand', async () => {
+        await withDisabledNglControlButton('ligand', async () => {
+          await dispatch(addDatasetLigand(stage, data, colourToggle, datasetID, skipTracking));
+        });
       });
     };
 
@@ -388,8 +391,10 @@ export const DatasetMoleculeView = memo(
     };
 
     const addNewProtein = (skipTracking = false) => {
-      withDisabledNglControlButton('protein', async () => {
-        await dispatch(addDatasetHitProtein(stage, data, colourToggle, datasetID, skipTracking));
+      withDisabledListNglControlButton('protein', async () => {
+        await withDisabledNglControlButton('protein', async () => {
+          await dispatch(addDatasetHitProtein(stage, data, colourToggle, datasetID, skipTracking));
+        });
       });
     };
 
@@ -415,8 +420,10 @@ export const DatasetMoleculeView = memo(
     };
 
     const addNewComplex = (skipTracking = false) => {
-      withDisabledNglControlButton('complex', async () => {
-        await dispatch(addDatasetComplex(stage, data, colourToggle, datasetID, skipTracking));
+      withDisabledListNglControlButton('complex', async () => {
+        await withDisabledNglControlButton('complex', async () => {
+          await dispatch(addDatasetComplex(stage, data, colourToggle, datasetID, skipTracking));
+        });
       });
     };
 

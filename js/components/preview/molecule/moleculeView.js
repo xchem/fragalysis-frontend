@@ -244,7 +244,8 @@ const MoleculeView = memo(
     V,
     I,
     selectMoleculeSite,
-    disableAllNglControlsButtonMap
+    disableAllNglControlsButtonMap,
+    withDisabledListNglControlButton
   }) => {
     // const [countOfVectors, setCountOfVectors] = useState('-');
     // const [cmpds, setCmpds] = useState('-');
@@ -407,8 +408,10 @@ const MoleculeView = memo(
       // if (selectMoleculeSite) {
       //   selectMoleculeSite(data.site);
       // }
-      withDisabledNglControlButton('ligand', async () => {
-        await dispatch(addLigand(stage, data, colourToggle, false, true, skipTracking));
+      withDisabledListNglControlButton('ligand', async () => {
+        await withDisabledNglControlButton('ligand', async () => {
+          await dispatch(addLigand(stage, data, colourToggle, false, true, skipTracking));
+        });
       });
     };
 
@@ -442,8 +445,10 @@ const MoleculeView = memo(
       // if (selectMoleculeSite) {
       //   selectMoleculeSite(data.site);
       // }
-      withDisabledNglControlButton('protein', async () => {
-        await dispatch(addHitProtein(stage, data, colourToggle, skipTracking));
+      withDisabledListNglControlButton('protein', async () => {
+        await withDisabledNglControlButton('protein', async () => {
+          await dispatch(addHitProtein(stage, data, colourToggle, skipTracking));
+        });
       });
     };
 
@@ -472,8 +477,10 @@ const MoleculeView = memo(
       // if (selectMoleculeSite) {
       //   selectMoleculeSite(data.site);
       // }
-      withDisabledNglControlButton('complex', async () => {
-        await dispatch(addComplex(stage, data, colourToggle, skipTracking));
+      withDisabledListNglControlButton('complex', async () => {
+        await withDisabledNglControlButton('complex', async () => {
+          await dispatch(addComplex(stage, data, colourToggle, skipTracking));
+        });
       });
     };
 
@@ -528,10 +535,12 @@ const MoleculeView = memo(
       // if (selectMoleculeSite) {
       //   selectMoleculeSite(data.site);
       // }
-      withDisabledNglControlButton('ligand', async () => {
-        // Selecting quality will render ligand
-        await withDisabledNglControlButton('density', async () => {
-          await dispatch(addDensity(stage, data, colourToggle, isWireframeStyle));
+      // Selecting quality will render ligand
+      withDisabledListNglControlButton('ligand', async () => {
+        await withDisabledNglControlButton('ligand', async () => {
+          await withDisabledNglControlButton('density', async () => {
+            await dispatch(addDensity(stage, data, colourToggle, isWireframeStyle));
+          });
         });
       });
     };

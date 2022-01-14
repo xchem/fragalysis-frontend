@@ -236,7 +236,10 @@ export const DatasetMoleculeList = memo(
     const stage = getNglView(VIEWS.MAJOR_VIEW) && getNglView(VIEWS.MAJOR_VIEW).stage;
     const [selectedMoleculeRef, setSelectedMoleculeRef] = useState(null);
 
-    const [disableAllNglControlButtonsMap, withDisabledNglControlButton] = useDisableNglControlButtons();
+    // Disables all buttons - the buttons on top of the list (L, P, C) as well as individual buttons of each molecule
+    const [disableAllNglControlButtonsMap, withDisabledAllNglControlButton] = useDisableNglControlButtons();
+    // Disables buttons only on top of the list (L, P, C)
+    const [disableListNglControlButtonsMap, withDisabledListNglControlButton] = useDisableNglControlButtons();
 
     const filterRef = useRef();
     let joinedMoleculeLists = moleculeLists[datasetID] || [];
@@ -364,7 +367,7 @@ export const DatasetMoleculeList = memo(
     };
 
     const addNewType = (type, skipTracking) => {
-      withDisabledNglControlButton(type, async () => {
+      withDisabledAllNglControlButton(type, async () => {
         const promises = [];
 
         joinedMoleculeLists.forEach(molecule => {
@@ -612,7 +615,9 @@ export const DatasetMoleculeList = memo(
                                   [classes.contColButtonSelected]: isLigandOn
                                 })}
                                 onClick={() => onButtonToggle('ligand')}
-                                disabled={disableAllNglControlButtonsMap.ligand}
+                                disabled={
+                                  disableAllNglControlButtonsMap.ligand || disableListNglControlButtonsMap.ligand
+                                }
                               >
                                 L
                               </Button>
@@ -626,7 +631,9 @@ export const DatasetMoleculeList = memo(
                                   [classes.contColButtonSelected]: isProteinOn
                                 })}
                                 onClick={() => onButtonToggle('protein')}
-                                disabled={disableAllNglControlButtonsMap.protein}
+                                disabled={
+                                  disableAllNglControlButtonsMap.protein || disableListNglControlButtonsMap.protein
+                                }
                               >
                                 P
                               </Button>
@@ -641,7 +648,9 @@ export const DatasetMoleculeList = memo(
                                   [classes.contColButtonSelected]: isComplexOn
                                 })}
                                 onClick={() => onButtonToggle('complex')}
-                                disabled={disableAllNglControlButtonsMap.complex}
+                                disabled={
+                                  disableAllNglControlButtonsMap.complex || disableListNglControlButtonsMap.complex
+                                }
                               >
                                 C
                               </Button>
@@ -716,6 +725,7 @@ export const DatasetMoleculeList = memo(
                             V={false}
                             moveMolecule={moveMolecule}
                             disableAllNglControlsButtonMap={disableAllNglControlButtonsMap}
+                            withDisabledListNglControlButton={withDisabledListNglControlButton}
                           />
                         ))}
                       </DndProvider>
