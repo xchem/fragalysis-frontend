@@ -56,6 +56,7 @@ import { setSelectedAllByType, setDeselectedAllByType } from './redux/actions';
 import { DndProvider } from 'react-dnd';
 import { HTML5Backend } from 'react-dnd-html5-backend';
 import { sortMoleculesByDragDropState } from './helpers';
+import useDisableNglControlButtons from '../../hooks/useDisableNglControlButtons';
 
 const useStyles = makeStyles(theme => ({
   container: {
@@ -235,11 +236,7 @@ export const DatasetMoleculeList = memo(
     const stage = getNglView(VIEWS.MAJOR_VIEW) && getNglView(VIEWS.MAJOR_VIEW).stage;
     const [selectedMoleculeRef, setSelectedMoleculeRef] = useState(null);
 
-    const [disableAllNglControlsButtonMap, setDisableAllNglControlsButtonMap] = useState({
-      ligand: false,
-      protein: false,
-      complex: false
-    });
+    const [disableAllNglControlButtonsMap, withDisabledNglControlButton] = useDisableNglControlButtons();
 
     const filterRef = useRef();
     let joinedMoleculeLists = moleculeLists[datasetID] || [];
@@ -366,20 +363,20 @@ export const DatasetMoleculeList = memo(
       selectedAll.current = false;
     };
 
-    const addNewType = async (type, skipTracking) => {
-      setDisableAllNglControlsButtonMap(prevState => ({ ...prevState, [type]: true }));
+    const addNewType = (type, skipTracking) => {
+      withDisabledNglControlButton(type, async () => {
+        const promises = [];
 
-      const promises = [];
+        joinedMoleculeLists.forEach(molecule => {
+          promises.push(
+            dispatch(
+              addType[type](stage, molecule, colourList[molecule.id % colourList.length], datasetID, skipTracking)
+            )
+          );
+        });
 
-      joinedMoleculeLists.forEach(molecule => {
-        promises.push(
-          dispatch(addType[type](stage, molecule, colourList[molecule.id % colourList.length], datasetID, skipTracking))
-        );
+        await Promise.all(promises);
       });
-
-      await Promise.all(promises);
-
-      setDisableAllNglControlsButtonMap(prevState => ({ ...prevState, [type]: false }));
     };
 
     const ucfirst = string => {
@@ -615,7 +612,7 @@ export const DatasetMoleculeList = memo(
                                   [classes.contColButtonSelected]: isLigandOn
                                 })}
                                 onClick={() => onButtonToggle('ligand')}
-                                disabled={disableAllNglControlsButtonMap.ligand}
+                                disabled={disableAllNglControlButtonsMap.ligand}
                               >
                                 L
                               </Button>
@@ -629,7 +626,7 @@ export const DatasetMoleculeList = memo(
                                   [classes.contColButtonSelected]: isProteinOn
                                 })}
                                 onClick={() => onButtonToggle('protein')}
-                                disabled={disableAllNglControlsButtonMap.protein}
+                                disabled={disableAllNglControlButtonsMap.protein}
                               >
                                 P
                               </Button>
@@ -644,7 +641,7 @@ export const DatasetMoleculeList = memo(
                                   [classes.contColButtonSelected]: isComplexOn
                                 })}
                                 onClick={() => onButtonToggle('complex')}
-                                disabled={disableAllNglControlsButtonMap.complex}
+                                disabled={disableAllNglControlButtonsMap.complex}
                               >
                                 C
                               </Button>
@@ -718,7 +715,7 @@ export const DatasetMoleculeList = memo(
                             S={surfaceList.includes(data.id)}
                             V={false}
                             moveMolecule={moveMolecule}
-                            disableAllNglControlsButtonMap={disableAllNglControlsButtonMap}
+                            disableAllNglControlsButtonMap={disableAllNglControlButtonsMap}
                           />
                         ))}
                       </DndProvider>

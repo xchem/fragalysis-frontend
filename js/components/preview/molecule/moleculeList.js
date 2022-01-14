@@ -70,6 +70,7 @@ import {
 } from '../../../reducers/selection/actions';
 import { TagEditor } from '../tags/modal/tagEditor';
 import { getMoleculeForId, selectTag } from '../tags/redux/dispatchActions';
+import useDisableNglControlButtons from '../../../hooks/useDisableNglControlButtons';
 
 const useStyles = makeStyles(theme => ({
   container: {
@@ -289,11 +290,7 @@ export const MoleculeList = memo(({ height, setFilterItemsHeight, filterItemsHei
   const tagEditorRef = useRef();
   const [tagEditorAnchorEl, setTagEditorAnchorEl] = useState(null);
 
-  const [disableAllNglControlsButtonMap, setDisableAllNglControlsButtonMap] = useState({
-    ligand: false,
-    protein: false,
-    complex: false
-  });
+  const [disableAllNglControlButtonsMap, withDisabledNglControlButton] = useDisableNglControlButtons();
 
   // const disableUserInteraction = useDisableUserInteraction();
 
@@ -600,40 +597,38 @@ export const MoleculeList = memo(({ height, setFilterItemsHeight, filterItemsHei
     });
   };
 
-  const addNewType = async (type, skipTracking = false) => {
-    setDisableAllNglControlsButtonMap(prevState => ({ ...prevState, [type]: true }));
+  const addNewType = (type, skipTracking = false) => {
+    withDisabledNglControlButton(type, async () => {
+      const promises = [];
 
-    const promises = [];
+      if (type === 'ligand') {
+        joinedMoleculeLists.forEach(molecule => {
+          selectMoleculeTags(molecule.tags_set);
 
-    if (type === 'ligand') {
-      joinedMoleculeLists.forEach(molecule => {
-        selectMoleculeTags(molecule.tags_set);
-
-        promises.push(
-          dispatch(
-            addType[type](
-              majorViewStage,
-              molecule,
-              colourList[molecule.id % colourList.length],
-              false,
-              true,
-              skipTracking
+          promises.push(
+            dispatch(
+              addType[type](
+                majorViewStage,
+                molecule,
+                colourList[molecule.id % colourList.length],
+                false,
+                true,
+                skipTracking
+              )
             )
-          )
-        );
-      });
-    } else {
-      joinedMoleculeLists.forEach(molecule => {
-        selectMoleculeTags(molecule.tags_set);
-        promises.push(
-          dispatch(addType[type](majorViewStage, molecule, colourList[molecule.id % colourList.length], skipTracking))
-        );
-      });
-    }
+          );
+        });
+      } else {
+        joinedMoleculeLists.forEach(molecule => {
+          selectMoleculeTags(molecule.tags_set);
+          promises.push(
+            dispatch(addType[type](majorViewStage, molecule, colourList[molecule.id % colourList.length], skipTracking))
+          );
+        });
+      }
 
-    await Promise.all(promises);
-
-    setDisableAllNglControlsButtonMap(prevState => ({ ...prevState, [type]: false }));
+      await Promise.all(promises);
+    });
   };
 
   const ucfirst = string => {
@@ -884,7 +879,7 @@ export const MoleculeList = memo(({ height, setFilterItemsHeight, filterItemsHei
                                 [classes.contColButtonHalfSelected]: isLigandOn === null
                               })}
                               onClick={() => onButtonToggle('ligand')}
-                              disabled={disableAllNglControlsButtonMap.ligand}
+                              disabled={disableAllNglControlButtonsMap.ligand}
                             >
                               L
                             </Button>
@@ -899,7 +894,7 @@ export const MoleculeList = memo(({ height, setFilterItemsHeight, filterItemsHei
                                 [classes.contColButtonHalfSelected]: isProteinOn === null
                               })}
                               onClick={() => onButtonToggle('protein')}
-                              disabled={disableAllNglControlsButtonMap.protein}
+                              disabled={disableAllNglControlButtonsMap.protein}
                             >
                               P
                             </Button>
@@ -915,7 +910,7 @@ export const MoleculeList = memo(({ height, setFilterItemsHeight, filterItemsHei
                                 [classes.contColButtonHalfSelected]: isComplexOn === null
                               })}
                               onClick={() => onButtonToggle('complex')}
-                              disabled={disableAllNglControlsButtonMap.complex}
+                              disabled={disableAllNglControlButtonsMap.complex}
                             >
                               C
                             </Button>
@@ -993,7 +988,7 @@ export const MoleculeList = memo(({ height, setFilterItemsHeight, filterItemsHei
                       eventInfo={data?.proteinData?.event_info}
                       sigmaaInfo={data?.proteinData?.sigmaa_info}
                       diffInfo={data?.proteinData?.diff_info}
-                      disableAllNglControlsButtonMap={disableAllNglControlsButtonMap}
+                      disableAllNglControlsButtonMap={disableAllNglControlButtonsMap}
                     />
                   ))}
                 </InfiniteScroll>

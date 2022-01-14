@@ -51,6 +51,7 @@ import { DensityMapsModal } from './modals/densityMapsModal';
 import { getRandomColor } from './utils/color';
 import { getAllTagsForMol } from '../tags/utils/tagUtils';
 import TagView from '../tags/tagView';
+import useDisableNglControlButtons from '../../../hooks/useDisableNglControlButtons';
 
 const useStyles = makeStyles(theme => ({
   container: {
@@ -291,18 +292,7 @@ const MoleculeView = memo(
     let warningIconVisible = viewParams[COMMON_PARAMS.warningIcon] === true && hasAdditionalInformation === true;
     let isWireframeStyle = viewParams[NGL_PARAMS.contour_DENSITY];
 
-    const [disableNglControlsButtonMap, setDisableNglControlsButtonMap] = useState({
-      ligand: false,
-      protein: false,
-      complex: false,
-      surface: false,
-      vector: false,
-      density: false
-    });
-
-    const setDisableNglControlButton = (type, value) => {
-      setDisableNglControlsButtonMap(prevState => ({ ...prevState, [type]: value }));
-    };
+    const [disableNglControlButtonsMap, withDisabledNglControlButton] = useDisableNglControlButtons();
 
     let tagEditIconVisible = true;
     // const disableUserInteraction = useDisableUserInteraction();
@@ -413,13 +403,13 @@ const MoleculeView = memo(
         ? selected_style
         : not_selected_style;
 
-    const addNewLigand = async (skipTracking = false) => {
+    const addNewLigand = (skipTracking = false) => {
       // if (selectMoleculeSite) {
       //   selectMoleculeSite(data.site);
       // }
-      setDisableNglControlButton('ligand', true);
-      await dispatch(addLigand(stage, data, colourToggle, false, true, skipTracking));
-      setDisableNglControlButton('ligand', false);
+      withDisabledNglControlButton('ligand', async () => {
+        await dispatch(addLigand(stage, data, colourToggle, false, true, skipTracking));
+      });
     };
 
     const removeSelectedLigand = (skipTracking = false) => {
@@ -448,13 +438,13 @@ const MoleculeView = memo(
       selectedAll.current = false;
     };
 
-    const addNewProtein = async (skipTracking = false) => {
+    const addNewProtein = (skipTracking = false) => {
       // if (selectMoleculeSite) {
       //   selectMoleculeSite(data.site);
       // }
-      setDisableNglControlButton('protein', true);
-      await dispatch(addHitProtein(stage, data, colourToggle, skipTracking));
-      setDisableNglControlButton('protein', false);
+      withDisabledNglControlButton('protein', async () => {
+        await dispatch(addHitProtein(stage, data, colourToggle, skipTracking));
+      });
     };
 
     const onProtein = calledFromSelectAll => {
@@ -478,13 +468,13 @@ const MoleculeView = memo(
       selectedAll.current = false;
     };
 
-    const addNewComplex = async (skipTracking = false) => {
+    const addNewComplex = (skipTracking = false) => {
       // if (selectMoleculeSite) {
       //   selectMoleculeSite(data.site);
       // }
-      setDisableNglControlButton('complex', true);
-      await dispatch(addComplex(stage, data, colourToggle, skipTracking));
-      setDisableNglControlButton('complex', false);
+      withDisabledNglControlButton('complex', async () => {
+        await dispatch(addComplex(stage, data, colourToggle, skipTracking));
+      });
     };
 
     const onComplex = calledFromSelectAll => {
@@ -507,13 +497,13 @@ const MoleculeView = memo(
       dispatch(removeSurface(stage, data, colourToggle));
     };
 
-    const addNewSurface = async () => {
+    const addNewSurface = () => {
       // if (selectMoleculeSite) {
       //   selectMoleculeSite(data.site);
       // }
-      setDisableNglControlButton('surface', true);
-      await dispatch(addSurface(stage, data, colourToggle));
-      setDisableNglControlButton('surface', false);
+      withDisabledNglControlButton('surface', async () => {
+        await dispatch(addSurface(stage, data, colourToggle));
+      });
     };
 
     const onSurface = () => {
@@ -529,20 +519,21 @@ const MoleculeView = memo(
     };
 
     const addNewDensityCustom = async () => {
-      setDisableNglControlButton('density', true);
-      await dispatch(addDensityCustomView(stage, data, colourToggle, isWireframeStyle));
-      setDisableNglControlButton('density', false);
+      withDisabledNglControlButton('density', async () => {
+        await dispatch(addDensityCustomView(stage, data, colourToggle, isWireframeStyle));
+      });
     };
 
     const addNewDensity = async () => {
       // if (selectMoleculeSite) {
       //   selectMoleculeSite(data.site);
       // }
-      setDisableNglControlButton('density', true);
-      setDisableNglControlButton('ligand', true); // Selecting quality will render ligand
-      await dispatch(addDensity(stage, data, colourToggle, isWireframeStyle));
-      setDisableNglControlButton('density', false);
-      setDisableNglControlButton('ligand', false);
+      withDisabledNglControlButton('ligand', async () => {
+        // Selecting quality will render ligand
+        await withDisabledNglControlButton('density', async () => {
+          await dispatch(addDensity(stage, data, colourToggle, isWireframeStyle));
+        });
+      });
     };
 
     const onDensity = () => {
@@ -565,10 +556,10 @@ const MoleculeView = memo(
       dispatch(removeQuality(stage, data, colourToggle));
     };
 
-    const addNewQuality = async () => {
-      setDisableNglControlButton('ligand', true);
-      await dispatch(addQuality(stage, data, colourToggle));
-      setDisableNglControlButton('ligand', false);
+    const addNewQuality = () => {
+      withDisabledNglControlButton('ligand', async () => {
+        await dispatch(addQuality(stage, data, colourToggle));
+      });
     };
 
     const onQuality = () => {
@@ -583,13 +574,13 @@ const MoleculeView = memo(
       dispatch(removeVector(stage, data));
     };
 
-    const addNewVector = async () => {
+    const addNewVector = () => {
       // if (selectMoleculeSite) {
       //   selectMoleculeSite(data.site);
       // }
-      setDisableNglControlButton('vector', true);
-      await dispatch(addVector(stage, data));
-      setDisableNglControlButton('vector', false);
+      withDisabledNglControlButton('vector', async () => {
+        await dispatch(addVector(stage, data));
+      });
     };
 
     const onVector = () => {
@@ -690,8 +681,8 @@ const MoleculeView = memo(
     let moleculeTitle = data?.protein_code.replace(new RegExp(`${target_on_name}-`, 'i'), '');
 
     // Check only LPC categories for the A button
-    const disableAllButton = Object.entries(disableAllNglControlsButtonMap).find(
-      ([type, value]) => value || disableNglControlsButtonMap[type]
+    const disableAllButton = !!['ligand', 'protein', 'complex'].find(
+      type => disableAllNglControlsButtonMap[type] || disableNglControlButtonsMap[type]
     );
 
     return (
@@ -786,7 +777,7 @@ const MoleculeView = memo(
                         [classes.contColButtonSelected]: isLigandOn
                       })}
                       onClick={() => onLigand()}
-                      disabled={disableAllNglControlsButtonMap.ligand || disableNglControlsButtonMap.ligand}
+                      disabled={disableAllNglControlsButtonMap.ligand || disableNglControlButtonsMap.ligand}
                     >
                       L
                     </Button>
@@ -800,7 +791,7 @@ const MoleculeView = memo(
                         [classes.contColButtonSelected]: isProteinOn
                       })}
                       onClick={() => onProtein()}
-                      disabled={disableAllNglControlsButtonMap.protein || disableNglControlsButtonMap.protein}
+                      disabled={disableAllNglControlsButtonMap.protein || disableNglControlButtonsMap.protein}
                     >
                       P
                     </Button>
@@ -815,7 +806,7 @@ const MoleculeView = memo(
                         [classes.contColButtonSelected]: isComplexOn
                       })}
                       onClick={() => onComplex()}
-                      disabled={disableAllNglControlsButtonMap.complex || disableNglControlsButtonMap.complex}
+                      disabled={disableAllNglControlsButtonMap.complex || disableNglControlButtonsMap.complex}
                     >
                       C
                     </Button>
@@ -829,7 +820,7 @@ const MoleculeView = memo(
                         [classes.contColButtonSelected]: isSurfaceOn
                       })}
                       onClick={() => onSurface()}
-                      disabled={disableNglControlsButtonMap.surface}
+                      disabled={disableNglControlButtonsMap.surface}
                     >
                       S
                     </Button>
@@ -849,7 +840,7 @@ const MoleculeView = memo(
                         }
                       )}
                       onClick={() => onDensity()}
-                      disabled={!hasMap || disableNglControlsButtonMap.density}
+                      disabled={!hasMap || disableNglControlButtonsMap.density}
                     >
                       D
                     </Button>
@@ -863,7 +854,7 @@ const MoleculeView = memo(
                         [classes.contColButtonSelected]: isVectorOn
                       })}
                       onClick={() => onVector()}
-                      disabled={disableNglControlsButtonMap.vector}
+                      disabled={disableNglControlButtonsMap.vector}
                     >
                       V
                     </Button>
