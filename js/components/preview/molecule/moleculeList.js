@@ -289,6 +289,12 @@ export const MoleculeList = memo(({ height, setFilterItemsHeight, filterItemsHei
   const tagEditorRef = useRef();
   const [tagEditorAnchorEl, setTagEditorAnchorEl] = useState(null);
 
+  const [disableAllNglControlsButtonMap, setDisableAllNglControlsButtonMap] = useState({
+    ligand: false,
+    protein: false,
+    complex: false
+  });
+
   // const disableUserInteraction = useDisableUserInteraction();
 
   if (directDisplay && directDisplay.target) {
@@ -594,27 +600,40 @@ export const MoleculeList = memo(({ height, setFilterItemsHeight, filterItemsHei
     });
   };
 
-  const addNewType = (type, skipTracking = false) => {
+  const addNewType = async (type, skipTracking = false) => {
+    setDisableAllNglControlsButtonMap(prevState => ({ ...prevState, [type]: true }));
+
+    const promises = [];
+
     if (type === 'ligand') {
       joinedMoleculeLists.forEach(molecule => {
         selectMoleculeTags(molecule.tags_set);
-        dispatch(
-          addType[type](
-            majorViewStage,
-            molecule,
-            colourList[molecule.id % colourList.length],
-            false,
-            true,
-            skipTracking
+
+        promises.push(
+          dispatch(
+            addType[type](
+              majorViewStage,
+              molecule,
+              colourList[molecule.id % colourList.length],
+              false,
+              true,
+              skipTracking
+            )
           )
         );
       });
     } else {
       joinedMoleculeLists.forEach(molecule => {
         selectMoleculeTags(molecule.tags_set);
-        dispatch(addType[type](majorViewStage, molecule, colourList[molecule.id % colourList.length], skipTracking));
+        promises.push(
+          dispatch(addType[type](majorViewStage, molecule, colourList[molecule.id % colourList.length], skipTracking))
+        );
       });
     }
+
+    await Promise.all(promises);
+
+    setDisableAllNglControlsButtonMap(prevState => ({ ...prevState, [type]: false }));
   };
 
   const ucfirst = string => {
@@ -865,7 +884,7 @@ export const MoleculeList = memo(({ height, setFilterItemsHeight, filterItemsHei
                                 [classes.contColButtonHalfSelected]: isLigandOn === null
                               })}
                               onClick={() => onButtonToggle('ligand')}
-                              disabled={false}
+                              disabled={disableAllNglControlsButtonMap.ligand}
                             >
                               L
                             </Button>
@@ -880,7 +899,7 @@ export const MoleculeList = memo(({ height, setFilterItemsHeight, filterItemsHei
                                 [classes.contColButtonHalfSelected]: isProteinOn === null
                               })}
                               onClick={() => onButtonToggle('protein')}
-                              disabled={false}
+                              disabled={disableAllNglControlsButtonMap.protein}
                             >
                               P
                             </Button>
@@ -896,7 +915,7 @@ export const MoleculeList = memo(({ height, setFilterItemsHeight, filterItemsHei
                                 [classes.contColButtonHalfSelected]: isComplexOn === null
                               })}
                               onClick={() => onButtonToggle('complex')}
-                              disabled={false}
+                              disabled={disableAllNglControlsButtonMap.complex}
                             >
                               C
                             </Button>
@@ -974,6 +993,7 @@ export const MoleculeList = memo(({ height, setFilterItemsHeight, filterItemsHei
                       eventInfo={data?.proteinData?.event_info}
                       sigmaaInfo={data?.proteinData?.sigmaa_info}
                       diffInfo={data?.proteinData?.diff_info}
+                      disableAllNglControlsButtonMap={disableAllNglControlsButtonMap}
                     />
                   ))}
                 </InfiniteScroll>

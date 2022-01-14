@@ -260,7 +260,8 @@ export const DatasetMoleculeView = memo(
     S,
     V,
     fromSelectedCompounds = false,
-    moveMolecule
+    moveMolecule,
+    disableAllNglControlsButtonMap
   }) => {
     const ref = useRef(null);
 
@@ -281,6 +282,17 @@ export const DatasetMoleculeView = memo(
     const isAnyInspirationOn = useSelector(state =>
       isAnyInspirationTurnedOn(state, (data && data.computed_inspirations) || [])
     );
+
+    const [disableNglControlsButtonMap, setDisableNglControlsButtonMap] = useState({
+      ligand: false,
+      protein: false,
+      complex: false,
+      surface: false
+    });
+
+    const setDisableNglControlButton = (type, value) => {
+      setDisableNglControlsButtonMap(prevState => ({ ...prevState, [type]: value }));
+    };
 
     const filteredDatasetMoleculeList = useSelector(state => getFilteredDatasetMoleculeList(state, datasetID));
     const objectsInView = useSelector(state => state.nglReducers.objectsInView) || {};
@@ -347,8 +359,10 @@ export const DatasetMoleculeView = memo(
     const not_selected_style = {};
     const current_style = isLigandOn || isProteinOn || isComplexOn || isSurfaceOn ? selected_style : not_selected_style;
 
-    const addNewLigand = (skipTracking = false) => {
-      dispatch(addDatasetLigand(stage, data, colourToggle, datasetID, skipTracking));
+    const addNewLigand = async (skipTracking = false) => {
+      setDisableNglControlButton('ligand', true);
+      await dispatch(addDatasetLigand(stage, data, colourToggle, datasetID, skipTracking));
+      setDisableNglControlButton('ligand', false);
     };
 
     const removeSelectedLigand = (skipTracking = false) => {
@@ -381,8 +395,10 @@ export const DatasetMoleculeView = memo(
       selectedAll.current = false;
     };
 
-    const addNewProtein = (skipTracking = false) => {
-      dispatch(addDatasetHitProtein(stage, data, colourToggle, datasetID, skipTracking));
+    const addNewProtein = async (skipTracking = false) => {
+      setDisableNglControlButton('protein', true);
+      await dispatch(addDatasetHitProtein(stage, data, colourToggle, datasetID, skipTracking));
+      setDisableNglControlButton('protein', false);
     };
 
     const onProtein = calledFromSelectAll => {
@@ -406,8 +422,10 @@ export const DatasetMoleculeView = memo(
       selectedAll.current = false;
     };
 
-    const addNewComplex = (skipTracking = false) => {
-      dispatch(addDatasetComplex(stage, data, colourToggle, datasetID, skipTracking));
+    const addNewComplex = async (skipTracking = false) => {
+      setDisableNglControlButton('complex', true);
+      await dispatch(addDatasetComplex(stage, data, colourToggle, datasetID, skipTracking));
+      setDisableNglControlButton('complex', false);
     };
 
     const onComplex = calledFromSelectAll => {
@@ -431,8 +449,10 @@ export const DatasetMoleculeView = memo(
       selectedAll.current = false;
     };
 
-    const addNewSurface = () => {
-      dispatch(addDatasetSurface(stage, data, colourToggle, datasetID));
+    const addNewSurface = async () => {
+      setDisableNglControlButton('surface', true);
+      await dispatch(addDatasetSurface(stage, data, colourToggle, datasetID));
+      setDisableNglControlButton('surface', false);
     };
 
     const onSurface = calledFromSelectAll => {
@@ -556,6 +576,11 @@ export const DatasetMoleculeView = memo(
 
     const allScores = { ...data?.numerical_scores, ...data?.text_scores };
 
+    // Check only LPC categories for the A button
+    const disableAllButton = Object.entries(disableAllNglControlsButtonMap).find(
+      ([type, value]) => value || disableNglControlsButtonMap[type]
+    );
+
     return (
       <>
         <Grid
@@ -671,7 +696,7 @@ export const DatasetMoleculeView = memo(
                         onProtein(true);
                         onComplex(true);
                       }}
-                      disabled={isFromVectorSelector}
+                      disabled={isFromVectorSelector || disableAllButton}
                     >
                       A
                     </Button>
@@ -685,7 +710,7 @@ export const DatasetMoleculeView = memo(
                         [classes.contColButtonSelected]: isLigandOn
                       })}
                       onClick={() => onLigand()}
-                      disabled={false}
+                      disabled={disableAllNglControlsButtonMap.ligand || disableNglControlsButtonMap.ligand}
                     >
                       L
                     </Button>
@@ -699,7 +724,11 @@ export const DatasetMoleculeView = memo(
                         [classes.contColButtonSelected]: isProteinOn
                       })}
                       onClick={() => onProtein()}
-                      disabled={isFromVectorSelector}
+                      disabled={
+                        isFromVectorSelector ||
+                        disableAllNglControlsButtonMap.protein ||
+                        disableNglControlsButtonMap.protein
+                      }
                     >
                       P
                     </Button>
@@ -714,7 +743,11 @@ export const DatasetMoleculeView = memo(
                         [classes.contColButtonSelected]: isComplexOn
                       })}
                       onClick={() => onComplex()}
-                      disabled={isFromVectorSelector}
+                      disabled={
+                        isFromVectorSelector ||
+                        disableAllNglControlsButtonMap.complex ||
+                        disableNglControlsButtonMap.complex
+                      }
                     >
                       C
                     </Button>
@@ -728,7 +761,7 @@ export const DatasetMoleculeView = memo(
                         [classes.contColButtonSelected]: isSurfaceOn
                       })}
                       onClick={() => onSurface()}
-                      disabled={isFromVectorSelector}
+                      disabled={isFromVectorSelector || disableNglControlsButtonMap.surface}
                     >
                       S
                     </Button>
