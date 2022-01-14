@@ -179,14 +179,14 @@ export const removeCurrentVector = currentMoleculeSmile => (dispatch, getState) 
   }
 };
 
-export const removeVector = (stage, data, skipTracking = false) => async (dispatch, getState) => {
+export const removeVector = (stage, data, skipTracking = false) => (dispatch, getState) => {
   const state = getState();
   const vector_list = state.selectionReducers.vector_list;
   vector_list
     .filter(item => item.moleculeId === data.id)
     .forEach(item => dispatch(deleteObject(Object.assign({ display_div: VIEWS.MAJOR_VIEW }, item), stage)));
 
-  await dispatch(removeCurrentVector(data.smiles));
+  dispatch(removeCurrentVector(data.smiles));
 
   dispatch(updateVectorCompounds(data.smiles, undefined));
   dispatch(updateBondColorMapOfCompounds(data.smiles, undefined));
