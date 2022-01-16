@@ -80,7 +80,11 @@ const NewTagDetailRow = memo(({ moleculesToEditIds, moleculesToEdit }) => {
   useEffect(() => {
     if (tagToEdit) {
       setNewTagCategory(tagToEdit.category_id);
-      if (tagToEdit.colour) setNewTagColor(tagToEdit.colour);
+      if (tagToEdit.colour) {
+        setNewTagColor(tagToEdit.colour);
+      } else {
+        setNewTagColor(DEFAULT_TAG_COLOR);
+      }
       setNewTagName(tagToEdit.tag);
       setNewTagLink(tagToEdit.discourse_url);
     }
