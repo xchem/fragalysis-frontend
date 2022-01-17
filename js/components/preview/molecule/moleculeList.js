@@ -68,6 +68,7 @@ import {
 import { TagEditor } from '../tags/modal/tagEditor';
 import { getMoleculeForId, selectTag } from '../tags/redux/dispatchActions';
 import SearchField from '../../common/Components/SearchField';
+import useDisableNglControlButtons from '../../../hooks/useDisableNglControlButtons';
 
 const useStyles = makeStyles(theme => ({
   container: {
@@ -277,6 +278,11 @@ export const MoleculeList = memo(({ height, setFilterItemsHeight, filterItemsHei
   const tagEditorRef = useRef();
   const [tagEditorAnchorEl, setTagEditorAnchorEl] = useState(null);
 
+  // Disables all buttons - the buttons on top of the list (L, P, C) as well as individual buttons of each molecule
+  const [disableAllNglControlButtonsMap, withDisabledAllNglControlButton] = useDisableNglControlButtons();
+  // Disables buttons only on top of the list (L, P, C)
+  const [disableListNglControlButtonsMap, withDisabledListNglControlButton] = useDisableNglControlButtons();
+
   // const disableUserInteraction = useDisableUserInteraction();
 
   if (directDisplay && directDisplay.target) {
@@ -474,6 +480,14 @@ export const MoleculeList = memo(({ height, setFilterItemsHeight, filterItemsHei
     dispatch(setFilter(filterSet));
   };
 
+  const allSelectedMolecules = useMemo(
+    () =>
+      joinedMoleculeLists.filter(
+        molecule => moleculesToEditIds.includes(molecule.id) || molecule.id === molForTagEditId
+      ),
+    [joinedMoleculeLists, moleculesToEditIds, molForTagEditId]
+  );
+
   const changePredefinedFilter = event => {
     let newFilter = Object.assign({}, filter);
 
@@ -504,10 +518,10 @@ export const MoleculeList = memo(({ height, setFilterItemsHeight, filterItemsHei
 
   const joinedGivenMatch = useCallback(
     givenList => {
-      return givenList.filter(element => joinedMoleculeLists.filter(element2 => element2.id === element).length > 0)
+      return givenList.filter(element => allSelectedMolecules.filter(element2 => element2.id === element).length > 0)
         .length;
     },
-    [joinedMoleculeLists]
+    [allSelectedMolecules]
   );
 
   const joinedLigandMatchLength = useMemo(() => joinedGivenMatch(fragmentDisplayList), [
@@ -518,12 +532,12 @@ export const MoleculeList = memo(({ height, setFilterItemsHeight, filterItemsHei
   const joinedComplexMatchLength = useMemo(() => joinedGivenMatch(complexList), [complexList, joinedGivenMatch]);
 
   const changeButtonClassname = (givenList = [], matchListLength) => {
-    if (joinedMoleculeLists.length === matchListLength) {
+    if (!matchListLength) {
+      return false;
+    } else if (allSelectedMolecules.length === matchListLength) {
       return true;
-    } else if (givenList.length > 0 && matchListLength > 0) {
-      return null;
     }
-    return false;
+    return null;
   };
 
   const isLigandOn = changeButtonClassname(fragmentDisplayList, joinedLigandMatchLength);
@@ -556,11 +570,11 @@ export const MoleculeList = memo(({ height, setFilterItemsHeight, filterItemsHei
 
   const removeSelectedType = (type, skipTracking = false) => {
     if (type === 'ligand') {
-      joinedMoleculeLists.forEach(molecule => {
+      allSelectedMolecules.forEach(molecule => {
         dispatch(removeType[type](majorViewStage, molecule, skipTracking));
       });
     } else {
-      joinedMoleculeLists.forEach(molecule => {
+      allSelectedMolecules.forEach(molecule => {
         dispatch(removeType[type](majorViewStage, molecule, colourList[molecule.id % colourList.length], skipTracking));
       });
     }
@@ -583,26 +597,37 @@ export const MoleculeList = memo(({ height, setFilterItemsHeight, filterItemsHei
   };
 
   const addNewType = (type, skipTracking = false) => {
-    if (type === 'ligand') {
-      joinedMoleculeLists.forEach(molecule => {
-        selectMoleculeTags(molecule.tags_set);
-        dispatch(
-          addType[type](
-            majorViewStage,
-            molecule,
-            colourList[molecule.id % colourList.length],
-            false,
-            true,
-            skipTracking
-          )
-        );
-      });
-    } else {
-      joinedMoleculeLists.forEach(molecule => {
-        selectMoleculeTags(molecule.tags_set);
-        dispatch(addType[type](majorViewStage, molecule, colourList[molecule.id % colourList.length], skipTracking));
-      });
-    }
+    withDisabledAllNglControlButton(type, async () => {
+      const promises = [];
+
+      if (type === 'ligand') {
+        allSelectedMolecules.forEach(molecule => {
+          selectMoleculeTags(molecule.tags_set);
+
+          promises.push(
+            dispatch(
+              addType[type](
+                majorViewStage,
+                molecule,
+                colourList[molecule.id % colourList.length],
+                false,
+                true,
+                skipTracking
+              )
+            )
+          );
+        });
+      } else {
+        allSelectedMolecules.forEach(molecule => {
+          selectMoleculeTags(molecule.tags_set);
+          promises.push(
+            dispatch(addType[type](majorViewStage, molecule, colourList[molecule.id % colourList.length], skipTracking))
+          );
+        });
+      }
+
+      await Promise.all(promises);
+    });
   };
 
   const ucfirst = string => {
@@ -723,6 +748,10 @@ export const MoleculeList = memo(({ height, setFilterItemsHeight, filterItemsHei
 
   const [isOpenAlert, setIsOpenAlert] = useState(false);
 
+  const allLPCButtonDisabled =
+    Object.values(disableListNglControlButtonsMap).some(value => value) ||
+    Object.values(disableAllNglControlButtonsMap).some(value => value);
+
   return (
     <ComputeSize
       componentRef={filterRef.current}
@@ -746,6 +775,7 @@ export const MoleculeList = memo(({ height, setFilterItemsHeight, filterItemsHei
         {isTagEditorOpen && (
           <TagEditor
             open={isTagEditorOpen}
+            closeDisabled={allLPCButtonDisabled}
             setOpenDialog={setTagEditorOpen}
             anchorEl={tagEditorAnchorEl}
             ref={tagEditorRef}
@@ -821,7 +851,7 @@ export const MoleculeList = memo(({ height, setFilterItemsHeight, filterItemsHei
                     wrap="nowrap"
                     className={classes.contButtonsMargin}
                   >
-                    {currentMolecules.length > 0 && (
+                    {allSelectedMolecules.length > 0 && (
                       <>
                         <Tooltip title="all ligands">
                           <Grid item>
@@ -832,7 +862,7 @@ export const MoleculeList = memo(({ height, setFilterItemsHeight, filterItemsHei
                                 [classes.contColButtonHalfSelected]: isLigandOn === null
                               })}
                               onClick={() => onButtonToggle('ligand')}
-                              disabled={false}
+                              disabled={disableAllNglControlButtonsMap.ligand || disableListNglControlButtonsMap.ligand}
                             >
                               L
                             </Button>
@@ -847,7 +877,9 @@ export const MoleculeList = memo(({ height, setFilterItemsHeight, filterItemsHei
                                 [classes.contColButtonHalfSelected]: isProteinOn === null
                               })}
                               onClick={() => onButtonToggle('protein')}
-                              disabled={false}
+                              disabled={
+                                disableAllNglControlButtonsMap.protein || disableListNglControlButtonsMap.protein
+                              }
                             >
                               P
                             </Button>
@@ -863,7 +895,9 @@ export const MoleculeList = memo(({ height, setFilterItemsHeight, filterItemsHei
                                 [classes.contColButtonHalfSelected]: isComplexOn === null
                               })}
                               onClick={() => onButtonToggle('complex')}
-                              disabled={false}
+                              disabled={
+                                disableAllNglControlButtonsMap.complex || disableListNglControlButtonsMap.complex
+                              }
                             >
                               C
                             </Button>
@@ -941,6 +975,9 @@ export const MoleculeList = memo(({ height, setFilterItemsHeight, filterItemsHei
                       eventInfo={data?.proteinData?.event_info}
                       sigmaaInfo={data?.proteinData?.sigmaa_info}
                       diffInfo={data?.proteinData?.diff_info}
+                      disableAllNglControlButtonsMap={disableAllNglControlButtonsMap}
+                      withDisabledListNglControlButton={withDisabledListNglControlButton}
+                      allLPCButtonDisabled={allLPCButtonDisabled}
                     />
                   ))}
                 </InfiniteScroll>

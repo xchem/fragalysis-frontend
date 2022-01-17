@@ -12,7 +12,7 @@ import {
   IconButton,
   ButtonGroup
 } from '@material-ui/core';
-import React, { useState, useEffect, memo, useRef, useContext } from 'react';
+import React, { useState, useEffect, memo, useRef, useContext, useMemo } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { DatasetMoleculeView } from './datasetMoleculeView';
 import { colourList } from '../preview/molecule/utils/color';
@@ -54,6 +54,7 @@ import { DndProvider } from 'react-dnd';
 import { HTML5Backend } from 'react-dnd-html5-backend';
 import { sortMoleculesByDragDropState } from './helpers';
 import SearchField from '../common/Components/SearchField';
+import useDisableNglControlButtons from '../../hooks/useDisableNglControlButtons';
 
 const useStyles = makeStyles(theme => ({
   container: {
@@ -223,6 +224,11 @@ export const DatasetMoleculeList = memo(
     const stage = getNglView(VIEWS.MAJOR_VIEW) && getNglView(VIEWS.MAJOR_VIEW).stage;
     const [selectedMoleculeRef, setSelectedMoleculeRef] = useState(null);
 
+    // Disables all buttons - the buttons on top of the list (L, P, C) as well as individual buttons of each molecule
+    const [disableAllNglControlButtonsMap, withDisabledAllNglControlButton] = useDisableNglControlButtons();
+    // Disables buttons only on top of the list (L, P, C)
+    const [disableListNglControlButtonsMap, withDisabledListNglControlButton] = useDisableNglControlButtons();
+
     const filterRef = useRef();
     let joinedMoleculeLists = moleculeLists[datasetID] || [];
     const dragDropState = dragDropMap[datasetID];
@@ -281,15 +287,28 @@ export const DatasetMoleculeList = memo(
     const densityListCustomMolecule = useSelector(state => state.selectionReducers.densityListCustom);
     const vectorOnListMolecule = useSelector(state => state.selectionReducers.vectorOnList);
     const qualityListMolecule = useSelector(state => state.selectionReducers.qualityList);
+    const compoundsToBuyList = useSelector(state => state.datasetsReducers.compoundsToBuyDatasetMap[datasetID]);
 
     const ligandList = useSelector(state => state.datasetsReducers.ligandLists[datasetID]);
     const proteinList = useSelector(state => state.datasetsReducers.proteinLists[datasetID]);
     const complexList = useSelector(state => state.datasetsReducers.complexLists[datasetID]);
     const surfaceList = useSelector(state => state.datasetsReducers.surfaceLists[datasetID]);
 
-    const isLigandOn = (ligandList && ligandList.length > 0) || false;
-    const isProteinOn = (proteinList && proteinList.length > 0) || false;
-    const isComplexOn = (complexList && complexList.length > 0) || false;
+    const selectedMolecules = useMemo(() => {
+      return joinedMoleculeLists.filter(mol => compoundsToBuyList?.includes(mol.id));
+    }, [joinedMoleculeLists, compoundsToBuyList]);
+
+    const isTypeOn = typeList => {
+      if (typeList && compoundsToBuyList) {
+        return typeList.some(molId => selectedMolecules.some(mol => mol.id === molId));
+      }
+      return false;
+    };
+
+    const isLigandOn = isTypeOn(ligandList);
+    const isProteinOn = isTypeOn(proteinList);
+    const isComplexOn = isTypeOn(complexList);
+
     const addType = {
       ligand: addDatasetLigand,
       protein: addDatasetHitProtein,
@@ -340,21 +359,34 @@ export const DatasetMoleculeList = memo(
     // TODO maybe change "currentMolecules.forEach" to "{type}List.forEach"
 
     const removeSelectedType = (type, skipTracking) => {
-      joinedMoleculeLists.forEach(molecule => {
+      selectedMolecules.forEach(molecule => {
         dispatch(
           removeType[type](stage, molecule, colourList[molecule.id % colourList.length], datasetID, skipTracking)
         );
       });
       selectedAll.current = false;
     };
+
     const addNewType = (type, skipTracking) => {
-      joinedMoleculeLists.forEach(molecule => {
-        dispatch(addType[type](stage, molecule, colourList[molecule.id % colourList.length], datasetID, skipTracking));
+      withDisabledAllNglControlButton(type, async () => {
+        const promises = [];
+
+        selectedMolecules.forEach(molecule => {
+          promises.push(
+            dispatch(
+              addType[type](stage, molecule, colourList[molecule.id % colourList.length], datasetID, skipTracking)
+            )
+          );
+        });
+
+        await Promise.all(promises);
       });
     };
+
     const ucfirst = string => {
       return string.charAt(0).toUpperCase() + string.slice(1);
     };
+
     const onButtonToggle = (type, calledFromSelectAll = false) => {
       if (calledFromSelectAll === true && selectedAll.current === true) {
         // REDO
@@ -449,6 +481,10 @@ export const DatasetMoleculeList = memo(
     const moveMolecule = (dragIndex, hoverIndex) => {
       dispatch(dragDropMoleculeInProgress(datasetID, joinedMoleculeLists, dragIndex, hoverIndex));
     };
+
+    const allLPCButtonDisabled =
+      Object.values(disableListNglControlButtonsMap).some(value => value) ||
+      Object.values(disableAllNglControlButtonsMap).some(value => value);
 
     return (
       <ComputeSize
@@ -547,7 +583,7 @@ export const DatasetMoleculeList = memo(
                           </Grid>
                         </Tooltip>
                       ))}
-                    {currentMolecules.length > 0 && (
+                    {selectedMolecules.length > 0 && (
                       <Grid item>
                         <Grid
                           container
@@ -565,7 +601,9 @@ export const DatasetMoleculeList = memo(
                                   [classes.contColButtonSelected]: isLigandOn
                                 })}
                                 onClick={() => onButtonToggle('ligand')}
-                                disabled={false}
+                                disabled={
+                                  disableAllNglControlButtonsMap.ligand || disableListNglControlButtonsMap.ligand
+                                }
                               >
                                 L
                               </Button>
@@ -579,7 +617,9 @@ export const DatasetMoleculeList = memo(
                                   [classes.contColButtonSelected]: isProteinOn
                                 })}
                                 onClick={() => onButtonToggle('protein')}
-                                disabled={false}
+                                disabled={
+                                  disableAllNglControlButtonsMap.protein || disableListNglControlButtonsMap.protein
+                                }
                               >
                                 P
                               </Button>
@@ -594,7 +634,9 @@ export const DatasetMoleculeList = memo(
                                   [classes.contColButtonSelected]: isComplexOn
                                 })}
                                 onClick={() => onButtonToggle('complex')}
-                                disabled={false}
+                                disabled={
+                                  disableAllNglControlButtonsMap.complex || disableListNglControlButtonsMap.complex
+                                }
                               >
                                 C
                               </Button>
@@ -668,6 +710,9 @@ export const DatasetMoleculeList = memo(
                             S={surfaceList.includes(data.id)}
                             V={false}
                             moveMolecule={moveMolecule}
+                            disableAllNglControlButtonsMap={disableAllNglControlButtonsMap}
+                            withDisabledListNglControlButton={withDisabledListNglControlButton}
+                            allLPCButtonDisabled={allLPCButtonDisabled}
                           />
                         ))}
                       </DndProvider>
