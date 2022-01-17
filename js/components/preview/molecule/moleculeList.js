@@ -492,6 +492,14 @@ export const MoleculeList = memo(({ height, setFilterItemsHeight, filterItemsHei
     dispatch(setFilter(filterSet));
   };
 
+  const allSelectedMolecules = useMemo(
+    () =>
+      joinedMoleculeLists.filter(
+        molecule => moleculesToEditIds.includes(molecule.id) || molecule.id === molForTagEditId
+      ),
+    [joinedMoleculeLists, moleculesToEditIds, molForTagEditId]
+  );
+
   const changePredefinedFilter = event => {
     let newFilter = Object.assign({}, filter);
 
@@ -522,10 +530,10 @@ export const MoleculeList = memo(({ height, setFilterItemsHeight, filterItemsHei
 
   const joinedGivenMatch = useCallback(
     givenList => {
-      return givenList.filter(element => joinedMoleculeLists.filter(element2 => element2.id === element).length > 0)
+      return givenList.filter(element => allSelectedMolecules.filter(element2 => element2.id === element).length > 0)
         .length;
     },
-    [joinedMoleculeLists]
+    [allSelectedMolecules]
   );
 
   const joinedLigandMatchLength = useMemo(() => joinedGivenMatch(fragmentDisplayList), [
@@ -536,12 +544,12 @@ export const MoleculeList = memo(({ height, setFilterItemsHeight, filterItemsHei
   const joinedComplexMatchLength = useMemo(() => joinedGivenMatch(complexList), [complexList, joinedGivenMatch]);
 
   const changeButtonClassname = (givenList = [], matchListLength) => {
-    if (joinedMoleculeLists.length === matchListLength) {
+    if (!matchListLength) {
+      return false;
+    } else if (allSelectedMolecules.length === matchListLength) {
       return true;
-    } else if (givenList.length > 0 && matchListLength > 0) {
-      return null;
     }
-    return false;
+    return null;
   };
 
   const isLigandOn = changeButtonClassname(fragmentDisplayList, joinedLigandMatchLength);
@@ -574,11 +582,11 @@ export const MoleculeList = memo(({ height, setFilterItemsHeight, filterItemsHei
 
   const removeSelectedType = (type, skipTracking = false) => {
     if (type === 'ligand') {
-      joinedMoleculeLists.forEach(molecule => {
+      allSelectedMolecules.forEach(molecule => {
         dispatch(removeType[type](majorViewStage, molecule, skipTracking));
       });
     } else {
-      joinedMoleculeLists.forEach(molecule => {
+      allSelectedMolecules.forEach(molecule => {
         dispatch(removeType[type](majorViewStage, molecule, colourList[molecule.id % colourList.length], skipTracking));
       });
     }
@@ -605,7 +613,7 @@ export const MoleculeList = memo(({ height, setFilterItemsHeight, filterItemsHei
       const promises = [];
 
       if (type === 'ligand') {
-        joinedMoleculeLists.forEach(molecule => {
+        allSelectedMolecules.forEach(molecule => {
           selectMoleculeTags(molecule.tags_set);
 
           promises.push(
@@ -622,7 +630,7 @@ export const MoleculeList = memo(({ height, setFilterItemsHeight, filterItemsHei
           );
         });
       } else {
-        joinedMoleculeLists.forEach(molecule => {
+        allSelectedMolecules.forEach(molecule => {
           selectMoleculeTags(molecule.tags_set);
           promises.push(
             dispatch(addType[type](majorViewStage, molecule, colourList[molecule.id % colourList.length], skipTracking))
@@ -773,6 +781,10 @@ export const MoleculeList = memo(({ height, setFilterItemsHeight, filterItemsHei
 
   const [isOpenAlert, setIsOpenAlert] = useState(false);
 
+  const allLPCButtonDisabled =
+    Object.values(disableListNglControlButtonsMap).some(value => value) ||
+    Object.values(disableAllNglControlButtonsMap).some(value => value);
+
   return (
     <ComputeSize
       componentRef={filterRef.current}
@@ -796,6 +808,7 @@ export const MoleculeList = memo(({ height, setFilterItemsHeight, filterItemsHei
         {isTagEditorOpen && (
           <TagEditor
             open={isTagEditorOpen}
+            closeDisabled={allLPCButtonDisabled}
             setOpenDialog={setTagEditorOpen}
             anchorEl={tagEditorAnchorEl}
             ref={tagEditorRef}
@@ -871,7 +884,7 @@ export const MoleculeList = memo(({ height, setFilterItemsHeight, filterItemsHei
                     wrap="nowrap"
                     className={classes.contButtonsMargin}
                   >
-                    {currentMolecules.length > 0 && (
+                    {allSelectedMolecules.length > 0 && (
                       <>
                         <Tooltip title="all ligands">
                           <Grid item>
@@ -995,8 +1008,9 @@ export const MoleculeList = memo(({ height, setFilterItemsHeight, filterItemsHei
                       eventInfo={data?.proteinData?.event_info}
                       sigmaaInfo={data?.proteinData?.sigmaa_info}
                       diffInfo={data?.proteinData?.diff_info}
-                      disableAllNglControlsButtonMap={disableAllNglControlButtonsMap}
+                      disableAllNglControlButtonsMap={disableAllNglControlButtonsMap}
                       withDisabledListNglControlButton={withDisabledListNglControlButton}
+                      allLPCButtonDisabled={allLPCButtonDisabled}
                     />
                   ))}
                 </InfiniteScroll>

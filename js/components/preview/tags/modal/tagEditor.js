@@ -98,7 +98,7 @@ const useStyles = makeStyles(theme => ({
 }));
 
 export const TagEditor = memo(
-  forwardRef(({ open = false, anchorEl, setOpenDialog }, ref) => {
+  forwardRef(({ open = false, anchorEl, setOpenDialog, closeDisabled }, ref) => {
     const id = open ? 'simple-popover-mols-tag-editor' : undefined;
     const classes = useStyles();
     const dispatch = useDispatch();
@@ -186,7 +186,12 @@ export const TagEditor = memo(
           className={classes.paper}
           headerActions={[
             <Tooltip title="Close editor">
-              <IconButton color="inherit" className={classes.headerButton} onClick={handleCloseModal}>
+              <IconButton
+                color="inherit"
+                className={classes.headerButton}
+                onClick={handleCloseModal}
+                disabled={closeDisabled}
+              >
                 <Close />
               </IconButton>
             </Tooltip>

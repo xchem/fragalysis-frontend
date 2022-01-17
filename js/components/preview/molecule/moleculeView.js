@@ -244,8 +244,9 @@ const MoleculeView = memo(
     V,
     I,
     selectMoleculeSite,
-    disableAllNglControlsButtonMap,
-    withDisabledListNglControlButton
+    disableAllNglControlButtonsMap,
+    withDisabledListNglControlButton,
+    allLPCButtonDisabled
   }) => {
     // const [countOfVectors, setCountOfVectors] = useState('-');
     // const [cmpds, setCmpds] = useState('-');
@@ -338,6 +339,7 @@ const MoleculeView = memo(
     const proteinData = data?.proteinData;
     const isMolSelectedForEdit = moleculesToEdit.some(mid => mid === currentID);
     const isTagEditorInvokedByMolecule = data && molIdForTagEditor === data.id;
+    const isChecked = isMolSelectedForEdit || isTagEditorInvokedByMolecule;
 
     const getDataForTagsTooltip = () => {
       const assignedTags = getAllTagsForMol(data, tagList);
@@ -404,11 +406,19 @@ const MoleculeView = memo(
         ? selected_style
         : not_selected_style;
 
+    const withDisabledListNglControlButtonIfChecked = (type, callback) => {
+      if (isChecked) {
+        withDisabledListNglControlButton(type, callback);
+      } else {
+        callback();
+      }
+    };
+
     const addNewLigand = (skipTracking = false) => {
       // if (selectMoleculeSite) {
       //   selectMoleculeSite(data.site);
       // }
-      withDisabledListNglControlButton('ligand', async () => {
+      withDisabledListNglControlButtonIfChecked('ligand', async () => {
         await withDisabledNglControlButton('ligand', async () => {
           await dispatch(addLigand(stage, data, colourToggle, false, true, skipTracking));
         });
@@ -445,7 +455,7 @@ const MoleculeView = memo(
       // if (selectMoleculeSite) {
       //   selectMoleculeSite(data.site);
       // }
-      withDisabledListNglControlButton('protein', async () => {
+      withDisabledListNglControlButtonIfChecked('protein', async () => {
         await withDisabledNglControlButton('protein', async () => {
           await dispatch(addHitProtein(stage, data, colourToggle, skipTracking));
         });
@@ -477,7 +487,7 @@ const MoleculeView = memo(
       // if (selectMoleculeSite) {
       //   selectMoleculeSite(data.site);
       // }
-      withDisabledListNglControlButton('complex', async () => {
+      withDisabledListNglControlButtonIfChecked('complex', async () => {
         await withDisabledNglControlButton('complex', async () => {
           await dispatch(addComplex(stage, data, colourToggle, skipTracking));
         });
@@ -536,7 +546,7 @@ const MoleculeView = memo(
       //   selectMoleculeSite(data.site);
       // }
       // Selecting quality will render ligand
-      withDisabledListNglControlButton('ligand', async () => {
+      withDisabledListNglControlButtonIfChecked('ligand', async () => {
         await withDisabledNglControlButton('ligand', async () => {
           await withDisabledNglControlButton('density', async () => {
             await dispatch(addDensity(stage, data, colourToggle, isWireframeStyle));
@@ -689,10 +699,8 @@ const MoleculeView = memo(
 
     let moleculeTitle = data?.protein_code.replace(new RegExp(`${target_on_name}-`, 'i'), '');
 
-    // Check only LPC categories for the A button
-    const disableAllButton = !!['ligand', 'protein', 'complex'].find(
-      type => disableAllNglControlsButtonMap[type] || disableNglControlButtonsMap[type]
-    );
+    const moleculeLPCButtonDisabled = ['ligand', 'protein', 'complex'].some(type => disableNglControlButtonsMap[type]);
+    const anyLPCButtonDisabled = allLPCButtonDisabled || moleculeLPCButtonDisabled;
 
     return (
       <>
@@ -701,10 +709,11 @@ const MoleculeView = memo(
           <Grid item container justify="space-between" direction="column" className={classes.site}>
             <Grid item>
               <Checkbox
-                checked={isMolSelectedForEdit || isTagEditorInvokedByMolecule}
+                checked={isChecked}
                 className={classes.checkbox}
                 size="small"
                 color="primary"
+                disabled={anyLPCButtonDisabled}
                 onChange={e => {
                   const result = e.target.checked;
                   if (result) {
@@ -772,7 +781,7 @@ const MoleculeView = memo(
                         onProtein(true);
                         onComplex(true);
                       }}
-                      disabled={disableAllButton}
+                      disabled={anyLPCButtonDisabled}
                     >
                       A
                     </Button>
@@ -786,7 +795,9 @@ const MoleculeView = memo(
                         [classes.contColButtonSelected]: isLigandOn
                       })}
                       onClick={() => onLigand()}
-                      disabled={disableAllNglControlsButtonMap.ligand || disableNglControlButtonsMap.ligand}
+                      disabled={
+                        (isChecked && disableAllNglControlButtonsMap.ligand) || disableNglControlButtonsMap.ligand
+                      }
                     >
                       L
                     </Button>
@@ -800,7 +811,9 @@ const MoleculeView = memo(
                         [classes.contColButtonSelected]: isProteinOn
                       })}
                       onClick={() => onProtein()}
-                      disabled={disableAllNglControlsButtonMap.protein || disableNglControlButtonsMap.protein}
+                      disabled={
+                        (isChecked && disableAllNglControlButtonsMap.protein) || disableNglControlButtonsMap.protein
+                      }
                     >
                       P
                     </Button>
@@ -815,7 +828,9 @@ const MoleculeView = memo(
                         [classes.contColButtonSelected]: isComplexOn
                       })}
                       onClick={() => onComplex()}
-                      disabled={disableAllNglControlsButtonMap.complex || disableNglControlButtonsMap.complex}
+                      disabled={
+                        (isChecked && disableAllNglControlButtonsMap.complex) || disableNglControlButtonsMap.complex
+                      }
                     >
                       C
                     </Button>
@@ -955,7 +970,7 @@ const MoleculeView = memo(
               <Grid item xs={2}>
                 <IconButton
                   color="primary"
-                  disabled={noTagsReceived}
+                  disabled={noTagsReceived || anyLPCButtonDisabled}
                   className={classes.tagIcon}
                   onClick={() => {
                     // setTagAddModalOpen(!tagAddModalOpen);

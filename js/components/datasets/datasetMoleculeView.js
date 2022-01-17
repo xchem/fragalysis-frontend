@@ -262,8 +262,9 @@ export const DatasetMoleculeView = memo(
     V,
     fromSelectedCompounds = false,
     moveMolecule,
-    disableAllNglControlsButtonMap,
-    withDisabledListNglControlButton
+    disableAllNglControlButtonsMap,
+    withDisabledListNglControlButton,
+    allLPCButtonDisabled
   }) => {
     const ref = useRef(null);
 
@@ -352,8 +353,16 @@ export const DatasetMoleculeView = memo(
     const not_selected_style = {};
     const current_style = isLigandOn || isProteinOn || isComplexOn || isSurfaceOn ? selected_style : not_selected_style;
 
+    const withDisabledListNglControlButtonIfChecked = (type, callback) => {
+      if (isCheckedToBuy) {
+        withDisabledListNglControlButton(type, callback);
+      } else {
+        callback();
+      }
+    };
+
     const addNewLigand = (skipTracking = false) => {
-      withDisabledListNglControlButton('ligand', async () => {
+      withDisabledListNglControlButtonIfChecked('ligand', async () => {
         await withDisabledNglControlButton('ligand', async () => {
           await dispatch(addDatasetLigand(stage, data, colourToggle, datasetID, skipTracking));
         });
@@ -391,7 +400,7 @@ export const DatasetMoleculeView = memo(
     };
 
     const addNewProtein = (skipTracking = false) => {
-      withDisabledListNglControlButton('protein', async () => {
+      withDisabledListNglControlButtonIfChecked('protein', async () => {
         await withDisabledNglControlButton('protein', async () => {
           await dispatch(addDatasetHitProtein(stage, data, colourToggle, datasetID, skipTracking));
         });
@@ -420,7 +429,7 @@ export const DatasetMoleculeView = memo(
     };
 
     const addNewComplex = (skipTracking = false) => {
-      withDisabledListNglControlButton('complex', async () => {
+      withDisabledListNglControlButtonIfChecked('complex', async () => {
         await withDisabledNglControlButton('complex', async () => {
           await dispatch(addDatasetComplex(stage, data, colourToggle, datasetID, skipTracking));
         });
@@ -575,10 +584,8 @@ export const DatasetMoleculeView = memo(
 
     const allScores = { ...data?.numerical_scores, ...data?.text_scores };
 
-    // Check only LPC categories for the A button
-    const disableAllButton = !!['ligand', 'protein', 'complex'].find(
-      type => disableAllNglControlsButtonMap[type] || disableNglControlButtonsMap[type]
-    );
+    const moleculeLPCButtonDisabled = ['ligand', 'protein', 'complex'].some(type => disableNglControlButtonsMap[type]);
+    const anyLPCButtonDisabled = allLPCButtonDisabled || moleculeLPCButtonDisabled;
 
     return (
       <>
@@ -600,6 +607,7 @@ export const DatasetMoleculeView = memo(
                 className={classes.checkbox}
                 size="small"
                 color="primary"
+                disabled={anyLPCButtonDisabled}
                 onChange={e => {
                   const result = e.target.checked;
                   if (result) {
@@ -695,7 +703,7 @@ export const DatasetMoleculeView = memo(
                         onProtein(true);
                         onComplex(true);
                       }}
-                      disabled={isFromVectorSelector || disableAllButton}
+                      disabled={isFromVectorSelector || anyLPCButtonDisabled}
                     >
                       A
                     </Button>
@@ -709,7 +717,9 @@ export const DatasetMoleculeView = memo(
                         [classes.contColButtonSelected]: isLigandOn
                       })}
                       onClick={() => onLigand()}
-                      disabled={disableAllNglControlsButtonMap.ligand || disableNglControlButtonsMap.ligand}
+                      disabled={
+                        (isCheckedToBuy && disableAllNglControlButtonsMap.ligand) || disableNglControlButtonsMap.ligand
+                      }
                     >
                       L
                     </Button>
@@ -725,7 +735,7 @@ export const DatasetMoleculeView = memo(
                       onClick={() => onProtein()}
                       disabled={
                         isFromVectorSelector ||
-                        disableAllNglControlsButtonMap.protein ||
+                        (isCheckedToBuy && disableAllNglControlButtonsMap.protein) ||
                         disableNglControlButtonsMap.protein
                       }
                     >
@@ -744,7 +754,7 @@ export const DatasetMoleculeView = memo(
                       onClick={() => onComplex()}
                       disabled={
                         isFromVectorSelector ||
-                        disableAllNglControlsButtonMap.complex ||
+                        (isCheckedToBuy && disableAllNglControlButtonsMap.complex) ||
                         disableNglControlButtonsMap.complex
                       }
                     >

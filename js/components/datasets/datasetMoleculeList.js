@@ -14,7 +14,7 @@ import {
   IconButton,
   ButtonGroup
 } from '@material-ui/core';
-import React, { useState, useEffect, memo, useRef, useContext } from 'react';
+import React, { useState, useEffect, memo, useRef, useContext, useMemo } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { DatasetMoleculeView } from './datasetMoleculeView';
 import { colourList } from '../preview/molecule/utils/color';
@@ -299,15 +299,28 @@ export const DatasetMoleculeList = memo(
     const densityListCustomMolecule = useSelector(state => state.selectionReducers.densityListCustom);
     const vectorOnListMolecule = useSelector(state => state.selectionReducers.vectorOnList);
     const qualityListMolecule = useSelector(state => state.selectionReducers.qualityList);
+    const compoundsToBuyList = useSelector(state => state.datasetsReducers.compoundsToBuyDatasetMap[datasetID]);
 
     const ligandList = useSelector(state => state.datasetsReducers.ligandLists[datasetID]);
     const proteinList = useSelector(state => state.datasetsReducers.proteinLists[datasetID]);
     const complexList = useSelector(state => state.datasetsReducers.complexLists[datasetID]);
     const surfaceList = useSelector(state => state.datasetsReducers.surfaceLists[datasetID]);
 
-    const isLigandOn = (ligandList && ligandList.length > 0) || false;
-    const isProteinOn = (proteinList && proteinList.length > 0) || false;
-    const isComplexOn = (complexList && complexList.length > 0) || false;
+    const selectedMolecules = useMemo(() => {
+      return joinedMoleculeLists.filter(mol => compoundsToBuyList?.includes(mol.id));
+    }, [joinedMoleculeLists, compoundsToBuyList]);
+
+    const isTypeOn = typeList => {
+      if (typeList && compoundsToBuyList) {
+        return typeList.some(molId => selectedMolecules.some(mol => mol.id === molId));
+      }
+      return false;
+    };
+
+    const isLigandOn = isTypeOn(ligandList);
+    const isProteinOn = isTypeOn(proteinList);
+    const isComplexOn = isTypeOn(complexList);
+
     const addType = {
       ligand: addDatasetLigand,
       protein: addDatasetHitProtein,
@@ -358,7 +371,7 @@ export const DatasetMoleculeList = memo(
     // TODO maybe change "currentMolecules.forEach" to "{type}List.forEach"
 
     const removeSelectedType = (type, skipTracking) => {
-      joinedMoleculeLists.forEach(molecule => {
+      selectedMolecules.forEach(molecule => {
         dispatch(
           removeType[type](stage, molecule, colourList[molecule.id % colourList.length], datasetID, skipTracking)
         );
@@ -370,7 +383,7 @@ export const DatasetMoleculeList = memo(
       withDisabledAllNglControlButton(type, async () => {
         const promises = [];
 
-        joinedMoleculeLists.forEach(molecule => {
+        selectedMolecules.forEach(molecule => {
           promises.push(
             dispatch(
               addType[type](stage, molecule, colourList[molecule.id % colourList.length], datasetID, skipTracking)
@@ -500,6 +513,10 @@ export const DatasetMoleculeList = memo(
       dispatch(dragDropMoleculeInProgress(datasetID, joinedMoleculeLists, dragIndex, hoverIndex));
     };
 
+    const allLPCButtonDisabled =
+      Object.values(disableListNglControlButtonsMap).some(value => value) ||
+      Object.values(disableAllNglControlButtonsMap).some(value => value);
+
     return (
       <ComputeSize
         componentRef={filterRef.current}
@@ -597,7 +614,7 @@ export const DatasetMoleculeList = memo(
                           </Grid>
                         </Tooltip>
                       ))}
-                    {currentMolecules.length > 0 && (
+                    {selectedMolecules.length > 0 && (
                       <Grid item>
                         <Grid
                           container
@@ -724,8 +741,9 @@ export const DatasetMoleculeList = memo(
                             S={surfaceList.includes(data.id)}
                             V={false}
                             moveMolecule={moveMolecule}
-                            disableAllNglControlsButtonMap={disableAllNglControlButtonsMap}
+                            disableAllNglControlButtonsMap={disableAllNglControlButtonsMap}
                             withDisabledListNglControlButton={withDisabledListNglControlButton}
+                            allLPCButtonDisabled={allLPCButtonDisabled}
                           />
                         ))}
                       </DndProvider>
