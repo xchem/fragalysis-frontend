@@ -1,9 +1,17 @@
-import { actionType, actionObjectType, actionDescription, actionAnnotation, mapTypesStrings } from './constants';
+import {
+  actionType,
+  actionObjectType,
+  actionDescription,
+  actionAnnotation,
+  mapTypesStrings,
+  viewerControlsSides
+} from './constants';
 import { constants as apiConstants } from '../api/constants';
 import { CONSTANTS as nglConstants } from '../ngl/constants';
 import { constants as previewCompoundConstants } from '../../components/preview/compounds/redux/constants';
 import { constants as selectionConstants } from '../selection/constants';
 import { constants as customDatasetConstants } from '../../components/datasets/redux/constants';
+import { constants as viewerControlsConstants } from '../../components/preview/viewerControls/redux/constants';
 import { DJANGO_CONTEXT } from '../../utils/djangoContext';
 import { BACKGROUND_COLOR } from '../../components/nglView/constants/index';
 
@@ -1622,6 +1630,22 @@ export const findTrackAction = (action, state) => {
         },
         text: `Warning icon showing ${newSetting === true ? actionDescription.TURNED_ON : actionDescription.TURNED_OFF}`
       };
+    } else if (action.type === viewerControlsConstants.TURN_SIDE) {
+      if (action.payload) {
+        const { side, open } = action.payload;
+
+        const openDescription = open ? actionDescription.TURNED_ON : actionDescription.TURNED_OFF;
+
+        trackAction = {
+          type: actionType.TURN_SIDE,
+          annotation: actionAnnotation.CHECK,
+          timestamp: Date.now(),
+          username,
+          side,
+          open,
+          text: `${viewerControlsSides[side]} ${openDescription}`
+        };
+      }
     }
   }
   return trackAction;

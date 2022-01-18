@@ -13,6 +13,7 @@ import { restoreAfterTargetActions } from '../../../reducers/tracking/dispatchAc
 import { resetTrackingState } from '../../../reducers/tracking/actions';
 import { setTargetOn } from '../../../reducers/api/actions';
 import { resetNglTrackingState } from '../../../reducers/nglTracking/dispatchActions';
+import { resetViewerControlsState } from '../viewerControls/redux/actions';
 
 const loadProtein = nglView => (dispatch, getState) => {
   const state = getState();
@@ -130,11 +131,14 @@ export const unmountPreviewComponent = (stages = []) => dispatch => {
 
   dispatch(resetSelectionState());
   dispatch(resetDatasetsState());
+
+  dispatch(resetViewerControlsState());
 };
 
 export const resetReducersForRestoringActions = () => dispatch => {
   dispatch(resetSelectionState());
   dispatch(resetDatasetsState());
+  dispatch(resetViewerControlsState());
 };
 
 export const resetReducersBetweenSnapshots = (stages = []) => dispatch => {
@@ -150,6 +154,7 @@ export const resetReducersBetweenSnapshots = (stages = []) => dispatch => {
   dispatch(resetTrackingState());
   dispatch(resetNglTrackingState());
   dispatch(setTargetOn(undefined));
+  dispatch(resetViewerControlsState());
 };
 
 export const switchBetweenSnapshots = ({ nglViewList, projectID, snapshotID, history }) => (dispatch, getState) => {

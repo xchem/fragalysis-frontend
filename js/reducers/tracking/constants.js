@@ -100,7 +100,8 @@ export const actionType = {
   COLOR_DIFF: 'COLOR_DIFF',
   WARNING_ICON: 'WARNING_ICON',
   TAG_SELECTED: 'TAG_SELECTED',
-  TAG_UNSELECTED: 'TAG_UNSELECTED'
+  TAG_UNSELECTED: 'TAG_UNSELECTED',
+  TURN_SIDE: 'TURN_SIDE'
 };
 
 export const actionDescription = {
@@ -167,6 +168,11 @@ export const mapTypesStrings = {
   EVENT: 'EVENT MAP',
   DIFF: 'DIFF MAP',
   SIGMAA: 'SIGMAA MAP'
+};
+
+export const viewerControlsSides = {
+  LHS: 'Left hand side',
+  RHS: 'Right hand side'
 };
 
 export const NUM_OF_SECONDS_TO_IGNORE_MERGE = 2;

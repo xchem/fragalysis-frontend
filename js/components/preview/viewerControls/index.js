@@ -28,6 +28,7 @@ import {
 } from '../../../../js/reducers/nglTracking/dispatchActions';
 import { NglContext } from '../../nglView/nglProvider';
 import { nglTrackingRedo, nglTrackingUndo } from '../../../reducers/nglTracking/actions';
+import { turnSide } from './redux/actions';
 
 const drawers = {
   settings: 'settings',
@@ -56,7 +57,7 @@ const useStyles = makeStyles(theme => ({
   }
 }));
 
-export const ViewerControls = memo(({ leftColumnOpen, setLeftColumnOpen, rightColumnOpen, setRightColumnOpen }) => {
+export const ViewerControls = memo(() => {
   const [drawerSettings, setDrawerSettings] = useState(JSON.parse(JSON.stringify(initDrawers)));
   const classes = useStyles();
   const dispatch = useDispatch();
@@ -73,6 +74,8 @@ export const ViewerControls = memo(({ leftColumnOpen, setLeftColumnOpen, rightCo
   const nglRedoLength = useSelector(state => state.undoableNglTrackingReducers.future).length;
   const nglCanUndo = nglUndoLength > 0;
   const nglCanRedo = nglRedoLength > 0;
+
+  const sidesOpen = useSelector(state => state.previewReducers.viewerControls.sidesOpen);
 
   useEffect(() => {
     nglSetUndoTooltip(dispatch(nglGetUndoActionText()));
@@ -146,12 +149,12 @@ export const ViewerControls = memo(({ leftColumnOpen, setLeftColumnOpen, rightCo
   return (
     <>
       <div className={classes.root}>
-        <Tooltip title={leftColumnOpen ? 'Close left hand side' : 'Open left hand side'}>
+        <Tooltip title={sidesOpen.LHS ? 'Close left hand side' : 'Open left hand side'}>
           <Button
-            variant={leftColumnOpen ? 'contained' : 'outlined'}
+            variant={sidesOpen.LHS ? 'contained' : 'outlined'}
             size="small"
             color="primary"
-            onClick={() => setLeftColumnOpen(!leftColumnOpen)}
+            onClick={() => dispatch(turnSide('LHS', !sidesOpen.LHS))}
             className={classes.button}
           >
             LHS
@@ -251,12 +254,12 @@ export const ViewerControls = memo(({ leftColumnOpen, setLeftColumnOpen, rightCo
           </Tooltip>
         </div>
 
-        <Tooltip title={rightColumnOpen ? 'Close right hand side' : 'Open right hand side'}>
+        <Tooltip title={sidesOpen.RHS ? 'Close right hand side' : 'Open right hand side'}>
           <Button
-            variant={rightColumnOpen ? 'contained' : 'outlined'}
+            variant={sidesOpen.RHS ? 'contained' : 'outlined'}
             size="small"
             color="primary"
-            onClick={() => setRightColumnOpen(!rightColumnOpen)}
+            onClick={() => dispatch(turnSide('RHS', !sidesOpen.RHS))}
             className={classes.button}
           >
             RHS

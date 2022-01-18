@@ -210,8 +210,7 @@ const Preview = memo(({ isStateLoaded, hideProjects }) => {
   const anchorRefDatasetDropdown = useRef(null);
   const [openDatasetDropdown, setOpenDatasetDropdown] = useState(false);
 
-  const [rightColumnOpen, setRightColumnOpen] = useState(false);
-  const [leftColumnOpen, setLeftColumnOpen] = useState(true);
+  const sidesOpen = useSelector(state => state.previewReducers.viewerControls.sidesOpen);
 
   return (
     <>
@@ -221,7 +220,7 @@ const Preview = memo(({ isStateLoaded, hideProjects }) => {
           container
           direction="column"
           spacing={1}
-          className={classNames(classes.column, !leftColumnOpen && classes.columnHidden)}
+          className={classNames(classes.column, !sidesOpen.LHS && classes.columnHidden)}
         >
           {/* Tag details pane */}
           <Grid item className={classes.hitSelectorWidth}>
@@ -252,19 +251,14 @@ const Preview = memo(({ isStateLoaded, hideProjects }) => {
                 height={controlsHeight}
                 setHeight={setControlsHeight}
               >
-                <ViewerControls
-                  leftColumnOpen={leftColumnOpen}
-                  setLeftColumnOpen={setLeftColumnOpen}
-                  rightColumnOpen={rightColumnOpen}
-                  setRightColumnOpen={setRightColumnOpen}
-                />
+                <ViewerControls />
                 {!hideProjects && <ProjectHistory showFullHistory={() => setShowHistory(!showHistory)} />}
               </ComputeSize>
             </Grid>
           </Grid>
         </div>
         <Grid
-          className={classNames(classes.column, !rightColumnOpen && classes.columnHidden)}
+          className={classNames(classes.column, !sidesOpen.RHS && classes.columnHidden)}
           container
           direction="column"
         >
@@ -339,7 +333,7 @@ const Preview = memo(({ isStateLoaded, hideProjects }) => {
                     setFilterItemsHeight={setFilterItemsHeightDataset}
                     filterItemsHeight={filterItemsHeightDataset}
                     hideProjects={hideProjects}
-                    isActive={rightColumnOpen && index === selectedDatasetIndex}
+                    isActive={sidesOpen.RHS && index === selectedDatasetIndex}
                   />
                 </Grid>
               </TabPanel>

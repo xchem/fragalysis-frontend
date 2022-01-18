@@ -154,6 +154,7 @@ import {
   addSelectedTag,
   loadMoleculesAndTags
 } from '../../components/preview/tags/redux/dispatchActions';
+import { turnSide } from '../../components/preview/viewerControls/redux/actions';
 
 export const addCurrentActionsListToSnapshot = (snapshot, project, nglViewList) => async (dispatch, getState) => {
   let projectID = project && project.projectID;
@@ -437,6 +438,10 @@ const saveActionsList = (project, snapshot, actionList, nglViewList) => async (d
       currentActions.push({ ...action, type: actionType.DRAG_DROP_FINISHED });
     }
 
+    // Sides
+    getLastActionByCriteria(orderedActionList, actionType.TURN_SIDE, action => action.side === 'LHS', currentActions);
+    getLastActionByCriteria(orderedActionList, actionType.TURN_SIDE, action => action.side === 'RHS', currentActions);
+
     if (nglViewList) {
       let nglStateList = nglViewList.map(nglView => {
         return { id: nglView.id, orientation: nglView.stage.viewerControls.getOrientation() };
@@ -554,6 +559,13 @@ const getCommonLastActionByType = (orderedActionList, type, currentActions) => {
   let action = orderedActionList.find(action => action.type === type);
   if (action) {
     currentActions.push(Object.assign({ ...action }));
+  }
+};
+
+const getLastActionByCriteria = (orderedActionList, type, criteriaFunction, currentActions) => {
+  const action = orderedActionList.find(action => action.type === type && criteriaFunction(action));
+  if (action) {
+    currentActions.push({ ...action });
   }
 };
 
@@ -834,6 +846,7 @@ export const restoreAfterTargetActions = (stages, projectId) => async (dispatch,
     dispatch(restoreNglStateAction(orderedActionList, stages));
     dispatch(restoreNglSettingsAction(orderedActionList, majorView.stage));
     dispatch(setIsActionsRestoring(false, true));
+    dispatch(restoreViewerControlActions(orderedActionList));
   }
 };
 
@@ -1505,6 +1518,14 @@ const restoreTabActions = moleculesAction => (dispatch, getState) => {
   }
 };
 
+const restoreViewerControlActions = moleculesAction => dispatch => {
+  const turnSideActions = moleculesAction.filter(action => action.type === actionType.TURN_SIDE);
+  turnSideActions.forEach(action => {
+    const { side, open } = action;
+    dispatch(turnSide(side, open, true));
+  });
+};
+
 const restoreSnapshotImageActions = projectID => async (dispatch, getState) => {
   let actionList = await dispatch(getTrackingActions(projectID));
 
@@ -2021,6 +2042,9 @@ const handleUndoAction = (action, stages) => (dispatch, getState) => {
       case actionType.WARNING_ICON:
         dispatch(setWarningIcon(action.oldSetting, action.newSetting));
         break;
+      case actionType.TURN_SIDE:
+        dispatch(handleTurnSideAction(action, false));
+        break;
       default:
         break;
     }
@@ -2256,6 +2280,9 @@ const handleRedoAction = (action, stages) => (dispatch, getState) => {
         break;
       case actionType.WARNING_ICON:
         dispatch(setWarningIcon(action.newSetting, action.oldSetting));
+        break;
+      case actionType.TURN_SIDE:
+        dispatch(handleTurnSideAction(action, true));
         break;
       default:
         break;
@@ -2595,6 +2622,13 @@ const handleRepresentationAction = (action, isAdd, nglView) => (dispatch, getSta
     } else {
       dispatch(removeRepresentation(action, action.object_id, action.representation, nglView));
     }
+  }
+};
+
+const handleTurnSideAction = (action, restore) => dispatch => {
+  if (action) {
+    const { side, open } = action;
+    dispatch(turnSide(side, restore ? open : !open, true));
   }
 };
 
