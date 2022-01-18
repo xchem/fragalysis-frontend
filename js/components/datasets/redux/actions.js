@@ -427,3 +427,13 @@ export const dragDropFinished = (datasetID, molecule, index) => ({
   type: constants.DRAG_DROP_FINISHED,
   payload: { datasetID, molecule, index }
 });
+
+export const disableDatasetMoleculeNglControlButton = (datasetId, moleculeId, type) => ({
+  type: constants.DISABLE_DATASET_NGL_CONTROL_BUTTON,
+  payload: { datasetId, moleculeId, type }
+});
+
+export const enableDatasetMoleculeNglControlButton = (datasetId, moleculeId, type) => ({
+  type: constants.ENABLE_DATASET_NGL_CONTROL_BUTTON,
+  payload: { datasetId, moleculeId, type }
+});

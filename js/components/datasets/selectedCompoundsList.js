@@ -34,6 +34,8 @@ import { setDontShowShareSnapshot, setSharedSnapshot } from '../snapshot/redux/a
 import { initSharedSnapshot } from '../snapshot/redux/reducer';
 import { base_url } from '../routes/constants';
 import { api, METHOD } from '../../utils/api';
+import { DndProvider } from 'react-dnd';
+import { HTML5Backend } from 'react-dnd-html5-backend';
 
 const useStyles = makeStyles(theme => ({
   container: {
@@ -96,7 +98,7 @@ export const SelectedCompoundList = memo(({ height }) => {
   const showedCompoundList = useSelector(state => state.previewReducers.compounds.showedCompoundList);
   const filteredScoreProperties = useSelector(state => state.datasetsReducers.filteredScoreProperties);
 
-  const removeOfAllSelectedTypes = () => {
+  const removeSelectedTypes = () => {
     Object.keys(ligandListAllDatasets).forEach(datasetKey => {
       ligandListAllDatasets[datasetKey]?.forEach(moleculeID => {
         const foundedMolecule = currentMolecules?.find(mol => mol?.molecule?.id === moleculeID);
@@ -418,38 +420,40 @@ export const SelectedCompoundList = memo(({ height }) => {
               }
               useWindow={false}
             >
-              {currentMolecules.map((data, index, array) => {
-                const isFromVectorSelector = isCompoundFromVectorSelector(data.molecule);
-                let isLigandOn = false;
-                if (isFromVectorSelector) {
-                  if (showedCompoundList.find(item => item === data.molecule.smiles) !== undefined) {
-                    isLigandOn = true;
+              <DndProvider backend={HTML5Backend}>
+                {currentMolecules.map((data, index, array) => {
+                  const isFromVectorSelector = isCompoundFromVectorSelector(data.molecule);
+                  let isLigandOn = false;
+                  if (isFromVectorSelector) {
+                    if (showedCompoundList.find(item => item === data.molecule.smiles) !== undefined) {
+                      isLigandOn = true;
+                    }
+                  } else {
+                    isLigandOn = ligandList.includes(data.molecule.id);
                   }
-                } else {
-                  isLigandOn = ligandList.includes(data.molecule.id);
-                }
-                return (
-                  <DatasetMoleculeView
-                    key={index}
-                    index={index}
-                    imageHeight={imgHeight}
-                    imageWidth={imgWidth}
-                    data={data.molecule}
-                    datasetID={data.datasetID}
-                    setRef={setSelectedMoleculeRef}
-                    showCrossReferenceModal
-                    previousItemData={index > 0 && array[index - 1]}
-                    nextItemData={index < array?.length && array[index + 1]}
-                    removeOfAllSelectedTypes={removeOfAllSelectedTypes}
-                    L={isLigandOn}
-                    P={proteinList.includes(data.molecule.id)}
-                    C={complexList.includes(data.molecule.id)}
-                    S={surfaceList.includes(data.molecule.id)}
-                    V={false}
-                    fromSelectedCompounds={true}
-                  />
-                );
-              })}
+                  return (
+                    <DatasetMoleculeView
+                      key={index}
+                      index={index}
+                      imageHeight={imgHeight}
+                      imageWidth={imgWidth}
+                      data={data.molecule}
+                      datasetID={data.datasetID}
+                      setRef={setSelectedMoleculeRef}
+                      showCrossReferenceModal
+                      previousItemData={index > 0 && array[index - 1]}
+                      nextItemData={index < array?.length && array[index + 1]}
+                      removeSelectedTypes={removeSelectedTypes}
+                      L={isLigandOn}
+                      P={proteinList.includes(data.molecule.id)}
+                      C={complexList.includes(data.molecule.id)}
+                      S={surfaceList.includes(data.molecule.id)}
+                      V={false}
+                      fromSelectedCompounds={true}
+                    />
+                  );
+                })}
+              </DndProvider>
             </InfiniteScroll>
           </Grid>
         )}

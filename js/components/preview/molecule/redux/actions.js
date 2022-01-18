@@ -19,3 +19,13 @@ export const addProteindDataToCache = (molId, proteinData) => ({
   type: constants.ADD_PROTEIN_DATA_TO_CACHE,
   payload: { molId: molId, proteinData: proteinData }
 });
+
+export const disableMoleculeNglControlButton = (moleculeId, type) => ({
+  type: constants.DISABLE_NGL_CONTROL_BUTTON,
+  payload: { moleculeId, type }
+});
+
+export const enableMoleculeNglControlButton = (moleculeId, type) => ({
+  type: constants.ENABLE_NGL_CONTROL_BUTTON,
+  payload: { moleculeId, type }
+});

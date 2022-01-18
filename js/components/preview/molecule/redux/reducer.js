@@ -3,7 +3,10 @@ import { constants } from './constants';
 export const INITIAL_STATE = {
   sortDialogOpen: false,
   imageCache: {},
-  proteinDataCache: {}
+  proteinDataCache: {},
+
+  // disables NGL control buttons for molecules
+  disableNglControlButtons: {} // moleculeID.nglButtonDisableState
 };
 
 export const molecule = (state = INITIAL_STATE, action = {}) => {
@@ -33,6 +36,36 @@ export const molecule = (state = INITIAL_STATE, action = {}) => {
           [action.payload.molId]: action.payload.proteinData
         }
       };
+
+    case constants.DISABLE_NGL_CONTROL_BUTTON: {
+      const { moleculeId, type } = action.payload;
+      const disableNglControlButtons = { ...state.disableNglControlButtons };
+
+      const moleculeNglControlButtons = { ...(disableNglControlButtons[moleculeId] || {}) };
+
+      moleculeNglControlButtons[type] = true;
+      disableNglControlButtons[moleculeId] = moleculeNglControlButtons;
+
+      return {
+        ...state,
+        disableNglControlButtons
+      };
+    }
+
+    case constants.ENABLE_NGL_CONTROL_BUTTON: {
+      const { moleculeId, type } = action.payload;
+      const disableNglControlButtons = { ...state.disableNglControlButtons };
+
+      const moleculeNglControlButtons = { ...(disableNglControlButtons[moleculeId] || {}) };
+
+      moleculeNglControlButtons[type] = false;
+      disableNglControlButtons[moleculeId] = moleculeNglControlButtons;
+
+      return {
+        ...state,
+        disableNglControlButtons
+      };
+    }
 
     default:
       return state;

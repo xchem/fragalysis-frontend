@@ -12,7 +12,8 @@ import {
   removeLigand,
   removeHitProtein,
   removeSurface,
-  removeSelectedMolTypes
+  removeSelectedMolTypes,
+  withDisabledMoleculesNglControlButtons
 } from '../preview/molecule/redux/dispatchActions';
 import MoleculeView from '../preview/molecule/moleculeView';
 import { moleculeProperty } from '../preview/molecule/helperConstants';
@@ -27,6 +28,7 @@ import { Panel } from '../common/Surfaces/Panel';
 import { changeButtonClassname } from './helpers';
 import { setSelectedAllByType, setDeselectedAllByType } from '../../reducers/selection/actions';
 import SearchField from '../common/Components/SearchField';
+import useDisableNglControlButtons from '../preview/molecule/useDisableNglControlButtons';
 
 const useStyles = makeStyles(theme => ({
   paper: {
@@ -136,6 +138,8 @@ export const InspirationDialog = memo(
     const qualityList = useSelector(state => state.selectionReducers.qualityList);
     const vectorOnList = useSelector(state => state.selectionReducers.vectorOnList);
     const informationList = useSelector(state => state.selectionReducers.informationList);
+    const molForTagEditId = useSelector(state => state.selectionReducers.molForTagEdit);
+    const moleculesToEditIds = useSelector(state => state.selectionReducers.moleculesToEdit);
 
     const dispatch = useDispatch();
     // const disableUserInteraction = useDisableUserInteraction();
@@ -148,18 +152,23 @@ export const InspirationDialog = memo(
     } else {
       moleculeList = inspirationMoleculeDataList;
     }
+
+    const allSelectedMolecules = inspirationMoleculeDataList.filter(
+      molecule => moleculesToEditIds.includes(molecule.id) || molecule.id === molForTagEditId
+    );
+
     // TODO refactor from this line (duplicity in datasetMoleculeList.js)
     const isLigandOn = changeButtonClassname(
-      ligandList.filter(moleculeID => moleculeList.find(molecule => molecule.id === moleculeID) !== undefined),
-      moleculeList
+      ligandList.filter(moleculeID => allSelectedMolecules.find(molecule => molecule.id === moleculeID) !== undefined),
+      allSelectedMolecules
     );
     const isProteinOn = changeButtonClassname(
-      proteinList.filter(moleculeID => moleculeList.find(molecule => molecule.id === moleculeID) !== undefined),
-      moleculeList
+      proteinList.filter(moleculeID => allSelectedMolecules.find(molecule => molecule.id === moleculeID) !== undefined),
+      allSelectedMolecules
     );
     const isComplexOn = changeButtonClassname(
-      complexList.filter(moleculeID => moleculeList.find(molecule => molecule.id === moleculeID) !== undefined),
-      moleculeList
+      complexList.filter(moleculeID => allSelectedMolecules.find(molecule => molecule.id === moleculeID) !== undefined),
+      allSelectedMolecules
     );
 
     const addType = {
@@ -178,17 +187,18 @@ export const InspirationDialog = memo(
 
     const selectMoleculeSite = moleculeGroupSite => {};
 
-    const removeOfAllSelectedTypes = (skipTracking = false) => {
-      dispatch(removeSelectedMolTypes(stage, moleculeList, skipTracking, true));
+    const removeSelectedTypes = (skipMolecules = [], skipTracking = false) => {
+      const molecules = [...moleculeList].filter(molecule => !skipMolecules.some(mol => molecule.id === mol.id));
+      dispatch(removeSelectedMolTypes(stage, molecules, skipTracking, true));
     };
 
     const removeSelectedType = (type, skipTracking = false) => {
       if (type === 'ligand') {
-        moleculeList.forEach(molecule => {
+        allSelectedMolecules.forEach(molecule => {
           dispatch(removeType[type](stage, molecule, skipTracking));
         });
       } else {
-        moleculeList.forEach(molecule => {
+        allSelectedMolecules.forEach(molecule => {
           dispatch(removeType[type](stage, molecule, colourList[molecule.id % colourList.length], skipTracking));
         });
       }
@@ -197,17 +207,40 @@ export const InspirationDialog = memo(
     };
 
     const addNewType = (type, skipTracking = false) => {
-      if (type === 'ligand') {
-        moleculeList.forEach(molecule => {
-          dispatch(
-            addType[type](stage, molecule, colourList[molecule.id % colourList.length], false, true, skipTracking)
-          );
-        });
-      } else {
-        moleculeList.forEach(molecule => {
-          dispatch(addType[type](stage, molecule, colourList[molecule.id % colourList.length], skipTracking));
-        });
-      }
+      dispatch(
+        withDisabledMoleculesNglControlButtons(
+          allSelectedMolecules.map(molecule => molecule.id),
+          type,
+          async () => {
+            const promises = [];
+
+            if (type === 'ligand') {
+              allSelectedMolecules.forEach(molecule => {
+                promises.push(
+                  dispatch(
+                    addType[type](
+                      stage,
+                      molecule,
+                      colourList[molecule.id % colourList.length],
+                      false,
+                      true,
+                      skipTracking
+                    )
+                  )
+                );
+              });
+            } else {
+              allSelectedMolecules.forEach(molecule => {
+                promises.push(
+                  dispatch(addType[type](stage, molecule, colourList[molecule.id % colourList.length], skipTracking))
+                );
+              });
+            }
+
+            await Promise.all(promises);
+          }
+        )
+      );
     };
 
     const ucfirst = string => {
@@ -249,14 +282,16 @@ export const InspirationDialog = memo(
     };
 
     const getMoleculesToSelect = list => {
-      let molecules = moleculeList.filter(m => !list.includes(m.id));
+      let molecules = allSelectedMolecules.filter(m => !list.includes(m.id));
       return molecules;
     };
 
     const getMoleculesToDeselect = list => {
-      let molecules = moleculeList.filter(m => list.includes(m.id));
+      let molecules = allSelectedMolecules.filter(m => list.includes(m.id));
       return molecules;
     };
+
+    const groupNglControlButtonsDisabledState = useDisableNglControlButtons(allSelectedMolecules);
 
     //  TODO refactor to this line
 
@@ -296,7 +331,7 @@ export const InspirationDialog = memo(
                       {moleculeProperty[key]}
                     </Grid>
                   ))}
-                  {moleculeList.length > 0 && (
+                  {allSelectedMolecules.length > 0 && (
                     <Grid item>
                       <Grid
                         container
@@ -315,7 +350,7 @@ export const InspirationDialog = memo(
                                 [classes.contColButtonHalfSelected]: isLigandOn === null
                               })}
                               onClick={() => onButtonToggle('ligand')}
-                              disabled={false}
+                              disabled={groupNglControlButtonsDisabledState.ligand}
                             >
                               L
                             </Button>
@@ -330,7 +365,7 @@ export const InspirationDialog = memo(
                                 [classes.contColButtonHalfSelected]: isProteinOn === null
                               })}
                               onClick={() => onButtonToggle('protein')}
-                              disabled={false}
+                              disabled={groupNglControlButtonsDisabledState.protein}
                             >
                               P
                             </Button>
@@ -346,7 +381,7 @@ export const InspirationDialog = memo(
                                 [classes.contColButtonHalfSelected]: isComplexOn === null
                               })}
                               onClick={() => onButtonToggle('complex')}
-                              disabled={false}
+                              disabled={groupNglControlButtonsDisabledState.complex}
                             >
                               C
                             </Button>
@@ -374,7 +409,7 @@ export const InspirationDialog = memo(
                         searchMoleculeGroup
                         previousItemData={previousData}
                         nextItemData={nextData}
-                        removeOfAllSelectedTypes={removeOfAllSelectedTypes}
+                        removeSelectedTypes={removeSelectedTypes}
                         selectMoleculeSite={selectMoleculeSite}
                         L={ligandList.includes(molecule.id)}
                         P={proteinList.includes(molecule.id)}
@@ -385,6 +420,7 @@ export const InspirationDialog = memo(
                         Q={qualityList.includes(molecule.id)}
                         V={vectorOnList.includes(molecule.id)}
                         I={informationList.includes(data.id)}
+                        groupNglControlButtonsDisabledState={groupNglControlButtonsDisabledState}
                       />
                     );
                   })}

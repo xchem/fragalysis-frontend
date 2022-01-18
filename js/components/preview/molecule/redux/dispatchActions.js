@@ -54,7 +54,12 @@ import { resetCurrentCompoundSettingsWithoutSelection } from '../../compounds/re
 import { selectMoleculeGroup } from '../../moleculeGroups/redux/dispatchActions';
 import { setDirectAccessProcessed } from '../../../../reducers/api/actions';
 import { MOL_TYPE } from './constants';
-import { addImageToCache, addProteindDataToCache } from './actions';
+import {
+  addImageToCache,
+  addProteindDataToCache,
+  disableMoleculeNglControlButton,
+  enableMoleculeNglControlButton
+} from './actions';
 import { OBJECT_TYPE, DENSITY_MAPS, NGL_PARAMS } from '../../../nglView/constants';
 import { getRepresentationsByType, getRepresentationsForDensities } from '../../../nglView/generatingObjects';
 import { readQualityInformation } from '../../../nglView/renderingHelpers';
@@ -1070,5 +1075,21 @@ export const loadMolImage = (molId, molType, width, height) => {
     } else {
       return response.data;
     }
+  });
+};
+
+export const withDisabledMoleculeNglControlButton = (moleculeId, type, callback) => async dispatch => {
+  dispatch(disableMoleculeNglControlButton(moleculeId, type));
+  await callback();
+  dispatch(enableMoleculeNglControlButton(moleculeId, type));
+};
+
+export const withDisabledMoleculesNglControlButtons = (moleculeIds, type, callback) => async dispatch => {
+  moleculeIds.forEach(moleculeId => {
+    dispatch(disableMoleculeNglControlButton(moleculeId, type));
+  });
+  await callback();
+  moleculeIds.forEach(moleculeId => {
+    dispatch(enableMoleculeNglControlButton(moleculeId, type));
   });
 };

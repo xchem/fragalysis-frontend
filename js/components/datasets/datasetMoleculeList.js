@@ -37,7 +37,8 @@ import {
   moveMoleculeInspirationsSettings,
   removeSelectedDatasetMolecules,
   removeAllSelectedDatasetMolecules,
-  dragDropMoleculeInProgress
+  dragDropMoleculeInProgress,
+  withDisabledDatasetMoleculesNglControlButtons
 } from './redux/dispatchActions';
 import { setFilterDialogOpen, setSearchStringOfCompoundSet } from './redux/actions';
 import { DatasetFilter } from './datasetFilter';
@@ -54,7 +55,7 @@ import { DndProvider } from 'react-dnd';
 import { HTML5Backend } from 'react-dnd-html5-backend';
 import { sortMoleculesByDragDropState } from './helpers';
 import SearchField from '../common/Components/SearchField';
-import useDisableNglControlButtons from '../../hooks/useDisableNglControlButtons';
+import useDisableDatasetNglControlButtons from './useDisableDatasetNglControlButtons';
 
 const useStyles = makeStyles(theme => ({
   container: {
@@ -224,13 +225,9 @@ export const DatasetMoleculeList = memo(
     const stage = getNglView(VIEWS.MAJOR_VIEW) && getNglView(VIEWS.MAJOR_VIEW).stage;
     const [selectedMoleculeRef, setSelectedMoleculeRef] = useState(null);
 
-    // Disables all buttons - the buttons on top of the list (L, P, C) as well as individual buttons of each molecule
-    const [disableAllNglControlButtonsMap, withDisabledAllNglControlButton] = useDisableNglControlButtons();
-    // Disables buttons only on top of the list (L, P, C)
-    const [disableListNglControlButtonsMap, withDisabledListNglControlButton] = useDisableNglControlButtons();
-
     const filterRef = useRef();
-    let joinedMoleculeLists = moleculeLists[datasetID] || [];
+    const moleculeList = moleculeLists[datasetID] || [];
+    let joinedMoleculeLists = moleculeList;
     const dragDropState = dragDropMap[datasetID];
 
     const getJoinedMoleculeList = useSelector(state => getMoleculeList(state));
@@ -295,8 +292,8 @@ export const DatasetMoleculeList = memo(
     const surfaceList = useSelector(state => state.datasetsReducers.surfaceLists[datasetID]);
 
     const selectedMolecules = useMemo(() => {
-      return joinedMoleculeLists.filter(mol => compoundsToBuyList?.includes(mol.id));
-    }, [joinedMoleculeLists, compoundsToBuyList]);
+      return moleculeList.filter(mol => compoundsToBuyList?.includes(mol.id));
+    }, [moleculeList, compoundsToBuyList]);
 
     const isTypeOn = typeList => {
       if (typeList && compoundsToBuyList) {
@@ -368,19 +365,26 @@ export const DatasetMoleculeList = memo(
     };
 
     const addNewType = (type, skipTracking) => {
-      withDisabledAllNglControlButton(type, async () => {
-        const promises = [];
+      dispatch(
+        withDisabledDatasetMoleculesNglControlButtons(
+          [datasetID],
+          selectedMolecules.map(molecule => molecule.id),
+          type,
+          async () => {
+            const promises = [];
 
-        selectedMolecules.forEach(molecule => {
-          promises.push(
-            dispatch(
-              addType[type](stage, molecule, colourList[molecule.id % colourList.length], datasetID, skipTracking)
-            )
-          );
-        });
+            selectedMolecules.forEach(molecule => {
+              promises.push(
+                dispatch(
+                  addType[type](stage, molecule, colourList[molecule.id % colourList.length], datasetID, skipTracking)
+                )
+              );
+            });
 
-        await Promise.all(promises);
-      });
+            await Promise.all(promises);
+          }
+        )
+      );
     };
 
     const ucfirst = string => {
@@ -482,9 +486,9 @@ export const DatasetMoleculeList = memo(
       dispatch(dragDropMoleculeInProgress(datasetID, joinedMoleculeLists, dragIndex, hoverIndex));
     };
 
-    const allLPCButtonDisabled =
-      Object.values(disableListNglControlButtonsMap).some(value => value) ||
-      Object.values(disableAllNglControlButtonsMap).some(value => value);
+    const groupDatasetsNglControlButtonsDisabledState = useDisableDatasetNglControlButtons(
+      selectedMolecules.map(molecule => ({ datasetID, molecule }))
+    );
 
     return (
       <ComputeSize
@@ -601,9 +605,7 @@ export const DatasetMoleculeList = memo(
                                   [classes.contColButtonSelected]: isLigandOn
                                 })}
                                 onClick={() => onButtonToggle('ligand')}
-                                disabled={
-                                  disableAllNglControlButtonsMap.ligand || disableListNglControlButtonsMap.ligand
-                                }
+                                disabled={groupDatasetsNglControlButtonsDisabledState.ligand}
                               >
                                 L
                               </Button>
@@ -617,9 +619,7 @@ export const DatasetMoleculeList = memo(
                                   [classes.contColButtonSelected]: isProteinOn
                                 })}
                                 onClick={() => onButtonToggle('protein')}
-                                disabled={
-                                  disableAllNglControlButtonsMap.protein || disableListNglControlButtonsMap.protein
-                                }
+                                disabled={groupDatasetsNglControlButtonsDisabledState.protein}
                               >
                                 P
                               </Button>
@@ -634,9 +634,7 @@ export const DatasetMoleculeList = memo(
                                   [classes.contColButtonSelected]: isComplexOn
                                 })}
                                 onClick={() => onButtonToggle('complex')}
-                                disabled={
-                                  disableAllNglControlButtonsMap.complex || disableListNglControlButtonsMap.complex
-                                }
+                                disabled={groupDatasetsNglControlButtonsDisabledState.complex}
                               >
                                 C
                               </Button>
@@ -709,10 +707,9 @@ export const DatasetMoleculeList = memo(
                             C={complexList.includes(data.id)}
                             S={surfaceList.includes(data.id)}
                             V={false}
+                            dragDropEnabled
                             moveMolecule={moveMolecule}
-                            disableAllNglControlButtonsMap={disableAllNglControlButtonsMap}
-                            withDisabledListNglControlButton={withDisabledListNglControlButton}
-                            allLPCButtonDisabled={allLPCButtonDisabled}
+                            groupDatasetsNglControlButtonsDisabledState={groupDatasetsNglControlButtonsDisabledState}
                           />
                         ))}
                       </DndProvider>
