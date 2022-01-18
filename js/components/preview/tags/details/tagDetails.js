@@ -19,7 +19,7 @@ import { getMoleculeForId } from '../redux/dispatchActions';
 import classNames from 'classnames';
 import SearchField from '../../../common/Components/SearchField';
 
-export const heightOfBody = '164px';
+export const heightOfBody = '172px';
 export const defaultHeaderPadding = 15;
 
 const useStyles = makeStyles(theme => ({
@@ -28,7 +28,10 @@ const useStyles = makeStyles(theme => ({
     display: 'flex',
     flexDirection: 'column',
     resize: 'vertical',
-    overflow: 'hidden'
+    overflow: 'hidden',
+    width: '100%',
+    marginTop: -theme.spacing(),
+    justifyContent: 'space-between'
   },
   tagListWrapper: {
     overflowY: 'auto',
@@ -350,18 +353,7 @@ const TagDetails = memo(({ handleHeightChange }) => {
               );
             })}
         </div>
-        <Grid
-          item
-          container
-          spacing={1}
-          className={classes.newTagRow}
-          wrap="nowrap"
-          direction="row"
-          alignItems="flex-end"
-          xs={12}
-        >
-          <NewTagDetailRow moleculesToEditIds={moleculesToEditIds} moleculesToEdit={moleculesToEdit} />
-        </Grid>
+        <NewTagDetailRow moleculesToEditIds={moleculesToEditIds} moleculesToEdit={moleculesToEdit} />
       </div>
     </Panel>
   );
