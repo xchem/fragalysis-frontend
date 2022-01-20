@@ -147,24 +147,29 @@ export const DownloadStructureDialog = memo(({}) => {
         }
       }
     }
-    const requestObject = {
-      target_name: targetName,
-      proteins: proteinNames,
-      pdb_info: pdb,
-      bound_info: bound,
-      cif_info: cif,
-      mtz_info: mtz,
-      diff_info: diff,
-      event_info: event,
-      sigmaa_info: sigmaa,
-      sdf_info: sdf,
-      single_sdf_file: singleSdf,
-      trans_matrix_info: transformMatrix,
-      metadata_info: metadata,
-      smiles_info: smiles,
-      static_link: isStaticDownload(),
-      file_url: ''
-    };
+    let requestObject;
+    if (!allStructures && structuresToDownload.length === 0) {
+      requestObject = null;
+    } else {
+      requestObject = {
+        target_name: targetName,
+        proteins: proteinNames,
+        pdb_info: pdb,
+        bound_info: bound,
+        cif_info: cif,
+        mtz_info: mtz,
+        diff_info: diff,
+        event_info: event,
+        sigmaa_info: sigmaa,
+        sdf_info: sdf,
+        single_sdf_file: singleSdf,
+        trans_matrix_info: transformMatrix,
+        metadata_info: metadata,
+        smiles_info: smiles,
+        static_link: isStaticDownload(),
+        file_url: ''
+      };
+    }
 
     return requestObject;
   };
@@ -192,44 +197,48 @@ export const DownloadStructureDialog = memo(({}) => {
       setZipPreparing(true);
 
       const requestObject = prepareRequestObject();
-      const tagData = { requestObject: requestObject, structuresSelection: structuresSelection };
-      dispatch(setDontShowShareSnapshot(true));
-      const tagName = generateTagName();
-      const auxData = { downloadTag: tagName };
-      dispatch(saveAndShareSnapshot(nglViewList, false, auxData))
-        .then(() => {
-          const state = getState();
-          const sharedSnapshot = state.snapshotReducers.sharedSnapshot;
-          tagData['snapshot'] = sharedSnapshot;
-          tagData['downloadName'] = moment().format('-- YYYY-MM-DD -- HH:mm:ss');
-          dispatch(setSharedSnapshot(initSharedSnapshot));
-          dispatch(setDontShowShareSnapshot(false));
-          return getDownloadStructuresUrl(requestObject);
-        })
-        .then(resp => {
-          setDownloadUrl(resp.data.file_url);
-          if (isStaticDownload()) {
-            tagData.requestObject.file_url = resp.data.file_url;
-          }
-          return getDownloadFileSize(resp.data.file_url);
-        })
-        .then(resp => {
-          const fileSizeInBytes = resp.headers['content-length'];
-          setFileSize(getFileSizeString(fileSizeInBytes));
-        })
-        .then(resp => {
-          return createDownloadTag(tagData, tagName);
-        })
-        .then(molTag => {
-          dispatch(appendToDownloadTags(molTag));
-          setDownloadTagUrl(generateUrl(molTag));
-          setZipPreparing(false);
-        })
-        .catch(e => {
-          setZipPreparing(false);
-          setError(true);
-          console.log(e);
-        });
+      if (requestObject) {
+        const tagData = { requestObject: requestObject, structuresSelection: structuresSelection };
+        dispatch(setDontShowShareSnapshot(true));
+        const tagName = generateTagName();
+        const auxData = { downloadTag: tagName };
+        dispatch(saveAndShareSnapshot(nglViewList, false, auxData))
+          .then(() => {
+            const state = getState();
+            const sharedSnapshot = state.snapshotReducers.sharedSnapshot;
+            tagData['snapshot'] = sharedSnapshot;
+            tagData['downloadName'] = moment().format('-- YYYY-MM-DD -- HH:mm:ss');
+            dispatch(setSharedSnapshot(initSharedSnapshot));
+            dispatch(setDontShowShareSnapshot(false));
+            return getDownloadStructuresUrl(requestObject);
+          })
+          .then(resp => {
+            setDownloadUrl(resp.data.file_url);
+            if (isStaticDownload()) {
+              tagData.requestObject.file_url = resp.data.file_url;
+            }
+            return getDownloadFileSize(resp.data.file_url);
+          })
+          .then(resp => {
+            const fileSizeInBytes = resp.headers['content-length'];
+            setFileSize(getFileSizeString(fileSizeInBytes));
+          })
+          .then(resp => {
+            return createDownloadTag(tagData, tagName);
+          })
+          .then(molTag => {
+            dispatch(appendToDownloadTags(molTag));
+            setDownloadTagUrl(generateUrl(molTag));
+            setZipPreparing(false);
+          })
+          .catch(e => {
+            setZipPreparing(false);
+            setError(true);
+            console.log(e);
+          });
+      } else {
+        setZipPreparing(false);
+      }
     }
   };
 

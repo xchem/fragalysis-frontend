@@ -1211,7 +1211,8 @@ const restoreSitesActions = orderedActionList => (dispatch, getState) => {
   let sitesAction = orderedActionList.filter(action => action.type === actionType.SITE_TURNED_ON);
   if (sitesAction) {
     sitesAction.forEach(action => {
-      const tag = getTag(action.object_name, state);
+      //when restoring tags we need to actually use object_id and not object_name because it can be changed by the user in the UI pretty much anytime
+      const tag = getTag(action.object_id, state);
       if (tag) {
         dispatch(addSelectedTag(tag));
       }
@@ -1225,7 +1226,8 @@ const restoreTagActions = orderedActionList => (dispatch, getState) => {
   let tagActions = orderedActionList.filter(action => action.type === actionType.TAG_SELECTED);
   if (tagActions) {
     tagActions.forEach(action => {
-      const tag = getTag(action.object_name, state);
+      //when restoring tags we need to actually use object_id and not object_name because it can be changed by the user in the UI pretty much anytime
+      const tag = getTag(action.object_id, state);
       if (tag) {
         dispatch(addSelectedTag(tag));
       }
@@ -1340,11 +1342,23 @@ const restoreAllSelectionActions = (moleculesAction, stage, isSelection) => (dis
     actions.forEach(action => {
       if (action) {
         if (isSelection) {
-          dispatch(setSelectedAll(action.item, action.isLigand, action.isProtein, action.isComplex));
+          const mol = getMolecule(action.object_name, state);
+          if (mol) {
+            dispatch(setSelectedAll(mol, action.isLigand, action.isProtein, action.isComplex));
+          }
         } else {
-          dispatch(
-            setSelectedAllOfDataset(action.dataset_id, action.item, action.isLigand, action.isProtein, action.isComplex)
-          );
+          const compound = getCompound(action, state);
+          if (compound) {
+            dispatch(
+              setSelectedAllOfDataset(
+                action.dataset_id,
+                action.item,
+                action.isLigand,
+                action.isProtein,
+                action.isComplex
+              )
+            );
+          }
         }
 
         if (action.isLigand) {
@@ -1364,6 +1378,7 @@ const restoreAllSelectionActions = (moleculesAction, stage, isSelection) => (dis
 };
 
 const restoreAllSelectionByTypeActions = (moleculesAction, stage, isSelection) => (dispatch, getState) => {
+  const state = getState();
   let actions =
     isSelection === true
       ? moleculesAction.filter(
@@ -1381,7 +1396,23 @@ const restoreAllSelectionByTypeActions = (moleculesAction, stage, isSelection) =
   if (actions) {
     actions.forEach(action => {
       if (action) {
-        let actionItems = action.items;
+        // let actionItems = action.items;
+        let actionItems = [];
+        if (isSelection) {
+          action.items.forEach(item => {
+            const mol = getMolecule(item.protein_code, state);
+            if (mol) {
+              actionItems.push(mol);
+            }
+          });
+        } else {
+          action.items.forEach(item => {
+            const mol = getCompoundByName(item.protein_code, action.dataset_id, state);
+            if (mol) {
+              actionItems.push(mol);
+            }
+          });
+        }
         let type = action.control_type;
 
         if (isSelection) {
@@ -1435,6 +1466,7 @@ const restoreRepresentationActions = (moleculesAction, stages) => (dispatch, get
   let representationsActions = moleculesAction.filter(action => action.type === actionType.REPRESENTATION_ADDED);
   if (representationsActions) {
     representationsActions.forEach(action => {
+      //here the object id is actually protein_code_object_type and is identifier in NGL view so it's ok to use object_id in here
       dispatch(addRepresentation(action.object_id, action.representation, nglView));
     });
   }
@@ -1444,6 +1476,7 @@ const restoreRepresentationActions = (moleculesAction, stages) => (dispatch, get
   );
   if (representationsChangesActions) {
     representationsChangesActions.forEach(action => {
+      //here the object id is actually protein_code_object_type and is identifier in NGL view so it's ok to use object_id in here
       dispatch(updateRepresentation(true, action.change, action.object_id, action.representation, nglView));
     });
   }
@@ -1456,6 +1489,8 @@ const restoreTabActions = moleculesAction => (dispatch, getState) => {
 
   let action = moleculesAction.find(action => action.type === actionType.TAB);
   if (action) {
+    //in here the object id is the tab index on the right hand side so it should be ok. BUT what if the given dataset
+    //was deleted? Is it even possible?
     dispatch(setTabValue(action.oldObjectId, action.object_id, action.object_name, action.oldObjectName));
   }
 
@@ -1700,9 +1735,9 @@ const getMolGroup = (molGroupName, state) => {
   return molGroup;
 };
 
-const getTag = (tagName, state) => {
+const getTag = (tagId, state) => {
   const tagList = state.selectionReducers.tagList;
-  const tag = tagList.find(t => t.tag === tagName);
+  const tag = tagList.find(t => t.id === tagId);
   return tag;
 };
 
@@ -1721,6 +1756,19 @@ const getCompound = (action, state) => {
 
   let name = action.object_name;
   let datasetID = action.dataset_id;
+
+  if (moleculeList) {
+    let moleculeListOfDataset = moleculeList[datasetID];
+    if (moleculeListOfDataset) {
+      molecule = moleculeListOfDataset.find(m => m.name === name);
+    }
+  }
+  return molecule;
+};
+
+const getCompoundByName = (name, datasetID, state) => {
+  let moleculeList = state.datasetsReducers.moleculeLists;
+  let molecule = null;
 
   if (moleculeList) {
     let moleculeListOfDataset = moleculeList[datasetID];
@@ -2897,7 +2945,7 @@ const handleArrowNavigationActionOfCompound = (action, isSelected, majorViewStag
 const handleMoleculeGroupAction = (action, isSelected, stageSummaryView, majorViewStage) => (dispatch, getState) => {
   const state = getState();
   if (action) {
-    const tag = getTag(action.object_name, state);
+    const tag = getTag(action.object_id, state);
     if (tag) {
       if (isSelected === true) {
         dispatch(addSelectedTag(tag));
@@ -2911,7 +2959,7 @@ const handleMoleculeGroupAction = (action, isSelected, stageSummaryView, majorVi
 const handleTagAction = (action, isSelected) => (dispatch, getState) => {
   const state = getState();
   if (action) {
-    const tag = getTag(action.object_name, state);
+    const tag = getTag(action.object_id, state);
     if (tag) {
       if (isSelected === true) {
         dispatch(addSelectedTag(tag));

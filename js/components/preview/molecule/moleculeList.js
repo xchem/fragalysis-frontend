@@ -47,7 +47,8 @@ import {
   addQuality,
   removeQuality,
   withDisabledMoleculesNglControlButtons,
-  removeSelectedTypesInHitNavigator
+  removeSelectedTypesInHitNavigator,
+  selectAllHits
 } from './redux/dispatchActions';
 import { DEFAULT_FILTER, PREDEFINED_FILTERS } from '../../../reducers/selection/constants';
 import { Edit, FilterList } from '@material-ui/icons';
@@ -222,6 +223,7 @@ export const MoleculeList = memo(({ height, setFilterItemsHeight, filterItemsHei
   let target = match && match.params && match.params.target;
 
   const [nextXMolecules, setNextXMolecules] = useState(0);
+  const [selectAllHitsPressed, setSelectAllHitsPressed] = useState(false);
   const moleculesPerPage = 5;
   const [currentPage, setCurrentPage] = useState(0);
   const [searchString, setSearchString] = useState(null);
@@ -904,8 +906,8 @@ export const MoleculeList = memo(({ height, setFilterItemsHeight, filterItemsHei
                         </Tooltip>
                       </>
                     )}
-                    {false && (
-                      <Tooltip title="Show all hits">
+                    {
+                      <Tooltip title={selectAllHitsPressed ? 'Unselect all hits' : 'Select all hits'}>
                         <Grid item>
                           <Button
                             variant="outlined"
@@ -914,15 +916,16 @@ export const MoleculeList = memo(({ height, setFilterItemsHeight, filterItemsHei
                               [classes.contColButtonHalfSelected]: false
                             })}
                             onClick={() => {
-                              dispatch(setDisplayAllMolecules(!displayAllMolecules));
+                              dispatch(selectAllHits(joinedMoleculeLists, setNextXMolecules, selectAllHitsPressed));
+                              setSelectAllHitsPressed(!selectAllHitsPressed);
                             }}
                             disabled={false}
                           >
-                            Display all molecules
+                            {selectAllHitsPressed ? 'Unselect all hits' : 'Select all hits'}
                           </Button>
                         </Grid>
                       </Tooltip>
-                    )}
+                    }
                   </Grid>
                 </Grid>
               </Grid>
