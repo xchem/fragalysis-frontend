@@ -89,7 +89,6 @@ const TagDetailRow = memo(({ tag, moleculesToEditIds, moleculesToEdit }) => {
           dispatch(removeFromMolListToEdit(mol.id));
         }
       });
-      dispatch(unselectTag(tag));
     } else {
       // select all
       allMoleculesOfTag.forEach(mol => {
@@ -97,7 +96,6 @@ const TagDetailRow = memo(({ tag, moleculesToEditIds, moleculesToEdit }) => {
           dispatch(appendToMolListToEdit(mol.id));
         }
       });
-      dispatch(selectTag(tag));
     }
   };
 
