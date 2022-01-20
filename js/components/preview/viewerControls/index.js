@@ -48,12 +48,18 @@ const useStyles = makeStyles(theme => ({
   button: {
     padding: theme.spacing(1)
   },
+  restoreClipButton: {
+    minWidth: 212,
+    position: 'absolute',
+    left: 289
+  },
   nglButtons: {
     flexBasis: 0,
     display: 'flex',
     justifyContent: 'center',
     flexWrap: 'wrap',
-    gap: theme.spacing()
+    gap: theme.spacing(),
+    position: 'relative'
   }
 }));
 
@@ -247,10 +253,10 @@ export const ViewerControls = memo(() => {
               color="primary"
               onClick={() => dispatch(restoreNglViewSettings(nglViewList))}
               startIcon={<Restore />}
-              className={classes.button}
+              className={classes.button + " " + classes.restoreClipButton}
             >
               Restore clip/slab/centre
-            </Button>
+            </Button> 
           </Tooltip>
         </div>
 
