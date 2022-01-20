@@ -686,7 +686,8 @@ export const MoleculeList = memo(({ height, setFilterItemsHeight, filterItemsHei
   const openGlobalTagEditor = () => {};
 
   const actions = [
-    <FormControl className={classes.formControl} disabled={!joinedMoleculeListsCopy.length || sortDialogOpen}>
+    /* do not disable filter by itself if it does not have any result */
+    /*<FormControl className={classes.formControl} disabled={({predefinedFilter} === 'none' && !joinedMoleculeListsCopy.length) || sortDialogOpen}>
       <Select
         className={classes.select}
         value={predefinedFilter}
@@ -705,7 +706,7 @@ export const MoleculeList = memo(({ height, setFilterItemsHeight, filterItemsHei
           </MenuItem>
         ))}
       </Select>
-    </FormControl>,
+    </FormControl>,*/
     <SearchField
       className={classes.search}
       id="search-hit-navigator"
