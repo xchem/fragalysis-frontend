@@ -1,4 +1,4 @@
-import React, { forwardRef, memo, useContext, useRef, useState } from 'react';
+import React, { forwardRef, memo, useCallback, useContext, useMemo, useRef, useState } from 'react';
 import { CircularProgress, Grid, Popper, IconButton, Typography, Tooltip } from '@material-ui/core';
 import { Close } from '@material-ui/icons';
 import { makeStyles } from '@material-ui/styles';
@@ -29,6 +29,7 @@ import { changeButtonClassname } from './helpers';
 import { setSelectedAllByType, setDeselectedAllByType } from '../../reducers/selection/actions';
 import SearchField from '../common/Components/SearchField';
 import useDisableNglControlButtons from '../preview/molecule/useDisableNglControlButtons';
+import GroupNglControlButtonsContext from '../preview/molecule/groupNglControlButtonsContext';
 
 const useStyles = makeStyles(theme => ({
   paper: {
@@ -144,14 +145,14 @@ export const InspirationDialog = memo(
     const dispatch = useDispatch();
     // const disableUserInteraction = useDisableUserInteraction();
 
-    let moleculeList = [];
-    if (searchString !== null) {
-      moleculeList = inspirationMoleculeDataList.filter(molecule =>
-        molecule.protein_code.toLowerCase().includes(searchString.toLowerCase())
-      );
-    } else {
-      moleculeList = inspirationMoleculeDataList;
-    }
+    const moleculeList = useMemo(() => {
+      if (searchString !== null) {
+        return inspirationMoleculeDataList.filter(molecule =>
+          molecule.protein_code.toLowerCase().includes(searchString.toLowerCase())
+        );
+      }
+      return inspirationMoleculeDataList;
+    }, [inspirationMoleculeDataList, searchString]);
 
     const allSelectedMolecules = inspirationMoleculeDataList.filter(
       molecule => moleculesToEditIds.includes(molecule.id) || molecule.id === molForTagEditId
@@ -185,12 +186,13 @@ export const InspirationDialog = memo(
       surface: removeSurface
     };
 
-    const selectMoleculeSite = moleculeGroupSite => {};
-
-    const removeSelectedTypes = (skipMolecules = [], skipTracking = false) => {
-      const molecules = [...moleculeList].filter(molecule => !skipMolecules.some(mol => molecule.id === mol.id));
-      dispatch(removeSelectedMolTypes(stage, molecules, skipTracking, true));
-    };
+    const removeSelectedTypes = useCallback(
+      (skipMolecules = [], skipTracking = false) => {
+        const molecules = [...moleculeList].filter(molecule => !skipMolecules.some(mol => molecule.id === mol.id));
+        dispatch(removeSelectedMolTypes(stage, molecules, skipTracking, true));
+      },
+      [dispatch, moleculeList, stage]
+    );
 
     const removeSelectedType = (type, skipTracking = false) => {
       if (type === 'ligand') {
@@ -398,30 +400,36 @@ export const InspirationDialog = memo(
                     let data = Object.assign({ isInspiration: true }, molecule);
                     let previousData = index > 0 && Object.assign({ isInspiration: true }, array[index - 1]);
                     let nextData = index < array?.length && Object.assign({ isInspiration: true }, array[index + 1]);
+                    const selected = allSelectedMolecules.some(molecule => molecule.id === data.id);
 
                     return (
-                      <MoleculeView
-                        key={index}
-                        index={index}
-                        imageHeight={imgHeight}
-                        imageWidth={imgWidth}
-                        data={data}
-                        searchMoleculeGroup
-                        previousItemData={previousData}
-                        nextItemData={nextData}
-                        removeSelectedTypes={removeSelectedTypes}
-                        selectMoleculeSite={selectMoleculeSite}
-                        L={ligandList.includes(molecule.id)}
-                        P={proteinList.includes(molecule.id)}
-                        C={complexList.includes(molecule.id)}
-                        S={surfaceList.includes(molecule.id)}
-                        D={densityList.includes(molecule.id)}
-                        D_C={densityListCustom.includes(data.id)}
-                        Q={qualityList.includes(molecule.id)}
-                        V={vectorOnList.includes(molecule.id)}
-                        I={informationList.includes(data.id)}
-                        groupNglControlButtonsDisabledState={groupNglControlButtonsDisabledState}
-                      />
+                      <GroupNglControlButtonsContext.Provider value={groupNglControlButtonsDisabledState}>
+                        <MoleculeView
+                          key={index}
+                          index={index}
+                          imageHeight={imgHeight}
+                          imageWidth={imgWidth}
+                          data={data}
+                          searchMoleculeGroup
+                          previousItemData={previousData}
+                          nextItemData={nextData}
+                          removeSelectedTypes={removeSelectedTypes}
+                          L={ligandList.includes(molecule.id)}
+                          P={proteinList.includes(molecule.id)}
+                          C={complexList.includes(molecule.id)}
+                          S={surfaceList.includes(molecule.id)}
+                          D={densityList.includes(molecule.id)}
+                          D_C={densityListCustom.includes(data.id)}
+                          Q={qualityList.includes(molecule.id)}
+                          V={vectorOnList.includes(molecule.id)}
+                          I={informationList.includes(data.id)}
+                          selected={selected}
+                          isTagEditorInvokedByMolecule={data.id === molForTagEditId}
+                          disableL={selected && groupNglControlButtonsDisabledState.ligand}
+                          disableP={selected && groupNglControlButtonsDisabledState.protein}
+                          disableC={selected && groupNglControlButtonsDisabledState.complex}
+                        />
+                      </GroupNglControlButtonsContext.Provider>
                     );
                   })}
                 {!(moleculeList.length > 0) && (

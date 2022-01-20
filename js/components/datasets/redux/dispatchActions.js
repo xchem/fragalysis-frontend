@@ -31,7 +31,8 @@ import {
   setDragDropState,
   dragDropFinished,
   disableDatasetMoleculeNglControlButton,
-  enableDatasetMoleculeNglControlButton
+  enableDatasetMoleculeNglControlButton,
+  setArrowUpDown
 } from './actions';
 import { base_url } from '../../routes/constants';
 import {
@@ -44,7 +45,11 @@ import {
 import { VIEWS } from '../../../constants/constants';
 import { addMoleculeList } from './actions';
 import { api } from '../../../utils/api';
-import { getInitialDatasetFilterProperties, getInitialDatasetFilterSettings } from './selectors';
+import {
+  getInitialDatasetFilterProperties,
+  getInitialDatasetFilterSettings,
+  getJoinedMoleculeLists
+} from './selectors';
 import { COUNT_OF_VISIBLE_SCORES } from './constants';
 import { colourList } from '../../preview/molecule/utils/color';
 import { appendMoleculeOrientation } from '../../../reducers/ngl/actions';
@@ -57,10 +62,12 @@ import {
   addQuality,
   addLigand,
   addDensity,
-  addDensityCustomView
+  addDensityCustomView,
+  hideAllSelectedMolecules
 } from '../../preview/molecule/redux/dispatchActions';
 import { OBJECT_TYPE } from '../../nglView/constants';
 import { getRepresentationsByType } from '../../nglView/generatingObjects';
+import { getMoleculeList } from '../../preview/molecule/redux/selectors';
 
 export const initializeDatasetFilter = datasetID => (dispatch, getState) => {
   const initFilterSettings = getInitialDatasetFilterSettings(getState(), datasetID);
@@ -561,6 +568,89 @@ export const removeSelectedDatasetMolecules = (stage, skipTracking, skipMolecule
   }
 };
 
+/**
+ *  * Performance optimization for datasetMoleculeView. Have a look at the comment at moveDatasetMoleculeUpDown.
+ */
+const removeSelectedTypesOfDatasetInspirations = (skipMolecules, stage, skipTracking) => (dispatch, getState) => {
+  const state = getState();
+  const getJoinedMoleculeList = getMoleculeList(state);
+  const inspirationMoleculeDataList = state.datasetsReducers.allInspirationMoleculeDataList;
+
+  const molecules = [...getJoinedMoleculeList, ...inspirationMoleculeDataList].filter(
+    molecule => !skipMolecules.includes(molecule)
+  );
+  dispatch(hideAllSelectedMolecules(stage, [...molecules], false, skipTracking));
+};
+
+/**
+ *  * Performance optimization for datasetMoleculeView. Have a look at the comment at moveDatasetMoleculeUpDown.
+ */
+const moveSelectedDatasetMoleculeInspirationsSettings = (data, newItemData, stage, skipTracking) => (
+  dispatch,
+  getState
+) => {
+  const state = getState();
+
+  const objectsInView = state.nglReducers.objectsInView || {};
+  const {
+    proteinListMolecule,
+    complexListMolecule,
+    fragmentDisplayListMolecule,
+    surfaceListMolecule,
+    densityListMolecule,
+    densityListCustomMolecule,
+    vectorOnListMolecule,
+    qualityListMolecule
+  } = state.selectionReducers;
+
+  return dispatch(
+    moveMoleculeInspirationsSettings(
+      data,
+      newItemData,
+      stage,
+      objectsInView,
+      fragmentDisplayListMolecule,
+      proteinListMolecule,
+      complexListMolecule,
+      surfaceListMolecule,
+      densityListMolecule,
+      densityListCustomMolecule,
+      vectorOnListMolecule,
+      qualityListMolecule,
+      skipTracking
+    )
+  );
+};
+
+/**
+ * Performance optimization for datasetMoleculeView. Gets objectsInView and passes it to further dispatch requests.
+ * It wouldnt do anything else in moleculeView. Also this chains the above 3 methods which were before passed to
+ * datasetMoleculeView. Since they were completely filled only in datasetMoleculeList, it was moved here and arrow keys
+ * were disabled elsewhere where datasetMoleculeView is used.
+ */
+export const moveDatasetMoleculeUpDown = (stage, datasetID, item, newItemDatasetID, newItem, data, direction) => async (
+  dispatch,
+  getState
+) => {
+  const state = getState();
+  const allInspirations = state.datasetsReducers.allInspirations;
+  const objectsInView = getState().nglReducers.objectsInView;
+
+  const dataValue = { ...data, objectsInView };
+
+  dispatch(setArrowUpDown(datasetID, item, newItem, direction, dataValue));
+
+  const inspirations = getInspirationsForMol(allInspirations, datasetID, newItem.id);
+  dispatch(setInspirationMoleculeDataList(inspirations));
+  await Promise.all([
+    dispatch(moveSelectedMoleculeSettings(stage, item, newItem, newItemDatasetID, datasetID, dataValue, true)),
+    moveSelectedDatasetMoleculeInspirationsSettings(item, newItem, stage, true)
+  ]);
+
+  dispatch(removeSelectedDatasetMolecules(stage, true, { [newItemDatasetID]: [newItem] }));
+  dispatch(removeSelectedTypesOfDatasetInspirations([newItem], stage, true));
+};
+
 export const getInspirationsForMol = (allInspirations, datasetId, molId) => {
   let inspirations = [];
 
@@ -909,6 +999,11 @@ export const dragDropMoleculeFinished = (datasetID, draggedMolecule, destination
   if (dragDropStatus.startingIndex !== destinationIndex) {
     dispatch(dragDropFinished(datasetID, draggedMolecule, destinationIndex));
   }
+};
+
+export const moveDatasetMolecule = (datasetID, dragIndex, hoverIndex) => (dispatch, getState) => {
+  const joinedMoleculeLists = getJoinedMoleculeLists(datasetID, getState());
+  dispatch(dragDropMoleculeInProgress(datasetID, joinedMoleculeLists, dragIndex, hoverIndex));
 };
 
 export const withDisabledDatasetMoleculeNglControlButton = (

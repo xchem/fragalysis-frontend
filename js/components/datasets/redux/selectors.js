@@ -1,5 +1,6 @@
 import { createSelector } from 'reselect';
 import { isString, isInteger } from 'lodash';
+import { sortMoleculesByDragDropState } from '../helpers';
 
 const moleculeLists = state => state.datasetsReducers.moleculeLists;
 const scoreCompoundMap = state => state.datasetsReducers.scoreCompoundMap;
@@ -319,7 +320,7 @@ export const getMoleculesObjectIDListOfCompoundsToBuy = createSelector(
             }
           } else if (selectedVectorCompounds[moleculeID]) {
             const cmp = selectedVectorCompounds[moleculeID];
-            moleculeList.push({ molecule: {...cmp, name: cmp.smiles}, datasetID });
+            moleculeList.push({ molecule: { ...cmp, name: cmp.smiles }, datasetID });
           }
         });
     });
@@ -395,4 +396,36 @@ export const getListOfSelectedSurfaceOfAllDatasets = state => {
   });
 
   return [...resultSet];
+};
+
+export const getJoinedMoleculeLists = (datasetID, state) => {
+  const { moleculeLists, dragDropMap, filterDatasetMap, searchString } = state.datasetsReducers;
+  const filteredDatasetMolecules = getFilteredDatasetMoleculeList(state, datasetID);
+  const filterSettings = filterDatasetMap && datasetID && filterDatasetMap[datasetID];
+
+  const isActiveFilter = !!(filterSettings || {}).active;
+
+  let moleculeList = moleculeLists[datasetID] || [];
+  const dragDropState = dragDropMap[datasetID];
+
+  if (isActiveFilter) {
+    if (dragDropState) {
+      moleculeList = sortMoleculesByDragDropState(filteredDatasetMolecules, dragDropState);
+    } else {
+      moleculeList = filteredDatasetMolecules;
+    }
+  } else {
+    if (dragDropState) {
+      moleculeList = sortMoleculesByDragDropState(moleculeList, dragDropState);
+    } else {
+      // default sort is by site
+      moleculeList.sort((a, b) => a.site - b.site);
+    }
+  }
+
+  if (searchString !== null) {
+    moleculeList = moleculeList.filter(molecule => molecule.name.toLowerCase().includes(searchString.toLowerCase()));
+  }
+
+  return moleculeList;
 };

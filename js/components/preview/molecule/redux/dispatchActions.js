@@ -28,7 +28,8 @@ import {
   setHideAll,
   removeFromInformationList,
   appendToDensityListType,
-  removeFromDensityListType
+  removeFromDensityListType,
+  setArrowUpDown
 } from '../../../../reducers/selection/actions';
 import { base_url } from '../../../routes/constants';
 import {
@@ -65,6 +66,7 @@ import { getRepresentationsByType, getRepresentationsForDensities } from '../../
 import { readQualityInformation } from '../../../nglView/renderingHelpers';
 import { addSelectedTag } from '../../tags/redux/dispatchActions';
 import { CATEGORY_TYPE } from '../../../../constants/constants';
+import { selectJoinedMoleculeList } from './selectors';
 
 /**
  * Convert the JSON into a list of arrow objects
@@ -1076,6 +1078,33 @@ export const loadMolImage = (molId, molType, width, height) => {
       return response.data;
     }
   });
+};
+
+/**
+ * Performance optimization for moleculeView. Gets objectsInView and passes it to further dispatch requests. It wouldnt
+ * do anything else in moleculeView.
+ */
+export const moveMoleculeUpDown = (stage, item, newItem, data, direction) => async (dispatch, getState) => {
+  const objectsInView = getState().nglReducers.objectsInView;
+  const dataValue = { ...data, objectsInView };
+
+  await dispatch(moveSelectedMolSettings(stage, item, newItem, dataValue, true));
+  dispatch(setArrowUpDown(item, newItem, direction, dataValue));
+};
+
+/**
+ * Performance optimization for moleculeView, getting the joined molecule list and inspirations avoids a huge lag spike
+ * after "Load full list" was selected in Hit Navigator
+ */
+export const removeSelectedTypesInHitNavigator = (skipMolecules, stage, skipTracking) => (dispatch, getState) => {
+  const state = getState();
+  const getJoinedMoleculeList = selectJoinedMoleculeList(state);
+  const allInspirationMoleculeDataList = state.datasetsReducers.allInspirationMoleculeDataList;
+
+  const molecules = [...getJoinedMoleculeList, ...allInspirationMoleculeDataList].filter(
+    molecule => !skipMolecules.includes(molecule)
+  );
+  dispatch(removeSelectedMolTypes(stage, molecules, skipTracking, false));
 };
 
 export const withDisabledMoleculeNglControlButton = (moleculeId, type, callback) => async dispatch => {

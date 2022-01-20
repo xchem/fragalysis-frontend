@@ -11,21 +11,12 @@ import {
   getListOfSelectedSurfaceOfAllDatasets
 } from './redux/selectors';
 import InfiniteScroll from 'react-infinite-scroller';
-import { DatasetMoleculeView } from './datasetMoleculeView';
-import { colourList } from '../preview/molecule/utils/color';
+import DatasetMoleculeView from './datasetMoleculeView';
 import { InspirationDialog } from './inspirationDialog';
 import { setIsOpenInspirationDialog } from './redux/actions';
 import { CrossReferenceDialog } from './crossReferenceDialog';
-import {
-  autoHideDatasetDialogsOnScroll,
-  resetCrossReferenceDialog,
-  removeDatasetComplex,
-  removeDatasetHitProtein,
-  removeDatasetLigand,
-  removeDatasetSurface
-} from './redux/dispatchActions';
+import { autoHideDatasetDialogsOnScroll, resetCrossReferenceDialog } from './redux/dispatchActions';
 import { NglContext } from '../nglView/nglProvider';
-import { VIEWS } from '../../constants/constants';
 import FileSaver from 'file-saver';
 import JSZip from 'jszip';
 import { isCompoundFromVectorSelector } from '../preview/compounds/redux/dispatchActions';
@@ -74,8 +65,7 @@ export const SelectedCompoundList = memo(({ height }) => {
   const crossReferenceDialogRef = useRef();
   const scrollBarRef = useRef();
 
-  const { getNglView, nglViewList } = useContext(NglContext);
-  const stage = getNglView(VIEWS.MAJOR_VIEW) && getNglView(VIEWS.MAJOR_VIEW).stage;
+  const { nglViewList } = useContext(NglContext);
 
   const loadNextMolecules = () => {
     setCurrentPage(currentPage + 1);
@@ -90,68 +80,8 @@ export const SelectedCompoundList = memo(({ height }) => {
   const complexList = useSelector(state => getListOfSelectedComplexOfAllDatasets(state));
   const surfaceList = useSelector(state => getListOfSelectedSurfaceOfAllDatasets(state));
 
-  const ligandListAllDatasets = useSelector(state => state.datasetsReducers.ligandLists);
-  const proteinListAllDatasets = useSelector(state => state.datasetsReducers.proteinLists);
-  const complexListAllDatasets = useSelector(state => state.datasetsReducers.complexLists);
-  const surfaceListAllDatasets = useSelector(state => state.datasetsReducers.surfaceLists);
-
   const showedCompoundList = useSelector(state => state.previewReducers.compounds.showedCompoundList);
   const filteredScoreProperties = useSelector(state => state.datasetsReducers.filteredScoreProperties);
-
-  const removeSelectedTypes = () => {
-    Object.keys(ligandListAllDatasets).forEach(datasetKey => {
-      ligandListAllDatasets[datasetKey]?.forEach(moleculeID => {
-        const foundedMolecule = currentMolecules?.find(mol => mol?.molecule?.id === moleculeID);
-        dispatch(
-          removeDatasetLigand(
-            stage,
-            foundedMolecule?.molecule,
-            colourList[foundedMolecule?.molecule?.id % colourList.length],
-            datasetKey
-          )
-        );
-      });
-    });
-    Object.keys(proteinListAllDatasets).forEach(datasetKey => {
-      proteinListAllDatasets[datasetKey]?.forEach(moleculeID => {
-        const foundedMolecule = currentMolecules?.find(mol => mol?.molecule?.id === moleculeID);
-        dispatch(
-          removeDatasetHitProtein(
-            stage,
-            foundedMolecule?.molecule,
-            colourList[foundedMolecule?.molecule?.id % colourList.length],
-            datasetKey
-          )
-        );
-      });
-    });
-    Object.keys(complexListAllDatasets).forEach(datasetKey => {
-      complexListAllDatasets[datasetKey]?.forEach(moleculeID => {
-        const foundedMolecule = currentMolecules?.find(mol => mol?.molecule?.id === moleculeID);
-        dispatch(
-          removeDatasetComplex(
-            stage,
-            foundedMolecule?.molecule,
-            colourList[foundedMolecule?.molecule?.id % colourList.length],
-            datasetKey
-          )
-        );
-      });
-    });
-    Object.keys(surfaceListAllDatasets).forEach(datasetKey => {
-      surfaceListAllDatasets[datasetKey]?.forEach(moleculeID => {
-        const foundedMolecule = currentMolecules?.find(mol => mol?.molecule?.id === moleculeID);
-        dispatch(
-          removeDatasetSurface(
-            stage,
-            foundedMolecule?.molecule,
-            colourList[foundedMolecule?.molecule?.id % colourList.length],
-            datasetKey
-          )
-        );
-      });
-    });
-  };
 
   useEffect(() => {
     return () => {
@@ -443,13 +373,12 @@ export const SelectedCompoundList = memo(({ height }) => {
                       showCrossReferenceModal
                       previousItemData={index > 0 && array[index - 1]}
                       nextItemData={index < array?.length && array[index + 1]}
-                      removeSelectedTypes={removeSelectedTypes}
                       L={isLigandOn}
                       P={proteinList.includes(data.molecule.id)}
                       C={complexList.includes(data.molecule.id)}
                       S={surfaceList.includes(data.molecule.id)}
                       V={false}
-                      fromSelectedCompounds={true}
+                      arrowsHidden
                     />
                   );
                 })}

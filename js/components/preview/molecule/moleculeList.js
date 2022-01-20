@@ -44,10 +44,10 @@ import {
   removeLigand,
   initializeMolecules,
   applyDirectSelection,
-  removeSelectedMolTypes,
   addQuality,
   removeQuality,
-  withDisabledMoleculesNglControlButtons
+  withDisabledMoleculesNglControlButtons,
+  removeSelectedTypesInHitNavigator
 } from './redux/dispatchActions';
 import { DEFAULT_FILTER, PREDEFINED_FILTERS } from '../../../reducers/selection/constants';
 import { Edit, FilterList } from '@material-ui/icons';
@@ -70,6 +70,7 @@ import { TagEditor } from '../tags/modal/tagEditor';
 import { getMoleculeForId, selectTag } from '../tags/redux/dispatchActions';
 import SearchField from '../../common/Components/SearchField';
 import useDisableNglControlButtons from './useDisableNglControlButtons';
+import GroupNglControlButtonsContext from './groupNglControlButtonsContext';
 
 const useStyles = makeStyles(theme => ({
   container: {
@@ -576,12 +577,12 @@ export const MoleculeList = memo(({ height, setFilterItemsHeight, filterItemsHei
     selectedAll.current = false;
   };
 
-  const removeSelectedTypes = (skipMolecules = [], skipTracking = false) => {
-    const molecules = [...getJoinedMoleculeList, ...allInspirationMoleculeDataList].filter(
-      molecule => !skipMolecules.includes(molecule)
-    );
-    dispatch(removeSelectedMolTypes(majorViewStage, molecules, skipTracking, false));
-  };
+  const removeSelectedTypes = useCallback(
+    (skipMolecules = [], skipTracking = false) => {
+      dispatch(removeSelectedTypesInHitNavigator(skipMolecules, majorViewStage, skipTracking));
+    },
+    [dispatch, majorViewStage]
+  );
 
   const selectMoleculeTags = moleculeTagsSet => {
     const moleculeTags = tags.filter(tag => moleculeTagsSet.includes(tag.id));
@@ -949,33 +950,44 @@ export const MoleculeList = memo(({ height, setFilterItemsHeight, filterItemsHei
                   }
                   useWindow={false}
                 >
-                  {currentMolecules.map((data, index, array) => (
-                    <MoleculeView
-                      key={data.id}
-                      index={index}
-                      imageHeight={imgHeight}
-                      imageWidth={imgWidth}
-                      data={data}
-                      previousItemData={index > 0 && array[index - 1]}
-                      nextItemData={index < array?.length && array[index + 1]}
-                      setRef={setTagEditorAnchorEl}
-                      removeSelectedTypes={removeSelectedTypes}
-                      L={fragmentDisplayList.includes(data.id)}
-                      P={proteinList.includes(data.id)}
-                      C={complexList.includes(data.id)}
-                      S={surfaceList.includes(data.id)}
-                      D={densityList.includes(data.id)}
-                      D_C={densityListCustom.includes(data.id)}
-                      Q={qualityList.includes(data.id)}
-                      V={vectorOnList.includes(data.id)}
-                      I={informationList.includes(data.id)}
-                      selectMoleculeSite={selectMoleculeTags}
-                      eventInfo={data?.proteinData?.event_info}
-                      sigmaaInfo={data?.proteinData?.sigmaa_info}
-                      diffInfo={data?.proteinData?.diff_info}
-                      groupNglControlButtonsDisabledState={groupNglControlButtonsDisabledState}
-                    />
-                  ))}
+                  <GroupNglControlButtonsContext.Provider value={groupNglControlButtonsDisabledState}>
+                    {currentMolecules.map((data, index, array) => {
+                      const selected = allSelectedMolecules.some(molecule => molecule.id === data.id);
+                      const isTagEditorInvokedByMolecule = data.id === molForTagEditId;
+
+                      return (
+                        <MoleculeView
+                          key={data.id}
+                          index={index}
+                          imageHeight={imgHeight}
+                          imageWidth={imgWidth}
+                          data={data}
+                          previousItemData={index > 0 && array[index - 1]}
+                          nextItemData={index < array?.length && array[index + 1]}
+                          setRef={setTagEditorAnchorEl}
+                          removeSelectedTypes={removeSelectedTypes}
+                          L={fragmentDisplayList.includes(data.id)}
+                          P={proteinList.includes(data.id)}
+                          C={complexList.includes(data.id)}
+                          S={surfaceList.includes(data.id)}
+                          D={densityList.includes(data.id)}
+                          D_C={densityListCustom.includes(data.id)}
+                          Q={qualityList.includes(data.id)}
+                          V={vectorOnList.includes(data.id)}
+                          I={informationList.includes(data.id)}
+                          eventInfo={data?.proteinData?.event_info || null}
+                          sigmaaInfo={data?.proteinData?.sigmaa_info || null}
+                          diffInfo={data?.proteinData?.diff_info || null}
+                          isTagEditorInvokedByMolecule={isTagEditorInvokedByMolecule}
+                          isTagEditorOpen={isTagEditorInvokedByMolecule && isTagEditorOpen}
+                          selected={selected}
+                          disableL={selected && groupNglControlButtonsDisabledState.ligand}
+                          disableP={selected && groupNglControlButtonsDisabledState.protein}
+                          disableC={selected && groupNglControlButtonsDisabledState.complex}
+                        />
+                      );
+                    })}
+                  </GroupNglControlButtonsContext.Provider>
                 </InfiniteScroll>
               </Grid>
               <Grid item>
