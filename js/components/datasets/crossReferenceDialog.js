@@ -244,29 +244,31 @@ export const CrossReferenceDialog = memo(
     }, [dispatch, moleculeList]);
 
     const isLigandOn = changeButtonClassname(
-      ligandList.filter(moleculeID => moleculeList.find(molecule => molecule.molecule.id === moleculeID) !== undefined),
-      moleculeList
+      ligandList.filter(
+        moleculeID => selectedMolecules.find(molecule => molecule.molecule.id === moleculeID) !== undefined
+      ),
+      selectedMolecules
     );
     const isProteinOn = changeButtonClassname(
       proteinList.filter(
-        moleculeID => moleculeList.find(molecule => molecule.molecule.id === moleculeID) !== undefined
+        moleculeID => selectedMolecules.find(molecule => molecule.molecule.id === moleculeID) !== undefined
       ),
-      moleculeList
+      selectedMolecules
     );
     const isComplexOn = changeButtonClassname(
       complexList.filter(
-        moleculeID => moleculeList.find(molecule => molecule.molecule.id === moleculeID) !== undefined
+        moleculeID => selectedMolecules.find(molecule => molecule.molecule.id === moleculeID) !== undefined
       ),
-      moleculeList
+      selectedMolecules
     );
 
     if (anchorEl === null) {
       dispatch(resetCrossReferenceDialog());
     }
 
-    const removeSelectedType = type => {
-      dispatch(setDeselectedAllByType(type, null, selectedMolecules, true));
-      selectedMolecules.forEach(molecule => {
+    const removeSelectedType = (type, molecules) => {
+      dispatch(setDeselectedAllByType(type, null, molecules, true));
+      molecules.forEach(molecule => {
         dispatch(
           removeType[type](
             stage,
@@ -279,18 +281,18 @@ export const CrossReferenceDialog = memo(
       });
     };
 
-    const addSelectedType = type => {
+    const addSelectedType = (type, molecules) => {
       dispatch(
         withDisabledDatasetMoleculesNglControlButtons(
-          [...new Set(selectedMolecules.map(({ datasetID }) => datasetID))], // distinct datasetIDs
-          selectedMolecules.map(({ molecule }) => molecule.id),
+          [...new Set(molecules.map(({ datasetID }) => datasetID))], // distinct datasetIDs
+          molecules.map(({ molecule }) => molecule.id),
           type,
           async () => {
-            dispatch(setSelectedAllByType(type, null, selectedMolecules, true));
+            dispatch(setSelectedAllByType(type, null, molecules, true));
 
             const promises = [];
 
-            selectedMolecules.forEach(molecule => {
+            molecules.forEach(molecule => {
               promises.push(
                 dispatch(
                   addType[type](
@@ -310,11 +312,34 @@ export const CrossReferenceDialog = memo(
       );
     };
 
+    const getMoleculesToSelect = list => {
+      return selectedMolecules.filter(({ molecule }) => !list.includes(molecule.id));
+    };
+
+    const getMoleculesToDeselect = list => {
+      return selectedMolecules.filter(({ molecule }) => list.includes(molecule.id));
+    };
+
+    const getSelectedMoleculesByType = (type, isAdd) => {
+      switch (type) {
+        case 'ligand':
+          return isAdd ? getMoleculesToSelect(ligandList) : getMoleculesToDeselect(ligandList);
+        case 'protein':
+          return isAdd ? getMoleculesToSelect(proteinList) : getMoleculesToDeselect(proteinList);
+        case 'complex':
+          return isAdd ? getMoleculesToSelect(complexList) : getMoleculesToDeselect(complexList);
+        default:
+          return null;
+      }
+    };
+
     const removeOrAddType = (type, areSelected) => {
+      const molecules = getSelectedMoleculesByType(type, !areSelected);
+
       if (areSelected) {
-        removeSelectedType(type);
+        removeSelectedType(type, molecules);
       } else {
-        addSelectedType(type);
+        addSelectedType(type, molecules);
       }
     };
 

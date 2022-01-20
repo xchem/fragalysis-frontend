@@ -168,21 +168,21 @@ export const findTrackAction = (action, state) => {
           )}`
         };
       }
-    } else if (action.type === selectionConstants.SET_SELECTED_ALL_BY_TYPE) {
+    } else if (action.type === selectionConstants.SET_SELECTED_BY_TYPE) {
       if (action.payload) {
         let payload = action.payload;
         let objectType = payload.isInspiration === true ? actionObjectType.INSPIRATION : actionObjectType.MOLECULE;
         let paylodTypeDescription = getTypeDescriptionOfSelectedAllAction(payload.type);
 
         trackAction = {
-          type: actionType.ALL_TURNED_ON_BY_TYPE,
+          type: actionType.SELECTED_TURNED_ON_BY_TYPE,
           annotation: actionAnnotation.CHECK,
           timestamp: Date.now(),
           username: username,
           object_type: objectType,
           control_type: payload.type,
           items: payload.items,
-          text: `${actionDescription.ALL} ${paylodTypeDescription} ${actionDescription.TURNED_ON} ${objectType}`
+          text: `${actionDescription.SELECTED_TYPE} ${paylodTypeDescription} ${actionDescription.TURNED_ON} ${objectType}`
         };
       }
     } else if (action.type === selectionConstants.SET_DESELECTED_ALL_BY_TYPE) {
@@ -794,7 +794,7 @@ export const findTrackAction = (action, state) => {
           text: `${actionDescription.ALL} ${actionDescription.TURNED_OFF} ${objectType} ${objectName} of dataset: ${action.payload.datasetID}`
         };
       }
-    } else if (action.type === customDatasetConstants.SET_SELECTED_ALL_BY_TYPE) {
+    } else if (action.type === customDatasetConstants.SET_SELECTED_BY_TYPE) {
       if (action.payload) {
         let payload = action.payload;
         let objectType =
@@ -803,14 +803,14 @@ export const findTrackAction = (action, state) => {
         let datasetDescription = payload.datasetID ? `of dataset: ${payload.datasetID}` : '';
 
         trackAction = {
-          type: actionType.ALL_TURNED_ON_BY_TYPE,
+          type: actionType.SELECTED_TURNED_ON_BY_TYPE,
           annotation: actionAnnotation.CHECK,
           timestamp: Date.now(),
           username: username,
           object_type: objectType,
           control_type: payload.type,
           items: payload.items,
-          text: `${actionDescription.ALL} ${paylodTypeDescription} ${actionDescription.TURNED_ON} ${objectType} ${datasetDescription}`
+          text: `${actionDescription.SELECTED_TYPE} ${paylodTypeDescription} ${actionDescription.TURNED_ON} ${objectType} ${datasetDescription}`
         };
       }
     } else if (action.type === customDatasetConstants.SET_DESELECTED_ALL_BY_TYPE) {

@@ -671,12 +671,12 @@ export const MoleculeList = memo(({ height, setFilterItemsHeight, filterItemsHei
   };
 
   const getMoleculesToSelect = list => {
-    let molecules = joinedMoleculeLists.filter(m => !list.includes(m.id));
+    let molecules = allSelectedMolecules.filter(m => !list.includes(m.id));
     return molecules;
   };
 
   const getMoleculesToDeselect = list => {
-    let molecules = joinedMoleculeLists.filter(m => list.includes(m.id));
+    let molecules = allSelectedMolecules.filter(m => list.includes(m.id));
     return molecules;
   };
 

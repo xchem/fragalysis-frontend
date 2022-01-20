@@ -383,7 +383,7 @@ export const setDeselectedAll = (datsetID, item, isLigand, isProtein, isComplex)
 });
 
 export const setSelectedAllByType = (type, datsetID, items, isCrossReference) => ({
-  type: constants.SET_SELECTED_ALL_BY_TYPE,
+  type: constants.SET_SELECTED_BY_TYPE,
   payload: {
     type: type,
     datasetID: datsetID,

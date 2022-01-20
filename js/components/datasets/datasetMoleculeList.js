@@ -426,7 +426,7 @@ export const DatasetMoleculeList = memo(
     };
 
     const getMoleculesToSelect = list => {
-      let molecules = joinedMoleculeLists.filter(m => !list.includes(m.id));
+      let molecules = selectedMolecules.filter(m => !list.includes(m.id));
       let data = molecules.map(m => {
         return { datasetID, molecule: m };
       });
@@ -434,7 +434,7 @@ export const DatasetMoleculeList = memo(
     };
 
     const getMoleculesToDeselect = list => {
-      let molecules = joinedMoleculeLists.filter(m => list.includes(m.id));
+      let molecules = selectedMolecules.filter(m => list.includes(m.id));
       let data = molecules.map(m => {
         return { datasetID, molecule: m };
       });

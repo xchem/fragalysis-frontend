@@ -425,7 +425,7 @@ export const datasetsReducers = (state = INITIAL_STATE, action = {}) => {
     case constants.SET_DESELECTED_ALL:
       return removeFromList(state, 'moleculeAllSelection', action.payload.datasetID, action.payload.item.id);
 
-    case constants.SET_SELECTED_ALL_BY_TYPE:
+    case constants.SET_SELECTED_BY_TYPE:
       return Object.assign({}, state, {
         moleculeAllTypeSelection: action.payload.type
       });
