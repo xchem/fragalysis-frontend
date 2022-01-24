@@ -34,12 +34,18 @@ import { base_url } from '../../routes/constants';
 import { updateClipboard } from '../helpers';
 import { NglContext } from '../../nglView/nglProvider';
 import { initSharedSnapshot } from '../redux/reducer';
-import moment from 'moment';
+import moment from 'moment-timezone';
 import { appendToDownloadTags } from '../../../reducers/api/actions';
 import { getTagByName } from '../../preview/tags/api/tagsApi';
 import { withStyles } from '@material-ui/core/styles';
 
 const useStyles = makeStyles(theme => ({
+  root: {
+    padding: theme.spacing(2, 4, 3),
+    minWidth: '60vw',
+    overflowY: 'auto', // In case of narrow screen
+    maxHeight: '100vh'
+  },
   select: {
     color: 'inherit',
     fill: 'inherit',
@@ -52,8 +58,81 @@ const useStyles = makeStyles(theme => ({
     '&:not(.Mui-disabled)': {
       fill: theme.palette.white
     }
+  },
+  grid: {
+    marginTop: theme.spacing(4),
+    display: 'grid',
+    gridTemplateColumns: 'repeat(3, auto)',
+    gap: `0 ${theme.spacing()}px`,
+    '& > h6': {
+      paddingTop: theme.spacing(3),
+      paddingBottom: theme.spacing()
+    },
+    '& > div': {
+      display: 'flex',
+      flexDirection: 'column',
+      gap: theme.spacing(),
+      marginLeft: theme.spacing(2)
+    }
+  },
+  permalinkSection: {
+    gridColumn: '1 / 3'
+  },
+  button: {
+    textTransform: 'none'
+  },
+  buttonRow: {
+    justifyContent: 'flex-start'
+  },
+  closeButton: {
+    color: theme.palette.error.main
   }
 }));
+
+const SUBSET_SELECTION = [
+  { flag: 'allStructures', text: 'All structures' },
+  { flag: 'displayedStructures', text: 'Structures displayed in the 3D display' },
+  { flag: 'selectedStructures', text: 'Structures selected in the Hit Navigator' },
+  { flag: 'tagged', text: 'Structures associated with the active tags' }
+];
+
+const MAP_FILES = [
+  { flag: 'event_info', text: 'PanDDA Event maps - primary evidence' },
+  { flag: 'sigmaa_info', text: 'Conventional inspection maps ("2FoFc")' },
+  { flag: 'diff_info', text: 'Conventional residual maps ("FoFc")' },
+  { flag: 'trans_matrix_info', text: 'Transformations applied for alignments' }
+];
+
+const CRYSTALLOGRAPHIC_FILES = [
+  { flag: 'NAN', text: 'Coordinate files (not re-aligned) (.pdb)' },
+  { flag: 'mtz_info', text: 'Reflections and map coefficients (.mtz)' },
+  { flag: 'cif_info', text: 'Ligand definitions and geometry restrains (.cif)' },
+  { flag: 'NAN2', text: 'Coordinate files (not re-aligned) (.pdb)' },
+  { flag: 'map_info', text: 'Real-space map files (VERY BIG!!) (.map)' }
+];
+
+const PERMALINK_OPTIONS = [
+  { flag: 'incremental', text: 'Incremental - always up-to-date with latest structures' },
+  { flag: 'static', text: 'Preserved - snapshot of current status, never changes' }
+];
+
+const OTHERS = [
+  { flag: 'single_sdf_file', text: 'Single SDF of all ligands' },
+  { flag: 'sdf_info', text: 'Separate SDFs in subdirectory' }
+];
+
+// Creates an object with flag as keys with boolean values
+const createFlagObjectFromFlagList = flagList => {
+  return Object.fromEntries(
+    flagList.map(item => {
+      if (item.flag === 'single_sdf_file') {
+        return [item.flag, true];
+      } else {
+        return [item.flag, false];
+      }
+    })
+  );
+};
 
 export const DownloadStructureDialog = memo(({}) => {
   const newDownload = '--- NEW DOWNLOAD ---';
@@ -72,25 +151,26 @@ export const DownloadStructureDialog = memo(({}) => {
   const currentSnapshot = useSelector(state => state.projectReducers.currentSnapshot);
 
   const [structuresSelection, setStructuresSelection] = useState('allStructures');
+
+  const [mapFiles, setMapFiles] = useState(() => createFlagObjectFromFlagList(MAP_FILES));
+  const [crystallographicFiles, setCrystallographicFiles] = useState(() =>
+    createFlagObjectFromFlagList(CRYSTALLOGRAPHIC_FILES)
+  );
+  const [other, setOthers] = useState(() => createFlagObjectFromFlagList(OTHERS));
+
+  const [linkType, setLinkType] = useState('incremental');
+
+  // Default flags not visible in UI
   const [bound, setBound] = useState(true);
-  const [cif, setCif] = useState(false);
-  const [diff, setDiff] = useState(false);
-  const [event, setEvent] = useState(false);
-  const [sigmaa, setSigmaa] = useState(false);
-  const [sdf, setSdf] = useState(false);
-  const [transformMatrix, setTransformMatrix] = useState(false);
   const [metadata, setMetadata] = useState(true);
   const [smiles, setSmiles] = useState(true);
   const [pdb, setPdb] = useState(false);
-  const [mtz, setMtz] = useState(false);
-  const [map, setMap] = useState(false);
-  const [singleSdf, setSingleSdf] = useState(false);
+
   const [downloadUrl, setDownloadUrl] = useState(null);
   const [fileSize, setFileSize] = useState(null);
   const [zipPreparing, setZipPreparing] = useState(false);
   const [downloadTagUrl, setDownloadTagUrl] = useState(null);
   const [selectedDownload, setSelectedDownload] = useState(newDownload);
-  const [linkType, setLinkType] = useState('incremental');
   const [error, setError] = useState(false);
 
   useEffect(() => {
@@ -154,16 +234,11 @@ export const DownloadStructureDialog = memo(({}) => {
       requestObject = {
         target_name: targetName,
         proteins: proteinNames,
+        ...mapFiles,
+        ...crystallographicFiles,
+        ...other,
         pdb_info: pdb,
         bound_info: bound,
-        cif_info: cif,
-        mtz_info: mtz,
-        diff_info: diff,
-        event_info: event,
-        sigmaa_info: sigmaa,
-        sdf_info: sdf,
-        single_sdf_file: singleSdf,
-        trans_matrix_info: transformMatrix,
         metadata_info: metadata,
         smiles_info: smiles,
         static_link: isStaticDownload(),
@@ -207,7 +282,7 @@ export const DownloadStructureDialog = memo(({}) => {
             const state = getState();
             const sharedSnapshot = state.snapshotReducers.sharedSnapshot;
             tagData['snapshot'] = sharedSnapshot;
-            tagData['downloadName'] = moment().format('-- YYYY-MM-DD -- HH:mm:ss');
+            tagData['downloadName'] = moment().format('-- YYYY-MM-DD -- HH:mm:ss') + ' -- ' + moment.tz.guess();
             dispatch(setSharedSnapshot(initSharedSnapshot));
             dispatch(setDontShowShareSnapshot(false));
             return getDownloadStructuresUrl(requestObject);
@@ -294,6 +369,14 @@ export const DownloadStructureDialog = memo(({}) => {
     updateExistingDownload(event.target.value);
   };
 
+  // Extracts flags for specified flagList and returns them as a JSON object
+  const getFlagsFromExistingDownload = (flagList, requestObject) => {
+    const entries = flagList.map(({ flag }) => {
+      return [flag, requestObject[flag]];
+    });
+    return Object.fromEntries(entries);
+  };
+
   const updateExistingDownload = useCallback(
     downloadName => {
       setSelectedDownload(downloadName);
@@ -301,19 +384,19 @@ export const DownloadStructureDialog = memo(({}) => {
         const selectedTag = findDownload(downloadName);
         if (selectedTag) {
           setStructuresSelection(selectedTag.additional_info.structuresSelection || 'allStructures');
+
+          setMapFiles(getFlagsFromExistingDownload(MAP_FILES, selectedTag.additional_info.requestObject));
+          setCrystallographicFiles(
+            getFlagsFromExistingDownload(CRYSTALLOGRAPHIC_FILES, selectedTag.additional_info.requestObject)
+          );
+          setOthers(getFlagsFromExistingDownload(OTHERS, selectedTag.additional_info.requestObject));
+
+          setLinkType(selectedTag.additional_info.requestObject.static_link ? 'static' : 'incremental');
+
           setBound(selectedTag.additional_info.requestObject.bound_info);
-          setCif(selectedTag.additional_info.requestObject.cif_info);
-          setDiff(selectedTag.additional_info.requestObject.diff_info);
-          setEvent(selectedTag.additional_info.requestObject.event_info);
-          setSigmaa(selectedTag.additional_info.requestObject.sigmaa_info);
-          setSdf(selectedTag.additional_info.requestObject.sdf_info);
-          setTransformMatrix(selectedTag.additional_info.requestObject.trans_matrix_info);
           setMetadata(selectedTag.additional_info.requestObject.metadata_info);
           setSmiles(selectedTag.additional_info.requestObject.smiles_info);
           setPdb(selectedTag.additional_info.requestObject.pdb_info);
-          setMtz(selectedTag.additional_info.requestObject.mtz_info);
-          setSingleSdf(selectedTag.additional_info.requestObject.single_sdf_file);
-          setLinkType(selectedTag.additional_info.requestObject.static_link ? 'static' : 'incremental');
         }
       }
     },
@@ -340,240 +423,237 @@ export const DownloadStructureDialog = memo(({}) => {
   })(Typography);
 
   return (
-    <Modal open={isOpen}>
-      {!zipPreparing && !error && (
-        <DialogTitle id="form-dialog-structures-title">
-          <Typography variant="h5">{`Download structures for target ${targetName}`}</Typography>
-        </DialogTitle>
-      )}
-      {zipPreparing && (
-        <>
-          <Box sx={{ width: '100%' }}>
-            <LinearProgress />
-          </Box>
-          {!error && (
-            <DialogTitle id="form-dialog-structures-title">
-              <Typography variant="h5">{'Preparing download...'}</Typography>
-            </DialogTitle>
-          )}
-        </>
-      )}
-      {error && (
-        <DialogTitle id="form-dialog-structures-title">
-          <ErrorMsg variant="h4">{'Download failed!!!'}</ErrorMsg>
-        </DialogTitle>
-      )}
-      <DialogContent>
-        <Grid container direction="column">
-          <Grid item container direction="row">
-            <Grid item>
-              <Select className={classes.select} value={selectedDownload} onChange={onUpdateExistingDownload}>
-                <MenuItem value={newDownload}>{newDownload}</MenuItem>
-                {downloadTags.map(dt => (
-                  <MenuItem value={dt.additional_info.downloadName}>{dt.additional_info.downloadName}</MenuItem>
-                ))}
-              </Select>
+    <Modal open={isOpen} noPadding>
+      <div className={classes.root}>
+        {!zipPreparing && !error && (
+          <DialogTitle id="form-dialog-structures-title" disableTypography>
+            <Typography variant="h5">{`Download structures and data for target ${targetName}`}</Typography>
+          </DialogTitle>
+        )}
+        {zipPreparing && (
+          <>
+            <Box sx={{ width: '100%' }}>
+              <LinearProgress />
+            </Box>
+            {!error && (
+              <DialogTitle id="form-dialog-structures-title" disableTypography>
+                <Typography variant="h5">{'Preparing download...'}</Typography>
+              </DialogTitle>
+            )}
+          </>
+        )}
+        {error && (
+          <DialogTitle id="form-dialog-structures-title" disableTypography>
+            <ErrorMsg variant="h4">{'Download failed!!!'}</ErrorMsg>
+          </DialogTitle>
+        )}
+        <DialogContent>
+          <Grid container direction="column">
+            <Typography variant="h6">Historic downloads</Typography>
+            <Grid item container direction="row">
+              <Grid item>
+                <Select className={classes.select} value={selectedDownload} onChange={onUpdateExistingDownload}>
+                  <MenuItem value={newDownload}>{newDownload}</MenuItem>
+                  {downloadTags.map(dt => (
+                    <MenuItem value={dt.additional_info.downloadName}>{dt.additional_info.downloadName}</MenuItem>
+                  ))}
+                </Select>
+              </Grid>
+              <Grid item>
+                <Button
+                  className={classes.button}
+                  color="primary"
+                  disabled={!(selectedDownload && selectedDownload !== newDownload)}
+                  onClick={() => {
+                    showSnapshotClicked();
+                  }}
+                >
+                  Open snapshot in new tab
+                </Button>
+              </Grid>
             </Grid>
-            <Grid item>
-              <Button
-                color="primary"
-                disabled={!(selectedDownload && selectedDownload !== newDownload)}
-                onClick={() => {
-                  showSnapshotClicked();
-                }}
-              >
-                Show snapshot
-              </Button>
-            </Grid>
-          </Grid>
-          <Grid item>
-            <RadioGroup
-              value={linkType}
-              name="radio-group-download-type"
-              onChange={event => {
-                setLinkType(event.currentTarget.value);
-              }}
-            >
-              <FormControlLabel
-                value="incremental"
-                control={<Radio disabled={zipPreparing} />}
-                label="Incremental always up to date download"
-              />
-              <FormControlLabel
-                value="static"
-                control={<Radio disabled={zipPreparing} />}
-                label="Preserve snapshot of the download"
-              />
-            </RadioGroup>
-          </Grid>
-          <Grid container item direction="row">
-            <Grid container item direction="column" xs={4}>
-              <RadioGroup
-                value={structuresSelection}
-                name="radio-group-structures-selection"
-                onChange={event => {
-                  setStructuresSelection(event.currentTarget.value);
-                }}
-              >
-                <FormControlLabel
-                  value="allStructures"
-                  control={<Radio disabled={zipPreparing} />}
-                  label="All structures"
-                />
-                <FormControlLabel
-                  value="displayedStructures"
-                  control={<Radio disabled={zipPreparing} />}
-                  label="Structures with ligands displayed in 3D pane"
-                />
-                <FormControlLabel
-                  value="selectedStructures"
-                  control={<Radio disabled={zipPreparing} />}
-                  label="Structures selected in Hit Navigator"
-                />
-                <FormControlLabel
-                  value="tagged"
-                  control={<Radio disabled={zipPreparing} />}
-                  label="Structures associated with selected tags"
-                />
-              </RadioGroup>
-            </Grid>
-            <Grid container item direction="column" xs={4}>
-              <Grid item>
-                <FormControlLabel
-                  control={<Checkbox checked={cif} onChange={event => setCif(!cif)} disabled={zipPreparing} />}
-                  label="CIF"
-                />
-              </Grid>
-              <Grid item>
-                <FormControlLabel
-                  control={<Checkbox checked={diff} onChange={event => setDiff(!diff)} disabled={zipPreparing} />}
-                  label="DIFF"
-                />
-              </Grid>
-              <Grid item>
-                <FormControlLabel
-                  control={<Checkbox checked={event} onChange={e => setEvent(!event)} disabled={zipPreparing} />}
-                  label="EVENT"
-                />
-              </Grid>
-              <Grid item>
-                <FormControlLabel
-                  control={<Checkbox checked={sigmaa} onChange={event => setSigmaa(!sigmaa)} disabled={zipPreparing} />}
-                  label="SIGMAA"
-                />
-              </Grid>
-              <Grid item>
-                <FormControlLabel
-                  control={<Checkbox checked={sdf} onChange={event => setSdf(!sdf)} disabled={zipPreparing} />}
-                  label="SDF"
-                />
-              </Grid>
-              <Grid item>
-                <FormControlLabel
-                  control={
-                    <Checkbox
-                      checked={transformMatrix}
-                      onChange={event => setTransformMatrix(!transformMatrix)}
-                      disabled={zipPreparing}
+            <div className={classes.grid}>
+              {/* First row */}
+              <Typography variant="h6">Subset selection</Typography>
+              <Typography variant="h6">Map files, re-aligned to reference</Typography>
+              <Typography variant="h6">Crystallographic files</Typography>
+
+              {/* Second row */}
+              <div>
+                <RadioGroup
+                  value={structuresSelection}
+                  name="radio-group-structures-selection"
+                  onChange={event => {
+                    setStructuresSelection(event.currentTarget.value);
+                  }}
+                >
+                  {SUBSET_SELECTION.map(({ flag, text }) => {
+                    return (
+                      <FormControlLabel
+                        key={flag}
+                        value={flag}
+                        control={<Radio disabled={zipPreparing} />}
+                        label={text}
+                      />
+                    );
+                  })}
+                </RadioGroup>
+              </div>
+              <div>
+                {MAP_FILES.map(({ flag, text }) => {
+                  return (
+                    <FormControlLabel
+                      key={flag}
+                      control={
+                        <Checkbox
+                          checked={mapFiles[flag]}
+                          onChange={() =>
+                            setMapFiles(prevState => {
+                              return { ...prevState, [flag]: !prevState[flag] };
+                            })
+                          }
+                          disabled={zipPreparing}
+                        />
+                      }
+                      label={text}
                     />
-                  }
-                  label="Transformation matrix"
-                />
-              </Grid>
-              <Grid item>
-                <FormControlLabel
-                  control={
-                    <Checkbox
-                      checked={singleSdf}
-                      onChange={event => setSingleSdf(!singleSdf)}
-                      disabled={zipPreparing}
+                  );
+                })}
+              </div>
+              <div>
+                {CRYSTALLOGRAPHIC_FILES.map(({ flag, text }) => {
+                  return (
+                    <FormControlLabel
+                      key={flag}
+                      control={
+                        <Checkbox
+                          checked={crystallographicFiles[flag]}
+                          onChange={() =>
+                            setCrystallographicFiles(prevState => {
+                              return { ...prevState, [flag]: !prevState[flag] };
+                            })
+                          }
+                          disabled={zipPreparing}
+                        />
+                      }
+                      label={text}
+                      disabled
                     />
-                  }
-                  label="All ligands in single SDF"
-                />
-              </Grid>
-            </Grid>
-            <Grid container item direction="column" xs={4}>
-              <Grid item>
-                <FormControlLabel
-                  control={<Checkbox checked={pdb} onChange={event => setPdb(!pdb)} disabled={zipPreparing} />}
-                  label="PDB"
-                />
-              </Grid>
-              <Grid item>
-                <FormControlLabel
-                  control={<Checkbox checked={mtz} onChange={event => setMtz(!mtz)} disabled={zipPreparing} />}
-                  label="MTZ"
-                />
-              </Grid>
-              <Grid item>
-                <FormControlLabel control={<Checkbox checked={false} disabled={true} />} label="Event MTZ" />
-              </Grid>
-              <Grid item>
-                <FormControlLabel
-                  control={<Checkbox checked={map} onChange={event => setMap(!map)} disabled={zipPreparing} />}
-                  label="Raw ccp4 map files"
-                />
-              </Grid>
-            </Grid>
-          </Grid>
-        </Grid>
-      </DialogContent>
-      <DialogActions>
-        <Tooltip
-          title={
-            <Paper>
-              <Typography varian="h6">
-                {`Get a json for a POST request (${base_url}/api/download_structures/) that will generate a FILE_URL. Download your data at ${base_url}/api/download_structures/?file_url=<FILE_URL>`}
+                  );
+                })}
+              </div>
+
+              {/* Third row */}
+              <Typography className={classes.permalinkSection} variant="h6">
+                Version of data stored in permalink
               </Typography>
-            </Paper>
-          }
-        >
+              <Typography variant="h6">Other</Typography>
+
+              {/* Fourth row */}
+              <div className={classes.permalinkSection}>
+                <RadioGroup
+                  value={linkType}
+                  name="radio-group-download-type"
+                  onChange={event => {
+                    setLinkType(event.currentTarget.value);
+                  }}
+                >
+                  {PERMALINK_OPTIONS.map(({ flag, text }) => {
+                    return (
+                      <FormControlLabel
+                        key={flag}
+                        value={flag}
+                        control={<Radio disabled={zipPreparing} />}
+                        label={text}
+                      />
+                    );
+                  })}
+                </RadioGroup>
+              </div>
+              <div>
+                {OTHERS.map(({ flag, text }) => {
+                  return (
+                    <FormControlLabel
+                      key={flag}
+                      control={
+                        <Checkbox
+                          checked={other[flag]}
+                          onChange={() =>
+                            setOthers(prevState => {
+                              return { ...prevState, [flag]: !prevState[flag] };
+                            })
+                          }
+                          disabled={zipPreparing}
+                        />
+                      }
+                      label={text}
+                    />
+                  );
+                })}
+              </div>
+            </div>
+          </Grid>
+        </DialogContent>
+        <DialogActions className={classes.buttonRow}>
           <Button
+            className={classes.button}
+            disabled={zipPreparing}
             color="primary"
             onClick={() => {
-              copyPOSTJson();
+              dispatch(prepareDownloadClicked());
             }}
           >
-            (for coders) Copy POST request json
+            Prepare download
           </Button>
-        </Tooltip>
-        <Button
-          disabled={!(downloadUrl && fileSize) || zipPreparing}
-          color="primary"
-          onClick={() => {
-            downloadZipFile();
-          }}
-        >
-          {fileSize ? `Download - ${fileSize}` : 'Download'}
-        </Button>
-        <Button
-          disabled={!downloadTagUrl}
-          color="primary"
-          onClick={() => {
-            updateClipboard(downloadTagUrl);
-          }}
-        >
-          Copy link
-        </Button>
-        <Button
-          disabled={zipPreparing}
-          color="primary"
-          onClick={() => {
-            dispatch(prepareDownloadClicked());
-          }}
-        >
-          Prepare download
-        </Button>
-        <Button
-          color="secondary"
-          onClick={() => {
-            handleClose();
-          }}
-        >
-          Close
-        </Button>
-      </DialogActions>
+          <Button
+            className={classes.button}
+            disabled={!downloadTagUrl}
+            color="primary"
+            onClick={() => {
+              updateClipboard(downloadTagUrl);
+            }}
+          >
+            Copy permalink
+          </Button>
+          <Button
+            className={classes.button}
+            disabled={!(downloadUrl && fileSize) || zipPreparing}
+            color="primary"
+            onClick={() => {
+              downloadZipFile();
+            }}
+          >
+            {fileSize ? `Download - ${fileSize}` : 'Download'}
+          </Button>
+          <Tooltip
+            title={
+              <Paper>
+                <Typography varian="h6">
+                  {`Get a json for a POST request (${base_url}/api/download_structures/) that will generate a FILE_URL. Download your data at ${base_url}/api/download_structures/?file_url=<FILE_URL>`}
+                </Typography>
+              </Paper>
+            }
+          >
+            <Button
+              className={classes.button}
+              color="primary"
+              onClick={() => {
+                copyPOSTJson();
+              }}
+            >
+              (For coders) Copy JSON for API call
+            </Button>
+          </Tooltip>
+          <Button
+            className={classes.closeButton}
+            onClick={() => {
+              handleClose();
+            }}
+          >
+            Close
+          </Button>
+        </DialogActions>
+      </div>
     </Modal>
   );
 });
