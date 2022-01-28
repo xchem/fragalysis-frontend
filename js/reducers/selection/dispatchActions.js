@@ -1,4 +1,7 @@
-import { resetCurrentCompoundSettingsWithoutSelection, setCurrentCompounds } from '../../components/preview/compounds/redux/actions';
+import {
+  resetCurrentCompoundSettingsWithoutSelection,
+  setCurrentCompounds
+} from '../../components/preview/compounds/redux/actions';
 import { setFilter, setCurrentVector } from './actions';
 import { getAllCompoundsList } from './selectors';
 import { MOL_ATTRIBUTES } from '../../components/preview/molecule/redux/constants';

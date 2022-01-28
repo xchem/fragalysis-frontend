@@ -21,7 +21,7 @@ const useStyles = makeStyles(theme => ({
     textAlign: 'center',
     paddingBottom: '2px',
     '& .MuiChip-labelSmall': {
-      overflowWrap: 'break-word',
+      overflowWrap: 'anywhere',
       whiteSpace: 'normal',
       textOverflow: 'clip',
       paddingLeft: '2px',

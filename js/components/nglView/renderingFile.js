@@ -1,19 +1,20 @@
 import { addToPdbCache } from '../../reducers/ngl/actions';
 
-export const getPdb = url => (dispatch, getState) => {
+export const getPdb = url => async (dispatch, getState) => {
   const state = getState();
 
   const pdbCache = state.nglReducers.pdbCache;
-  const pdbName = getNameOfPdb(url);
-  if (pdbCache.hasOwnProperty(pdbName)) {
-    return new Promise((resolve, reject) => {
-      resolve(pdbCache[pdbName]);
-    });
-  } else {
-    return loadPdbFile(url).then(b => {
-      dispatch(addToPdbCache(pdbName, b));
-      return b;
-    });
+
+  if (url) {
+    const pdbName = getNameOfPdb(url);
+    if (pdbCache.hasOwnProperty(pdbName)) {
+      return pdbCache[pdbName];
+    } else {
+      return loadPdbFile(url).then(b => {
+        dispatch(addToPdbCache(pdbName, b));
+        return b;
+      });
+    }
   }
 };
 

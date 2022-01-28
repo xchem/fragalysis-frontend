@@ -53,7 +53,10 @@ export const INITIAL_STATE = {
     inProgress: false,
     startingDragDropState: {},
     startingIndex: -1
-  }
+  },
+
+  // disables NGL control buttons for molecules
+  disableDatasetsNglControlButtons: {} // datasetID.moleculeID.nglButtonDisableState
 };
 
 /**
@@ -422,7 +425,7 @@ export const datasetsReducers = (state = INITIAL_STATE, action = {}) => {
     case constants.SET_DESELECTED_ALL:
       return removeFromList(state, 'moleculeAllSelection', action.payload.datasetID, action.payload.item.id);
 
-    case constants.SET_SELECTED_ALL_BY_TYPE:
+    case constants.SET_SELECTED_BY_TYPE:
       return Object.assign({}, state, {
         moleculeAllTypeSelection: action.payload.type
       });
@@ -455,6 +458,41 @@ export const datasetsReducers = (state = INITIAL_STATE, action = {}) => {
       };
       return { ...state, dragDropStatus };
     }
+
+    case constants.DISABLE_DATASET_NGL_CONTROL_BUTTON: {
+      const { datasetId, moleculeId, type } = action.payload;
+
+      const disableDatasetsNglControlButtons = { ...state.disableDatasetsNglControlButtons };
+      const disableDatasetNglControlButtons = { ...(disableDatasetsNglControlButtons[datasetId] || {}) };
+      const moleculeNglControlButtons = { ...(disableDatasetNglControlButtons[moleculeId] || {}) };
+
+      moleculeNglControlButtons[type] = true;
+      disableDatasetNglControlButtons[moleculeId] = moleculeNglControlButtons;
+      disableDatasetsNglControlButtons[datasetId] = disableDatasetNglControlButtons;
+
+      return {
+        ...state,
+        disableDatasetsNglControlButtons
+      };
+    }
+
+    case constants.ENABLE_DATASET_NGL_CONTROL_BUTTON: {
+      const { datasetId, moleculeId, type } = action.payload;
+
+      const disableDatasetsNglControlButtons = { ...state.disableDatasetsNglControlButtons };
+      const disableDatasetNglControlButtons = { ...(disableDatasetsNglControlButtons[datasetId] || {}) };
+      const moleculeNglControlButtons = { ...(disableDatasetNglControlButtons[moleculeId] || {}) };
+
+      moleculeNglControlButtons[type] = false;
+      disableDatasetNglControlButtons[moleculeId] = moleculeNglControlButtons;
+      disableDatasetsNglControlButtons[datasetId] = disableDatasetNglControlButtons;
+
+      return {
+        ...state,
+        disableDatasetsNglControlButtons
+      };
+    }
+
     default:
       return state;
   }

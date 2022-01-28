@@ -154,6 +154,7 @@ import {
   addSelectedTag,
   loadMoleculesAndTags
 } from '../../components/preview/tags/redux/dispatchActions';
+import { turnSide } from '../../components/preview/viewerControls/redux/actions';
 
 export const addCurrentActionsListToSnapshot = (snapshot, project, nglViewList) => async (dispatch, getState) => {
   let projectID = project && project.projectID;
@@ -229,7 +230,7 @@ const saveActionsList = (project, snapshot, actionList, nglViewList) => async (d
 
     getCurrentActionListOfAllSelectionByType(
       orderedActionList,
-      actionType.ALL_TURNED_ON_BY_TYPE,
+      actionType.SELECTED_TURNED_ON_BY_TYPE,
       'ligand',
       getCollection(currentLigands),
       currentActions
@@ -237,7 +238,7 @@ const saveActionsList = (project, snapshot, actionList, nglViewList) => async (d
 
     getCurrentActionListOfAllSelectionByType(
       orderedActionList,
-      actionType.ALL_TURNED_ON_BY_TYPE,
+      actionType.SELECTED_TURNED_ON_BY_TYPE,
       'protein',
       getCollection(currentProteins),
       currentActions
@@ -245,7 +246,7 @@ const saveActionsList = (project, snapshot, actionList, nglViewList) => async (d
 
     getCurrentActionListOfAllSelectionByType(
       orderedActionList,
-      actionType.ALL_TURNED_ON_BY_TYPE,
+      actionType.SELECTED_TURNED_ON_BY_TYPE,
       'complex',
       getCollection(currentComplexes),
       currentActions
@@ -253,7 +254,7 @@ const saveActionsList = (project, snapshot, actionList, nglViewList) => async (d
 
     getCurrentActionListOfAllSelectionByTypeOfDataset(
       orderedActionList,
-      actionType.ALL_TURNED_ON_BY_TYPE,
+      actionType.SELECTED_TURNED_ON_BY_TYPE,
       'ligand',
       getCollectionOfDataset(currentDatasetLigands),
       currentActions
@@ -261,7 +262,7 @@ const saveActionsList = (project, snapshot, actionList, nglViewList) => async (d
 
     getCurrentActionListOfAllSelectionByTypeOfDataset(
       orderedActionList,
-      actionType.ALL_TURNED_ON_BY_TYPE,
+      actionType.SELECTED_TURNED_ON_BY_TYPE,
       'protein',
       getCollectionOfDataset(currentDatasetProteins),
       currentActions
@@ -269,7 +270,7 @@ const saveActionsList = (project, snapshot, actionList, nglViewList) => async (d
 
     getCurrentActionListOfAllSelectionByTypeOfDataset(
       orderedActionList,
-      actionType.ALL_TURNED_ON_BY_TYPE,
+      actionType.SELECTED_TURNED_ON_BY_TYPE,
       'complex',
       getCollectionOfDataset(currentDatasetComplexes),
       currentActions
@@ -437,6 +438,10 @@ const saveActionsList = (project, snapshot, actionList, nglViewList) => async (d
       currentActions.push({ ...action, type: actionType.DRAG_DROP_FINISHED });
     }
 
+    // Sides
+    getLastActionByCriteria(orderedActionList, actionType.TURN_SIDE, action => action.side === 'LHS', currentActions);
+    getLastActionByCriteria(orderedActionList, actionType.TURN_SIDE, action => action.side === 'RHS', currentActions);
+
     if (nglViewList) {
       let nglStateList = nglViewList.map(nglView => {
         return { id: nglView.id, orientation: nglView.stage.viewerControls.getOrientation() };
@@ -554,6 +559,13 @@ const getCommonLastActionByType = (orderedActionList, type, currentActions) => {
   let action = orderedActionList.find(action => action.type === type);
   if (action) {
     currentActions.push(Object.assign({ ...action }));
+  }
+};
+
+const getLastActionByCriteria = (orderedActionList, type, criteriaFunction, currentActions) => {
+  const action = orderedActionList.find(action => action.type === type && criteriaFunction(action));
+  if (action) {
+    currentActions.push({ ...action });
   }
 };
 
@@ -834,6 +846,7 @@ export const restoreAfterTargetActions = (stages, projectId) => async (dispatch,
     dispatch(restoreNglStateAction(orderedActionList, stages));
     dispatch(restoreNglSettingsAction(orderedActionList, majorView.stage));
     dispatch(setIsActionsRestoring(false, true));
+    dispatch(restoreViewerControlActions(orderedActionList));
   }
 };
 
@@ -1198,7 +1211,8 @@ const restoreSitesActions = orderedActionList => (dispatch, getState) => {
   let sitesAction = orderedActionList.filter(action => action.type === actionType.SITE_TURNED_ON);
   if (sitesAction) {
     sitesAction.forEach(action => {
-      const tag = getTag(action.object_name, state);
+      //when restoring tags we need to actually use object_id and not object_name because it can be changed by the user in the UI pretty much anytime
+      const tag = getTag(action.object_id, state);
       if (tag) {
         dispatch(addSelectedTag(tag));
       }
@@ -1212,7 +1226,8 @@ const restoreTagActions = orderedActionList => (dispatch, getState) => {
   let tagActions = orderedActionList.filter(action => action.type === actionType.TAG_SELECTED);
   if (tagActions) {
     tagActions.forEach(action => {
-      const tag = getTag(action.object_name, state);
+      //when restoring tags we need to actually use object_id and not object_name because it can be changed by the user in the UI pretty much anytime
+      const tag = getTag(action.object_id, state);
       if (tag) {
         dispatch(addSelectedTag(tag));
       }
@@ -1327,11 +1342,23 @@ const restoreAllSelectionActions = (moleculesAction, stage, isSelection) => (dis
     actions.forEach(action => {
       if (action) {
         if (isSelection) {
-          dispatch(setSelectedAll(action.item, action.isLigand, action.isProtein, action.isComplex));
+          const mol = getMolecule(action.object_name, state);
+          if (mol) {
+            dispatch(setSelectedAll(mol, action.isLigand, action.isProtein, action.isComplex));
+          }
         } else {
-          dispatch(
-            setSelectedAllOfDataset(action.dataset_id, action.item, action.isLigand, action.isProtein, action.isComplex)
-          );
+          const compound = getCompound(action, state);
+          if (compound) {
+            dispatch(
+              setSelectedAllOfDataset(
+                action.dataset_id,
+                action.item,
+                action.isLigand,
+                action.isProtein,
+                action.isComplex
+              )
+            );
+          }
         }
 
         if (action.isLigand) {
@@ -1351,16 +1378,17 @@ const restoreAllSelectionActions = (moleculesAction, stage, isSelection) => (dis
 };
 
 const restoreAllSelectionByTypeActions = (moleculesAction, stage, isSelection) => (dispatch, getState) => {
+  const state = getState();
   let actions =
     isSelection === true
       ? moleculesAction.filter(
           action =>
-            action.type === actionType.ALL_TURNED_ON_BY_TYPE &&
+            action.type === actionType.SELECTED_TURNED_ON_BY_TYPE &&
             (action.object_type === actionObjectType.INSPIRATION || action.object_type === actionObjectType.MOLECULE)
         )
       : moleculesAction.filter(
           action =>
-            action.type === actionType.ALL_TURNED_ON_BY_TYPE &&
+            action.type === actionType.SELECTED_TURNED_ON_BY_TYPE &&
             (action.object_type === actionObjectType.CROSS_REFERENCE ||
               action.object_type === actionObjectType.COMPOUND)
         );
@@ -1368,7 +1396,23 @@ const restoreAllSelectionByTypeActions = (moleculesAction, stage, isSelection) =
   if (actions) {
     actions.forEach(action => {
       if (action) {
-        let actionItems = action.items;
+        // let actionItems = action.items;
+        let actionItems = [];
+        if (isSelection) {
+          action.items.forEach(item => {
+            const mol = getMolecule(item.protein_code, state);
+            if (mol) {
+              actionItems.push(mol);
+            }
+          });
+        } else {
+          action.items.forEach(item => {
+            const mol = getCompoundByName(item.protein_code, action.dataset_id, state);
+            if (mol) {
+              actionItems.push(mol);
+            }
+          });
+        }
         let type = action.control_type;
 
         if (isSelection) {
@@ -1422,6 +1466,7 @@ const restoreRepresentationActions = (moleculesAction, stages) => (dispatch, get
   let representationsActions = moleculesAction.filter(action => action.type === actionType.REPRESENTATION_ADDED);
   if (representationsActions) {
     representationsActions.forEach(action => {
+      //here the object id is actually protein_code_object_type and is identifier in NGL view so it's ok to use object_id in here
       dispatch(addRepresentation(action.object_id, action.representation, nglView));
     });
   }
@@ -1431,6 +1476,7 @@ const restoreRepresentationActions = (moleculesAction, stages) => (dispatch, get
   );
   if (representationsChangesActions) {
     representationsChangesActions.forEach(action => {
+      //here the object id is actually protein_code_object_type and is identifier in NGL view so it's ok to use object_id in here
       dispatch(updateRepresentation(true, action.change, action.object_id, action.representation, nglView));
     });
   }
@@ -1443,6 +1489,8 @@ const restoreTabActions = moleculesAction => (dispatch, getState) => {
 
   let action = moleculesAction.find(action => action.type === actionType.TAB);
   if (action) {
+    //in here the object id is the tab index on the right hand side so it should be ok. BUT what if the given dataset
+    //was deleted? Is it even possible?
     dispatch(setTabValue(action.oldObjectId, action.object_id, action.object_name, action.oldObjectName));
   }
 
@@ -1503,6 +1551,14 @@ const restoreTabActions = moleculesAction => (dispatch, getState) => {
       })
     );
   }
+};
+
+const restoreViewerControlActions = moleculesAction => dispatch => {
+  const turnSideActions = moleculesAction.filter(action => action.type === actionType.TURN_SIDE);
+  turnSideActions.forEach(action => {
+    const { side, open } = action;
+    dispatch(turnSide(side, open, true));
+  });
 };
 
 const restoreSnapshotImageActions = projectID => async (dispatch, getState) => {
@@ -1679,9 +1735,9 @@ const getMolGroup = (molGroupName, state) => {
   return molGroup;
 };
 
-const getTag = (tagName, state) => {
+const getTag = (tagId, state) => {
   const tagList = state.selectionReducers.tagList;
-  const tag = tagList.find(t => t.tag === tagName);
+  const tag = tagList.find(t => t.id === tagId);
   return tag;
 };
 
@@ -1700,6 +1756,19 @@ const getCompound = (action, state) => {
 
   let name = action.object_name;
   let datasetID = action.dataset_id;
+
+  if (moleculeList) {
+    let moleculeListOfDataset = moleculeList[datasetID];
+    if (moleculeListOfDataset) {
+      molecule = moleculeListOfDataset.find(m => m.name === name);
+    }
+  }
+  return molecule;
+};
+
+const getCompoundByName = (name, datasetID, state) => {
+  let moleculeList = state.datasetsReducers.moleculeLists;
+  let molecule = null;
 
   if (moleculeList) {
     let moleculeListOfDataset = moleculeList[datasetID];
@@ -1811,7 +1880,7 @@ const handleUndoAction = (action, stages) => (dispatch, getState) => {
       case actionType.ALL_TURNED_OFF:
         dispatch(handleAllAction(action, true, majorViewStage, state));
         break;
-      case actionType.ALL_TURNED_ON_BY_TYPE:
+      case actionType.SELECTED_TURNED_ON_BY_TYPE:
         dispatch(handleAllActionByType(action, false, majorViewStage));
         break;
       case actionType.ALL_TURNED_OFF_BY_TYPE:
@@ -2021,6 +2090,9 @@ const handleUndoAction = (action, stages) => (dispatch, getState) => {
       case actionType.WARNING_ICON:
         dispatch(setWarningIcon(action.oldSetting, action.newSetting));
         break;
+      case actionType.TURN_SIDE:
+        dispatch(handleTurnSideAction(action, false));
+        break;
       default:
         break;
     }
@@ -2047,7 +2119,7 @@ const handleRedoAction = (action, stages) => (dispatch, getState) => {
       case actionType.ALL_TURNED_OFF:
         dispatch(handleAllAction(action, false, majorViewStage, state));
         break;
-      case actionType.ALL_TURNED_ON_BY_TYPE:
+      case actionType.SELECTED_TURNED_ON_BY_TYPE:
         dispatch(handleAllActionByType(action, true, majorViewStage));
         break;
       case actionType.ALL_TURNED_OFF_BY_TYPE:
@@ -2256,6 +2328,9 @@ const handleRedoAction = (action, stages) => (dispatch, getState) => {
         break;
       case actionType.WARNING_ICON:
         dispatch(setWarningIcon(action.newSetting, action.oldSetting));
+        break;
+      case actionType.TURN_SIDE:
+        dispatch(handleTurnSideAction(action, true));
         break;
       default:
         break;
@@ -2598,6 +2673,13 @@ const handleRepresentationAction = (action, isAdd, nglView) => (dispatch, getSta
   }
 };
 
+const handleTurnSideAction = (action, restore) => dispatch => {
+  if (action) {
+    const { side, open } = action;
+    dispatch(turnSide(side, restore ? open : !open, true));
+  }
+};
+
 const addRepresentation = (action, parentKey, representation, nglView, update, skipTracking = false) => (
   dispatch,
   getState
@@ -2863,7 +2945,7 @@ const handleArrowNavigationActionOfCompound = (action, isSelected, majorViewStag
 const handleMoleculeGroupAction = (action, isSelected, stageSummaryView, majorViewStage) => (dispatch, getState) => {
   const state = getState();
   if (action) {
-    const tag = getTag(action.object_name, state);
+    const tag = getTag(action.object_id, state);
     if (tag) {
       if (isSelected === true) {
         dispatch(addSelectedTag(tag));
@@ -2877,7 +2959,7 @@ const handleMoleculeGroupAction = (action, isSelected, stageSummaryView, majorVi
 const handleTagAction = (action, isSelected) => (dispatch, getState) => {
   const state = getState();
   if (action) {
-    const tag = getTag(action.object_name, state);
+    const tag = getTag(action.object_id, state);
     if (tag) {
       if (isSelected === true) {
         dispatch(addSelectedTag(tag));

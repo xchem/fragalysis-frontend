@@ -61,7 +61,7 @@ export const ColorPicker = memo(({ selectedColor, setSelectedColor, anchorEl, di
   };
 
   return (
-    <div>
+    <>
       <Popper
         id="electron-density-color-popper"
         open={displayColorPicker}
@@ -75,6 +75,6 @@ export const ColorPicker = memo(({ selectedColor, setSelectedColor, anchorEl, di
       <div className={classes.swatch} onClick={handleClick} style={bgStyle}>
         <div className={classes.color} style={bgStyle} />
       </div>
-    </div>
+    </>
   );
 });

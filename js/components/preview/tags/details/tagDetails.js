@@ -1,12 +1,6 @@
-import React, { memo, useRef, useEffect, useCallback, useState } from 'react';
+import React, { memo, useRef, useEffect, useCallback, useState, useMemo } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
-import {
-  Grid,
-  Typography,
-  makeStyles,
-  IconButton,
-  Tooltip
-} from '@material-ui/core';
+import { Grid, Typography, makeStyles, IconButton, Tooltip } from '@material-ui/core';
 import { Panel } from '../../../common/Surfaces/Panel';
 import TagDetailRow from './tagDetailRow';
 import NewTagDetailRow from './newTagDetailRow';
@@ -21,11 +15,11 @@ import {
   compareTagsByDateDesc
 } from '../utils/tagUtils';
 import { UnfoldMore, KeyboardArrowDown, KeyboardArrowUp } from '@material-ui/icons';
-import {
-  getMoleculeForId
-} from '../redux/dispatchActions';
+import { getMoleculeForId } from '../redux/dispatchActions';
+import classNames from 'classnames';
+import SearchField from '../../../common/Components/SearchField';
 
-export const heightOfBody = '164px';
+export const heightOfBody = '172px';
 export const defaultHeaderPadding = 15;
 
 const useStyles = makeStyles(theme => ({
@@ -35,10 +29,9 @@ const useStyles = makeStyles(theme => ({
     flexDirection: 'column',
     resize: 'vertical',
     overflow: 'hidden',
-    width: '100%'
-  },
-  headerRow: {
-    maxHeight: "36px"
+    width: '100%',
+    marginTop: -theme.spacing(),
+    justifyContent: 'space-between'
   },
   tagListWrapper: {
     overflowY: 'auto',
@@ -46,17 +39,32 @@ const useStyles = makeStyles(theme => ({
     height: '100%'
   },
   newTagRow: {
-    maxHeight: "42px"
-  },
-  headerTitleCreator: {
-    marginLeft: 7
-  },
-  headerTitleCategory: {
-    marginLeft: -20
+    maxHeight: '42px'
   },
   sortButton: {
-    width: "0.75em",
-    height: "0.75em"
+    width: '0.75em',
+    height: '0.75em'
+  },
+  container: {
+    display: 'grid',
+    gridTemplateColumns: '1fr 75px 75px min-content 20px min-content min-content',
+    alignItems: 'center',
+    gap: theme.spacing(),
+    overflow: 'auto'
+  },
+  columnLabel: {
+    display: 'flex',
+    marginLeft: theme.spacing(2)
+  },
+  creatorLabel: {
+    gridColumn: '4 / span 2',
+    justifySelf: 'flex-end'
+  },
+  dateLabel: {
+    gridColumn: '6 / span 2'
+  },
+  search: {
+    width: 140
   }
 }));
 
@@ -71,18 +79,33 @@ const TagDetails = memo(({ handleHeightChange }) => {
   const [headerPadding, setheaderPadding] = useState(defaultHeaderPadding);
   const [elementHeight, setElementHeight] = useState(0);
   const [sortSwitch, setSortSwitch] = useState(0);
-  
+
   const preTagList = useSelector(state => state.selectionReducers.tagList);
   const [tagList, setTagList] = useState([]);
 
+  const [searchString, setSearchString] = useState(null);
+  const filteredTagList = useMemo(() => {
+    if (searchString) {
+      return tagList.filter(tag => tag.tag.toLowerCase().includes(searchString.toLowerCase()));
+    }
+    return tagList;
+  }, [searchString, tagList]);
+
   useEffect(() => {
     setTagList([...preTagList].sort(compareTagsAsc));
-    return () => { setTagList([]) };
+    return () => {
+      setTagList([]);
+    };
   }, [preTagList]);
 
   const moleculesToEditIds = useSelector(state => state.selectionReducers.moleculesToEdit);
-  const moleculesToEdit = moleculesToEditIds && moleculesToEditIds.length > 0 && !(moleculesToEditIds.length === 1 && moleculesToEditIds[0] === null) ? moleculesToEditIds.map(id => dispatch(getMoleculeForId(id))) : [];
-  
+  const moleculesToEdit =
+    moleculesToEditIds &&
+    moleculesToEditIds.length > 0 &&
+    !(moleculesToEditIds.length === 1 && moleculesToEditIds[0] === null)
+      ? moleculesToEditIds.map(id => dispatch(getMoleculeForId(id)))
+      : [];
+
   /*const moleculesToEditIds = useSelector(state => state.selectionReducers.moleculesToEdit);
   const [moleculesToEdit, setMoleculesToEdit] = useState([]);
   useEffect(() => {
@@ -117,73 +140,76 @@ const TagDetails = memo(({ handleHeightChange }) => {
   const offsetCategory = 20;
   const offsetCreator = 30;
   const offsetDate = 40;
-  const handleHeaderSort = useCallback((type) => {
-    switch (type) {
-      case "name":
-        if (sortSwitch === offsetName + 1) {
-          // change direction
-          setTagList([...tagList].sort(compareTagsAsc));
-          setSortSwitch(sortSwitch + 1);
-        } else if (sortSwitch === offsetName + 2) {
-          // reset sort
-          setTagList([...tagList].sort(compareTagsAsc));
-          setSortSwitch(0);
-        } else {
-          // start sorting
-          setTagList([...tagList].sort(compareTagsDesc));
-          setSortSwitch(offsetName + 1);
-        }
-        break;
-      case "category":
-        if (sortSwitch === offsetCategory + 1) {
-          // change direction
-          setTagList([...tagList].sort(compareTagsByCategoryAsc));
-          setSortSwitch(sortSwitch + 1);
-        } else if (sortSwitch === offsetCategory + 2) {
-          // reset sort
-          setTagList([...tagList].sort(compareTagsAsc));
-          setSortSwitch(0);
-        } else {
-          // start sorting
-          setTagList([...tagList].sort(compareTagsByCategoryDesc));
-          setSortSwitch(offsetCategory + 1);
-        }
-        break;
-      case "creator":
-        if (sortSwitch === offsetCreator + 1) {
-          // change direction
-          setTagList([...tagList].sort(compareTagsByCreatorAsc));
-          setSortSwitch(sortSwitch + 1);
-        } else if (sortSwitch === offsetCreator + 2) {
-          // reset sort
-          setTagList([...tagList].sort(compareTagsAsc));
-          setSortSwitch(0);
-        } else {
-          // start sorting
-          setTagList([...tagList].sort(compareTagsByCreatorDesc));
-          setSortSwitch(offsetCreator + 1);
-        }
-        break;
-      case "date":
-        if (sortSwitch === offsetDate + 1) {
-          // change direction
-          setTagList([...tagList].sort(compareTagsByDateAsc));
-          setSortSwitch(sortSwitch + 1);
-        } else if (sortSwitch === offsetDate + 2) {
-          // reset sort
-          setTagList([...tagList].sort(compareTagsAsc));
-          setSortSwitch(0);
-        } else {
-          // start sorting
-          setTagList([...tagList].sort(compareTagsByDateDesc));
-          setSortSwitch(offsetDate + 1);
-        }
-        break;
-      default:
-        // tagList = tagList.sort(compareTagsAsc);
-        break;
-    }
-  }, [sortSwitch, tagList]);
+  const handleHeaderSort = useCallback(
+    type => {
+      switch (type) {
+        case 'name':
+          if (sortSwitch === offsetName + 1) {
+            // change direction
+            setTagList([...tagList].sort(compareTagsAsc));
+            setSortSwitch(sortSwitch + 1);
+          } else if (sortSwitch === offsetName + 2) {
+            // reset sort
+            setTagList([...tagList].sort(compareTagsAsc));
+            setSortSwitch(0);
+          } else {
+            // start sorting
+            setTagList([...tagList].sort(compareTagsDesc));
+            setSortSwitch(offsetName + 1);
+          }
+          break;
+        case 'category':
+          if (sortSwitch === offsetCategory + 1) {
+            // change direction
+            setTagList([...tagList].sort(compareTagsByCategoryAsc));
+            setSortSwitch(sortSwitch + 1);
+          } else if (sortSwitch === offsetCategory + 2) {
+            // reset sort
+            setTagList([...tagList].sort(compareTagsAsc));
+            setSortSwitch(0);
+          } else {
+            // start sorting
+            setTagList([...tagList].sort(compareTagsByCategoryDesc));
+            setSortSwitch(offsetCategory + 1);
+          }
+          break;
+        case 'creator':
+          if (sortSwitch === offsetCreator + 1) {
+            // change direction
+            setTagList([...tagList].sort(compareTagsByCreatorAsc));
+            setSortSwitch(sortSwitch + 1);
+          } else if (sortSwitch === offsetCreator + 2) {
+            // reset sort
+            setTagList([...tagList].sort(compareTagsAsc));
+            setSortSwitch(0);
+          } else {
+            // start sorting
+            setTagList([...tagList].sort(compareTagsByCreatorDesc));
+            setSortSwitch(offsetCreator + 1);
+          }
+          break;
+        case 'date':
+          if (sortSwitch === offsetDate + 1) {
+            // change direction
+            setTagList([...tagList].sort(compareTagsByDateAsc));
+            setSortSwitch(sortSwitch + 1);
+          } else if (sortSwitch === offsetDate + 2) {
+            // reset sort
+            setTagList([...tagList].sort(compareTagsAsc));
+            setSortSwitch(0);
+          } else {
+            // start sorting
+            setTagList([...tagList].sort(compareTagsByDateDesc));
+            setSortSwitch(offsetDate + 1);
+          }
+          break;
+        default:
+          // tagList = tagList.sort(compareTagsAsc);
+          break;
+      }
+    },
+    [sortSwitch, tagList]
+  );
 
   const handleResize = useCallback(
     event => {
@@ -239,108 +265,96 @@ const TagDetails = memo(({ handleHeightChange }) => {
           handleHeightChange(ref.current.offsetHeight);
         }
       }}
+      headerActions={[<SearchField className={classes.search} id="search-tag-details" onChange={setSearchString} />]}
     >
-      <Grid ref={elementRef} className={classes.containerExpanded} container direction="column" alignItems="center" wrap="nowrap" xs={12}>
-        <Grid item container spacing={1} className={classes.headerRow} wrap="nowrap" alignItems="center" direction="row" xs={12}>
+      <div ref={elementRef} className={classes.containerExpanded}>
+        <div className={classes.container}>
           {/* tag name */}
-          <Grid item container direction="row" wrap="nowrap" alignItems="center" xs={3}>
-            <Grid item className={classes.headerTitleCreator}>
-              <Typography variant="subtitle1">
-                Tag name
-              </Typography>
-            </Grid>
-            <Grid item>
-              <IconButton
-                size="small"
-                onClick={() => handleHeaderSort("name")}
-              >
-                <Tooltip title="Sort" className={classes.sortButton}>
-                  {[1, 2].includes(sortSwitch - offsetName) ? sortSwitch % offsetName < 2 ? <KeyboardArrowDown /> : <KeyboardArrowUp /> : <UnfoldMore />}
-                </Tooltip>
-              </IconButton>
-            </Grid>
-          </Grid>
+          <div className={classes.columnLabel}>
+            <Typography variant="subtitle1">Tag name</Typography>
+            <IconButton size="small" onClick={() => handleHeaderSort('name')}>
+              <Tooltip title="Sort" className={classes.sortButton}>
+                {[1, 2].includes(sortSwitch - offsetName) ? (
+                  sortSwitch % offsetName < 2 ? (
+                    <KeyboardArrowDown />
+                  ) : (
+                    <KeyboardArrowUp />
+                  )
+                ) : (
+                  <UnfoldMore />
+                )}
+              </Tooltip>
+            </IconButton>
+          </div>
+
           {/* category */}
-          <Grid item container direction="row" wrap="nowrap" alignItems="center" xs={2}>
-            <Grid item className={classes.headerTitleCategory}>
-              <Typography variant="subtitle1">
-                Category
-              </Typography>
-            </Grid>
-            <Grid item>
-              <IconButton
-                size="small"
-                onClick={() => handleHeaderSort("category")}
-              >
-                <Tooltip title="Sort" className={classes.sortButton}>
-                  {[1, 2].includes(sortSwitch - offsetCategory) ? sortSwitch % offsetCategory < 2 ? <KeyboardArrowDown /> : <KeyboardArrowUp /> : <UnfoldMore />}
-                </Tooltip>
-              </IconButton>
-            </Grid>
-          </Grid>
-          {/* empty select hits */}
-          <Grid item xs={1}>
-            <Typography variant="subtitle1" noWrap>
-            </Typography>
-          </Grid>
-          {/* empty discourse */}
-          <Grid item xs={1}>
-            <Typography variant="subtitle1" noWrap>
-            </Typography>
-          </Grid>
+          <div className={classes.columnLabel}>
+            <Typography variant="subtitle1">Category</Typography>
+            <IconButton size="small" onClick={() => handleHeaderSort('category')}>
+              <Tooltip title="Sort" className={classes.sortButton}>
+                {[1, 2].includes(sortSwitch - offsetCategory) ? (
+                  sortSwitch % offsetCategory < 2 ? (
+                    <KeyboardArrowDown />
+                  ) : (
+                    <KeyboardArrowUp />
+                  )
+                ) : (
+                  <UnfoldMore />
+                )}
+              </Tooltip>
+            </IconButton>
+          </div>
+
           {/* creator */}
-          <Grid item container direction="row" wrap="nowrap" alignItems="center" xs={2}>
-            <Grid item>
-              <Typography variant="subtitle1">
-                Creator
-              </Typography>
-            </Grid>
-            <Grid item>
-              <IconButton
-                size="small"
-                onClick={() => handleHeaderSort("creator")}
-              >
-                <Tooltip title="Sort" className={classes.sortButton}>
-                  {[1, 2].includes(sortSwitch - offsetCreator) ? sortSwitch % offsetCreator < 2 ? <KeyboardArrowDown /> : <KeyboardArrowUp /> : <UnfoldMore />}
-                </Tooltip>
-              </IconButton>
-            </Grid>
-          </Grid>
+          <div className={classNames(classes.columnLabel, classes.creatorLabel)}>
+            <Typography variant="subtitle1">Creator</Typography>
+            <IconButton size="small" onClick={() => handleHeaderSort('creator')}>
+              <Tooltip title="Sort" className={classes.sortButton}>
+                {[1, 2].includes(sortSwitch - offsetCreator) ? (
+                  sortSwitch % offsetCreator < 2 ? (
+                    <KeyboardArrowDown />
+                  ) : (
+                    <KeyboardArrowUp />
+                  )
+                ) : (
+                  <UnfoldMore />
+                )}
+              </Tooltip>
+            </IconButton>
+          </div>
+
           {/* date */}
-          <Grid item container direction="row" wrap="nowrap" alignItems="center" xs={2}>
-            <Grid item>
-              <Typography variant="subtitle1">
-                Date
-              </Typography>
-            </Grid>
-            <Grid item>
-              <IconButton
-                size="small"
-                onClick={() => handleHeaderSort("date")}
-              >
-                <Tooltip title="Sort" className={classes.sortButton}>
-                  {[1, 2].includes(sortSwitch - offsetDate) ? sortSwitch % offsetDate < 2 ? <KeyboardArrowDown /> : <KeyboardArrowUp /> : <UnfoldMore />}
-                </Tooltip>
-              </IconButton>
-            </Grid>
-          </Grid>
-          {/* empty edit */}
-          <Grid item xs={1}>
-            <Typography variant="subtitle1" noWrap>
-            </Typography>
-          </Grid>
-        </Grid>
-        <Grid item container className={classes.tagListWrapper} wrap="nowrap" direction="column" xs={12}>
-          {/*<div className={classes.content}>*/}
-            {tagList && tagList.map((tag, idx) => {
-              return (<TagDetailRow tag={tag} moleculesToEditIds={moleculesToEditIds} moleculesToEdit={moleculesToEdit} key={tag.id} />);
+          <div className={classNames(classes.columnLabel, classes.dateLabel)}>
+            <Typography variant="subtitle1">Date</Typography>
+            <IconButton size="small" onClick={() => handleHeaderSort('date')}>
+              <Tooltip title="Sort" className={classes.sortButton}>
+                {[1, 2].includes(sortSwitch - offsetDate) ? (
+                  sortSwitch % offsetDate < 2 ? (
+                    <KeyboardArrowDown />
+                  ) : (
+                    <KeyboardArrowUp />
+                  )
+                ) : (
+                  <UnfoldMore />
+                )}
+              </Tooltip>
+            </IconButton>
+          </div>
+
+          {filteredTagList &&
+            filteredTagList.map((tag, idx) => {
+              return (
+                <TagDetailRow
+                  tag={tag}
+                  moleculesToEditIds={moleculesToEditIds}
+                  moleculesToEdit={moleculesToEdit}
+                  key={tag.id}
+                />
+              );
             })}
-          {/*</div>*/}
-        </Grid>
-        <Grid item container spacing={1} className={classes.newTagRow} wrap="nowrap" direction="row" alignItems="flex-end" xs={12}>
-          <NewTagDetailRow moleculesToEditIds={moleculesToEditIds} moleculesToEdit={moleculesToEdit} />
-        </Grid>
-      </Grid>
+        </div>
+        <NewTagDetailRow moleculesToEditIds={moleculesToEditIds} moleculesToEdit={moleculesToEdit} />
+      </div>
     </Panel>
   );
 });

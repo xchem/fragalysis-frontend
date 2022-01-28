@@ -383,7 +383,7 @@ export const setDeselectedAll = (datsetID, item, isLigand, isProtein, isComplex)
 });
 
 export const setSelectedAllByType = (type, datsetID, items, isCrossReference) => ({
-  type: constants.SET_SELECTED_ALL_BY_TYPE,
+  type: constants.SET_SELECTED_BY_TYPE,
   payload: {
     type: type,
     datasetID: datsetID,
@@ -426,4 +426,14 @@ export const dragDropStarted = (datasetID, startIndex) => ({
 export const dragDropFinished = (datasetID, molecule, index) => ({
   type: constants.DRAG_DROP_FINISHED,
   payload: { datasetID, molecule, index }
+});
+
+export const disableDatasetMoleculeNglControlButton = (datasetId, moleculeId, type) => ({
+  type: constants.DISABLE_DATASET_NGL_CONTROL_BUTTON,
+  payload: { datasetId, moleculeId, type }
+});
+
+export const enableDatasetMoleculeNglControlButton = (datasetId, moleculeId, type) => ({
+  type: constants.ENABLE_DATASET_NGL_CONTROL_BUTTON,
+  payload: { datasetId, moleculeId, type }
 });

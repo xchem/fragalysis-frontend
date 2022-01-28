@@ -4,12 +4,12 @@
 
 import React, { memo, useEffect, useState, useRef, useContext } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { Grid, Button, makeStyles, Tooltip, Checkbox, IconButton } from '@material-ui/core';
+import { Grid, Button, makeStyles, Tooltip, IconButton } from '@material-ui/core';
 import { ClearOutlined, CheckOutlined } from '@material-ui/icons';
 import SVGInline from 'react-svg-inline';
 import classNames from 'classnames';
-import { VIEWS, ARROW_TYPE } from '../../constants/constants';
-import { NglContext } from '../nglView/nglProvider';
+import { VIEWS, ARROW_TYPE } from '../../../constants/constants';
+import { NglContext } from '../../nglView/nglProvider';
 // import { useDisableUserInteraction } from '../helpers/useEnableUserInteracion';
 import {
   addDatasetLigand,
@@ -22,41 +22,42 @@ import {
   removeDatasetSurface,
   clickOnInspirations,
   getDatasetMoleculeID,
-  moveSelectedMoleculeSettings,
-  getInspirationsForMol
-} from './redux/dispatchActions';
+  getInspirationsForMol,
+  withDisabledDatasetMoleculeNglControlButton,
+  moveDatasetMoleculeUpDown
+} from '../redux/dispatchActions';
 
-import { isAnyInspirationTurnedOn, getFilteredDatasetMoleculeList } from './redux/selectors';
+import { isAnyInspirationTurnedOn, getFilteredDatasetMoleculeList } from '../redux/selectors';
 import {
   appendMoleculeToCompoundsOfDatasetToBuy,
   removeMoleculeFromCompoundsOfDatasetToBuy,
   setCrossReferenceCompoundName,
   setIsOpenCrossReferenceDialog,
-  setInspirationMoleculeDataList,
   setSelectedAll,
-  setDeselectedAll,
-  setArrowUpDown
-} from './redux/actions';
-import { centerOnLigandByMoleculeID } from '../../reducers/ngl/dispatchActions';
+  setDeselectedAll
+} from '../redux/actions';
+import { centerOnLigandByMoleculeID } from '../../../reducers/ngl/dispatchActions';
 import { ArrowDownward, ArrowUpward, MyLocation } from '@material-ui/icons';
 import { isString } from 'lodash';
-import { SvgTooltip } from '../common';
-import { getMolImage } from '../preview/molecule/redux/dispatchActions';
-import { MOL_TYPE } from '../preview/molecule/redux/constants';
+import { SvgTooltip } from '../../common';
+import { getMolImage } from '../../preview/molecule/redux/dispatchActions';
+import { MOL_TYPE } from '../../preview/molecule/redux/constants';
 import {
   deselectVectorCompound,
   isCompoundFromVectorSelector,
   showHideLigand
-} from '../preview/compounds/redux/dispatchActions';
-import { colourList } from '../preview/molecule/utils/color';
-import { useDrag, useDrop } from 'react-dnd';
-import { useDragDropMoleculeView } from './useDragDropMoleculeView';
+} from '../../preview/compounds/redux/dispatchActions';
+import { colourList } from '../../preview/molecule/utils/color';
+import { useDragDropMoleculeView } from '../useDragDropMoleculeView';
+import DatasetMoleculeSelectCheckbox from './datasetMoleculeSelectCheckbox';
 
 const useStyles = makeStyles(theme => ({
   container: {
     padding: theme.spacing(1) / 4,
     color: 'black',
-    height: 54,
+    height: 54
+  },
+  dragDropCursor: {
     cursor: 'move'
   },
   contButtonsMargin: {
@@ -238,7 +239,7 @@ export const img_data_init = `<svg xmlns="http://www.w3.org/2000/svg" version="1
     <animateTransform attributeName="transform" type="rotate" repeatCount="indefinite" dur="0.689655172413793s" values="0 50 50;360 50 50" keyTimes="0;1"></animateTransform>
   </circle>  '</svg>`;
 
-export const DatasetMoleculeView = memo(
+const DatasetMoleculeView = memo(
   ({
     imageHeight,
     imageWidth,
@@ -251,16 +252,18 @@ export const DatasetMoleculeView = memo(
     index,
     previousItemData,
     nextItemData,
-    removeSelectedTypes,
-    removeSelectedTypesOfInspirations,
-    moveSelectedMoleculeInspirationsSettings,
     L,
     P,
     C,
     S,
     V,
-    fromSelectedCompounds = false,
-    moveMolecule
+    arrowsHidden = false,
+    dragDropEnabled = false,
+    moveMolecule,
+    isCheckedToBuy,
+    disableL,
+    disableP,
+    disableC
   }) => {
     const ref = useRef(null);
 
@@ -272,8 +275,6 @@ export const DatasetMoleculeView = memo(
     const isFromVectorSelector = isCompoundFromVectorSelector(data);
     const classes = useStyles();
     const dispatch = useDispatch();
-    const compoundsToBuyList = useSelector(state => state.datasetsReducers.compoundsToBuyDatasetMap[datasetID]);
-    const allInspirations = useSelector(state => state.datasetsReducers.allInspirations);
 
     const datasets = useSelector(state => state.datasetsReducers.datasets);
     const filteredScoreProperties = useSelector(state => state.datasetsReducers.filteredScoreProperties);
@@ -282,8 +283,10 @@ export const DatasetMoleculeView = memo(
       isAnyInspirationTurnedOn(state, (data && data.computed_inspirations) || [])
     );
 
+    const disableMoleculeNglControlButtons =
+      useSelector(state => state.datasetsReducers.disableDatasetsNglControlButtons[datasetID]?.[currentID]) || {};
+
     const filteredDatasetMoleculeList = useSelector(state => getFilteredDatasetMoleculeList(state, datasetID));
-    const objectsInView = useSelector(state => state.nglReducers.objectsInView) || {};
 
     const [image, setImage] = useState(img_data_init);
 
@@ -295,14 +298,12 @@ export const DatasetMoleculeView = memo(
     const isComplexOn = C;
     const isSurfaceOn = S;
 
-    const isCheckedToBuy = (currentID && compoundsToBuyList && compoundsToBuyList.includes(currentID)) || false;
-
     const hasAllValuesOn = isLigandOn && isProteinOn && isComplexOn;
     const hasSomeValuesOn = !hasAllValuesOn && (isLigandOn || isProteinOn || isComplexOn || isSurfaceOn);
 
     let areArrowsVisible = isLigandOn || isProteinOn || isComplexOn || isSurfaceOn;
 
-    if (fromSelectedCompounds) {
+    if (arrowsHidden) {
       areArrowsVisible = false;
     }
 
@@ -348,7 +349,11 @@ export const DatasetMoleculeView = memo(
     const current_style = isLigandOn || isProteinOn || isComplexOn || isSurfaceOn ? selected_style : not_selected_style;
 
     const addNewLigand = (skipTracking = false) => {
-      dispatch(addDatasetLigand(stage, data, colourToggle, datasetID, skipTracking));
+      dispatch(
+        withDisabledDatasetMoleculeNglControlButton(datasetID, currentID, 'ligand', async () => {
+          await dispatch(addDatasetLigand(stage, data, colourToggle, datasetID, skipTracking));
+        })
+      );
     };
 
     const removeSelectedLigand = (skipTracking = false) => {
@@ -382,7 +387,11 @@ export const DatasetMoleculeView = memo(
     };
 
     const addNewProtein = (skipTracking = false) => {
-      dispatch(addDatasetHitProtein(stage, data, colourToggle, datasetID, skipTracking));
+      dispatch(
+        withDisabledDatasetMoleculeNglControlButton(datasetID, currentID, 'protein', async () => {
+          await dispatch(addDatasetHitProtein(stage, data, colourToggle, datasetID, skipTracking));
+        })
+      );
     };
 
     const onProtein = calledFromSelectAll => {
@@ -407,7 +416,11 @@ export const DatasetMoleculeView = memo(
     };
 
     const addNewComplex = (skipTracking = false) => {
-      dispatch(addDatasetComplex(stage, data, colourToggle, datasetID, skipTracking));
+      dispatch(
+        withDisabledDatasetMoleculeNglControlButton(datasetID, currentID, 'complex', async () => {
+          await dispatch(addDatasetComplex(stage, data, colourToggle, datasetID, skipTracking));
+        })
+      );
     };
 
     const onComplex = calledFromSelectAll => {
@@ -431,8 +444,12 @@ export const DatasetMoleculeView = memo(
       selectedAll.current = false;
     };
 
-    const addNewSurface = () => {
-      dispatch(addDatasetSurface(stage, data, colourToggle, datasetID));
+    const addNewSurface = async () => {
+      dispatch(
+        withDisabledDatasetMoleculeNglControlButton(datasetID, currentID, 'surface', async () => {
+          await dispatch(addDatasetSurface(stage, data, colourToggle, datasetID));
+        })
+      );
     };
 
     const onSurface = calledFromSelectAll => {
@@ -502,22 +519,14 @@ export const DatasetMoleculeView = memo(
       const nextDatasetID = (nextItemData.hasOwnProperty('datasetID') && nextItemData.datasetID) || datasetID;
       const moleculeTitleNext = nextItem && nextItem.name;
 
-      let dataValue = { objectsInView, colourToggle, isLigandOn, isProteinOn, isComplexOn, isSurfaceOn };
-      dispatch(setArrowUpDown(datasetID, data, nextItem, ARROW_TYPE.DOWN, dataValue));
+      let dataValue = { colourToggle, isLigandOn, isProteinOn, isComplexOn, isSurfaceOn };
 
-      const inspirations = getInspirationsForMol(allInspirations, datasetID, nextItem.id);
-      dispatch(setInspirationMoleculeDataList(inspirations));
-      await Promise.all([
-        dispatch(moveSelectedMoleculeSettings(stage, data, nextItem, nextDatasetID, datasetID, dataValue, true)),
-        dispatch(moveSelectedMoleculeInspirationsSettings(data, nextItem, true))
-      ]);
       dispatch(setCrossReferenceCompoundName(moleculeTitleNext));
       if (setRef && ref.current) {
         setRef(refNext);
       }
 
-      removeSelectedTypes({ [nextDatasetID]: [nextItem] }, true);
-      removeSelectedTypesOfInspirations([nextItem], true);
+      dispatch(moveDatasetMoleculeUpDown(stage, datasetID, data, nextDatasetID, nextItem, dataValue, ARROW_TYPE.DOWN));
     };
 
     const handleClickOnUpArrow = async () => {
@@ -530,25 +539,16 @@ export const DatasetMoleculeView = memo(
         (previousItemData.hasOwnProperty('datasetID') && previousItemData.datasetID) || datasetID;
       const moleculeTitlePrev = previousItem && previousItem.name;
 
-      let dataValue = { objectsInView, colourToggle, isLigandOn, isProteinOn, isComplexOn, isSurfaceOn };
-      dispatch(setArrowUpDown(datasetID, data, previousItem, ARROW_TYPE.UP, dataValue));
-
-      const inspirations = getInspirationsForMol(allInspirations, datasetID, previousItem.id);
-      dispatch(setInspirationMoleculeDataList(inspirations));
-      await Promise.all([
-        dispatch(
-          moveSelectedMoleculeSettings(stage, data, previousItem, previousDatasetID, datasetID, dataValue, true)
-        ),
-        dispatch(moveSelectedMoleculeInspirationsSettings(data, previousItem, true))
-      ]);
+      let dataValue = { colourToggle, isLigandOn, isProteinOn, isComplexOn, isSurfaceOn };
 
       dispatch(setCrossReferenceCompoundName(moleculeTitlePrev));
       if (setRef && ref.current) {
         setRef(refPrevious);
       }
 
-      removeSelectedTypes({ [previousDatasetID]: [previousItem] }, true);
-      removeSelectedTypesOfInspirations([previousItem], true);
+      dispatch(
+        moveDatasetMoleculeUpDown(stage, datasetID, data, previousDatasetID, previousItem, dataValue, ARROW_TYPE.UP)
+      );
     };
 
     const moleculeTitle = data && data.name;
@@ -556,22 +556,28 @@ export const DatasetMoleculeView = memo(
 
     const allScores = { ...data?.numerical_scores, ...data?.text_scores };
 
+    const moleculeLPCControlButtonDisabled = ['ligand', 'protein', 'complex'].some(
+      type => disableMoleculeNglControlButtons[type]
+    );
+
+    const groupMoleculeLPCControlButtonDisabled = disableL || disableP || disableC;
+
     return (
       <>
         <Grid
           container
           justify="space-between"
           direction="row"
-          className={classes.container}
+          className={classNames(classes.container, dragDropEnabled ? classes.dragDropCursor : undefined)}
           wrap="nowrap"
-          ref={ref}
-          data-handler-id={handlerId}
+          ref={dragDropEnabled ? ref : undefined}
+          data-handler-id={dragDropEnabled ? handlerId : undefined}
           style={{ opacity }}
         >
           {/*Site number*/}
           <Grid item container justify="space-between" direction="column" className={classes.site}>
             <Grid item>
-              <Checkbox
+              <DatasetMoleculeSelectCheckbox
                 checked={isCheckedToBuy}
                 className={classes.checkbox}
                 size="small"
@@ -671,7 +677,11 @@ export const DatasetMoleculeView = memo(
                         onProtein(true);
                         onComplex(true);
                       }}
-                      disabled={isFromVectorSelector}
+                      disabled={
+                        isFromVectorSelector ||
+                        groupMoleculeLPCControlButtonDisabled ||
+                        moleculeLPCControlButtonDisabled
+                      }
                     >
                       A
                     </Button>
@@ -685,7 +695,7 @@ export const DatasetMoleculeView = memo(
                         [classes.contColButtonSelected]: isLigandOn
                       })}
                       onClick={() => onLigand()}
-                      disabled={false}
+                      disabled={disableL || disableMoleculeNglControlButtons.ligand}
                     >
                       L
                     </Button>
@@ -699,7 +709,7 @@ export const DatasetMoleculeView = memo(
                         [classes.contColButtonSelected]: isProteinOn
                       })}
                       onClick={() => onProtein()}
-                      disabled={isFromVectorSelector}
+                      disabled={isFromVectorSelector || disableP || disableMoleculeNglControlButtons.protein}
                     >
                       P
                     </Button>
@@ -714,7 +724,7 @@ export const DatasetMoleculeView = memo(
                         [classes.contColButtonSelected]: isComplexOn
                       })}
                       onClick={() => onComplex()}
-                      disabled={isFromVectorSelector}
+                      disabled={isFromVectorSelector || disableC || disableMoleculeNglControlButtons.complex}
                     >
                       C
                     </Button>
@@ -728,7 +738,7 @@ export const DatasetMoleculeView = memo(
                         [classes.contColButtonSelected]: isSurfaceOn
                       })}
                       onClick={() => onSurface()}
-                      disabled={isFromVectorSelector}
+                      disabled={isFromVectorSelector || disableMoleculeNglControlButtons.surface}
                     >
                       S
                     </Button>
@@ -743,13 +753,15 @@ export const DatasetMoleculeView = memo(
                           [classes.contColButtonSelected]: isAnyInspirationOn
                         })}
                         onClick={() => {
-                          dispatch(
+                          dispatch((dispatch, getState) => {
+                            const allInspirations = getState().datasetsReducers.allInspirations;
+
                             clickOnInspirations({
                               datasetID,
                               currentID,
                               computed_inspirations: getInspirationsForMol(allInspirations, datasetID, currentID)
-                            })
-                          );
+                            });
+                          });
                           if (setRef) {
                             setRef(ref.current);
                           }
@@ -886,3 +898,6 @@ export const DatasetMoleculeView = memo(
     );
   }
 );
+
+DatasetMoleculeView.displayName = 'DatasetMoleculeView';
+export default DatasetMoleculeView;

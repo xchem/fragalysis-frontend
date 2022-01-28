@@ -402,7 +402,7 @@ export function selectionReducers(state = INITIAL_STATE, action = {}) {
         moleculeAllSelection: [...selectedMolecules]
       });
 
-    case constants.SET_SELECTED_ALL_BY_TYPE:
+    case constants.SET_SELECTED_BY_TYPE:
       return Object.assign({}, state, {
         moleculeAllTypeSelection: action.payload.type
       });

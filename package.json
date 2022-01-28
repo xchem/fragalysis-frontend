@@ -1,6 +1,6 @@
 {
   "name": "fragalysis-frontend",
-  "version": "0.10.60",
+  "version": "0.10.64",
   "description": "Frontend for fragalysis",
   "main": "webpack.config.js",
   "scripts": {
@@ -55,6 +55,7 @@
     "jszip": "^3.2.2",
     "lodash": "^4.17.15",
     "moment": "^2.24.0",
+    "moment-timezone": "^0.5.34",
     "ngl": "2.0.0-dev.37",
     "react": "^16.11.0",
     "react-canvas-draw": "^1.1.0",

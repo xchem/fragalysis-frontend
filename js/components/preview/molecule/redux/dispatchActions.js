@@ -28,7 +28,9 @@ import {
   setHideAll,
   removeFromInformationList,
   appendToDensityListType,
-  removeFromDensityListType
+  removeFromDensityListType,
+  setArrowUpDown,
+  setMolListToEdit
 } from '../../../../reducers/selection/actions';
 import { base_url } from '../../../routes/constants';
 import {
@@ -54,12 +56,18 @@ import { resetCurrentCompoundSettingsWithoutSelection } from '../../compounds/re
 import { selectMoleculeGroup } from '../../moleculeGroups/redux/dispatchActions';
 import { setDirectAccessProcessed } from '../../../../reducers/api/actions';
 import { MOL_TYPE } from './constants';
-import { addImageToCache, addProteindDataToCache } from './actions';
+import {
+  addImageToCache,
+  addProteindDataToCache,
+  disableMoleculeNglControlButton,
+  enableMoleculeNglControlButton
+} from './actions';
 import { OBJECT_TYPE, DENSITY_MAPS, NGL_PARAMS } from '../../../nglView/constants';
 import { getRepresentationsByType, getRepresentationsForDensities } from '../../../nglView/generatingObjects';
 import { readQualityInformation } from '../../../nglView/renderingHelpers';
 import { addSelectedTag } from '../../tags/redux/dispatchActions';
 import { CATEGORY_TYPE } from '../../../../constants/constants';
+import { selectJoinedMoleculeList } from './selectors';
 
 /**
  * Convert the JSON into a list of arrow objects
@@ -179,14 +187,14 @@ export const removeCurrentVector = currentMoleculeSmile => (dispatch, getState) 
   }
 };
 
-export const removeVector = (stage, data, skipTracking = false) => async (dispatch, getState) => {
+export const removeVector = (stage, data, skipTracking = false) => (dispatch, getState) => {
   const state = getState();
   const vector_list = state.selectionReducers.vector_list;
   vector_list
     .filter(item => item.moleculeId === data.id)
     .forEach(item => dispatch(deleteObject(Object.assign({ display_div: VIEWS.MAJOR_VIEW }, item), stage)));
 
-  await dispatch(removeCurrentVector(data.smiles));
+  dispatch(removeCurrentVector(data.smiles));
 
   dispatch(updateVectorCompounds(data.smiles, undefined));
   dispatch(updateBondColorMapOfCompounds(data.smiles, undefined));
@@ -356,7 +364,7 @@ const setDensity = (stage, data, colourToggle, isWireframeStyle, skipTracking = 
             dispatch(appendDensityList(generateMoleculeId(data), skipTracking));
             dispatch(appendToDensityListType(molDataId, skipTracking));
             if (data.proteinData.render_quality) {
-              dispatch(addQuality(stage, data, colourToggle, true));
+              return dispatch(addQuality(stage, data, colourToggle, true));
             }
           }
         });
@@ -369,7 +377,7 @@ const setDensity = (stage, data, colourToggle, isWireframeStyle, skipTracking = 
         dispatch(appendDensityList(generateMoleculeId(data), skipTracking));
         dispatch(appendToDensityListType(molDataId, skipTracking));
         if (data.proteinData.render_quality) {
-          dispatch(addQuality(stage, data, colourToggle, true));
+          return dispatch(addQuality(stage, data, colourToggle, true));
         }
       }
     })
@@ -409,7 +417,7 @@ export const addDensityCustomView = (
   isWireframeStyle,
   skipTracking = false,
   representations = undefined
-) => (dispatch, getState) => {
+) => async (dispatch, getState) => {
   const state = getState();
   const viewParams = state.nglReducers.viewParams;
   // const contour_DENSITY = viewParams[NGL_PARAMS.contour_DENSITY];
@@ -422,12 +430,11 @@ export const addDensityCustomView = (
     // dispatch(setNglViewParams(NGL_PARAMS.contour_DENSITY_MAP_diff, invertedWireframe));
   }
 
-  return dispatch(getDensityMapData(data)).then(() => {
-    dispatch(setDensityCustom(stage, data, colourToggle, isWireframeStyle, skipTracking, representations));
-    // dispatch(setNglViewParams(NGL_PARAMS.contour_DENSITY, invertedWireframe));
-    // dispatch(setNglViewParams(NGL_PARAMS.contour_DENSITY_MAP_sigmaa, invertedWireframe));
-    // dispatch(setNglViewParams(NGL_PARAMS.contour_DENSITY_MAP_diff, invertedWireframe));
-  });
+  await dispatch(getDensityMapData(data));
+  return dispatch(setDensityCustom(stage, data, colourToggle, isWireframeStyle, skipTracking, representations));
+  // dispatch(setNglViewParams(NGL_PARAMS.contour_DENSITY, invertedWireframe));
+  // dispatch(setNglViewParams(NGL_PARAMS.contour_DENSITY_MAP_sigmaa, invertedWireframe));
+  // dispatch(setNglViewParams(NGL_PARAMS.contour_DENSITY_MAP_diff, invertedWireframe));
 };
 
 export const toggleDensityWireframe = (currentWireframeSetting, densityData) => dispatch => {
@@ -463,7 +470,8 @@ const setDensityCustom = (
   dispatch(removeFromDensityList(molId, true));
   // dispatch(removeFromDensityListType(molId, true));
 
-  dispatch(
+  dispatch(appendDensityListCustom(generateMoleculeId(data), skipTracking));
+  return dispatch(
     loadObject({
       target: Object.assign({ display_div: VIEWS.MAJOR_VIEW }, densityObject),
       stage,
@@ -474,7 +482,6 @@ const setDensityCustom = (
     const currentOrientation = stage.viewerControls.getOrientation();
     dispatch(setOrientation(VIEWS.MAJOR_VIEW, currentOrientation));
   });
-  dispatch(appendDensityListCustom(generateMoleculeId(data), skipTracking));
 };
 
 export const removeDensity = (
@@ -1072,4 +1079,57 @@ export const loadMolImage = (molId, molType, width, height) => {
       return response.data;
     }
   });
+};
+
+/**
+ * Performance optimization for moleculeView. Gets objectsInView and passes it to further dispatch requests. It wouldnt
+ * do anything else in moleculeView.
+ */
+export const moveMoleculeUpDown = (stage, item, newItem, data, direction) => async (dispatch, getState) => {
+  const objectsInView = getState().nglReducers.objectsInView;
+  const dataValue = { ...data, objectsInView };
+
+  await dispatch(moveSelectedMolSettings(stage, item, newItem, dataValue, true));
+  dispatch(setArrowUpDown(item, newItem, direction, dataValue));
+};
+
+/**
+ * Performance optimization for moleculeView, getting the joined molecule list and inspirations avoids a huge lag spike
+ * after "Load full list" was selected in Hit Navigator
+ */
+export const removeSelectedTypesInHitNavigator = (skipMolecules, stage, skipTracking) => (dispatch, getState) => {
+  const state = getState();
+  const getJoinedMoleculeList = selectJoinedMoleculeList(state);
+  const allInspirationMoleculeDataList = state.datasetsReducers.allInspirationMoleculeDataList;
+
+  const molecules = [...getJoinedMoleculeList, ...allInspirationMoleculeDataList].filter(
+    molecule => !skipMolecules.includes(molecule)
+  );
+  dispatch(removeSelectedMolTypes(stage, molecules, skipTracking, false));
+};
+
+export const withDisabledMoleculeNglControlButton = (moleculeId, type, callback) => async dispatch => {
+  dispatch(disableMoleculeNglControlButton(moleculeId, type));
+  await callback();
+  dispatch(enableMoleculeNglControlButton(moleculeId, type));
+};
+
+export const withDisabledMoleculesNglControlButtons = (moleculeIds, type, callback) => async dispatch => {
+  moleculeIds.forEach(moleculeId => {
+    dispatch(disableMoleculeNglControlButton(moleculeId, type));
+  });
+  await callback();
+  moleculeIds.forEach(moleculeId => {
+    dispatch(enableMoleculeNglControlButton(moleculeId, type));
+  });
+};
+
+export const selectAllHits = (allFilteredMolecules, setNextXMolecules, unselect) => (dispatch, getState) => {
+  setNextXMolecules(allFilteredMolecules?.length || 0);
+  const listOfIds = allFilteredMolecules.map(m => m.id);
+  if (!unselect) {
+    dispatch(setMolListToEdit(listOfIds));
+  } else {
+    dispatch(setMolListToEdit([]));
+  }
 };

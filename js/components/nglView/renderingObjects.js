@@ -120,23 +120,21 @@ const renderHitProtein = (ol, representations, orientationMatrix) => {
   return assignRepresentationArrayToComp(reprArray, comp);
 };
 
-const showHitProtein = ({ stage, input_dict, object_name, representations, orientationMatrix, dispatch }) => {
+const showHitProtein = async ({ stage, input_dict, object_name, representations, orientationMatrix, dispatch }) => {
   let stringBlob = new Blob([input_dict.sdf_info], { type: 'text/plain' });
 
-  return dispatch(getPdb(input_dict.prot_url))
-    .then(pdbBlob => {
-      return Promise.all([
-        stage.loadFile(pdbBlob, { ext: 'pdb', defaultAssembly: 'BU1' }),
-        stage.loadFile(stringBlob, { ext: 'sdf' }),
-        stage,
-        defaultFocus,
-        object_name,
-        input_dict.colour
-      ]);
-    })
-    .then(ol => {
-      renderHitProtein(ol, representations, orientationMatrix);
-    });
+  const pdbBlob = await dispatch(getPdb(input_dict.prot_url));
+  if (pdbBlob) {
+    const ol = await Promise.all([
+      stage.loadFile(pdbBlob, { ext: 'pdb', defaultAssembly: 'BU1' }),
+      stage.loadFile(stringBlob, { ext: 'sdf' }),
+      stage,
+      defaultFocus,
+      object_name,
+      input_dict.colour
+    ]);
+    renderHitProtein(ol, representations, orientationMatrix);
+  }
 };
 
 const renderComplex = (ol, representations, orientationMatrix) => {

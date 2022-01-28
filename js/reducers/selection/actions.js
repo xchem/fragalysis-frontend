@@ -398,7 +398,7 @@ export const setDeselectedAll = (item, isLigand, isProtein, isComplex) => ({
 });
 
 export const setSelectedAllByType = (type, items, isInspiration) => ({
-  type: constants.SET_SELECTED_ALL_BY_TYPE,
+  type: constants.SET_SELECTED_BY_TYPE,
   payload: { type, items, isInspiration }
 });
 

@@ -733,7 +733,7 @@ const restoreSitesActions = (orderedActionList, summaryView) => (dispatch, getSt
   let sitesAction = orderedActionList.filter(action => action.type === actionType.SITE_TURNED_ON);
   if (sitesAction && summaryView) {
     sitesAction.forEach(action => {
-      const tag = getTag(action.object_name, state);
+      const tag = getTag(action.object_id, state);
       if (tag) {
         dispatch(addSelectedTag(tag));
       }
@@ -741,9 +741,9 @@ const restoreSitesActions = (orderedActionList, summaryView) => (dispatch, getSt
   }
 };
 
-const getTag = (tagName, state) => {
+const getTag = (tagId, state) => {
   const tagList = state.selectionReducers.tagList;
-  const tag = tagList.find(t => t.tag === tagName);
+  const tag = tagList.find(t => t.id === tagId);
   return tag;
 };
 

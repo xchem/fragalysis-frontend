@@ -23,14 +23,16 @@ import {
   setInspirationList,
   setIsOpenInspirationDialog,
   clearScoreCompoundMap,
-  setInspirationFragmentList,
   setIsOpenCrossReferenceDialog,
   setCrossReferenceCompoundName,
   setIsLoadingCrossReferenceScores,
   setSearchStringOfCompoundSet,
   dragDropStarted,
   setDragDropState,
-  dragDropFinished
+  dragDropFinished,
+  disableDatasetMoleculeNglControlButton,
+  enableDatasetMoleculeNglControlButton,
+  setArrowUpDown
 } from './actions';
 import { base_url } from '../../routes/constants';
 import {
@@ -43,7 +45,11 @@ import {
 import { VIEWS } from '../../../constants/constants';
 import { addMoleculeList } from './actions';
 import { api } from '../../../utils/api';
-import { getInitialDatasetFilterProperties, getInitialDatasetFilterSettings } from './selectors';
+import {
+  getInitialDatasetFilterProperties,
+  getInitialDatasetFilterSettings,
+  getJoinedMoleculeLists
+} from './selectors';
 import { COUNT_OF_VISIBLE_SCORES } from './constants';
 import { colourList } from '../../preview/molecule/utils/color';
 import { appendMoleculeOrientation } from '../../../reducers/ngl/actions';
@@ -56,11 +62,12 @@ import {
   addQuality,
   addLigand,
   addDensity,
-  addDensityCustomView
+  addDensityCustomView,
+  hideAllSelectedMolecules
 } from '../../preview/molecule/redux/dispatchActions';
 import { OBJECT_TYPE } from '../../nglView/constants';
 import { getRepresentationsByType } from '../../nglView/generatingObjects';
-import { setSelectedAllByType, setDeselectedAllByType } from './actions';
+import { getMoleculeList } from '../../preview/molecule/redux/selectors';
 
 export const initializeDatasetFilter = datasetID => (dispatch, getState) => {
   const initFilterSettings = getInitialDatasetFilterSettings(getState(), datasetID);
@@ -440,163 +447,6 @@ export const loadScoresOfCrossReferenceCompounds = (datasetIDList = []) => (disp
   // );
 };
 
-const addAllLigandsFromList = (moleculeList = [], stage, skipTracking = false) => dispatch => {
-  moleculeList.forEach(molecule => {
-    dispatch(
-      addDatasetLigand(
-        stage,
-        molecule.molecule,
-        colourList[molecule.molecule.id % colourList.length],
-        molecule.datasetID,
-        skipTracking
-      )
-    );
-  });
-};
-
-const removeAllLigandsFromList = (moleculeList = [], stage, skipTracking = false) => dispatch => {
-  moleculeList.forEach(molecule => {
-    dispatch(
-      removeDatasetLigand(
-        stage,
-        molecule.molecule,
-        colourList[molecule.molecule.id % colourList.length],
-        molecule.datasetID,
-        skipTracking
-      )
-    );
-  });
-};
-
-export const handleAllLigandsOfCrossReferenceDialog = (areAllSelected, moleculeList = [], stage) => dispatch => {
-  let type = 'ligand';
-  if (areAllSelected) {
-    let molecules = dispatch(getSelectedMoleculesByType(type, false, moleculeList));
-    dispatch(setDeselectedAllByType(type, null, molecules, true));
-    dispatch(removeAllLigandsFromList(moleculeList, stage, true));
-  } else {
-    let molecules = dispatch(getSelectedMoleculesByType(type, true, moleculeList));
-    dispatch(setSelectedAllByType(type, null, molecules, true));
-    dispatch(addAllLigandsFromList(moleculeList, stage, true));
-  }
-};
-
-const addAllHitProteins = (moleculeList = [], stage, skipTracking = false) => dispatch => {
-  moleculeList.forEach(molecule => {
-    dispatch(
-      addDatasetHitProtein(
-        stage,
-        molecule.molecule,
-        colourList[molecule.molecule.id % colourList.length],
-        molecule.datasetID,
-        skipTracking
-      )
-    );
-  });
-};
-const removeAllHitProteins = (moleculeList = [], stage, skipTracking = false) => dispatch => {
-  moleculeList.forEach(molecule => {
-    dispatch(
-      removeDatasetHitProtein(
-        stage,
-        molecule.molecule,
-        colourList[molecule.molecule.id % colourList.length],
-        molecule.datasetID,
-        skipTracking
-      )
-    );
-  });
-};
-
-export const removeOrAddAllHitProteinsOfList = (areAllSelected, moleculeList = [], stage) => dispatch => {
-  let type = 'protein';
-
-  if (areAllSelected) {
-    let molecules = dispatch(getSelectedMoleculesByType(type, false, moleculeList));
-    dispatch(setDeselectedAllByType(type, null, molecules, true));
-    dispatch(removeAllHitProteins(moleculeList, stage, true));
-  } else {
-    let molecules = dispatch(getSelectedMoleculesByType(type, true, moleculeList));
-    dispatch(setSelectedAllByType(type, null, molecules, true));
-    dispatch(addAllHitProteins(moleculeList, stage, true));
-  }
-};
-
-const addAllComplexes = (moleculeList = [], stage, skipTracking = false) => dispatch => {
-  moleculeList.forEach(molecule => {
-    dispatch(
-      addDatasetComplex(
-        stage,
-        molecule.molecule,
-        colourList[molecule.molecule.id % colourList.length],
-        molecule.datasetID,
-        skipTracking
-      )
-    );
-  });
-};
-
-const removeAllComplexes = (moleculeList = [], stage, skipTracking = false) => dispatch => {
-  moleculeList.forEach(molecule => {
-    dispatch(
-      removeDatasetComplex(
-        stage,
-        molecule.molecule,
-        colourList[molecule.molecule.id % colourList.length],
-        molecule.datasetID,
-        skipTracking
-      )
-    );
-  });
-};
-
-export const removeOrAddAllComplexesOfList = (areAllSelected, moleculeList = [], stage) => dispatch => {
-  let type = 'complex';
-
-  if (areAllSelected) {
-    let molecules = dispatch(getSelectedMoleculesByType(type, false, moleculeList));
-    dispatch(setDeselectedAllByType(type, null, molecules, true));
-    dispatch(removeAllComplexes(moleculeList, stage, true));
-  } else {
-    let molecules = dispatch(getSelectedMoleculesByType(type, true, moleculeList));
-    dispatch(setSelectedAllByType(type, null, molecules, true));
-    dispatch(addAllComplexes(moleculeList, stage, true));
-  }
-};
-
-const getSelectedMoleculesByType = (type, isAdd, moleculeList, datasetID) => (dispatch, getState) => {
-  const state = getState();
-
-  const ligandList = state.datasetsReducers.ligandLists;
-  const proteinList = state.datasetsReducers.proteinLists;
-  const complexList = state.datasetsReducers.complexLists;
-
-  switch (type) {
-    case 'ligand':
-      return isAdd ? getMoleculesToSelect(moleculeList, ligandList) : getMoleculesToDeselect(moleculeList, ligandList);
-    case 'protein':
-      return isAdd
-        ? getMoleculesToSelect(moleculeList, proteinList)
-        : getMoleculesToDeselect(moleculeList, proteinList);
-    case 'complex':
-      return isAdd
-        ? getMoleculesToSelect(moleculeList, complexList)
-        : getMoleculesToDeselect(moleculeList, complexList);
-    default:
-      return null;
-  }
-};
-
-const getMoleculesToSelect = (moleculeList, list) => {
-  let molecules = moleculeList.filter(m => !list[m.datasetID].includes(m.molecule.id));
-  return molecules;
-};
-
-const getMoleculesToDeselect = (moleculeList, list) => {
-  let molecules = moleculeList.filter(m => list[m.datasetID].includes(m.molecule.id));
-  return molecules;
-};
-
 export const autoHideDatasetDialogsOnScroll = ({ inspirationDialogRef, crossReferenceDialogRef, scrollBarRef }) => (
   dispatch,
   getState
@@ -716,6 +566,89 @@ export const removeSelectedDatasetMolecules = (stage, skipTracking, skipMolecule
       });
     });
   }
+};
+
+/**
+ *  * Performance optimization for datasetMoleculeView. Have a look at the comment at moveDatasetMoleculeUpDown.
+ */
+const removeSelectedTypesOfDatasetInspirations = (skipMolecules, stage, skipTracking) => (dispatch, getState) => {
+  const state = getState();
+  const getJoinedMoleculeList = getMoleculeList(state);
+  const inspirationMoleculeDataList = state.datasetsReducers.allInspirationMoleculeDataList;
+
+  const molecules = [...getJoinedMoleculeList, ...inspirationMoleculeDataList].filter(
+    molecule => !skipMolecules.includes(molecule)
+  );
+  dispatch(hideAllSelectedMolecules(stage, [...molecules], false, skipTracking));
+};
+
+/**
+ *  * Performance optimization for datasetMoleculeView. Have a look at the comment at moveDatasetMoleculeUpDown.
+ */
+const moveSelectedDatasetMoleculeInspirationsSettings = (data, newItemData, stage, skipTracking) => (
+  dispatch,
+  getState
+) => {
+  const state = getState();
+
+  const objectsInView = state.nglReducers.objectsInView || {};
+  const {
+    proteinListMolecule,
+    complexListMolecule,
+    fragmentDisplayListMolecule,
+    surfaceListMolecule,
+    densityListMolecule,
+    densityListCustomMolecule,
+    vectorOnListMolecule,
+    qualityListMolecule
+  } = state.selectionReducers;
+
+  return dispatch(
+    moveMoleculeInspirationsSettings(
+      data,
+      newItemData,
+      stage,
+      objectsInView,
+      fragmentDisplayListMolecule,
+      proteinListMolecule,
+      complexListMolecule,
+      surfaceListMolecule,
+      densityListMolecule,
+      densityListCustomMolecule,
+      vectorOnListMolecule,
+      qualityListMolecule,
+      skipTracking
+    )
+  );
+};
+
+/**
+ * Performance optimization for datasetMoleculeView. Gets objectsInView and passes it to further dispatch requests.
+ * It wouldnt do anything else in moleculeView. Also this chains the above 3 methods which were before passed to
+ * datasetMoleculeView. Since they were completely filled only in datasetMoleculeList, it was moved here and arrow keys
+ * were disabled elsewhere where datasetMoleculeView is used.
+ */
+export const moveDatasetMoleculeUpDown = (stage, datasetID, item, newItemDatasetID, newItem, data, direction) => async (
+  dispatch,
+  getState
+) => {
+  const state = getState();
+  const allInspirations = state.datasetsReducers.allInspirations;
+  const objectsInView = getState().nglReducers.objectsInView;
+
+  const dataValue = { ...data, objectsInView };
+
+  dispatch(setArrowUpDown(datasetID, item, newItem, direction, dataValue));
+
+  const inspirations = getInspirationsForMol(allInspirations, datasetID, newItem.id);
+  dispatch(setInspirationMoleculeDataList(inspirations));
+  await Promise.all([
+    dispatch(moveSelectedMoleculeSettings(stage, item, newItem, newItemDatasetID, datasetID, dataValue, true)),
+    moveSelectedDatasetMoleculeInspirationsSettings(item, newItem, stage, true)
+  ]);
+
+  dispatch(removeSelectedDatasetMolecules(stage, true, { [newItemDatasetID]: [newItem] }));
+  dispatch(removeSelectedTypesOfDatasetInspirations([newItem], stage, true));
 };
 
 export const getInspirationsForMol = (allInspirations, datasetId, molId) => {
@@ -1066,4 +999,41 @@ export const dragDropMoleculeFinished = (datasetID, draggedMolecule, destination
   if (dragDropStatus.startingIndex !== destinationIndex) {
     dispatch(dragDropFinished(datasetID, draggedMolecule, destinationIndex));
   }
+};
+
+export const moveDatasetMolecule = (datasetID, dragIndex, hoverIndex) => (dispatch, getState) => {
+  const joinedMoleculeLists = getJoinedMoleculeLists(datasetID, getState());
+  dispatch(dragDropMoleculeInProgress(datasetID, joinedMoleculeLists, dragIndex, hoverIndex));
+};
+
+export const withDisabledDatasetMoleculeNglControlButton = (
+  datasetId,
+  moleculeId,
+  type,
+  callback
+) => async dispatch => {
+  dispatch(disableDatasetMoleculeNglControlButton(datasetId, moleculeId, type));
+  await callback();
+  dispatch(enableDatasetMoleculeNglControlButton(datasetId, moleculeId, type));
+};
+
+export const withDisabledDatasetMoleculesNglControlButtons = (
+  datasetIds,
+  moleculeIds,
+  type,
+  callback
+) => async dispatch => {
+  datasetIds.forEach(datasetId => {
+    moleculeIds.forEach(moleculeId => {
+      dispatch(disableDatasetMoleculeNglControlButton(datasetId, moleculeId, type));
+    });
+  });
+
+  await callback();
+
+  datasetIds.forEach(datasetId => {
+    moleculeIds.forEach(moleculeId => {
+      dispatch(enableDatasetMoleculeNglControlButton(datasetId, moleculeId, type));
+    });
+  });
 };

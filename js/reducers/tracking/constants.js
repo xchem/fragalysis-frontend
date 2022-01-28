@@ -75,7 +75,7 @@ export const actionType = {
   ALL_HIDE: 'ALL_HIDE',
   ALL_TURNED_ON: 'ALL_TURNED_ON',
   ALL_TURNED_OFF: 'ALL_TURNED_OFF',
-  ALL_TURNED_ON_BY_TYPE: 'ALL_TURNED_ON_BY_TYPE',
+  SELECTED_TURNED_ON_BY_TYPE: 'SELECTED_TURNED_ON_BY_TYPE',
   ALL_TURNED_OFF_BY_TYPE: 'ALL_TURNED_OFF_BY_TYPE',
   BACKGROUND_COLOR_CHANGED: 'BACKGROUND_COLOR_CHANGED',
   CLIP_NEAR: 'CLIP_NEAR',
@@ -100,7 +100,8 @@ export const actionType = {
   COLOR_DIFF: 'COLOR_DIFF',
   WARNING_ICON: 'WARNING_ICON',
   TAG_SELECTED: 'TAG_SELECTED',
-  TAG_UNSELECTED: 'TAG_UNSELECTED'
+  TAG_UNSELECTED: 'TAG_UNSELECTED',
+  TURN_SIDE: 'TURN_SIDE'
 };
 
 export const actionDescription = {
@@ -135,6 +136,7 @@ export const actionDescription = {
   SITE: 'Site',
   TARGET: 'Target',
   ALL: 'All',
+  SELECTED_TYPE: 'Selected',
   LIGANDS: 'Ligands',
   SIDECHAINS: 'Sidechains',
   TAB: 'Tab',
@@ -167,6 +169,11 @@ export const mapTypesStrings = {
   EVENT: 'EVENT MAP',
   DIFF: 'DIFF MAP',
   SIGMAA: 'SIGMAA MAP'
+};
+
+export const viewerControlsSides = {
+  LHS: 'Left hand side',
+  RHS: 'Right hand side'
 };
 
 export const NUM_OF_SECONDS_TO_IGNORE_MERGE = 2;

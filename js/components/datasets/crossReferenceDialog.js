@@ -1,23 +1,23 @@
-import React, { forwardRef, memo, useContext, useEffect, useState } from 'react';
+import React, { forwardRef, memo, useContext, useEffect } from 'react';
 import { CircularProgress, Grid, Popper, IconButton, Typography, Tooltip } from '@material-ui/core';
 import { Close } from '@material-ui/icons';
 import { makeStyles } from '@material-ui/styles';
 import { useDispatch, useSelector } from 'react-redux';
 import {
   loadScoresOfCrossReferenceCompounds,
-  handleAllLigandsOfCrossReferenceDialog,
   resetCrossReferenceDialog,
-  removeOrAddAllHitProteinsOfList,
-  removeOrAddAllComplexesOfList,
   removeDatasetLigand,
   removeDatasetHitProtein,
   removeDatasetComplex,
-  removeDatasetSurface
+  addDatasetLigand,
+  addDatasetHitProtein,
+  addDatasetComplex,
+  withDisabledDatasetMoleculesNglControlButtons
 } from './redux/dispatchActions';
 import { Button } from '../common/Inputs/Button';
 import classNames from 'classnames';
 // import { useDisableUserInteraction } from '../helpers/useEnableUserInteracion';
-import { DatasetMoleculeView } from './datasetMoleculeView';
+import DatasetMoleculeView from './datasetMoleculeView';
 import { colourList } from '../preview/molecule/utils/color';
 import { NglContext } from '../nglView/nglProvider';
 import { VIEWS } from '../../constants/constants';
@@ -29,6 +29,23 @@ import {
   getListOfSelectedProteinOfAllDatasets
 } from './redux/selectors';
 import { changeButtonClassname } from './helpers';
+import { DndProvider } from 'react-dnd';
+import { HTML5Backend } from 'react-dnd-html5-backend';
+import { setDeselectedAllByType, setSelectedAllByType } from './redux/actions';
+import useDisableDatasetNglControlButtons from './useDisableDatasetNglControlButtons';
+import GroupDatasetNglControlButtonsContext from './groupDatasetNglControlButtonsContext';
+
+const addType = {
+  ligand: addDatasetLigand,
+  protein: addDatasetHitProtein,
+  complex: addDatasetComplex
+};
+
+const removeType = {
+  ligand: removeDatasetLigand,
+  protein: removeDatasetHitProtein,
+  complex: removeDatasetComplex
+};
 
 const useStyles = makeStyles(theme => ({
   paper: {
@@ -124,7 +141,7 @@ const useStyles = makeStyles(theme => ({
 }));
 
 export const CrossReferenceDialog = memo(
-  forwardRef(({ open = false, anchorEl, datasetID }, ref) => {
+  forwardRef(({ open = false, anchorEl }, ref) => {
     const dispatch = useDispatch();
     const id = open ? 'simple-popover-compound-cross-reference' : undefined;
     const imgHeight = 34;
@@ -142,69 +159,11 @@ export const CrossReferenceDialog = memo(
     const proteinList = useSelector(state => getListOfSelectedProteinOfAllDatasets(state));
     const complexList = useSelector(state => getListOfSelectedComplexOfAllDatasets(state));
 
-    const ligandListAllDatasets = useSelector(state => state.datasetsReducers.ligandLists);
-    const proteinListAllDatasets = useSelector(state => state.datasetsReducers.proteinLists);
-    const complexListAllDatasets = useSelector(state => state.datasetsReducers.complexLists);
-    const surfaceListAllDatasets = useSelector(state => state.datasetsReducers.surfaceLists);
+    const compoundsToBuyDatasetMap = useSelector(state => state.datasetsReducers.compoundsToBuyDatasetMap);
 
-    const removeOfAllSelectedTypes = skipTracking => {
-      Object.keys(ligandListAllDatasets).forEach(datasetKey => {
-        ligandListAllDatasets[datasetKey]?.forEach(moleculeID => {
-          const foundedMolecule = moleculeList?.find(mol => mol?.molecule?.id === moleculeID);
-          dispatch(
-            removeDatasetLigand(
-              stage,
-              foundedMolecule?.molecule,
-              colourList[foundedMolecule?.molecule?.id % colourList.length],
-              datasetKey,
-              skipTracking
-            )
-          );
-        });
-      });
-      Object.keys(proteinListAllDatasets).forEach(datasetKey => {
-        proteinListAllDatasets[datasetKey]?.forEach(moleculeID => {
-          const foundedMolecule = moleculeList?.find(mol => mol?.molecule?.id === moleculeID);
-          dispatch(
-            removeDatasetHitProtein(
-              stage,
-              foundedMolecule?.molecule,
-              colourList[foundedMolecule?.molecule?.id % colourList.length],
-              datasetKey,
-              skipTracking
-            )
-          );
-        });
-      });
-      Object.keys(complexListAllDatasets).forEach(datasetKey => {
-        complexListAllDatasets[datasetKey]?.forEach(moleculeID => {
-          const foundedMolecule = moleculeList?.find(mol => mol?.molecule?.id === moleculeID);
-          dispatch(
-            removeDatasetComplex(
-              stage,
-              foundedMolecule?.molecule,
-              colourList[foundedMolecule?.molecule?.id % colourList.length],
-              datasetKey,
-              skipTracking
-            )
-          );
-        });
-      });
-      Object.keys(surfaceListAllDatasets).forEach(datasetKey => {
-        surfaceListAllDatasets[datasetKey]?.forEach(moleculeID => {
-          const foundedMolecule = moleculeList?.find(mol => mol?.molecule?.id === moleculeID);
-          dispatch(
-            removeDatasetSurface(
-              stage,
-              foundedMolecule?.molecule,
-              colourList[foundedMolecule?.molecule?.id % colourList.length],
-              datasetKey,
-              skipTracking
-            )
-          );
-        });
-      });
-    };
+    const compoundsToBuyList = Object.values(compoundsToBuyDatasetMap).flat();
+
+    const selectedMolecules = moleculeList.filter(({ molecule }) => compoundsToBuyList?.includes(molecule.id));
 
     useEffect(() => {
       if (moleculeList && Array.isArray(moleculeList) && moleculeList.length > 0) {
@@ -217,25 +176,106 @@ export const CrossReferenceDialog = memo(
     }, [dispatch, moleculeList]);
 
     const isLigandOn = changeButtonClassname(
-      ligandList.filter(moleculeID => moleculeList.find(molecule => molecule.molecule.id === moleculeID) !== undefined),
-      moleculeList
+      ligandList.filter(
+        moleculeID => selectedMolecules.find(molecule => molecule.molecule.id === moleculeID) !== undefined
+      ),
+      selectedMolecules
     );
     const isProteinOn = changeButtonClassname(
       proteinList.filter(
-        moleculeID => moleculeList.find(molecule => molecule.molecule.id === moleculeID) !== undefined
+        moleculeID => selectedMolecules.find(molecule => molecule.molecule.id === moleculeID) !== undefined
       ),
-      moleculeList
+      selectedMolecules
     );
     const isComplexOn = changeButtonClassname(
       complexList.filter(
-        moleculeID => moleculeList.find(molecule => molecule.molecule.id === moleculeID) !== undefined
+        moleculeID => selectedMolecules.find(molecule => molecule.molecule.id === moleculeID) !== undefined
       ),
-      moleculeList
+      selectedMolecules
     );
 
     if (anchorEl === null) {
       dispatch(resetCrossReferenceDialog());
     }
+
+    const removeSelectedType = (type, molecules) => {
+      dispatch(setDeselectedAllByType(type, null, molecules, true));
+      molecules.forEach(molecule => {
+        dispatch(
+          removeType[type](
+            stage,
+            molecule.molecule,
+            colourList[molecule.molecule.id % colourList.length],
+            molecule.datasetID,
+            true
+          )
+        );
+      });
+    };
+
+    const addSelectedType = (type, molecules) => {
+      dispatch(
+        withDisabledDatasetMoleculesNglControlButtons(
+          [...new Set(molecules.map(({ datasetID }) => datasetID))], // distinct datasetIDs
+          molecules.map(({ molecule }) => molecule.id),
+          type,
+          async () => {
+            dispatch(setSelectedAllByType(type, null, molecules, true));
+
+            const promises = [];
+
+            molecules.forEach(molecule => {
+              promises.push(
+                dispatch(
+                  addType[type](
+                    stage,
+                    molecule.molecule,
+                    colourList[molecule.molecule.id % colourList.length],
+                    molecule.datasetID,
+                    true
+                  )
+                )
+              );
+            });
+
+            await Promise.all(promises);
+          }
+        )
+      );
+    };
+
+    const getMoleculesToSelect = list => {
+      return selectedMolecules.filter(({ molecule }) => !list.includes(molecule.id));
+    };
+
+    const getMoleculesToDeselect = list => {
+      return selectedMolecules.filter(({ molecule }) => list.includes(molecule.id));
+    };
+
+    const getSelectedMoleculesByType = (type, isAdd) => {
+      switch (type) {
+        case 'ligand':
+          return isAdd ? getMoleculesToSelect(ligandList) : getMoleculesToDeselect(ligandList);
+        case 'protein':
+          return isAdd ? getMoleculesToSelect(proteinList) : getMoleculesToDeselect(proteinList);
+        case 'complex':
+          return isAdd ? getMoleculesToSelect(complexList) : getMoleculesToDeselect(complexList);
+        default:
+          return null;
+      }
+    };
+
+    const removeOrAddType = (type, areSelected) => {
+      const molecules = getSelectedMoleculesByType(type, !areSelected);
+
+      if (areSelected) {
+        removeSelectedType(type, molecules);
+      } else {
+        addSelectedType(type, molecules);
+      }
+    };
+
+    const groupDatasetsNglControlButtonsDisabledState = useDisableDatasetNglControlButtons(selectedMolecules);
 
     return (
       <>
@@ -263,7 +303,7 @@ export const CrossReferenceDialog = memo(
                   <>
                     <Grid container justify="flex-start" direction="row" className={classes.molHeader} wrap="nowrap">
                       <Grid item container justify="flex-start" direction="row">
-                        {moleculeList.length > 0 && (
+                        {selectedMolecules.length > 0 && (
                           <Grid item>
                             <Grid
                               container
@@ -281,10 +321,8 @@ export const CrossReferenceDialog = memo(
                                       [classes.contColButtonSelected]: isLigandOn,
                                       [classes.contColButtonHalfSelected]: isLigandOn === null
                                     })}
-                                    onClick={() =>
-                                      dispatch(handleAllLigandsOfCrossReferenceDialog(isLigandOn, moleculeList, stage))
-                                    }
-                                    disabled={false}
+                                    onClick={() => removeOrAddType('ligand', isLigandOn)}
+                                    disabled={groupDatasetsNglControlButtonsDisabledState.ligand}
                                   >
                                     L
                                   </Button>
@@ -298,10 +336,8 @@ export const CrossReferenceDialog = memo(
                                       [classes.contColButtonSelected]: isProteinOn,
                                       [classes.contColButtonHalfSelected]: isProteinOn === null
                                     })}
-                                    onClick={() =>
-                                      dispatch(removeOrAddAllHitProteinsOfList(isProteinOn, moleculeList, stage))
-                                    }
-                                    disabled={false}
+                                    onClick={() => removeOrAddType('protein', isProteinOn)}
+                                    disabled={groupDatasetsNglControlButtonsDisabledState.protein}
                                   >
                                     P
                                   </Button>
@@ -316,10 +352,8 @@ export const CrossReferenceDialog = memo(
                                       [classes.contColButtonSelected]: isComplexOn,
                                       [classes.contColButtonHalfSelected]: isComplexOn === null
                                     })}
-                                    onClick={() =>
-                                      dispatch(removeOrAddAllComplexesOfList(isComplexOn, moleculeList, stage))
-                                    }
-                                    disabled={false}
+                                    onClick={() => removeOrAddType('complex', isComplexOn)}
+                                    disabled={groupDatasetsNglControlButtonsDisabledState.complex}
                                   >
                                     C
                                   </Button>
@@ -331,34 +365,49 @@ export const CrossReferenceDialog = memo(
                       </Grid>
                     </Grid>
                     <div className={classes.content}>
-                      {moleculeList.length > 0 &&
-                        moleculeList.map((data, index, array) => {
-                          let molecule = Object.assign({ isCrossReference: true }, data.molecule);
-                          let previousData = index > 0 && Object.assign({ isCrossReference: true }, array[index - 1]);
-                          let nextData =
-                            index < array?.length && Object.assign({ isCrossReference: true }, array[index + 1]);
+                      <GroupDatasetNglControlButtonsContext.Provider
+                        value={groupDatasetsNglControlButtonsDisabledState}
+                      >
+                        <DndProvider backend={HTML5Backend}>
+                          {moleculeList.length > 0 &&
+                            moleculeList.map((data, index, array) => {
+                              let molecule = Object.assign({ isCrossReference: true }, data.molecule);
+                              let previousData =
+                                index > 0 && Object.assign({ isCrossReference: true }, array[index - 1]);
+                              let nextData =
+                                index < array?.length && Object.assign({ isCrossReference: true }, array[index + 1]);
+                              const isCheckedToBuy = selectedMolecules.some(
+                                ({ datasetID, molecule }) =>
+                                  molecule.id === data.molecule.id && datasetID === data.datasetID
+                              );
 
-                          return (
-                            <DatasetMoleculeView
-                              key={index}
-                              index={index}
-                              imageHeight={imgHeight}
-                              imageWidth={imgWidth}
-                              data={molecule}
-                              datasetID={data.datasetID}
-                              hideFButton
-                              showDatasetName
-                              previousItemData={previousData}
-                              nextItemData={nextData}
-                              removeOfAllSelectedTypes={removeOfAllSelectedTypes}
-                              L={ligandList.includes(data.id)}
-                              P={proteinList.includes(data.id)}
-                              C={complexList.includes(data.id)}
-                              S={false}
-                              V={false}
-                            />
-                          );
-                        })}
+                              return (
+                                <DatasetMoleculeView
+                                  key={index}
+                                  index={index}
+                                  imageHeight={imgHeight}
+                                  imageWidth={imgWidth}
+                                  data={molecule}
+                                  datasetID={data.datasetID}
+                                  hideFButton
+                                  showDatasetName
+                                  previousItemData={previousData}
+                                  nextItemData={nextData}
+                                  L={ligandList.includes(data.id)}
+                                  P={proteinList.includes(data.id)}
+                                  C={complexList.includes(data.id)}
+                                  S={false}
+                                  V={false}
+                                  isCheckedToBuy={isCheckedToBuy}
+                                  disableL={isCheckedToBuy && groupDatasetsNglControlButtonsDisabledState.ligand}
+                                  disableP={isCheckedToBuy && groupDatasetsNglControlButtonsDisabledState.protein}
+                                  disableC={isCheckedToBuy && groupDatasetsNglControlButtonsDisabledState.complex}
+                                  arrowsHidden
+                                />
+                              );
+                            })}
+                        </DndProvider>
+                      </GroupDatasetNglControlButtonsContext.Provider>
                       {!(moleculeList.length > 0) && (
                         <Grid
                           container
