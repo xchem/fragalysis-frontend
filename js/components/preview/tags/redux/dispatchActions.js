@@ -227,18 +227,19 @@ export const loadMoleculesAndTags = targetId => async (dispatch, getState) => {
 
         if (!newObject.additional_info) {
           tags_info.push(newObject);
-        } else if (newObject.additional_info.requestObject && newObject.additional_info.downloadName) {
-          if (DJANGO_CONTEXT.pk) {
-            if (newObject.user_id === DJANGO_CONTEXT.pk) {
-              downloadTags.push(newObject);
-            }
-          } else {
-            const diffInDays = diffBetweenDatesInDays(new Date(newObject.create_date), new Date());
-            if (diffInDays <= 5) {
-              downloadTags.push(newObject);
-            }
-          }
         }
+        // } else if (newObject.additional_info.requestObject && newObject.additional_info.downloadName) {
+        //   if (DJANGO_CONTEXT.pk) {
+        //     if (newObject.user_id === DJANGO_CONTEXT.pk) {
+        //       downloadTags.push(newObject);
+        //     }
+        //   } else {
+        //     const diffInDays = diffBetweenDatesInDays(new Date(newObject.create_date), new Date());
+        //     if (diffInDays <= 5) {
+        //       downloadTags.push(newObject);
+        //     }
+        //   }
+        // }
       });
     }
 
@@ -262,7 +263,7 @@ export const loadMoleculesAndTags = targetId => async (dispatch, getState) => {
       return 0;
     });
     dispatch(setAllMolLists([...allMolecules]));
-    dispatch(setDownloadTags(downloadTags));
+    // dispatch(setDownloadTags(downloadTags));
 
     // const categories = data.tag_categories;
     //need to do this this way because only categories which have at least one tag assigned are sent from backend
