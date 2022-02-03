@@ -3,17 +3,23 @@
  */
 import React, { memo, useState } from 'react';
 import JSZip from 'jszip';
-import { connect, useDispatch } from 'react-redux';
+import { connect, useDispatch, useSelector } from 'react-redux';
 import { Button } from '@material-ui/core';
 import FileSaver from 'file-saver';
 import { api } from '../../utils/api';
 import { CloudDownload, Loop } from '@material-ui/icons';
 import { setDownloadStructuresDialogOpen } from './redux/actions';
 // import { useDisableUserInteraction } from '../helpers/useEnableUserInteracion';
+import { getTagMolecules } from '../preview/tags/api/tagsApi';
+import { compareTagsAsc } from '../preview/tags/utils/tagUtils';
+import { DJANGO_CONTEXT } from '../../utils/djangoContext';
+import { diffBetweenDatesInDays } from '../../utils/common';
+import { setDownloadTags } from '../../reducers/api/actions';
 
 const DownloadPdb = memo(({ targetOn, targetOnName, key }) => {
   const dispatch = useDispatch();
   const [downloading, setDownloading] = useState(false);
+  const target_on = useSelector(state => state.apiReducers.target_on);
   // const disableUserInteraction = useDisableUserInteraction();
 
   const handlePdbDownload = async () => {
@@ -36,7 +42,30 @@ const DownloadPdb = memo(({ targetOn, targetOnName, key }) => {
   };
 
   const openDownloadStructuresDialog = () => {
-    dispatch(setDownloadStructuresDialogOpen(true));
+    getTagMolecules(target_on)
+      .then(data => {
+        const sorted = data.results.sort(compareTagsAsc);
+        const downloadTags = [];
+        sorted.forEach(molTag => {
+          if (molTag.additional_info && molTag.additional_info.requestObject && molTag.additional_info.downloadName) {
+            if (DJANGO_CONTEXT.pk) {
+              if (molTag.user_id === DJANGO_CONTEXT.pk) {
+                downloadTags.push(molTag);
+              }
+            } else {
+              const diffInDays = diffBetweenDatesInDays(new Date(molTag.create_date), new Date());
+              if (diffInDays <= 5) {
+                downloadTags.push(molTag);
+              }
+            }
+          }
+        });
+        return downloadTags;
+      })
+      .then(downloadTags => {
+        dispatch(setDownloadTags(downloadTags));
+        dispatch(setDownloadStructuresDialogOpen(true));
+      });
   };
 
   if (targetOnName === undefined) {

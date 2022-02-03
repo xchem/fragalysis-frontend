@@ -90,46 +90,42 @@ const useStyles = makeStyles(theme => ({
 }));
 
 const SUBSET_SELECTION = [
-  { flag: 'allStructures', text: 'All structures' },
-  { flag: 'displayedStructures', text: 'Structures displayed in the 3D display' },
-  { flag: 'selectedStructures', text: 'Structures selected in the Hit Navigator' },
-  { flag: 'tagged', text: 'Structures associated with the active tags' }
+  { flag: 'allStructures', text: 'All structures', defaultValue: true },
+  { flag: 'displayedStructures', text: 'Structures displayed in the 3D display', defaultValue: false },
+  { flag: 'selectedStructures', text: 'Structures selected in the Hit Navigator', defaultValue: false },
+  { flag: 'tagged', text: 'Structures associated with the active tags', defaultValue: false }
 ];
 
 const MAP_FILES = [
-  { flag: 'event_info', text: 'PanDDA Event maps - primary evidence' },
-  { flag: 'sigmaa_info', text: 'Conventional inspection maps ("2FoFc")' },
-  { flag: 'diff_info', text: 'Conventional residual maps ("FoFc")' },
-  { flag: 'trans_matrix_info', text: 'Transformations applied for alignments' }
+  { flag: 'event_info', text: 'PanDDA Event maps - primary evidence', defaultValue: false },
+  { flag: 'sigmaa_info', text: 'Conventional inspection maps ("2FoFc")', defaultValue: false },
+  { flag: 'diff_info', text: 'Conventional residual maps ("FoFc")', defaultValue: false },
+  { flag: 'trans_matrix_info', text: 'Transformations applied for alignments', defaultValue: false }
 ];
 
 const CRYSTALLOGRAPHIC_FILES = [
-  { flag: 'NAN', text: 'Coordinate files (not re-aligned) (.pdb)' },
-  { flag: 'mtz_info', text: 'Reflections and map coefficients (.mtz)' },
-  { flag: 'cif_info', text: 'Ligand definitions and geometry restrains (.cif)' },
-  { flag: 'NAN2', text: 'Coordinate files (not re-aligned) (.pdb)' },
-  { flag: 'map_info', text: 'Real-space map files (VERY BIG!!) (.map)' }
+  { flag: 'NAN', text: 'Coordinate files (not re-aligned) (.pdb)', defaultValue: false },
+  { flag: 'mtz_info', text: 'Reflections and map coefficients (.mtz)', defaultValue: false },
+  { flag: 'cif_info', text: 'Ligand definitions and geometry restrains (.cif)', defaultValue: false },
+  { flag: 'NAN2', text: 'Coordinate files (not re-aligned) (.pdb)', defaultValue: false },
+  { flag: 'map_info', text: 'Real-space map files (VERY BIG!!) (.map)', defaultValue: false }
 ];
 
 const PERMALINK_OPTIONS = [
-  { flag: 'incremental', text: 'Incremental - always up-to-date with latest structures' },
-  { flag: 'static', text: 'Preserved - snapshot of current status, never changes' }
+  { flag: 'incremental', text: 'Incremental - always up-to-date with latest structures', defaultValue: true },
+  { flag: 'static', text: 'Preserved - snapshot of current status, never changes', defaultValue: false }
 ];
 
 const OTHERS = [
-  { flag: 'single_sdf_file', text: 'Single SDF of all ligands' },
-  { flag: 'sdf_info', text: 'Separate SDFs in subdirectory' }
+  { flag: 'single_sdf_file', text: 'Single SDF of all ligands', defaultValue: true },
+  { flag: 'sdf_info', text: 'Separate SDFs in subdirectory', defaultValue: false }
 ];
 
 // Creates an object with flag as keys with boolean values
 const createFlagObjectFromFlagList = flagList => {
   return Object.fromEntries(
     flagList.map(item => {
-      if (item.flag === 'single_sdf_file') {
-        return [item.flag, true];
-      } else {
-        return [item.flag, false];
-      }
+      return [item.flag, item.defaultValue];
     })
   );
 };
@@ -172,6 +168,7 @@ export const DownloadStructureDialog = memo(({}) => {
   const [downloadTagUrl, setDownloadTagUrl] = useState(null);
   const [selectedDownload, setSelectedDownload] = useState(newDownload);
   const [error, setError] = useState(false);
+  const [alreadyInProgress, setAlreadyInProgress] = useState(false);
 
   useEffect(() => {
     if (currentSnapshot && currentSnapshot.data && currentSnapshot.data !== '[]') {
@@ -255,21 +252,33 @@ export const DownloadStructureDialog = memo(({}) => {
       if (donwloadTag) {
         setError(false);
         setZipPreparing(true);
+        setAlreadyInProgress(false);
         getDownloadStructuresUrl(donwloadTag.additional_info.requestObject)
           .then(resp => {
-            setDownloadUrl(resp.data.file_url);
-            return getDownloadFileSize(resp.data.file_url);
+            if (resp.status === 208) {
+              //same download is already preparing for someone else
+              setAlreadyInProgress(true);
+              return null;
+            } else {
+              //everything is fine and we got the URL
+              setDownloadUrl(resp.data.file_url);
+              return getDownloadFileSize(resp.data.file_url);
+            }
           })
           .then(resp => {
-            const fileSizeInBytes = resp.headers['content-length'];
-            setFileSize(getFileSizeString(fileSizeInBytes));
-            setDownloadTagUrl(generateUrlFromTagName(donwloadTag.tag));
-            setZipPreparing(false);
+            if (resp) {
+              const fileSizeInBytes = resp.headers['content-length'];
+              setFileSize(getFileSizeString(fileSizeInBytes));
+              setDownloadTagUrl(generateUrlFromTagName(donwloadTag.tag));
+              setZipPreparing(false);
+            }
           });
       }
     } else {
       setError(false);
       setZipPreparing(true);
+      setAlreadyInProgress(false);
+      let inProgress = false;
 
       const requestObject = prepareRequestObject();
       if (requestObject) {
@@ -288,22 +297,38 @@ export const DownloadStructureDialog = memo(({}) => {
             return getDownloadStructuresUrl(requestObject);
           })
           .then(resp => {
-            setDownloadUrl(resp.data.file_url);
-            if (isStaticDownload()) {
-              tagData.requestObject.file_url = resp.data.file_url;
+            if (resp.status === 208) {
+              //same download is already preparing for someone else
+              setAlreadyInProgress(true);
+              inProgress = true;
+              return null;
+            } else {
+              //everything is fine and we got the URL
+              setDownloadUrl(resp.data.file_url);
+              if (isStaticDownload()) {
+                tagData.requestObject.file_url = resp.data.file_url;
+              }
+              return getDownloadFileSize(resp.data.file_url);
             }
-            return getDownloadFileSize(resp.data.file_url);
           })
           .then(resp => {
-            const fileSizeInBytes = resp.headers['content-length'];
-            setFileSize(getFileSizeString(fileSizeInBytes));
+            if (resp && !inProgress) {
+              const fileSizeInBytes = resp.headers['content-length'];
+              setFileSize(getFileSizeString(fileSizeInBytes));
+            }
           })
           .then(resp => {
-            return createDownloadTag(tagData, tagName);
+            if (!inProgress) {
+              return createDownloadTag(tagData, tagName);
+            } else {
+              return null;
+            }
           })
           .then(molTag => {
-            dispatch(appendToDownloadTags(molTag));
-            setDownloadTagUrl(generateUrl(molTag));
+            if (molTag && !inProgress) {
+              dispatch(appendToDownloadTags(molTag));
+              setDownloadTagUrl(generateUrl(molTag));
+            }
             setZipPreparing(false);
           })
           .catch(e => {
@@ -354,6 +379,7 @@ export const DownloadStructureDialog = memo(({}) => {
   const handleClose = () => {
     setDownloadUrl(null);
     setFileSize(null);
+    setAlreadyInProgress(false);
     dispatch(setDownloadStructuresDialogOpen(false));
   };
 
@@ -422,6 +448,12 @@ export const DownloadStructureDialog = memo(({}) => {
     }
   })(Typography);
 
+  const WarnMsg = withStyles({
+    root: {
+      color: 'orange'
+    }
+  })(Typography);
+
   return (
     <Modal open={isOpen} noPadding>
       <div className={classes.root}>
@@ -445,6 +477,11 @@ export const DownloadStructureDialog = memo(({}) => {
         {error && (
           <DialogTitle id="form-dialog-structures-title" disableTypography>
             <ErrorMsg variant="h4">{'Download failed!!!'}</ErrorMsg>
+          </DialogTitle>
+        )}
+        {alreadyInProgress && (
+          <DialogTitle id="form-dialog-structures-title" disableTypography>
+            <WarnMsg variant="h4">{'Same download is already being prepared. Try again in a minute.'}</WarnMsg>
           </DialogTitle>
         )}
         <DialogContent>
