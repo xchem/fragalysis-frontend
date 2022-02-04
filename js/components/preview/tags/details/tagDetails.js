@@ -47,21 +47,24 @@ const useStyles = makeStyles(theme => ({
   },
   container: {
     display: 'grid',
-    gridTemplateColumns: '1fr 75px 75px min-content 20px min-content min-content',
+    gridTemplateColumns: '1fr 35px 75px min-content 20px min-content auto',
     alignItems: 'center',
-    gap: theme.spacing(),
+    gap: 1,
     overflow: 'auto'
   },
   columnLabel: {
     display: 'flex',
     marginLeft: theme.spacing(2)
   },
+  categoryLabel: {
+    justifySelf: 'flex-end'
+  },
   creatorLabel: {
-    gridColumn: '4 / span 2',
+    gridColumn: '5',
     justifySelf: 'flex-end'
   },
   dateLabel: {
-    gridColumn: '6 / span 2'
+    gridColumn: '6'
   },
   search: {
     width: 140
@@ -288,7 +291,7 @@ const TagDetails = memo(({ handleHeightChange }) => {
           </div>
 
           {/* category */}
-          <div className={classes.columnLabel}>
+          <div className={classNames(classes.columnLabel, classes.categoryLabel)}>
             <Typography variant="subtitle1">Category</Typography>
             <IconButton size="small" onClick={() => handleHeaderSort('category')}>
               <Tooltip title="Sort" className={classes.sortButton}>
@@ -340,6 +343,7 @@ const TagDetails = memo(({ handleHeightChange }) => {
               </Tooltip>
             </IconButton>
           </div>
+          <div />
 
           {filteredTagList &&
             filteredTagList.map((tag, idx) => {

@@ -4,10 +4,16 @@ import { Edit, Check } from '@material-ui/icons';
 import { useDispatch } from 'react-redux';
 import { getFontColorByBackgroundColor } from '../../../utils/colors';
 import { TagEditModal } from './modal/tagEditModal';
+import classNames from 'classnames';
 
 const useStyles = makeStyles(theme => ({
   tagItem: {
     paddingBottom: 0
+  },
+  tagDetailsItem: {
+    alignSelf: 'stretch',
+    display: 'grid',
+    placeContent: 'stretch flex-start'
   },
   chip: {
     // maxWidth: '100%',
@@ -49,6 +55,15 @@ const useStyles = makeStyles(theme => ({
       marginLeft: '0px'
     }
   },
+  tagDetailsChip: {
+    height: '100% !important',
+    margin: '0 !important',
+    padding: '0 !important',
+    borderRadius: '0 !important',
+    '& .MuiChip-labelSmall': {
+      textAlign: 'left !important'
+    }
+  },
   chipSelected: {
     '& .MuiChip-iconSmall': {
       width: '18px'
@@ -61,6 +76,10 @@ const useStyles = makeStyles(theme => ({
         display: 'block'
       }
     }
+  },
+  check: {
+    width: '0.6em',
+    height: '0.6em'
   }
 }));
 
@@ -129,13 +148,41 @@ const TagView = memo(
     };
 
     const generateProps = () => {
-      if (selected && isTagEditor) {
+      // If in Tag Details
+      if (isTagEditor) {
+        if (selected) {
+          return {
+            size: 'small',
+            className: `${classes.chip} ${selected && !isSpecialTag ? classes.chipSelected : null} ${
+              classes.tagDetailsChip
+            }`,
+            label: tagData.tag,
+            clickable: true,
+            color: bgColor,
+            style: style,
+            onClick: () => {
+              handleClick && handleClick(selected, tag, allTags);
+            },
+            deleteIcon: getDeleteIcon(),
+            onDelete: getDeleteAction(),
+            disabled: determineDisabled(),
+            icon: (
+              <Avatar style={{ backgroundColor: bgColor }}>
+                <Check className={classes.check} style={{ color: color }} />
+              </Avatar>
+            )
+          };
+        }
+
         return {
           size: 'small',
-          className: `${classes.chip} ${selected && !isSpecialTag ? classes.chipSelected : null}`,
+          className: `${classes.chip} ${selected && !isSpecialTag ? classes.chipSelected : null} ${
+            classes.tagDetailsChip
+          }`,
           label: tagData.tag,
           clickable: true,
           color: bgColor,
+          borderColor: bgColor,
           style: style,
           onClick: () => {
             handleClick && handleClick(selected, tag, allTags);
@@ -144,62 +191,53 @@ const TagView = memo(
           onDelete: getDeleteAction(),
           disabled: determineDisabled(),
           icon: (
-            <Avatar style={{ backgroundColor: bgColor }}>
-              <Check style={{ color: color }} />
+            <Avatar style={{ backgroundColor: bgColor, borderRadius: '9px' }}>
+              <Check className={classes.check} style={{ color: bgColor }} />
             </Avatar>
           )
         };
-      } else {
-        if (selected || isTagEditor) {
-          return {
-            size: 'small',
-            className: `${classes.chip} ${selected && !isSpecialTag ? classes.chipSelected : null}`,
-            label: tagData.tag,
-            clickable: true,
-            color: bgColor,
-            borderColor: bgColor,
-            style: style,
-            onClick: () => {
-              handleClick && handleClick(selected, tag, allTags);
-            },
-            deleteIcon: getDeleteIcon(),
-            onDelete: getDeleteAction(),
-            disabled: determineDisabled(),
-            icon: (
-              <Avatar style={{ backgroundColor: bgColor, borderRadius: '9px' }}>
-                <Check style={{ color: bgColor }} />
-              </Avatar>
-            )
-          };
-        } else {
-          return {
-            size: 'small',
-            className: `${classes.chip} ${selected && !isSpecialTag ? classes.chipSelected : null}`,
-            label: tagData.tag,
-            clickable: true,
-            color: bgColor,
-            borderColor: bgColor,
-            style: style,
-            variant: 'outlined',
-            onClick: () => {
-              handleClick && handleClick(selected, tag, allTags);
-            },
-            deleteIcon: getDeleteIcon(),
-            onDelete: getDeleteAction(),
-            disabled: determineDisabled(),
-            icon: (
-              <Avatar style={{ backgroundColor: bgColor, borderRadius: '9px' }}>
-                <Check style={{ color: bgColor }} />
-              </Avatar>
-            )
-          };
-        }
       }
+
+      // If in Hit List Filter
+      if (selected) {
+        return {
+          size: 'small',
+          className: `${classes.chip} ${selected && !isSpecialTag ? classes.chipSelected : null}`,
+          label: tagData.tag,
+          clickable: true,
+          color: bgColor,
+          borderColor: bgColor,
+          style: style,
+          onClick: () => {
+            handleClick && handleClick(selected, tag, allTags);
+          },
+          deleteIcon: getDeleteIcon(),
+          onDelete: getDeleteAction(),
+          disabled: determineDisabled()
+        };
+      }
+
+      return {
+        size: 'small',
+        className: `${classes.chip} ${selected && !isSpecialTag ? classes.chipSelected : null}`,
+        label: tagData.tag,
+        clickable: true,
+        color: bgColor,
+        borderColor: bgColor,
+        style: style,
+        variant: 'outlined',
+        onClick: () => {
+          handleClick && handleClick(selected, tag, allTags);
+        },
+        deleteIcon: getDeleteIcon(),
+        onDelete: getDeleteAction(),
+        disabled: determineDisabled()
+      };
     };
 
     return (
       <>
-        <Grid className={classes.tagItem}>
+        <Grid className={classNames(classes.tagItem, { [classes.tagDetailsItem]: isTagEditor })}>
           <Tooltip title={tagData.tag} placement="top">
             <Chip {...generateProps()} />
           </Tooltip>
