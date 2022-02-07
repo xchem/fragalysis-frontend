@@ -5,8 +5,8 @@ import TagView from '../tagView';
 import { getDefaultTagDiscoursePostText } from '../utils/tagUtils';
 import { DJANGO_CONTEXT } from '../../../../utils/djangoContext';
 import { updateTagProp, selectTag, unselectTag, removeSelectedTag, addSelectedTag } from '../redux/dispatchActions';
-import { Tooltip, makeStyles, Button, Typography, IconButton } from '@material-ui/core';
-import { Edit } from '@material-ui/icons';
+import { Tooltip, makeStyles, Button, Typography, IconButton, Fab } from '@material-ui/core';
+import { Edit, Forum } from '@material-ui/icons';
 import { isURL } from '../../../../utils/common';
 import classNames from 'classnames';
 import { createTagPost, isDiscourseAvailableNotSignedIn, isDiscourseAvailable } from '../../../../utils/discourse';
@@ -14,6 +14,7 @@ import { setTagToEdit, appendToMolListToEdit, removeFromMolListToEdit } from '..
 
 const useStyles = makeStyles(theme => ({
   contColButton: {
+    height: 16,
     minWidth: 'fit-content',
     padding: '0 1px',
     fontWeight: 'bold',
@@ -45,6 +46,9 @@ const useStyles = makeStyles(theme => ({
     }
   },
   editButton: {
+    width: 16,
+    height: 16,
+    padding: 0,
     backgroundColor: theme.palette.success.light,
     color: theme.palette.success.contrastText,
     '&:hover': {
@@ -53,8 +57,21 @@ const useStyles = makeStyles(theme => ({
     }
   },
   editButtonIcon: {
-    width: '0.75em',
-    height: '0.75em'
+    width: '0.6em',
+    height: '0.6em'
+  },
+  discourseButton: {
+    color: theme.palette.white,
+    width: 16,
+    height: 16,
+    minHeight: 'unset'
+  },
+  discourseButtonIcon: {
+    width: '0.55em',
+    height: '0.55em'
+  },
+  text: {
+    lineHeight: 1.2
   }
 }));
 
@@ -138,7 +155,7 @@ const TagDetailRow = memo(({ tag, moleculesToEditIds, moleculesToEdit }) => {
       ></TagView>
       {/* category */}
       <Tooltip title={CATEGORY_TYPE_BY_ID[tag.category_id]}>
-        <Typography variant="body2" noWrap>
+        <Typography className={classes.text} variant="body2" noWrap>
           {CATEGORY_TYPE_BY_ID[tag.category_id]}
         </Typography>
       </Tooltip>
@@ -158,12 +175,10 @@ const TagDetailRow = memo(({ tag, moleculesToEditIds, moleculesToEdit }) => {
       </Tooltip>
       {/* discourse button */}
       <Tooltip title="Discourse link">
-        <Button
-          variant="outlined"
-          className={classNames(classes.contColButton, {
-            [classes.contColButtonSelected]: false,
-            [classes.contColButtonHalfSelected]: false
-          })}
+        <Fab
+          color="secondary"
+          size="small"
+          className={classes.discourseButton}
           onClick={() => {
             if (isURL(tag.discourse_url)) {
               window.open(tag.discourse_url, '_blank');
@@ -178,13 +193,15 @@ const TagDetailRow = memo(({ tag, moleculesToEditIds, moleculesToEdit }) => {
           }}
           disabled={!(isDiscourseAvailable() || (isDiscourseAvailableNotSignedIn() && tag.discourse_url))}
         >
-          Discourse
-        </Button>
+          <Forum className={classes.discourseButtonIcon} />
+        </Fab>
       </Tooltip>
       {/* user */}
-      <Typography variant="body2">{tag.user_id}</Typography>
+      <Typography className={classes.text} variant="body2">
+        {tag.user_id}
+      </Typography>
       {/* date */}
-      <Typography variant="body2" noWrap>
+      <Typography className={classes.text} variant="body2" noWrap>
         {navigator.language
           ? new Date(tag.create_date).toLocaleDateString(navigator.language)
           : new Date(tag.create_date).toLocaleDateString()}
