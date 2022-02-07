@@ -5,7 +5,7 @@ import SVGInline from 'react-svg-inline';
 
 export const SvgTooltip = memo(({ open, anchorEl, imgData, width, height }) => {
   return (
-    <Popper open={open} anchorEl={anchorEl} placement="bottom-end">
+    <Popper open={open} anchorEl={anchorEl} placement="right-end">
       <Paper
         square
         style={{

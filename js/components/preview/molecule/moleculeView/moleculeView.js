@@ -382,7 +382,7 @@ const MoleculeView = memo(
       <SVGInline
         component="div"
         svg={img_data}
-        className={classes.imageMargin}
+        // className={classes.imageMargin}
         style={{
           height: `${imageHeight}px`,
           width: `${imageWidth}px`

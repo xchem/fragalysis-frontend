@@ -196,7 +196,7 @@ export const DatasetMoleculeList = memo(
     const moleculesPerPage = 5;
     const [currentPage, setCurrentPage] = useState(0);
 
-    const imgHeight = 34;
+    const imgHeight = 49;
     const imgWidth = 150;
     const sortDialogOpen = useSelector(state => state.datasetsReducers.filterDialogOpen);
     const isOpenInspirationDialog = useSelector(state => state.datasetsReducers.isOpenInspirationDialog);

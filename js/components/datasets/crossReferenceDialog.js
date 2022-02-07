@@ -144,7 +144,7 @@ export const CrossReferenceDialog = memo(
   forwardRef(({ open = false, anchorEl }, ref) => {
     const dispatch = useDispatch();
     const id = open ? 'simple-popover-compound-cross-reference' : undefined;
-    const imgHeight = 34;
+    const imgHeight = 49;
     const imgWidth = 150;
     const classes = useStyles();
 

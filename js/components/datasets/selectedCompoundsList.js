@@ -52,7 +52,7 @@ const useStyles = makeStyles(theme => ({
 export const SelectedCompoundList = memo(({ height }) => {
   const classes = useStyles();
 
-  const imgHeight = 34;
+  const imgHeight = 49;
   const imgWidth = 150;
   const moleculesPerPage = 5;
   const dispatch = useDispatch();

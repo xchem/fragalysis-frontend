@@ -558,6 +558,13 @@ export const setDisplayAllMolecules = displayAllMolecules => {
   };
 };
 
+export const setDisplayUntaggedMolecules = displayUntaggedMolecules => {
+  return {
+    type: constants.SET_DISPLAY_UNTAGGED_MOLECULES,
+    displayUntaggedMolecules: displayUntaggedMolecules
+  };
+};
+
 export const setAssociatedDownloadTagName = tagName => {
   return {
     type: constants.SET_ASSOCIATED_DOWNLOAD_TAG_NAME,
