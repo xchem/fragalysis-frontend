@@ -324,7 +324,7 @@ const DatasetMoleculeView = memo(
 
     // componentDidMount
     useEffect(() => {
-      dispatch(getMolImage(data.smiles, MOL_TYPE.DATASET, imageHeight, imageWidth)).then(i => {
+      dispatch(getMolImage(data.smiles, MOL_TYPE.DATASET, imageWidth, imageHeight)).then(i => {
         setImage(i);
       });
     }, [C, currentID, data, L, imageHeight, imageWidth, data.smiles, data.id, filteredDatasetMoleculeList, dispatch]);

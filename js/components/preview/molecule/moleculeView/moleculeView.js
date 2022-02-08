@@ -369,7 +369,7 @@ const MoleculeView = memo(
 
     // componentDidMount
     useEffect(() => {
-      dispatch(getMolImage(data.id, MOL_TYPE.HIT, imageHeight, imageWidth)).then(i => {
+      dispatch(getMolImage(data.id, MOL_TYPE.HIT, imageWidth, imageHeight)).then(i => {
         setImg_data(i);
       });
     }, [data.id, data.smiles, imageHeight, url, imageWidth, dispatch]);
