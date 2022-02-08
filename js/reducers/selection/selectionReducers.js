@@ -51,6 +51,7 @@ export const INITIAL_STATE = {
   tagToEdit: null,
   //display all molecules in hit navigator regardless of the tag selection
   displayAllMolecules: false,
+  displayUntaggedMolecules: false,
   associatedDownloadTagName: null
 };
 
@@ -499,6 +500,10 @@ export function selectionReducers(state = INITIAL_STATE, action = {}) {
 
     case constants.SET_DISPLAY_ALL_MOLECULES: {
       return { ...state, displayAllMolecules: action.displayAllMolecules };
+    }
+
+    case constants.SET_DISPLAY_UNTAGGED_MOLECULES: {
+      return { ...state, displayUntaggedMolecules: action.displayUntaggedMolecules };
     }
 
     case constants.SET_ASSOCIATED_DOWNLOAD_TAG_NAME:

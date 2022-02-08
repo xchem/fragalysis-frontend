@@ -6,7 +6,11 @@ import { Button } from '../../common/Inputs/Button';
 import TagCategory from './tagCategory';
 import { useDispatch, useSelector } from 'react-redux';
 import { selectAllTags, clearAllTags } from './redux/dispatchActions';
-import { setTagFilteringMode, setDisplayAllMolecules } from '../../../reducers/selection/actions';
+import {
+  setTagFilteringMode,
+  setDisplayAllMolecules,
+  setDisplayUntaggedMolecules
+} from '../../../reducers/selection/actions';
 import { withStyles } from '@material-ui/core/styles';
 import { blue } from '@material-ui/core/colors';
 
@@ -34,7 +38,8 @@ const useStyles = makeStyles(theme => ({
   tagModeSwitch: {
     width: 132, // Should be adjusted if a label for the switch changes
     // justify: 'flex-end',
-    marginRight: '0px'
+    marginRight: '0px',
+    marginLeft: '1px'
   },
   headerContainer: {
     marginRight: '0px',
@@ -56,6 +61,7 @@ const useStyles = makeStyles(theme => ({
   },
   headerButtonInactive: {
     backgroundColor: 'primary',
+    textTransform: 'none',
     '& .MuiButton-root': {
       minWidth: '0px'
     },
@@ -63,7 +69,7 @@ const useStyles = makeStyles(theme => ({
       backgroundColor: 'primary'
     },
     '& .MuiButton-label': {
-      paddingTop: '4px'
+      paddingTop: '0px'
     },
     '&:hover': {
       // backgroundColor: theme.palette.primary.light
@@ -72,6 +78,9 @@ const useStyles = makeStyles(theme => ({
   },
   headerButtonActive: {
     backgroundColor: theme.palette.primary.semidark,
+    paddingTop: '0px',
+    paddingBottom: '0px',
+    textTransform: 'none',
     '& .MuiButton-root': {
       minWidth: '0px'
     },
@@ -79,7 +88,7 @@ const useStyles = makeStyles(theme => ({
       backgroundColor: theme.palette.primary.semidark
     },
     '& .MuiButton-label': {
-      paddingTop: '4px'
+      paddingTop: '0px'
     },
     '&:hover': {
       backgroundColor: theme.palette.primary.semidark
@@ -97,12 +106,22 @@ const TagSelector = memo(({ handleHeightChange }) => {
   const tagMode = useSelector(state => state.selectionReducers.tagFilteringMode);
   const [selectAll, setSelectAll] = useState(true);
   const displayAllMolecules = useSelector(state => state.selectionReducers.displayAllMolecules);
+  const displayUntaggedMolecules = useSelector(state => state.selectionReducers.displayUntaggedMolecules);
 
   const handleAllMoleculesButton = () => {
+    dispatch(setDisplayUntaggedMolecules(false));
     dispatch(setDisplayAllMolecules(!displayAllMolecules));
   };
 
+  const handleShowUntaggedMoleculesButton = () => {
+    dispatch(setDisplayAllMolecules(false));
+    setSelectAll(true);
+    dispatch(clearAllTags());
+    dispatch(setDisplayUntaggedMolecules(!displayUntaggedMolecules));
+  };
+
   const handleSelectionButton = () => {
+    dispatch(setDisplayUntaggedMolecules(false));
     if (selectAll) {
       dispatch(selectAllTags());
     } else {
@@ -220,12 +239,25 @@ const TagSelector = memo(({ handleHeightChange }) => {
           </Grid>
           <Grid item>
             <Button
+              onClick={() => handleShowUntaggedMoleculesButton()}
+              disabled={false}
+              color="inherit"
+              variant="text"
+              size="small"
+              data-id="showUntaggedHitsButton"
+              className={displayUntaggedMolecules ? classes.headerButtonActive : classes.headerButtonInactive}
+            >
+              Show untagged hits
+            </Button>
+          </Grid>
+          <Grid item>
+            <Button
               onClick={() => handleAllMoleculesButton()}
               disabled={false}
               color="inherit"
               variant="text"
               size="small"
-              data-id="tagSelectionButton"
+              data-id="showAllHitsButton"
               className={displayAllMolecules ? classes.headerButtonActive : classes.headerButtonInactive}
             >
               Show all hits

@@ -324,7 +324,7 @@ const DatasetMoleculeView = memo(
 
     // componentDidMount
     useEffect(() => {
-      dispatch(getMolImage(data.smiles, MOL_TYPE.DATASET, imageHeight, imageWidth)).then(i => {
+      dispatch(getMolImage(data.smiles, MOL_TYPE.DATASET, imageWidth, imageHeight)).then(i => {
         setImage(i);
       });
     }, [C, currentID, data, L, imageHeight, imageWidth, data.smiles, data.id, filteredDatasetMoleculeList, dispatch]);
@@ -333,7 +333,7 @@ const DatasetMoleculeView = memo(
       <SVGInline
         component="div"
         svg={image}
-        className={classes.imageMargin}
+        // className={classes.imageMargin}
         style={{
           height: `${imageHeight}px`,
           width: `${imageWidth}px`
@@ -756,11 +756,13 @@ const DatasetMoleculeView = memo(
                           dispatch((dispatch, getState) => {
                             const allInspirations = getState().datasetsReducers.allInspirations;
 
-                            clickOnInspirations({
-                              datasetID,
-                              currentID,
-                              computed_inspirations: getInspirationsForMol(allInspirations, datasetID, currentID)
-                            });
+                            dispatch(
+                              clickOnInspirations({
+                                datasetID,
+                                currentID,
+                                computed_inspirations: getInspirationsForMol(allInspirations, datasetID, currentID)
+                              })
+                            );
                           });
                           if (setRef) {
                             setRef(ref.current);

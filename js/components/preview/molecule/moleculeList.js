@@ -54,7 +54,7 @@ import { DEFAULT_FILTER, PREDEFINED_FILTERS } from '../../../reducers/selection/
 import { Edit, FilterList } from '@material-ui/icons';
 import { selectAllMoleculeList, selectJoinedMoleculeList } from './redux/selectors';
 import { MOL_ATTRIBUTES } from './redux/constants';
-import { setFilter, setDisplayAllMolecules } from '../../../reducers/selection/actions';
+import { setFilter } from '../../../reducers/selection/actions';
 import { initializeFilter } from '../../../reducers/selection/dispatchActions';
 import * as listType from '../../../constants/listTypes';
 import { useRouteMatch } from 'react-router-dom';
@@ -233,7 +233,7 @@ export const MoleculeList = memo(({ height, setFilterItemsHeight, filterItemsHei
     oldUrl.current = url;
   };
   const list_type = listType.MOLECULE;
-  const imgHeight = 34;
+  const imgHeight = 49;
   const imgWidth = 150;
   const sortDialogOpen = useSelector(state => state.previewReducers.molecule.sortDialogOpen);
   const filter = useSelector(state => state.selectionReducers.filter);
@@ -254,16 +254,12 @@ export const MoleculeList = memo(({ height, setFilterItemsHeight, filterItemsHei
   const isTagEditorOpen = useSelector(state => state.selectionReducers.tagEditorOpened);
   const molForTagEditId = useSelector(state => state.selectionReducers.molForTagEdit);
   const moleculesToEditIds = useSelector(state => state.selectionReducers.moleculesToEdit);
-  const displayAllMolecules = useSelector(state => state.selectionReducers.displayAllMolecules);
 
   const object_selection = useSelector(state => state.selectionReducers.mol_group_selection);
-
-  const allInspirationMoleculeDataList = useSelector(state => state.datasetsReducers.allInspirationMoleculeDataList);
 
   const all_mol_lists = useSelector(state => state.apiReducers.all_mol_lists);
   const directDisplay = useSelector(state => state.apiReducers.direct_access);
   const directAccessProcessed = useSelector(state => state.apiReducers.direct_access_processed);
-  const isTrackingRestoring = useSelector(state => state.trackingReducers.isTrackingMoleculesRestoring);
   const tags = useSelector(state => state.selectionReducers.tagList);
   const noTagsReceived = useSelector(state => state.apiReducers.noTagsReceived);
   const categories = useSelector(state => state.selectionReducers.categoryList);
@@ -276,7 +272,6 @@ export const MoleculeList = memo(({ height, setFilterItemsHeight, filterItemsHei
 
   const { getNglView } = useContext(NglContext);
   const majorViewStage = getNglView(VIEWS.MAJOR_VIEW) && getNglView(VIEWS.MAJOR_VIEW).stage;
-  const stageSummaryView = getNglView(VIEWS.SUMMARY_VIEW) && getNglView(VIEWS.SUMMARY_VIEW).stage;
 
   const filterRef = useRef();
   const tagEditorRef = useRef();
@@ -913,7 +908,7 @@ export const MoleculeList = memo(({ height, setFilterItemsHeight, filterItemsHei
                           <Button
                             variant="outlined"
                             className={classNames(classes.contColButton, {
-                              [classes.contColButtonSelected]: displayAllMolecules,
+                              [classes.contColButtonSelected]: selectAllHitsPressed,
                               [classes.contColButtonHalfSelected]: false
                             })}
                             onClick={() => {
