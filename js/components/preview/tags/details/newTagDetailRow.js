@@ -222,7 +222,7 @@ const NewTagDetailRow = memo(({ moleculesToEditIds, moleculesToEdit }) => {
       />
       <Select
         className={classes.select}
-        value={newTagCategory}
+        value={newTagCategory || 1}
         label="Category"
         onChange={onCategoryForNewTagChange}
         disabled={!DJANGO_CONTEXT.pk}

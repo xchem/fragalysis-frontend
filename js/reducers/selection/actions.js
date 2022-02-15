@@ -571,3 +571,28 @@ export const setAssociatedDownloadTagName = tagName => {
     tagName: tagName
   };
 };
+
+//this is dummy action because we just need to record given action by tracking reducer
+//so we can undo, redo it and also restore from snapshot
+export const setSelectAllMolecules = listOfNames => {
+  return {
+    type: constants.SET_SELECT_ALL_MOLECULES,
+    items: listOfNames
+  };
+};
+
+//this is dummy action because we just need to record given action by tracking reducer
+//so we can undo, redo it and also restore from snapshot
+export const setUnselectAllMolecules = listOfNames => {
+  return {
+    type: constants.SET_UNSELECT_ALL_MOLECULES,
+    items: listOfNames
+  };
+};
+
+export const setNextXMolecules = nextXMolecules => {
+  return {
+    type: constants.SET_NEXT_X_MOLECULES,
+    nextXMolecules: nextXMolecules
+  };
+};

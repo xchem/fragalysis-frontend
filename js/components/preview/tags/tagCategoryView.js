@@ -63,15 +63,18 @@ const TagCategoryView = memo(({ name, tags, specialTags, clickCallback, disabled
 
   const isTagSelected = tag => {
     let result = false;
+    let partiallySelected = false;
     for (let i = 0; i < moleculesToEdit.length; i++) {
       const m = moleculesToEdit[i];
       const tagsForMol = getAllTagsForMol(m, tagList);
       if (tagsForMol && tagsForMol.some(t => t.id === tag.id)) {
         result = true;
-        break;
+        // break;
+      } else {
+        partiallySelected = true;
       }
     }
-    return result;
+    return { isSelected: result, isPartiallySelected: partiallySelected };
   };
 
   return (
@@ -90,13 +93,15 @@ const TagCategoryView = memo(({ name, tags, specialTags, clickCallback, disabled
             {tags &&
               tags.map((tag, idx) => {
                 let selected = selectedTagList.some(i => i.id === tag.id);
+                let tagSelected = isTagSelected(tag);
                 return (
                   <TagView
                     key={`tag-item-${idx}`}
                     tag={tag}
-                    selected={clickCallback !== undefined ? isTagSelected(tag) : selected}
+                    selected={clickCallback !== undefined ? tagSelected.isSelected : selected}
                     handleClick={handleTagClick}
                     disabled={disabled}
+                    partiallySelected={tagSelected.isPartiallySelected}
                   ></TagView>
                 );
               })}

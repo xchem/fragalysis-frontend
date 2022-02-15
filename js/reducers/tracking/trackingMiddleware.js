@@ -8,7 +8,7 @@ const trackingMiddleware = ({ dispatch, getState }) => next => action => {
   if (action) {
     const state = getState();
     if (action && action.type && !action.type.includes(constants.APPEND_ACTIONS_LIST)) {
-      let trackAction = findTrackAction(action, state);
+      let trackAction = dispatch(findTrackAction(action, state));
       if (trackAction && trackAction != null) {
         dispatch(appendAndSendTrackingActions(trackAction));
       }
