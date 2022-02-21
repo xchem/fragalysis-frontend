@@ -56,7 +56,7 @@ const NewTagDetailRow = memo(({ moleculesToEditIds, moleculesToEdit }) => {
   const tagToEdit = useSelector(state => state.selectionReducers.tagToEdit);
   const allMolList = useSelector(state => state.apiReducers.all_mol_lists);
 
-  const [newTagCategory, setNewTagCategory] = useState(0);
+  const [newTagCategory, setNewTagCategory] = useState(1);
   const [newTagColor, setNewTagColor] = useState(DEFAULT_TAG_COLOR);
   const [newTagName, setNewTagName] = useState('');
   const [newTagLink, setNewTagLink] = useState('');
@@ -76,7 +76,7 @@ const NewTagDetailRow = memo(({ moleculesToEditIds, moleculesToEdit }) => {
 
   const resetTagToEditState = () => {
     dispatch(setTagToEdit(null));
-    setNewTagCategory(0);
+    setNewTagCategory(1);
     setNewTagColor(DEFAULT_TAG_COLOR);
     setNewTagName('');
     setNewTagLink('');

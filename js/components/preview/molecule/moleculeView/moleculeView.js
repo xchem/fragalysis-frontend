@@ -905,7 +905,7 @@ const MoleculeView = memo(
             </Grid>
           </Grid>
           {/* Up/Down arrows */}
-          <Grid item>
+          {/* <Grid item>
             <Grid container direction="column" justify="space-between" className={classes.arrows}>
               <Grid item>
                 <IconButton
@@ -928,7 +928,7 @@ const MoleculeView = memo(
                 </IconButton>
               </Grid>
             </Grid>
-          </Grid>
+          </Grid> */}
           {/* Image */}
           <Grid
             item

@@ -823,7 +823,7 @@ export const MoleculeList = memo(({ height, setFilterItemsHeight, filterItemsHei
         />
         <AlertModal
           title="Are you sure?"
-          description={`Displaying of ${joinedMoleculeLists?.length} may take a long time`}
+          description={`Displaying of ${allSelectedMolecules?.length} may take a long time`}
           open={isOpenLPCAlert}
           handleOnOk={() => {
             let molecules = getSelectedMoleculesByType(lastProcessedLPCType, true);
