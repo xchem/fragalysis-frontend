@@ -93,7 +93,8 @@ const TagView = memo(
     editable = false,
     disabled = false,
     isEdit = false,
-    isTagEditor = false
+    isTagEditor = false,
+    partiallySelected = false
   }) => {
     const tagData = tag;
     const classes = useStyles();
@@ -203,7 +204,7 @@ const TagView = memo(
         return {
           size: 'small',
           className: `${classes.chip} ${selected && !isSpecialTag ? classes.chipSelected : null}`,
-          label: tagData.tag,
+          label: partiallySelected ? `${tagData.tag}*` : tagData.tag,
           clickable: true,
           color: bgColor,
           borderColor: bgColor,

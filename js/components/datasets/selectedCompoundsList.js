@@ -379,6 +379,7 @@ export const SelectedCompoundList = memo(({ height }) => {
                       S={surfaceList.includes(data.molecule.id)}
                       V={false}
                       arrowsHidden
+                      dragDropEnabled
                     />
                   );
                 })}

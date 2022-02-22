@@ -14,8 +14,9 @@ import { constants as customDatasetConstants } from '../../components/datasets/r
 import { constants as viewerControlsConstants } from '../../components/preview/viewerControls/redux/constants';
 import { DJANGO_CONTEXT } from '../../utils/djangoContext';
 import { BACKGROUND_COLOR } from '../../components/nglView/constants/index';
+import { getMoleculeForId } from '../../components/preview/tags/redux/dispatchActions';
 
-export const findTrackAction = (action, state) => {
+export const findTrackAction = (action, state) => (dispatch, getState) => {
   const username = DJANGO_CONTEXT['username'];
   const target_on_name = state.apiReducers.target_on_name;
   const isActionRestoring = state.trackingReducers.isActionRestoring;
@@ -200,6 +201,34 @@ export const findTrackAction = (action, state) => {
           control_type: payload.type,
           items: payload.items,
           text: `${actionDescription.ALL} ${paylodTypeDescription} ${actionDescription.TURNED_OFF} ${objectType}`
+        };
+      }
+    } else if (action.type === selectionConstants.SET_SELECT_ALL_MOLECULES) {
+      if (action && action.items) {
+        let objectType = actionObjectType.MOLECULE;
+
+        trackAction = {
+          type: actionType.ALL_MOLECULES_SELECTED,
+          annotation: actionAnnotation.CHECK,
+          timestamp: Date.now(),
+          username: username,
+          object_type: objectType,
+          items: action.items,
+          text: `All hits were selected`
+        };
+      }
+    } else if (action.type === selectionConstants.SET_UNSELECT_ALL_MOLECULES) {
+      if (action && action.items) {
+        let objectType = actionObjectType.MOLECULE;
+
+        trackAction = {
+          type: actionType.ALL_MOLECULES_UNSELECTED,
+          annotation: actionAnnotation.CHECK,
+          timestamp: Date.now(),
+          username: username,
+          object_type: objectType,
+          items: action.items,
+          text: `All hits were unselected`
         };
       }
     } else if (action.type === selectionConstants.APPEND_FRAGMENT_DISPLAY_LIST) {
@@ -748,6 +777,42 @@ export const findTrackAction = (action, state) => {
           object_id: action.payload.moleculeID,
           dataset_id: action.payload.datasetID,
           text: `${objectType} ${objectName} ${actionDescription.DESELECTED} of dataset: ${action.payload.datasetID}`
+        };
+      }
+    } else if (action.type === selectionConstants.APPEND_TO_MOL_LIST_TO_EDIT) {
+      if (action.molId) {
+        let objectType = actionObjectType.MOLECULE;
+        let molId = action.molId;
+        let mol = dispatch(getMoleculeForId(molId));
+        let objectName = mol.protein_code;
+
+        trackAction = {
+          type: actionType.MOLECULE_SELECTED,
+          annotation: actionAnnotation.CHECK,
+          timestamp: Date.now(),
+          username: username,
+          object_type: objectType,
+          object_name: objectName,
+          object_id: molId,
+          text: `${objectType} ${objectName} ${actionDescription.SELECTED}`
+        };
+      }
+    } else if (action.type === selectionConstants.REMOVE_FROM_MOL_LIST_TO_EDIT) {
+      if (action.molId) {
+        let objectType = actionObjectType.MOLECULE;
+        let molId = action.molId;
+        let mol = dispatch(getMoleculeForId(molId));
+        let objectName = mol.protein_code;
+
+        trackAction = {
+          type: actionType.MOLECULE_UNSELECTED,
+          annotation: actionAnnotation.CLEAR,
+          timestamp: Date.now(),
+          username: username,
+          object_type: objectType,
+          object_name: objectName,
+          object_id: molId,
+          text: `${objectType} ${objectName} ${actionDescription.DESELECTED}`
         };
       }
     } else if (action.type === customDatasetConstants.SET_SELECTED_ALL) {

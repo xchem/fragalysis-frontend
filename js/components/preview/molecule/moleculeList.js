@@ -54,7 +54,7 @@ import { DEFAULT_FILTER, PREDEFINED_FILTERS } from '../../../reducers/selection/
 import { Edit, FilterList } from '@material-ui/icons';
 import { selectAllMoleculeList, selectJoinedMoleculeList } from './redux/selectors';
 import { MOL_ATTRIBUTES } from './redux/constants';
-import { setFilter } from '../../../reducers/selection/actions';
+import { setFilter, setMolListToEdit, setNextXMolecules } from '../../../reducers/selection/actions';
 import { initializeFilter } from '../../../reducers/selection/dispatchActions';
 import * as listType from '../../../constants/listTypes';
 import { useRouteMatch } from 'react-router-dom';
@@ -79,6 +79,9 @@ const useStyles = makeStyles(theme => ({
     height: '100%',
     width: 'inherit',
     color: theme.palette.black
+  },
+  noOfSelectedHits: {
+    marginLeft: '5px'
   },
   gridItemHeader: {
     height: '32px',
@@ -222,7 +225,7 @@ export const MoleculeList = memo(({ height, setFilterItemsHeight, filterItemsHei
   let match = useRouteMatch();
   let target = match && match.params && match.params.target;
 
-  const [nextXMolecules, setNextXMolecules] = useState(0);
+  const nextXMolecules = useSelector(state => state.selectionReducers.nextXMolecules);
   const [selectAllHitsPressed, setSelectAllHitsPressed] = useState(false);
   const moleculesPerPage = 5;
   const [currentPage, setCurrentPage] = useState(0);
@@ -254,6 +257,7 @@ export const MoleculeList = memo(({ height, setFilterItemsHeight, filterItemsHei
   const isTagEditorOpen = useSelector(state => state.selectionReducers.tagEditorOpened);
   const molForTagEditId = useSelector(state => state.selectionReducers.molForTagEdit);
   const moleculesToEditIds = useSelector(state => state.selectionReducers.moleculesToEdit);
+  const isGlobalEdit = useSelector(state => state.selectionReducers.isGlobalEdit);
 
   const object_selection = useSelector(state => state.selectionReducers.mol_group_selection);
 
@@ -327,14 +331,16 @@ export const MoleculeList = memo(({ height, setFilterItemsHeight, filterItemsHei
     joinedMoleculeLists,
     proteinList,
     molForTagEditId,
-    isTagEditorOpen
+    isTagEditorOpen,
+    moleculesToEditIds
   ]);
   joinedMoleculeLists = useMemo(() => addSelectedMoleculesFromUnselectedSites(joinedMoleculeLists, complexList), [
     addSelectedMoleculesFromUnselectedSites,
     joinedMoleculeLists,
     complexList,
     molForTagEditId,
-    isTagEditorOpen
+    isTagEditorOpen,
+    moleculesToEditIds
   ]);
   joinedMoleculeLists = useMemo(
     () => addSelectedMoleculesFromUnselectedSites(joinedMoleculeLists, fragmentDisplayList),
@@ -343,7 +349,8 @@ export const MoleculeList = memo(({ height, setFilterItemsHeight, filterItemsHei
       joinedMoleculeLists,
       fragmentDisplayList,
       molForTagEditId,
-      isTagEditorOpen
+      isTagEditorOpen,
+      moleculesToEditIds
     ]
   );
   joinedMoleculeLists = useMemo(() => addSelectedMoleculesFromUnselectedSites(joinedMoleculeLists, surfaceList), [
@@ -351,21 +358,24 @@ export const MoleculeList = memo(({ height, setFilterItemsHeight, filterItemsHei
     joinedMoleculeLists,
     surfaceList,
     molForTagEditId,
-    isTagEditorOpen
+    isTagEditorOpen,
+    moleculesToEditIds
   ]);
   joinedMoleculeLists = useMemo(() => addSelectedMoleculesFromUnselectedSites(joinedMoleculeLists, densityList), [
     addSelectedMoleculesFromUnselectedSites,
     joinedMoleculeLists,
     densityList,
     molForTagEditId,
-    isTagEditorOpen
+    isTagEditorOpen,
+    moleculesToEditIds
   ]);
   joinedMoleculeLists = useMemo(() => addSelectedMoleculesFromUnselectedSites(joinedMoleculeLists, vectorOnList), [
     addSelectedMoleculesFromUnselectedSites,
     joinedMoleculeLists,
     vectorOnList,
     molForTagEditId,
-    isTagEditorOpen
+    isTagEditorOpen,
+    moleculesToEditIds
   ]);
 
   if (isActiveFilter) {
@@ -393,9 +403,27 @@ export const MoleculeList = memo(({ height, setFilterItemsHeight, filterItemsHei
     }
   }
 
+  if (moleculesToEditIds && moleculesToEditIds.length > 0 && isGlobalEdit) {
+    moleculesToEditIds.forEach(mid => {
+      if (!joinedMoleculeLists.some(m => m.id === mid)) {
+        const tagEditMol = dispatch(getMoleculeForId(mid));
+        if (tagEditMol) {
+          joinedMoleculeLists.push(tagEditMol);
+        }
+      }
+    });
+    joinedMoleculeLists.sort((a, b) => {
+      if (a.protein_code < b.protein_code) {
+        return -1;
+      }
+      if (a.protein_code > b.protein_code) {
+        return 1;
+      }
+      return 0;
+    });
+  }
+
   const listItemOffset = (currentPage + 1) * moleculesPerPage + nextXMolecules;
-  const currentMolecules = joinedMoleculeLists.slice(0, listItemOffset);
-  dispatch(setDisplayedMoleculesInHitNav(currentMolecules));
   const canLoadMore = listItemOffset < joinedMoleculeLists.length;
 
   const wereMoleculesInitialized = useRef(false);
@@ -479,6 +507,19 @@ export const MoleculeList = memo(({ height, setFilterItemsHeight, filterItemsHei
       allMoleculesList.filter(molecule => moleculesToEditIds.includes(molecule.id) || molecule.id === molForTagEditId),
     [allMoleculesList, moleculesToEditIds, molForTagEditId]
   );
+
+  let currentMolecules = joinedMoleculeLists.slice(0, listItemOffset);
+  dispatch(setDisplayedMoleculesInHitNav(currentMolecules));
+
+  const newMolsToEdit = [];
+  currentMolecules.forEach(cm => {
+    if (moleculesToEditIds.includes(cm.id)) {
+      newMolsToEdit.push(cm.id);
+    }
+  });
+  if (newMolsToEdit.length !== moleculesToEditIds.length) {
+    dispatch(setMolListToEdit(newMolsToEdit));
+  }
 
   const changePredefinedFilter = event => {
     let newFilter = Object.assign({}, filter);
@@ -635,6 +676,7 @@ export const MoleculeList = memo(({ height, setFilterItemsHeight, filterItemsHei
   };
 
   const onButtonToggle = (type, calledFromSelectAll = false) => {
+    setLastProcessedLPCType(type);
     if (calledFromSelectAll === true && selectedAll.current === true) {
       // REDO
       if (eval('is' + ucfirst(type) + 'On') === false) {
@@ -645,8 +687,12 @@ export const MoleculeList = memo(({ height, setFilterItemsHeight, filterItemsHei
     } else if (!calledFromSelectAll) {
       if (eval('is' + ucfirst(type) + 'On') === false) {
         let molecules = getSelectedMoleculesByType(type, true);
-        dispatch(setSelectedAllByType(type, molecules));
-        addNewType(type, true);
+        if (molecules && molecules.length > 100) {
+          setIsOpenLPCAlert(true);
+        } else {
+          dispatch(setSelectedAllByType(type, molecules));
+          addNewType(type, true);
+        }
       } else {
         let molecules = getSelectedMoleculesByType(type, false);
         dispatch(setDeselectedAllByType(type, molecules));
@@ -748,6 +794,8 @@ export const MoleculeList = memo(({ height, setFilterItemsHeight, filterItemsHei
   ];
 
   const [isOpenAlert, setIsOpenAlert] = useState(false);
+  const [isOpenLPCAlert, setIsOpenLPCAlert] = useState(false);
+  const [lastProcessedLPCType, setLastProcessedLPCType] = useState(null);
 
   const groupNglControlButtonsDisabledState = useDisableNglControlButtons(allSelectedMolecules);
 
@@ -766,11 +814,25 @@ export const MoleculeList = memo(({ height, setFilterItemsHeight, filterItemsHei
           description={`Loading of ${joinedMoleculeLists?.length} may take a long time`}
           open={isOpenAlert}
           handleOnOk={() => {
-            setNextXMolecules(joinedMoleculeLists?.length || 0);
+            dispatch(setNextXMolecules(joinedMoleculeLists?.length || 0));
             setIsOpenAlert(false);
           }}
           handleOnCancel={() => {
             setIsOpenAlert(false);
+          }}
+        />
+        <AlertModal
+          title="Are you sure?"
+          description={`Displaying of ${allSelectedMolecules?.length} may take a long time`}
+          open={isOpenLPCAlert}
+          handleOnOk={() => {
+            let molecules = getSelectedMoleculesByType(lastProcessedLPCType, true);
+            dispatch(setSelectedAllByType(lastProcessedLPCType, molecules));
+            addNewType(lastProcessedLPCType, true);
+            setIsOpenLPCAlert(false);
+          }}
+          handleOnCancel={() => {
+            setIsOpenLPCAlert(false);
           }}
         />
         {isTagEditorOpen && (
@@ -922,6 +984,11 @@ export const MoleculeList = memo(({ height, setFilterItemsHeight, filterItemsHei
                         </Grid>
                       </Tooltip>
                     }
+                    <Grid item>
+                      <Typography variant="caption" className={classes.noOfSelectedHits}>{`Selected: ${
+                        allSelectedMolecules ? allSelectedMolecules.length : 0
+                      }`}</Typography>
+                    </Grid>
                   </Grid>
                 </Grid>
               </Grid>
@@ -1003,14 +1070,14 @@ export const MoleculeList = memo(({ height, setFilterItemsHeight, filterItemsHei
                     >
                       <Button
                         onClick={() => {
-                          setNextXMolecules(30);
+                          dispatch(setNextXMolecules(30));
                         }}
                       >
                         Load next 30
                       </Button>
                       <Button
                         onClick={() => {
-                          setNextXMolecules(100);
+                          dispatch(setNextXMolecules(100));
                         }}
                       >
                         Load next 100
@@ -1020,7 +1087,7 @@ export const MoleculeList = memo(({ height, setFilterItemsHeight, filterItemsHei
                           if (joinedMoleculeLists?.length > 300) {
                             setIsOpenAlert(true);
                           } else {
-                            setNextXMolecules(joinedMoleculeLists?.length || 0);
+                            dispatch(setNextXMolecules(joinedMoleculeLists?.length || 0));
                           }
                         }}
                       >

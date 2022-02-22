@@ -30,7 +30,9 @@ import {
   appendToDensityListType,
   removeFromDensityListType,
   setArrowUpDown,
-  setMolListToEdit
+  setMolListToEdit,
+  setSelectAllMolecules,
+  setUnselectAllMolecules
 } from '../../../../reducers/selection/actions';
 import { base_url } from '../../../routes/constants';
 import {
@@ -1125,11 +1127,15 @@ export const withDisabledMoleculesNglControlButtons = (moleculeIds, type, callba
 };
 
 export const selectAllHits = (allFilteredMolecules, setNextXMolecules, unselect) => (dispatch, getState) => {
-  setNextXMolecules(allFilteredMolecules?.length || 0);
+  if (setNextXMolecules) {
+    dispatch(setNextXMolecules(allFilteredMolecules?.length || 0));
+  }
   const listOfIds = allFilteredMolecules.map(m => m.id);
   if (!unselect) {
     dispatch(setMolListToEdit(listOfIds));
+    dispatch(setSelectAllMolecules(allFilteredMolecules));
   } else {
     dispatch(setMolListToEdit([]));
+    dispatch(setUnselectAllMolecules(allFilteredMolecules));
   }
 };

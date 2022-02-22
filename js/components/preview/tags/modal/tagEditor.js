@@ -1,4 +1,4 @@
-import React, { forwardRef, memo } from 'react';
+import React, { forwardRef, memo, useState } from 'react';
 import { Grid, Popper, IconButton, Tooltip, makeStyles } from '@material-ui/core';
 import { Panel } from '../../../common';
 import { Close } from '@material-ui/icons';
@@ -15,6 +15,7 @@ import {
   getMoleculeTagForTag
 } from '../utils/tagUtils';
 import TagCategory from '../tagCategory';
+import { TaggingInProgressModal } from './taggingInProgressModal';
 
 const useStyles = makeStyles(theme => ({
   paper: {
@@ -106,6 +107,10 @@ export const TagEditor = memo(
     const isTagGlobalEdit = useSelector(state => state.selectionReducers.isGlobalEdit);
     const molId = useSelector(state => state.selectionReducers.molForTagEdit);
     let moleculesToEditIds = useSelector(state => state.selectionReducers.moleculesToEdit);
+    const targetId = useSelector(state => state.apiReducers.target_on);
+    const [taggingInProgress, setTaggingInProgress] = useState(false);
+    const [isError, setIsError] = useState(false);
+    const [molsLeftForTagging, setMolsLeftForTagging] = useState(0);
     if (!isTagGlobalEdit) {
       moleculesToEditIds = [];
       moleculesToEditIds.push(molId);
@@ -122,59 +127,78 @@ export const TagEditor = memo(
       }
     };
 
-    const handleTagClick = (selected, tag) => {
-      let molTagObjects = [];
-      if (selected) {
-        moleculesToEdit.forEach(m => {
-          let newMol = { ...m };
-          newMol.tags_set = newMol.tags_set.filter(id => id !== tag.id);
-          dispatch(updateMoleculeInMolLists(newMol));
-          const moleculeTag = getMoleculeTagForTag(moleculeTags, tag.id);
-          let newMolList = [...moleculeTag.molecules];
-          newMolList = newMolList.filter(id => id !== m.id);
-          const mtObject = createMoleculeTagObject(
-            tag.tag,
-            newMol.proteinData.target_id,
-            tag.category_id,
-            DJANGO_CONTEXT.pk,
-            tag.colour,
-            tag.discourse_url,
-            newMolList,
-            tag.create_date,
-            tag.additional_info
-          );
-          molTagObjects.push(mtObject);
-        });
-      } else {
-        moleculesToEdit.forEach(m => {
-          if (!m.tags_set.some(id => id === tag.id)) {
+    const handleTagClick = async (selected, tag) => {
+      try {
+        setTaggingInProgress(true);
+
+        let molTagObjects = [];
+        if (selected) {
+          moleculesToEdit.forEach(m => {
             let newMol = { ...m };
-            newMol.tags_set.push(tag.id);
+            newMol.tags_set = newMol.tags_set.filter(id => id !== tag.id);
             dispatch(updateMoleculeInMolLists(newMol));
             const moleculeTag = getMoleculeTagForTag(moleculeTags, tag.id);
+            let newMolList = [...moleculeTag.molecules];
+            newMolList = newMolList.filter(id => id !== m.id);
             const mtObject = createMoleculeTagObject(
               tag.tag,
-              newMol.proteinData.target_id,
+              targetId,
               tag.category_id,
               DJANGO_CONTEXT.pk,
               tag.colour,
               tag.discourse_url,
-              [...moleculeTag.molecules, newMol.id],
+              newMolList,
               tag.create_date,
               tag.additional_info
             );
             molTagObjects.push(mtObject);
+          });
+        } else {
+          moleculesToEdit.forEach(m => {
+            if (!m.tags_set.some(id => id === tag.id)) {
+              let newMol = { ...m };
+              newMol.tags_set.push(tag.id);
+              dispatch(updateMoleculeInMolLists(newMol));
+              const moleculeTag = getMoleculeTagForTag(moleculeTags, tag.id);
+              const mtObject = createMoleculeTagObject(
+                tag.tag,
+                targetId,
+                tag.category_id,
+                DJANGO_CONTEXT.pk,
+                tag.colour,
+                tag.discourse_url,
+                [...moleculeTag.molecules, newMol.id],
+                tag.create_date,
+                tag.additional_info
+              );
+              molTagObjects.push(mtObject);
+            }
+          });
+        }
+        if (molTagObjects) {
+          let molsLeft = molTagObjects.length + 1;
+          setMolsLeftForTagging(molsLeft);
+          for (const mto of molTagObjects) {
+            let molTagObject = { ...mto };
+            let augMolTagObject = augumentTagObjectWithId(molTagObject, tag.id);
+            await updateExistingTag(molTagObject, tag.id);
+            dispatch(updateMoleculeTag(augMolTagObject));
+            molsLeft = molsLeft - 1;
+            setMolsLeftForTagging(molsLeft);
           }
-        });
+        }
+      } catch (e) {
+        console.log(e);
+        setIsError(true);
+        //dispatch(setIsErrorDuringTagging(true));
+      } finally {
+        setTaggingInProgress(false);
       }
-      if (molTagObjects) {
-        molTagObjects.forEach(mto => {
-          let molTagObject = { ...mto };
-          let augMolTagObject = augumentTagObjectWithId(molTagObject, tag.id);
-          dispatch(updateMoleculeTag(augMolTagObject));
-          updateExistingTag(molTagObject, tag.id);
-        });
-      }
+    };
+
+    const handleTagginInProgressClose = () => {
+      setIsError(false);
+      setTaggingInProgress(false);
     };
 
     return (
@@ -197,7 +221,13 @@ export const TagEditor = memo(
             </Tooltip>
           ]}
         >
-          <Grid>
+          <TaggingInProgressModal
+            open={taggingInProgress}
+            isError={isError}
+            handleClose={handleTagginInProgressClose}
+            molsLeft={molsLeftForTagging}
+          />
+          <Grid className={classes.content}>
             <TagCategory tagClickCallback={handleTagClick} disabled={!DJANGO_CONTEXT.pk} />
           </Grid>
         </Panel>

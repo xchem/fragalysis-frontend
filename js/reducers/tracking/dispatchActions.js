@@ -7,7 +7,13 @@ import {
 import { createInitAction } from './trackingActions';
 import { actionType, actionObjectType, NUM_OF_SECONDS_TO_IGNORE_MERGE, mapTypesStrings } from './constants';
 import { VIEWS } from '../../../js/constants/constants';
-import { setHideAll, setArrowUpDown } from '../selection/actions';
+import {
+  setHideAll,
+  setArrowUpDown,
+  appendToMolListToEdit,
+  removeFromMolListToEdit,
+  setNextXMolecules
+} from '../selection/actions';
 import {
   resetReducersForRestoringActions,
   shouldLoadProtein,
@@ -40,7 +46,8 @@ import {
   addDensity,
   addDensityCustomView,
   removeDensity,
-  getProteinData
+  getProteinData,
+  selectAllHits
 } from '../../components/preview/molecule/redux/dispatchActions';
 import { setSortDialogOpen } from '../../components/preview/molecule/redux/actions';
 import {
@@ -152,9 +159,11 @@ import { MAP_TYPE } from '../ngl/constants';
 import {
   removeSelectedTag,
   addSelectedTag,
-  loadMoleculesAndTags
+  loadMoleculesAndTags,
+  getMoleculeForId
 } from '../../components/preview/tags/redux/dispatchActions';
 import { turnSide } from '../../components/preview/viewerControls/redux/actions';
+import { NetworkCheckSharp } from '@material-ui/icons';
 
 export const addCurrentActionsListToSnapshot = (snapshot, project, nglViewList) => async (dispatch, getState) => {
   let projectID = project && project.projectID;
@@ -195,6 +204,7 @@ const saveActionsList = (project, snapshot, actionList, nglViewList) => async (d
     const currentBuyList = state.selectionReducers.to_buy_list;
     const currentVector = state.selectionReducers.currentVector;
     const currentSelectionAll = state.selectionReducers.moleculeAllSelection;
+    const selectedMolecules = state.selectionReducers.moleculesToEdit;
 
     const currentDatasetLigands = state.datasetsReducers.ligandLists;
     const currentDatasetProteins = state.datasetsReducers.proteinLists;
@@ -286,6 +296,13 @@ const saveActionsList = (project, snapshot, actionList, nglViewList) => async (d
       getCollectionOfDataset(currentDatasetComplexes)
     );
 
+    getCurrentActionListOfSelectAllMolecules(
+      orderedActionList,
+      actionType.ALL_MOLECULES_SELECTED,
+      getCollection(selectedMolecules),
+      currentActions
+    );
+
     getCurrentActionList(
       orderedActionList,
       actionType.SIDECHAINS_TURNED_ON,
@@ -315,6 +332,12 @@ const saveActionsList = (project, snapshot, actionList, nglViewList) => async (d
       orderedActionList,
       actionType.DENSITY_TURNED_ON,
       getCollection(currentDensities),
+      currentActions
+    );
+    getCurrentActionList(
+      orderedActionList,
+      actionType.MOLECULE_SELECTED,
+      getCollection(selectedMolecules),
       currentActions
     );
     getCurrentActionList(orderedActionList, actionType.DENSITY_TYPE_ON, currentDensitiesType, currentActions);
@@ -654,6 +677,22 @@ const getCurrentActionListOfAllSelectionByTypeOfDataset = (
   }
 };
 
+const getCurrentActionListOfSelectAllMolecules = (orderedActionList, type, collection, currentActions) => {
+  let action = orderedActionList.find(action => action.type === type);
+  if (action && collection) {
+    let actionItems = action.items;
+    let items = [];
+    collection.forEach(data => {
+      let item = actionItems.find(ai => ai.id === data.id);
+      if (item) {
+        items.push(item);
+      }
+    });
+
+    currentActions.push(Object.assign({ ...action, items: items }));
+  }
+};
+
 const getCurrentActionListOfShoppingCart = (orderedActionList, type, collection, currentActions) => {
   let actionList = orderedActionList.filter(action => action.type === type);
 
@@ -840,6 +879,7 @@ export const restoreAfterTargetActions = (stages, projectId) => async (dispatch,
     await dispatch(restoreMoleculesActions(orderedActionList, majorView.stage));
     await dispatch(restoreRepresentationActions(orderedActionList, stages));
     await dispatch(restoreProject(projectId));
+    dispatch(restoreMoleculeSelectionActions(orderedActionList));
     dispatch(restoreTabActions(orderedActionList));
     await dispatch(restoreCartActions(orderedActionList, majorView.stage));
     dispatch(restoreSnapshotImageActions(projectId));
@@ -847,6 +887,17 @@ export const restoreAfterTargetActions = (stages, projectId) => async (dispatch,
     dispatch(restoreNglSettingsAction(orderedActionList, majorView.stage));
     dispatch(setIsActionsRestoring(false, true));
     dispatch(restoreViewerControlActions(orderedActionList));
+  }
+};
+
+const restoreMoleculeSelectionActions = orderedActionList => (dispatch, getState) => {
+  const state = getState();
+  let actions = orderedActionList.filter(action => action.type === actionType.MOLECULE_SELECTED);
+  if (actions) {
+    actions.forEach(a => {
+      const mol = getMolecule(a.object_name, state);
+      dispatch(appendToMolListToEdit(mol.id));
+    });
   }
 };
 
@@ -1251,6 +1302,7 @@ const restoreMoleculesActions = (orderedActionList, stage) => async (dispatch, g
     await dispatch(addNewType(moleculesAction, actionType.DENSITY_TURNED_ON, 'density', stage, state));
     await dispatch(addNewType(moleculesAction, actionType.DENSITY_TYPE_ON, 'density', stage, state));
     await dispatch(addNewType(moleculesAction, actionType.DENSITY_CUSTOM_TURNED_ON, 'densityCustom', stage, state));
+    await dispatch(restoreSelectAllMolecules(moleculesAction));
   }
 
   dispatch(restoreAllSelectionActions(orderedActionList, stage, true));
@@ -1373,6 +1425,18 @@ const restoreAllSelectionActions = (moleculesAction, stage, isSelection) => (dis
           dispatch(handleMoleculeAction(action, 'complex', true, stage, state, true));
         }
       }
+    });
+  }
+};
+
+const restoreSelectAllMolecules = moleculesAction => (dispatch, getState) => {
+  let action = moleculesAction.find(ma => ma.type === actionType.ALL_MOLECULES_SELECTED);
+  if (action && action.items) {
+    const state = getState();
+    const allMolecules = state.apiReducers.all_mol_lists;
+    dispatch(setNextXMolecules(allMolecules.length));
+    action.items.forEach(m => {
+      dispatch(handleSelectMoleculeByName(m.protein_code, true));
     });
   }
 };
@@ -1991,6 +2055,18 @@ const handleUndoAction = (action, stages) => (dispatch, getState) => {
       case actionType.COMPOUND_DESELECTED:
         dispatch(handleCompoundAction(action, true));
         break;
+      case actionType.MOLECULE_SELECTED:
+        dispatch(handleSelectMoleculeAction(action, false));
+        break;
+      case actionType.MOLECULE_UNSELECTED:
+        dispatch(handleSelectMoleculeAction(action, true));
+        break;
+      case actionType.ALL_MOLECULES_SELECTED:
+        dispatch(handleSelectAllMolecules(action, false));
+        break;
+      case actionType.ALL_MOLECULES_UNSELECTED:
+        dispatch(handleSelectAllMolecules(action, true));
+        break;
       case actionType.TAB:
         dispatch(handleTabAction(action, false));
         break;
@@ -2229,6 +2305,18 @@ const handleRedoAction = (action, stages) => (dispatch, getState) => {
         break;
       case actionType.COMPOUND_DESELECTED:
         dispatch(handleCompoundAction(action, false));
+        break;
+      case actionType.MOLECULE_SELECTED:
+        dispatch(handleSelectMoleculeAction(action, true));
+        break;
+      case actionType.MOLECULE_UNSELECTED:
+        dispatch(handleSelectMoleculeAction(action, false));
+        break;
+      case actionType.ALL_MOLECULES_SELECTED:
+        dispatch(handleSelectAllMolecules(action, true));
+        break;
+      case actionType.ALL_MOLECULES_UNSELECTED:
+        dispatch(handleSelectAllMolecules(action, false));
         break;
       case actionType.TAB:
         dispatch(handleTabAction(action, true));
@@ -2645,6 +2733,32 @@ const handleCompoundAction = (action, isSelected) => (dispatch, getState) => {
         dispatch(removeMoleculeFromCompoundsOfDatasetToBuy(action.dataset_id, data.id, data.name));
       }
     }
+  }
+};
+
+const handleSelectMoleculeAction = (action, isSelected) => (dispatch, getState) => {
+  if (action) {
+    dispatch(handleSelectMoleculeByName(action.object_name));
+  }
+};
+
+const handleSelectMoleculeByName = (molName, isSelected) => (dispatch, getState) => {
+  const state = getState();
+  if (molName) {
+    let mol = getMolecule(molName, state);
+    if (mol) {
+      if (isSelected) {
+        dispatch(appendToMolListToEdit(mol.id));
+      } else {
+        dispatch(removeFromMolListToEdit(mol.id));
+      }
+    }
+  }
+};
+
+const handleSelectAllMolecules = (action, isSelected) => (dispatch, getState) => {
+  if (action && action.items) {
+    dispatch(selectAllHits(action.items, setNextXMolecules, !isSelected));
   }
 };
 
