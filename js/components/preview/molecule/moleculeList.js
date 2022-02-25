@@ -639,7 +639,7 @@ export const MoleculeList = memo(({ height, setFilterItemsHeight, filterItemsHei
 
           if (type === 'ligand') {
             allSelectedMolecules.forEach(molecule => {
-              selectMoleculeTags(molecule.tags_set);
+              //selectMoleculeTags(molecule.tags_set);
 
               promises.push(
                 dispatch(
@@ -656,7 +656,7 @@ export const MoleculeList = memo(({ height, setFilterItemsHeight, filterItemsHei
             });
           } else {
             allSelectedMolecules.forEach(molecule => {
-              selectMoleculeTags(molecule.tags_set);
+              //selectMoleculeTags(molecule.tags_set);
               promises.push(
                 dispatch(
                   addType[type](majorViewStage, molecule, colourList[molecule.id % colourList.length], skipTracking)
