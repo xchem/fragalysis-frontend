@@ -959,40 +959,39 @@ const MoleculeView = memo(
             </Grid>
             {(moleculeTooltipOpen === true || isTagEditorInvokedByMolecule) && (
               <Grid item xs={2}>
-                <MoleculeSelectCheckbox
-                  color="primary"
-                  className={classes.tagIcon}
-                  onClick={() => {
-                    // setTagAddModalOpen(!tagAddModalOpen);
-                    if (isTagEditorInvokedByMolecule) {
-                      dispatch(setTagEditorOpen(!isTagEditorOpen));
-                      dispatch(setMoleculeForTagEdit(null));
-                      dispatch(setTagEditorOpen(false));
-                    } else {
-                      dispatch(setMoleculeForTagEdit(data.id));
-                      dispatch(setTagEditorOpen(true));
-                      if (setRef) {
-                        setRef(ref.current);
-                      }
-                    }
+                <Tooltip
+                  title={generateTooltip()}
+                  /* show tooltip even when this molecule prompted edit in tag editor */
+                  open={tagEditorTooltipOpen || isTagEditorInvokedByMolecule}
+                  onOpen={() => {
+                    console.log('Open');
+                    setTagEditorTooltipOpen(true);
                   }}
+                  onClose={() => {
+                    console.log('Close');
+                    setTagEditorTooltipOpen(false);
+                  }}
+                  placement={'left'}
                 >
-                  <Tooltip
-                    title={generateTooltip()}
-                    /* show tooltip even when this molecule prompted edit in tag editor */
-                    open={tagEditorTooltipOpen || isTagEditorInvokedByMolecule}
-                    onOpen={() => setTagEditorTooltipOpen(true)}
-                    onClose={() => setTagEditorTooltipOpen(false)}
-                    placement={isTagEditorInvokedByMolecule ? 'bottom-end' : 'bottom'}
-                  >
-                    <Checkbox
-                      checked={isTagEditorInvokedByMolecule}
-                      className={classes.checkbox}
-                      size="small"
-                      color="primary"
-                    />
-                  </Tooltip>
-                </MoleculeSelectCheckbox>
+                  <MoleculeSelectCheckbox
+                    color="primary"
+                    className={classes.tagIcon}
+                    onClick={() => {
+                      // setTagAddModalOpen(!tagAddModalOpen);
+                      if (isTagEditorInvokedByMolecule) {
+                        dispatch(setTagEditorOpen(!isTagEditorOpen));
+                        dispatch(setMoleculeForTagEdit(null));
+                        dispatch(setTagEditorOpen(false));
+                      } else {
+                        dispatch(setMoleculeForTagEdit(data.id));
+                        dispatch(setTagEditorOpen(true));
+                        if (setRef) {
+                          setRef(ref.current);
+                        }
+                      }
+                    }}
+                  ></MoleculeSelectCheckbox>
+                </Tooltip>
               </Grid>
             )}
             {warningIconVisible === true && (
