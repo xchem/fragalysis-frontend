@@ -964,11 +964,9 @@ const MoleculeView = memo(
                   /* show tooltip even when this molecule prompted edit in tag editor */
                   open={tagEditorTooltipOpen || isTagEditorInvokedByMolecule}
                   onOpen={() => {
-                    console.log('Open');
                     setTagEditorTooltipOpen(true);
                   }}
                   onClose={() => {
-                    console.log('Close');
                     setTagEditorTooltipOpen(false);
                   }}
                   placement={'left'}
