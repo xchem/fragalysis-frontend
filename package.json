@@ -1,5 +1,8 @@
 {
   "name": "fragalysis-frontend",
+  "resolutions": {
+    "sockjs-client": "1.5.2",
+  },
   "version": "0.10.71",
   "description": "Frontend for fragalysis",
   "main": "webpack.config.js",
