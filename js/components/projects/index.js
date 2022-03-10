@@ -26,7 +26,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { ProjectModal } from './projectModal';
 import { loadListOfAllProjects, removeProject, searchInProjects } from './redux/dispatchActions';
 import { DJANGO_CONTEXT } from '../../utils/djangoContext';
-import { isDiscourseAvailable, getExistingPost } from '../../utils/discourse';
+import { isDiscourseAvailable, getExistingPost, openDiscourseLink } from '../../utils/discourse';
 import { setOpenDiscourseErrorModal } from '../../reducers/api/actions';
 
 const useStyles = makeStyles(theme => ({
@@ -184,7 +184,7 @@ export const Projects = memo(({}) => {
                               .then(response => {
                                 if (response.data['Post url']) {
                                   const link = response.data['Post url'];
-                                  window.open(link, '_blank');
+                                  openDiscourseLink(link);
                                 }
                               })
                               .catch(err => {

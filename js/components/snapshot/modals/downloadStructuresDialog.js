@@ -432,7 +432,11 @@ export const DownloadStructureDialog = memo(({}) => {
   const showSnapshotClicked = () => {
     const download = findDownload(selectedDownload);
     if (download && download.additional_info && download.additional_info.snapshot) {
-      window.open(download.additional_info.snapshot.url, '_blank');
+      if (download.additional_info.snapshot.url.includes('http')) {
+        window.open(download.additional_info.snapshot.url, '_blank');
+      } else {
+        window.open(`${base_url}${download.additional_info.snapshot.url}`, '_blank');
+      }
     }
   };
 

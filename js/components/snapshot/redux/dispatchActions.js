@@ -441,6 +441,7 @@ export const createNewSnapshotWithoutStateModification = ({
             title,
             description,
             url: `${base_url}${URLS.projects}${session_project}/${res.data.id}`,
+            relativeUrl: `${URLS.projects}${session_project}/${res.data.id}`,
             disableRedirect: true
           })
         );

@@ -11,13 +11,18 @@ import {
   CircularProgress
 } from '@material-ui/core';
 import { useSelector } from 'react-redux';
+import { base_url } from '../routes/constants';
 
 export const DownloadProgress = memo(({}) => {
   const downloadInProgress = useSelector(state => state.apiReducers.directDownloadInProgress);
   const snapshotUrl = useSelector(state => state.apiReducers.snapshotDownloadUrl);
 
   const openSnapshot = () => {
-    window.open(snapshotUrl, '_blank');
+    if (snapshotUrl && snapshotUrl.includes('http')) {
+      window.open(snapshotUrl, '_blank');
+    } else {
+      window.open(`${base_url}${snapshotUrl}`, '_blank');
+    }
   };
 
   return (

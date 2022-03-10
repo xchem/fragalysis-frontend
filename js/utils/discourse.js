@@ -92,3 +92,13 @@ export const getProjectPosts = projectName => {
     method: METHOD.GET
   });
 };
+
+export const openDiscourseLink = url => {
+  if (url.includes('http')) {
+    window.open(`${url}`, '_blank');
+  } else {
+    window.open(`${DJANGO_CONTEXT.discourse_host}${url}`, '_blank');
+  }
+};
+
+console.log(DJANGO_CONTEXT.discourse_host);

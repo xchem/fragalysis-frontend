@@ -45,7 +45,7 @@ import { FundersModal } from '../funders/fundersModal';
 import { TrackingModal } from '../tracking/trackingModal';
 // eslint-disable-next-line import/extensions
 import { version } from '../../../package.json';
-import { isDiscourseAvailable } from '../../utils/discourse';
+import { isDiscourseAvailable, openDiscourseLink } from '../../utils/discourse';
 import { useSelector, useDispatch } from 'react-redux';
 import { generateDiscourseTargetURL, getExistingPost } from '../../utils/discourse';
 import { DiscourseErrorModal } from './discourseErrorModal';
@@ -138,10 +138,6 @@ export default memo(
     const openCovidMoonshot = () => {
       // window.location.href = 'https://covid.postera.ai/covid';
       window.open('https://covid.postera.ai/covid', '_blank');
-    };
-
-    const openDiscourseLink = url => {
-      window.open(url, '_blank');
     };
 
     let authListItem;

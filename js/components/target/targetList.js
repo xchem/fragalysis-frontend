@@ -8,7 +8,7 @@ import { ListItemText, ListItemSecondaryAction, Grid, IconButton, Tooltip } from
 import { List, ListItem, Panel } from '../common';
 import { Link } from 'react-router-dom';
 import { URLS } from '../routes/constants';
-import { isDiscourseAvailable, generateDiscourseTargetURL } from '../../utils/discourse';
+import { isDiscourseAvailable, generateDiscourseTargetURL, openDiscourseLink } from '../../utils/discourse';
 import { setOpenDiscourseErrorModal } from '../../reducers/api/actions';
 import { Chat } from '@material-ui/icons';
 
@@ -44,7 +44,7 @@ export const TargetList = memo(() => {
                     generateDiscourseTargetURL(data.title)
                       .then(response => {
                         const link = response.data['Post url'];
-                        window.open(link, '_blank');
+                        openDiscourseLink(link);
                       })
                       .catch(err => {
                         console.log(err);

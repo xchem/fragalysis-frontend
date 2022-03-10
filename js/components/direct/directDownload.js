@@ -27,7 +27,7 @@ export const DirectDownload = memo(url => {
               .then(tag => {
                 if (tag.additional_info && tag.additional_info.requestObject) {
                   const requestObject = tag.additional_info.requestObject;
-                  const snapshotUrl = tag.additional_info.snapshot.url;
+                  const snapshotUrl = tag.additional_info.snapshot.relativeUrl;
                   dispatch(setSnapshotDownloadUrl(snapshotUrl));
                   return getDownloadStructuresUrl(requestObject);
                 }
