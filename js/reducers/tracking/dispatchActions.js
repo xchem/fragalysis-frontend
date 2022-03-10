@@ -902,12 +902,9 @@ const restoreMoleculeSelectionActions = orderedActionList => (dispatch, getState
 };
 
 export const restoreNglViewSettings = stages => (dispatch, getState) => {
-  const state = getState();
   const majorViewStage = stages.find(view => view.id === VIEWS.MAJOR_VIEW).stage;
 
-  const currentActionList = state.trackingReducers.track_actions_list;
-  const orderedActionList = currentActionList.reverse((a, b) => a.timestamp - b.timestamp);
-  dispatch(restoreNglSettingsAction(orderedActionList, majorViewStage));
+  dispatch(restoreNglSettingsAction([], majorViewStage));
 };
 
 const restoreNglSettingsAction = (orderedActionList, majorViewStage) => (dispatch, getState) => {
