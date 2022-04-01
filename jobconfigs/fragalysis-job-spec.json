@@ -1,0 +1,47 @@
+{
+  "application": {
+    "application_id": "datamanagerjobs.squonk.it",
+    "kind": "DataManagerJob"
+  },
+  "category": "comp chem",
+  "collection": "fragmenstein",
+  "command": "/code/merger.py --fragments{% for fragment in fragments %} '{{ fragment }}'{% endfor %} --protein '{{ protein }}' --outfile '{{ outfile }}' --count {{ count }} {% if removeHydrogens %}--remove-hydrogens{% endif %} --work-dir {{ DM_INSTANCE_DIRECTORY }}/output",
+  "command_encoding": "JINJA2_3_0",
+  "description": "Given 2 or more fragment molecules generate a merged molecule that combines aspects of those fragments. The merged molecules are minimised within the context of the protein.",
+  "doc_url": "https://discourse.squonk.it/t/job-fragmenstein/110",
+  "id": 92,
+  "image_name": "registry.gitlab.com/informaticsmatters/squonk-fragmenstein",
+  "image_project_directory": "/data",
+  "image_tag": "stable",
+  "image_type": "SIMPLE",
+  "image_working_directory": "/data",
+  "job": "fragmenstein-combine",
+  "keywords": [
+    "fragmenstein",
+    "fbdd"
+  ],
+  "name": "Combine fragments into a single merged molecule",
+  "variables": {
+    "inputs": "{\"type\": \"object\", \"required\": [\"fragments\", \"protein\"], \"properties\": {\"fragments\": {\"title\": \"Fragment molecules\", \"multiple\": true, \"mime-types\": [\"chemical/x-mdl-molfile\"], \"type\": \"file\"}, \"protein\": {\"title\": \"PDB file for protein\", \"mime-types\": [\"chemical/x-pdb\"], \"type\": \"file\"}}}",
+    "options": "{\"type\": \"object\", \"required\": [\"outfile\", \"count\", \"removeHydrogens\"], \"properties\": {\"outfile\": {\"title\": \"Output file name\", \"type\": \"string\", \"default\": \"merged.sdf\", \"pattern\": \"^[A-Za-z0-9_/\\\\.\\\\-]+\\\\.sdf$\"}, \"count\": {\"title\": \"Number of molecules to generate\", \"type\": \"integer\", \"default\": 1, \"minimum\": 1}, \"removeHydrogens\": {\"title\": \"Remove hydrogens from the outputs\", \"type\": \"boolean\", \"default\": false}}}",
+    "order": {
+      "options": [
+        "outfile",
+        "count",
+        "removeHydrogens"
+      ]
+    },
+    "outputs": "{\"type\": \"object\", \"properties\": {\"outputs\": {\"title\": \"Merged molecules\", \"mime-types\": [\"chemical/x-mdl-sdfile\"], \"creates\": \"{{ outfile }}\", \"type\": \"string\"}}}"
+  },
+  "version": "1.0.0",
+  "fragalysis-jobs": {
+     "inputs": {
+       "fragments": {"from": "lhs-fragments", "format": "chemical/x-mdl-molfile"}, 
+       "protein": {"from": "lhs-protein-apo-desolv", "format": "chemical/x-pdb"}
+            },
+      "options": {
+        "outfile": {"value": "fragalysis-jobs/{username}/{job_dir}/merged.sdf", "editable": false},
+        "count": {"value": 5}
+    }
+  }
+}

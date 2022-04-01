@@ -246,6 +246,19 @@ export const DownloadStructureDialog = memo(({}) => {
     return requestObject;
   };
 
+  const getAllMolecules = useSelector(state => state.apiReducers.all_mol_lists);
+  // get ids of selected/visible compounds
+  const currentSnapshotSelectedCompoundsIDs = useSelector(state => state.selectionReducers.moleculesToEdit);
+  const currentSnapshotVisibleCompoundsIDs = useSelector(state => state.selectionReducers.fragmentDisplayList);
+
+  // get protein_code from ids of selected/visible compounds
+  const currentSnapshotSelectedCompounds = getAllMolecules
+    .filter(molecule => currentSnapshotSelectedCompoundsIDs.includes(molecule.id))
+    .map(molecule => molecule.protein_code);
+  const currentSnapshotVisibleCompounds = getAllMolecules
+    .filter(molecule => currentSnapshotVisibleCompoundsIDs.includes(molecule.id))
+    .map(molecule => molecule.protein_code);
+
   const prepareDownloadClicked = () => (dispatch, getState) => {
     if (selectedDownload !== newDownload) {
       const donwloadTag = findDownload(selectedDownload);
@@ -286,7 +299,15 @@ export const DownloadStructureDialog = memo(({}) => {
         dispatch(setDontShowShareSnapshot(true));
         const tagName = generateTagName();
         const auxData = { downloadTag: tagName };
-        dispatch(saveAndShareSnapshot(nglViewList, false, auxData))
+        dispatch(
+          saveAndShareSnapshot(
+            nglViewList,
+            false,
+            auxData,
+            currentSnapshotSelectedCompounds,
+            currentSnapshotVisibleCompounds
+          )
+        )
           .then(() => {
             const state = getState();
             const sharedSnapshot = state.snapshotReducers.sharedSnapshot;

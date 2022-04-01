@@ -201,7 +201,9 @@ export const createNewSnapshot = ({
   session_project,
   nglViewList,
   overwriteSnapshot,
-  createDiscourse = false
+  createDiscourse = false,
+  currentSnapshotSelectedCompounds,
+  currentSnapshotVisibleCompounds
 }) => (dispatch, getState) => {
   const state = getState();
   const selectedSnapshotToSwitch = state.snapshotReducers.selectedSnapshotToSwitch;
@@ -405,7 +407,9 @@ export const createNewSnapshotWithoutStateModification = ({
   parent,
   session_project,
   nglViewList,
-  axuData = {}
+  axuData = {},
+  currentSnapshotSelectedCompounds,
+  currentSnapshotVisibleCompounds
 }) => (dispatch, getState) => {
   if (!session_project) {
     return Promise.reject('Project ID is missing!');
@@ -426,7 +430,9 @@ export const createNewSnapshotWithoutStateModification = ({
       parent,
       session_project,
       data: JSON.stringify(axuData),
-      children: []
+      children: [],
+      currentSnapshotSelectedCompounds,
+      currentSnapshotVisibleCompounds
     };
     const dataString = JSON.stringify(dataToSend);
 
@@ -454,7 +460,13 @@ export const createNewSnapshotWithoutStateModification = ({
   });
 };
 
-export const saveAndShareSnapshot = (nglViewList, showDialog = true, axuData = {}) => async (dispatch, getState) => {
+export const saveAndShareSnapshot = (
+  nglViewList,
+  showDialog = true,
+  axuData = {},
+  currentSnapshotSelectedCompounds = null,
+  currentSnapshotVisibleCompounds = null
+) => async (dispatch, getState) => {
   const state = getState();
   const targetId = state.apiReducers.target_on;
   const loggedInUserID = DJANGO_CONTEXT['pk'];
@@ -471,7 +483,9 @@ export const saveAndShareSnapshot = (nglViewList, showDialog = true, axuData = {
       description: ProjectCreationType.READ_ONLY,
       target: targetId,
       author: loggedInUserID || null,
-      tags: '[]'
+      tags: '[]',
+      currentSnapshotSelectedCompounds,
+      currentSnapshotVisibleCompounds
     };
 
     try {
@@ -496,7 +510,9 @@ export const saveAndShareSnapshot = (nglViewList, showDialog = true, axuData = {
           parent,
           session_project,
           nglViewList,
-          axuData
+          axuData,
+          currentSnapshotSelectedCompounds,
+          currentSnapshotVisibleCompounds
         })
       );
 

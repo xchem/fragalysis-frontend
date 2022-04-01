@@ -12,7 +12,8 @@ import {
   setForceCreateProject,
   setForceProjectCreated,
   setIsLoadingListOfProjects,
-  setCurrentProjectDiscourseLink
+  setCurrentProjectDiscourseLink,
+  setJobLauncherSquonkUrl
 } from './actions';
 import { api, METHOD } from '../../../utils/api';
 import { base_url, URLS } from '../../routes/constants';
@@ -462,4 +463,28 @@ export const createInitSnapshotToProjectWitActions = (session_project, author, p
       });
     })
   ]);
+};
+
+export const jobFileTransfer = data => async () => {
+  return api({
+    url: `${base_url}/api/job_file_transfer/`,
+    method: METHOD.POST,
+    data
+  }).then(response => {
+    console.log(response);
+  });
+};
+
+export const jobRequest = data => dispatch => {
+  return api({
+    url: `${base_url}/api/job_request/`,
+    method: METHOD.POST,
+    data
+  }).then(response => {
+    dispatch(
+      setJobLauncherSquonkUrl(
+        DJANGO_CONTEXT['squonk_ui_url'] + response.data.squonk_url_ext.replace('data-manager-ui', '')
+      )
+    );
+  });
 };

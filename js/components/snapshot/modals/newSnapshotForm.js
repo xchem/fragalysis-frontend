@@ -53,6 +53,20 @@ export const NewSnapshotForm = memo(({ handleCloseModal }) => {
   const isLoadingSnapshotDialog = useSelector(state => state.snapshotReducers.isLoadingSnapshotDialog);
   const isForceProjectCreated = useSelector(state => state.projectReducers.isForceProjectCreated);
 
+  const getAllMolecules = useSelector(state => state.apiReducers.all_mol_lists);
+
+  // get ids of selected/visible compounds
+  const currentSnapshotSelectedCompoundsIDs = useSelector(state => state.selectionReducers.moleculesToEdit);
+  const currentSnapshotVisibleCompoundsIDs = useSelector(state => state.selectionReducers.fragmentDisplayList);
+
+  // get protein_code from ids of selected/visible compounds
+  const currentSnapshotSelectedCompounds = getAllMolecules
+    .filter(molecule => currentSnapshotSelectedCompoundsIDs.includes(molecule.id))
+    .map(molecule => molecule.protein_code);
+  const currentSnapshotVisibleCompounds = getAllMolecules
+    .filter(molecule => currentSnapshotVisibleCompoundsIDs.includes(molecule.id))
+    .map(molecule => molecule.protein_code);
+
   const currentSnapshotId = currentSnapshot && currentSnapshot.id;
   const loggedInUserID = DJANGO_CONTEXT['pk'];
   const username = DJANGO_CONTEXT['username'];
@@ -103,7 +117,9 @@ export const NewSnapshotForm = memo(({ handleCloseModal }) => {
               session_project,
               nglViewList,
               overwriteSnapshot,
-              createDiscourse
+              createDiscourse,
+              currentSnapshotSelectedCompounds,
+              currentSnapshotVisibleCompounds
             })
           ).catch(error => {
             setState(() => {

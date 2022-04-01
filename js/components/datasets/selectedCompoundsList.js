@@ -80,6 +80,18 @@ export const SelectedCompoundList = memo(({ height }) => {
   const complexList = useSelector(state => getListOfSelectedComplexOfAllDatasets(state));
   const surfaceList = useSelector(state => getListOfSelectedSurfaceOfAllDatasets(state));
 
+  const getAllMolecules = useSelector(state => state.apiReducers.all_mol_lists);
+  // get ids of selected/visible compounds
+  const currentSnapshotSelectedCompoundsIDs = useSelector(state => state.selectionReducers.moleculesToEdit);
+  const currentSnapshotVisibleCompoundsIDs = useSelector(state => state.selectionReducers.fragmentDisplayList);
+
+  // get protein_code from ids of selected/visible compounds
+  const currentSnapshotSelectedCompounds = getAllMolecules
+    .filter(molecule => currentSnapshotSelectedCompoundsIDs.includes(molecule.id))
+    .map(molecule => molecule.protein_code);
+  const currentSnapshotVisibleCompounds = getAllMolecules
+    .filter(molecule => currentSnapshotVisibleCompoundsIDs.includes(molecule.id))
+    .map(molecule => molecule.protein_code);
   const showedCompoundList = useSelector(state => state.previewReducers.compounds.showedCompoundList);
   const filteredScoreProperties = useSelector(state => state.datasetsReducers.filteredScoreProperties);
 
@@ -235,7 +247,9 @@ export const SelectedCompoundList = memo(({ height }) => {
 
   const downloadAsCsv = () => (dispatch, getState) => {
     dispatch(setDontShowShareSnapshot(true));
-    dispatch(saveAndShareSnapshot(nglViewList, false)).then(() => {
+    dispatch(
+      saveAndShareSnapshot(nglViewList, false, {}, currentSnapshotSelectedCompounds, currentSnapshotVisibleCompounds)
+    ).then(() => {
       const state = getState();
       const sharedSnapshot = state.snapshotReducers.sharedSnapshot;
 

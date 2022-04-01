@@ -31,9 +31,29 @@ export const INITIAL_STATE = {
   isLoadingTree: false,
   currentSnapshotTree: null,
   currentSnapshotList: null,
+  currentSnapshotJobList: {},
   forceCreateProject: false,
   isForceProjectCreated: false,
-  projectDiscourseLinks: null
+  projectDiscourseLinks: null,
+  jobList: [
+    {
+      id: 1,
+      name: 'Fragmenstein',
+      description: 'Combine fragments into a single merged molecule.',
+      slug: 'fragmenstein-combine'
+    },
+    {
+      id: 2,
+      name: 'Test job',
+      description: 'This is only for test.',
+      slug: 'test-slug'
+    }
+  ],
+  jobPopUpAnchorEl: null,
+  jobLauncherPopUpAnchorEl: null,
+  jobFragmentProteinSelectWindowAnchorEl: null,
+  jobLauncherData: null,
+  jobLauncherSquonkUrl: null
 };
 
 export const projectReducers = (state = INITIAL_STATE, action = {}) => {
@@ -88,7 +108,17 @@ export const projectReducers = (state = INITIAL_STATE, action = {}) => {
       return Object.assign({}, state, { isLoadingTree: action.payload });
 
     case constants.SET_CURRENT_SNAPSHOT_LIST:
-      return Object.assign({}, state, { currentSnapshotList: action.payload });
+      return Object.assign({}, state, {
+        currentSnapshotList: action.payload
+      });
+
+    case constants.SET_CURRENT_SNAPSHOT_JOBLIST: {
+      const { snapshotId, jobList } = action.payload;
+
+      const currentSnapshotJobList = { ...state.currentSnapshotJobList };
+      currentSnapshotJobList[snapshotId] = jobList;
+      return { ...state, currentSnapshotJobList };
+    }
 
     case constants.SET_FORCE_CREATE_PROJECT:
       return Object.assign({}, state, { forceCreateProject: action.payload });
@@ -109,6 +139,21 @@ export const projectReducers = (state = INITIAL_STATE, action = {}) => {
       currentState.currentSnapshotList = null;
 
       return Object.assign({}, currentState);
+
+    case constants.SET_JOB_POP_UP_ANCHOR_EL:
+      return Object.assign({}, state, { jobPopUpAnchorEl: action.payload });
+
+    case constants.SET_JOB_LAUNCHER_POP_UP_ANCHOR_EL:
+      return Object.assign({}, state, { jobLauncherPopUpAnchorEl: action.payload });
+
+    case constants.SET_JOB_FRAGMENT_PROTEIN_SELECT_WINDOW_ANCHOR_EL:
+      return Object.assign({}, state, { jobFragmentProteinSelectWindowAnchorEl: action.payload });
+
+    case constants.SET_JOB_LAUNCHER_DATA:
+      return Object.assign({}, state, { jobLauncherData: action.payload });
+
+    case constants.SET_JOB_LAUNCHER_SQUONK_URL:
+      return Object.assign({}, state, { jobLauncherSquonkUrl: action.payload });
 
     default:
       return state;
