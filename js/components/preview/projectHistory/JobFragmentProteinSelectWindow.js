@@ -150,7 +150,7 @@ const JobFragmentProteinSelectWindow = () => {
 
   const getProteinTemplate = protein => {
     // return `/fragalysis-files/${target_on_name}/${protein}-apo_desolv.pdb`;
-    return `fragalysis-files/${target_on_name}/${protein}_apo_desolv.pdb`;
+    return `fragalysis-files/${target_on_name}/${protein}_apo-desolv.pdb`;
   };
 
   const onSubmitForm = event => {
