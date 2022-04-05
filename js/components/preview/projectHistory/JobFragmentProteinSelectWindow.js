@@ -8,7 +8,7 @@ import { setJobFragmentProteinSelectWindowAnchorEl } from '../../projects/redux/
 import { MuiForm as JSONForm } from '@rjsf/material-ui';
 import jobconfig from '../../../../jobconfigs/fragalysis-job-spec.json';
 import { jobRequest } from '../../projects/redux/dispatchActions';
-import { setJobLauncherSquonkUrl } from '../../projects/redux/actions';
+import { setJobLauncherSquonkUrl, setRefreshJobsData } from '../../projects/redux/actions';
 import { DJANGO_CONTEXT } from '../../../utils/djangoContext';
 
 const useStyles = makeStyles(theme => ({
@@ -88,6 +88,8 @@ const JobFragmentProteinSelectWindow = () => {
   // Get data from previous window
   const jobLauncherData = useSelector(state => state.projectReducers.jobLauncherData);
 
+  const refreshJobsData = useSelector(state => state.projectReducers.refreshJobsData);
+
   // Remove tags from title
   const target_on_name = useSelector(state => state.apiReducers.target_on_name);
   const getMoleculeTitle = title => {
@@ -127,7 +129,7 @@ const JobFragmentProteinSelectWindow = () => {
   };
 
   const getSelects = () => {
-    if (jobLauncherData !== null && jobLauncherData.job !== null && jobLauncherData.job.slug == 'fragmenstein-combine')
+    if (jobLauncherData !== null && jobLauncherData.job !== null && jobLauncherData.job.slug === 'fragmenstein-combine')
       return selects;
     else return {};
   };
@@ -183,6 +185,7 @@ const JobFragmentProteinSelectWindow = () => {
             DJANGO_CONTEXT['squonk_ui_url'] + resp.data.squonk_url_ext.replace('data-manager-ui', '')
           )
         );
+        dispatch(setRefreshJobsData(!refreshJobsData));
       })
       .catch(err => {
         console.log(`Job file transfer failed: ${err}`);

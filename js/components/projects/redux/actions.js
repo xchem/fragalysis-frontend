@@ -119,3 +119,10 @@ export const setJobLauncherSquonkUrl = squonkUrl => ({
   type: constants.SET_JOB_LAUNCHER_SQUONK_URL,
   payload: squonkUrl
 });
+
+export const setRefreshJobsData = refresh => {
+  return {
+    type: constants.SET_REFRESH_JOBS_DATA,
+    payload: refresh
+  };
+};

@@ -53,7 +53,8 @@ export const INITIAL_STATE = {
   jobLauncherPopUpAnchorEl: null,
   jobFragmentProteinSelectWindowAnchorEl: null,
   jobLauncherData: null,
-  jobLauncherSquonkUrl: null
+  jobLauncherSquonkUrl: null,
+  refreshJobsData: false
 };
 
 export const projectReducers = (state = INITIAL_STATE, action = {}) => {
@@ -154,6 +155,9 @@ export const projectReducers = (state = INITIAL_STATE, action = {}) => {
 
     case constants.SET_JOB_LAUNCHER_SQUONK_URL:
       return Object.assign({}, state, { jobLauncherSquonkUrl: action.payload });
+
+    case constants.SET_REFRESH_JOBS_DATA:
+      return { ...state, refreshJobsData: action.payload };
 
     default:
       return state;

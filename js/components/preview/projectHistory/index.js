@@ -12,7 +12,12 @@ import { setIsOpenModalBeforeExit, setSelectedSnapshotToSwitch } from '../../sna
 import { NglContext } from '../../nglView/nglProvider';
 import JobPopup from './JobPopup';
 import JobLauncherPopup from './JobLauncherPopup';
-import { setJobPopUpAnchorEl, setJobLauncherPopUpAnchorEl, setSnapshotJobList } from '../../projects/redux/actions';
+import {
+  setJobPopUpAnchorEl,
+  setJobLauncherPopUpAnchorEl,
+  setSnapshotJobList,
+  setRefreshJobsData
+} from '../../projects/redux/actions';
 import JobFragmentProteinSelectWindow from './JobFragmentProteinSelectWindow';
 import { api } from '../../../utils/api';
 import { base_url } from '../../routes/constants';
@@ -90,11 +95,13 @@ export const ProjectHistory = memo(({ showFullHistory }) => {
   const jobPopUpAnchorEl = useSelector(state => state.projectReducers.jobPopUpAnchorEl);
   const jobLauncherPopUpAnchorEl = useSelector(state => state.projectReducers.jobLauncherPopUpAnchorEl);
 
+  const refreshData = useSelector(state => state.projectReducers.refreshJobsData);
+
   const [jobPopupInfo, setJobPopupInfo] = useState({
     hash: null,
     jobInfo: null
   });
-  const [refreshData, setRefreshData] = useState(false);
+  // const [refreshData, setRefreshData] = useState(false);
   const [graphKey, setGraphKey] = useState(new Date().getTime());
 
   const handleClickJobLauncher = event => {
@@ -231,7 +238,7 @@ export const ProjectHistory = memo(({ showFullHistory }) => {
         setGraphKey(new Date().getTime());
       });
     });
-  }, [currentSnapshotList, refreshData]);
+  }, [currentSnapshotList, refreshData, dispatch]);
 
   return (
     <div className={classes.root}>
@@ -244,7 +251,7 @@ export const ProjectHistory = memo(({ showFullHistory }) => {
             color="inherit"
             variant="text"
             size="small"
-            onClick={() => setRefreshData(!refreshData)}
+            onClick={() => setRefreshJobsData(!refreshData)}
             startIcon={<Refresh />}
           >
             Refresh
