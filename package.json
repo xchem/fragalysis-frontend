@@ -1,6 +1,6 @@
 {
   "name": "fragalysis-frontend",
-  "version": "0.10.73",
+  "version": "0.10.74",
   "description": "Frontend for fragalysis",
   "main": "webpack.config.js",
   "scripts": {

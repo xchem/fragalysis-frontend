@@ -8,6 +8,7 @@ import { setJobFragmentProteinSelectWindowAnchorEl } from '../../projects/redux/
 import { MuiForm as JSONForm } from '@rjsf/material-ui';
 import jobconfig from '../../../../jobconfigs/fragalysis-job-spec.json';
 import { jobRequest } from '../../projects/redux/dispatchActions';
+import { setJobLauncherSquonkUrl } from '../../projects/redux/actions';
 import { DJANGO_CONTEXT } from '../../../utils/djangoContext';
 
 const useStyles = makeStyles(theme => ({
@@ -53,9 +54,16 @@ const useStyles = makeStyles(theme => ({
     borderRadius: '0 0 5px 5px'
   },
 
-  paper: {
+  successMsg: {
     padding: '10px',
     background: '#66BB6A',
+    color: '#ffffff',
+    fontWeight: 'bold'
+  },
+
+  errorMsg: {
+    padding: '10px',
+    background: 'red',
     color: '#ffffff',
     fontWeight: 'bold'
   }
@@ -70,6 +78,8 @@ const JobFragmentProteinSelectWindow = () => {
   );
 
   const [isSubmitted, setIsSubmittet] = useState(false);
+  const [isError, setIsError] = useState(false);
+  const [errorMsg, setErrorMsg] = useState(null);
   const jobLauncherSquonkUrl = useSelector(state => state.projectReducers.jobLauncherSquonkUrl);
 
   const currentSnapshotID = useSelector(state => state.projectReducers.currentSnapshot.id);
@@ -132,11 +142,13 @@ const JobFragmentProteinSelectWindow = () => {
   };
 
   const getFragmentTemplate = fragment => {
-    return `/fragalysis-files/${target_on_name}/${fragment}.mol`;
+    // return `/fragalysis-files/${target_on_name}/${fragment}.mol`;
+    return `fragalysis-files/${target_on_name}/${fragment}.mol`;
   };
 
   const getProteinTemplate = protein => {
-    return `/fragalysis-files/${target_on_name}/${protein}-apo_desolv.pdb`;
+    // return `/fragalysis-files/${target_on_name}/${protein}-apo_desolv.pdb`;
+    return `fragalysis-files/${target_on_name}/${protein}-apo_desolv.pdb`;
   };
 
   const onSubmitForm = event => {
@@ -151,45 +163,64 @@ const JobFragmentProteinSelectWindow = () => {
       formData.protein = getProteinTemplate(formData.protein);
     }
 
-    dispatch(
-      jobRequest({
-        squonk_job_name: 'fragmenstein-combine',
-        snapshot: currentSnapshotID,
-        target: targetId,
-        squonk_project: 'project-e1ce441e-c4d1-4ad1-9057-1a11dbdccebe',
-        squonk_job_spec: JSON.stringify({
-          collection: 'fragmenstein',
-          job: 'fragmenstein-combine',
-          version: '1.0.0',
-          variables: formData
-        })
+    jobRequest({
+      squonk_job_name: 'fragmenstein-combine',
+      snapshot: currentSnapshotID,
+      target: targetId,
+      squonk_project: 'project-e1ce441e-c4d1-4ad1-9057-1a11dbdccebe',
+      squonk_job_spec: JSON.stringify({
+        collection: 'fragmenstein',
+        job: 'fragmenstein-combine',
+        version: '1.0.0',
+        variables: formData
       })
-    );
+    })
+      .then(resp => {
+        setErrorMsg(null);
+        setIsError(false);
+        dispatch(
+          setJobLauncherSquonkUrl(
+            DJANGO_CONTEXT['squonk_ui_url'] + resp.data.squonk_url_ext.replace('data-manager-ui', '')
+          )
+        );
+      })
+      .catch(err => {
+        console.log(`Job file transfer failed: ${err}`);
+        setErrorMsg(err.response.data);
+        setIsError(true);
+      });
 
     setIsSubmittet(true);
   };
 
   return (
-    <Modal
-      open={!!jobFragmentProteinSelectWindowAnchorEl}
-      onClose={() => dispatch(setJobFragmentProteinSelectWindowAnchorEl(null))}
-      hideBackdrop
-    >
+    <Modal open={!!jobFragmentProteinSelectWindowAnchorEl} hideBackdrop>
       <div className={classes.jobLauncherPopup}>
         <div className={classes.topPopup}>
           <span>Job launcher</span>
           <button
             className={classes.popUpButton}
-            onClick={() => dispatch(setJobFragmentProteinSelectWindowAnchorEl(null))}
+            onClick={() => {
+              setErrorMsg(null);
+              setIsError(false);
+              setIsSubmittet(false);
+              dispatch(setJobLauncherSquonkUrl(null));
+              dispatch(setJobFragmentProteinSelectWindowAnchorEl(null));
+            }}
           >
             X
           </button>
         </div>
         <div className={classes.bodyPopup}>
           <JSONForm schema={schema} onSubmit={onSubmitForm} onChange={event => {}}>
-            {jobLauncherSquonkUrl && (
-              <Paper variant="elevation" rounded="true" className={classes.paper}>
+            {jobLauncherSquonkUrl && !isError && (
+              <Paper variant="elevation" rounded="true" className={classes.successMsg}>
                 Job has been launched successfully.
+              </Paper>
+            )}
+            {isError && (
+              <Paper variant="elevation" rounded="true" className={classes.errorMsg}>
+                {errorMsg}
               </Paper>
             )}
             <Button disabled={isSubmitted} type="submit" color="primary" size="large">
