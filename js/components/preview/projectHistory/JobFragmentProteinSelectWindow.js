@@ -191,7 +191,7 @@ const JobFragmentProteinSelectWindow = () => {
       })
       .catch(err => {
         console.log(`Job file transfer failed: ${err}`);
-        setErrorMsg(err.response.data);
+        setErrorMsg(err.response.data?.error ?? 'There was an error launching a job');
         setIsError(true);
       });
 
