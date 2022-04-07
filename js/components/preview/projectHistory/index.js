@@ -234,15 +234,18 @@ export const ProjectHistory = memo(({ showFullHistory }) => {
     }
   }, [currentSnapshotID, dispatch, projectID, snapshotId]);
 
+  const currentSnapshotTreeId = currentSnapshotTree?.id;
   useEffect(() => {
-    Object.keys(currentSnapshotList || {}).forEach(snapshotId => {
-      api({ url: `${base_url}/api/job_request/?snapshot=${snapshotId}` }).then(response => {
-        const jobList = response.data.results;
-        dispatch(setSnapshotJobList({ snapshotId, jobList }));
-        setGraphKey(new Date().getTime());
-      });
+    [currentSnapshotTreeId, ...Object.keys(currentSnapshotList || {})].forEach(snapshotId => {
+      if (snapshotId) {
+        api({ url: `${base_url}/api/job_request/?snapshot=${snapshotId}` }).then(response => {
+          const jobList = response.data.results;
+          dispatch(setSnapshotJobList({ snapshotId, jobList }));
+          setGraphKey(new Date().getTime());
+        });
+      }
     });
-  }, [currentSnapshotList, refreshData, dispatch]);
+  }, [currentSnapshotList, refreshData, dispatch, currentSnapshotTreeId]);
 
   return (
     <div className={classes.root}>
@@ -283,8 +286,7 @@ export const ProjectHistory = memo(({ showFullHistory }) => {
             currentSnapshotTree.title !== null &&
             currentSnapshotTree.id !== null &&
             currentSnapshotID !== null &&
-            currentSnapshotList !== null &&
-            Object.keys(currentSnapshotList).length === Object.keys(currentSnapshotJobList).length && (
+            currentSnapshotList !== null && (
               <Gitgraph key={graphKey} options={options}>
                 {gitgraph => {
                   renderTreeNode(gitgraph, currentSnapshotTree);
