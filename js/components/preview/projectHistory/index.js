@@ -190,15 +190,14 @@ export const ProjectHistory = memo(({ showFullHistory }) => {
     return hexColor;
   };
 
-  const renderTreeNode = (childID, gitgraph, parentBranch) => {
-    const node = currentSnapshotList[childID];
+  const renderTreeNode = (gitgraph, node, parentBranch) => {
     if (node !== undefined) {
       const newBranch = gitgraph.branch({
         name: node.title,
         from: parentBranch
       });
 
-      const newCommit = newBranch.commit(
+      newBranch.commit(
         commitFunction({
           title: node.title || '',
           hash: node.id,
@@ -207,7 +206,12 @@ export const ProjectHistory = memo(({ showFullHistory }) => {
       );
 
       currentSnapshotJobList[node.id]?.forEach(job => {
-        newBranch.commit(
+        const jobBranch = gitgraph.branch({
+          name: job.id,
+          from: newBranch
+        });
+
+        jobBranch.commit(
           commitJobFunction({
             title: job.id,
             hash: `#${job.id}`,
@@ -217,7 +221,7 @@ export const ProjectHistory = memo(({ showFullHistory }) => {
       });
 
       node.children.forEach(childID => {
-        renderTreeNode(childID, gitgraph, newBranch);
+        renderTreeNode(gitgraph, currentSnapshotList[childID], newBranch);
       });
     }
   };
@@ -283,19 +287,7 @@ export const ProjectHistory = memo(({ showFullHistory }) => {
             Object.keys(currentSnapshotList).length === Object.keys(currentSnapshotJobList).length && (
               <Gitgraph key={graphKey} options={options}>
                 {gitgraph => {
-                  const initBranch = gitgraph.branch(currentSnapshotTree.title);
-
-                  initBranch.commit(
-                    commitFunction({
-                      title: currentSnapshotTree.title || '',
-                      hash: currentSnapshotTree.id,
-                      isSelected: currentSnapshotID === currentSnapshotTree.id
-                    })
-                  );
-
-                  currentSnapshotTree.children.forEach(childID => {
-                    renderTreeNode(childID, gitgraph, initBranch);
-                  });
+                  renderTreeNode(gitgraph, currentSnapshotTree);
                 }}
               </Gitgraph>
             )}
