@@ -13,6 +13,7 @@ import {
   setJobLauncherData
 } from '../../projects/redux/actions';
 import { jobFileTransfer } from '../../projects/redux/dispatchActions';
+import { getSquonkProject } from '../redux/dispatchActions';
 
 const useStyles = makeStyles(theme => ({
   jobLauncherPopup: {
@@ -197,6 +198,7 @@ const JobLauncherPopup = ({ jobLauncherPopUpAnchorEl, snapshots }) => {
     jobFileTransfer({
       snapshot: currentSnapshotID,
       target: targetId,
+      // squonk_project: dispatch(getSquonkProject()),
       squonk_project: 'project-e1ce441e-c4d1-4ad1-9057-1a11dbdccebe',
       proteins: chosenCompounds.join()
     })

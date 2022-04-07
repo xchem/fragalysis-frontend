@@ -10,6 +10,7 @@ import jobconfig from '../../../../jobconfigs/fragalysis-job-spec.json';
 import { jobRequest } from '../../projects/redux/dispatchActions';
 import { setJobLauncherSquonkUrl, setRefreshJobsData } from '../../projects/redux/actions';
 import { DJANGO_CONTEXT } from '../../../utils/djangoContext';
+import { getSquonkProject } from '../redux/dispatchActions';
 
 const useStyles = makeStyles(theme => ({
   jobLauncherPopup: {
@@ -169,6 +170,7 @@ const JobFragmentProteinSelectWindow = () => {
       squonk_job_name: 'fragmenstein-combine',
       snapshot: currentSnapshotID,
       target: targetId,
+      // squonk_project: dispatch(getSquonkProject()),
       squonk_project: 'project-e1ce441e-c4d1-4ad1-9057-1a11dbdccebe',
       squonk_job_spec: JSON.stringify({
         collection: 'fragmenstein',
