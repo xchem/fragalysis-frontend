@@ -9,7 +9,7 @@ import { concatStructures, Selection, Shape, Matrix4 } from 'ngl';
 import { loadQualityFromFile } from './renderingHelpers';
 import { getPdb } from './renderingFile';
 import { setNglViewParams } from '../../reducers/ngl/actions';
-import { NGL_PARAMS } from './constants/index';
+import { NGL_PARAMS, QUALITY_TYPES } from './constants/index';
 import { VIEWS } from '../../constants/constants';
 import { MAP_TYPE } from '../../reducers/ngl/constants';
 
@@ -38,8 +38,16 @@ const showLigand = ({
 }) => {
   let stringBlob = new Blob([input_dict.sdf_info], { type: 'text/plain' });
 
-  if (loadQuality === true) {
-    return loadQualityFromFile(stage, stringBlob, quality, object_name, orientationMatrix, input_dict.colour);
+  if (loadQuality && quality && quality.badids?.length > 0) {
+    return loadQualityFromFile(
+      stage,
+      stringBlob,
+      quality,
+      object_name,
+      orientationMatrix,
+      input_dict.colour,
+      QUALITY_TYPES.LIGAND
+    );
   } else {
     return loadLigandFromFile(
       stage,
@@ -120,20 +128,41 @@ const renderHitProtein = (ol, representations, orientationMatrix) => {
   return assignRepresentationArrayToComp(reprArray, comp);
 };
 
-const showHitProtein = async ({ stage, input_dict, object_name, representations, orientationMatrix, dispatch }) => {
+const showHitProtein = async ({
+  stage,
+  input_dict,
+  object_name,
+  representations,
+  orientationMatrix,
+  dispatch,
+  loadQuality,
+  quality
+}) => {
   let stringBlob = new Blob([input_dict.sdf_info], { type: 'text/plain' });
 
   const pdbBlob = await dispatch(getPdb(input_dict.prot_url));
   if (pdbBlob) {
-    const ol = await Promise.all([
-      stage.loadFile(pdbBlob, { ext: 'pdb', defaultAssembly: 'BU1' }),
-      stage.loadFile(stringBlob, { ext: 'sdf' }),
-      stage,
-      defaultFocus,
-      object_name,
-      input_dict.colour
-    ]);
-    renderHitProtein(ol, representations, orientationMatrix);
+    if (loadQuality && quality && quality.badproteinids?.length > 0) {
+      return loadQualityFromFile(
+        stage,
+        pdbBlob,
+        quality,
+        object_name,
+        orientationMatrix,
+        input_dict.colour,
+        QUALITY_TYPES.PROTEIN
+      );
+    } else {
+      const ol = await Promise.all([
+        stage.loadFile(pdbBlob, { ext: 'pdb', defaultAssembly: 'BU1' }),
+        stage.loadFile(stringBlob, { ext: 'sdf' }),
+        stage,
+        defaultFocus,
+        object_name,
+        input_dict.colour
+      ]);
+      renderHitProtein(ol, representations, orientationMatrix);
+    }
   }
 };
 

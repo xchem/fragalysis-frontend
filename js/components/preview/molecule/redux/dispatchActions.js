@@ -205,37 +205,6 @@ export const removeVector = (stage, data, skipTracking = false) => (dispatch, ge
   dispatch(setVectorList(vector_list.filter(item => item.moleculeId !== data.id)));
 };
 
-export const addHitProtein = (
-  stage,
-  data,
-  colourToggle,
-  skipTracking = false,
-  representations = undefined
-) => dispatch => {
-  dispatch(appendProteinList(generateMoleculeId(data), skipTracking));
-  return dispatch(
-    loadObject({
-      target: Object.assign({ display_div: VIEWS.MAJOR_VIEW }, generateHitProteinObject(data, colourToggle, base_url)),
-      stage,
-      previousRepresentations: representations,
-      orientationMatrix: null
-    })
-  ).finally(() => {
-    const currentOrientation = stage.viewerControls.getOrientation();
-    dispatch(setOrientation(VIEWS.MAJOR_VIEW, currentOrientation));
-  });
-};
-
-export const removeHitProtein = (stage, data, colourToggle, skipTracking = false) => dispatch => {
-  dispatch(
-    deleteObject(
-      Object.assign({ display_div: VIEWS.MAJOR_VIEW }, generateHitProteinObject(data, colourToggle, base_url)),
-      stage
-    )
-  );
-  dispatch(removeFromProteinList(generateMoleculeId(data), skipTracking));
-};
-
 export const addComplex = (
   stage,
   data,
@@ -517,6 +486,52 @@ const deleteDensityObject = (data, colourToggle, stage, isWireframeStyle) => dis
   dispatch(deleteObject(Object.assign({ display_div: VIEWS.MAJOR_VIEW }, diffDensityObject), stage));
 
   return densityObject;
+};
+
+export const addHitProtein = (
+  stage,
+  data,
+  colourToggle,
+  withQuality = false,
+  skipTracking = false,
+  representations = undefined
+) => dispatch => {
+  dispatch(appendProteinList(generateMoleculeId(data), skipTracking));
+  let hitProteinObject = generateHitProteinObject(data, colourToggle, base_url);
+  let qualityInformation = dispatch(readQualityInformation(hitProteinObject.name, hitProteinObject.sdf_info));
+
+  let hasAdditionalInformation =
+    withQuality === true &&
+    qualityInformation &&
+    qualityInformation.badproteinids &&
+    qualityInformation.badproteinids.length !== 0;
+  if (hasAdditionalInformation) {
+    dispatch(appendQualityList(generateMoleculeId(data), true));
+  }
+
+  return dispatch(
+    loadObject({
+      target: Object.assign({ display_div: VIEWS.MAJOR_VIEW }, hitProteinObject),
+      stage,
+      previousRepresentations: representations,
+      orientationMatrix: null,
+      loadQuality: hasAdditionalInformation,
+      quality: qualityInformation
+    })
+  ).finally(() => {
+    const currentOrientation = stage.viewerControls.getOrientation();
+    dispatch(setOrientation(VIEWS.MAJOR_VIEW, currentOrientation));
+  });
+};
+
+export const removeHitProtein = (stage, data, colourToggle, skipTracking = false) => dispatch => {
+  dispatch(
+    deleteObject(
+      Object.assign({ display_div: VIEWS.MAJOR_VIEW }, generateHitProteinObject(data, colourToggle, base_url)),
+      stage
+    )
+  );
+  dispatch(removeFromProteinList(generateMoleculeId(data), skipTracking));
 };
 
 export const addLigand = (
@@ -990,7 +1005,9 @@ export const getQualityInformation = (data, molType, width, height) => (dispatch
   let qualityInformation = dispatch(readQualityInformation(moleculeObject.name, data.sdf_info));
 
   let hasAdditionalInformation =
-    qualityInformation && qualityInformation.badids && qualityInformation.badids.length !== 0;
+    qualityInformation &&
+    ((qualityInformation.badids && qualityInformation.badids.length !== 0) ||
+      (qualityInformation.badproteinids && qualityInformation.badproteinids.length !== 0));
   if (hasAdditionalInformation) {
     dispatch(addInformation(data));
   }
