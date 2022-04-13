@@ -9,8 +9,14 @@ import { Tooltip, makeStyles, Button, Typography, IconButton, Fab } from '@mater
 import { Edit, Forum } from '@material-ui/icons';
 import { isURL } from '../../../../utils/common';
 import classNames from 'classnames';
-import { createTagPost, isDiscourseAvailableNotSignedIn, isDiscourseAvailable } from '../../../../utils/discourse';
+import {
+  createTagPost,
+  isDiscourseAvailableNotSignedIn,
+  isDiscourseAvailable,
+  openDiscourseLink
+} from '../../../../utils/discourse';
 import { setTagToEdit, appendToMolListToEdit, removeFromMolListToEdit } from '../../../../reducers/selection/actions';
+import { setOpenDiscourseErrorModal } from '../../../../reducers/api/actions';
 
 const useStyles = makeStyles(theme => ({
   contColButton: {
@@ -180,15 +186,20 @@ const TagDetailRow = memo(({ tag, moleculesToEditIds, moleculesToEdit }) => {
           size="small"
           className={classes.discourseButton}
           onClick={() => {
-            if (isURL(tag.discourse_url)) {
-              window.open(tag.discourse_url, '_blank');
-            } else {
-              createTagPost(tag, targetName, getDefaultTagDiscoursePostText(tag)).then(resp => {
-                const tagURL = resp.data['Post url'];
-                tag['discourse_url'] = tagURL;
-                dispatch(updateTagProp(tag, tagURL, 'discourse_url'));
-                window.open(tag.discourse_url, '_blank');
-              });
+            try {
+              if (tag.discourse_url) {
+                openDiscourseLink(tag.discourse_url);
+              } else {
+                createTagPost(tag, targetName, getDefaultTagDiscoursePostText(tag)).then(resp => {
+                  const tagURL = resp.data['Post url'];
+                  tag['discourse_url'] = tagURL;
+                  dispatch(updateTagProp(tag, tagURL, 'discourse_url'));
+                  openDiscourseLink(tag.discourse_url);
+                });
+              }
+            } catch (err) {
+              console.log(err);
+              dispatch(setOpenDiscourseErrorModal(true));
             }
           }}
           disabled={!(isDiscourseAvailable() || (isDiscourseAvailableNotSignedIn() && tag.discourse_url))}
