@@ -70,6 +70,7 @@ import { readQualityInformation } from '../../../nglView/renderingHelpers';
 import { addSelectedTag } from '../../tags/redux/dispatchActions';
 import { CATEGORY_TYPE } from '../../../../constants/constants';
 import { selectJoinedMoleculeList } from './selectors';
+// import { molFile, pdbApo } from './testData';
 
 /**
  * Convert the JSON into a list of arrow objects
@@ -496,6 +497,7 @@ export const addHitProtein = (
   skipTracking = false,
   representations = undefined
 ) => dispatch => {
+  // data.sdf_info = molFile;
   dispatch(appendProteinList(generateMoleculeId(data), skipTracking));
   let hitProteinObject = generateHitProteinObject(data, colourToggle, base_url);
   let qualityInformation = dispatch(readQualityInformation(hitProteinObject.name, hitProteinObject.sdf_info));
@@ -543,6 +545,7 @@ export const addLigand = (
   skipTracking = false,
   representations = undefined
 ) => (dispatch, getState) => {
+  // data.sdf_info = molFile;
   const currentOrientation = stage.viewerControls.getOrientation();
   dispatch(appendFragmentDisplayList(generateMoleculeId(data), skipTracking));
 

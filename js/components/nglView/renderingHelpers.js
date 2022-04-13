@@ -47,8 +47,9 @@ export function loadQualityFromFile(stage, file, quality, object_name, orientati
       : (quality && quality.badproteincomments) || [];
   // let badatomsnames = (quality && quality.badatomsnames) || [];
   // let atomCount = goodids.length + badids.length;
+  let extension = qualityType === QUALITY_TYPES.LIGAND ? 'sdf' : 'pdb';
 
-  return stage.loadFile(file, { name: object_name, ext: 'sdf' }).then(function(comp) {
+  return stage.loadFile(file, { name: object_name, ext: extension }).then(function(comp) {
     let representationStructures = [];
     let rgbColor = hexToRgb(color);
 
@@ -211,7 +212,8 @@ export const readQualityInformation = (name, text) => (dispatch, getState) => {
 const loadQualityInformation = text => {
   let badidsRegex = /[\n\r].*<BADATOMS>\s*([^\n\r]*)/;
   let badcommentsRegex = /[\n\r].*<BADCOMMENTS>\s*([^\n\r]*)/;
-  let badatomsnamesRegex = /[\n\r].*<BADATOMSNAMES>\s*([^\n\r]*)/;
+  let badatomsnamesRegex = /[\n\r].*<BADATOMNAMES>\s*([^\n\r]*)/;
+  let getfirstNumberRegex = /^[^\d]*(\d+)/;
   let badidsRegexResult = badidsRegex.exec(text);
   let badcommentsRegexResult = badcommentsRegex.exec(text);
   let badatomsnamesRegexResult = badatomsnamesRegex.exec(text);
@@ -245,20 +247,44 @@ const loadQualityInformation = text => {
   let badproteinatomnames = [];
 
   if (badatomsnamesAll.length > 0) {
+    // for (let i = 0; i < badatomsnamesAll?.length; i++) {
+    //   let atomName = badatomsnamesAll[i];
+    //   if (atomName.startsWith('[HET]')) {
+    //     badproteinids.push(badidsAll[i]);
+    //     badproteinatomnames.push(badatomsnamesAll[i]);
+    //     badproteincomments.push(badcommentsAll[i]);
+    //   } else {
+    //     if (atomName.startsWith('[')) {
+    //       atomName = atomName.split(']');
+    //       atomName = atomName && atomName.length > 1 ? atomName[1] : '';
+    //     }
+    //     let atomNumber = atomName.split('.');
+    //     atomNumber = atomNumber && atomNumber.length > 1 ? atomNumber[1] : '0';
+    //     atomNumber = parseInt(atomNumber);
+    //     if (atomNumber > allAtomsCount) {
+    //       badproteinids.push(badidsAll[i]);
+    //       badproteinatomnames.push(badatomsnamesAll[i]);
+    //       badproteincomments.push(badcommentsAll[i]);
+    //     } else {
+    //       badids.push(badidsAll[i]);
+    //       badatomsnames.push(badatomsnamesAll[i]);
+    //       badcomments.push(badcommentsAll[i]);
+    //     }
+    //   }
+    // }
+
     for (let i = 0; i < badatomsnamesAll?.length; i++) {
       let atomName = badatomsnamesAll[i];
-      if (atomName.startsWith('[HET]')) {
+      if (atomName.startsWith('[HET]') /*|| atomName.startsWith('[MET]')*/) {
         badproteinids.push(badidsAll[i]);
         badproteinatomnames.push(badatomsnamesAll[i]);
         badproteincomments.push(badcommentsAll[i]);
       } else {
-        if (atomName.startsWith('[')) {
-          atomName = atomName.split(']');
-          atomName = atomName && atomName.length > 1 ? atomName[1] : '';
-        }
-        let atomNumber = atomName.split('.');
-        atomNumber = atomNumber && atomNumber.length > 1 ? atomNumber[1] : '0';
-        atomNumber = parseInt(atomNumber);
+        let firstNumberRegexResult = getfirstNumberRegex.exec(atomName);
+        let atomNumber =
+          firstNumberRegexResult != null && firstNumberRegexResult && firstNumberRegexResult.length > 1
+            ? firstNumberRegexResult[1]
+            : '';
         if (atomNumber > allAtomsCount) {
           badproteinids.push(badidsAll[i]);
           badproteinatomnames.push(badatomsnamesAll[i]);

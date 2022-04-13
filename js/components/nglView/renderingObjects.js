@@ -12,6 +12,7 @@ import { setNglViewParams } from '../../reducers/ngl/actions';
 import { NGL_PARAMS, QUALITY_TYPES } from './constants/index';
 import { VIEWS } from '../../constants/constants';
 import { MAP_TYPE } from '../../reducers/ngl/constants';
+// import { molFile, pdbApo } from '../preview/molecule/redux/testData';
 
 const showSphere = ({ stage, input_dict, object_name, representations }) => {
   let colour = input_dict.colour;
@@ -141,6 +142,8 @@ const showHitProtein = async ({
   let stringBlob = new Blob([input_dict.sdf_info], { type: 'text/plain' });
 
   const pdbBlob = await dispatch(getPdb(input_dict.prot_url));
+  // const pdbBlob = new Blob([pdbApo], { type: 'text/plain' });
+
   if (pdbBlob) {
     if (loadQuality && quality && quality.badproteinids?.length > 0) {
       return loadQualityFromFile(
@@ -148,9 +151,10 @@ const showHitProtein = async ({
         pdbBlob,
         quality,
         object_name,
+        //'MID2A-x0758_0A_HIT_PROTEIN',
         orientationMatrix,
         input_dict.colour,
-        QUALITY_TYPES.PROTEIN
+        QUALITY_TYPES.HIT_PROTEIN
       );
     } else {
       const ol = await Promise.all([
