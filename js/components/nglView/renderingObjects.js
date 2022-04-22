@@ -146,6 +146,15 @@ const showHitProtein = async ({
 
   if (pdbBlob) {
     if (loadQuality && quality && quality.badproteinids?.length > 0) {
+      const ol = await Promise.all([
+        stage.loadFile(pdbBlob, { ext: 'pdb', defaultAssembly: 'BU1' }),
+        stage.loadFile(stringBlob, { ext: 'sdf' }),
+        stage,
+        defaultFocus,
+        object_name,
+        input_dict.colour
+      ]);
+      renderHitProtein(ol, representations, orientationMatrix);
       return loadQualityFromFile(
         stage,
         pdbBlob,

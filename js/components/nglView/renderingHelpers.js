@@ -33,14 +33,14 @@ const drawStripyBond = (atom_a, atom_b, color_a, color_b, label, size = 0.1, sha
 };
 
 export function loadQualityFromFile(stage, file, quality, object_name, orientationMatrix, color, qualityType) {
-  let goodids =
-    qualityType === QUALITY_TYPES.LIGAND
-      ? (quality && quality.goodids) || []
-      : (quality && quality.goodproteinids) || [];
+  // let goodids =
+  //   qualityType === QUALITY_TYPES.LIGAND
+  //     ? (quality && quality.goodids) || []
+  //     : (quality && quality.goodproteinids) || [];
+  // we are not using the goodids when rendering bad protein atoms - so far this is just my assumption
+  let goodids = qualityType === QUALITY_TYPES.LIGAND ? (quality && quality.goodids) || [] : [];
   let badids =
-    qualityType === QUALITY_TYPES.LIGAND
-      ? (quality && quality.badids) || []
-      : (quality && quality.badproteinidsids) || [];
+    qualityType === QUALITY_TYPES.LIGAND ? (quality && quality.badids) || [] : (quality && quality.badproteinids) || [];
   let badcomments =
     qualityType === QUALITY_TYPES.LIGAND
       ? (quality && quality.badcomments) || []
@@ -58,7 +58,9 @@ export function loadQualityFromFile(stage, file, quality, object_name, orientati
     for (var key in atom_info) {
       atom_info_array.push(key.split('|')[0]);
     }
-    comp.autoView();
+    if (qualityType === QUALITY_TYPES.LIGAND) {
+      comp.autoView();
+    }
 
     // Draw Good Atoms + Bonds
     const repr2 = createRepresentationStructure(MOL_REPRESENTATION.ballPlusStick, {
@@ -275,7 +277,7 @@ const loadQualityInformation = text => {
 
     for (let i = 0; i < badatomsnamesAll?.length; i++) {
       let atomName = badatomsnamesAll[i];
-      if (atomName.startsWith('[HET]') /*|| atomName.startsWith('[MET]')*/) {
+      if (!atomName.startsWith('[HET]') /*|| atomName.startsWith('[MET]')*/) {
         badproteinids.push(badidsAll[i]);
         badproteinatomnames.push(badatomsnamesAll[i]);
         badproteincomments.push(badcommentsAll[i]);
