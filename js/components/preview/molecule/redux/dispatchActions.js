@@ -629,11 +629,11 @@ export const initializeMolecules = majorView => (dispatch, getState) => {
       firstMolecule = dispatch(getFirstMolecule());
     }
     if (firstMolecule) {
-      dispatch(
-        addHitProtein(majorView, firstMolecule, colourList[firstMolecule.id % colourList.length], true, true)
-      ).then(() => {
-        dispatch(addLigand(majorView, firstMolecule, colourList[firstMolecule.id % colourList.length], true, true));
-      });
+      dispatch(addHitProtein(majorView, firstMolecule, colourList[firstMolecule.id % colourList.length], true)).then(
+        () => {
+          dispatch(addLigand(majorView, firstMolecule, colourList[firstMolecule.id % colourList.length], true, true));
+        }
+      );
     }
   }
 };
