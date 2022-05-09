@@ -118,6 +118,9 @@ export function loadQualityFromFile(stage, file, quality, object_name, orientati
           }
 
           let bond_size = 0.05 / (0.5 * bondorder);
+          if (qualityType === QUALITY_TYPES.HIT_PROTEIN) {
+            bond_size = 0.015;
+          }
           if (bondorder === 1) {
             drawStripyBond(acoord, bcoord, a1c, a2c, bond_label, bond_size, shape, alternativeColor);
           } else if (bondorder === 2) {
@@ -149,8 +152,13 @@ export function loadQualityFromFile(stage, file, quality, object_name, orientati
       let origin = [comp.object.atomStore.x[id], comp.object.atomStore.y[id], comp.object.atomStore.z[id]];
       let atom_label = 'atom: '.concat(atom_info_array[id], ' | ', (comment && comment) || '');
 
+      let meshScaleFactor = 1;
+      if (qualityType === QUALITY_TYPES.HIT_PROTEIN) {
+        meshScaleFactor = 0.5;
+      }
+
       let m = refmesh.map(function(v, i) {
-        return origin[i % 3] + v;
+        return origin[i % 3] + v * meshScaleFactor;
       });
 
       let element = null;
@@ -170,7 +178,12 @@ export function loadQualityFromFile(stage, file, quality, object_name, orientati
 
         let col = new Float32Array(col2);
 
-        shape.addSphere(origin, [eleC[0] / 255, eleC[1] / 255, eleC[2] / 255], 0.2, atom_label);
+        let radius = 0.2;
+        if (qualityType === QUALITY_TYPES.HIT_PROTEIN) {
+          radius = 0.1;
+        }
+
+        shape.addSphere(origin, [eleC[0] / 255, eleC[1] / 255, eleC[2] / 255], radius, atom_label);
 
         var meshBuffer = new MeshBuffer({
           position: new Float32Array(m),
