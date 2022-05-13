@@ -13,7 +13,6 @@ import {
   setJobLauncherData
 } from '../../projects/redux/actions';
 import { jobFileTransfer } from '../../projects/redux/dispatchActions';
-import { getSquonkProject } from '../redux/dispatchActions';
 
 const useStyles = makeStyles(theme => ({
   jobLauncherPopup: {
@@ -153,6 +152,23 @@ const JobLauncherPopup = ({ jobLauncherPopUpAnchorEl, snapshots }) => {
   const currentSnapshotSelectedCompoundsIDs = useSelector(state => state.selectionReducers.moleculesToEdit);
   const currentSnapshotVisibleCompoundsIDs = useSelector(state => state.selectionReducers.fragmentDisplayList);
 
+  const target_on_name = useSelector(state => state.apiReducers.target_on_name);
+
+  const getMoleculeEnumName = title => {
+    let newTitle = title.replace(new RegExp(`${target_on_name}-`, 'i'), '');
+    newTitle = newTitle.replace(new RegExp(':.*$', 'i'), '');
+
+    return newTitle;
+  };
+
+  const getFragmentTemplate = fragment => {
+    return `fragalysis-files/${target_on_name}/${fragment}.mol`;
+  };
+
+  const getProteinTemplate = protein => {
+    return `fragalysis-files/${target_on_name}/${protein}_apo-desolv.pdb`;
+  };
+
   const getMoleculeTitle = title => {
     return title.replace(new RegExp(':.*$', 'i'), '');
   };
@@ -167,9 +183,8 @@ const JobLauncherPopup = ({ jobLauncherPopUpAnchorEl, snapshots }) => {
 
   const jobList = useSelector(state => state.projectReducers.jobList);
 
-  let chosenCompounds = null;
-
   const onSubmitForm = ({ job, compounds, snapshot }) => {
+    let chosenCompounds = null;
     if (compounds === 'snapshot') {
       chosenCompounds = [
         'Compound from snapshot' // TODO
@@ -191,7 +206,17 @@ const JobLauncherPopup = ({ jobLauncherPopUpAnchorEl, snapshots }) => {
     dispatch(
       setJobLauncherData({
         job: getFilteredJob(job),
-        chosenCompounds
+        // Prepares data for expanding, see comments in JobFragmentProteinSelectWindow
+        data: {
+          'lhs-fragments': {
+            enum: chosenCompounds.map(fragment => getFragmentTemplate(fragment)),
+            enumNames: chosenCompounds.map(compound => getMoleculeEnumName(compound))
+          },
+          'lhs-protein-apo-desolv': {
+            enum: chosenCompounds.map(protein => getProteinTemplate(protein)),
+            enumNames: chosenCompounds.map(compound => getMoleculeEnumName(compound))
+          }
+        }
       })
     );
 

@@ -6,11 +6,11 @@ import { useSelector } from 'react-redux';
 import { useDispatch } from 'react-redux';
 import { setJobFragmentProteinSelectWindowAnchorEl } from '../../projects/redux/actions';
 import { MuiForm as JSONForm } from '@rjsf/material-ui';
+// eslint-disable-next-line import/extensions
 import jobconfig from '../../../../jobconfigs/fragalysis-job-spec.json';
 import { jobRequest } from '../../projects/redux/dispatchActions';
 import { setJobLauncherSquonkUrl, setRefreshJobsData } from '../../projects/redux/actions';
 import { DJANGO_CONTEXT } from '../../../utils/djangoContext';
-import { getSquonkProject } from '../redux/dispatchActions';
 
 const useStyles = makeStyles(theme => ({
   jobLauncherPopup: {
@@ -91,81 +91,60 @@ const JobFragmentProteinSelectWindow = () => {
 
   const refreshJobsData = useSelector(state => state.projectReducers.refreshJobsData);
 
-  // Remove tags from title
-  const target_on_name = useSelector(state => state.apiReducers.target_on_name);
-  const getMoleculeTitle = title => {
-    let newTitle = title.replace(new RegExp(`${target_on_name}-`, 'i'), '');
-    newTitle = newTitle.replace(new RegExp(':.*$', 'i'), '');
+  // Merges job definitions with fragalysis-jobs definitions
+  const getDefinition = (configDefinitions, overrideDefinitions) => {
+    const mergedDefinitions = { ...configDefinitions };
 
-    return newTitle;
-  };
+    Object.entries(overrideDefinitions).forEach(([key, overrideDefinition]) => {
+      let mergedDefinition = mergedDefinitions[key] || {};
 
-  // Prepare options for multiselect field
-  const getMoleculesShortNames = () => {
-    if (jobLauncherData !== null && jobLauncherData.chosenCompounds !== null)
-      return jobLauncherData.chosenCompounds.map(compound => getMoleculeTitle(compound));
-    else return null;
-  };
-  const getMoleculesEnums = () => {
-    if (jobLauncherData !== null && jobLauncherData.chosenCompounds !== null) return jobLauncherData.chosenCompounds;
-    else return [''];
-  };
+      const { from, ...rest } = overrideDefinition;
 
-  const compoundsOptions = {
-    type: 'string',
-    enum: getMoleculesEnums(),
-    enumNames: getMoleculesShortNames()
-  };
-
-  const selects = {
-    fragments: {
-      title: 'Fragment molecules',
-      type: 'array',
-      uniqueItems: true,
-      items: {
-        ...compoundsOptions
+      // If fragalysis-jobs definitions contain from, expand it from the provided data
+      if (!!from) {
+        const items = jobLauncherData?.data?.[from] || {};
+        if (rest.type === 'array') {
+          mergedDefinition = { ...mergedDefinition, items };
+        } else {
+          mergedDefinition = { ...mergedDefinition, ...items };
+        }
       }
-    },
-    protein: { title: 'PDB file for protein', ...compoundsOptions }
+
+      mergedDefinitions[key] = { ...mergedDefinition, ...rest };
+    });
+
+    return mergedDefinitions;
   };
 
-  const getSelects = () => {
-    if (jobLauncherData !== null && jobLauncherData.job !== null && jobLauncherData.job.slug === 'fragmenstein-combine')
-      return selects;
-    else return {};
-  };
-
+  const inputs = JSON.parse(jobconfig.variables.inputs);
   const options = JSON.parse(jobconfig.variables.options);
   const outputs = JSON.parse(jobconfig.variables.outputs);
+
   // Prepare schema for FORM
   const schema = {
     type: options.type,
-    required: [...options.required],
-    properties: { ...getSelects(), ...options.properties, ...outputs.properties }
-  };
-
-  const getFragmentTemplate = fragment => {
-    // return `/fragalysis-files/${target_on_name}/${fragment}.mol`;
-    return `fragalysis-files/${target_on_name}/${fragment}.mol`;
-  };
-
-  const getProteinTemplate = protein => {
-    // return `/fragalysis-files/${target_on_name}/${protein}-apo_desolv.pdb`;
-    return `fragalysis-files/${target_on_name}/${protein}_apo-desolv.pdb`;
+    required: [...(inputs.required || []), ...(options.required || []), ...(outputs.required || [])],
+    properties: {
+      ...getDefinition(inputs.properties || {}, jobconfig['fragalysis-jobs'].inputs || {}),
+      ...getDefinition(options.properties || {}, jobconfig['fragalysis-jobs'].options || {}),
+      ...getDefinition(outputs.properties || {}, jobconfig['fragalysis-jobs'].outputs || {})
+    }
   };
 
   const onSubmitForm = event => {
-    let formData = event.formData;
-    // map fragments to template
-    if (formData.fragments !== null) {
-      formData.fragments = formData.fragments.map(fragment => getFragmentTemplate(fragment));
-    }
-
-    // map proteins to template
-    if (formData.protein !== null) {
-      formData.protein = getProteinTemplate(formData.protein);
-    }
-
+    console.log({
+      squonk_job_name: 'fragmenstein-combine',
+      snapshot: currentSnapshotID,
+      target: targetId,
+      // squonk_project: dispatch(getSquonkProject()),
+      squonk_project: 'project-e1ce441e-c4d1-4ad1-9057-1a11dbdccebe',
+      squonk_job_spec: JSON.stringify({
+        collection: 'fragmenstein',
+        job: 'fragmenstein-combine',
+        version: '1.0.0',
+        variables: event.formData
+      })
+    });
     jobRequest({
       squonk_job_name: 'fragmenstein-combine',
       snapshot: currentSnapshotID,
@@ -176,7 +155,7 @@ const JobFragmentProteinSelectWindow = () => {
         collection: 'fragmenstein',
         job: 'fragmenstein-combine',
         version: '1.0.0',
-        variables: formData
+        variables: event.formData
       })
     })
       .then(resp => {

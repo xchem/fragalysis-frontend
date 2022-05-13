@@ -16,32 +16,30 @@
   "image_type": "SIMPLE",
   "image_working_directory": "/data",
   "job": "fragmenstein-combine",
-  "keywords": [
-    "fragmenstein",
-    "fbdd"
-  ],
+  "keywords": ["fragmenstein", "fbdd"],
   "name": "Combine fragments into a single merged molecule",
   "variables": {
     "inputs": "{\"type\": \"object\", \"required\": [\"fragments\", \"protein\"], \"properties\": {\"fragments\": {\"title\": \"Fragment molecules\", \"multiple\": true, \"mime-types\": [\"chemical/x-mdl-molfile\"], \"type\": \"file\"}, \"protein\": {\"title\": \"PDB file for protein\", \"mime-types\": [\"chemical/x-pdb\"], \"type\": \"file\"}}}",
     "options": "{\"type\": \"object\", \"required\": [\"outfile\", \"count\", \"removeHydrogens\"], \"properties\": {\"outfile\": {\"title\": \"Output file name\", \"type\": \"string\", \"default\": \"merged.sdf\", \"pattern\": \"^[A-Za-z0-9_/\\\\.\\\\-]+\\\\.sdf$\"}, \"count\": {\"title\": \"Number of molecules to generate\", \"type\": \"integer\", \"default\": 1, \"minimum\": 1}, \"removeHydrogens\": {\"title\": \"Remove hydrogens from the outputs\", \"type\": \"boolean\", \"default\": false}}}",
     "order": {
-      "options": [
-        "outfile",
-        "count",
-        "removeHydrogens"
-      ]
+      "options": ["outfile", "count", "removeHydrogens"]
     },
     "outputs": "{\"type\": \"object\", \"properties\": {\"outputs\": {\"title\": \"Merged molecules\", \"mime-types\": [\"chemical/x-mdl-sdfile\"], \"creates\": \"{{ outfile }}\", \"type\": \"string\"}}}"
   },
   "version": "1.0.0",
   "fragalysis-jobs": {
-     "inputs": {
-       "fragments": {"from": "lhs-fragments", "format": "chemical/x-mdl-molfile"}, 
-       "protein": {"from": "lhs-protein-apo-desolv", "format": "chemical/x-pdb"}
-            },
-      "options": {
-        "outfile": {"value": "fragalysis-jobs/{username}/{job_dir}/merged.sdf", "editable": false},
-        "count": {"value": 5}
+    "inputs": {
+      "fragments": {
+        "from": "lhs-fragments",
+        "type": "array",
+        "uniqueItems": true,
+        "format": "chemical/x-mdl-molfile"
+      },
+      "protein": { "from": "lhs-protein-apo-desolv", "type": "string", "format": "chemical/x-pdb" }
+    },
+    "options": {
+      "outfile": { "value": "fragalysis-jobs/{username}/{job_dir}/merged.sdf", "readOnly": true },
+      "count": { "default": 5 }
     }
   }
 }
