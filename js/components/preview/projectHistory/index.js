@@ -1,24 +1,22 @@
-import React, { memo, useContext, useEffect, useRef, useState } from 'react';
+import React, { memo, useEffect, useRef, useState } from 'react';
 import { Panel } from '../../common/Surfaces/Panel';
 import { templateExtend, TemplateName, Orientation, Gitgraph } from '@gitgraph/react';
 import { MergeType, PlayArrow, Refresh } from '@material-ui/icons';
 import { makeStyles } from '@material-ui/core';
 import { Button } from '../../common/Inputs/Button';
 import { useDispatch, useSelector } from 'react-redux';
-import { useHistory, useRouteMatch } from 'react-router-dom';
 import { loadSnapshotTree } from '../../projects/redux/dispatchActions';
 import palette from '../../../theme/palette';
 import { setIsOpenModalBeforeExit, setSelectedSnapshotToSwitch } from '../../snapshot/redux/actions';
-import { NglContext } from '../../nglView/nglProvider';
 import JobPopup from './JobPopup';
-import JobLauncherPopup from './JobLauncherPopup';
+import JobConfigurationDialog from './JobConfigurationDialog';
 import {
   setJobPopUpAnchorEl,
-  setJobLauncherPopUpAnchorEl,
+  setJobConfigurationDialogOpen,
   setSnapshotJobList,
   setRefreshJobsData
 } from '../../projects/redux/actions';
-import JobFragmentProteinSelectWindow from './JobFragmentProteinSelectWindow';
+import JobLauncherDialog from './JobLauncherDialog';
 import { api } from '../../../utils/api';
 import { base_url } from '../../routes/constants';
 
@@ -81,10 +79,7 @@ const options = {
 export const ProjectHistory = memo(({ showFullHistory }) => {
   const classes = useStyles();
   const ref = useRef(null);
-  let history = useHistory();
-  const { nglViewList } = useContext(NglContext);
   const dispatch = useDispatch();
-  let match = useRouteMatch();
   const projectID = useSelector(state => state.projectReducers.currentProject).projectID;
   const snapshotId = useSelector(state => state.projectReducers.currentSnapshot).id;
   const currentSnapshotID = useSelector(state => state.projectReducers.currentSnapshot.id);
@@ -93,7 +88,6 @@ export const ProjectHistory = memo(({ showFullHistory }) => {
   const currentSnapshotTree = useSelector(state => state.projectReducers.currentSnapshotTree);
   const isLoadingTree = useSelector(state => state.projectReducers.isLoadingTree);
   const jobPopUpAnchorEl = useSelector(state => state.projectReducers.jobPopUpAnchorEl);
-  const jobLauncherPopUpAnchorEl = useSelector(state => state.projectReducers.jobLauncherPopUpAnchorEl);
 
   const refreshData = useSelector(state => state.projectReducers.refreshJobsData);
 
@@ -104,8 +98,8 @@ export const ProjectHistory = memo(({ showFullHistory }) => {
   // const [refreshData, setRefreshData] = useState(false);
   const [graphKey, setGraphKey] = useState(new Date().getTime());
 
-  const handleClickJobLauncher = event => {
-    dispatch(setJobLauncherPopUpAnchorEl(event.currentTarget));
+  const handleClickJobLauncher = () => {
+    dispatch(setJobConfigurationDialogOpen(true));
   };
 
   const handleClickOnCommit = commit => {
@@ -295,8 +289,8 @@ export const ProjectHistory = memo(({ showFullHistory }) => {
             )}
 
           <JobPopup jobPopUpAnchorEl={jobPopUpAnchorEl} jobPopupInfo={jobPopupInfo} />
-          <JobLauncherPopup jobLauncherPopUpAnchorEl={jobLauncherPopUpAnchorEl} snapshots={currentSnapshotList} />
-          <JobFragmentProteinSelectWindow />
+          <JobConfigurationDialog snapshots={currentSnapshotList} />
+          <JobLauncherDialog />
         </div>
       </Panel>
     </div>

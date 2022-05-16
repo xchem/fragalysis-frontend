@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Box, ClickAwayListener, IconButton, MenuItem, Popper, Tooltip, Typography, Paper } from '@material-ui/core';
+import { Box, ClickAwayListener, IconButton, MenuItem, Tooltip, Typography, Paper, Modal } from '@material-ui/core';
 import { makeStyles } from '@material-ui/core';
 import { Button } from '../../common/Inputs/Button';
 import { Formik, Form, Field } from 'formik';
@@ -8,8 +8,8 @@ import HelpIcon from '@material-ui/icons/Help';
 import { useSelector } from 'react-redux';
 import { useDispatch } from 'react-redux';
 import {
-  setJobLauncherPopUpAnchorEl,
-  setJobFragmentProteinSelectWindowAnchorEl,
+  setJobConfigurationDialogOpen,
+  setJobLauncherDialogOpen,
   setJobLauncherData
 } from '../../projects/redux/actions';
 import { jobFileTransfer } from '../../projects/redux/dispatchActions';
@@ -20,7 +20,11 @@ const useStyles = makeStyles(theme => ({
     borderRadius: '5px',
     border: '1px solid #000',
     display: 'flex',
-    flexDirection: 'column'
+    flexDirection: 'column',
+    position: 'absolute',
+    top: '50%',
+    left: '50%',
+    transform: 'translate(-50%, -50%)'
   },
 
   topPopup: {
@@ -129,7 +133,7 @@ const useStyles = makeStyles(theme => ({
   }
 }));
 
-const JobLauncherPopup = ({ jobLauncherPopUpAnchorEl, snapshots }) => {
+const JobConfigurationDialog = ({ snapshots }) => {
   const classes = useStyles();
   const dispatch = useDispatch();
 
@@ -143,12 +147,14 @@ const JobLauncherPopup = ({ jobLauncherPopUpAnchorEl, snapshots }) => {
     setOpen(true);
   };
 
+  const jobConfigurationDialogOpen = useSelector(state => state.projectReducers.jobConfigurationDialogOpen);
+
   const getAllMolecules = useSelector(state => state.apiReducers.all_mol_lists);
 
   const currentSnapshotID = useSelector(state => state.projectReducers.currentSnapshot.id);
   const targetId = useSelector(state => state.apiReducers.target_on);
 
-  // get ids of selected/visible compounds
+  // get ids of selected/visible inputs
   const currentSnapshotSelectedCompoundsIDs = useSelector(state => state.selectionReducers.moleculesToEdit);
   const currentSnapshotVisibleCompoundsIDs = useSelector(state => state.selectionReducers.fragmentDisplayList);
 
@@ -173,7 +179,7 @@ const JobLauncherPopup = ({ jobLauncherPopUpAnchorEl, snapshots }) => {
     return title.replace(new RegExp(':.*$', 'i'), '');
   };
 
-  // get protein_code from ids of selected/visible compounds
+  // get protein_code from ids of selected/visible inputs
   const currentSnapshotSelectedCompounds = getAllMolecules
     .filter(molecule => currentSnapshotSelectedCompoundsIDs.includes(molecule.id))
     .map(molecule => getMoleculeTitle(molecule.protein_code));
@@ -183,20 +189,20 @@ const JobLauncherPopup = ({ jobLauncherPopUpAnchorEl, snapshots }) => {
 
   const jobList = useSelector(state => state.projectReducers.jobList);
 
-  const onSubmitForm = ({ job, compounds, snapshot }) => {
+  const onSubmitForm = ({ job, inputs, snapshot }) => {
     let chosenCompounds = null;
-    if (compounds === 'snapshot') {
+    if (inputs === 'snapshot') {
       chosenCompounds = [
         'Compound from snapshot' // TODO
       ];
-    } else if (compounds === 'selected-compounds') {
+    } else if (inputs === 'selected-inputs') {
       chosenCompounds = currentSnapshotSelectedCompounds;
-    } else if (compounds === 'visible-compounds') {
+    } else if (inputs === 'visible-inputs') {
       chosenCompounds = currentSnapshotVisibleCompounds;
     }
 
     // Close the actual pop up window
-    dispatch(setJobLauncherPopUpAnchorEl(null));
+    dispatch(setJobConfigurationDialogOpen(false));
 
     const getFilteredJob = job => {
       return jobList.find(jobFiltered => job === jobFiltered.id);
@@ -231,7 +237,7 @@ const JobLauncherPopup = ({ jobLauncherPopUpAnchorEl, snapshots }) => {
         // Open second window
         setErrorMsg(null);
         setIsError(false);
-        dispatch(setJobFragmentProteinSelectWindowAnchorEl(true));
+        dispatch(setJobLauncherDialogOpen(true));
       })
       .catch(err => {
         console.log(`Job file transfer failed: ${err}`);
@@ -240,33 +246,23 @@ const JobLauncherPopup = ({ jobLauncherPopUpAnchorEl, snapshots }) => {
       });
   };
 
+  const onClose = () => {
+    setErrorMsg(null);
+    setIsError(false);
+    dispatch(setJobConfigurationDialogOpen(false));
+  };
+
   return (
-    <Popper
-      open={!!jobLauncherPopUpAnchorEl}
-      onClose={() => {
-        setErrorMsg(null);
-        setIsError(false);
-        dispatch(setJobLauncherPopUpAnchorEl(null));
-      }}
-      anchorEl={jobLauncherPopUpAnchorEl}
-      placement="left"
-    >
+    <Modal open={jobConfigurationDialogOpen} onClose={onClose}>
       <div className={classes.jobLauncherPopup}>
         <div className={classes.topPopup}>
-          <span>Job launcher</span>
-          <button
-            className={classes.popUpButton}
-            onClick={() => {
-              setErrorMsg(null);
-              setIsError(false);
-              dispatch(setJobLauncherPopUpAnchorEl(null));
-            }}
-          >
+          <span>Job configuration</span>
+          <button className={classes.popUpButton} onClick={onClose}>
             X
           </button>
         </div>
         <div className={classes.bodyPopup}>
-          <Formik initialValues={{ compounds: 'snapshot', snapshot: '', job: '' }} onSubmit={onSubmitForm}>
+          <Formik initialValues={{ inputs: 'snapshot', snapshot: '', job: '' }} onSubmit={onSubmitForm}>
             {({ values, submitForm, isSubmitting }) => (
               <Form className={classes.flexRow}>
                 <div className={classes.sideBody}>
@@ -311,11 +307,11 @@ const JobLauncherPopup = ({ jobLauncherPopUpAnchorEl, snapshots }) => {
                   </Typography>
                 </div>
                 <div className={classes.sideBody}>
-                  <Typography className={classes.fontWeightBold}>Compounds:</Typography>
+                  <Typography className={classes.fontWeightBold}>Inputs:</Typography>
                   <Box className={classes.flexColumn}>
                     <div className={classes.flexRow}>
                       <div className={classes.radioPlusDropdown}>
-                        <Field type="radio" name="compounds" value="snapshot" />
+                        <Field type="radio" name="inputs" value="snapshot" />
                         Snapshot
                       </div>
 
@@ -329,7 +325,7 @@ const JobLauncherPopup = ({ jobLauncherPopUpAnchorEl, snapshots }) => {
                         InputLabelProps={{ shrink: true }}
                         className={(classes.marginLeft10, classes.width60)}
                         label="Choose the snapshot"
-                        disabled={values.compounds !== 'snapshot'}
+                        disabled={values.inputs !== 'snapshot'}
                       >
                         {Object.values(snapshots).map(item => (
                           <MenuItem key={item.id} value={item.id}>
@@ -339,12 +335,12 @@ const JobLauncherPopup = ({ jobLauncherPopUpAnchorEl, snapshots }) => {
                       </Field>
                     </div>
                     <div>
-                      <Field type="radio" name="compounds" value="selected-compounds" />
-                      Selected compounds
+                      <Field type="radio" name="inputs" value="selected-inputs" />
+                      Selected inputs
                     </div>
                     <div>
-                      <Field type="radio" name="compounds" value="visible-compounds" />
-                      Visible compounds
+                      <Field type="radio" name="inputs" value="visible-inputs" />
+                      Visible inputs
                     </div>
                   </Box>
                   {isError && (
@@ -361,8 +357,8 @@ const JobLauncherPopup = ({ jobLauncherPopUpAnchorEl, snapshots }) => {
           </Formik>
         </div>
       </div>
-    </Popper>
+    </Modal>
   );
 };
 
-export default JobLauncherPopup;
+export default JobConfigurationDialog;

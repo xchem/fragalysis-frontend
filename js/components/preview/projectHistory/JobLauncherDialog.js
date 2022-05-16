@@ -4,7 +4,7 @@ import { Button } from '../../common/Inputs/Button';
 import { makeStyles } from '@material-ui/core';
 import { useSelector } from 'react-redux';
 import { useDispatch } from 'react-redux';
-import { setJobFragmentProteinSelectWindowAnchorEl } from '../../projects/redux/actions';
+import { setJobLauncherDialogOpen } from '../../projects/redux/actions';
 import { MuiForm as JSONForm } from '@rjsf/material-ui';
 // eslint-disable-next-line import/extensions
 import jobconfig from '../../../../jobconfigs/fragalysis-job-spec.json';
@@ -20,8 +20,9 @@ const useStyles = makeStyles(theme => ({
     display: 'flex',
     flexDirection: 'column',
     position: 'absolute',
-    top: '20%',
-    left: '30%'
+    top: '50%',
+    left: '50%',
+    transform: 'translate(-50%, -50%)'
   },
 
   topPopup: {
@@ -70,15 +71,13 @@ const useStyles = makeStyles(theme => ({
   }
 }));
 
-const JobFragmentProteinSelectWindow = () => {
+const JobLauncherDialog = () => {
   const classes = useStyles();
   const dispatch = useDispatch();
 
-  const jobFragmentProteinSelectWindowAnchorEl = useSelector(
-    state => state.projectReducers.jobFragmentProteinSelectWindowAnchorEl
-  );
+  const jobLauncherDialogOpen = useSelector(state => state.projectReducers.jobLauncherDialogOpen);
 
-  const [isSubmitted, setIsSubmittet] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [isError, setIsError] = useState(false);
   const [errorMsg, setErrorMsg] = useState(null);
   const jobLauncherSquonkUrl = useSelector(state => state.projectReducers.jobLauncherSquonkUrl);
@@ -131,20 +130,17 @@ const JobFragmentProteinSelectWindow = () => {
     }
   };
 
+  // Used to preserve data when clicking the submit button, without it the form resets on submit
+  const [formData, setFormData] = useState({});
+
   const onSubmitForm = event => {
-    console.log({
-      squonk_job_name: 'fragmenstein-combine',
-      snapshot: currentSnapshotID,
-      target: targetId,
-      // squonk_project: dispatch(getSquonkProject()),
-      squonk_project: 'project-e1ce441e-c4d1-4ad1-9057-1a11dbdccebe',
-      squonk_job_spec: JSON.stringify({
-        collection: 'fragmenstein',
-        job: 'fragmenstein-combine',
-        version: '1.0.0',
-        variables: event.formData
-      })
-    });
+    setIsSubmitting(true);
+
+    // Reset state of errors and Squonk URL
+    setErrorMsg(null);
+    setIsError(false);
+    dispatch(setJobLauncherSquonkUrl(null));
+
     jobRequest({
       squonk_job_name: 'fragmenstein-combine',
       snapshot: currentSnapshotID,
@@ -172,31 +168,40 @@ const JobFragmentProteinSelectWindow = () => {
         console.log(`Job file transfer failed: ${err}`);
         setErrorMsg(err.response.data?.error ?? 'There was an error launching a job');
         setIsError(true);
+      })
+      .finally(() => {
+        setIsSubmitting(false);
       });
+  };
 
-    setIsSubmittet(true);
+  const onClose = () => {
+    // Reset form data on dialog close
+    setFormData({});
+    setErrorMsg(null);
+    setIsError(false);
+    setIsSubmitting(false);
+    dispatch(setJobLauncherSquonkUrl(null));
+    dispatch(setJobLauncherDialogOpen(false));
   };
 
   return (
-    <Modal open={!!jobFragmentProteinSelectWindowAnchorEl} hideBackdrop>
+    <Modal open={jobLauncherDialogOpen} onClose={onClose}>
       <div className={classes.jobLauncherPopup}>
         <div className={classes.topPopup}>
           <span>Job launcher</span>
-          <button
-            className={classes.popUpButton}
-            onClick={() => {
-              setErrorMsg(null);
-              setIsError(false);
-              setIsSubmittet(false);
-              dispatch(setJobLauncherSquonkUrl(null));
-              dispatch(setJobFragmentProteinSelectWindowAnchorEl(null));
-            }}
-          >
+          <button className={classes.popUpButton} onClick={onClose}>
             X
           </button>
         </div>
         <div className={classes.bodyPopup}>
-          <JSONForm schema={schema} onSubmit={onSubmitForm} onChange={event => {}}>
+          <JSONForm
+            schema={schema}
+            onSubmit={onSubmitForm}
+            formData={formData}
+            onChange={event => {
+              setFormData(event.formData);
+            }}
+          >
             {jobLauncherSquonkUrl && !isError && (
               <Paper variant="elevation" rounded="true" className={classes.successMsg}>
                 Job has been launched successfully.
@@ -207,7 +212,7 @@ const JobFragmentProteinSelectWindow = () => {
                 {errorMsg}
               </Paper>
             )}
-            <Button disabled={isSubmitted} type="submit" color="primary" size="large">
+            <Button disabled={isSubmitting} type="submit" color="primary" size="large">
               Submit
             </Button>
             {jobLauncherSquonkUrl && (
@@ -222,4 +227,4 @@ const JobFragmentProteinSelectWindow = () => {
   );
 };
 
-export default JobFragmentProteinSelectWindow;
+export default JobLauncherDialog;

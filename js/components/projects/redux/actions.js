@@ -100,14 +100,14 @@ export const setJobPopUpAnchorEl = jobPopUpAnchorEl => ({
   payload: jobPopUpAnchorEl
 });
 
-export const setJobLauncherPopUpAnchorEl = jobLauncherPopUpAnchorEl => ({
-  type: constants.SET_JOB_LAUNCHER_POP_UP_ANCHOR_EL,
-  payload: jobLauncherPopUpAnchorEl
+export const setJobConfigurationDialogOpen = open => ({
+  type: constants.SET_JOB_CONFIGURATION_DIALOG_OPEN,
+  payload: open
 });
 
-export const setJobFragmentProteinSelectWindowAnchorEl = jobFragmentProteinSelectWindowAnchorEl => ({
-  type: constants.SET_JOB_FRAGMENT_PROTEIN_SELECT_WINDOW_ANCHOR_EL,
-  payload: jobFragmentProteinSelectWindowAnchorEl
+export const setJobLauncherDialogOpen = open => ({
+  type: constants.SET_JOB_LAUNCHER_DIALOG_OPEN,
+  payload: open
 });
 
 export const setJobLauncherData = jobLauncherData => ({

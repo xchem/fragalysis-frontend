@@ -41,17 +41,11 @@ export const INITIAL_STATE = {
       name: 'Fragmenstein',
       description: 'Combine fragments into a single merged molecule.',
       slug: 'fragmenstein-combine'
-    },
-    {
-      id: 2,
-      name: 'Test job',
-      description: 'This is only for test.',
-      slug: 'test-slug'
     }
   ],
   jobPopUpAnchorEl: null,
-  jobLauncherPopUpAnchorEl: null,
-  jobFragmentProteinSelectWindowAnchorEl: null,
+  jobConfigurationDialogOpen: false,
+  jobLauncherDialogOpen: false,
   jobLauncherData: null,
   jobLauncherSquonkUrl: null,
   refreshJobsData: false
@@ -144,11 +138,11 @@ export const projectReducers = (state = INITIAL_STATE, action = {}) => {
     case constants.SET_JOB_POP_UP_ANCHOR_EL:
       return Object.assign({}, state, { jobPopUpAnchorEl: action.payload });
 
-    case constants.SET_JOB_LAUNCHER_POP_UP_ANCHOR_EL:
-      return Object.assign({}, state, { jobLauncherPopUpAnchorEl: action.payload });
+    case constants.SET_JOB_CONFIGURATION_DIALOG_OPEN:
+      return Object.assign({}, state, { jobConfigurationDialogOpen: action.payload });
 
-    case constants.SET_JOB_FRAGMENT_PROTEIN_SELECT_WINDOW_ANCHOR_EL:
-      return Object.assign({}, state, { jobFragmentProteinSelectWindowAnchorEl: action.payload });
+    case constants.SET_JOB_LAUNCHER_DIALOG_OPEN:
+      return Object.assign({}, state, { jobLauncherDialogOpen: action.payload });
 
     case constants.SET_JOB_LAUNCHER_DATA:
       return Object.assign({}, state, { jobLauncherData: action.payload });
