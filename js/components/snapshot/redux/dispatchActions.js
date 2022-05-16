@@ -201,9 +201,7 @@ export const createNewSnapshot = ({
   session_project,
   nglViewList,
   overwriteSnapshot,
-  createDiscourse = false,
-  currentSnapshotSelectedCompounds,
-  currentSnapshotVisibleCompounds
+  createDiscourse = false
 }) => (dispatch, getState) => {
   const state = getState();
   const selectedSnapshotToSwitch = state.snapshotReducers.selectedSnapshotToSwitch;
@@ -232,6 +230,29 @@ export const createNewSnapshot = ({
   } else {
     let newType = type;
 
+    const allMolecules = state.apiReducers.all_mol_lists;
+    const { moleculesToEdit, fragmentDisplayList } = state.selectionReducers;
+    const currentSnapshotSelectedCompounds = allMolecules
+      .filter(molecule => moleculesToEdit.includes(molecule.id))
+      .map(molecule => molecule.protein_code);
+    const currentSnapshotVisibleCompounds = allMolecules
+      .filter(molecule => fragmentDisplayList.includes(molecule.id))
+      .map(molecule => molecule.protein_code);
+
+    const { moleculeLists, ligandLists, compoundsToBuyDatasetMap } = state.datasetsReducers;
+    const currentSnapshotVisibleDatasetsCompounds = Object.fromEntries(
+      Object.entries(moleculeLists).map(([datasetID, mols]) => [
+        datasetID,
+        mols.filter(mol => ligandLists[datasetID].includes(mol.id)).map(mol => mol.name)
+      ])
+    );
+    const currentSnapshotSelectedDatasetsCompounds = Object.fromEntries(
+      Object.entries(moleculeLists).map(([datasetID, mols]) => [
+        datasetID,
+        mols.filter(mol => compoundsToBuyDatasetMap[datasetID].includes(mol.id)).map(mol => mol.name)
+      ])
+    );
+
     return Promise.all([
       dispatch(setIsLoadingSnapshotDialog(true)),
       api({ url: `${base_url}/api/snapshots/?session_project=${session_project}&type=INIT` }).then(response => {
@@ -251,7 +272,13 @@ export const createNewSnapshot = ({
             parent,
             session_project,
             data: '[]',
-            children: []
+            children: [],
+            additional_info: {
+              currentSnapshotSelectedCompounds,
+              currentSnapshotVisibleCompounds,
+              currentSnapshotSelectedDatasetsCompounds,
+              currentSnapshotVisibleDatasetsCompounds
+            }
           },
           method: METHOD.POST
         }).then(res => {
