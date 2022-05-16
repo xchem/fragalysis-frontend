@@ -249,7 +249,7 @@ export const createNewSnapshot = ({
     const currentSnapshotSelectedDatasetsCompounds = Object.fromEntries(
       Object.entries(moleculeLists).map(([datasetID, mols]) => [
         datasetID,
-        mols.filter(mol => compoundsToBuyDatasetMap[datasetID].includes(mol.id)).map(mol => mol.name)
+        mols.filter(mol => compoundsToBuyDatasetMap[datasetID]?.includes(mol.id)).map(mol => mol.name)
       ])
     );
 

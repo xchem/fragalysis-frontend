@@ -189,16 +189,15 @@ const JobConfigurationDialog = ({ snapshots }) => {
 
   const jobList = useSelector(state => state.projectReducers.jobList);
 
-  const onSubmitForm = ({ job, inputs, snapshot }) => {
-    let chosenCompounds = null;
+  const onSubmitForm = async ({ job, inputs, snapshot }) => {
+    console.log(snapshot);
+    let chosenLHSCompounds = null;
     if (inputs === 'snapshot') {
-      chosenCompounds = [
-        'Compound from snapshot' // TODO
-      ];
+      chosenLHSCompounds = snapshot.additional_info.currentSnapshotSelectedCompounds;
     } else if (inputs === 'selected-inputs') {
-      chosenCompounds = currentSnapshotSelectedCompounds;
+      chosenLHSCompounds = currentSnapshotSelectedCompounds;
     } else if (inputs === 'visible-inputs') {
-      chosenCompounds = currentSnapshotVisibleCompounds;
+      chosenLHSCompounds = currentSnapshotVisibleCompounds;
     }
 
     // Close the actual pop up window
@@ -215,12 +214,12 @@ const JobConfigurationDialog = ({ snapshots }) => {
         // Prepares data for expanding, see comments in JobFragmentProteinSelectWindow
         data: {
           'lhs-fragments': {
-            enum: chosenCompounds.map(fragment => getFragmentTemplate(fragment)),
-            enumNames: chosenCompounds.map(compound => getMoleculeEnumName(compound))
+            enum: chosenLHSCompounds.map(fragment => getFragmentTemplate(fragment)),
+            enumNames: chosenLHSCompounds.map(compound => getMoleculeEnumName(compound))
           },
           'lhs-protein-apo-desolv': {
-            enum: chosenCompounds.map(protein => getProteinTemplate(protein)),
-            enumNames: chosenCompounds.map(compound => getMoleculeEnumName(compound))
+            enum: chosenLHSCompounds.map(protein => getProteinTemplate(protein)),
+            enumNames: chosenLHSCompounds.map(compound => getMoleculeEnumName(compound))
           }
         }
       })
@@ -231,7 +230,7 @@ const JobConfigurationDialog = ({ snapshots }) => {
       target: targetId,
       // squonk_project: dispatch(getSquonkProject()),
       squonk_project: 'project-e1ce441e-c4d1-4ad1-9057-1a11dbdccebe',
-      proteins: chosenCompounds.join()
+      proteins: chosenLHSCompounds.join()
     })
       .then(resp => {
         // Open second window
@@ -263,7 +262,7 @@ const JobConfigurationDialog = ({ snapshots }) => {
         </div>
         <div className={classes.bodyPopup}>
           <Formik initialValues={{ inputs: 'snapshot', snapshot: '', job: '' }} onSubmit={onSubmitForm}>
-            {({ values, submitForm, isSubmitting }) => (
+            {({ values, isValid }) => (
               <Form className={classes.flexRow}>
                 <div className={classes.sideBody}>
                   <Field
@@ -326,9 +325,15 @@ const JobConfigurationDialog = ({ snapshots }) => {
                         className={(classes.marginLeft10, classes.width60)}
                         label="Choose the snapshot"
                         disabled={values.inputs !== 'snapshot'}
+                        validate={value => {
+                          if (values.inputs === 'snapshot' && !value.additional_info) {
+                            return `Snapshot ${value.title} is not compatible with job functionality. You can try to select the snapshot directly and choose the option 'selected molecules'`;
+                          }
+                          // TODO what to do if snapshot has nothing selected?
+                        }}
                       >
                         {Object.values(snapshots).map(item => (
-                          <MenuItem key={item.id} value={item.id}>
+                          <MenuItem key={item.id} value={item}>
                             {item.title}
                           </MenuItem>
                         ))}
@@ -348,7 +353,7 @@ const JobConfigurationDialog = ({ snapshots }) => {
                       {errorMsg}
                     </Paper>
                   )}
-                  <Button color="primary" size="large" onClick={submitForm}>
+                  <Button color="primary" size="large" type="submit" disabled={!isValid}>
                     Launch
                   </Button>
                 </div>

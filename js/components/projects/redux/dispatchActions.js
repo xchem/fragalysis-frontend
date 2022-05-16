@@ -216,7 +216,8 @@ const parseSnapshotAttributes = data => ({
   author: data.author,
   description: data.description,
   created: data.created,
-  children: data.children
+  children: data.children,
+  additional_info: data.additional_info
 });
 
 export const getSnapshotAttributesByID = snapshotID => (dispatch, getState) => {
