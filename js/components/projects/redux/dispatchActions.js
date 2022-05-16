@@ -254,10 +254,7 @@ export const loadSnapshotTree = projectID => (dispatch, getState) => {
       } else if (response.data.count === 1) {
         const tree = parseSnapshotAttributes(response.data.results[0]);
         dispatch(setCurrentSnapshotTree(tree));
-        if (tree.children && tree.children.length === 0) {
-          return dispatch(populateChildren([tree.id]));
-        }
-        return dispatch(populateChildren(tree.children));
+        return dispatch(populateChildren([tree.id]));
       }
     })
     .finally(() => {
