@@ -48,7 +48,7 @@ export const INITIAL_STATE = {
   jobLauncherDialogOpen: false,
   jobLauncherData: null,
   jobLauncherSquonkUrl: null,
-  refreshJobsData: false
+  refreshJobsData: new Date().getTime()
 };
 
 export const projectReducers = (state = INITIAL_STATE, action = {}) => {
@@ -150,8 +150,8 @@ export const projectReducers = (state = INITIAL_STATE, action = {}) => {
     case constants.SET_JOB_LAUNCHER_SQUONK_URL:
       return Object.assign({}, state, { jobLauncherSquonkUrl: action.payload });
 
-    case constants.SET_REFRESH_JOBS_DATA:
-      return { ...state, refreshJobsData: action.payload };
+    case constants.REFRESH_JOBS_DATA:
+      return { ...state, refreshJobsData: new Date().getTime() };
 
     default:
       return state;

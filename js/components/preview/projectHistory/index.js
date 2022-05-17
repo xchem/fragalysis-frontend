@@ -14,7 +14,7 @@ import {
   setJobPopUpAnchorEl,
   setJobConfigurationDialogOpen,
   setSnapshotJobList,
-  setRefreshJobsData
+  refreshJobsData
 } from '../../projects/redux/actions';
 import JobLauncherDialog from './JobLauncherDialog';
 import { api } from '../../../utils/api';
@@ -95,7 +95,6 @@ export const ProjectHistory = memo(({ showFullHistory }) => {
     hash: null,
     jobInfo: null
   });
-  // const [refreshData, setRefreshData] = useState(false);
   const [graphKey, setGraphKey] = useState(new Date().getTime());
 
   const handleClickJobLauncher = () => {
@@ -222,24 +221,27 @@ export const ProjectHistory = memo(({ showFullHistory }) => {
 
   useEffect(() => {
     if (currentSnapshotID !== null) {
+      console.log(currentSnapshotID, projectID, snapshotId, refreshData);
       dispatch(loadSnapshotTree(projectID)).catch(error => {
         throw new Error(error);
       });
     }
-  }, [currentSnapshotID, dispatch, projectID, snapshotId]);
+  }, [currentSnapshotID, dispatch, projectID, snapshotId, refreshData]);
 
   const currentSnapshotTreeId = currentSnapshotTree?.id;
   useEffect(() => {
-    [currentSnapshotTreeId, ...Object.keys(currentSnapshotList || {})].forEach(snapshotId => {
-      if (snapshotId) {
-        api({ url: `${base_url}/api/job_request/?snapshot=${snapshotId}` }).then(response => {
-          const jobList = response.data.results;
-          dispatch(setSnapshotJobList({ snapshotId, jobList }));
-          setGraphKey(new Date().getTime());
-        });
-      }
-    });
-  }, [currentSnapshotList, refreshData, dispatch, currentSnapshotTreeId]);
+    if (!isLoadingTree) {
+      [currentSnapshotTreeId, ...Object.keys(currentSnapshotList || {})].forEach(snapshotId => {
+        if (snapshotId) {
+          api({ url: `${base_url}/api/job_request/?snapshot=${snapshotId}` }).then(response => {
+            const jobList = response.data.results;
+            dispatch(setSnapshotJobList({ snapshotId, jobList }));
+            setGraphKey(new Date().getTime());
+          });
+        }
+      });
+    }
+  }, [currentSnapshotList, dispatch, isLoadingTree, currentSnapshotTreeId]);
 
   return (
     <div className={classes.root}>
@@ -252,7 +254,7 @@ export const ProjectHistory = memo(({ showFullHistory }) => {
             color="inherit"
             variant="text"
             size="small"
-            onClick={() => setRefreshJobsData(!refreshData)}
+            onClick={() => dispatch(refreshJobsData())}
             startIcon={<Refresh />}
           >
             Refresh

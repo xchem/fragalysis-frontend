@@ -288,7 +288,7 @@ export const createNewSnapshot = ({
             let project = { projectID: session_project, authorID: author };
             console.log('created snapshot id: ' + res.data.id);
 
-            Promise.resolve(dispatch(saveCurrentActionsList(snapshot, project, nglViewList))).then(() => {
+            return Promise.resolve(dispatch(saveCurrentActionsList(snapshot, project, nglViewList))).then(() => {
               if (disableRedirect === false) {
                 if (selectedSnapshotToSwitch != null) {
                   if (createDiscourse) {
@@ -370,6 +370,7 @@ export const createNewSnapshot = ({
                     url: `${base_url}${URLS.projects}${session_project}/${res.data.id}`
                   })
                 );
+                return res.data.id;
               }
             });
           }

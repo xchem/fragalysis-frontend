@@ -227,13 +227,14 @@ export const getSnapshotAttributesByID = snapshotID => (dispatch, getState) => {
       if (currentSnapshotList === null) {
         currentSnapshotList = {};
       }
-      currentSnapshotList[snapshotID] = parseSnapshotAttributes(response.data);
+      const snapshot = parseSnapshotAttributes(response.data);
+      currentSnapshotList[snapshotID] = snapshot;
       dispatch(setCurrentSnapshotList(currentSnapshotList));
 
       if (response.data.children && response.data.children.length > 0) {
         return dispatch(populateChildren(response.data.children));
       } else {
-        return Promise.resolve();
+        return Promise.resolve(snapshot);
       }
     }
   });

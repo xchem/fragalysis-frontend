@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useContext, useState } from 'react';
 import { Modal, Paper } from '@material-ui/core';
 import { Button } from '../../common/Inputs/Button';
 import { makeStyles } from '@material-ui/core';
@@ -9,8 +9,11 @@ import { MuiForm as JSONForm } from '@rjsf/material-ui';
 // eslint-disable-next-line import/extensions
 import jobconfig from '../../../../jobconfigs/fragalysis-job-spec.json';
 import { jobRequest } from '../../projects/redux/dispatchActions';
-import { setJobLauncherSquonkUrl, setRefreshJobsData } from '../../projects/redux/actions';
+import { setJobLauncherSquonkUrl, refreshJobsData } from '../../projects/redux/actions';
 import { DJANGO_CONTEXT } from '../../../utils/djangoContext';
+import { switchBetweenSnapshots } from '../redux/dispatchActions';
+import { NglContext } from '../../nglView/nglProvider';
+import { useHistory } from 'react-router-dom';
 
 const useStyles = makeStyles(theme => ({
   jobLauncherPopup: {
@@ -74,6 +77,7 @@ const useStyles = makeStyles(theme => ({
 const JobLauncherDialog = () => {
   const classes = useStyles();
   const dispatch = useDispatch();
+  let history = useHistory();
 
   const jobLauncherDialogOpen = useSelector(state => state.projectReducers.jobLauncherDialogOpen);
 
@@ -82,13 +86,17 @@ const JobLauncherDialog = () => {
   const [errorMsg, setErrorMsg] = useState(null);
   const jobLauncherSquonkUrl = useSelector(state => state.projectReducers.jobLauncherSquonkUrl);
 
-  const currentSnapshotID = useSelector(state => state.projectReducers.currentSnapshot.id);
   const targetId = useSelector(state => state.apiReducers.target_on);
 
   // Get data from previous window
   const jobLauncherData = useSelector(state => state.projectReducers.jobLauncherData);
+  const currentSnapshotID = useSelector(state => state.projectReducers.currentSnapshot.id);
 
-  const refreshJobsData = useSelector(state => state.projectReducers.refreshJobsData);
+  const isDifferentSnapshot = jobLauncherData?.snapshot.id !== currentSnapshotID;
+
+  const currentProject = useSelector(state => state.projectReducers.currentProject);
+  const currentProjectID = currentProject && currentProject.projectID;
+  const { nglViewList } = useContext(NglContext);
 
   // Merges job definitions with fragalysis-jobs definitions
   const getDefinition = (configDefinitions, overrideDefinitions) => {
@@ -143,7 +151,7 @@ const JobLauncherDialog = () => {
 
     jobRequest({
       squonk_job_name: 'fragmenstein-combine',
-      snapshot: currentSnapshotID,
+      snapshot: jobLauncherData?.snapshot.id,
       target: targetId,
       // squonk_project: dispatch(getSquonkProject()),
       squonk_project: 'project-e1ce441e-c4d1-4ad1-9057-1a11dbdccebe',
@@ -162,7 +170,7 @@ const JobLauncherDialog = () => {
             DJANGO_CONTEXT['squonk_ui_url'] + resp.data.squonk_url_ext.replace('data-manager-ui', '')
           )
         );
-        dispatch(setRefreshJobsData(!refreshJobsData));
+        dispatch(refreshJobsData());
       })
       .catch(err => {
         console.log(`Job file transfer failed: ${err}`);
@@ -218,6 +226,24 @@ const JobLauncherDialog = () => {
             {jobLauncherSquonkUrl && (
               <Button onClick={() => window.open(jobLauncherSquonkUrl, '_blank')} color="secondary" size="large">
                 Open in Squonk
+              </Button>
+            )}
+            {jobLauncherSquonkUrl && isDifferentSnapshot && (
+              <Button
+                onClick={() =>
+                  dispatch(
+                    switchBetweenSnapshots({
+                      nglViewList,
+                      projectID: currentProjectID,
+                      snapshotID: jobLauncherData?.snapshot.id,
+                      history
+                    })
+                  )
+                }
+                color="secondary"
+                size="large"
+              >
+                Switch to snapshot
               </Button>
             )}
           </JSONForm>
