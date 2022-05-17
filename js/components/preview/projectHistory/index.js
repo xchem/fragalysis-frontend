@@ -237,6 +237,7 @@ export const ProjectHistory = memo(({ showFullHistory }) => {
             });
           }
         });
+        // In case any request errors out, update the graph
         await Promise.allSettled(promises);
         setGraphKey(new Date().getTime());
       }
