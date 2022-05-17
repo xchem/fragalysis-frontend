@@ -26,19 +26,6 @@ export const withSnapshotManagement = WrappedComponent => {
 
     const currentSnapshotID = useSelector(state => state.projectReducers.currentSnapshot.id);
 
-    const getAllMolecules = useSelector(state => state.apiReducers.all_mol_lists);
-    // get ids of selected/visible compounds
-    const currentSnapshotSelectedCompoundsIDs = useSelector(state => state.selectionReducers.moleculesToEdit);
-    const currentSnapshotVisibleCompoundsIDs = useSelector(state => state.selectionReducers.fragmentDisplayList);
-
-    // get protein_code from ids of selected/visible compounds
-    const currentSnapshotSelectedCompounds = getAllMolecules
-      .filter(molecule => currentSnapshotSelectedCompoundsIDs.includes(molecule.id))
-      .map(molecule => molecule.protein_code);
-    const currentSnapshotVisibleCompounds = getAllMolecules
-      .filter(molecule => currentSnapshotVisibleCompoundsIDs.includes(molecule.id))
-      .map(molecule => molecule.protein_code);
-
     const targetIdList = useSelector(state => state.apiReducers.target_id_list);
     const targetName = useSelector(state => state.apiReducers.target_on_name);
     const currentProject = useSelector(state => state.projectReducers.currentProject);
@@ -99,15 +86,7 @@ export const withSnapshotManagement = WrappedComponent => {
           startIcon={<Share />}
           disabled={disableShareButton || false}
           onClick={() => {
-            dispatch(
-              saveAndShareSnapshot(
-                nglViewList,
-                true,
-                {},
-                currentSnapshotSelectedCompounds,
-                currentSnapshotVisibleCompounds
-              )
-            );
+            dispatch(saveAndShareSnapshot(nglViewList, true, {}));
           }}
         >
           Share
