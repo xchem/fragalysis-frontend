@@ -1,0 +1,56 @@
+version: '3'
+
+services:
+  database:
+    image: postgres:12.2
+    volumes:
+      - d:/WORK/JANSSEN/front-end-src/data/postgre/data:/var/lib/postgresql
+    environment:
+      POSTGRES_PASSWORD: fragalysis
+      POSTGRES_USER: fragalysis
+      POSTGRES_DB: frag
+      PGDATA: /var/lib/postgresql/data/pgdata
+    ports:
+      - '5432:5432'
+  graph:
+    container_name: neo4j
+    image: informaticsmatters/fragnet-test:3.5.25-xchem-combi-sample-2021-02
+    ports:
+      # Comment these two out in produciton
+      - '7474:7474'
+      - '7687:7687'
+    ulimits:
+      nofile:
+        soft: 40000
+        hard: 40000
+    environment:
+      GRAPH_PASSWORD: test123
+      CYPHER_PRE_NEO4J_SLEEP: 0
+      NEO4J_dbms_memory_pagecache_size: 4G
+  web:
+    container_name: web_dock
+    image: xchem/fragalysis-stack:latest
+    # image: dupeacock/fragalysis-stack:latest
+    command: /bin/bash /code/launch-stack.sh
+    volumes:
+      - d:/WORK/JANSSEN/front-end-src/data/logs:/code/logs/
+      - d:/WORK/JANSSEN/front-end-src/data/media:/code/media/
+      - d:/WORK/JANSSEN/front-end-src/fragalysis-frontend:/code/frontend
+    ports:
+      - '8080:80'
+    environment:
+      POSTGRESQL_DATABASE: frag
+      POSTGRESQL_USER: fragalysis
+      POSTGRESQL_PASSWORD: fragalysis
+      POSTGRESQL_HOST: database
+      POSTGRESQL_PORT: 5432
+      NEO4J_AUTH: neo4j/test123
+      OIDC_RP_CLIENT_SECRET: c6245428-04c7-466f-9c4f-58c340e981c2
+      DISCOURSE_API_KEY: 927ed885a97a707cf406a549c3dd7d4b1cd5a144f61ff51fa7baaaae1a65647a
+      FRAGALYSIS_BACKEND_SENTRY_DNS: https://27fa0675f555431aa02ca552e93d8cfb@o194333.ingest.sentry.io/1298290
+      ISPYB_FLAG: 'False'
+      DISCOURSE_DEV_POST_SUFFIX: '-boris-local'
+      DISCOURSE_HOST: 'https://discourse.xchem-dev.diamond.ac.uk'
+    depends_on:
+      - database
+      - graph
