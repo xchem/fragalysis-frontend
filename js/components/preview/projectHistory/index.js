@@ -221,26 +221,28 @@ export const ProjectHistory = memo(({ showFullHistory }) => {
 
   useEffect(() => {
     if (currentSnapshotID !== null) {
-      console.log(currentSnapshotID, projectID, snapshotId, refreshData);
-      dispatch(loadSnapshotTree(projectID)).catch(error => {
-        throw new Error(error);
-      });
+      dispatch(loadSnapshotTree(projectID));
     }
   }, [currentSnapshotID, dispatch, projectID, snapshotId, refreshData]);
 
   const currentSnapshotTreeId = currentSnapshotTree?.id;
   useEffect(() => {
-    if (!isLoadingTree) {
-      [currentSnapshotTreeId, ...Object.keys(currentSnapshotList || {})].forEach(snapshotId => {
-        if (snapshotId) {
-          api({ url: `${base_url}/api/job_request/?snapshot=${snapshotId}` }).then(response => {
-            const jobList = response.data.results;
-            dispatch(setSnapshotJobList({ snapshotId, jobList }));
-            setGraphKey(new Date().getTime());
-          });
-        }
-      });
-    }
+    const fetchJobs = async () => {
+      if (!isLoadingTree) {
+        const promises = [currentSnapshotTreeId, ...Object.keys(currentSnapshotList || {})].map(snapshotId => {
+          if (snapshotId) {
+            return api({ url: `${base_url}/api/job_request/?snapshot=${snapshotId}` }).then(response => {
+              const jobList = response.data.results;
+              dispatch(setSnapshotJobList({ snapshotId, jobList }));
+            });
+          }
+        });
+        await Promise.allSettled(promises);
+        setGraphKey(new Date().getTime());
+      }
+    };
+
+    fetchJobs();
   }, [currentSnapshotList, dispatch, isLoadingTree, currentSnapshotTreeId]);
 
   return (
@@ -276,19 +278,13 @@ export const ProjectHistory = memo(({ showFullHistory }) => {
         defaultExpanded
       >
         <div className={classes.containerExpanded}>
-          {isLoadingTree === false &&
-            currentSnapshotTree !== null &&
-            currentSnapshotTree.children !== null &&
-            currentSnapshotTree.title !== null &&
-            currentSnapshotTree.id !== null &&
-            currentSnapshotID !== null &&
-            currentSnapshotList !== null && (
-              <Gitgraph key={graphKey} options={options}>
-                {gitgraph => {
-                  renderTreeNode(gitgraph, currentSnapshotTree);
-                }}
-              </Gitgraph>
-            )}
+          <Gitgraph key={graphKey} options={options}>
+            {gitgraph => {
+              if (!!currentSnapshotTree) {
+                renderTreeNode(gitgraph, currentSnapshotTree);
+              }
+            }}
+          </Gitgraph>
 
           <JobPopup jobPopUpAnchorEl={jobPopUpAnchorEl} jobPopupInfo={jobPopupInfo} />
           <JobConfigurationDialog snapshots={currentSnapshotList} />
