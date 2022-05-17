@@ -192,6 +192,38 @@ export const createInitSnapshotFromCopy = ({
   return Promise.reject('ProjectID is missing');
 };
 
+const getAdditionalInfo = state => {
+  const allMolecules = state.apiReducers.all_mol_lists;
+  const { moleculesToEdit, fragmentDisplayList } = state.selectionReducers;
+  const currentSnapshotSelectedCompounds = allMolecules
+    .filter(molecule => moleculesToEdit.includes(molecule.id))
+    .map(molecule => molecule.protein_code);
+  const currentSnapshotVisibleCompounds = allMolecules
+    .filter(molecule => fragmentDisplayList.includes(molecule.id))
+    .map(molecule => molecule.protein_code);
+
+  const { moleculeLists, ligandLists, compoundsToBuyDatasetMap } = state.datasetsReducers;
+  const currentSnapshotVisibleDatasetsCompounds = Object.fromEntries(
+    Object.entries(moleculeLists).map(([datasetID, mols]) => [
+      datasetID,
+      mols.filter(mol => ligandLists[datasetID].includes(mol.id)).map(mol => mol.name)
+    ])
+  );
+  const currentSnapshotSelectedDatasetsCompounds = Object.fromEntries(
+    Object.entries(moleculeLists).map(([datasetID, mols]) => [
+      datasetID,
+      mols.filter(mol => compoundsToBuyDatasetMap[datasetID]?.includes(mol.id)).map(mol => mol.name)
+    ])
+  );
+
+  return {
+    currentSnapshotSelectedCompounds,
+    currentSnapshotVisibleCompounds,
+    currentSnapshotSelectedDatasetsCompounds,
+    currentSnapshotVisibleDatasetsCompounds
+  };
+};
+
 export const createNewSnapshot = ({
   title,
   description,
@@ -230,29 +262,6 @@ export const createNewSnapshot = ({
   } else {
     let newType = type;
 
-    const allMolecules = state.apiReducers.all_mol_lists;
-    const { moleculesToEdit, fragmentDisplayList } = state.selectionReducers;
-    const currentSnapshotSelectedCompounds = allMolecules
-      .filter(molecule => moleculesToEdit.includes(molecule.id))
-      .map(molecule => molecule.protein_code);
-    const currentSnapshotVisibleCompounds = allMolecules
-      .filter(molecule => fragmentDisplayList.includes(molecule.id))
-      .map(molecule => molecule.protein_code);
-
-    const { moleculeLists, ligandLists, compoundsToBuyDatasetMap } = state.datasetsReducers;
-    const currentSnapshotVisibleDatasetsCompounds = Object.fromEntries(
-      Object.entries(moleculeLists).map(([datasetID, mols]) => [
-        datasetID,
-        mols.filter(mol => ligandLists[datasetID].includes(mol.id)).map(mol => mol.name)
-      ])
-    );
-    const currentSnapshotSelectedDatasetsCompounds = Object.fromEntries(
-      Object.entries(moleculeLists).map(([datasetID, mols]) => [
-        datasetID,
-        mols.filter(mol => compoundsToBuyDatasetMap[datasetID]?.includes(mol.id)).map(mol => mol.name)
-      ])
-    );
-
     return Promise.all([
       dispatch(setIsLoadingSnapshotDialog(true)),
       api({ url: `${base_url}/api/snapshots/?session_project=${session_project}&type=INIT` }).then(response => {
@@ -273,12 +282,7 @@ export const createNewSnapshot = ({
             session_project,
             data: '[]',
             children: [],
-            additional_info: {
-              currentSnapshotSelectedCompounds,
-              currentSnapshotVisibleCompounds,
-              currentSnapshotSelectedDatasetsCompounds,
-              currentSnapshotVisibleDatasetsCompounds
-            }
+            additional_info: getAdditionalInfo(state)
           },
           method: METHOD.POST
         }).then(res => {
@@ -436,8 +440,7 @@ export const createNewSnapshotWithoutStateModification = ({
   session_project,
   nglViewList,
   axuData = {},
-  currentSnapshotSelectedCompounds,
-  currentSnapshotVisibleCompounds
+  additional_info
 }) => (dispatch, getState) => {
   if (!session_project) {
     return Promise.reject('Project ID is missing!');
@@ -459,8 +462,7 @@ export const createNewSnapshotWithoutStateModification = ({
       session_project,
       data: JSON.stringify(axuData),
       children: [],
-      currentSnapshotSelectedCompounds,
-      currentSnapshotVisibleCompounds
+      additional_info
     };
     const dataString = JSON.stringify(dataToSend);
 
@@ -488,13 +490,7 @@ export const createNewSnapshotWithoutStateModification = ({
   });
 };
 
-export const saveAndShareSnapshot = (
-  nglViewList,
-  showDialog = true,
-  axuData = {},
-  currentSnapshotSelectedCompounds = null,
-  currentSnapshotVisibleCompounds = null
-) => async (dispatch, getState) => {
+export const saveAndShareSnapshot = (nglViewList, showDialog = true, axuData = {}) => async (dispatch, getState) => {
   const state = getState();
   const targetId = state.apiReducers.target_on;
   const loggedInUserID = DJANGO_CONTEXT['pk'];
@@ -506,14 +502,16 @@ export const saveAndShareSnapshot = (
     if (showDialog) {
       dispatch(setIsLoadingSnapshotDialog(true));
     }
+
+    const additional_info = getAdditionalInfo(state);
+
     const data = {
       title: ProjectCreationType.READ_ONLY,
       description: ProjectCreationType.READ_ONLY,
       target: targetId,
       author: loggedInUserID || null,
       tags: '[]',
-      currentSnapshotSelectedCompounds,
-      currentSnapshotVisibleCompounds
+      additional_info
     };
 
     try {
@@ -539,8 +537,7 @@ export const saveAndShareSnapshot = (
           session_project,
           nglViewList,
           axuData,
-          currentSnapshotSelectedCompounds,
-          currentSnapshotVisibleCompounds
+          additional_info
         })
       );
 

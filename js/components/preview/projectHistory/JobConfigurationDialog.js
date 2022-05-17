@@ -268,7 +268,7 @@ const JobConfigurationDialog = ({ snapshots }) => {
 
         if (
           !areArraysSame(
-            currentSnapshot.additional_info.currentSnapshotSelectedCompounds,
+            currentSnapshot.additional_info.currentSnapshotVisibleCompounds,
             currentSnapshotVisibleCompounds
           )
         ) {
