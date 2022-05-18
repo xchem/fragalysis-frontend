@@ -19,6 +19,7 @@ import {
 import JobLauncherDialog from './JobLauncherDialog';
 import { api } from '../../../utils/api';
 import { base_url } from '../../routes/constants';
+import { JobTable } from '../jobTable/JobTable';
 
 export const heightOfProjectHistory = '164px';
 
@@ -279,13 +280,14 @@ export const ProjectHistory = memo(({ showFullHistory }) => {
         defaultExpanded
       >
         <div className={classes.containerExpanded}>
-          <Gitgraph key={graphKey} options={options}>
+          {/* <Gitgraph key={graphKey} options={options}>
             {gitgraph => {
               if (!!currentSnapshotTree) {
                 renderTreeNode(gitgraph, currentSnapshotTree);
               }
             }}
-          </Gitgraph>
+          </Gitgraph> */}
+          <JobTable />
 
           <JobPopup jobPopUpAnchorEl={jobPopUpAnchorEl} jobPopupInfo={jobPopupInfo} />
           <JobConfigurationDialog snapshots={currentSnapshotList} />
