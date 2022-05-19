@@ -58,7 +58,11 @@ const useStyles = makeStyles(theme => ({
   nglColumn: {
     // Since the LHS and RHS columns require flex-grow to be 1 in case they are wrapped, this is needed to make NGL take
     // all of the space in case they are not wrapped
-    flex: '9999 1 0'
+    flex: '9999 1 0',
+    minWidth: 0
+  },
+  controls: {
+    width: '100%'
   },
   column: {
     flex: `1 0 ${columnWidth}px`,
@@ -244,7 +248,7 @@ const Preview = memo(({ isStateLoaded, hideProjects }) => {
             <Grid item>
               <NGLView div_id={VIEWS.MAJOR_VIEW} height={screenHeight} />
             </Grid>
-            <Grid item ref={nglViewerControlsRef}>
+            <Grid item ref={nglViewerControlsRef} className={classes.controls}>
               <ComputeSize
                 componentRef={nglViewerControlsRef.current}
                 height={controlsHeight}
