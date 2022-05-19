@@ -7,7 +7,6 @@ import { Grid, makeStyles, useTheme, ButtonGroup, Button } from '@material-ui/co
 import NGLView from '../nglView/nglView';
 import HitNavigator from './molecule/hitNavigator';
 import { CustomDatasetList } from '../datasets/customDatasetList';
-import MolGroupSelector from './moleculeGroups/molGroupSelector';
 import TagSelector from './tags/tagSelector';
 import TagDetails from './tags/details/tagDetails';
 import { SummaryView } from './summary/summaryView';
@@ -19,7 +18,7 @@ import { VIEWS } from '../../constants/constants';
 import { withLoadingProtein } from './withLoadingProtein';
 import { withSnapshotManagement } from '../snapshot/withSnapshotManagement';
 import { useDispatch, useSelector } from 'react-redux';
-import { ProjectHistory } from './projectHistory';
+import { ProjectHistoryPanel } from './projectHistoryPanel';
 import { ProjectDetailDrawer } from '../projects/projectDetailDrawer';
 import { NewSnapshotModal } from '../snapshot/modals/newSnapshotModal';
 import { HeaderContext } from '../header/headerContext';
@@ -252,7 +251,7 @@ const Preview = memo(({ isStateLoaded, hideProjects }) => {
                 setHeight={setControlsHeight}
               >
                 <ViewerControls />
-                {!hideProjects && <ProjectHistory showFullHistory={() => setShowHistory(!showHistory)} />}
+                {!hideProjects && <ProjectHistoryPanel showFullHistory={() => setShowHistory(!showHistory)} />}
               </ComputeSize>
             </Grid>
           </Grid>

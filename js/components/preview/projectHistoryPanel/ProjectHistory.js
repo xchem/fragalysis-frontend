@@ -1,25 +1,16 @@
-import React, { memo, useEffect, useRef, useState } from 'react';
+import React, { memo, useRef, useState } from 'react';
 import { Panel } from '../../common/Surfaces/Panel';
 import { templateExtend, TemplateName, Orientation, Gitgraph } from '@gitgraph/react';
-import { MergeType, PlayArrow, Refresh } from '@material-ui/icons';
+import { DynamicFeed, MergeType, PlayArrow, Refresh } from '@material-ui/icons';
 import { makeStyles } from '@material-ui/core';
 import { Button } from '../../common/Inputs/Button';
 import { useDispatch, useSelector } from 'react-redux';
-import { loadSnapshotTree } from '../../projects/redux/dispatchActions';
 import palette from '../../../theme/palette';
 import { setIsOpenModalBeforeExit, setSelectedSnapshotToSwitch } from '../../snapshot/redux/actions';
 import JobPopup from './JobPopup';
 import JobConfigurationDialog from './JobConfigurationDialog';
-import {
-  setJobPopUpAnchorEl,
-  setJobConfigurationDialogOpen,
-  setSnapshotJobList,
-  refreshJobsData
-} from '../../projects/redux/actions';
+import { setJobPopUpAnchorEl, setJobConfigurationDialogOpen, refreshJobsData } from '../../projects/redux/actions';
 import JobLauncherDialog from './JobLauncherDialog';
-import { api } from '../../../utils/api';
-import { base_url } from '../../routes/constants';
-import { JobTable } from '../jobTable/JobTable';
 
 export const heightOfProjectHistory = '164px';
 
@@ -77,26 +68,20 @@ const options = {
   orientation: Orientation.Horizontal
 };
 
-export const ProjectHistory = memo(({ showFullHistory }) => {
+export const ProjectHistory = memo(({ showFullHistory, graphKey, expanded, onExpanded, onTabChange }) => {
   const classes = useStyles();
   const ref = useRef(null);
   const dispatch = useDispatch();
-  const projectID = useSelector(state => state.projectReducers.currentProject).projectID;
-  const snapshotId = useSelector(state => state.projectReducers.currentSnapshot).id;
   const currentSnapshotID = useSelector(state => state.projectReducers.currentSnapshot.id);
   const currentSnapshotList = useSelector(state => state.projectReducers.currentSnapshotList);
   const currentSnapshotJobList = useSelector(state => state.projectReducers.currentSnapshotJobList);
   const currentSnapshotTree = useSelector(state => state.projectReducers.currentSnapshotTree);
-  const isLoadingTree = useSelector(state => state.projectReducers.isLoadingTree);
   const jobPopUpAnchorEl = useSelector(state => state.projectReducers.jobPopUpAnchorEl);
-
-  const refreshData = useSelector(state => state.projectReducers.refreshJobsData);
 
   const [jobPopupInfo, setJobPopupInfo] = useState({
     hash: null,
     jobInfo: null
   });
-  const [graphKey, setGraphKey] = useState(new Date().getTime());
 
   const handleClickJobLauncher = () => {
     dispatch(setJobConfigurationDialogOpen(true));
@@ -220,33 +205,6 @@ export const ProjectHistory = memo(({ showFullHistory }) => {
     }
   };
 
-  useEffect(() => {
-    if (currentSnapshotID !== null) {
-      dispatch(loadSnapshotTree(projectID));
-    }
-  }, [currentSnapshotID, dispatch, projectID, snapshotId, refreshData]);
-
-  const currentSnapshotTreeId = currentSnapshotTree?.id;
-  useEffect(() => {
-    const fetchJobs = async () => {
-      if (!isLoadingTree) {
-        const promises = [currentSnapshotTreeId, ...Object.keys(currentSnapshotList || {})].map(snapshotId => {
-          if (snapshotId) {
-            return api({ url: `${base_url}/api/job_request/?snapshot=${snapshotId}` }).then(response => {
-              const jobList = response.data.results;
-              dispatch(setSnapshotJobList({ snapshotId, jobList }));
-            });
-          }
-        });
-        // In case any request errors out, update the graph
-        await Promise.allSettled(promises);
-        setGraphKey(new Date().getTime());
-      }
-    };
-
-    fetchJobs();
-  }, [currentSnapshotList, dispatch, isLoadingTree, currentSnapshotTreeId]);
-
   return (
     <div className={classes.root}>
       <Panel
@@ -274,20 +232,29 @@ export const ProjectHistory = memo(({ showFullHistory }) => {
           </Button>,
           <Button color="inherit" variant="text" size="small" onClick={showFullHistory} startIcon={<MergeType />}>
             Detail
+          </Button>,
+          <Button
+            color="inherit"
+            variant="text"
+            size="small"
+            onClick={() => onTabChange('jobTable')}
+            startIcon={<DynamicFeed />}
+          >
+            Job Table
           </Button>
         ]}
         hasExpansion
-        defaultExpanded
+        defaultExpanded={expanded}
+        onExpandChange={expanded => onExpanded(expanded)}
       >
         <div className={classes.containerExpanded}>
-          {/* <Gitgraph key={graphKey} options={options}>
+          <Gitgraph key={graphKey} options={options}>
             {gitgraph => {
               if (!!currentSnapshotTree) {
                 renderTreeNode(gitgraph, currentSnapshotTree);
               }
             }}
-          </Gitgraph> */}
-          <JobTable />
+          </Gitgraph>
 
           <JobPopup jobPopUpAnchorEl={jobPopUpAnchorEl} jobPopupInfo={jobPopupInfo} />
           <JobConfigurationDialog snapshots={currentSnapshotList} />
