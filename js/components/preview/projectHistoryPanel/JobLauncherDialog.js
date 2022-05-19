@@ -221,7 +221,7 @@ const JobLauncherDialog = () => {
               </Paper>
             )}
             <Button disabled={isSubmitting} type="submit" color="primary" size="large">
-              Submit
+              {!isError ? 'Submit' : 'Retry'}
             </Button>
             {jobLauncherSquonkUrl && (
               <Button onClick={() => window.open(jobLauncherSquonkUrl, '_blank')} color="secondary" size="large">
