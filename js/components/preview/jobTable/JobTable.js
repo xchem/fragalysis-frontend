@@ -27,6 +27,18 @@ const useStyles = makeStyles(theme => ({
   root: {
     marginTop: theme.spacing()
   },
+  table: {
+    '& tr': {
+      borderBottom: `1px solid ${theme.palette.divider}`,
+      paddingLeft: theme.spacing(2),
+      paddingRight: theme.spacing(2)
+    },
+    '& th, td': {
+      height: 42, // Prevents horizontal layout shifts when hiding columns
+      border: 0,
+      padding: 0
+    }
+  },
   containerExpanded: {
     width: '100%',
     height: 164,
@@ -44,6 +56,7 @@ const useStyles = makeStyles(theme => ({
     }
   },
   buttonRow: {
+    marginTop: theme.spacing(),
     display: 'flex',
     gap: theme.spacing()
   },
@@ -85,7 +98,7 @@ export const JobTable = ({ expanded, onExpanded, onTabChange }) => {
     () => [
       {
         accessor: 'squonk_job_name',
-        Header: 'User',
+        Header: 'Name',
         displayName: 'Name'
       },
       {
@@ -151,7 +164,7 @@ export const JobTable = ({ expanded, onExpanded, onTabChange }) => {
 
             return (
               <Tooltip title="Select all rows">
-                <Checkbox {...rest} />
+                <Checkbox className={classes.checkbox} {...rest} />
               </Tooltip>
             );
           },
@@ -160,7 +173,7 @@ export const JobTable = ({ expanded, onExpanded, onTabChange }) => {
 
             return (
               <Tooltip title="Select row">
-                <Checkbox {...rest} />
+                <Checkbox className={classes.checkbox} {...rest} />
               </Tooltip>
             );
           }
