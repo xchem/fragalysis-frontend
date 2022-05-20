@@ -896,7 +896,7 @@ const DatasetMoleculeView = memo(
             {svg_image}
             <div className={classes.imageActions}>
               {moleculeTooltipOpen && (
-                <Tooltip title="Copy smiles">
+                <Tooltip title={!isCopied ? 'Copy smiles' : 'Copied'}>
                   <IconButton className={classes.copyIcon} onClick={setCopied}>
                     {!isCopied ? <Assignment /> : <AssignmentTurnedIn />}
                   </IconButton>
