@@ -1,7 +1,6 @@
 /**
  * Created by abradley on 15/03/2018.
  */
-import { constant } from 'lodash-es';
 import { constants } from './constants';
 
 export const INITIAL_STATE = {
@@ -512,6 +511,11 @@ export function selectionReducers(state = INITIAL_STATE, action = {}) {
 
     case constants.SET_NEXT_X_MOLECULES:
       return { ...state, nextXMolecules: action.nextXMolecules };
+
+    case constants.RESET_SELECTION_STATE_ON_SNAPSHOT_CHANGE: {
+      const { categoryList, tagList } = state;
+      return { ...INITIAL_STATE, categoryList, tagList };
+    }
 
     // Cases like: @@redux/INIT
     default:

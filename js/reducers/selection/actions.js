@@ -596,3 +596,7 @@ export const setNextXMolecules = nextXMolecules => {
     nextXMolecules: nextXMolecules
   };
 };
+
+export const resetSelectionStateOnSnapshotChange = () => ({
+  type: constants.RESET_SELECTION_STATE_ON_SNAPSHOT_CHANGE
+})

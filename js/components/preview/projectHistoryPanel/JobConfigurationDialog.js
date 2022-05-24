@@ -31,6 +31,7 @@ import { NglContext } from '../../nglView/nglProvider';
 import moment from 'moment';
 import { SnapshotType } from '../../projects/redux/constants';
 import { DJANGO_CONTEXT } from '../../../utils/djangoContext';
+import { VIEWS } from '../../../constants/constants';
 
 const useStyles = makeStyles(theme => ({
   jobLauncherPopup: {
@@ -174,7 +175,8 @@ const JobConfigurationDialog = ({ snapshots }) => {
   const currentSnapshot = snapshots?.[currentSnapshotID];
   const targetId = useSelector(state => state.apiReducers.target_on);
 
-  const { nglViewList } = useContext(NglContext);
+  const { nglViewList, getNglView } = useContext(NglContext);
+  const stage = getNglView(VIEWS.MAJOR_VIEW) && getNglView(VIEWS.MAJOR_VIEW).stage;
 
   // get ids of selected/visible inputs
   const currentSnapshotSelectedCompoundsIDs = useSelector(state => state.selectionReducers.moleculesToEdit);
@@ -227,6 +229,7 @@ const JobConfigurationDialog = ({ snapshots }) => {
           parent,
           session_project,
           nglViewList,
+          stage,
           overwriteSnapshot: false,
           createDiscourse: true
         })

@@ -36,7 +36,8 @@ import {
   saveCurrentActionsList,
   addCurrentActionsListToSnapshot,
   sendTrackingActionsByProjectId,
-  manageSendTrackingActions
+  manageSendTrackingActions,
+  changeSnapshot
 } from '../../../reducers/tracking/dispatchActions';
 import { captureScreenOfSnapshot } from '../../userFeedback/browserApi';
 import { setCurrentProject } from '../../projects/redux/actions';
@@ -232,6 +233,7 @@ export const createNewSnapshot = ({
   parent,
   session_project,
   nglViewList,
+  stage,
   overwriteSnapshot,
   createDiscourse = false
 }) => (dispatch, getState) => {
@@ -292,13 +294,16 @@ export const createNewSnapshot = ({
             let project = { projectID: session_project, authorID: author };
             console.log('created snapshot id: ' + res.data.id);
 
-            return Promise.resolve(dispatch(saveCurrentActionsList(snapshot, project, nglViewList))).then(() => {
+            return Promise.resolve(dispatch(saveCurrentActionsList(snapshot, project, nglViewList))).then(async () => {
               if (disableRedirect === false) {
                 if (selectedSnapshotToSwitch != null) {
                   if (createDiscourse) {
                     dispatch(createSnapshotDiscoursePost(res.data.id));
                   }
-                  window.location.replace(`${URLS.projects}${session_project}/${selectedSnapshotToSwitch}`);
+                  //window.location.replace(`${URLS.projects}${session_project}/${selectedSnapshotToSwitch}`);
+                  await dispatch(changeSnapshot(session_project, selectedSnapshotToSwitch, nglViewList, stage));
+                  dispatch(setOpenSnapshotSavingDialog(false));
+                  dispatch(setIsLoadingSnapshotDialog(false));
                 } else {
                   // A hacky way of changing the URL without triggering react-router
                   window.history.replaceState(
