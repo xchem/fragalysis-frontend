@@ -33,7 +33,7 @@ const useStyles = makeStyles(theme => ({
   header: {
     color: theme.palette.white,
     backgroundColor: theme.palette.primary.main,
-    height: theme.spacing(5),
+    minHeight: theme.spacing(5),
     borderTopLeftRadius: theme.spacing(1) / 2,
     borderTopRightRadius: theme.spacing(1) / 2
   },
@@ -45,7 +45,8 @@ const useStyles = makeStyles(theme => ({
     borderTopRightRadius: theme.spacing(1) / 2
   },
   headerTitle: {
-    paddingLeft: theme.spacing(1)
+    paddingLeft: theme.spacing(1),
+    minWidth: 0
   },
   headerGrid: {
     height: 'inherit'

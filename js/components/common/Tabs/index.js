@@ -2,7 +2,7 @@ import React, { memo } from 'react';
 import { withStyles } from '@material-ui/core/styles';
 import PropTypes from 'prop-types';
 import Typography from '@material-ui/core/Typography';
-import { Tabs, Tab as TabMUI } from '@material-ui/core';
+import { Tabs, Tab as TabMUI, makeStyles } from '@material-ui/core';
 
 /**
  * Header with tabs -their container
@@ -62,14 +62,23 @@ export const a11yTabProps = index => {
   };
 };
 
+const useStyles = makeStyles(theme => ({
+  root: {
+    width: '100%'
+  }
+}));
+
 /**
  * Tab panel - body of tab
  */
 export const TabPanel = memo(props => {
+  const classes = useStyles();
+
   const { children, value, index, ...other } = props;
 
   return (
     <Typography
+      className={classes.root}
       component="div"
       role="tabpanel"
       hidden={value !== index}

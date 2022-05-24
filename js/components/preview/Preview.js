@@ -72,7 +72,8 @@ const useStyles = makeStyles(theme => ({
     display: 'none'
   },
   tabButtonGroup: {
-    height: 48
+    height: 48,
+    width: '100%'
   }
 }));
 
