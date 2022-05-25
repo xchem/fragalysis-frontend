@@ -23,7 +23,7 @@ import { Panel } from '../../common/Surfaces/Panel';
 import { JobVariablesDialog } from './JobVariablesDialog';
 import { setSelectedRows } from './redux/actions';
 import { refreshJobsData } from '../../projects/redux/actions';
-import { loadDataSets } from '../../datasets/redux/dispatchActions';
+import { loadDatasetCompoundsWithScores, loadDataSets } from '../../datasets/redux/dispatchActions';
 
 const useStyles = makeStyles(theme => ({
   root: {
@@ -155,8 +155,9 @@ export const JobTable = ({ expanded, onExpanded, onTabChange }) => {
             <MUIButton
               variant="contained"
               color="primary"
-              onClick={() => {
-                dispatch(loadDataSets(target_on));
+              onClick={async () => {
+                await dispatch(loadDataSets(target_on));
+                dispatch(loadDatasetCompoundsWithScores());
               }}
             >
               Upload
