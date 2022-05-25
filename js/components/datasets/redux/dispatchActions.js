@@ -266,6 +266,11 @@ export const loadDatasetCompoundsWithScores = () => (dispatch, getState) => {
   );
 };
 
+export const loadDatasetsAndCompounds = targetId => async dispatch => {
+  await dispatch(loadDataSets(targetId));
+  dispatch(loadDatasetCompoundsWithScores());
+};
+
 export const loadMoleculesOfDataSet = datasetID => dispatch =>
   // TODO remove limit
   api({ url: `${base_url}/api/compound-molecules/?compound_set=${datasetID}` }).then(response => {
