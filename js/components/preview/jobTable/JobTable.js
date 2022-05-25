@@ -15,13 +15,15 @@ import {
   Tooltip
 } from '@material-ui/core';
 import { Button } from '../../common/Inputs/Button';
-import { DynamicFeed, ViewColumn } from '@material-ui/icons';
+import { DynamicFeed, Refresh, ViewColumn } from '@material-ui/icons';
 import React, { useLayoutEffect, useMemo, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useRowSelect, useSortBy, useTable } from 'react-table';
 import { Panel } from '../../common/Surfaces/Panel';
 import { JobVariablesDialog } from './JobVariablesDialog';
 import { setSelectedRows } from './redux/actions';
+import { refreshJobsData } from '../../projects/redux/actions';
+import { loadDataSets } from '../../datasets/redux/dispatchActions';
 
 const useStyles = makeStyles(theme => ({
   root: {
@@ -79,6 +81,7 @@ export const JobTable = ({ expanded, onExpanded, onTabChange }) => {
   const dispatch = useDispatch();
 
   const currentSnapshotJobList = useSelector(state => state.projectReducers.currentSnapshotJobList);
+  const target_on = useSelector(state => state.apiReducers.target_on);
 
   const [selectedJob, setSelectedJob] = useState(null);
   const [jobInputsDialogOpen, setJobInputsDialogOpen] = useState(false);
@@ -141,9 +144,27 @@ export const JobTable = ({ expanded, onExpanded, onTabChange }) => {
             Open
           </MUIButton>
         )
+      },
+      {
+        id: 'upload',
+        disableSortBy: true,
+        Header: 'Upload',
+        displayName: 'Upload',
+        Cell: ({ row }) =>
+          row.original.job_status === 'SUCCESS' ? (
+            <MUIButton
+              variant="contained"
+              color="primary"
+              onClick={() => {
+                dispatch(loadDataSets(target_on));
+              }}
+            >
+              Upload
+            </MUIButton>
+          ) : null
       }
     ],
-    []
+    [dispatch, target_on]
   );
 
   const { getTableProps, getTableBodyProps, headerGroups, prepareRow, rows, selectedFlatRows, allColumns } = useTable(
@@ -192,6 +213,15 @@ export const JobTable = ({ expanded, onExpanded, onTabChange }) => {
         hasHeader
         title="Job Table"
         headerActions={[
+          <Button
+            color="inherit"
+            variant="text"
+            size="small"
+            onClick={() => dispatch(refreshJobsData())}
+            startIcon={<Refresh />}
+          >
+            Refresh
+          </Button>,
           <Button
             color="inherit"
             variant="text"

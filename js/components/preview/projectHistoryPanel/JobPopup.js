@@ -2,10 +2,11 @@ import { Popper } from '@material-ui/core';
 import React from 'react';
 import { makeStyles } from '@material-ui/core';
 import { Button } from '../../common/Inputs/Button';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { setIsOpenModalBeforeExit, setSelectedSnapshotToSwitch } from '../../snapshot/redux/actions';
 import { setJobPopUpAnchorEl } from '../../projects/redux/actions';
 import { DJANGO_CONTEXT } from '../../../utils/djangoContext';
+import { loadDataSets } from '../../datasets/redux/dispatchActions';
 
 const useStyles = makeStyles(theme => ({
   jobPopup: {
@@ -54,6 +55,8 @@ const JobPopup = ({ jobPopUpAnchorEl, jobPopupInfo }) => {
   const { jobInfo, hash } = jobPopupInfo;
   const jobLauncherSquonkUrl = DJANGO_CONTEXT['squonk_ui_url'] + jobInfo?.squonk_url_ext.replace('data-manager-ui', '');
 
+  const target_on = useSelector(state => state.apiReducers.target_on);
+
   return (
     <Popper
       open={!!jobPopUpAnchorEl}
@@ -95,6 +98,17 @@ const JobPopup = ({ jobPopUpAnchorEl, jobPopupInfo }) => {
           >
             Open in Squonk
           </Button>
+          {jobInfo?.job_status === 'SUCCESS' && (
+            <Button
+              color="secondary"
+              size="large"
+              onClick={() => {
+                dispatch(loadDataSets(target_on));
+              }}
+            >
+              Upload
+            </Button>
+          )}
         </div>
       </div>
     </Popper>
