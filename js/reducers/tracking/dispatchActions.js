@@ -890,6 +890,11 @@ export const restoreAfterTargetActions = (stages, projectId) => async (dispatch,
   }
 };
 
+/**
+ * The goal of this method is to restore the state of the app based on the tracking
+ * action. All of the dispatched actions were added by trial and error - in case you
+ * need to alter, remove or add anything, you should properly test the changes.
+ */
 export const restoreAfterSnapshotChange = (stages, projectId) => async (dispatch, getState) => {
   const state = getState();
 
@@ -3546,11 +3551,16 @@ export const setAndUpdateTrackingActions = (actionList, projectID) => (dispatch,
   }
 };
 
+/**
+ * The goal of this method is to change the snapshot without reloading the page.
+ * All of the dispatched actions were added by trial and error - in case you need
+ * to alter, remove or add anything, you should properly test the changes.
+ */
 export const changeSnapshot = (projectID, snapshotID, nglViewList, stage) => async (dispatch, getState) => {
   // A hacky way of changing the URL without triggering react-router
   window.history.replaceState(null, null, `${URLS.projects}${projectID}/${snapshotID}`);
 
-  //dispatch(switchBetweenSnapshots({ nglViewList, projectID, snapshotID, history }));
+  // Load the needed data
   const snapshotResponse = await api({ url: `${base_url}/api/snapshots/${snapshotID}` });
   const actionsResponse = await api({
     url: `${base_url}/api/snapshot-actions/?snapshot=${snapshotID}`
@@ -3569,7 +3579,6 @@ export const changeSnapshot = (projectID, snapshotID, nglViewList, stage) => asy
       data: snapshotResponse.data.data
     })
   );
-  //dispatch(resetTrackingState());
 
   let results = actionsResponse.data.results;
   let listToSet = [];
