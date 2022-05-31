@@ -1612,7 +1612,7 @@ const restoreTabActions = moleculesAction => (dispatch, getState) => {
 
   let filterAction = moleculesAction.find(action => action.type === actionType.DATASET_FILTER);
   if (filterAction) {
-    let datasetID = filterAction.dataset_id;
+    let datasetID = filterAction.datasetID;
     let newFilterProperties = filterAction.newProperties;
     let newFilterSettings = filterAction.newSettings;
     dispatch(setDatasetFilter(datasetID, newFilterProperties, newFilterSettings, filterAction.key, null));
