@@ -163,6 +163,7 @@ import {
 } from '../../components/preview/tags/redux/dispatchActions';
 import { resetViewerControlsState, turnSide } from '../../components/preview/viewerControls/redux/actions';
 import { NetworkCheckSharp } from '@material-ui/icons';
+import { resetNglTrackingState } from '../nglTracking/dispatchActions';
 
 export const addCurrentActionsListToSnapshot = (snapshot, project, nglViewList) => async (dispatch, getState) => {
   let projectID = project && project.projectID;
@@ -3582,6 +3583,7 @@ export const changeSnapshot = (projectID, snapshotID, nglViewList, stage) => asy
   dispatch(resetSelectionStateOnSnapshotChange());
   dispatch(resetDatasetsStateOnSnapshotChange());
   dispatch(resetViewerControlsState());
+  dispatch(resetNglTrackingState());
 
   dispatch(removeAllNglComponents(stage));
 
