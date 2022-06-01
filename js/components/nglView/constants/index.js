@@ -158,3 +158,8 @@ export const DENSITY_MAPS = {
   SIGMAA: '_MAP_sigmaa',
   DIFF: '_MAP_diff'
 };
+
+export const QUALITY_TYPES = {
+  LIGAND: 'LIGAND',
+  HIT_PROTEIN: 'HIT_PROTEIN'
+};

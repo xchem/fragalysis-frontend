@@ -9,6 +9,7 @@ import { refmesh } from './constants/mesh';
 import { addToQualityCache } from '../../reducers/ngl/actions';
 import { hexToRgb } from '../../utils/colors';
 import * as THREE from 'three';
+import { QUALITY_TYPES } from './constants/index';
 
 const drawStripyBond = (atom_a, atom_b, color_a, color_b, label, size = 0.1, shape, alt) => {
   const sx = atom_b[0] - atom_a[0];
@@ -31,12 +32,24 @@ const drawStripyBond = (atom_a, atom_b, color_a, color_b, label, size = 0.1, sha
   }
 };
 
-export function loadQualityFromFile(stage, file, quality, object_name, orientationMatrix, color) {
-  let goodids = (quality && quality.goodids) || [];
-  let badids = (quality && quality.badids) || [];
-  let badcomments = (quality && quality.badcomments) || [];
+export function loadQualityFromFile(stage, file, quality, object_name, orientationMatrix, color, qualityType) {
+  // let goodids =
+  //   qualityType === QUALITY_TYPES.LIGAND
+  //     ? (quality && quality.goodids) || []
+  //     : (quality && quality.goodproteinids) || [];
+  // we are not using the goodids when rendering bad protein atoms - so far this is just my assumption
+  let goodids = qualityType === QUALITY_TYPES.LIGAND ? (quality && quality.goodids) || [] : [];
+  let badids =
+    qualityType === QUALITY_TYPES.LIGAND ? (quality && quality.badids) || [] : (quality && quality.badproteinids) || [];
+  let badcomments =
+    qualityType === QUALITY_TYPES.LIGAND
+      ? (quality && quality.badcomments) || []
+      : (quality && quality.badproteincomments) || [];
+  // let badatomsnames = (quality && quality.badatomsnames) || [];
+  // let atomCount = goodids.length + badids.length;
+  let extension = qualityType === QUALITY_TYPES.LIGAND ? 'sdf' : 'pdb';
 
-  return stage.loadFile(file, { name: object_name, ext: 'sdf' }).then(function(comp) {
+  return stage.loadFile(file, { name: object_name, ext: extension }).then(function(comp) {
     let representationStructures = [];
     let rgbColor = hexToRgb(color);
 
@@ -45,7 +58,9 @@ export function loadQualityFromFile(stage, file, quality, object_name, orientati
     for (var key in atom_info) {
       atom_info_array.push(key.split('|')[0]);
     }
-    comp.autoView();
+    if (qualityType === QUALITY_TYPES.LIGAND) {
+      comp.autoView();
+    }
 
     // Draw Good Atoms + Bonds
     const repr2 = createRepresentationStructure(MOL_REPRESENTATION.ballPlusStick, {
@@ -77,15 +92,35 @@ export function loadQualityFromFile(stage, file, quality, object_name, orientati
         let acoord = [comp.object.atomStore.x[num1], comp.object.atomStore.y[num1], comp.object.atomStore.z[num1]];
         let bcoord = [comp.object.atomStore.x[num2], comp.object.atomStore.y[num2], comp.object.atomStore.z[num2]];
 
-        let element1 = comp.object.atomMap.list[num1].element;
-        let element2 = comp.object.atomMap.list[num2].element;
+        let element1 = null;
+        let element2 = null;
+        if (qualityType === QUALITY_TYPES.LIGAND) {
+          element1 = comp.object.atomMap.list[num1].element;
+          element2 = comp.object.atomMap.list[num2].element;
+        } else {
+          element1 = comp.object.atomMap.list[comp.object.atomStore.atomTypeId[num1]].element;
+          element2 = comp.object.atomMap.list[comp.object.atomStore.atomTypeId[num2]].element;
+        }
         if (element1 && element2) {
           let a1c = element1 === 'C' ? [rgbColor.r, rgbColor.g, rgbColor.b] : ELEMENT_COLORS[element1];
           let a2c = element2 === 'C' ? [rgbColor.r, rgbColor.g, rgbColor.b] : ELEMENT_COLORS[element2];
           let alternativeColor = ELEMENT_COLORS.ALTERNATIVE;
-          let bond_label = 'bond: '.concat(atom_info_array[num1], '-', atom_info_array[num2]);
+
+          let bond_label = null;
+          if (qualityType === QUALITY_TYPES.LIGAND) {
+            bond_label = 'bond: '.concat(atom_info_array[num1], '-', atom_info_array[num2]);
+          } else {
+            bond_label = 'bond: '.concat(
+              comp.object.atomMap.list[comp.object.atomStore.atomTypeId[num1]].atomname,
+              '-',
+              comp.object.atomMap.list[comp.object.atomStore.atomTypeId[num2]].atomname
+            );
+          }
 
           let bond_size = 0.05 / (0.5 * bondorder);
+          if (qualityType === QUALITY_TYPES.HIT_PROTEIN) {
+            bond_size = 0.015;
+          }
           if (bondorder === 1) {
             drawStripyBond(acoord, bcoord, a1c, a2c, bond_label, bond_size, shape, alternativeColor);
           } else if (bondorder === 2) {
@@ -117,11 +152,21 @@ export function loadQualityFromFile(stage, file, quality, object_name, orientati
       let origin = [comp.object.atomStore.x[id], comp.object.atomStore.y[id], comp.object.atomStore.z[id]];
       let atom_label = 'atom: '.concat(atom_info_array[id], ' | ', (comment && comment) || '');
 
+      let meshScaleFactor = 1;
+      if (qualityType === QUALITY_TYPES.HIT_PROTEIN) {
+        meshScaleFactor = 0.5;
+      }
+
       let m = refmesh.map(function(v, i) {
-        return origin[i % 3] + v;
+        return origin[i % 3] + v * meshScaleFactor;
       });
 
-      let element = comp.object.atomMap.list[id]?.element;
+      let element = null;
+      if (qualityType === QUALITY_TYPES.LIGAND) {
+        element = comp.object.atomMap.list[id]?.element;
+      } else {
+        element = comp.object.atomMap.list[comp.object.atomStore.atomTypeId[id]]?.element;
+      }
       if (element) {
         let eleC = element === 'C' ? [rgbColor.r, rgbColor.g, rgbColor.b] : ELEMENT_COLORS[element];
 
@@ -133,7 +178,12 @@ export function loadQualityFromFile(stage, file, quality, object_name, orientati
 
         let col = new Float32Array(col2);
 
-        shape.addSphere(origin, [eleC[0] / 255, eleC[1] / 255, eleC[2] / 255], 0.2, atom_label);
+        let radius = 0.2;
+        if (qualityType === QUALITY_TYPES.HIT_PROTEIN) {
+          radius = 0.1;
+        }
+
+        shape.addSphere(origin, [eleC[0] / 255, eleC[1] / 255, eleC[2] / 255], radius, atom_label);
 
         var meshBuffer = new MeshBuffer({
           position: new Float32Array(m),
@@ -177,8 +227,11 @@ export const readQualityInformation = (name, text) => (dispatch, getState) => {
 const loadQualityInformation = text => {
   let badidsRegex = /[\n\r].*<BADATOMS>\s*([^\n\r]*)/;
   let badcommentsRegex = /[\n\r].*<BADCOMMENTS>\s*([^\n\r]*)/;
+  let badatomsnamesRegex = /[\n\r].*<BADATOMNAMES>\s*([^\n\r]*)/;
+  let getfirstNumberRegex = /^[^\d]*(\d+)/;
   let badidsRegexResult = badidsRegex.exec(text);
   let badcommentsRegexResult = badcommentsRegex.exec(text);
+  let badatomsnamesRegexResult = badatomsnamesRegex.exec(text);
 
   let badidsValue =
     badidsRegexResult != null && badidsRegexResult && badidsRegexResult.length > 1 ? badidsRegexResult[1] : '';
@@ -186,11 +239,98 @@ const loadQualityInformation = text => {
     badcommentsRegexResult != null && badcommentsRegexResult && badcommentsRegexResult.length > 1
       ? badcommentsRegexResult[1]
       : '';
-  let badids = badidsValue === '' ? [] : badidsValue.split(';').map(x => parseInt(x));
-  let badcomments = badcommentsValue === '' ? [] : badcommentsValue.split(';');
+  let badatomsnamesValue =
+    badatomsnamesRegexResult != null && badatomsnamesRegexResult && badatomsnamesRegexResult.length > 1
+      ? badatomsnamesRegexResult[1]
+      : '';
 
-  let goodids = readGoodAtomsFromFile(text, badids);
-  return { goodids, badids, badcomments };
+  let badidsAll = badidsValue === '' ? [] : badidsValue.split(';').map(x => parseInt(x));
+  let badcommentsAll = badcommentsValue === '' ? [] : badcommentsValue.split(';');
+  let badatomsnamesAll = badatomsnamesValue === '' ? [] : badatomsnamesValue.split(';');
+  let goodidsAll = readGoodAtomsFromFile(text, badidsAll);
+
+  let allAtomsCount = badidsAll?.length + goodidsAll?.length;
+
+  let goodids = [];
+  let badids = [];
+  let badcomments = [];
+  let badatomsnames = [];
+
+  let goodproteinids = [];
+  let badproteinids = [];
+  let badproteincomments = [];
+  let badproteinatomnames = [];
+
+  if (badatomsnamesAll.length > 0) {
+    // for (let i = 0; i < badatomsnamesAll?.length; i++) {
+    //   let atomName = badatomsnamesAll[i];
+    //   if (atomName.startsWith('[HET]')) {
+    //     badproteinids.push(badidsAll[i]);
+    //     badproteinatomnames.push(badatomsnamesAll[i]);
+    //     badproteincomments.push(badcommentsAll[i]);
+    //   } else {
+    //     if (atomName.startsWith('[')) {
+    //       atomName = atomName.split(']');
+    //       atomName = atomName && atomName.length > 1 ? atomName[1] : '';
+    //     }
+    //     let atomNumber = atomName.split('.');
+    //     atomNumber = atomNumber && atomNumber.length > 1 ? atomNumber[1] : '0';
+    //     atomNumber = parseInt(atomNumber);
+    //     if (atomNumber > allAtomsCount) {
+    //       badproteinids.push(badidsAll[i]);
+    //       badproteinatomnames.push(badatomsnamesAll[i]);
+    //       badproteincomments.push(badcommentsAll[i]);
+    //     } else {
+    //       badids.push(badidsAll[i]);
+    //       badatomsnames.push(badatomsnamesAll[i]);
+    //       badcomments.push(badcommentsAll[i]);
+    //     }
+    //   }
+    // }
+
+    for (let i = 0; i < badatomsnamesAll?.length; i++) {
+      let atomName = badatomsnamesAll[i];
+      if (!atomName.startsWith('[HET]') /*|| atomName.startsWith('[MET]')*/) {
+        badproteinids.push(badidsAll[i]);
+        badproteinatomnames.push(badatomsnamesAll[i]);
+        badproteincomments.push(badcommentsAll[i]);
+      } else {
+        let firstNumberRegexResult = getfirstNumberRegex.exec(atomName);
+        let atomNumber =
+          firstNumberRegexResult != null && firstNumberRegexResult && firstNumberRegexResult.length > 1
+            ? firstNumberRegexResult[1]
+            : '';
+        if (atomNumber > allAtomsCount) {
+          badproteinids.push(badidsAll[i]);
+          badproteinatomnames.push(badatomsnamesAll[i]);
+          badproteincomments.push(badcommentsAll[i]);
+        } else {
+          badids.push(badidsAll[i]);
+          badatomsnames.push(badatomsnamesAll[i]);
+          badcomments.push(badcommentsAll[i]);
+        }
+      }
+    }
+
+    goodids = readGoodAtomsFromFile(text, badids);
+    goodproteinids = readGoodAtomsFromFile(text, badproteinids);
+  } else {
+    goodids = goodidsAll;
+    badids = badidsAll;
+    badcomments = badcommentsAll;
+    badatomsnames = badatomsnamesAll;
+  }
+
+  return {
+    goodids,
+    badids,
+    badcomments,
+    badatomsnames,
+    goodproteinids,
+    badproteinids,
+    badproteincomments,
+    badproteinatomnames
+  };
 };
 
 function readGoodAtomsFromFile(text, badids) {

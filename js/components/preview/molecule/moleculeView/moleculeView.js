@@ -453,7 +453,7 @@ const MoleculeView = memo(
       // }
       dispatch(
         withDisabledMoleculeNglControlButton(currentID, 'protein', async () => {
-          await dispatch(addHitProtein(stage, data, colourToggle, skipTracking));
+          await dispatch(addHitProtein(stage, data, colourToggle, true, skipTracking));
         })
       );
     };

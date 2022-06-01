@@ -70,6 +70,7 @@ import { readQualityInformation } from '../../../nglView/renderingHelpers';
 import { addSelectedTag } from '../../tags/redux/dispatchActions';
 import { CATEGORY_TYPE } from '../../../../constants/constants';
 import { selectJoinedMoleculeList } from './selectors';
+// import { molFile, pdbApo } from './testData';
 
 /**
  * Convert the JSON into a list of arrow objects
@@ -203,37 +204,6 @@ export const removeVector = (stage, data, skipTracking = false) => (dispatch, ge
   dispatch(removeFromVectorOnList(generateMoleculeId(data), skipTracking));
 
   dispatch(setVectorList(vector_list.filter(item => item.moleculeId !== data.id)));
-};
-
-export const addHitProtein = (
-  stage,
-  data,
-  colourToggle,
-  skipTracking = false,
-  representations = undefined
-) => dispatch => {
-  dispatch(appendProteinList(generateMoleculeId(data), skipTracking));
-  return dispatch(
-    loadObject({
-      target: Object.assign({ display_div: VIEWS.MAJOR_VIEW }, generateHitProteinObject(data, colourToggle, base_url)),
-      stage,
-      previousRepresentations: representations,
-      orientationMatrix: null
-    })
-  ).finally(() => {
-    const currentOrientation = stage.viewerControls.getOrientation();
-    dispatch(setOrientation(VIEWS.MAJOR_VIEW, currentOrientation));
-  });
-};
-
-export const removeHitProtein = (stage, data, colourToggle, skipTracking = false) => dispatch => {
-  dispatch(
-    deleteObject(
-      Object.assign({ display_div: VIEWS.MAJOR_VIEW }, generateHitProteinObject(data, colourToggle, base_url)),
-      stage
-    )
-  );
-  dispatch(removeFromProteinList(generateMoleculeId(data), skipTracking));
 };
 
 export const addComplex = (
@@ -519,6 +489,53 @@ const deleteDensityObject = (data, colourToggle, stage, isWireframeStyle) => dis
   return densityObject;
 };
 
+export const addHitProtein = (
+  stage,
+  data,
+  colourToggle,
+  withQuality = false,
+  skipTracking = false,
+  representations = undefined
+) => dispatch => {
+  // data.sdf_info = molFile;
+  dispatch(appendProteinList(generateMoleculeId(data), skipTracking));
+  let hitProteinObject = generateHitProteinObject(data, colourToggle, base_url);
+  let qualityInformation = dispatch(readQualityInformation(hitProteinObject.name, hitProteinObject.sdf_info));
+
+  let hasAdditionalInformation =
+    withQuality === true &&
+    qualityInformation &&
+    qualityInformation.badproteinids &&
+    qualityInformation.badproteinids.length !== 0;
+  if (hasAdditionalInformation) {
+    dispatch(appendQualityList(generateMoleculeId(data), true));
+  }
+
+  return dispatch(
+    loadObject({
+      target: Object.assign({ display_div: VIEWS.MAJOR_VIEW }, hitProteinObject),
+      stage,
+      previousRepresentations: representations,
+      orientationMatrix: null,
+      loadQuality: hasAdditionalInformation,
+      quality: qualityInformation
+    })
+  ).finally(() => {
+    const currentOrientation = stage.viewerControls.getOrientation();
+    dispatch(setOrientation(VIEWS.MAJOR_VIEW, currentOrientation));
+  });
+};
+
+export const removeHitProtein = (stage, data, colourToggle, skipTracking = false) => dispatch => {
+  dispatch(
+    deleteObject(
+      Object.assign({ display_div: VIEWS.MAJOR_VIEW }, generateHitProteinObject(data, colourToggle, base_url)),
+      stage
+    )
+  );
+  dispatch(removeFromProteinList(generateMoleculeId(data), skipTracking));
+};
+
 export const addLigand = (
   stage,
   data,
@@ -528,6 +545,7 @@ export const addLigand = (
   skipTracking = false,
   representations = undefined
 ) => (dispatch, getState) => {
+  // data.sdf_info = molFile;
   const currentOrientation = stage.viewerControls.getOrientation();
   dispatch(appendFragmentDisplayList(generateMoleculeId(data), skipTracking));
 
@@ -611,8 +629,11 @@ export const initializeMolecules = majorView => (dispatch, getState) => {
       firstMolecule = dispatch(getFirstMolecule());
     }
     if (firstMolecule) {
-      dispatch(addHitProtein(majorView, firstMolecule, colourList[firstMolecule.id % colourList.length]));
-      dispatch(addLigand(majorView, firstMolecule, colourList[firstMolecule.id % colourList.length], true, true));
+      dispatch(addHitProtein(majorView, firstMolecule, colourList[firstMolecule.id % colourList.length], true)).then(
+        () => {
+          dispatch(addLigand(majorView, firstMolecule, colourList[firstMolecule.id % colourList.length], true, true));
+        }
+      );
     }
   }
 };
@@ -990,7 +1011,9 @@ export const getQualityInformation = (data, molType, width, height) => (dispatch
   let qualityInformation = dispatch(readQualityInformation(moleculeObject.name, data.sdf_info));
 
   let hasAdditionalInformation =
-    qualityInformation && qualityInformation.badids && qualityInformation.badids.length !== 0;
+    qualityInformation &&
+    ((qualityInformation.badids && qualityInformation.badids.length !== 0) ||
+      (qualityInformation.badproteinids && qualityInformation.badproteinids.length !== 0));
   if (hasAdditionalInformation) {
     dispatch(addInformation(data));
   }

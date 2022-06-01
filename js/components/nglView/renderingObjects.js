@@ -9,9 +9,10 @@ import { concatStructures, Selection, Shape, Matrix4 } from 'ngl';
 import { loadQualityFromFile } from './renderingHelpers';
 import { getPdb } from './renderingFile';
 import { setNglViewParams } from '../../reducers/ngl/actions';
-import { NGL_PARAMS } from './constants/index';
+import { NGL_PARAMS, QUALITY_TYPES } from './constants/index';
 import { VIEWS } from '../../constants/constants';
 import { MAP_TYPE } from '../../reducers/ngl/constants';
+// import { molFile, pdbApo } from '../preview/molecule/redux/testData';
 
 const showSphere = ({ stage, input_dict, object_name, representations }) => {
   let colour = input_dict.colour;
@@ -38,8 +39,16 @@ const showLigand = ({
 }) => {
   let stringBlob = new Blob([input_dict.sdf_info], { type: 'text/plain' });
 
-  if (loadQuality === true) {
-    return loadQualityFromFile(stage, stringBlob, quality, object_name, orientationMatrix, input_dict.colour);
+  if (loadQuality && quality && quality.badids?.length > 0) {
+    return loadQualityFromFile(
+      stage,
+      stringBlob,
+      quality,
+      object_name,
+      orientationMatrix,
+      input_dict.colour,
+      QUALITY_TYPES.LIGAND
+    );
   } else {
     return loadLigandFromFile(
       stage,
@@ -120,20 +129,53 @@ const renderHitProtein = (ol, representations, orientationMatrix) => {
   return assignRepresentationArrayToComp(reprArray, comp);
 };
 
-const showHitProtein = async ({ stage, input_dict, object_name, representations, orientationMatrix, dispatch }) => {
+const showHitProtein = async ({
+  stage,
+  input_dict,
+  object_name,
+  representations,
+  orientationMatrix,
+  dispatch,
+  loadQuality,
+  quality
+}) => {
   let stringBlob = new Blob([input_dict.sdf_info], { type: 'text/plain' });
 
   const pdbBlob = await dispatch(getPdb(input_dict.prot_url));
+  // const pdbBlob = new Blob([pdbApo], { type: 'text/plain' });
+
   if (pdbBlob) {
-    const ol = await Promise.all([
-      stage.loadFile(pdbBlob, { ext: 'pdb', defaultAssembly: 'BU1' }),
-      stage.loadFile(stringBlob, { ext: 'sdf' }),
-      stage,
-      defaultFocus,
-      object_name,
-      input_dict.colour
-    ]);
-    renderHitProtein(ol, representations, orientationMatrix);
+    if (loadQuality && quality && quality.badproteinids?.length > 0) {
+      const ol = await Promise.all([
+        stage.loadFile(pdbBlob, { ext: 'pdb', defaultAssembly: 'BU1' }),
+        stage.loadFile(stringBlob, { ext: 'sdf' }),
+        stage,
+        defaultFocus,
+        object_name,
+        input_dict.colour
+      ]);
+      renderHitProtein(ol, representations, orientationMatrix);
+      return loadQualityFromFile(
+        stage,
+        pdbBlob,
+        quality,
+        object_name,
+        //'MID2A-x0758_0A_HIT_PROTEIN',
+        orientationMatrix,
+        input_dict.colour,
+        QUALITY_TYPES.HIT_PROTEIN
+      );
+    } else {
+      const ol = await Promise.all([
+        stage.loadFile(pdbBlob, { ext: 'pdb', defaultAssembly: 'BU1' }),
+        stage.loadFile(stringBlob, { ext: 'sdf' }),
+        stage,
+        defaultFocus,
+        object_name,
+        input_dict.colour
+      ]);
+      renderHitProtein(ol, representations, orientationMatrix);
+    }
   }
 };
 

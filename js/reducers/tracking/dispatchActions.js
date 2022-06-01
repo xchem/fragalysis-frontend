@@ -1746,6 +1746,8 @@ const addNewType = (moleculesAction, actionType, type, stage, state, skipTrackin
       if (data) {
         if (type === 'ligand') {
           await dispatch(addType[type](stage, data, colourList[data.id % colourList.length], true, true, skipTracking));
+        } else if (type === 'protein') {
+          await dispatch(addType[type](stage, data, colourList[data.id % colourList.length], true, skipTracking));
         } else if (type === 'vector') {
           await dispatch(addType[type](stage, data, true));
         } else if (type === 'density' || type === 'densityCustom') {
