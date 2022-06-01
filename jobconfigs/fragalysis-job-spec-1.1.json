@@ -1,0 +1,49 @@
+{
+  "global": {
+    "job_dir": "fragalysis-jobs/{username}/{job_name}-{timestamp}"
+  },
+  "fragalysis-jobs": [
+    {
+      "job_collection": "fragmenstein",
+      "job_name": "fragmenstein-combine",
+      "job_version": "1.0.0",
+      "inputs": {
+        "fragments": {
+          "from": "lhs-fragments",
+          "type": "array",
+          "uniqueItems": true,
+          "format": "chemical/x-mdl-molfile",
+          "as": "{job_dir}/{file_name}",
+          "display": "readOnly"
+        },
+        "protein": {
+          "from": "lhs-protein-apo-desolv",
+          "type": "string",
+          "format": "chemical/x-pdb",
+          "as": "{job_dir}/{file_name}",
+          "display": "readOnly"
+        }
+      },
+      "options": {
+        "outfile": {
+          "value": "{job_dir}/merged.sdf",
+          "display": "hidden"
+        },
+        "count": {
+          "default": 5
+        },
+        "smiles": {
+          "default": "original SMILES",
+          "display": "hidden"
+        },
+        "fragIdField": {
+          "default": "_Name",
+          "display": "hidden"
+        }
+      },
+      "results": [
+        "Merged molecules"
+      ]
+    }
+  ]
+}
