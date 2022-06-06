@@ -13,7 +13,7 @@ import {
   appendToMolListToEdit,
   removeFromMolListToEdit,
   setNextXMolecules,
-  resetSelectionStateOnSnapshotChange
+  resetSelectionState
 } from '../selection/actions';
 import {
   resetReducersForRestoringActions,
@@ -1833,7 +1833,7 @@ const getMolGroup = (molGroupName, state) => {
 };
 
 const getTag = (tagId, state) => {
-  const tagList = state.selectionReducers.tagList;
+  const tagList = state.apiReducers.tagList;
   const tag = tagList.find(t => t.id === tagId);
   return tag;
 };
@@ -3591,7 +3591,7 @@ export const changeSnapshot = (projectID, snapshotID, nglViewList, stage) => asy
   let snapshotActions = [...listToSet];
   dispatch(setCurrentActionsList(snapshotActions));
 
-  dispatch(resetSelectionStateOnSnapshotChange());
+  dispatch(resetSelectionState());
   dispatch(resetDatasetsStateOnSnapshotChange());
   dispatch(resetViewerControlsState());
   dispatch(resetNglTrackingState());

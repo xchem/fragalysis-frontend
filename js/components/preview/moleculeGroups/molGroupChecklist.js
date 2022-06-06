@@ -3,7 +3,6 @@ import { Grid, makeStyles, Checkbox, Tooltip, Typography } from '@material-ui/co
 import { useDispatch, useSelector } from 'react-redux';
 import { heightOfBody } from './molGroupSelector';
 import { VIEWS } from '../../../constants/constants';
-// import { useDisableUserInteraction } from '../../helpers/useEnableUserInteracion';
 import { NglContext } from '../../nglView/nglProvider';
 import { onSelectMoleculeGroup } from './redux/dispatchActions';
 
@@ -44,7 +43,6 @@ const useStyles = makeStyles(theme => ({
 
 const molGroupChecklist = memo(({}) => {
   const classes = useStyles();
-  // const disableUserInteraction = useDisableUserInteraction();
   const { getNglView } = useContext(NglContext);
   const stageSummaryView = getNglView(VIEWS.SUMMARY_VIEW) && getNglView(VIEWS.SUMMARY_VIEW).stage;
   const majorViewStage = getNglView(VIEWS.MAJOR_VIEW) && getNglView(VIEWS.MAJOR_VIEW).stage;
@@ -73,7 +71,16 @@ const molGroupChecklist = memo(({}) => {
                       <Checkbox
                         color="primary"
                         checked={checked}
-                        onChange={event => dispatch(onSelectMoleculeGroup({ moleculeGroup, stageSummaryView, majorViewStage, selectGroup: event.target.checked }))}
+                        onChange={event =>
+                          dispatch(
+                            onSelectMoleculeGroup({
+                              moleculeGroup,
+                              stageSummaryView,
+                              majorViewStage,
+                              selectGroup: event.target.checked
+                            })
+                          )
+                        }
                         disabled={false}
                       />
                     </Grid>

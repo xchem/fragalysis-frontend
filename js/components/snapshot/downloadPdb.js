@@ -9,7 +9,6 @@ import FileSaver from 'file-saver';
 import { api } from '../../utils/api';
 import { CloudDownload, Loop } from '@material-ui/icons';
 import { setDownloadStructuresDialogOpen } from './redux/actions';
-// import { useDisableUserInteraction } from '../helpers/useEnableUserInteracion';
 import { getTagMolecules } from '../preview/tags/api/tagsApi';
 import { compareTagsAsc } from '../preview/tags/utils/tagUtils';
 import { DJANGO_CONTEXT } from '../../utils/djangoContext';
@@ -20,7 +19,6 @@ const DownloadPdb = memo(({ targetOn, targetOnName, key }) => {
   const dispatch = useDispatch();
   const [downloading, setDownloading] = useState(false);
   const target_on = useSelector(state => state.apiReducers.target_on);
-  // const disableUserInteraction = useDisableUserInteraction();
 
   const handlePdbDownload = async () => {
     setDownloading(true);

@@ -6,7 +6,6 @@ import DownloadPdb from './downloadPdb';
 import { HeaderContext } from '../header/headerContext';
 import { useHistory, useRouteMatch } from 'react-router-dom';
 import { DJANGO_CONTEXT } from '../../utils/djangoContext';
-// import { useDisableUserInteraction } from '../helpers/useEnableUserInteracion';
 import { activateSnapshotDialog, saveAndShareSnapshot } from './redux/dispatchActions';
 import { NglContext } from '../nglView/nglProvider';
 import { restoreSnapshotActions } from '../preview/moleculeGroups/redux/dispatchActions';
@@ -37,7 +36,6 @@ export const withSnapshotManagement = WrappedComponent => {
     let target = match && match.params && match.params.target;
     // Check whether the snapshot was just saved
     target = snapshotJustSaved ? undefined : target;
-    //const disableUserInteraction = useDisableUserInteraction();
 
     if (directDisplay && directDisplay.target) {
       target = directDisplay.target;

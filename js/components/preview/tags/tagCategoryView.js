@@ -34,7 +34,7 @@ const TagCategoryView = memo(({ name, tags, specialTags, clickCallback, disabled
   const selectedTagList = useSelector(state => state.selectionReducers.selectedTagList);
   const dispatch = useDispatch();
 
-  const tagList = useSelector(state => state.selectionReducers.tagList);
+  const tagList = useSelector(state => state.apiReducers.tagList);
   const isTagGlobalEdit = useSelector(state => state.selectionReducers.isGlobalEdit);
   const molId = useSelector(state => state.selectionReducers.molForTagEdit);
   let moleculesToEditIds = useSelector(state => state.selectionReducers.moleculesToEdit);

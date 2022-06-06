@@ -16,7 +16,6 @@ export const INITIAL_STATE = {
   qualityList: [],
   informationList: [],
   vectorOnList: [],
-  countOfPendingVectorLoadRequests: 0,
   mol_group_selection: [],
   object_selection: undefined,
   filter: undefined,
@@ -26,13 +25,8 @@ export const INITIAL_STATE = {
   molForTagEdit: null,
   tagFilteringMode: false,
 
-  categoryList: [],
-  tagList: [],
   selectedTagList: [],
   isGlobalEdit: false,
-
-  listAllList: [],
-  displayAllInNGLList: [],
 
   compoundsOfVectors: null, // list of all vector's compounds to pick
   // compoundsOfVectors: {
@@ -43,7 +37,6 @@ export const INITIAL_STATE = {
   //   [vectorID] :{}  // based on currentVector  (smile)
   // }
   currentVector: null, // selected vector smile (ID) of compoundsOfVectors
-  displayedMoleculesInHitNav: [],
   moleculesToEdit: [],
 
   // tags
@@ -51,7 +44,6 @@ export const INITIAL_STATE = {
   //display all molecules in hit navigator regardless of the tag selection
   displayAllMolecules: false,
   displayUntaggedMolecules: false,
-  associatedDownloadTagName: null,
   nextXMolecules: 0
 };
 
@@ -227,38 +219,6 @@ export function selectionReducers(state = INITIAL_STATE, action = {}) {
       diminishedQualityList.delete(action.item.id);
       return Object.assign({}, state, { qualityList: [...diminishedQualityList] });
 
-    case constants.SET_LIST_ALL_FOR_TAG_LIST:
-      let newListAllForTag = new Set();
-      action.listAll.forEach(f => {
-        newListAllForTag.add(f);
-      });
-      return Object.assign({}, state, { listAllList: [...newListAllForTag] });
-
-    case constants.APPEND_TO_LIST_ALL_FOR_TAG_LIST:
-      return Object.assign({}, state, { listAllList: [...new Set([...state.listAllList, action.item.id])] });
-
-    case constants.REMOVE_FROM_LIST_ALL_FOR_TAG_LIST:
-      let diminishedListAllList = new Set(state.listAllList);
-      diminishedListAllList.delete(action.item.id);
-      return Object.assign({}, state, { listAllList: [...diminishedListAllList] });
-
-    case constants.SET_DISPLAY_ALL_NGL_LIST:
-      let newDisplayAllInNGLList = new Set();
-      action.displayAllInNGLList.forEach(f => {
-        newDisplayAllInNGLList.add(f);
-      });
-      return Object.assign({}, state, { displayAllInNGLList: [...newDisplayAllInNGLList] });
-
-    case constants.APPEND_TO_DISPLAY_ALL_NGL_LIST:
-      return Object.assign({}, state, {
-        displayAllInNGLList: [...new Set([...state.displayAllInNGLList, action.item.id])]
-      });
-
-    case constants.REMOVE_FROM_DISPLAY_ALL_NGL_LIST:
-      let diminishedDisplayAllInNGLList = new Set(state.displayAllInNGLList);
-      diminishedDisplayAllInNGLList.delete(action.item.id);
-      return Object.assign({}, state, { displayAllInNGLList: [...diminishedDisplayAllInNGLList] });
-
     case constants.APPEND_INFORMATION_LIST:
       return Object.assign({}, state, { informationList: [...new Set([...state.informationList, action.item.id])] });
 
@@ -334,17 +294,6 @@ export function selectionReducers(state = INITIAL_STATE, action = {}) {
     case constants.RESET_SELECTION_STATE:
       return INITIAL_STATE;
 
-    case constants.INCREMENT_COUNT_OF_PENDING_VECTOR_LOAD_REQUESTS: {
-      return Object.assign({}, state, {
-        countOfPendingVectorLoadRequests: state.countOfPendingVectorLoadRequests + 1
-      });
-    }
-    case constants.DECREMENT_COUNT_OF_PENDING_VECTOR_LOAD_REQUESTS: {
-      return Object.assign({}, state, {
-        countOfPendingVectorLoadRequests: state.countOfPendingVectorLoadRequests - 1
-      });
-    }
-
     case constants.SET_MOL_GROUP_SELECTION:
       return Object.assign({}, state, {
         mol_group_selection: action.mol_group_selection
@@ -416,51 +365,6 @@ export function selectionReducers(state = INITIAL_STATE, action = {}) {
     case constants.SET_HIDE_ALL:
       return state;
 
-    case constants.SET_CATEGORY_LIST:
-      let newCategoryList = new Set();
-      action.categoryList.forEach(f => {
-        newCategoryList.add(f);
-      });
-      return Object.assign({}, state, { categoryList: [...newCategoryList] });
-
-    case constants.APPEND_CATEGORY_LIST:
-      return Object.assign({}, state, { categoryList: [...new Set([...state.categoryList, action.item])] });
-
-    case constants.REMOVE_FROM_CATEGORY_LIST:
-      let diminishedCategoryList = new Set(state.categoryList);
-      diminishedCategoryList.delete(action.item);
-      return Object.assign({}, state, { categoryList: [...diminishedCategoryList] });
-
-    case constants.SET_TAG_LIST:
-      let newTagList = new Set();
-      action.tagList.forEach(f => {
-        newTagList.add(f);
-      });
-      return Object.assign({}, state, { tagList: [...newTagList] });
-
-    case constants.UPDATE_TAG:
-      let listWithUpdatedTag = [...state.tagList];
-      let foundTags = listWithUpdatedTag.filter(t => t.id === action.item.id);
-      if (foundTags && foundTags.length > 0) {
-        let foundTag = foundTags[0];
-        foundTag.tag = action.item.tag;
-        foundTag.colour = action.item.colour;
-        foundTag.category_id = action.item.category_id;
-        foundTag.discourse_url = action.item.discourse_url;
-
-        return { ...state, tagList: [...listWithUpdatedTag] };
-      } else {
-        return state;
-      }
-
-    case constants.APPEND_TAG_LIST:
-      return Object.assign({}, state, { tagList: [...new Set([...state.tagList, action.item])] });
-
-    case constants.REMOVE_FROM_TAG_LIST:
-      let diminishedTagList = new Set(state.tagList);
-      diminishedTagList.delete(action.item);
-      return Object.assign({}, state, { tagList: [...diminishedTagList] });
-
     case constants.SET_SELECTED_TAG_LIST:
       let newSelectedTagList = new Set();
       action.selectedTagList.forEach(f => {
@@ -475,9 +379,6 @@ export function selectionReducers(state = INITIAL_STATE, action = {}) {
       let diminishedSelectedTagList = new Set(state.selectedTagList);
       diminishedSelectedTagList.delete(action.item);
       return Object.assign({}, state, { selectedTagList: [...diminishedSelectedTagList] });
-
-    case constants.SET_DISPLAYED_MOLECULES_HIT_NAV:
-      return { ...state, displayedMoleculesInHitNav: [...action.list] };
 
     case constants.SET_IS_TAG_GLOBAL_EDIT:
       return { ...state, isGlobalEdit: action.isGlobalEdit };
@@ -506,16 +407,8 @@ export function selectionReducers(state = INITIAL_STATE, action = {}) {
       return { ...state, displayUntaggedMolecules: action.displayUntaggedMolecules };
     }
 
-    case constants.SET_ASSOCIATED_DOWNLOAD_TAG_NAME:
-      return { ...state, associatedDownloadTagName: action.tagName };
-
     case constants.SET_NEXT_X_MOLECULES:
       return { ...state, nextXMolecules: action.nextXMolecules };
-
-    case constants.RESET_SELECTION_STATE_ON_SNAPSHOT_CHANGE: {
-      const { categoryList, tagList } = state;
-      return { ...INITIAL_STATE, categoryList, tagList };
-    }
 
     // Cases like: @@redux/INIT
     default:

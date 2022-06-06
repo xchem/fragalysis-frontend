@@ -9,8 +9,6 @@ import {
   appendQualityList,
   appendVectorOnList,
   appendInformationList,
-  decrementCountOfPendingVectorLoadRequests,
-  incrementCountOfPendingVectorLoadRequests,
   removeFromProteinList,
   removeFromComplexList,
   removeFromSurfaceList,
@@ -146,7 +144,6 @@ const handleVector = (json, stage, data) => (dispatch, getState) => {
 export const addVector = (stage, data, skipTracking = false) => async (dispatch, getState) => {
   const currentVector = getState().selectionReducers.currentVector;
 
-  dispatch(incrementCountOfPendingVectorLoadRequests());
   dispatch(appendVectorOnList(generateMoleculeId(data), skipTracking));
   dispatch(selectVectorAndResetCompounds(currentVector));
 
@@ -175,7 +172,6 @@ export const addVector = (stage, data, skipTracking = false) => async (dispatch,
     .then(() => api({ url: getViewUrl('vector', data) }))
     .then(response => dispatch(handleVector(response.data.vectors, stage, data)))
     .finally(() => {
-      dispatch(decrementCountOfPendingVectorLoadRequests());
       const currentOrientation = stage.viewerControls.getOrientation();
       dispatch(setOrientation(VIEWS.MAJOR_VIEW, currentOrientation));
     });
@@ -642,7 +638,7 @@ export const getFirstTag = () => (dispatch, getState) => {
   const siteCategoryId = dispatch(getSiteCategoryId());
   if (siteCategoryId) {
     const state = getState();
-    const tagsList = state.selectionReducers.tagList;
+    const tagsList = state.apiReducers.tagList;
     const foundTags = tagsList.filter(t => t.category_id === siteCategoryId);
     return foundTags && foundTags.length > 0 ? foundTags[0] : null;
   } else {
@@ -676,7 +672,7 @@ export const getFirstMolecule = () => (dispatch, getState) => {
 
 export const getSiteCategoryId = () => (dispatch, getState) => {
   const state = getState();
-  const categoriesList = state.selectionReducers.categoryList;
+  const categoriesList = state.apiReducers.categoryList;
   const foundCategories = categoriesList.filter(c => c.category === CATEGORY_TYPE.SITE);
   if (foundCategories && foundCategories.length > 0) {
     return foundCategories[0].id;

@@ -10,7 +10,6 @@ import SVGInline from 'react-svg-inline';
 import classNames from 'classnames';
 import { VIEWS, ARROW_TYPE } from '../../../constants/constants';
 import { NglContext } from '../../nglView/nglProvider';
-// import { useDisableUserInteraction } from '../helpers/useEnableUserInteracion';
 import {
   addDatasetLigand,
   removeDatasetLigand,
@@ -322,8 +321,6 @@ const DatasetMoleculeView = memo(
     if (arrowsHidden) {
       areArrowsVisible = false;
     }
-
-    // const disableUserInteraction = useDisableUserInteraction();
 
     const refOnCancelImage = useRef();
     const getRandomColor = () => colourList[currentID % colourList.length];

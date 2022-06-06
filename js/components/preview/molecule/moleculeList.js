@@ -9,9 +9,6 @@ import {
   CircularProgress,
   Divider,
   Typography,
-  FormControl,
-  Select,
-  MenuItem,
   IconButton,
   ButtonGroup
 } from '@material-ui/core';
@@ -27,7 +24,6 @@ import { ComputeSize } from '../../../utils/computeSize';
 import { moleculeProperty } from './helperConstants';
 import { VIEWS } from '../../../constants/constants';
 import { NglContext } from '../../nglView/nglProvider';
-// import { useDisableUserInteraction } from '../../helpers/useEnableUserInteracion';
 import classNames from 'classnames';
 import {
   addVector,
@@ -64,7 +60,6 @@ import {
   setSelectedAllByType,
   setDeselectedAllByType,
   setTagEditorOpen,
-  setDisplayedMoleculesInHitNav,
   setIsTagGlobalEdit
 } from '../../../reducers/selection/actions';
 import { TagEditor } from '../tags/modal/tagEditor';
@@ -264,9 +259,9 @@ export const MoleculeList = memo(({ height, setFilterItemsHeight, filterItemsHei
   const all_mol_lists = useSelector(state => state.apiReducers.all_mol_lists);
   const directDisplay = useSelector(state => state.apiReducers.direct_access);
   const directAccessProcessed = useSelector(state => state.apiReducers.direct_access_processed);
-  const tags = useSelector(state => state.selectionReducers.tagList);
+  const tags = useSelector(state => state.apiReducers.tagList);
   const noTagsReceived = useSelector(state => state.apiReducers.noTagsReceived);
-  const categories = useSelector(state => state.selectionReducers.categoryList);
+  const categories = useSelector(state => state.apiReducers.categoryList);
 
   const proteinsHasLoaded = useSelector(state => state.nglReducers.proteinsHasLoaded);
 
@@ -280,8 +275,6 @@ export const MoleculeList = memo(({ height, setFilterItemsHeight, filterItemsHei
   const filterRef = useRef();
   const tagEditorRef = useRef();
   const [tagEditorAnchorEl, setTagEditorAnchorEl] = useState(null);
-
-  // const disableUserInteraction = useDisableUserInteraction();
 
   if (directDisplay && directDisplay.target) {
     target = directDisplay.target;
@@ -509,7 +502,6 @@ export const MoleculeList = memo(({ height, setFilterItemsHeight, filterItemsHei
   );
 
   let currentMolecules = joinedMoleculeLists.slice(0, listItemOffset);
-  dispatch(setDisplayedMoleculesInHitNav(currentMolecules));
 
   const newMolsToEdit = [];
   currentMolecules.forEach(cm => {

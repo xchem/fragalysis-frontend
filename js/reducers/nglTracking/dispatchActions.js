@@ -742,7 +742,7 @@ const restoreSitesActions = (orderedActionList, summaryView) => (dispatch, getSt
 };
 
 const getTag = (tagId, state) => {
-  const tagList = state.selectionReducers.tagList;
+  const tagList = state.apiReducers.tagList;
   const tag = tagList.find(t => t.id === tagId);
   return tag;
 };

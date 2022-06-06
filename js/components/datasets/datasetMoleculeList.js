@@ -22,7 +22,6 @@ import { Panel } from '../common/Surfaces/Panel';
 import { ComputeSize } from '../../utils/computeSize';
 import { VIEWS } from '../../constants/constants';
 import { NglContext } from '../nglView/nglProvider';
-// import { useDisableUserInteraction } from '../helpers/useEnableUserInteracion';
 import classNames from 'classnames';
 import {
   addDatasetLigand,
@@ -220,8 +219,6 @@ export const DatasetMoleculeList = memo(
     const filterRef = useRef();
 
     const joinedMoleculeLists = useSelector(state => getJoinedMoleculeLists(datasetID, state));
-
-    // const disableUserInteraction = useDisableUserInteraction();
 
     // TODO Reset Infinity scroll
 

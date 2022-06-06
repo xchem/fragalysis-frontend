@@ -239,17 +239,6 @@ describe("testing selection reducer's actions", () => {
     expect(result).toStrictEqual(INITIAL_STATE);
   });
 
-  it('should increment and decrement count of pending vector load requests', () => {
-    expect.hasAssertions();
-    let result = selectionReducer(initialState, selectionActions.incrementCountOfPendingVectorLoadRequests());
-    expect(result.countOfPendingVectorLoadRequests).toBe(1);
-    result = selectionReducer(
-      Object.assign({}, initialState, result),
-      selectionActions.decrementCountOfPendingVectorLoadRequests()
-    );
-    expect(result.countOfPendingVectorLoadRequests).toBe(0);
-  });
-
   it('should set molecule group selection', () => {
     expect.hasAssertions();
     const mol_group_selection = [30, 40, 50, 60];

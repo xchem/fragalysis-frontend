@@ -16,7 +16,6 @@ import {
 } from './redux/dispatchActions';
 import { Button } from '../common/Inputs/Button';
 import classNames from 'classnames';
-// import { useDisableUserInteraction } from '../helpers/useEnableUserInteracion';
 import DatasetMoleculeView from './datasetMoleculeView';
 import { colourList } from '../preview/molecule/utils/color';
 import { NglContext } from '../nglView/nglProvider';
@@ -150,7 +149,6 @@ export const CrossReferenceDialog = memo(
 
     const { getNglView } = useContext(NglContext);
     const stage = getNglView(VIEWS.MAJOR_VIEW) && getNglView(VIEWS.MAJOR_VIEW).stage;
-    // const disableUserInteraction = useDisableUserInteraction();
 
     const moleculeList = useSelector(state => getCrossReferenceCompoundListByCompoundName(state));
     const isLoadingCrossReferenceScores = useSelector(state => state.datasetsReducers.isLoadingCrossReferenceScores);

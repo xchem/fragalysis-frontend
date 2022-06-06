@@ -20,7 +20,6 @@ import { moleculeProperty } from '../preview/molecule/helperConstants';
 import { setIsOpenInspirationDialog } from './redux/actions';
 import { Button } from '../common/Inputs/Button';
 import classNames from 'classnames';
-// import { useDisableUserInteraction } from '../helpers/useEnableUserInteracion';
 import { colourList } from '../preview/molecule/utils/color';
 import { NglContext } from '../nglView/nglProvider';
 import { VIEWS } from '../../constants/constants';
@@ -143,7 +142,6 @@ export const InspirationDialog = memo(
     const moleculesToEditIds = useSelector(state => state.selectionReducers.moleculesToEdit);
 
     const dispatch = useDispatch();
-    // const disableUserInteraction = useDisableUserInteraction();
 
     const moleculeList = useMemo(() => {
       if (searchString !== null) {
