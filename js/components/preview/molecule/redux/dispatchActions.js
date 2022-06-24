@@ -1019,20 +1019,21 @@ export const getQualityInformation = (data, molType, width, height) => (dispatch
   }
 };
 
-export const getProteinData = molecule => (dispatch, getState) => {
-  const state = getState();
+export const getProteinData = molecule => dispatch => {
+  return dispatch(getProteinDataByMolId(molecule.id, molecule.protein_code));
+};
 
+export const getProteinDataByMolId = (molId, proteinCode) => (dispatch, getState) => {
+  const state = getState();
   const proteindDataCache = state.previewReducers.molecule.proteinDataCache;
 
-  const code = molecule.protein_code;
-  const molId = molecule.id;
   const molIdStr = molId.toString();
   if (proteindDataCache.hasOwnProperty(molIdStr)) {
     return new Promise((resolve, reject) => {
       resolve(proteindDataCache[molIdStr]);
     });
   } else {
-    return loadProteinData(code).then(i => {
+    return loadProteinData(proteinCode).then(i => {
       if (!proteindDataCache.hasOwnProperty(molIdStr)) {
         dispatch(addProteindDataToCache(molId.toString(), i));
       }
