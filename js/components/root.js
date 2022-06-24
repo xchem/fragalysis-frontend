@@ -17,20 +17,22 @@ setConfig({
   reloadHooks: false
 });
 
-const Root = memo(() => (
-  <ErrorBoundary>
-    <CssBaseline>
-      <ThemeProvider theme={getTheme()}>
-        <HeaderProvider>
-          <NglProvider>
-            <BrowserRouter>
-              <Routes />
-            </BrowserRouter>
-          </NglProvider>
-        </HeaderProvider>
-      </ThemeProvider>
-    </CssBaseline>
-  </ErrorBoundary>
-));
+const Root = memo(() => {
+  return (
+    <ErrorBoundary>
+      <CssBaseline>
+        <ThemeProvider theme={getTheme()}>
+          <HeaderProvider>
+            <NglProvider>
+              <BrowserRouter>
+                <Routes />
+              </BrowserRouter>
+            </NglProvider>
+          </HeaderProvider>
+        </ThemeProvider>
+      </CssBaseline>
+    </ErrorBoundary>
+  );
+});
 
 export default hot(module)(Root);

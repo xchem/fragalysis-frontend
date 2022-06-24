@@ -1,4 +1,6 @@
 import axios from 'axios';
+import { isRemoteDebugging } from '../components/routes/constants';
+
 const CancelToken = axios.CancelToken;
 
 const getCookie = name => {
@@ -28,6 +30,14 @@ export const api = ({ url, method, headers, data, cancel }) => {
     headers:
       headers !== undefined
         ? headers
+        : isRemoteDebugging
+        ? {
+            //we need to not to add X-CSRFToken because it's forbidden by the server when CORS are enabled and origins doen't match
+            accept: 'application/json',
+            'content-type': 'application/json',
+            'X-Requested-With': 'XMLHttpRequest'
+            //'X-CSRFToken': getCsrfToken()
+          }
         : {
             accept: 'application/json',
             'content-type': 'application/json',
