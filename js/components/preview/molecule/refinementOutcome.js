@@ -7,11 +7,12 @@ import status_6_gray from '../../../img/status_6_gray.svg';
 import status_5 from '../../../img/status_5.svg';
 import status_4 from '../../../img/status_4.svg';
 import { api } from '../../../utils/api';
+import { base_url as base_url_const } from '../../routes/constants';
 
 class RefinementOutcome extends React.PureComponent {
   constructor(props) {
     super(props);
-    this.base_url = window.location.protocol + '//' + window.location.host;
+    this.base_url = base_url_const;
     this.getUrl = this.getUrl.bind(this);
     this.state = { refinementOutcome: undefined };
   }

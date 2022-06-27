@@ -67,7 +67,7 @@ import {
 } from '../../preview/molecule/redux/dispatchActions';
 import { OBJECT_TYPE } from '../../nglView/constants';
 import { getRepresentationsByType } from '../../nglView/generatingObjects';
-import { getMoleculeList } from '../../preview/molecule/redux/selectors';
+import { selectAllMoleculeList } from '../../preview/molecule/redux/selectors';
 
 export const initializeDatasetFilter = datasetID => (dispatch, getState) => {
   const state = getState();
@@ -582,18 +582,61 @@ export const removeSelectedDatasetMolecules = (stage, skipTracking, skipMolecule
   }
 };
 
+const flattenInspirationsList = (inspirations, skipMolecules) => {
+  const result = [];
+
+  const inspirationsToSkip = [];
+  skipMolecules.forEach(molecule => {
+    molecule.computed_inspirations.forEach(molId => {
+      if (!inspirationsToSkip.hasOwnProperty(molId)) {
+        inspirationsToSkip[molId] = molId;
+      }
+    });
+  });
+  // skipMolecules.forEach(molecule => {
+  //   if (!inspirationsToSkip.hasOwnProperty(molecule.id)) {
+  //     inspirationsToSkip[molecule.id] = molecule;
+  //   }
+  // });
+
+  Object.keys(inspirations).forEach(molId => {
+    const molecules = inspirations[molId];
+    molecules.forEach(molecule => {
+      if (
+        !inspirationsToSkip.hasOwnProperty(molecule.id) &&
+        !result.some(mol => {
+          if (mol.id === molecule.id) {
+            return true;
+          }
+        })
+      ) {
+        result.push(molecule);
+      }
+    });
+  });
+
+  return result;
+};
+
 /**
  *  * Performance optimization for datasetMoleculeView. Have a look at the comment at moveDatasetMoleculeUpDown.
  */
-const removeSelectedTypesOfDatasetInspirations = (skipMolecules, stage, skipTracking) => (dispatch, getState) => {
+const removeSelectedTypesOfDatasetInspirations = (skipMolecules, stage, skipTracking, datasetID) => (
+  dispatch,
+  getState
+) => {
   const state = getState();
-  const getJoinedMoleculeList = getMoleculeList(state);
-  const inspirationMoleculeDataList = state.datasetsReducers.allInspirationMoleculeDataList;
-
-  const molecules = [...getJoinedMoleculeList, ...inspirationMoleculeDataList].filter(
-    molecule => !skipMolecules.includes(molecule)
+  // const getJoinedMoleculeList = selectAllMoleculeList(state);
+  const inspirationMoleculeDataList = flattenInspirationsList(
+    state.datasetsReducers.allInspirations[datasetID],
+    skipMolecules
   );
-  dispatch(hideAllSelectedMolecules(stage, [...molecules], false, skipTracking));
+
+  // const molecules = [...getJoinedMoleculeList, ...inspirationMoleculeDataList].filter(
+  //   molecule => !skipMolecules.includes(molecule)
+  // );
+  // const molecules = inspirationMoleculeDataList.filter(molecule => !skipMolecules.includes(molecule));
+  dispatch(hideAllSelectedMolecules(stage, [...inspirationMoleculeDataList], false, skipTracking));
 };
 
 /**
@@ -606,16 +649,15 @@ const moveSelectedDatasetMoleculeInspirationsSettings = (data, newItemData, stag
   const state = getState();
 
   const objectsInView = state.nglReducers.objectsInView || {};
-  const {
-    proteinListMolecule,
-    complexListMolecule,
-    fragmentDisplayListMolecule,
-    surfaceListMolecule,
-    densityListMolecule,
-    densityListCustomMolecule,
-    vectorOnListMolecule,
-    qualityListMolecule
-  } = state.selectionReducers;
+
+  const proteinListMolecule = state.selectionReducers.proteinList;
+  const complexListMolecule = state.selectionReducers.complexList;
+  const fragmentDisplayListMolecule = state.selectionReducers.fragmentDisplayList;
+  const surfaceListMolecule = state.selectionReducers.surfaceList;
+  const densityListMolecule = state.selectionReducers.densityList;
+  const densityListCustomMolecule = state.selectionReducers.densityListCustom;
+  const vectorOnListMolecule = state.selectionReducers.vectorOnList;
+  const qualityListMolecule = state.selectionReducers.qualityList;
 
   return dispatch(
     moveMoleculeInspirationsSettings(
@@ -658,11 +700,11 @@ export const moveDatasetMoleculeUpDown = (stage, datasetID, item, newItemDataset
   dispatch(setInspirationMoleculeDataList(inspirations));
   await Promise.all([
     dispatch(moveSelectedMoleculeSettings(stage, item, newItem, newItemDatasetID, datasetID, dataValue, true)),
-    moveSelectedDatasetMoleculeInspirationsSettings(item, newItem, stage, true)
+    dispatch(moveSelectedDatasetMoleculeInspirationsSettings(item, newItem, stage, true))
   ]);
 
   dispatch(removeSelectedDatasetMolecules(stage, true, { [newItemDatasetID]: [newItem] }));
-  dispatch(removeSelectedTypesOfDatasetInspirations([newItem], stage, true));
+  dispatch(removeSelectedTypesOfDatasetInspirations([newItem], stage, true, datasetID));
 };
 
 export const getInspirationsForMol = (allInspirations, datasetId, molId) => {

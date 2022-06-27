@@ -11,6 +11,7 @@ import { Switch } from '@material-ui/core';
 import { OBJECT_TYPE } from '../../nglView/constants';
 import { VIEWS } from '../../../constants/constants';
 import { api, METHOD } from '../../../utils/api';
+import { base_url as base_url_const } from '../../routes/constants';
 
 class HotspotView extends React.PureComponent {
   constructor(props) {
@@ -20,7 +21,7 @@ class HotspotView extends React.PureComponent {
     this.handleHotspot = this.handleHotspot.bind(this);
     this.fetchHotspotUrl = this.fetchHotspotUrl.bind(this);
     this.buttonRender = this.buttonRender.bind(this);
-    var base_url = window.location.protocol + '//' + window.location.host;
+    var base_url = base_url_const;
     this.img_url = new URL(base_url + '/viewer/img_from_smiles/');
     var get_params = {
       img_type: 'png',

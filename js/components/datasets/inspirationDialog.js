@@ -114,6 +114,7 @@ const useStyles = makeStyles(theme => ({
 
 export const InspirationDialog = memo(
   forwardRef(({ open = false, anchorEl, datasetID }, ref) => {
+    // console.log('InspirationDialog refresh');
     const id = open ? 'simple-popover-compound-inspirations' : undefined;
     const imgHeight = 49;
     const imgWidth = 150;
@@ -395,7 +396,9 @@ export const InspirationDialog = memo(
               <div className={classes.content}>
                 {moleculeList.length > 0 &&
                   moleculeList.map((molecule, index, array) => {
-                    let data = Object.assign({ isInspiration: true }, molecule);
+                    let data = molecule;
+                    data.isInspiration = true;
+                    //let data = Object.assign({ isInspiration: true }, molecule);
                     let previousData = index > 0 && Object.assign({ isInspiration: true }, array[index - 1]);
                     let nextData = index < array?.length && Object.assign({ isInspiration: true }, array[index + 1]);
                     const selected = allSelectedMolecules.some(molecule => molecule.id === data.id);
