@@ -16,6 +16,9 @@ export const URLS = {
   download: '/viewer/react/download/'
 };
 
+//this constant indicates whether we are debugging local stack or remote stack
+//if we are debugging local stack this variable needs to be set to true and
+//if were debugging remote stack this variable needs to be set to false
 export const isRemoteDebugging = false;
 
 export const base_url = window.location.protocol + '//' + window.location.host; //url for local developement
