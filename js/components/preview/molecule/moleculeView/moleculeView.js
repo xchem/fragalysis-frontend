@@ -996,7 +996,7 @@ const MoleculeView = memo(
               {warningIconVisible && (
                 <Tooltip title="Warning">
                   <IconButton className={classes.warningIcon} onClick={() => onQuality()}>
-                    <Assignment />
+                    <Warning />
                   </IconButton>
                 </Tooltip>
               )}
