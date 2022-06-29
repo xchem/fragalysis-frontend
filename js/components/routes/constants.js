@@ -22,7 +22,7 @@ export const URLS = {
 export const isRemoteDebugging = false;
 
 export const base_url = window.location.protocol + '//' + window.location.host; //url for local developement
-//export const base_url = 'https://fragalysis-tibor-default.xchem-dev.diamond.ac.uk'; //url for debugging on main dev pod
+// export const base_url = 'https://fragalysis-tibor-default.xchem-dev.diamond.ac.uk'; //url for debugging on main dev pod
 //export const base_url = 'https://fragalysis-boris-default.xchem-dev.diamond.ac.uk'; //url for debugging on secondary dev pod
 //export const base_url = 'https://fragalysis.xchem.diamond.ac.uk'; //url for debugging staging
 // export const base_url = 'https://fragalysis.diamond.ac.uk'; //url for debugging production
