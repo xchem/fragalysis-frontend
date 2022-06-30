@@ -34,7 +34,7 @@ import {
 } from '@material-ui/icons';
 import { HeaderContext } from './headerContext';
 import { Button } from '../common';
-import { URLS } from '../routes/constants';
+import { URLS, base_url } from '../routes/constants';
 import { useCombinedRefs } from '../../utils/refHelpers';
 import { ComputeSize } from '../../utils/computeSize';
 import { DJANGO_CONTEXT } from '../../utils/djangoContext';
@@ -161,7 +161,7 @@ export default memo(
         <ListItem
           button
           onClick={() => {
-            window.location.replace(URLS.logout);
+            window.location.replace(URLS.login);
           }}
         >
           <ListItemIcon>
