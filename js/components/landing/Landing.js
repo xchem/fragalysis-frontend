@@ -1,7 +1,7 @@
 /**
  * Created by ricgillams on 21/06/2018.
  */
-import { Grid, Link } from '@material-ui/core';
+import { Grid, Link, makeStyles } from '@material-ui/core';
 import React, { memo, useContext, useEffect, useState } from 'react';
 import { TargetList } from '../target/targetList';
 import { connect } from 'react-redux';
@@ -13,8 +13,19 @@ import { HeaderContext } from '../header/headerContext';
 import { resetCurrentCompoundsSettings } from '../preview/compounds/redux/actions';
 import { resetProjectsReducer } from '../projects/redux/actions';
 
+const useStyles = makeStyles(theme => ({
+  root: {
+    height: '100%',
+    gap: theme.spacing(2),
+    flexWrap: 'nowrap',
+    padding: theme.spacing()
+  }
+}));
+
 const Landing = memo(
   ({ resetSelectionState, resetTargetState, resetCurrentCompoundsSettings, resetProjectsReducer }) => {
+    const classes = useStyles();
+
     const { setSnackBarTitle } = useContext(HeaderContext);
     const [loginText, setLoginText] = useState("You're logged in as " + DJANGO_CONTEXT['username']);
 
@@ -47,7 +58,7 @@ const Landing = memo(
     ]);
 
     return (
-      <Grid container spacing={2}>
+      <Grid container className={classes.root}>
         <Grid item xs={4}>
           <TargetList />
         </Grid>

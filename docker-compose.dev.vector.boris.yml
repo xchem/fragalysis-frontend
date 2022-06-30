@@ -4,7 +4,7 @@ services:
   database:
     image: postgres:12.2
     volumes:
-      - ../data/postgre/data:/var/lib/postgresql
+      - d:/WORK/JANSSEN/front-end-src/data/postgre/data:/var/lib/postgresql
     environment:
       POSTGRES_PASSWORD: fragalysis
       POSTGRES_USER: fragalysis
@@ -29,13 +29,13 @@ services:
       NEO4J_dbms_memory_pagecache_size: 4G
   web:
     container_name: web_dock
-    # image: xchem/fragalysis-stack:latest
-    image: dupeacock/fragalysis-stack:latest
+    image: xchem/fragalysis-stack:latest
+    # image: dupeacock/fragalysis-stack:latest
     command: /bin/bash /code/launch-stack.sh
     volumes:
-      - ../data/logs:/code/logs/
-      - ../data/media:/code/media/
-      - ../fragalysis-frontend:/code/frontend
+      - d:/WORK/JANSSEN/front-end-src/data/logs:/code/logs/
+      - d:/WORK/JANSSEN/front-end-src/data/media:/code/media/
+      - d:/WORK/JANSSEN/front-end-src/fragalysis-frontend:/code/frontend
     ports:
       - '8080:80'
     environment:
@@ -51,8 +51,6 @@ services:
       ISPYB_FLAG: 'False'
       DISCOURSE_DEV_POST_SUFFIX: '-boris-local'
       DISCOURSE_HOST: 'https://discourse.xchem-dev.diamond.ac.uk'
-      SQUONK_UI_URL: 'https://data-manager-ui.xchem-dev.diamond.ac.uk/data-manager-ui'
-      SQUONK_API_URL: 'https://data-manager.xchem-dev.diamond.ac.uk/data-manager-api'
     depends_on:
       - database
       - graph
