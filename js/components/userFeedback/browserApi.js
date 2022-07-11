@@ -12,7 +12,7 @@ export const isChrome = () => {
 };
 
 export const canCaptureScreen = () => {
-  // TODO edge  Available as a member of Navigator instead of MediaDevices.
+  // TODO: edge  Available as a member of Navigator instead of MediaDevices.
   return (
     window.isSecureContext &&
     typeof navigator.mediaDevices !== 'undefined' &&

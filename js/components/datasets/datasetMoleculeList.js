@@ -220,7 +220,7 @@ export const DatasetMoleculeList = memo(
 
     const joinedMoleculeLists = useSelector(state => getJoinedMoleculeLists(datasetID, state));
 
-    // TODO Reset Infinity scroll
+    // TODO: Reset Infinity scroll
 
     const loadNextMolecules = async () => {
       await setNextXMolecules(0);
@@ -273,9 +273,9 @@ export const DatasetMoleculeList = memo(
       surface: removeDatasetSurface
     };
 
-    // TODO "currentMolecules" do not need to correspondent to selections in {type}List
-    // TODO so this could lead to inconsistend behaviour while scrolling
-    // TODO maybe change "currentMolecules.forEach" to "{type}List.forEach"
+    // TODO: "currentMolecules" do not need to correspondent to selections in {type}List
+    // TODO: so this could lead to inconsistend behaviour while scrolling
+    // TODO: maybe change "currentMolecules.forEach" to "{type}List.forEach"
 
     const removeSelectedType = (type, skipTracking) => {
       selectedMolecules.forEach(molecule => {

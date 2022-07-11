@@ -281,7 +281,7 @@ export const loadDatasetsAndCompounds = targetId => async dispatch => {
 };
 
 export const loadMoleculesOfDataSet = datasetID => dispatch =>
-  // TODO remove limit
+  // TODO: remove limit
   api({ url: `${base_url}/api/compound-molecules/?compound_set=${datasetID}` }).then(response => {
     dispatch(addMoleculeList(datasetID, response.data.results));
     return Promise.all(
@@ -294,7 +294,7 @@ export const loadMoleculesOfDataSet = datasetID => dispatch =>
     );
   });
 
-// TODO remove this method loadCompoundScoresListOfDataSet
+// TODO: remove this method loadCompoundScoresListOfDataSet
 // export const loadCompoundScoresListOfDataSet = datasetID => dispatch =>
 //   api({ url: `${base_url}/api/compound-scores/?compound_set=${datasetID}` }).then(response => {
 //     debugger;
@@ -454,7 +454,7 @@ export const resetCrossReferenceDialog = () => dispatch => {
 };
 
 export const loadScoresOfCrossReferenceCompounds = (datasetIDList = []) => (dispatch, getState) => {
-  // TODO fix
+  // TODO: fix
   // dispatch(setIsLoadingCrossReferenceScores(true));
   // Promise.all(datasetIDList.map(datasetID => dispatch(loadCompoundScoresListOfDataSet(datasetID)))).finally(() =>
   //   dispatch(setIsLoadingCrossReferenceScores(false))

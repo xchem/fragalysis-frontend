@@ -280,7 +280,7 @@ export const MoleculeList = memo(({ height, setFilterItemsHeight, filterItemsHei
     target = directDisplay.target;
   }
 
-  // TODO Reset Infinity scroll
+  // TODO: Reset Infinity scroll
   /*useEffect(() => {
       // setCurrentPage(0);
     }, [object_selection]);*/
@@ -589,9 +589,9 @@ export const MoleculeList = memo(({ height, setFilterItemsHeight, filterItemsHei
     vector: removeVector
   };
 
-  // TODO "currentMolecules" do not need to correspondent to selections in {type}List
-  // TODO so this could lead to inconsistend behaviour while scrolling
-  // TODO maybe change "currentMolecules.forEach" to "{type}List.forEach"
+  // TODO: "currentMolecules" do not need to correspondent to selections in {type}List
+  // TODO: so this could lead to inconsistend behaviour while scrolling
+  // TODO: maybe change "currentMolecules.forEach" to "{type}List.forEach"
 
   const removeSelectedType = (type, skipTracking = false) => {
     if (type === 'ligand') {
