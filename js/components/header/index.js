@@ -30,14 +30,19 @@ import {
   Description,
   Timeline,
   QuestionAnswer,
-  Chat
+  Chat,
+  Lock,
+  LockOpen,
+  Restore,
+  Layers
 } from '@material-ui/icons';
 import { HeaderContext } from './headerContext';
 import { Button } from '../common';
-import { URLS, base_url } from '../routes/constants';
+import { URLS } from '../routes/constants';
 import { useCombinedRefs } from '../../utils/refHelpers';
 import { ComputeSize } from '../../utils/computeSize';
 import { DJANGO_CONTEXT } from '../../utils/djangoContext';
+// import { useDisableUserInteraction } from '../helpers/useEnableUserInteracion';
 import { useHistory } from 'react-router-dom';
 import { IssueReport } from '../userFeedback/issueReport';
 import { FundersModal } from '../funders/fundersModal';
@@ -49,6 +54,8 @@ import { useSelector, useDispatch } from 'react-redux';
 import { generateDiscourseTargetURL, getExistingPost } from '../../utils/discourse';
 import { DiscourseErrorModal } from './discourseErrorModal';
 import { setOpenDiscourseErrorModal } from '../../reducers/api/actions';
+import { lockLayout, resetCurrentLayout } from '../../reducers/layout/actions';
+import { ChangeLayoutButton } from './changeLayoutButton';
 
 const useStyles = makeStyles(theme => ({
   padding: {
@@ -90,6 +97,9 @@ const useStyles = makeStyles(theme => ({
   inheritHeight: {
     height: 'inherit',
     paddingBottom: theme.spacing(1)
+  },
+  resetLayoutButton: {
+    margin: `${theme.spacing()}px 0`
   }
 }));
 
@@ -103,6 +113,9 @@ export default memo(
     const [openMenu, setOpenMenu] = useState(false);
     const [openFunders, setOpenFunders] = useState(false);
     const [openTrackingModal, setOpenTrackingModal] = useState(false);
+
+    const layoutEnabled = useSelector(state => state.layoutReducers.layoutEnabled);
+    const layoutLocked = useSelector(state => state.layoutReducers.layoutLocked);
 
     const currentProject = useSelector(state => state.projectReducers.currentProject);
     const targetName = useSelector(state => state.apiReducers.target_on_name);
@@ -138,6 +151,10 @@ export default memo(
       window.open('https://covid.postera.ai/covid', '_blank');
     };
 
+    const openDiscourseLink = url => {
+      window.open(url, '_blank');
+    };
+
     let authListItem;
 
     let username = null;
@@ -161,7 +178,7 @@ export default memo(
         <ListItem
           button
           onClick={() => {
-            window.location.replace(URLS.login);
+            window.location.replace(URLS.logout);
           }}
         >
           <ListItemIcon>
@@ -279,6 +296,38 @@ export default memo(
             </Grid>
             <Grid item>
               <Grid container direction="row" justify="flex-start" alignItems="center" spacing={1}>
+                {layoutEnabled && (
+                  <>
+                    <Grid item>
+                      <Tooltip title={layoutLocked ? 'Unlock layout' : 'Lock layout'}>
+                        <Button
+                          onClick={() => {
+                            dispatch(lockLayout(!layoutLocked));
+                          }}
+                        >
+                          {layoutLocked ? <Lock /> : <LockOpen />}
+                        </Button>
+                      </Tooltip>
+                    </Grid>
+                    <Grid item>
+                      <Tooltip title="Reset layout">
+                        <Button
+                          className={classes.resetLayoutButton}
+                          onClick={() => {
+                            dispatch(resetCurrentLayout());
+                          }}
+                        >
+                          <Restore />
+                        </Button>
+                      </Tooltip>
+                    </Grid>
+                    <Grid item>
+                      <ChangeLayoutButton className={classes.resetLayoutButton}>
+                        <Layers />
+                      </ChangeLayoutButton>
+                    </Grid>
+                  </>
+                )}
                 <Grid item>
                   <Button
                     startIcon={<Timeline />}

@@ -17,15 +17,13 @@ const useStyles = makeStyles(theme => ({
   },
   chip: {
     // maxWidth: '100%',
-    margin: '2px', //theme.spacing(1),
-    height: '80%', //'100%'
-    // display: 'flex',
+    height: '100%',
+    display: 'flex',
     flexDirection: 'row',
     justifyContent: 'flex-start',
     borderRadius: '7px',
     lineHeight: '1.1',
     textAlign: 'center',
-    paddingBottom: '2px',
     '& .MuiChip-labelSmall': {
       overflowWrap: 'anywhere',
       whiteSpace: 'normal',

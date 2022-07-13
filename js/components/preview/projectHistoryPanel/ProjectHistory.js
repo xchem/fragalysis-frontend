@@ -16,7 +16,7 @@ export const heightOfProjectHistory = '164px';
 
 const useStyles = makeStyles(theme => ({
   root: {
-    marginTop: theme.spacing()
+    height: '100%'
   },
   containerExpanded: {
     width: '100%',

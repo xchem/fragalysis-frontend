@@ -27,7 +27,7 @@ import { loadDatasetsAndCompounds } from '../../datasets/redux/dispatchActions';
 
 const useStyles = makeStyles(theme => ({
   root: {
-    marginTop: theme.spacing()
+    height: '100%'
   },
   table: {
     '& tr': {
@@ -43,7 +43,6 @@ const useStyles = makeStyles(theme => ({
   },
   containerExpanded: {
     width: '100%',
-    height: 164,
     overflow: 'auto'
   },
   flexCell: {

@@ -398,7 +398,6 @@ export const InspirationDialog = memo(
                   moleculeList.map((molecule, index, array) => {
                     let data = molecule;
                     data.isInspiration = true;
-                    //let data = Object.assign({ isInspiration: true }, molecule);
                     let previousData = index > 0 && Object.assign({ isInspiration: true }, array[index - 1]);
                     let nextData = index < array?.length && Object.assign({ isInspiration: true }, array[index + 1]);
                     const selected = allSelectedMolecules.some(molecule => molecule.id === data.id);

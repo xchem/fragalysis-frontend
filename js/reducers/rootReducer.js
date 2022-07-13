@@ -14,6 +14,7 @@ import { datasetsReducers } from '../components/datasets/redux/reducer';
 import { jobTableReducer } from '../components/preview/jobTable/redux/reducer';
 import { trackingReducers, undoableTrackingReducers } from './tracking/trackingReducers';
 import { nglTrackingReducers, undoableNglTrackingReducers } from './nglTracking/nglTrackingReducers';
+import { layoutReducers } from './layout/layoutReducers';
 
 const rootReducer = combineReducers({
   apiReducers,
@@ -29,7 +30,8 @@ const rootReducer = combineReducers({
   jobTableReducer,
   undoableTrackingReducers,
   nglTrackingReducers,
-  undoableNglTrackingReducers
+  undoableNglTrackingReducers,
+  layoutReducers
 });
 
 export { rootReducer };

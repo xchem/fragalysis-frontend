@@ -383,7 +383,6 @@ const MoleculeView = memo(
         setImg_data(i);
       });
     }, [data.id, data.smiles, imageHeight, imageWidth, dispatch]);
-    // }, [data.id, data.smiles, imageHeight, url, imageWidth, dispatch]);
 
     useEffect(() => {
       dispatch(getQualityInformation(data));

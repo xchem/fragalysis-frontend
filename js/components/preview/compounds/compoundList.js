@@ -67,7 +67,7 @@ const useStyles = makeStyles(theme => ({
   }
 }));
 
-export const CompoundList = memo(({ height }) => {
+export const CompoundList = memo(() => {
   const classes = useStyles();
   const panelRef = useRef(null);
   const dispatch = useDispatch();
@@ -102,7 +102,7 @@ export const CompoundList = memo(({ height }) => {
   return (
     <Panel hasHeader title={headerMessage} ref={panelRef}>
       {currentCompounds && (
-        <Box height={height} width="100%">
+        <Box width="100%">
           <Grid container direction="row" justify="space-between" alignItems="center">
             {Object.keys(compoundsColors).map(item => (
               <Grid item key={item}>
@@ -124,7 +124,7 @@ export const CompoundList = memo(({ height }) => {
             ))}
           </Grid>
           <Grid container justify="space-between" className={classes.infinityContainer}>
-            <Box width="inherit" style={{ height: `calc(${height} - 114px)` }} overflow="auto">
+            <Box width="inherit" overflow="auto">
               <InfiniteScroll
                 pageStart={0}
                 loadMore={() => dispatch(loadNextPageOfCompounds())}

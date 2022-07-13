@@ -214,7 +214,7 @@ const useStyles = makeStyles(theme => ({
   }
 }));
 
-export const MoleculeList = memo(({ height, setFilterItemsHeight, filterItemsHeight, hideProjects }) => {
+export const MoleculeList = memo(({ hideProjects }) => {
   const classes = useStyles();
   const dispatch = useDispatch();
   let match = useRouteMatch();
@@ -319,6 +319,7 @@ export const MoleculeList = memo(({ height, setFilterItemsHeight, filterItemsHei
   //the dependencies which are marked by compiler as unnecessary are actually necessary because without them the memo returns
   //old joinedMoleculeLists in situation where we want to preserve molecule in view which shouldn't be there
   //but want to remove it after the tag editor dialog is closed
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   joinedMoleculeLists = useMemo(() => addSelectedMoleculesFromUnselectedSites(joinedMoleculeLists, proteinList), [
     addSelectedMoleculesFromUnselectedSites,
     joinedMoleculeLists,
@@ -327,6 +328,7 @@ export const MoleculeList = memo(({ height, setFilterItemsHeight, filterItemsHei
     isTagEditorOpen,
     moleculesToEditIds
   ]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   joinedMoleculeLists = useMemo(() => addSelectedMoleculesFromUnselectedSites(joinedMoleculeLists, complexList), [
     addSelectedMoleculesFromUnselectedSites,
     joinedMoleculeLists,
@@ -337,6 +339,7 @@ export const MoleculeList = memo(({ height, setFilterItemsHeight, filterItemsHei
   ]);
   joinedMoleculeLists = useMemo(
     () => addSelectedMoleculesFromUnselectedSites(joinedMoleculeLists, fragmentDisplayList),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     [
       addSelectedMoleculesFromUnselectedSites,
       joinedMoleculeLists,
@@ -346,6 +349,7 @@ export const MoleculeList = memo(({ height, setFilterItemsHeight, filterItemsHei
       moleculesToEditIds
     ]
   );
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   joinedMoleculeLists = useMemo(() => addSelectedMoleculesFromUnselectedSites(joinedMoleculeLists, surfaceList), [
     addSelectedMoleculesFromUnselectedSites,
     joinedMoleculeLists,
@@ -354,6 +358,7 @@ export const MoleculeList = memo(({ height, setFilterItemsHeight, filterItemsHei
     isTagEditorOpen,
     moleculesToEditIds
   ]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   joinedMoleculeLists = useMemo(() => addSelectedMoleculesFromUnselectedSites(joinedMoleculeLists, densityList), [
     addSelectedMoleculesFromUnselectedSites,
     joinedMoleculeLists,
@@ -362,6 +367,7 @@ export const MoleculeList = memo(({ height, setFilterItemsHeight, filterItemsHei
     isTagEditorOpen,
     moleculesToEditIds
   ]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   joinedMoleculeLists = useMemo(() => addSelectedMoleculesFromUnselectedSites(joinedMoleculeLists, vectorOnList), [
     addSelectedMoleculesFromUnselectedSites,
     joinedMoleculeLists,
@@ -470,12 +476,6 @@ export const MoleculeList = memo(({ height, setFilterItemsHeight, filterItemsHei
     categories,
     noTagsReceived
   ]);
-
-  useEffect(() => {
-    if (isActiveFilter === false) {
-      setFilterItemsHeight(0);
-    }
-  }, [isActiveFilter, setFilterItemsHeight]);
 
   const joinedMoleculeListsCopy = useMemo(() => [...joinedMoleculeLists], [joinedMoleculeLists]);
 
@@ -794,305 +794,283 @@ export const MoleculeList = memo(({ height, setFilterItemsHeight, filterItemsHei
   const anyControlButtonDisabled = Object.values(groupNglControlButtonsDisabledState).some(buttonState => buttonState);
 
   return (
-    <ComputeSize
-      componentRef={filterRef.current}
-      setHeight={setFilterItemsHeight}
-      height={filterItemsHeight}
-      forceCompute={isActiveFilter}
-    >
-      <Panel hasHeader title="Hit navigator" headerActions={actions}>
-        <AlertModal
-          title="Are you sure?"
-          description={`Loading of ${joinedMoleculeLists?.length} may take a long time`}
-          open={isOpenAlert}
-          handleOnOk={() => {
-            dispatch(setNextXMolecules(joinedMoleculeLists?.length || 0));
-            setIsOpenAlert(false);
-          }}
-          handleOnCancel={() => {
-            setIsOpenAlert(false);
-          }}
+    <Panel hasHeader title="Hit navigator" headerActions={actions}>
+      <AlertModal
+        title="Are you sure?"
+        description={`Loading of ${joinedMoleculeLists?.length} may take a long time`}
+        open={isOpenAlert}
+        handleOnOk={() => {
+          dispatch(setNextXMolecules(joinedMoleculeLists?.length || 0));
+          setIsOpenAlert(false);
+        }}
+        handleOnCancel={() => {
+          setIsOpenAlert(false);
+        }}
+      />
+      <AlertModal
+        title="Are you sure?"
+        description={`Displaying of ${allSelectedMolecules?.length} may take a long time`}
+        open={isOpenLPCAlert}
+        handleOnOk={() => {
+          let molecules = getSelectedMoleculesByType(lastProcessedLPCType, true);
+          dispatch(setSelectedAllByType(lastProcessedLPCType, molecules));
+          addNewType(lastProcessedLPCType, true);
+          setIsOpenLPCAlert(false);
+        }}
+        handleOnCancel={() => {
+          setIsOpenLPCAlert(false);
+        }}
+      />
+      {isTagEditorOpen && (
+        <TagEditor
+          open={isTagEditorOpen}
+          closeDisabled={anyControlButtonDisabled}
+          setOpenDialog={setTagEditorOpen}
+          anchorEl={tagEditorAnchorEl}
+          ref={tagEditorRef}
         />
-        <AlertModal
-          title="Are you sure?"
-          description={`Displaying of ${allSelectedMolecules?.length} may take a long time`}
-          open={isOpenLPCAlert}
-          handleOnOk={() => {
-            let molecules = getSelectedMoleculesByType(lastProcessedLPCType, true);
-            dispatch(setSelectedAllByType(lastProcessedLPCType, molecules));
-            addNewType(lastProcessedLPCType, true);
-            setIsOpenLPCAlert(false);
-          }}
-          handleOnCancel={() => {
-            setIsOpenLPCAlert(false);
-          }}
+      )}
+      {sortDialogOpen && (
+        <MoleculeListSortFilterDialog
+          open={sortDialogOpen}
+          anchorEl={sortDialogAnchorEl}
+          filter={filter}
+          setSortDialogAnchorEl={setSortDialogAnchorEl}
+          joinedMoleculeLists={joinedMoleculeListsCopy}
         />
-        {isTagEditorOpen && (
-          <TagEditor
-            open={isTagEditorOpen}
-            closeDisabled={anyControlButtonDisabled}
-            setOpenDialog={setTagEditorOpen}
-            anchorEl={tagEditorAnchorEl}
-            ref={tagEditorRef}
-          />
-        )}
-        {sortDialogOpen && (
-          <MoleculeListSortFilterDialog
-            open={sortDialogOpen}
-            anchorEl={sortDialogAnchorEl}
-            filter={filter}
-            setSortDialogAnchorEl={setSortDialogAnchorEl}
-            joinedMoleculeLists={joinedMoleculeListsCopy}
-          />
-        )}
-        <div ref={filterRef}>
-          {isActiveFilter && (
-            <>
-              <div className={classes.filterSection}>
-                <Grid container spacing={1}>
-                  <Grid item xs={1} container alignItems="center">
-                    <Typography variant="subtitle2" className={classes.filterTitle}>
-                      Filters
-                    </Typography>
-                  </Grid>
-                  <Grid item xs={11}>
-                    <Grid container direction="row" justify="flex-start" spacing={1}>
-                      {filter.priorityOrder.map(attr => (
-                        <Grid item key={`Mol-Tooltip-${attr}`}>
-                          <Tooltip
-                            title={`${filter.filter[attr].minValue}-${filter.filter[attr].maxValue} ${
-                              filter.filter[attr].order === 1 ? '\u2191' : '\u2193'
-                            }`}
-                            placement="top"
-                          >
-                            <Chip
-                              size="small"
-                              label={attr}
-                              style={{ backgroundColor: getAttrDefinition(attr).color }}
-                            />
-                          </Tooltip>
-                        </Grid>
-                      ))}
-                    </Grid>
+      )}
+      <div ref={filterRef}>
+        {isActiveFilter && (
+          <>
+            <div className={classes.filterSection}>
+              <Grid container spacing={1}>
+                <Grid item xs={1} container alignItems="center">
+                  <Typography variant="subtitle2" className={classes.filterTitle}>
+                    Filters
+                  </Typography>
+                </Grid>
+                <Grid item xs={11}>
+                  <Grid container direction="row" justify="flex-start" spacing={1}>
+                    {filter.priorityOrder.map(attr => (
+                      <Grid item key={`Mol-Tooltip-${attr}`}>
+                        <Tooltip
+                          title={`${filter.filter[attr].minValue}-${filter.filter[attr].maxValue} ${
+                            filter.filter[attr].order === 1 ? '\u2191' : '\u2193'
+                          }`}
+                          placement="top"
+                        >
+                          <Chip size="small" label={attr} style={{ backgroundColor: getAttrDefinition(attr).color }} />
+                        </Tooltip>
+                      </Grid>
+                    ))}
                   </Grid>
                 </Grid>
-              </div>
-              <Divider />
-            </>
-          )}
-        </div>
-        <Grid
-          container
-          direction="column"
-          justify="flex-start"
-          className={classes.container}
-          style={{ height: height }}
-        >
-          <Grid item>
-            {/* Header */}
-            <Grid container justify="flex-start" direction="row" className={classes.molHeader} wrap="nowrap">
-              <Grid item container justify="flex-start" direction="row">
-                {Object.keys(moleculeProperty).map(key => (
-                  <Grid item key={key} className={classes.rightBorder}>
-                    {moleculeProperty[key]}
-                  </Grid>
-                ))}
-                <Grid item>
-                  <Grid
-                    container
-                    direction="row"
-                    justify="flex-start"
-                    alignItems="center"
-                    wrap="nowrap"
-                    className={classes.contButtonsMargin}
-                  >
-                    {allSelectedMolecules.length > 0 && (
-                      <>
-                        <Tooltip title="all ligands">
-                          <Grid item>
-                            <Button
-                              variant="outlined"
-                              className={classNames(classes.contColButton, {
-                                [classes.contColButtonSelected]: isLigandOn === true,
-                                [classes.contColButtonHalfSelected]: isLigandOn === null
-                              })}
-                              onClick={() => onButtonToggle('ligand')}
-                              disabled={groupNglControlButtonsDisabledState.ligand}
-                            >
-                              L
-                            </Button>
-                          </Grid>
-                        </Tooltip>
-                        <Tooltip title="all sidechains">
-                          <Grid item>
-                            <Button
-                              variant="outlined"
-                              className={classNames(classes.contColButton, {
-                                [classes.contColButtonSelected]: isProteinOn,
-                                [classes.contColButtonHalfSelected]: isProteinOn === null
-                              })}
-                              onClick={() => onButtonToggle('protein')}
-                              disabled={groupNglControlButtonsDisabledState.protein}
-                            >
-                              P
-                            </Button>
-                          </Grid>
-                        </Tooltip>
-                        <Tooltip title="all interactions">
-                          <Grid item>
-                            {/* C stands for contacts now */}
-                            <Button
-                              variant="outlined"
-                              className={classNames(classes.contColButton, {
-                                [classes.contColButtonSelected]: isComplexOn,
-                                [classes.contColButtonHalfSelected]: isComplexOn === null
-                              })}
-                              onClick={() => onButtonToggle('complex')}
-                              disabled={groupNglControlButtonsDisabledState.complex}
-                            >
-                              C
-                            </Button>
-                          </Grid>
-                        </Tooltip>
-                      </>
-                    )}
-                    {
-                      <Tooltip title={selectAllHitsPressed ? 'Unselect all hits' : 'Select all hits'}>
+              </Grid>
+            </div>
+            <Divider />
+          </>
+        )}
+      </div>
+      <Grid container direction="column" justify="flex-start" className={classes.container}>
+        <Grid item>
+          {/* Header */}
+          <Grid container justify="flex-start" direction="row" className={classes.molHeader} wrap="nowrap">
+            <Grid item container justify="flex-start" direction="row">
+              {Object.keys(moleculeProperty).map(key => (
+                <Grid item key={key} className={classes.rightBorder}>
+                  {moleculeProperty[key]}
+                </Grid>
+              ))}
+              <Grid item>
+                <Grid
+                  container
+                  direction="row"
+                  justify="flex-start"
+                  alignItems="center"
+                  wrap="nowrap"
+                  className={classes.contButtonsMargin}
+                >
+                  {allSelectedMolecules.length > 0 && (
+                    <>
+                      <Tooltip title="all ligands">
                         <Grid item>
                           <Button
                             variant="outlined"
                             className={classNames(classes.contColButton, {
-                              [classes.contColButtonSelected]: selectAllHitsPressed,
-                              [classes.contColButtonHalfSelected]: false
+                              [classes.contColButtonSelected]: isLigandOn === true,
+                              [classes.contColButtonHalfSelected]: isLigandOn === null
                             })}
-                            onClick={() => {
-                              dispatch(selectAllHits(joinedMoleculeLists, setNextXMolecules, selectAllHitsPressed));
-                              setSelectAllHitsPressed(!selectAllHitsPressed);
-                            }}
-                            disabled={false}
+                            onClick={() => onButtonToggle('ligand')}
+                            disabled={groupNglControlButtonsDisabledState.ligand}
                           >
-                            {selectAllHitsPressed ? 'Unselect all hits' : 'Select all hits'}
+                            L
                           </Button>
                         </Grid>
                       </Tooltip>
-                    }
-                    <Grid item>
-                      <Typography variant="caption" className={classes.noOfSelectedHits}>{`Selected: ${
-                        allSelectedMolecules ? allSelectedMolecules.length : 0
-                      }`}</Typography>
-                    </Grid>
+                      <Tooltip title="all sidechains">
+                        <Grid item>
+                          <Button
+                            variant="outlined"
+                            className={classNames(classes.contColButton, {
+                              [classes.contColButtonSelected]: isProteinOn,
+                              [classes.contColButtonHalfSelected]: isProteinOn === null
+                            })}
+                            onClick={() => onButtonToggle('protein')}
+                            disabled={groupNglControlButtonsDisabledState.protein}
+                          >
+                            P
+                          </Button>
+                        </Grid>
+                      </Tooltip>
+                      <Tooltip title="all interactions">
+                        <Grid item>
+                          {/* C stands for contacts now */}
+                          <Button
+                            variant="outlined"
+                            className={classNames(classes.contColButton, {
+                              [classes.contColButtonSelected]: isComplexOn,
+                              [classes.contColButtonHalfSelected]: isComplexOn === null
+                            })}
+                            onClick={() => onButtonToggle('complex')}
+                            disabled={groupNglControlButtonsDisabledState.complex}
+                          >
+                            C
+                          </Button>
+                        </Grid>
+                      </Tooltip>
+                    </>
+                  )}
+                  {
+                    <Tooltip title={selectAllHitsPressed ? 'Unselect all hits' : 'Select all hits'}>
+                      <Grid item>
+                        <Button
+                          variant="outlined"
+                          className={classNames(classes.contColButton, {
+                            [classes.contColButtonSelected]: selectAllHitsPressed,
+                            [classes.contColButtonHalfSelected]: false
+                          })}
+                          onClick={() => {
+                            dispatch(selectAllHits(joinedMoleculeLists, setNextXMolecules, selectAllHitsPressed));
+                            setSelectAllHitsPressed(!selectAllHitsPressed);
+                          }}
+                          disabled={false}
+                        >
+                          {selectAllHitsPressed ? 'Unselect all hits' : 'Select all hits'}
+                        </Button>
+                      </Grid>
+                    </Tooltip>
+                  }
+                  <Grid item>
+                    <Typography variant="caption" className={classes.noOfSelectedHits}>{`Selected: ${
+                      allSelectedMolecules ? allSelectedMolecules.length : 0
+                    }`}</Typography>
                   </Grid>
                 </Grid>
               </Grid>
             </Grid>
           </Grid>
-          {currentMolecules.length > 0 && (
-            <>
-              <Grid item className={classes.gridItemList}>
-                <InfiniteScroll
-                  pageStart={0}
-                  loadMore={loadNextMolecules}
-                  hasMore={canLoadMore}
-                  loader={
-                    <div className="loader" key={0}>
-                      <Grid
-                        container
-                        direction="row"
-                        justify="center"
-                        alignItems="center"
-                        className={classes.paddingProgress}
-                      >
-                        <CircularProgress />
-                      </Grid>
-                    </div>
-                  }
-                  useWindow={false}
-                >
-                  <GroupNglControlButtonsContext.Provider value={groupNglControlButtonsDisabledState}>
-                    {currentMolecules.map((data, index, array) => {
-                      const selected = allSelectedMolecules.some(molecule => molecule.id === data.id);
-                      const isTagEditorInvokedByMolecule = data.id === molForTagEditId;
-
-                      return (
-                        <MoleculeView
-                          key={data.id}
-                          index={index}
-                          imageHeight={imgHeight}
-                          imageWidth={imgWidth}
-                          data={data}
-                          previousItemData={index > 0 && array[index - 1]}
-                          nextItemData={index < array?.length && array[index + 1]}
-                          setRef={setTagEditorAnchorEl}
-                          removeSelectedTypes={removeSelectedTypes}
-                          L={fragmentDisplayList.includes(data.id)}
-                          P={proteinList.includes(data.id)}
-                          C={complexList.includes(data.id)}
-                          S={surfaceList.includes(data.id)}
-                          D={densityList.includes(data.id)}
-                          D_C={densityListCustom.includes(data.id)}
-                          Q={qualityList.includes(data.id)}
-                          V={vectorOnList.includes(data.id)}
-                          I={informationList.includes(data.id)}
-                          eventInfo={data?.proteinData?.event_info || null}
-                          sigmaaInfo={data?.proteinData?.sigmaa_info || null}
-                          diffInfo={data?.proteinData?.diff_info || null}
-                          isTagEditorInvokedByMolecule={isTagEditorInvokedByMolecule}
-                          isTagEditorOpen={isTagEditorInvokedByMolecule && isTagEditorOpen}
-                          selected={selected}
-                          disableL={selected && groupNglControlButtonsDisabledState.ligand}
-                          disableP={selected && groupNglControlButtonsDisabledState.protein}
-                          disableC={selected && groupNglControlButtonsDisabledState.complex}
-                        />
-                      );
-                    })}
-                  </GroupNglControlButtonsContext.Provider>
-                </InfiniteScroll>
-              </Grid>
-              <Grid item>
-                <Grid container justify="space-between" alignItems="center" direction="row">
-                  <Grid item>
-                    <span className={classes.total}>{`Total ${joinedMoleculeLists?.length}`}</span>
-                  </Grid>
-                  <Grid item>
-                    <ButtonGroup
-                      variant="text"
-                      size="medium"
-                      color="primary"
-                      aria-label="contained primary button group"
+        </Grid>
+        {currentMolecules.length > 0 && (
+          <>
+            <Grid item className={classes.gridItemList}>
+              <InfiniteScroll
+                pageStart={0}
+                loadMore={loadNextMolecules}
+                hasMore={canLoadMore}
+                loader={
+                  <div className="loader" key={0}>
+                    <Grid
+                      container
+                      direction="row"
+                      justify="center"
+                      alignItems="center"
+                      className={classes.paddingProgress}
                     >
-                      <Button
-                        onClick={() => {
-                          dispatch(setNextXMolecules(30));
-                        }}
-                      >
-                        Load next 30
-                      </Button>
-                      <Button
-                        onClick={() => {
-                          dispatch(setNextXMolecules(100));
-                        }}
-                      >
-                        Load next 100
-                      </Button>
-                      <Button
-                        onClick={() => {
-                          if (joinedMoleculeLists?.length > 300) {
-                            setIsOpenAlert(true);
-                          } else {
-                            dispatch(setNextXMolecules(joinedMoleculeLists?.length || 0));
-                          }
-                        }}
-                      >
-                        Load full list
-                      </Button>
-                    </ButtonGroup>
-                  </Grid>
+                      <CircularProgress />
+                    </Grid>
+                  </div>
+                }
+                useWindow={false}
+              >
+                <GroupNglControlButtonsContext.Provider value={groupNglControlButtonsDisabledState}>
+                  {currentMolecules.map((data, index, array) => {
+                    const selected = allSelectedMolecules.some(molecule => molecule.id === data.id);
+                    const isTagEditorInvokedByMolecule = data.id === molForTagEditId;
+
+                    return (
+                      <MoleculeView
+                        key={data.id}
+                        index={index}
+                        imageHeight={imgHeight}
+                        imageWidth={imgWidth}
+                        data={data}
+                        previousItemData={index > 0 && array[index - 1]}
+                        nextItemData={index < array?.length && array[index + 1]}
+                        setRef={setTagEditorAnchorEl}
+                        removeSelectedTypes={removeSelectedTypes}
+                        L={fragmentDisplayList.includes(data.id)}
+                        P={proteinList.includes(data.id)}
+                        C={complexList.includes(data.id)}
+                        S={surfaceList.includes(data.id)}
+                        D={densityList.includes(data.id)}
+                        D_C={densityListCustom.includes(data.id)}
+                        Q={qualityList.includes(data.id)}
+                        V={vectorOnList.includes(data.id)}
+                        I={informationList.includes(data.id)}
+                        eventInfo={data?.proteinData?.event_info || null}
+                        sigmaaInfo={data?.proteinData?.sigmaa_info || null}
+                        diffInfo={data?.proteinData?.diff_info || null}
+                        isTagEditorInvokedByMolecule={isTagEditorInvokedByMolecule}
+                        isTagEditorOpen={isTagEditorInvokedByMolecule && isTagEditorOpen}
+                        selected={selected}
+                        disableL={selected && groupNglControlButtonsDisabledState.ligand}
+                        disableP={selected && groupNglControlButtonsDisabledState.protein}
+                        disableC={selected && groupNglControlButtonsDisabledState.complex}
+                      />
+                    );
+                  })}
+                </GroupNglControlButtonsContext.Provider>
+              </InfiniteScroll>
+            </Grid>
+            <Grid item>
+              <Grid container justify="space-between" alignItems="center" direction="row">
+                <Grid item>
+                  <span className={classes.total}>{`Total ${joinedMoleculeLists?.length}`}</span>
+                </Grid>
+                <Grid item>
+                  <ButtonGroup variant="text" size="medium" color="primary" aria-label="contained primary button group">
+                    <Button
+                      onClick={() => {
+                        dispatch(setNextXMolecules(30));
+                      }}
+                    >
+                      Load next 30
+                    </Button>
+                    <Button
+                      onClick={() => {
+                        dispatch(setNextXMolecules(100));
+                      }}
+                    >
+                      Load next 100
+                    </Button>
+                    <Button
+                      onClick={() => {
+                        if (joinedMoleculeLists?.length > 300) {
+                          setIsOpenAlert(true);
+                        } else {
+                          dispatch(setNextXMolecules(joinedMoleculeLists?.length || 0));
+                        }
+                      }}
+                    >
+                      Load full list
+                    </Button>
+                  </ButtonGroup>
                 </Grid>
               </Grid>
-            </>
-          )}
-        </Grid>
-      </Panel>
-    </ComputeSize>
+            </Grid>
+          </>
+        )}
+      </Grid>
+    </Panel>
   );
 });

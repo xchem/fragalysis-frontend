@@ -186,518 +186,492 @@ const useStyles = makeStyles(theme => ({
   }
 }));
 
-export const DatasetMoleculeList = memo(
-  ({ height, setFilterItemsHeight, filterItemsHeight, title, datasetID, url }) => {
-    const classes = useStyles();
-    const dispatch = useDispatch();
+export const DatasetMoleculeList = memo(({ title, datasetID, url }) => {
+  const classes = useStyles();
+  const dispatch = useDispatch();
 
-    const [nextXMolecules, setNextXMolecules] = useState(0);
-    const moleculesPerPage = 5;
-    const [currentPage, setCurrentPage] = useState(0);
+  const [nextXMolecules, setNextXMolecules] = useState(0);
+  const moleculesPerPage = 5;
+  const [currentPage, setCurrentPage] = useState(0);
 
-    const imgHeight = 49;
-    const imgWidth = 150;
-    const sortDialogOpen = useSelector(state => state.datasetsReducers.filterDialogOpen);
-    const isOpenInspirationDialog = useSelector(state => state.datasetsReducers.isOpenInspirationDialog);
-    const isOpenCrossReferenceDialog = useSelector(state => state.datasetsReducers.isOpenCrossReferenceDialog);
+  const imgHeight = 49;
+  const imgWidth = 150;
+  const sortDialogOpen = useSelector(state => state.datasetsReducers.filterDialogOpen);
+  const isOpenInspirationDialog = useSelector(state => state.datasetsReducers.isOpenInspirationDialog);
+  const isOpenCrossReferenceDialog = useSelector(state => state.datasetsReducers.isOpenCrossReferenceDialog);
 
-    const moleculeLists = useSelector(state => state.datasetsReducers.moleculeLists);
-    const isLoadingMoleculeList = useSelector(state => state.datasetsReducers.isLoadingMoleculeList);
-    const filteredScoreProperties = useSelector(state => state.datasetsReducers.filteredScoreProperties);
-    const filterMap = useSelector(state => state.datasetsReducers.filterDatasetMap);
-    const filterSettings = filterMap && datasetID && filterMap[datasetID];
-    const filterPropertiesMap = useSelector(state => state.datasetsReducers.filterPropertiesDatasetMap);
-    const filterProperties = filterPropertiesMap && datasetID && filterPropertiesMap[datasetID];
-    const [sortDialogAnchorEl, setSortDialogAnchorEl] = useState(null);
+  const moleculeLists = useSelector(state => state.datasetsReducers.moleculeLists);
+  const isLoadingMoleculeList = useSelector(state => state.datasetsReducers.isLoadingMoleculeList);
+  const filteredScoreProperties = useSelector(state => state.datasetsReducers.filteredScoreProperties);
+  const filterMap = useSelector(state => state.datasetsReducers.filterDatasetMap);
+  const filterSettings = filterMap && datasetID && filterMap[datasetID];
+  const filterPropertiesMap = useSelector(state => state.datasetsReducers.filterPropertiesDatasetMap);
+  const filterProperties = filterPropertiesMap && datasetID && filterPropertiesMap[datasetID];
+  const [sortDialogAnchorEl, setSortDialogAnchorEl] = useState(null);
 
-    const isActiveFilter = !!(filterSettings || {}).active;
-    const { getNglView } = useContext(NglContext);
+  const isActiveFilter = !!(filterSettings || {}).active;
+  const { getNglView } = useContext(NglContext);
 
-    const stage = getNglView(VIEWS.MAJOR_VIEW) && getNglView(VIEWS.MAJOR_VIEW).stage;
-    const [selectedMoleculeRef, setSelectedMoleculeRef] = useState(null);
+  const stage = getNglView(VIEWS.MAJOR_VIEW) && getNglView(VIEWS.MAJOR_VIEW).stage;
+  const [selectedMoleculeRef, setSelectedMoleculeRef] = useState(null);
 
-    const filterRef = useRef();
+  const filterRef = useRef();
 
-    const joinedMoleculeLists = useSelector(state => getJoinedMoleculeLists(datasetID, state));
+  const joinedMoleculeLists = useSelector(state => getJoinedMoleculeLists(datasetID, state));
 
-    // TODO Reset Infinity scroll
+  // const disableUserInteraction = useDisableUserInteraction();
 
-    const loadNextMolecules = async () => {
-      await setNextXMolecules(0);
-      setCurrentPage(currentPage + 1);
-    };
-    const listItemOffset = (currentPage + 1) * moleculesPerPage + nextXMolecules;
+  // TODO Reset Infinity scroll
 
-    const currentMolecules = joinedMoleculeLists.slice(0, listItemOffset);
-    // setCurrentMolecules(currentMolecules);
-    const canLoadMore = listItemOffset < joinedMoleculeLists.length;
-    useEffect(() => {
-      if (isActiveFilter === false) {
-        setFilterItemsHeight(0);
-      }
-    }, [isActiveFilter, setFilterItemsHeight]);
+  const loadNextMolecules = async () => {
+    await setNextXMolecules(0);
+    setCurrentPage(currentPage + 1);
+  };
+  const listItemOffset = (currentPage + 1) * moleculesPerPage + nextXMolecules;
 
-    const selectedAll = useRef(false);
+  const currentMolecules = joinedMoleculeLists.slice(0, listItemOffset);
+  // setCurrentMolecules(currentMolecules);
+  const canLoadMore = listItemOffset < joinedMoleculeLists.length;
 
-    const compoundsToBuyList = useSelector(state => state.datasetsReducers.compoundsToBuyDatasetMap[datasetID]);
+  const selectedAll = useRef(false);
 
-    const ligandList = useSelector(state => state.datasetsReducers.ligandLists[datasetID]);
-    const proteinList = useSelector(state => state.datasetsReducers.proteinLists[datasetID]);
-    const complexList = useSelector(state => state.datasetsReducers.complexLists[datasetID]);
-    const surfaceList = useSelector(state => state.datasetsReducers.surfaceLists[datasetID]);
+  const compoundsToBuyList = useSelector(state => state.datasetsReducers.compoundsToBuyDatasetMap[datasetID]);
 
-    const selectedMolecules = (moleculeLists[datasetID] || []).filter(mol => compoundsToBuyList?.includes(mol.id));
+  const ligandList = useSelector(state => state.datasetsReducers.ligandLists[datasetID]);
+  const proteinList = useSelector(state => state.datasetsReducers.proteinLists[datasetID]);
+  const complexList = useSelector(state => state.datasetsReducers.complexLists[datasetID]);
+  const surfaceList = useSelector(state => state.datasetsReducers.surfaceLists[datasetID]);
 
-    const isTypeOn = typeList => {
-      if (typeList && compoundsToBuyList) {
-        return typeList.some(molId => selectedMolecules.some(mol => mol.id === molId));
-      }
-      return false;
-    };
+  const selectedMolecules = (moleculeLists[datasetID] || []).filter(mol => compoundsToBuyList?.includes(mol.id));
 
-    const isLigandOn = isTypeOn(ligandList);
-    const isProteinOn = isTypeOn(proteinList);
-    const isComplexOn = isTypeOn(complexList);
+  const isTypeOn = typeList => {
+    if (typeList && compoundsToBuyList) {
+      return typeList.some(molId => selectedMolecules.some(mol => mol.id === molId));
+    }
+    return false;
+  };
 
-    const addType = {
-      ligand: addDatasetLigand,
-      protein: addDatasetHitProtein,
-      complex: addDatasetComplex,
-      surface: addDatasetSurface
-    };
+  const isLigandOn = isTypeOn(ligandList);
+  const isProteinOn = isTypeOn(proteinList);
+  const isComplexOn = isTypeOn(complexList);
 
-    const removeType = {
-      ligand: removeDatasetLigand,
-      protein: removeDatasetHitProtein,
-      complex: removeDatasetComplex,
-      surface: removeDatasetSurface
-    };
+  const addType = {
+    ligand: addDatasetLigand,
+    protein: addDatasetHitProtein,
+    complex: addDatasetComplex,
+    surface: addDatasetSurface
+  };
 
-    // TODO "currentMolecules" do not need to correspondent to selections in {type}List
-    // TODO so this could lead to inconsistend behaviour while scrolling
-    // TODO maybe change "currentMolecules.forEach" to "{type}List.forEach"
+  const removeType = {
+    ligand: removeDatasetLigand,
+    protein: removeDatasetHitProtein,
+    complex: removeDatasetComplex,
+    surface: removeDatasetSurface
+  };
 
-    const removeSelectedType = (type, skipTracking) => {
-      selectedMolecules.forEach(molecule => {
-        dispatch(
-          removeType[type](stage, molecule, colourList[molecule.id % colourList.length], datasetID, skipTracking)
-        );
-      });
-      selectedAll.current = false;
-    };
+  // TODO "currentMolecules" do not need to correspondent to selections in {type}List
+  // TODO so this could lead to inconsistend behaviour while scrolling
+  // TODO maybe change "currentMolecules.forEach" to "{type}List.forEach"
 
-    const addNewType = (type, skipTracking) => {
-      dispatch(
-        withDisabledDatasetMoleculesNglControlButtons(
-          [datasetID],
-          selectedMolecules.map(molecule => molecule.id),
-          type,
-          async () => {
-            const promises = [];
+  const removeSelectedType = (type, skipTracking) => {
+    selectedMolecules.forEach(molecule => {
+      dispatch(removeType[type](stage, molecule, colourList[molecule.id % colourList.length], datasetID, skipTracking));
+    });
+    selectedAll.current = false;
+  };
 
-            selectedMolecules.forEach(molecule => {
-              promises.push(
-                dispatch(
-                  addType[type](stage, molecule, colourList[molecule.id % colourList.length], datasetID, skipTracking)
-                )
-              );
-            });
+  const addNewType = (type, skipTracking) => {
+    dispatch(
+      withDisabledDatasetMoleculesNglControlButtons(
+        [datasetID],
+        selectedMolecules.map(molecule => molecule.id),
+        type,
+        async () => {
+          const promises = [];
 
-            await Promise.all(promises);
-          }
-        )
-      );
-    };
+          selectedMolecules.forEach(molecule => {
+            promises.push(
+              dispatch(
+                addType[type](stage, molecule, colourList[molecule.id % colourList.length], datasetID, skipTracking)
+              )
+            );
+          });
 
-    const ucfirst = string => {
-      return string.charAt(0).toUpperCase() + string.slice(1);
-    };
-
-    const onButtonToggle = (type, calledFromSelectAll = false) => {
-      if (calledFromSelectAll === true && selectedAll.current === true) {
-        // REDO
-        if (eval('is' + ucfirst(type) + 'On') === false) {
-          addNewType(type);
+          await Promise.all(promises);
         }
-      } else if (calledFromSelectAll && selectedAll.current === false) {
-        removeSelectedType(type);
-      } else if (!calledFromSelectAll) {
-        if (eval('is' + ucfirst(type) + 'On') === false) {
-          let molecules = getSelectedMoleculesByType(type, true);
-          dispatch(setSelectedAllByType(type, datasetID, molecules));
-          addNewType(type, true);
+      )
+    );
+  };
+
+  const ucfirst = string => {
+    return string.charAt(0).toUpperCase() + string.slice(1);
+  };
+
+  const onButtonToggle = (type, calledFromSelectAll = false) => {
+    if (calledFromSelectAll === true && selectedAll.current === true) {
+      // REDO
+      if (eval('is' + ucfirst(type) + 'On') === false) {
+        addNewType(type);
+      }
+    } else if (calledFromSelectAll && selectedAll.current === false) {
+      removeSelectedType(type);
+    } else if (!calledFromSelectAll) {
+      if (eval('is' + ucfirst(type) + 'On') === false) {
+        let molecules = getSelectedMoleculesByType(type, true);
+        dispatch(setSelectedAllByType(type, datasetID, molecules));
+        addNewType(type, true);
+      } else {
+        let molecules = getSelectedMoleculesByType(type, false);
+        dispatch(setDeselectedAllByType(type, datasetID, molecules));
+        removeSelectedType(type, true);
+      }
+    }
+  };
+
+  const getSelectedMoleculesByType = (type, isAdd) => {
+    switch (type) {
+      case 'ligand':
+        return isAdd ? getMoleculesToSelect(ligandList) : getMoleculesToDeselect(ligandList);
+      case 'protein':
+        return isAdd ? getMoleculesToSelect(proteinList) : getMoleculesToDeselect(proteinList);
+      case 'complex':
+        return isAdd ? getMoleculesToSelect(complexList) : getMoleculesToDeselect(complexList);
+      default:
+        return null;
+    }
+  };
+
+  const getMoleculesToSelect = list => {
+    let molecules = selectedMolecules.filter(m => !list.includes(m.id));
+    let data = molecules.map(m => {
+      return { datasetID, molecule: m };
+    });
+    return data;
+  };
+
+  const getMoleculesToDeselect = list => {
+    let molecules = selectedMolecules.filter(m => list.includes(m.id));
+    let data = molecules.map(m => {
+      return { datasetID, molecule: m };
+    });
+    return data;
+  };
+
+  const actions = [
+    <SearchField
+      className={classes.search}
+      id="input-with-icon-textfield"
+      placeholder="Search"
+      onChange={value => {
+        dispatch(setSearchStringOfCompoundSet(value));
+        dispatch(setDragDropState(datasetID, null));
+      }}
+      disabled={isLoadingMoleculeList}
+    />,
+    <IconButton className={classes.panelButton} color={'inherit'} onClick={() => window.open(url, '_blank')}>
+      <Tooltip title="Link to dataset">
+        <Link />
+      </Tooltip>
+    </IconButton>,
+    <IconButton
+      className={classes.panelButton}
+      onClick={event => {
+        if (sortDialogOpen === false) {
+          setSortDialogAnchorEl(filterRef.current);
+          dispatch(setFilterDialogOpen(true));
         } else {
-          let molecules = getSelectedMoleculesByType(type, false);
-          dispatch(setDeselectedAllByType(type, datasetID, molecules));
-          removeSelectedType(type, true);
+          setSortDialogAnchorEl(null);
+          dispatch(setFilterDialogOpen(false));
         }
-      }
-    };
-
-    const getSelectedMoleculesByType = (type, isAdd) => {
-      switch (type) {
-        case 'ligand':
-          return isAdd ? getMoleculesToSelect(ligandList) : getMoleculesToDeselect(ligandList);
-        case 'protein':
-          return isAdd ? getMoleculesToSelect(proteinList) : getMoleculesToDeselect(proteinList);
-        case 'complex':
-          return isAdd ? getMoleculesToSelect(complexList) : getMoleculesToDeselect(complexList);
-        default:
-          return null;
-      }
-    };
-
-    const getMoleculesToSelect = list => {
-      let molecules = selectedMolecules.filter(m => !list.includes(m.id));
-      let data = molecules.map(m => {
-        return { datasetID, molecule: m };
-      });
-      return data;
-    };
-
-    const getMoleculesToDeselect = list => {
-      let molecules = selectedMolecules.filter(m => list.includes(m.id));
-      let data = molecules.map(m => {
-        return { datasetID, molecule: m };
-      });
-      return data;
-    };
-
-    const actions = [
-      <SearchField
-        className={classes.search}
-        id="input-with-icon-textfield"
-        placeholder="Search"
-        onChange={value => {
-          dispatch(setSearchStringOfCompoundSet(value));
-          dispatch(setDragDropState(datasetID, null));
-        }}
-        disabled={isLoadingMoleculeList}
-      />,
-      <IconButton color={'inherit'} onClick={() => window.open(url, '_blank')}>
-        <Tooltip title="Link to dataset">
-          <Link />
-        </Tooltip>
-      </IconButton>,
-      <IconButton
-        onClick={event => {
-          if (sortDialogOpen === false) {
-            setSortDialogAnchorEl(filterRef.current);
-            dispatch(setFilterDialogOpen(true));
-          } else {
-            setSortDialogAnchorEl(null);
-            dispatch(setFilterDialogOpen(false));
-          }
-        }}
-        color={'inherit'}
-        disabled={isLoadingMoleculeList}
-      >
-        <Tooltip title="Filter/Sort">
-          <FilterList />
-        </Tooltip>
-      </IconButton>
-    ];
-    /*useEffect(() => {
+      }}
+      color={'inherit'}
+      disabled={isLoadingMoleculeList}
+    >
+      <Tooltip title="Filter/Sort">
+        <FilterList />
+      </Tooltip>
+    </IconButton>
+  ];
+  /*useEffect(() => {
       // setCurrentPage(0);
     }, [object_selection]);*/
 
-    const crossReferenceDialogRef = useRef();
-    const inspirationDialogRef = useRef();
-    const scrollBarRef = useRef();
+  const crossReferenceDialogRef = useRef();
+  const inspirationDialogRef = useRef();
+  const scrollBarRef = useRef();
 
-    const [isOpenAlert, setIsOpenAlert] = useState(false);
+  const [isOpenAlert, setIsOpenAlert] = useState(false);
 
-    const moveMolecule = useCallback(
-      (dragIndex, hoverIndex) => {
-        dispatch(moveDatasetMolecule(datasetID, dragIndex, hoverIndex));
-      },
-      [dispatch, datasetID]
-    );
+  const moveMolecule = useCallback(
+    (dragIndex, hoverIndex) => {
+      dispatch(moveDatasetMolecule(datasetID, dragIndex, hoverIndex));
+    },
+    [dispatch, datasetID]
+  );
 
-    const groupDatasetsNglControlButtonsDisabledState = useDisableDatasetNglControlButtons(
-      selectedMolecules.map(molecule => ({ datasetID, molecule }))
-    );
+  const groupDatasetsNglControlButtonsDisabledState = useDisableDatasetNglControlButtons(
+    selectedMolecules.map(molecule => ({ datasetID, molecule }))
+  );
 
-    return (
-      <ComputeSize
-        componentRef={filterRef.current}
-        setHeight={setFilterItemsHeight}
-        height={filterItemsHeight}
-        forceCompute={isActiveFilter}
-      >
-        <Panel hasHeader title={title} withTooltip headerActions={actions}>
-          <AlertModal
-            title="Are you sure?"
-            description={`Loading of ${joinedMoleculeLists?.length} may take a long time`}
-            open={isOpenAlert}
-            handleOnOk={() => {
-              setNextXMolecules(joinedMoleculeLists?.length || 0);
-              setIsOpenAlert(false);
-            }}
-            handleOnCancel={() => {
-              setIsOpenAlert(false);
-            }}
-          />
-          {sortDialogOpen && (
-            <DatasetFilter
-              open={sortDialogOpen}
-              anchorEl={sortDialogAnchorEl}
-              datasetID={datasetID}
-              filterProperties={filterProperties}
-              active={filterSettings && filterSettings.active}
-              predefined={filterSettings && filterSettings.predefined}
-              priorityOrder={filterSettings && filterSettings.priorityOrder}
-              setSortDialogAnchorEl={setSortDialogAnchorEl}
-            />
-          )}
-          {isOpenInspirationDialog && (
-            <InspirationDialog open anchorEl={selectedMoleculeRef} datasetID={datasetID} ref={inspirationDialogRef} />
-          )}
-          {isOpenCrossReferenceDialog && (
-            <CrossReferenceDialog open anchorEl={selectedMoleculeRef} ref={crossReferenceDialogRef} />
-          )}
-          <div ref={filterRef}>
-            {isActiveFilter && (
-              <>
-                <div className={classes.filterSection}>
-                  <Grid container spacing={1}>
-                    <Grid item xs={1} container alignItems="center">
-                      <Typography variant="subtitle2" className={classes.filterTitle}>
-                        Filters
-                      </Typography>
-                    </Grid>
-                    <Grid item xs={11}>
-                      <Grid container direction="row" justify="flex-start" spacing={1}>
-                        {filterSettings.priorityOrder.map(attr => (
-                          <Grid item key={`Mol-Tooltip-${attr}`}>
-                            <Tooltip
-                              title={`${filterProperties[attr].minValue}-${filterProperties[attr].maxValue} ${
-                                filterProperties[attr].order === 1 ? '\u2191' : '\u2193'
-                              }`}
-                              placement="top"
-                            >
-                              <Chip size="small" label={attr} className={classes.propertyChip} />
-                            </Tooltip>
-                          </Grid>
-                        ))}
-                      </Grid>
-                    </Grid>
-                  </Grid>
-                </div>
-                <Divider />
-              </>
-            )}
-          </div>
-          <Grid
-            container
-            direction="column"
-            justify="flex-start"
-            className={classes.container}
-            style={{ height: height }}
-          >
-            <Grid item>
-              {/* Header */}
-              {isLoadingMoleculeList === false && (
-                <Grid container justify="flex-start" direction="row" className={classes.molHeader} wrap="nowrap">
-                  <Grid item container justify="flex-start" direction="row">
-                    <Tooltip title="Total count of compounds">
-                      <Grid item className={classes.rank}>
-                        {`Total ${joinedMoleculeLists?.length}`}
-                      </Grid>
-                    </Tooltip>
-                    {datasetID &&
-                      filteredScoreProperties &&
-                      filteredScoreProperties[datasetID] &&
-                      filteredScoreProperties[datasetID].map(score => (
-                        <Tooltip key={score.id} title={`${score.name} - ${score.description}`}>
-                          <Grid item className={classes.rightBorder}>
-                            {score?.name?.substring(0, 4)}
-                          </Grid>
-                        </Tooltip>
-                      ))}
-                    {selectedMolecules.length > 0 && (
-                      <Grid item>
-                        <Grid
-                          container
-                          direction="row"
-                          justify="flex-start"
-                          alignItems="center"
-                          wrap="nowrap"
-                          className={classes.contButtonsMargin}
-                        >
-                          <Tooltip title="all ligands">
-                            <Grid item>
-                              <Button
-                                variant="outlined"
-                                className={classNames(classes.contColButton, {
-                                  [classes.contColButtonSelected]: isLigandOn
-                                })}
-                                onClick={() => onButtonToggle('ligand')}
-                                disabled={groupDatasetsNglControlButtonsDisabledState.ligand}
-                              >
-                                L
-                              </Button>
-                            </Grid>
-                          </Tooltip>
-                          <Tooltip title="all sidechains">
-                            <Grid item>
-                              <Button
-                                variant="outlined"
-                                className={classNames(classes.contColButton, {
-                                  [classes.contColButtonSelected]: isProteinOn
-                                })}
-                                onClick={() => onButtonToggle('protein')}
-                                disabled={groupDatasetsNglControlButtonsDisabledState.protein}
-                              >
-                                P
-                              </Button>
-                            </Grid>
-                          </Tooltip>
-                          <Tooltip title="all interactions">
-                            <Grid item>
-                              {/* C stands for contacts now */}
-                              <Button
-                                variant="outlined"
-                                className={classNames(classes.contColButton, {
-                                  [classes.contColButtonSelected]: isComplexOn
-                                })}
-                                onClick={() => onButtonToggle('complex')}
-                                disabled={groupDatasetsNglControlButtonsDisabledState.complex}
-                              >
-                                C
-                              </Button>
-                            </Grid>
-                          </Tooltip>
-                        </Grid>
-                      </Grid>
-                    )}
-                  </Grid>
+  return (
+    <Panel hasHeader title={title} withTooltip headerActions={actions}>
+      <AlertModal
+        title="Are you sure?"
+        description={`Loading of ${joinedMoleculeLists?.length} may take a long time`}
+        open={isOpenAlert}
+        handleOnOk={() => {
+          setNextXMolecules(joinedMoleculeLists?.length || 0);
+          setIsOpenAlert(false);
+        }}
+        handleOnCancel={() => {
+          setIsOpenAlert(false);
+        }}
+      />
+      {sortDialogOpen && (
+        <DatasetFilter
+          open={sortDialogOpen}
+          anchorEl={sortDialogAnchorEl}
+          datasetID={datasetID}
+          filterProperties={filterProperties}
+          active={filterSettings && filterSettings.active}
+          predefined={filterSettings && filterSettings.predefined}
+          priorityOrder={filterSettings && filterSettings.priorityOrder}
+          setSortDialogAnchorEl={setSortDialogAnchorEl}
+        />
+      )}
+      {isOpenInspirationDialog && (
+        <InspirationDialog open anchorEl={selectedMoleculeRef} datasetID={datasetID} ref={inspirationDialogRef} />
+      )}
+      {isOpenCrossReferenceDialog && (
+        <CrossReferenceDialog open anchorEl={selectedMoleculeRef} ref={crossReferenceDialogRef} />
+      )}
+      <div ref={filterRef}>
+        {isActiveFilter && (
+          <>
+            <div className={classes.filterSection}>
+              <Grid container spacing={1}>
+                <Grid item xs={1} container alignItems="center">
+                  <Typography variant="subtitle2" className={classes.filterTitle}>
+                    Filters
+                  </Typography>
                 </Grid>
-              )}
-            </Grid>
-            {isLoadingMoleculeList && (
-              <Grid item container alignItems="center" justify="center" className={classes.loading}>
-                <Grid item>
-                  <CircularProgress />
+                <Grid item xs={11}>
+                  <Grid container direction="row" justify="flex-start" spacing={1}>
+                    {filterSettings.priorityOrder.map(attr => (
+                      <Grid item key={`Mol-Tooltip-${attr}`}>
+                        <Tooltip
+                          title={`${filterProperties[attr].minValue}-${filterProperties[attr].maxValue} ${
+                            filterProperties[attr].order === 1 ? '\u2191' : '\u2193'
+                          }`}
+                          placement="top"
+                        >
+                          <Chip size="small" label={attr} className={classes.propertyChip} />
+                        </Tooltip>
+                      </Grid>
+                    ))}
+                  </Grid>
                 </Grid>
               </Grid>
-            )}
-            {isLoadingMoleculeList === false && currentMolecules.length > 0 && (
-              <>
-                <Grid item className={classes.gridItemList} ref={scrollBarRef}>
-                  <InfiniteScroll
-                    getScrollParent={() =>
-                      dispatch(
-                        autoHideDatasetDialogsOnScroll({
-                          inspirationDialogRef,
-                          crossReferenceDialogRef,
-                          scrollBarRef
-                        })
-                      )
-                    }
-                    pageStart={0}
-                    loadMore={loadNextMolecules}
-                    hasMore={canLoadMore}
-                    loader={
-                      <div className="loader" key={0}>
-                        <Grid
-                          container
-                          direction="row"
-                          justify="center"
-                          alignItems="center"
-                          className={classes.paddingProgress}
-                        >
-                          <CircularProgress />
+            </div>
+            <Divider />
+          </>
+        )}
+      </div>
+      <Grid container direction="column" justify="flex-start" className={classes.container}>
+        <Grid item>
+          {/* Header */}
+          {isLoadingMoleculeList === false && (
+            <Grid container justify="flex-start" direction="row" className={classes.molHeader} wrap="nowrap">
+              <Grid item container justify="flex-start" direction="row">
+                <Tooltip title="Total count of compounds">
+                  <Grid item className={classes.rank}>
+                    {`Total ${joinedMoleculeLists?.length}`}
+                  </Grid>
+                </Tooltip>
+                {datasetID &&
+                  filteredScoreProperties &&
+                  filteredScoreProperties[datasetID] &&
+                  filteredScoreProperties[datasetID].map(score => (
+                    <Tooltip key={score.id} title={`${score.name} - ${score.description}`}>
+                      <Grid item className={classes.rightBorder}>
+                        {score?.name?.substring(0, 4)}
+                      </Grid>
+                    </Tooltip>
+                  ))}
+                {selectedMolecules.length > 0 && (
+                  <Grid item>
+                    <Grid
+                      container
+                      direction="row"
+                      justify="flex-start"
+                      alignItems="center"
+                      wrap="nowrap"
+                      className={classes.contButtonsMargin}
+                    >
+                      <Tooltip title="all ligands">
+                        <Grid item>
+                          <Button
+                            variant="outlined"
+                            className={classNames(classes.contColButton, {
+                              [classes.contColButtonSelected]: isLigandOn
+                            })}
+                            onClick={() => onButtonToggle('ligand')}
+                            disabled={groupDatasetsNglControlButtonsDisabledState.ligand}
+                          >
+                            L
+                          </Button>
                         </Grid>
-                      </div>
-                    }
-                    useWindow={false}
-                  >
-                    {datasetID && (
-                      <GroupDatasetNglControlButtonsContext.Provider
-                        value={groupDatasetsNglControlButtonsDisabledState}
-                      >
-                        <DndProvider backend={HTML5Backend}>
-                          {currentMolecules.map((data, index, array) => {
-                            const isCheckedToBuy = selectedMolecules.some(molecule => molecule.id === data.id);
-
-                            return (
-                              <DatasetMoleculeView
-                                key={data.id}
-                                index={index}
-                                imageHeight={imgHeight}
-                                imageWidth={imgWidth}
-                                data={data}
-                                datasetID={datasetID}
-                                setRef={setSelectedMoleculeRef}
-                                showCrossReferenceModal
-                                previousItemData={index > 0 && array[index - 1]}
-                                nextItemData={index < array?.length && array[index + 1]}
-                                L={ligandList.includes(data.id)}
-                                P={proteinList.includes(data.id)}
-                                C={complexList.includes(data.id)}
-                                S={surfaceList.includes(data.id)}
-                                V={false}
-                                moveMolecule={moveMolecule}
-                                isCheckedToBuy={isCheckedToBuy}
-                                disableL={isCheckedToBuy && groupDatasetsNglControlButtonsDisabledState.ligand}
-                                disableP={isCheckedToBuy && groupDatasetsNglControlButtonsDisabledState.protein}
-                                disableC={isCheckedToBuy && groupDatasetsNglControlButtonsDisabledState.complex}
-                                dragDropEnabled
-                              />
-                            );
-                          })}
-                        </DndProvider>
-                      </GroupDatasetNglControlButtonsContext.Provider>
-                    )}
-                  </InfiniteScroll>
-                </Grid>
-                <Grid item>
-                  <Grid container justify="space-between" alignItems="center" direction="row">
-                    <Grid item>
-                      <span className={classes.total}>{`Total ${joinedMoleculeLists?.length}`}</span>
-                    </Grid>
-                    <Grid item>
-                      <ButtonGroup
-                        variant="text"
-                        size="medium"
-                        color="primary"
-                        aria-label="contained primary button group"
-                      >
-                        <Button
-                          onClick={() => {
-                            setNextXMolecules(30);
-                          }}
-                        >
-                          Load next 30
-                        </Button>
-                        <Button
-                          onClick={() => {
-                            setNextXMolecules(100);
-                          }}
-                        >
-                          Load next 100
-                        </Button>
-                        <Button
-                          onClick={() => {
-                            if (joinedMoleculeLists?.length > 300) {
-                              setIsOpenAlert(true);
-                            } else {
-                              setNextXMolecules(joinedMoleculeLists?.length || 0);
-                            }
-                          }}
-                        >
-                          Load full list
-                        </Button>
-                      </ButtonGroup>
+                      </Tooltip>
+                      <Tooltip title="all sidechains">
+                        <Grid item>
+                          <Button
+                            variant="outlined"
+                            className={classNames(classes.contColButton, {
+                              [classes.contColButtonSelected]: isProteinOn
+                            })}
+                            onClick={() => onButtonToggle('protein')}
+                            disabled={groupDatasetsNglControlButtonsDisabledState.protein}
+                          >
+                            P
+                          </Button>
+                        </Grid>
+                      </Tooltip>
+                      <Tooltip title="all interactions">
+                        <Grid item>
+                          {/* C stands for contacts now */}
+                          <Button
+                            variant="outlined"
+                            className={classNames(classes.contColButton, {
+                              [classes.contColButtonSelected]: isComplexOn
+                            })}
+                            onClick={() => onButtonToggle('complex')}
+                            disabled={groupDatasetsNglControlButtonsDisabledState.complex}
+                          >
+                            C
+                          </Button>
+                        </Grid>
+                      </Tooltip>
                     </Grid>
                   </Grid>
-                </Grid>
-              </>
-            )}
+                )}
+              </Grid>
+            </Grid>
+          )}
+        </Grid>
+        {isLoadingMoleculeList && (
+          <Grid item container alignItems="center" justify="center" className={classes.loading}>
+            <Grid item>
+              <CircularProgress />
+            </Grid>
           </Grid>
-        </Panel>
-      </ComputeSize>
-    );
-  }
-);
+        )}
+        {isLoadingMoleculeList === false && currentMolecules.length > 0 && (
+          <>
+            <Grid item className={classes.gridItemList} ref={scrollBarRef}>
+              <InfiniteScroll
+                getScrollParent={() =>
+                  dispatch(
+                    autoHideDatasetDialogsOnScroll({
+                      inspirationDialogRef,
+                      crossReferenceDialogRef,
+                      scrollBarRef
+                    })
+                  )
+                }
+                pageStart={0}
+                loadMore={loadNextMolecules}
+                hasMore={canLoadMore}
+                loader={
+                  <div className="loader" key={0}>
+                    <Grid
+                      container
+                      direction="row"
+                      justify="center"
+                      alignItems="center"
+                      className={classes.paddingProgress}
+                    >
+                      <CircularProgress />
+                    </Grid>
+                  </div>
+                }
+                useWindow={false}
+              >
+                {datasetID && (
+                  <GroupDatasetNglControlButtonsContext.Provider value={groupDatasetsNglControlButtonsDisabledState}>
+                    <DndProvider backend={HTML5Backend}>
+                      {currentMolecules.map((data, index, array) => {
+                        const isCheckedToBuy = selectedMolecules.some(molecule => molecule.id === data.id);
+
+                        return (
+                          <DatasetMoleculeView
+                            key={data.id}
+                            index={index}
+                            imageHeight={imgHeight}
+                            imageWidth={imgWidth}
+                            data={data}
+                            datasetID={datasetID}
+                            setRef={setSelectedMoleculeRef}
+                            showCrossReferenceModal
+                            previousItemData={index > 0 && array[index - 1]}
+                            nextItemData={index < array?.length && array[index + 1]}
+                            L={ligandList.includes(data.id)}
+                            P={proteinList.includes(data.id)}
+                            C={complexList.includes(data.id)}
+                            S={surfaceList.includes(data.id)}
+                            V={false}
+                            moveMolecule={moveMolecule}
+                            isCheckedToBuy={isCheckedToBuy}
+                            disableL={isCheckedToBuy && groupDatasetsNglControlButtonsDisabledState.ligand}
+                            disableP={isCheckedToBuy && groupDatasetsNglControlButtonsDisabledState.protein}
+                            disableC={isCheckedToBuy && groupDatasetsNglControlButtonsDisabledState.complex}
+                            dragDropEnabled
+                          />
+                        );
+                      })}
+                    </DndProvider>
+                  </GroupDatasetNglControlButtonsContext.Provider>
+                )}
+              </InfiniteScroll>
+            </Grid>
+            <Grid item>
+              <Grid container justify="space-between" alignItems="center" direction="row">
+                <Grid item>
+                  <span className={classes.total}>{`Total ${joinedMoleculeLists?.length}`}</span>
+                </Grid>
+                <Grid item>
+                  <ButtonGroup variant="text" size="medium" color="primary" aria-label="contained primary button group">
+                    <Button
+                      onClick={() => {
+                        setNextXMolecules(30);
+                      }}
+                    >
+                      Load next 30
+                    </Button>
+                    <Button
+                      onClick={() => {
+                        setNextXMolecules(100);
+                      }}
+                    >
+                      Load next 100
+                    </Button>
+                    <Button
+                      onClick={() => {
+                        if (joinedMoleculeLists?.length > 300) {
+                          setIsOpenAlert(true);
+                        } else {
+                          setNextXMolecules(joinedMoleculeLists?.length || 0);
+                        }
+                      }}
+                    >
+                      Load full list
+                    </Button>
+                  </ButtonGroup>
+                </Grid>
+              </Grid>
+            </Grid>
+          </>
+        )}
+      </Grid>
+    </Panel>
+  );
+});
