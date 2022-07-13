@@ -258,7 +258,13 @@ const JobConfigurationDialog = ({ snapshots }) => {
       if (inputs === 'snapshot') {
         chosenSnapshot = snapshot;
         chosenLHSCompounds = snapshot.additional_info.currentSnapshotSelectedCompounds;
-        chosenRHSCompounds = snapshot.additional_info.currentSnapshotSelectedDatasetsCompounds;
+        const savedSelection = [];
+        Object.keys(currentSnapshot.additional_info.currentSnapshotSelectedDatasetsCompounds).map(datasetName => {
+          const selectedCompoundNames =
+            currentSnapshot.additional_info.currentSnapshotSelectedDatasetsCompounds[datasetName];
+          savedSelection.push(...selectedCompoundNames);
+        });
+        chosenRHSCompounds = savedSelection;
       } else if (inputs === 'selected-inputs') {
         const currentSnapshotSelectedCompounds = getAllMolecules
           .filter(molecule => currentSnapshotSelectedCompoundsIDs.includes(molecule.id))
@@ -308,22 +314,20 @@ const JobConfigurationDialog = ({ snapshots }) => {
         Object.keys(datasetVisibleDatasetCompoundsList).map(datasetName => {
           const visibleCompoundIds = datasetVisibleDatasetCompoundsList[datasetName];
           const datasetCompounds = allDatasets[datasetName];
-          const visibleCompoundsNames = datasetCompounds.filter(cmp =>
-            visibleCompoundIds.includes(cmp.id).map(cmp => cmp.name)
-          );
+          const visibleCompoundsNames = datasetCompounds
+            .filter(cmp => visibleCompoundIds.includes(cmp.id))
+            .map(cmp => cmp.name);
           currentSnapshotVisibleDatasetCompounds.push(...visibleCompoundsNames);
         });
 
         const savedVisibleCompounds = [];
         Object.keys(currentSnapshot.additional_info.currentSnapshotVisibleDatasetsCompounds).map(datasetName => {
-          const visibleCompoundIds =
+          const visibleCompoundsNames =
             currentSnapshot.additional_info.currentSnapshotVisibleDatasetsCompounds[datasetName];
-          const datasetCompounds = allDatasets[datasetName];
-          const visibleCompoundsNames = datasetCompounds.filter(cmp =>
-            visibleCompoundIds.includes(cmp.id).map(cmp => cmp.name)
-          );
           savedVisibleCompounds.push(...visibleCompoundsNames);
         });
+
+        console.log('onSubmitForm checkpoint');
 
         // In case the visible mols are different from the ones saved with the snapshot, create a new snapshot with the current visible mols
         if (
