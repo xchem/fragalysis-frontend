@@ -1,7 +1,6 @@
 import React, { Fragment } from 'react';
 import { Dialog, DialogContent, DialogTitle, Typography } from '@material-ui/core';
-// eslint-disable-next-line import/extensions
-import jobconfig from '../../../../jobconfigs/fragalysis-job-spec.json';
+import { useGetJobDefinition } from '../../../hooks/useGetJobDefinition';
 
 const renderListItem = item => <li key={item}>{item}</li>;
 
@@ -15,11 +14,12 @@ const renderInput = input => {
 };
 
 export const JobVariablesDialog = ({ open, onClose, title, variableType, jobInfo }) => {
+  const jobDefinition = useGetJobDefinition();
+
   const jobSpec = !!jobInfo ? JSON.parse(jobInfo.squonk_job_spec) : null;
   const jobVariables = jobSpec?.variables || {};
 
-  const variable = jobconfig.variables[variableType] ? JSON.parse(jobconfig.variables[variableType]) : null;
-  const variableProperties = variable?.properties || {};
+  const variableProperties = jobDefinition?.[variableType]?.properties || {};
 
   return (
     <Dialog open={open} onClose={onClose}>

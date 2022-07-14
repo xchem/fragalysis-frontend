@@ -191,14 +191,6 @@ const JobConfigurationDialog = ({ snapshots }) => {
     return newTitle;
   };
 
-  const getFragmentTemplate = fragment => {
-    return `fragalysis-files/${target_on_name}/${fragment}.mol`;
-  };
-
-  const getProteinTemplate = protein => {
-    return `fragalysis-files/${target_on_name}/${protein}_apo-desolv.pdb`;
-  };
-
   const getMoleculeTitle = title => {
     return title.replace(new RegExp(':.*$', 'i'), '');
   };
@@ -309,14 +301,7 @@ const JobConfigurationDialog = ({ snapshots }) => {
           snapshot: chosenSnapshot,
           // Prepares data for expanding, see comments in JobFragmentProteinSelectWindow
           data: {
-            'lhs-fragments': {
-              enum: chosenLHSCompounds.map(fragment => getFragmentTemplate(fragment)),
-              enumNames: chosenLHSCompounds.map(compound => getMoleculeEnumName(compound))
-            },
-            'lhs-protein-apo-desolv': {
-              enum: chosenLHSCompounds.map(protein => getProteinTemplate(protein)),
-              enumNames: chosenLHSCompounds.map(compound => getMoleculeEnumName(compound))
-            }
+            lhs: chosenLHSCompounds.map(compound => getMoleculeEnumName(compound))
           }
         })
       );
@@ -325,6 +310,7 @@ const JobConfigurationDialog = ({ snapshots }) => {
         snapshot: chosenSnapshot.id,
         target: targetId,
         // squonk_project: dispatch(getSquonkProject()),
+        // need to switch to squonk project id associated with the target in the (near?) future
         squonk_project: 'project-e1ce441e-c4d1-4ad1-9057-1a11dbdccebe',
         proteins: chosenLHSCompounds.join()
       });
