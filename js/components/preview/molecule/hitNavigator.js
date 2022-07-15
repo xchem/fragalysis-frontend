@@ -4,15 +4,8 @@
 import React, { memo } from 'react';
 import { MoleculeList } from './moleculeList';
 
-const HitNavigator = memo(({ height, setFilterItemsHeight, filterItemsHeight, hideProjects }) => {
-  return (
-    <MoleculeList
-      height={height}
-      setFilterItemsHeight={setFilterItemsHeight}
-      filterItemsHeight={filterItemsHeight}
-      hideProjects={hideProjects}
-    />
-  );
+const HitNavigator = memo(({ hideProjects }) => {
+  return <MoleculeList hideProjects={hideProjects} />;
 });
 
 export default HitNavigator;

@@ -5,7 +5,7 @@
 import React, { memo, useState, useContext, useEffect, useCallback } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { Button } from '../../common/Inputs/Button';
-import { Settings, Mouse, PersonalVideo, Undo, Redo, Restore } from '@material-ui/icons';
+import { Settings, Mouse, PersonalVideo, Undo, Redo, Restore, Lock, LockOpen } from '@material-ui/icons';
 import { ButtonGroup, Grid, makeStyles, Tooltip } from '@material-ui/core';
 import { SettingControls } from './settingsControls';
 import DisplayControls from './displayControls/';
@@ -43,21 +43,16 @@ const useStyles = makeStyles(theme => ({
     display: 'flex',
     justifyContent: 'space-between',
     alignItems: 'flex-start',
-    gap: theme.spacing(2)
+    gap: theme.spacing()
   },
   button: {
-    padding: theme.spacing(1)
-  },
-  restoreClipButton: {
-    minWidth: 212,
-    position: 'absolute',
-    left: 289
+    padding: theme.spacing()
   },
   nglButtons: {
     flexBasis: 0,
     display: 'flex',
     justifyContent: 'center',
-    flexWrap: 'wrap',
+    flexWrap: 'nowrap',
     gap: theme.spacing(),
     position: 'relative'
   }
@@ -74,6 +69,7 @@ export const ViewerControls = memo(() => {
   const [canRedo, setCanRedo] = useState(false);
   const [nglUndoTooltip, nglSetUndoTooltip] = useState('Undo');
   const [nglRedoTooltip, nglSetRedoTooltip] = useState('Redo');
+  const [nglLocked, setNglLocked] = useState(true);
   const isActionTracking = useSelector(state => state.trackingReducers.isActionTracking);
 
   const nglUndoLength = useSelector(state => state.undoableNglTrackingReducers.past).length;
@@ -248,15 +244,14 @@ export const ViewerControls = memo(() => {
             </Tooltip>
           </ButtonGroup>
 
-          <Tooltip title="Restore ngl view settings">
+          <Tooltip title="Restore NGL view settings">
             <Button
               color="primary"
               onClick={() => dispatch(restoreNglViewSettings(nglViewList))}
-              startIcon={<Restore />}
-              className={classes.button + " " + classes.restoreClipButton}
+              className={classes.button}
             >
-              Restore clip/slab/centre
-            </Button> 
+              <Restore />
+            </Button>
           </Tooltip>
         </div>
 

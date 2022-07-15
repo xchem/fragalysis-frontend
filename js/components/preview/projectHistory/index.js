@@ -1,4 +1,4 @@
-import React, { memo, useContext, useEffect, useRef } from 'react';
+import React, { memo, useCallback, useContext, useEffect, useRef } from 'react';
 import { Panel } from '../../common/Surfaces/Panel';
 import { templateExtend, TemplateName, Orientation, Gitgraph } from '@gitgraph/react';
 import { MergeType } from '@material-ui/icons';
@@ -8,19 +8,17 @@ import { useDispatch, useSelector } from 'react-redux';
 import { useHistory, useRouteMatch } from 'react-router-dom';
 import { loadSnapshotTree } from '../../projects/redux/dispatchActions';
 import palette from '../../../theme/palette';
-import { ModalShareSnapshot } from '../../snapshot/modals/modalShareSnapshot';
 import { setIsOpenModalBeforeExit, setSelectedSnapshotToSwitch } from '../../snapshot/redux/actions';
 import { NglContext } from '../../nglView/nglProvider';
-
-export const heightOfProjectHistory = '164px';
+import { setPanelsExpanded } from '../../../reducers/layout/actions';
+import { layoutItemNames } from '../../../reducers/layout/constants';
 
 const useStyles = makeStyles(theme => ({
   root: {
-    marginTop: theme.spacing()
+    height: '100%'
   },
   containerExpanded: {
     width: '100%',
-    height: heightOfProjectHistory,
     overflow: 'auto'
   },
   containerCollapsed: {
@@ -131,6 +129,10 @@ export const ProjectHistory = memo(({ showFullHistory }) => {
       <Panel
         ref={ref}
         hasHeader
+        onExpandChange={useCallback(
+          expanded => dispatch(setPanelsExpanded(layoutItemNames.PROJECT_HISTORY, expanded)),
+          [dispatch]
+        )}
         title="Project History"
         headerActions={[
           <Button color="inherit" variant="text" size="small" onClick={showFullHistory} startIcon={<MergeType />}>

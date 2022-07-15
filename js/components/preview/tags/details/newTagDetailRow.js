@@ -18,6 +18,7 @@ const useStyles = makeStyles(theme => ({
     alignSelf: 'stretch',
     paddingRight: theme.spacing(),
     marginTop: 2,
+    justifySelf: 'flex-end',
     '& *': {
       padding: 0
     }

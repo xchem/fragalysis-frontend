@@ -12,7 +12,7 @@ import { NglContext } from './nglProvider';
 import { handleNglViewPick } from './redux/dispatchActions';
 import { debounce } from 'lodash';
 import { NGL_PARAMS } from './constants';
-import { makeStyles, useTheme } from '@material-ui/core';
+import { makeStyles } from '@material-ui/core';
 import { VIEWS } from '../../constants/constants';
 import { INITIAL_STATE as NGL_INITIAL } from '../../reducers/ngl/nglReducers';
 
@@ -25,11 +25,8 @@ const useStyles = makeStyles(theme => ({
       '0px 1px 1px 0px rgba(0,0,0,0.14)',
       '0px 1px 3px 0px rgba(0,0,0,0.12)'
     ],
-    marginBottom: theme.spacing(1),
     width: '100%',
-    '& canvas': {
-      width: '100% !important'
-    }
+    height: '100%'
   }
 }));
 
@@ -38,7 +35,6 @@ const NglView = memo(({ div_id, height, setOrientation, removeAllNglComponents, 
   const { registerNglView, unregisterNglView, getNglView } = useContext(NglContext);
   const [stage, setStage] = useState();
   const classes = useStyles();
-  const theme = useTheme();
 
   const handleOrientationChanged = useCallback(
     debounce(() => {
@@ -149,18 +145,7 @@ const NglView = memo(({ div_id, height, setOrientation, removeAllNglComponents, 
     };
   }, [handleResize]);
 
-  return (
-    <>
-      <div
-        ref={ref}
-        id={div_id}
-        className={div_id === VIEWS.MAJOR_VIEW ? classes.paper : {}}
-        style={{
-          height: `calc(${height || '600px'} - ${theme.spacing(1)}px)`
-        }}
-      />
-    </>
-  );
+  return <div ref={ref} id={div_id} className={div_id === VIEWS.MAJOR_VIEW ? classes.paper : {}} />;
 });
 
 function mapStateToProps(state) {
