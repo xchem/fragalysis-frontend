@@ -29,7 +29,7 @@
       },
       "options": {
         "outfile": {
-          "value": "{job_dir}/merged.sdf",
+          "value": "{job_dir}/results_merged.sdf",
           "ui:widget": "hidden"
         },
         "count": {
