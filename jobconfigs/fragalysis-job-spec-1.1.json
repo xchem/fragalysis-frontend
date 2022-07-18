@@ -2,6 +2,7 @@
   "global": {
     "job_dir": "fragalysis-jobs/{username}/{job_name}-{timestamp}"
   },
+  "precompilation_ignore": ["job_dir"],
   "fragalysis-jobs": [
     {
       "job_collection": "fragmenstein",
@@ -9,41 +10,46 @@
       "job_version": "1.0.0",
       "inputs": {
         "fragments": {
-          "from": "lhs-fragments",
           "type": "array",
           "uniqueItems": true,
           "format": "chemical/x-mdl-molfile",
-          "as": "{job_dir}/{file_name}",
-          "display": "readOnly"
+          "items": {
+            "from": "lhs",
+            "enum": "{job_dir}/{target}-{item}.mol",
+            "enumNames": "{item}"
+          }
         },
         "protein": {
-          "from": "lhs-protein-apo-desolv",
           "type": "string",
           "format": "chemical/x-pdb",
-          "as": "{job_dir}/{file_name}",
-          "display": "readOnly"
+          "from": "lhs",
+          "enum": "{job_dir}/{target}-{item}_apo-desolv.pdb",
+          "enumNames": "{item}"
         }
       },
       "options": {
         "outfile": {
           "value": "{job_dir}/merged.sdf",
-          "display": "hidden"
+          "ui:widget": "hidden"
         },
         "count": {
-          "default": 5
+          "default": 5,
+          "readOnly": true
         },
         "smiles": {
+          "type": "string",
           "default": "original SMILES",
-          "display": "hidden"
+          "ui:widget": "hidden"
         },
         "fragIdField": {
           "default": "_Name",
-          "display": "hidden"
+          "ui:widget": "hidden"
         }
       },
-      "results": [
-        "Merged molecules"
-      ]
+      "outputs": {
+        "outputs": { "type": "string" }
+      },
+      "results": ["Merged molecules"]
     }
   ]
 }
