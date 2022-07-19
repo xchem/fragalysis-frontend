@@ -232,16 +232,16 @@ export const ProjectHistory = memo(({ showFullHistory, graphKey, expanded, onExp
           </Button>,
           <Button color="inherit" variant="text" size="small" onClick={showFullHistory} startIcon={<MergeType />}>
             Detail
-          </Button>,
-          <Button
-            color="inherit"
-            variant="text"
-            size="small"
-            onClick={() => onTabChange('jobTable')}
-            startIcon={<DynamicFeed />}
-          >
-            Job Table
           </Button>
+          // <Button
+          //   color="inherit"
+          //   variant="text"
+          //   size="small"
+          //   onClick={() => onTabChange('jobTable')}
+          //   startIcon={<DynamicFeed />}
+          // >
+          //   Job Table
+          // </Button>
         ]}
         hasExpansion
         defaultExpanded={expanded}
