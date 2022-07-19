@@ -1,6 +1,7 @@
 {
   "global": {
-    "job_dir": "fragalysis-jobs/{username}/{job_name}-{timestamp}"
+    "job_dir": "fragalysis-jobs/{username}/{job_name}-{timestamp}",
+    "inputs_dir": "fragalysis-inputs/{target}"
   },
   "precompilation_ignore": ["job_dir"],
   "fragalysis-jobs": [
@@ -15,7 +16,7 @@
           "format": "chemical/x-mdl-molfile",
           "items": {
             "from": "lhs",
-            "enum": "{job_dir}/{target}-{item}.mol",
+            "enum": "{inputs_dir}/{target}-{item}.mol",
             "enumNames": "{item}"
           }
         },
@@ -23,13 +24,13 @@
           "type": "string",
           "format": "chemical/x-pdb",
           "from": "lhs",
-          "enum": "{job_dir}/{target}-{item}_apo-desolv.pdb",
+          "enum": "{inputs_dir}/{target}-{item}_apo-desolv.pdb",
           "enumNames": "{item}"
         }
       },
       "options": {
         "outfile": {
-          "value": "{job_dir}/merged.sdf",
+          "value": "{job_dir}/results_merged.sdf",
           "ui:widget": "hidden"
         },
         "count": {
