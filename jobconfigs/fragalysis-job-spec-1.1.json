@@ -1,7 +1,7 @@
 {
   "global": {
     "job_dir": "fragalysis-jobs/{username}/{job_name}-{timestamp}",
-    "inputs_dir": "fragalysis-inputs/{target}"
+    "inputs_dir": "fragalysis-files/{target}"
   },
   "precompilation_ignore": ["job_dir"],
   "fragalysis-jobs": [
