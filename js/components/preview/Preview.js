@@ -207,12 +207,12 @@ const Preview = memo(({ isStateLoaded, hideProjects }) => {
     return '';
   };
 
-  useEffect(() => {
-    // Unmount Preview - reset NGL state
-    return () => {
-      dispatch(unmountPreviewComponent(nglViewList));
-    };
-  }, [dispatch, nglViewList]);
+  // useEffect(() => {
+  //   // Unmount Preview - reset NGL state
+  //   return () => {
+  //     dispatch(unmountPreviewComponent(nglViewList));
+  //   };
+  // }, [dispatch, nglViewList]);
 
   const anchorRefDatasetDropdown = useRef(null);
   const [openDatasetDropdown, setOpenDatasetDropdown] = useState(false);

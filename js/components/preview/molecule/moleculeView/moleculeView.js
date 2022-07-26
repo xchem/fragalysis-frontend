@@ -53,7 +53,6 @@ import { getAllTagsForMol } from '../../tags/utils/tagUtils';
 import TagView from '../../tags/tagView';
 import MoleculeSelectCheckbox from './moleculeSelectCheckbox';
 import useClipboard from 'react-use-clipboard';
-import { useEffectDebugger } from '../../../../utils/effects';
 
 const useStyles = makeStyles(theme => ({
   container: {
