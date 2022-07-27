@@ -3,7 +3,7 @@
  */
 
 import React, { memo, useCallback, useContext, useEffect, useRef, useState } from 'react';
-import { Grid, makeStyles, ButtonGroup, Button, useTheme } from '@material-ui/core';
+import { Grid, makeStyles, ButtonGroup, Button, useTheme, Divider } from '@material-ui/core';
 import NGLView from '../nglView/nglView';
 import HitNavigator from './molecule/hitNavigator';
 import { CustomDatasetList } from '../datasets/customDatasetList';
@@ -46,6 +46,11 @@ import { WidthProvider, Responsive as ResponsiveGridLayout } from 'react-grid-la
 import { setCurrentLayout } from '../../reducers/layout/actions';
 import { layoutBreakpoints, layoutItemNames } from '../../reducers/layout/constants';
 import { useUpdateGridLayout } from './useUpdateGridLayout';
+import { Resizer } from './resizer';
+import { clamp } from 'lodash';
+import { createHtmlPortalNode, InPortal, OutPortal } from 'react-reverse-portal';
+
+const nglPortal = createHtmlPortalNode({ attributes: { style: 'height: 100%' } });
 
 const ReactGridLayout = WidthProvider(ResponsiveGridLayout);
 
@@ -102,6 +107,8 @@ const useStyles = makeStyles(theme => ({
     zIndex: 1000
   }
 }));
+
+const resizerWidth = 20;
 
 const Preview = memo(({ isStateLoaded, hideProjects }) => {
   const classes = useStyles();
@@ -223,6 +230,72 @@ const Preview = memo(({ isStateLoaded, hideProjects }) => {
 
   const ref = useUpdateGridLayout(hideProjects);
 
+  const gridRef = useRef();
+  const [lhsWidth, setLhsWidth] = useState(sidesOpen.LHS ? 560 : 0);
+  const [rhsWidth, setRhsWidth] = useState(sidesOpen.RHS ? 560 : 0);
+  useEffect(() => {
+    if (sidesOpen.LHS) {
+      setLhsWidth(560);
+    } else {
+      setLhsWidth(0);
+    }
+
+    if (sidesOpen.RHS) {
+      setRhsWidth(560);
+    } else {
+      setRhsWidth(0);
+    }
+  }, [sidesOpen.LHS, sidesOpen.RHS]);
+
+  const onLhsResize = useCallback(
+    x => {
+      setLhsWidth(() => {
+        const domRef = gridRef.current?.elementRef.current.firstChild.getBoundingClientRect();
+
+        if (domRef) {
+          if (sidesOpen.RHS) {
+            const adjustedX = x - domRef.x - 10;
+            const containerWidth = domRef.width - rhsWidth - resizerWidth * 2;
+
+            return clamp(adjustedX, 0, containerWidth);
+          } else {
+            const adjustedX = x - domRef.x - 10;
+            const containerWidth = domRef.width - resizerWidth;
+
+            return clamp(adjustedX, 0, containerWidth);
+          }
+        } else {
+          return 0;
+        }
+      });
+    },
+    [rhsWidth, sidesOpen.RHS]
+  );
+
+  const onRhsResize = useCallback(
+    x => {
+      setRhsWidth(() => {
+        const domRef = gridRef.current?.elementRef.current.firstChild.getBoundingClientRect();
+        if (domRef) {
+          if (sidesOpen.LHS) {
+            const adjustedX = x - domRef.x - (lhsWidth + resizerWidth) - 10;
+            const containerWidth = domRef.width - lhsWidth - resizerWidth * 2;
+
+            return containerWidth - clamp(adjustedX, 0, containerWidth);
+          } else {
+            const adjustedX = x - domRef.x - 10;
+            const containerWidth = domRef.width - resizerWidth;
+
+            return containerWidth - clamp(adjustedX, 0, containerWidth);
+          }
+        } else {
+          return 0;
+        }
+      });
+    },
+    [lhsWidth, sidesOpen.LHS]
+  );
+
   const renderItem = id => {
     switch (id) {
       case layoutItemNames.TAG_DETAILS: {
@@ -250,7 +323,7 @@ const Preview = memo(({ isStateLoaded, hideProjects }) => {
         return (
           <div key="NGL" className={classes.nglColumn}>
             {!layoutLocked && <div className={classes.disableNgl} />}
-            <NGLView div_id={VIEWS.MAJOR_VIEW} />
+            <OutPortal node={nglPortal} />
           </div>
         );
       }
@@ -352,6 +425,141 @@ const Preview = memo(({ isStateLoaded, hideProjects }) => {
           </div>
         );
       }
+      case layoutItemNames.RESIZABLE: {
+        return (
+          <div key="resizable" style={{ display: 'flex' }}>
+            {sidesOpen.LHS && (
+              <>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 8, height: '100%', width: lhsWidth }}>
+                  <div style={{ flex: 1, minHeight: 0 }}>
+                    <TagDetails />
+                  </div>
+                  <div style={{ flex: 1, minHeight: 0 }}>
+                    <TagSelector />
+                  </div>
+                  <div style={{ flex: 2, minHeight: 0 }}>
+                    <HitNavigator hideProjects={hideProjects} />
+                  </div>
+                </div>
+                <Resizer onResize={onLhsResize} />
+              </>
+            )}
+            <div
+              style={{
+                display: 'flex',
+                flexDirection: 'column',
+                gap: 8,
+                height: '100%',
+                width: `calc(100% - ${lhsWidth}px - ${rhsWidth}px - ${sidesOpen.LHS *
+                  resizerWidth}px - ${sidesOpen.RHS * resizerWidth}px)`
+              }}
+            >
+              <div className={classes.nglColumn} style={{ flex: 1, minHeight: 0 }}>
+                {!layoutLocked && <div className={classes.disableNgl} />}
+                <OutPortal node={nglPortal} />
+              </div>
+              <div>
+                <ViewerControls />
+              </div>
+              {showHistory && (
+                <div>
+                  <ProjectHistoryPanel showFullHistory={() => setShowHistory(!showHistory)} />
+                </div>
+              )}
+            </div>
+            {sidesOpen.RHS && (
+              <>
+                <Resizer onResize={onRhsResize} />
+                <div style={{ width: rhsWidth }}>
+                  <div className={classes.rhsWrapper}>
+                    <Grid container direction="column" className={classes.rhs}>
+                      <ButtonGroup
+                        color="primary"
+                        variant="contained"
+                        aria-label="outlined primary button group"
+                        className={classes.tabButtonGroup}
+                      >
+                        <Button
+                          size="small"
+                          variant={getTabValue() === 0 ? 'contained' : 'text'}
+                          onClick={() => dispatch(setTabValue(tabValue, 0, 'Vector selector', getTabName()))}
+                        >
+                          Vector selector
+                        </Button>
+                        <Button
+                          size="small"
+                          variant={getTabValue() === 1 ? 'contained' : 'text'}
+                          onClick={() => dispatch(setTabValue(tabValue, 1, 'Selected compounds', getTabName()))}
+                        >
+                          Selected compounds
+                        </Button>
+                        <Button
+                          size="small"
+                          variant={getTabValue() >= 2 ? 'contained' : 'text'}
+                          onClick={() => dispatch(setTabValue(tabValue, 2, currentDataset?.title, getTabName()))}
+                        >
+                          {currentDataset?.title}
+                        </Button>
+                        <Button
+                          variant="text"
+                          size="small"
+                          onClick={() => {
+                            setOpenDatasetDropdown(prevOpen => !prevOpen);
+                          }}
+                          ref={anchorRefDatasetDropdown}
+                          className={classes.dropDown}
+                        >
+                          <ArrowDropDownIcon />
+                        </Button>
+                      </ButtonGroup>
+                      <DatasetSelectorMenuButton
+                        anchorRef={anchorRefDatasetDropdown}
+                        open={openDatasetDropdown}
+                        setOpen={setOpenDatasetDropdown}
+                        customDatasets={customDatasets}
+                        selectedDatasetIndex={selectedDatasetIndex}
+                        setSelectedDatasetIndex={setSelectedDatasetIndex}
+                      />
+                      <TabPanel value={getTabValue()} index={0} className={classes.tabPanel}>
+                        {/* Vector selector */}
+                        <Grid container direction="column" className={classes.rhsContainer}>
+                          <Grid item className={classes.summaryView}>
+                            <SummaryView />
+                          </Grid>
+                          <Grid item>
+                            <CompoundList />
+                          </Grid>
+                        </Grid>
+                      </TabPanel>
+                      <TabPanel value={getTabValue()} index={1} className={classes.tabPanel}>
+                        <SelectedCompoundList />
+                      </TabPanel>
+                      {customDatasets.map((dataset, index) => {
+                        return (
+                          <TabPanel
+                            key={index + 2}
+                            value={getTabValue()}
+                            index={index + 2}
+                            className={classes.tabPanel}
+                          >
+                            <Grid item style={{ height: '100%' }}>
+                              <CustomDatasetList
+                                dataset={dataset}
+                                hideProjects={hideProjects}
+                                isActive={sidesOpen.RHS && index === selectedDatasetIndex}
+                              />
+                            </Grid>
+                          </TabPanel>
+                        );
+                      })}
+                    </Grid>
+                  </div>
+                </div>
+              </>
+            )}
+          </div>
+        );
+      }
     }
   };
 
@@ -360,6 +568,7 @@ const Preview = memo(({ isStateLoaded, hideProjects }) => {
       <div ref={ref} className={classes.root}>
         <ReactGridLayout
           // cols={4}
+          ref={gridRef}
           autoSize
           breakpoints={layoutBreakpoints}
           cols={{ lg: 256, md: 192 }}
@@ -373,6 +582,9 @@ const Preview = memo(({ isStateLoaded, hideProjects }) => {
           {currentLayout?.lg?.map(item => renderItem(item.i))}
         </ReactGridLayout>
       </div>
+      <InPortal node={nglPortal}>
+        <NGLView div_id={VIEWS.MAJOR_VIEW} />
+      </InPortal>
       <NewSnapshotModal />
       <ModalShareSnapshot />
       <SaveSnapshotBeforeExit />
