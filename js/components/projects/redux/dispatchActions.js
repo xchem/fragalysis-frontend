@@ -146,6 +146,7 @@ export const loadSnapshotByProjectID = projectID => (dispatch, getState) => {
           dispatch(resetCurrentSnapshot());
           return Promise.resolve(null);
         } else if (response.data.results[0] !== undefined) {
+          console.log(`Snapshot from server: ${JSON.stringify(response.data.results[0])}`);
           dispatch(
             setCurrentSnapshot({
               id: response.data.results[0].id,

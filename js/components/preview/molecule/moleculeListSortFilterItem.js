@@ -120,6 +120,12 @@ const moleculeListSortFilterItem = memo(props => {
     setSliderCommittedValue([normMinValue, normMaxValue]);
   }
 
+  if (property === 'Molecular weight (MW)') {
+    console.log(
+      `item: ${property}, min: ${min}, normMin: ${normMin}, max: ${max}, normMax: ${normMax}, sliderValue: ${sliderValue}`
+    );
+  }
+
   return (
     <Grid container item className={classes.gridItemHeader}>
       <Grid item container className={classes.centered} style={{ width: widthPrio }}>

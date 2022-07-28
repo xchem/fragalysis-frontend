@@ -335,7 +335,7 @@ const JobConfigurationDialog = ({ snapshots }) => {
     <Modal open={jobConfigurationDialogOpen} onClose={onClose}>
       <div className={classes.jobLauncherPopup}>
         <div className={classes.topPopup}>
-          <span>Job configuration</span>
+          <span>Job configuration [EXPERIMENTAL]</span>
           <button className={classes.popUpButton} onClick={onClose}>
             X
           </button>

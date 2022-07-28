@@ -56,6 +56,7 @@ import { DiscourseErrorModal } from './discourseErrorModal';
 import { setOpenDiscourseErrorModal } from '../../reducers/api/actions';
 import { lockLayout, resetCurrentLayout } from '../../reducers/layout/actions';
 import { ChangeLayoutButton } from './changeLayoutButton';
+import { setIsActionsRestoring } from '../../reducers/tracking/actions';
 
 const useStyles = makeStyles(theme => ({
   padding: {
@@ -237,7 +238,14 @@ export default memo(
                   Menu
                 </Button>
                 <Button>
-                  <Typography variant="h5" color="textPrimary" onClick={() => history.push(URLS.landing)}>
+                  <Typography
+                    variant="h5"
+                    color="textPrimary"
+                    onClick={() => {
+                      dispatch(setIsActionsRestoring(false, false));
+                      history.push(URLS.landing);
+                    }}
+                  >
                     Fragalysis: <b>{headerNavbarTitle}</b>
                   </Typography>
                 </Button>
