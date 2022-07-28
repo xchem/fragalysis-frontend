@@ -1,11 +1,11 @@
-import createDefaultLayout from './default';
-import createNglLeftLayout from './nglLeft';
-import createLHSBottomLayout from './lhsBottom';
-import createResizableLayout from './resizable';
+import draggableLayout from './draggable';
+import nglLeftLayout from './nglLeft';
+import lhsBottomLayout from './lhsBottom';
+import defaultLayout from './default';
 
 export const layouts = {
-  Default: createDefaultLayout,
-  'NGL left': createNglLeftLayout,
-  'LHS bottom': createLHSBottomLayout,
-  Resizable: createResizableLayout
+  Default: defaultLayout,
+  Draggable: draggableLayout,
+  'NGL left': nglLeftLayout,
+  'LHS bottom': lhsBottomLayout
 };

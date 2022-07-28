@@ -7,7 +7,7 @@ export const updateLayoutOnDependencyChange = (showLHS, showRHS, hideProjects, h
 ) => {
   const { layoutLocked, panelsExpanded, selectedLayoutName } = getState().layoutReducers;
 
-  const defaultLayout = layouts[selectedLayoutName](
+  const defaultLayout = layouts[selectedLayoutName].createLayout(
     showLHS,
     showRHS,
     hideProjects,

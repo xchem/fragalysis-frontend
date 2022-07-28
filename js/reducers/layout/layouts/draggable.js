@@ -6,35 +6,31 @@ const layout = {
     return Object.fromEntries(
       Object.entries(layoutCols).map(([key, cols]) => {
         const maxRows = Math.max(Math.floor((height - margin) / (margin + 1)), 60);
-        const halfRows = maxRows / 2;
 
-        const tagDetailsRows = panelsExpanded[layoutItemNames.TAG_DETAILS] ? halfRows : collapsedPanelSize;
-        const hitListFilterRows = panelsExpanded[layoutItemNames.HIT_LIST_FILTER] ? halfRows : collapsedPanelSize;
-        const hitNavigatorRows = showRHS ? halfRows : maxRows;
+        const lhsBaseHeight = maxRows / 4;
+        const tagDetailsRows = panelsExpanded[layoutItemNames.TAG_DETAILS] ? lhsBaseHeight : collapsedPanelSize;
+        const hitListFilterRows = panelsExpanded[layoutItemNames.HIT_LIST_FILTER] ? lhsBaseHeight : collapsedPanelSize;
+        const hitNavigatorRows = maxRows - tagDetailsRows - hitListFilterRows;
 
-        const rhsHeight = showLHS ? halfRows : maxRows;
-
-        const nglWidth = cols - ((showLHS || showRHS) + 1) * baseColumnSize;
-
-        const projectHistoryHeight = panelsExpanded[layoutItemNames.PROJECT_HISTORY]
-          ? maxRows - showLHS * hitListFilterRows - collapsedPanelSize
-          : collapsedPanelSize;
+        const projectHistoryHeight = panelsExpanded[layoutItemNames.PROJECT_HISTORY] ? 16 : collapsedPanelSize;
+        const nglHeight = maxRows - collapsedPanelSize - !hideProjects * projectHistoryHeight;
+        const nglWidth = cols - (showLHS + showRHS) * baseColumnSize;
 
         let layout = [
           {
             i: layoutItemNames.NGL,
-            x: 0,
+            x: showLHS * baseColumnSize,
             y: 0,
             w: nglWidth,
-            h: showLHS ? maxRows - tagDetailsRows : maxRows,
+            h: nglHeight,
             static: layoutLocked
           },
           {
             i: layoutItemNames.VIEWER_CONTROLS,
-            x: nglWidth,
-            y: 0,
-            w: baseColumnSize,
-            h: maxRows - showLHS * hitListFilterRows - !hideProjects * projectHistoryHeight,
+            x: showLHS * baseColumnSize,
+            y: nglHeight,
+            w: nglWidth,
+            h: collapsedPanelSize,
             static: layoutLocked
           }
         ];
@@ -45,23 +41,23 @@ const layout = {
             {
               i: layoutItemNames.TAG_DETAILS,
               x: 0,
-              y: maxRows - tagDetailsRows,
-              w: nglWidth,
+              y: 0,
+              w: baseColumnSize,
               h: tagDetailsRows,
               static: layoutLocked
             },
             {
               i: layoutItemNames.HIT_LIST_FILTER,
-              x: nglWidth,
-              y: maxRows - hitListFilterRows,
+              x: 0,
+              y: tagDetailsRows,
               w: baseColumnSize,
               h: hitListFilterRows,
               static: layoutLocked
             },
             {
               i: layoutItemNames.HIT_NAVIGATOR,
-              x: nglWidth + baseColumnSize,
-              y: showRHS * halfRows,
+              x: 0,
+              y: tagDetailsRows + hitListFilterRows,
               w: baseColumnSize,
               h: hitNavigatorRows,
               static: layoutLocked
@@ -74,11 +70,10 @@ const layout = {
             ...layout,
             {
               i: layoutItemNames.RHS,
-              x: nglWidth + baseColumnSize,
+              x: baseColumnSize + nglWidth,
               y: 0,
               w: baseColumnSize,
-              h: rhsHeight,
-              minH: collapsedPanelSize,
+              h: maxRows,
               static: layoutLocked
             }
           ];
@@ -89,13 +84,10 @@ const layout = {
             ...layout,
             {
               i: layoutItemNames.PROJECT_HISTORY,
-              x: (!showLHS * !showRHS + 1) * baseColumnSize,
-              y: panelsExpanded[layoutItemNames.PROJECT_HISTORY]
-                ? collapsedPanelSize
-                : maxRows - showLHS * hitListFilterRows - collapsedPanelSize,
+              x: showLHS * baseColumnSize,
+              y: nglHeight + collapsedPanelSize,
               w: nglWidth,
               h: projectHistoryHeight,
-              minH: collapsedPanelSize,
               static: layoutLocked
             }
           ];
