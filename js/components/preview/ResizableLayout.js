@@ -17,9 +17,6 @@ const useStyles = makeStyles(theme => ({
     height: '100%'
   },
   lhs: {
-    display: 'flex',
-    flexDirection: 'column',
-    gap: theme.spacing(),
     height: '100%'
   },
   nglColumn: {
@@ -35,7 +32,8 @@ const useStyles = makeStyles(theme => ({
 }));
 
 const sideWidth = 500;
-const resizerWidth = 20;
+const panelHeight = 160;
+const resizerSize = 20;
 
 export const ResizableLayout = ({ gridRef, hideProjects, showHistory, onShowHistoryChange, nglPortal }) => {
   const classes = useStyles();
@@ -44,6 +42,9 @@ export const ResizableLayout = ({ gridRef, hideProjects, showHistory, onShowHist
 
   const [lhsWidth, setLhsWidth] = useState(sidesOpen.LHS ? sideWidth : 0);
   const [rhsWidth, setRhsWidth] = useState(sidesOpen.RHS ? sideWidth : 0);
+
+  const [tagDetailsHeight, setTagDetailsHeight] = useState(panelHeight);
+  const [hitNavigatorHeight, setHitNavigatorHeight] = useState(panelHeight * 2);
 
   useEffect(() => {
     if (sidesOpen.LHS) {
@@ -67,12 +68,12 @@ export const ResizableLayout = ({ gridRef, hideProjects, showHistory, onShowHist
         if (gridRect) {
           if (sidesOpen.RHS) {
             const adjustedX = x - gridRect.x - 10;
-            const containerWidth = gridRect.width - rhsWidth - resizerWidth * 2;
+            const containerWidth = gridRect.width - rhsWidth - resizerSize * 2;
 
             return clamp(adjustedX, 0, containerWidth);
           } else {
             const adjustedX = x - gridRect.x - 10;
-            const containerWidth = gridRect.width - resizerWidth;
+            const containerWidth = gridRect.width - resizerSize;
 
             return clamp(adjustedX, 0, containerWidth);
           }
@@ -91,13 +92,13 @@ export const ResizableLayout = ({ gridRef, hideProjects, showHistory, onShowHist
 
         if (gridRect) {
           if (sidesOpen.LHS) {
-            const adjustedX = x - gridRect.x - (lhsWidth + resizerWidth) - 10;
-            const containerWidth = gridRect.width - lhsWidth - resizerWidth * 2;
+            const adjustedX = x - gridRect.x - (lhsWidth + resizerSize) - 10;
+            const containerWidth = gridRect.width - lhsWidth - resizerSize * 2;
 
             return containerWidth - clamp(adjustedX, 0, containerWidth);
           } else {
             const adjustedX = x - gridRect.x - 10;
-            const containerWidth = gridRect.width - resizerWidth;
+            const containerWidth = gridRect.width - resizerSize;
 
             return containerWidth - clamp(adjustedX, 0, containerWidth);
           }
@@ -109,18 +110,56 @@ export const ResizableLayout = ({ gridRef, hideProjects, showHistory, onShowHist
     [gridRef, lhsWidth, sidesOpen.LHS]
   );
 
+  const onTagDetailsResize = useCallback(
+    (_, y) => {
+      setTagDetailsHeight(() => {
+        const gridRect = gridRef.current?.elementRef.current.firstChild.getBoundingClientRect();
+
+        if (gridRect) {
+          const adjustedY = y - gridRect.y - 10;
+          const containerHeight = gridRect.height - hitNavigatorHeight - resizerSize * 2;
+
+          return clamp(adjustedY, 0, containerHeight);
+        } else {
+          return 0;
+        }
+      });
+    },
+    [gridRef, hitNavigatorHeight]
+  );
+
+  const onHitListResize = useCallback(
+    (_, y) => {
+      setHitNavigatorHeight(() => {
+        const gridRect = gridRef.current?.elementRef.current.firstChild.getBoundingClientRect();
+
+        if (gridRect) {
+          const adjustedY = y - gridRect.y - (tagDetailsHeight + resizerSize) - 10;
+          const containerHeight = gridRect.height - tagDetailsHeight - resizerSize * 2;
+
+          return containerHeight - clamp(adjustedY, 0, containerHeight);
+        } else {
+          return 0;
+        }
+      });
+    },
+    [gridRef, tagDetailsHeight]
+  );
+
   return (
     <div className={classes.root}>
       {sidesOpen.LHS && (
         <>
           <div className={classes.lhs} style={{ width: lhsWidth }}>
-            <div style={{ flex: 1, minHeight: 0 }}>
+            <div style={{ height: tagDetailsHeight }}>
               <TagDetails />
             </div>
-            <div style={{ flex: 1, minHeight: 0 }}>
+            <Resizer orientation="horizontal" onResize={onTagDetailsResize} />
+            <div style={{ height: `calc(100% - ${tagDetailsHeight + hitNavigatorHeight + 2 * resizerSize}px)` }}>
               <TagSelector />
             </div>
-            <div style={{ flex: 2, minHeight: 0 }}>
+            <Resizer orientation="horizontal" onResize={onHitListResize} />
+            <div style={{ height: hitNavigatorHeight }}>
               <HitNavigator hideProjects={hideProjects} />
             </div>
           </div>
@@ -130,8 +169,8 @@ export const ResizableLayout = ({ gridRef, hideProjects, showHistory, onShowHist
       <div
         className={classes.nglColumn}
         style={{
-          width: `calc(100% - ${lhsWidth}px - ${rhsWidth}px - ${sidesOpen.LHS * resizerWidth}px - ${sidesOpen.RHS *
-            resizerWidth}px)`
+          width: `calc(100% - ${lhsWidth}px - ${rhsWidth}px - ${sidesOpen.LHS * resizerSize}px - ${sidesOpen.RHS *
+            resizerSize}px)`
         }}
       >
         <div className={classes.ngl}>
