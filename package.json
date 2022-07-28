@@ -72,6 +72,7 @@
     "react-infinite-scroller": "^1.2.4",
     "react-redux": "^7.1.3",
     "react-resizable": "^3.0.4",
+    "react-reverse-portal": "^2.1.1",
     "react-router-dom": "^5.1.2",
     "react-svg-inline": "^2.1.0",
     "react-table": "^7.8.0",

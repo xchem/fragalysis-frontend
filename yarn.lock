@@ -7865,6 +7865,11 @@ react-resizable@^3.0.4:
     prop-types "15.x"
     react-draggable "^4.0.3"
 
+react-reverse-portal@^2.1.1:
+  version "2.1.1"
+  resolved "https://registry.yarnpkg.com/react-reverse-portal/-/react-reverse-portal-2.1.1.tgz#bffb93c7c94f4cbe6a1a85a1901426e2339e9351"
+  integrity sha512-FzuVLYEigKPB0NuMNLWymCgVp+P1h1MY57fQxhmY22idzz6El1rsXK5+bQ+wXvEa0smUtqTDcpM77epnXDV9wg==
+
 react-router-dom@^5.1.2:
   version "5.3.0"
   resolved "https://registry.yarnpkg.com/react-router-dom/-/react-router-dom-5.3.0.tgz#da1bfb535a0e89a712a93b97dd76f47ad1f32363"

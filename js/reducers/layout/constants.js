@@ -16,7 +16,8 @@ export const layoutItemNames = {
   NGL: 'NGL',
   RHS: 'RHS',
   VIEWER_CONTROLS: 'viewerControls',
-  PROJECT_HISTORY: 'projectHistory'
+  PROJECT_HISTORY: 'projectHistory',
+  RESIZABLE: 'resizable'
 };
 
 export const constants = {
