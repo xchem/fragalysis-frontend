@@ -67,12 +67,15 @@ export const ResizableLayout = ({ gridRef, hideProjects, showHistory, onShowHist
 
         if (gridRect) {
           if (sidesOpen.RHS) {
-            const adjustedX = x - gridRect.x - 10;
+            // This basically normalizes the X coord to begin in the container taking into
+            // consideration half the size of the resizer
+            const adjustedX = x - gridRect.x - resizerSize / 2;
+            // Available container width
             const containerWidth = gridRect.width - rhsWidth - resizerSize * 2;
 
             return clamp(adjustedX, 0, containerWidth);
           } else {
-            const adjustedX = x - gridRect.x - 10;
+            const adjustedX = x - gridRect.x - resizerSize / 2;
             const containerWidth = gridRect.width - resizerSize;
 
             return clamp(adjustedX, 0, containerWidth);
@@ -92,12 +95,12 @@ export const ResizableLayout = ({ gridRef, hideProjects, showHistory, onShowHist
 
         if (gridRect) {
           if (sidesOpen.LHS) {
-            const adjustedX = x - gridRect.x - (lhsWidth + resizerSize) - 10;
+            const adjustedX = x - gridRect.x - (lhsWidth + resizerSize) - resizerSize / 2;
             const containerWidth = gridRect.width - lhsWidth - resizerSize * 2;
 
             return containerWidth - clamp(adjustedX, 0, containerWidth);
           } else {
-            const adjustedX = x - gridRect.x - 10;
+            const adjustedX = x - gridRect.x - resizerSize / 2;
             const containerWidth = gridRect.width - resizerSize;
 
             return containerWidth - clamp(adjustedX, 0, containerWidth);
@@ -116,7 +119,7 @@ export const ResizableLayout = ({ gridRef, hideProjects, showHistory, onShowHist
         const gridRect = gridRef.current?.elementRef.current.firstChild.getBoundingClientRect();
 
         if (gridRect) {
-          const adjustedY = y - gridRect.y - 10;
+          const adjustedY = y - gridRect.y - resizerSize / 2;
           const containerHeight = gridRect.height - hitNavigatorHeight - resizerSize * 2;
 
           return clamp(adjustedY, 0, containerHeight);
@@ -134,7 +137,7 @@ export const ResizableLayout = ({ gridRef, hideProjects, showHistory, onShowHist
         const gridRect = gridRef.current?.elementRef.current.firstChild.getBoundingClientRect();
 
         if (gridRect) {
-          const adjustedY = y - gridRect.y - (tagDetailsHeight + resizerSize) - 10;
+          const adjustedY = y - gridRect.y - (tagDetailsHeight + resizerSize) - resizerSize / 2;
           const containerHeight = gridRect.height - tagDetailsHeight - resizerSize * 2;
 
           return containerHeight - clamp(adjustedY, 0, containerHeight);
