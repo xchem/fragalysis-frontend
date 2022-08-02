@@ -5,7 +5,7 @@
 import React, { memo, useEffect, useState, useRef, useContext, useCallback } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { Grid, Button, makeStyles, Tooltip, IconButton, Checkbox, Paper } from '@material-ui/core';
-import { MyLocation, ArrowDownward, ArrowUpward, Warning } from '@material-ui/icons';
+import { MyLocation, ArrowDownward, ArrowUpward, Warning, Assignment, AssignmentTurnedIn } from '@material-ui/icons';
 import SVGInline from 'react-svg-inline';
 import classNames from 'classnames';
 import { VIEWS, ARROW_TYPE } from '../../../../constants/constants';
@@ -52,7 +52,7 @@ import { getRandomColor } from '../utils/color';
 import { getAllTagsForMol } from '../../tags/utils/tagUtils';
 import TagView from '../../tags/tagView';
 import MoleculeSelectCheckbox from './moleculeSelectCheckbox';
-import { useEffectDebugger } from '../../../../utils/effects';
+import useClipboard from 'react-use-clipboard';
 
 const useStyles = makeStyles(theme => ({
   container: {
@@ -109,7 +109,8 @@ const useStyles = makeStyles(theme => ({
   image: {
     border: 'solid 1px',
     borderColor: theme.palette.background.divider,
-    borderStyle: 'solid solid solid none'
+    borderStyle: 'solid solid solid none',
+    position: 'relative'
   },
   imageMargin: {
     marginTop: theme.spacing(1),
@@ -201,21 +202,33 @@ const useStyles = makeStyles(theme => ({
     visibility: 'hidden'
   },
   warningIcon: {
-    padding: '0px',
+    padding: 0,
     color: theme.palette.warning.darkLight,
     '&:hover': {
       color: theme.palette.warning.dark
     }
   },
   tagIcon: {
-    padding: '0px',
+    padding: 0,
     color: theme.palette.primary.main,
     '&:hover': {
       color: theme.palette.primary.dark
     }
   },
+  copyIcon: {
+    padding: 0,
+    color: theme.palette.success.main,
+    '&:hover': {
+      color: theme.palette.success.dark
+    }
+  },
   tooltip: {
     backgroundColor: theme.palette.white
+  },
+  imageActions: {
+    position: 'absolute',
+    top: 0,
+    right: 0
   }
 }));
 
@@ -266,7 +279,7 @@ const MoleculeView = memo(
     const [img_data, setImg_data] = useState(img_data_init);
 
     const viewParams = useSelector(state => state.nglReducers.viewParams);
-    const tagList = useSelector(state => state.selectionReducers.tagList);
+    const tagList = useSelector(state => state.apiReducers.tagList);
 
     const { getNglView } = useContext(NglContext);
     const stage = getNglView(VIEWS.MAJOR_VIEW) && getNglView(VIEWS.MAJOR_VIEW).stage;
@@ -280,6 +293,8 @@ const MoleculeView = memo(
     const isQualityOn = Q;
     const isVectorOn = V;
     const hasAdditionalInformation = I;
+
+    const [isCopied, setCopied] = useClipboard(data.smiles, { successDuration: 5000 });
 
     const [hasMap, setHasMap] = useState();
 
@@ -295,7 +310,6 @@ const MoleculeView = memo(
       useSelector(state => state.previewReducers.molecule.disableNglControlButtons[currentID]) || {};
 
     let tagEditIconVisible = true;
-    // const disableUserInteraction = useDisableUserInteraction();
 
     const oldUrl = useRef('');
     const setOldUrl = url => {
@@ -327,12 +341,6 @@ const MoleculeView = memo(
     const [moleculeTooltipOpen, setMoleculeTooltipOpen] = useState(false);
     const [tagEditorTooltipOpen, setTagEditorTooltipOpen] = useState(false);
     const moleculeImgRef = useRef(null);
-    const openMoleculeTooltip = () => {
-      setMoleculeTooltipOpen(true);
-    };
-    const closeMoleculeTooltip = () => {
-      setMoleculeTooltipOpen(false);
-    };
 
     let proteinData = data?.proteinData;
 
@@ -931,35 +939,19 @@ const MoleculeView = memo(
             </Grid>
           </Grid> */}
           {/* Image */}
-          <Grid
-            item
+          <div
             style={{
               ...current_style,
               width: imageWidth
             }}
-            container
-            justify="center"
             className={classes.image}
-            onMouseEnter={openMoleculeTooltip}
-            onMouseLeave={closeMoleculeTooltip}
+            onMouseEnter={() => setMoleculeTooltipOpen(true)}
+            onMouseLeave={() => setMoleculeTooltipOpen(false)}
             ref={moleculeImgRef}
           >
-            <Grid
-              item
-              xs={
-                warningIconVisible === true
-                  ? moleculeTooltipOpen === true || isTagEditorInvokedByMolecule
-                    ? 8
-                    : 10
-                  : moleculeTooltipOpen === true || isTagEditorInvokedByMolecule
-                  ? 10
-                  : 12
-              }
-            >
-              {svg_image}
-            </Grid>
-            {(moleculeTooltipOpen === true || isTagEditorInvokedByMolecule) && (
-              <Grid item xs={2}>
+            {svg_image}
+            <div className={classes.imageActions}>
+              {(moleculeTooltipOpen || isTagEditorInvokedByMolecule) && (
                 <Tooltip
                   title={generateTooltip()}
                   /* show tooltip even when this molecule prompted edit in tag editor */
@@ -989,20 +981,25 @@ const MoleculeView = memo(
                         }
                       }
                     }}
-                  ></MoleculeSelectCheckbox>
+                  />
                 </Tooltip>
-              </Grid>
-            )}
-            {warningIconVisible === true && (
-              <Grid item xs={2}>
-                <IconButton className={classes.warningIcon} onClick={() => onQuality()}>
-                  <Tooltip title="Warning">
+              )}
+              {moleculeTooltipOpen && (
+                <Tooltip title={!isCopied ? 'Copy smiles' : 'Copied'}>
+                  <IconButton className={classes.copyIcon} onClick={setCopied}>
+                    {!isCopied ? <Assignment /> : <AssignmentTurnedIn />}
+                  </IconButton>
+                </Tooltip>
+              )}
+              {warningIconVisible && (
+                <Tooltip title="Warning">
+                  <IconButton className={classes.warningIcon} onClick={() => onQuality()}>
                     <Warning />
-                  </Tooltip>
-                </IconButton>
-              </Grid>
-            )}
-          </Grid>
+                  </IconButton>
+                </Tooltip>
+              )}
+            </div>
+          </div>
         </Grid>
         <SvgTooltip
           open={moleculeTooltipOpen}

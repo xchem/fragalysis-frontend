@@ -36,6 +36,7 @@ import {
   removeMoleculeFromCompoundsOfDatasetToBuy,
   updateFilterShowedScoreProperties
 } from '../../../datasets/redux/actions';
+import { isRemoteDebugging } from '../../../routes/constants';
 
 export const selectAllCompounds = () => (dispatch, getState) => {
   const state = getState();
@@ -137,15 +138,27 @@ const showCompoundNglView = ({ majorViewStage, data, index }) => (dispatch, getS
       INPUT_MOL_BLOCK: sdf_info
     };
 
-    api({
-      url: base_url + '/scoring/gen_conf_from_vect/',
-      method: METHOD.POST,
-      headers: {
+    let headersObj = {};
+    if (isRemoteDebugging) {
+      headersObj = {
+        accept: 'application/json',
+        'content-type': 'application/json',
+        'X-Requested-With': 'XMLHttpRequest'
+        //'X-CSRFToken': getCsrfToken()
+      };
+    } else {
+      headersObj = {
         accept: 'application/json',
         'content-type': 'application/json',
         'X-Requested-With': 'XMLHttpRequest',
         'X-CSRFToken': getCsrfToken()
-      },
+      };
+    }
+
+    api({
+      url: base_url + '/scoring/gen_conf_from_vect/',
+      method: METHOD.POST,
+      headers: headersObj,
       data: JSON.stringify(post_data)
     })
       .then(response => {

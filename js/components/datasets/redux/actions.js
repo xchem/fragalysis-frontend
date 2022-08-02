@@ -437,3 +437,7 @@ export const enableDatasetMoleculeNglControlButton = (datasetId, moleculeId, typ
   type: constants.ENABLE_DATASET_NGL_CONTROL_BUTTON,
   payload: { datasetId, moleculeId, type }
 });
+
+export const resetDatasetsStateOnSnapshotChange = () => ({
+  type: constants.RESET_DATASETS_STATE_ON_SNAPSHOT_CHANGE
+});

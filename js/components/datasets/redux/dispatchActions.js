@@ -70,11 +70,20 @@ import { getRepresentationsByType } from '../../nglView/generatingObjects';
 import { selectAllMoleculeList } from '../../preview/molecule/redux/selectors';
 
 export const initializeDatasetFilter = datasetID => (dispatch, getState) => {
+  const state = getState();
+
+  const filterSettings = state.datasetsReducers.filterDatasetMap[datasetID];
+  const filterProperties = state.datasetsReducers.filterPropertiesDatasetMap[datasetID];
+
   const initFilterSettings = getInitialDatasetFilterSettings(getState(), datasetID);
   const initFilterProperties = getInitialDatasetFilterProperties(getState(), datasetID);
 
-  dispatch(setFilterSettings(datasetID, initFilterSettings));
-  dispatch(setFilterProperties(datasetID, initFilterProperties));
+  if (!filterSettings) {
+    dispatch(setFilterSettings(datasetID, initFilterSettings));
+  }
+  if (!filterProperties) {
+    dispatch(setFilterProperties(datasetID, initFilterProperties));
+  }
 };
 
 export const addDatasetHitProtein = (
@@ -264,6 +273,11 @@ export const loadDatasetCompoundsWithScores = () => (dispatch, getState) => {
       })
     )
   );
+};
+
+export const loadDatasetsAndCompounds = targetId => async dispatch => {
+  await dispatch(loadDataSets(targetId));
+  dispatch(loadDatasetCompoundsWithScores());
 };
 
 export const loadMoleculesOfDataSet = datasetID => dispatch =>

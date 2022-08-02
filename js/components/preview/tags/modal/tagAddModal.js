@@ -38,7 +38,7 @@ export const TagAddModal = memo(({ openDialog, setOpenDialog, molecule }) => {
   const [state, setState] = useState();
   const [tags, setTags] = useState([]);
 
-  const tagList = useSelector(state => state.selectionReducers.tagList);
+  const tagList = useSelector(state => state.apiReducers.tagList);
   let moleculeTags = molecule.tags || [];
 
   const handleCloseModal = () => {

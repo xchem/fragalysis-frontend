@@ -288,3 +288,43 @@ export const reloadApiState = function(apiReducers) {
 };
 
 export const resetTargetState = () => ({ type: constants.RESET_TARGET_STATE });
+
+export const updateTag = (item, skipTracking = false) => {
+  return {
+    type: constants.UPDATE_TAG,
+    item: item,
+    skipTracking
+  };
+};
+
+export const setTagList = function(tagList, skipTracking = false) {
+  return {
+    type: constants.SET_TAG_LIST,
+    tagList: tagList,
+    skipTracking
+  };
+};
+
+export const appendTagList = function(item, skipTracking = false) {
+  return {
+    type: constants.APPEND_TAG_LIST,
+    item: item,
+    skipTracking
+  };
+};
+
+export const removeFromTagList = function(item, skipTracking = false) {
+  return {
+    type: constants.REMOVE_FROM_TAG_LIST,
+    item: item,
+    skipTracking
+  };
+};
+
+export const setCategoryList = function(categoryList, skipTracking = false) {
+  return {
+    type: constants.SET_CATEGORY_LIST,
+    categoryList: categoryList,
+    skipTracking
+  };
+};

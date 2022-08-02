@@ -6,7 +6,6 @@ import { loadCurrentSnapshotByID, loadSnapshotByProjectID } from '../redux/dispa
 import { HeaderContext } from '../../header/headerContext';
 import { DJANGO_CONTEXT } from '../../../utils/djangoContext';
 import { restoreCurrentActionsList } from '../../../reducers/tracking/dispatchActions';
-import { setAssociatedDownloadTagName } from '../../../reducers/selection/actions';
 import { setDownloadStructuresDialogOpen } from '../../snapshot/redux/actions';
 
 export const ProjectPreview = memo(({}) => {

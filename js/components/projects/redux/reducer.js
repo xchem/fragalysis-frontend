@@ -31,9 +31,24 @@ export const INITIAL_STATE = {
   isLoadingTree: false,
   currentSnapshotTree: null,
   currentSnapshotList: null,
+  currentSnapshotJobList: {},
   forceCreateProject: false,
   isForceProjectCreated: false,
-  projectDiscourseLinks: null
+  projectDiscourseLinks: null,
+  jobList: [
+    {
+      id: 1,
+      name: 'Fragmenstein',
+      description: 'Combine fragments into a single merged molecule.',
+      slug: 'fragmenstein-combine'
+    }
+  ],
+  jobPopUpAnchorEl: null,
+  jobConfigurationDialogOpen: false,
+  jobLauncherDialogOpen: false,
+  jobLauncherData: null,
+  jobLauncherSquonkUrl: null,
+  refreshJobsData: new Date().getTime()
 };
 
 export const projectReducers = (state = INITIAL_STATE, action = {}) => {
@@ -88,7 +103,17 @@ export const projectReducers = (state = INITIAL_STATE, action = {}) => {
       return Object.assign({}, state, { isLoadingTree: action.payload });
 
     case constants.SET_CURRENT_SNAPSHOT_LIST:
-      return Object.assign({}, state, { currentSnapshotList: action.payload });
+      return Object.assign({}, state, {
+        currentSnapshotList: action.payload
+      });
+
+    case constants.SET_CURRENT_SNAPSHOT_JOBLIST: {
+      const { snapshotId, jobList } = action.payload;
+
+      const currentSnapshotJobList = { ...state.currentSnapshotJobList };
+      currentSnapshotJobList[snapshotId] = jobList;
+      return { ...state, currentSnapshotJobList };
+    }
 
     case constants.SET_FORCE_CREATE_PROJECT:
       return Object.assign({}, state, { forceCreateProject: action.payload });
@@ -109,6 +134,24 @@ export const projectReducers = (state = INITIAL_STATE, action = {}) => {
       currentState.currentSnapshotList = null;
 
       return Object.assign({}, currentState);
+
+    case constants.SET_JOB_POP_UP_ANCHOR_EL:
+      return Object.assign({}, state, { jobPopUpAnchorEl: action.payload });
+
+    case constants.SET_JOB_CONFIGURATION_DIALOG_OPEN:
+      return Object.assign({}, state, { jobConfigurationDialogOpen: action.payload });
+
+    case constants.SET_JOB_LAUNCHER_DIALOG_OPEN:
+      return Object.assign({}, state, { jobLauncherDialogOpen: action.payload });
+
+    case constants.SET_JOB_LAUNCHER_DATA:
+      return Object.assign({}, state, { jobLauncherData: action.payload });
+
+    case constants.SET_JOB_LAUNCHER_SQUONK_URL:
+      return Object.assign({}, state, { jobLauncherSquonkUrl: action.payload });
+
+    case constants.REFRESH_JOBS_DATA:
+      return { ...state, refreshJobsData: new Date().getTime() };
 
     default:
       return state;

@@ -56,6 +56,8 @@ import { DiscourseErrorModal } from './discourseErrorModal';
 import { setOpenDiscourseErrorModal } from '../../reducers/api/actions';
 import { lockLayout, resetCurrentLayout } from '../../reducers/layout/actions';
 import { ChangeLayoutButton } from './changeLayoutButton';
+import { setIsActionsRestoring } from '../../reducers/tracking/actions';
+import { layouts } from '../../reducers/layout/layouts';
 
 const useStyles = makeStyles(theme => ({
   padding: {
@@ -109,7 +111,6 @@ export default memo(
     let history = useHistory();
     const classes = useStyles();
     const { isLoading, headerNavbarTitle, setHeaderNavbarTitle, headerButtons } = useContext(HeaderContext);
-    // const disableUserInteraction = useDisableUserInteraction();
 
     const [openMenu, setOpenMenu] = useState(false);
     const [openFunders, setOpenFunders] = useState(false);
@@ -122,6 +123,8 @@ export default memo(
     const targetName = useSelector(state => state.apiReducers.target_on_name);
 
     const openDiscourseError = useSelector(state => state.apiReducers.open_discourse_error_modal);
+
+    const selectedLayoutName = useSelector(state => state.layoutReducers.selectedLayoutName);
 
     const discourseAvailable = isDiscourseAvailable();
     const targetDiscourseVisible = discourseAvailable && targetName;
@@ -238,7 +241,14 @@ export default memo(
                   Menu
                 </Button>
                 <Button>
-                  <Typography variant="h5" color="textPrimary" onClick={() => history.push(URLS.landing)}>
+                  <Typography
+                    variant="h5"
+                    color="textPrimary"
+                    onClick={() => {
+                      dispatch(setIsActionsRestoring(false, false));
+                      history.push(URLS.landing);
+                    }}
+                  >
                     Fragalysis: <b>{headerNavbarTitle}</b>
                   </Typography>
                 </Button>
@@ -299,29 +309,34 @@ export default memo(
               <Grid container direction="row" justify="flex-start" alignItems="center" spacing={1}>
                 {layoutEnabled && (
                   <>
-                    <Grid item>
-                      <Tooltip title={layoutLocked ? 'Unlock layout' : 'Lock layout'}>
-                        <Button
-                          onClick={() => {
-                            dispatch(lockLayout(!layoutLocked));
-                          }}
-                        >
-                          {layoutLocked ? <Lock /> : <LockOpen />}
-                        </Button>
-                      </Tooltip>
-                    </Grid>
-                    <Grid item>
-                      <Tooltip title="Reset layout">
-                        <Button
-                          className={classes.resetLayoutButton}
-                          onClick={() => {
-                            dispatch(resetCurrentLayout());
-                          }}
-                        >
-                          <Restore />
-                        </Button>
-                      </Tooltip>
-                    </Grid>
+                    {!layouts[selectedLayoutName].static && (
+                      <>
+                        <Grid item>
+                          <Tooltip title={layoutLocked ? 'Unlock layout' : 'Lock layout'}>
+                            <Button
+                              onClick={() => {
+                                dispatch(lockLayout(!layoutLocked));
+                              }}
+                            >
+                              {layoutLocked ? <Lock /> : <LockOpen />}
+                            </Button>
+                          </Tooltip>
+                        </Grid>
+
+                        <Grid item>
+                          <Tooltip title="Reset layout">
+                            <Button
+                              className={classes.resetLayoutButton}
+                              onClick={() => {
+                                dispatch(resetCurrentLayout());
+                              }}
+                            >
+                              <Restore />
+                            </Button>
+                          </Tooltip>
+                        </Grid>
+                      </>
+                    )}
                     <Grid item>
                       <ChangeLayoutButton className={classes.resetLayoutButton}>
                         <Layers />

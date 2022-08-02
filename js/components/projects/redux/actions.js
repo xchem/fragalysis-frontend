@@ -70,6 +70,11 @@ export const setCurrentSnapshotList = list => ({
   payload: list
 });
 
+export const setSnapshotJobList = data => ({
+  type: constants.SET_CURRENT_SNAPSHOT_JOBLIST,
+  payload: data
+});
+
 export const setForceCreateProject = isForce => ({
   type: constants.SET_FORCE_CREATE_PROJECT,
   payload: isForce
@@ -89,3 +94,34 @@ export const setCurrentProjectDiscourseLink = link => ({
   type: constants.SET_CURRENT_PROJECT_DISCOURSE_LINK,
   payload: link
 });
+
+export const setJobPopUpAnchorEl = jobPopUpAnchorEl => ({
+  type: constants.SET_JOB_POP_UP_ANCHOR_EL,
+  payload: jobPopUpAnchorEl
+});
+
+export const setJobConfigurationDialogOpen = open => ({
+  type: constants.SET_JOB_CONFIGURATION_DIALOG_OPEN,
+  payload: open
+});
+
+export const setJobLauncherDialogOpen = open => ({
+  type: constants.SET_JOB_LAUNCHER_DIALOG_OPEN,
+  payload: open
+});
+
+export const setJobLauncherData = jobLauncherData => ({
+  type: constants.SET_JOB_LAUNCHER_DATA,
+  payload: jobLauncherData
+});
+
+export const setJobLauncherSquonkUrl = squonkUrl => ({
+  type: constants.SET_JOB_LAUNCHER_SQUONK_URL,
+  payload: squonkUrl
+});
+
+export const refreshJobsData = () => {
+  return {
+    type: constants.REFRESH_JOBS_DATA
+  };
+};

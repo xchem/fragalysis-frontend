@@ -214,54 +214,6 @@ export const removeFromDensityListCustom = function(item, skipTracking = false) 
   };
 };
 
-export const setListAllForTagList = (listAll, skipTracking = false) => {
-  return {
-    type: constants.SET_LIST_ALL_FOR_TAG_LIST,
-    listAll: listAll,
-    skipTracking
-  };
-};
-
-export const appendToListAllForTagList = (item, skipTracking = false) => {
-  return {
-    type: constants.APPEND_TO_LIST_ALL_FOR_TAG_LIST,
-    item: item,
-    skipTracking
-  };
-};
-
-export const removeFromListAllForTagList = (item, skipTracking = false) => {
-  return {
-    type: constants.REMOVE_FROM_LIST_ALL_FOR_TAG_LIST,
-    item: item,
-    skipTracking
-  };
-};
-
-export const setDisplayAllNGLList = (displayAllInNGLList, skipTracking = false) => {
-  return {
-    type: constants.SET_DISPLAY_ALL_NGL_LIST,
-    displayAllInNGLList: displayAllInNGLList,
-    skipTracking
-  };
-};
-
-export const appendToDisplayAllNGLList = (item, skipTracking = false) => {
-  return {
-    type: constants.APPEND_TO_DISPLAY_ALL_NGL_LIST,
-    item: item,
-    skipTracking
-  };
-};
-
-export const removeFromDisplayAllNGLList = (item, skipTracking = false) => {
-  return {
-    type: constants.REMOVE_FROM_DISPLAY_ALL_NGL_LIST,
-    item: item,
-    skipTracking
-  };
-};
-
 export const setQualityList = function(qualityList, skipTracking = false) {
   return {
     type: constants.SET_QUALITY_LIST,
@@ -334,17 +286,6 @@ export const reloadSelectionReducer = savedSelectionReducers => {
 export const resetSelectionState = function() {
   return {
     type: constants.RESET_SELECTION_STATE
-  };
-};
-export const incrementCountOfPendingVectorLoadRequests = () => {
-  return {
-    type: constants.INCREMENT_COUNT_OF_PENDING_VECTOR_LOAD_REQUESTS
-  };
-};
-
-export const decrementCountOfPendingVectorLoadRequests = () => {
-  return {
-    type: constants.DECREMENT_COUNT_OF_PENDING_VECTOR_LOAD_REQUESTS
   };
 };
 
@@ -447,38 +388,6 @@ export const removeFromSelectedTagList = function(item, skipTracking = false) {
   };
 };
 
-export const setCategoryList = function(categoryList, skipTracking = false) {
-  return {
-    type: constants.SET_CATEGORY_LIST,
-    categoryList: categoryList,
-    skipTracking
-  };
-};
-
-export const setTagList = function(tagList, skipTracking = false) {
-  return {
-    type: constants.SET_TAG_LIST,
-    tagList: tagList,
-    skipTracking
-  };
-};
-
-export const appendTagList = function(item, skipTracking = false) {
-  return {
-    type: constants.APPEND_TAG_LIST,
-    item: item,
-    skipTracking
-  };
-};
-
-export const removeFromTagList = function(item, skipTracking = false) {
-  return {
-    type: constants.REMOVE_FROM_TAG_LIST,
-    item: item,
-    skipTracking
-  };
-};
-
 export const setTagEditorOpen = isOpen => {
   return {
     type: constants.SET_TAG_EDITOR_OPEN,
@@ -497,22 +406,6 @@ export const setTagFilteringMode = isExclusive => {
   return {
     type: constants.SWITCH_TAG_FILTERING_MODE,
     mode: isExclusive
-  };
-};
-
-export const updateTag = (item, skipTracking = false) => {
-  return {
-    type: constants.UPDATE_TAG,
-    item: item,
-    skipTracking
-  };
-};
-
-export const setDisplayedMoleculesInHitNav = (list, skipTracking = true) => {
-  return {
-    type: constants.SET_DISPLAYED_MOLECULES_HIT_NAV,
-    list: list,
-    skipTracking
   };
 };
 
@@ -562,13 +455,6 @@ export const setDisplayUntaggedMolecules = displayUntaggedMolecules => {
   return {
     type: constants.SET_DISPLAY_UNTAGGED_MOLECULES,
     displayUntaggedMolecules: displayUntaggedMolecules
-  };
-};
-
-export const setAssociatedDownloadTagName = tagName => {
-  return {
-    type: constants.SET_ASSOCIATED_DOWNLOAD_TAG_NAME,
-    tagName: tagName
   };
 };
 

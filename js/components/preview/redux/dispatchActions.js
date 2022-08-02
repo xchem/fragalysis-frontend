@@ -165,3 +165,16 @@ export const switchBetweenSnapshots = ({ nglViewList, projectID, snapshotID, his
     throw new Error('ProjectID or SnapshotID is missing!');
   }
 };
+
+export const getSquonkProject = () => (dispatch, getState) => {
+  let squonkProject = null;
+
+  const state = getState();
+  const allTargets = state.apiReducers.target_id_list;
+  const currentTargetId = state.apiReducers.target_on;
+  const currentTarget = allTargets?.find(t => t.id === currentTargetId);
+
+  squonkProject = currentTarget?.default_squonk_project;
+
+  return squonkProject;
+};

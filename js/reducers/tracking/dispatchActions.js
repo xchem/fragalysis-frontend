@@ -12,19 +12,16 @@ import {
   setArrowUpDown,
   appendToMolListToEdit,
   removeFromMolListToEdit,
-  setNextXMolecules
+  setNextXMolecules,
+  resetSelectionState
 } from '../selection/actions';
 import {
   resetReducersForRestoringActions,
   shouldLoadProtein,
   loadProteinOfRestoringActions
 } from '../../components/preview/redux/dispatchActions';
-import { setCurrentProject } from '../../components/projects/redux/actions';
-import {
-  selectMoleculeGroup,
-  onDeselectMoleculeGroup,
-  loadMoleculeGroupsOfTarget
-} from '../../components/preview/moleculeGroups/redux/dispatchActions';
+import { setCurrentProject, setCurrentSnapshot } from '../../components/projects/redux/actions';
+import { loadMoleculeGroupsOfTarget } from '../../components/preview/moleculeGroups/redux/dispatchActions';
 import { loadTargetList } from '../../components/target/redux/dispatchActions';
 import { resetTargetState, setTargetOn } from '../api/actions';
 import {
@@ -87,7 +84,8 @@ import {
   updateFilterShowedScoreProperties,
   setFilterShowedScoreProperties,
   setDragDropState,
-  resetDragDropState
+  resetDragDropState,
+  resetDatasetsStateOnSnapshotChange
 } from '../../components/datasets/redux/actions';
 import { getUrl, loadAllMolsFromMolGroup } from '../../../js/utils/genericList';
 import {
@@ -96,7 +94,8 @@ import {
   updateComponentRepresentation,
   updateComponentRepresentationVisibility,
   updateComponentRepresentationVisibilityAll,
-  changeComponentRepresentation
+  changeComponentRepresentation,
+  removeAllNglComponents
 } from '../../../js/reducers/ngl/actions';
 import { NGL_PARAMS, NGL_VIEW_DEFAULT_VALUES, COMMON_PARAMS } from '../../components/nglView/constants';
 import * as listType from '../../constants/listTypes';
@@ -126,7 +125,7 @@ import {
   setUndoRedoActionList
 } from './actions';
 import { api, METHOD } from '../../../js/utils/api';
-import { base_url } from '../../components/routes/constants';
+import { base_url, URLS } from '../../components/routes/constants';
 import { CONSTANTS } from '../../../js/constants/constants';
 import moment from 'moment';
 import {
@@ -162,8 +161,9 @@ import {
   loadMoleculesAndTags,
   getMoleculeForId
 } from '../../components/preview/tags/redux/dispatchActions';
-import { turnSide } from '../../components/preview/viewerControls/redux/actions';
+import { resetViewerControlsState, turnSide } from '../../components/preview/viewerControls/redux/actions';
 import { NetworkCheckSharp } from '@material-ui/icons';
+import { resetNglTrackingState } from '../nglTracking/dispatchActions';
 
 export const addCurrentActionsListToSnapshot = (snapshot, project, nglViewList) => async (dispatch, getState) => {
   let projectID = project && project.projectID;
@@ -820,7 +820,7 @@ const restoreTrackingActions = snapshotID => async (dispatch, getState) => {
   }
 };
 
-const restoreStateBySavedActionList = () => (dispatch, getState) => {
+export const restoreStateBySavedActionList = () => (dispatch, getState) => {
   const state = getState();
 
   const currentActionList = state.trackingReducers.current_actions_list;
@@ -887,6 +887,40 @@ export const restoreAfterTargetActions = (stages, projectId) => async (dispatch,
     dispatch(restoreNglSettingsAction(orderedActionList, majorView.stage));
     dispatch(setIsActionsRestoring(false, true));
     dispatch(restoreViewerControlActions(orderedActionList));
+  }
+};
+
+/**
+ * The goal of this method is to restore the state of the app based on the tracking
+ * action. All of the dispatched actions were added by trial and error - in case you
+ * need to alter, remove or add anything, you should properly test the changes.
+ */
+export const restoreAfterSnapshotChange = (stages, projectId) => async (dispatch, getState) => {
+  const state = getState();
+
+  const currentActionList = state.trackingReducers.current_actions_list;
+  const orderedActionList = currentActionList.sort((a, b) => a.timestamp - b.timestamp);
+  const targetId = state.apiReducers.target_on;
+
+  if (targetId && stages && stages.length > 0) {
+    const majorView = stages.find(view => view.id === VIEWS.MAJOR_VIEW);
+
+    dispatch(restoreViewerControlActions(orderedActionList));
+
+    await dispatch(loadProteinOfRestoringActions({ nglViewList: stages }));
+
+    await dispatch(restoreSitesActions(orderedActionList));
+    await dispatch(restoreTagActions(orderedActionList));
+    await dispatch(restoreMoleculesActions(orderedActionList, majorView.stage));
+    await dispatch(restoreRepresentationActions(orderedActionList, stages));
+    dispatch(restoreMoleculeSelectionActions(orderedActionList));
+    dispatch(restoreTabActions(orderedActionList));
+    await dispatch(restoreCartActions(orderedActionList, majorView.stage));
+    dispatch(restoreSnapshotImageActions(projectId));
+    dispatch(restoreNglStateAction(orderedActionList, stages));
+    dispatch(restoreNglSettingsAction(orderedActionList, majorView.stage));
+    dispatch(restoreCompoundsActions(orderedActionList, majorView.stage));
+    dispatch(setIsActionsRestoring(false, true));
   }
 };
 
@@ -1584,7 +1618,7 @@ const restoreTabActions = moleculesAction => (dispatch, getState) => {
 
   let filterAction = moleculesAction.find(action => action.type === actionType.DATASET_FILTER);
   if (filterAction) {
-    let datasetID = filterAction.dataset_id;
+    let datasetID = filterAction.datasetID;
     let newFilterProperties = filterAction.newProperties;
     let newFilterSettings = filterAction.newSettings;
     dispatch(setDatasetFilter(datasetID, newFilterProperties, newFilterSettings, filterAction.key, null));
@@ -1799,7 +1833,7 @@ const getMolGroup = (molGroupName, state) => {
 };
 
 const getTag = (tagId, state) => {
-  const tagList = state.selectionReducers.tagList;
+  const tagList = state.apiReducers.tagList;
   const tag = tagList.find(t => t.id === tagId);
   return tag;
 };
@@ -3517,4 +3551,53 @@ export const setAndUpdateTrackingActions = (actionList, projectID) => (dispatch,
   } else {
     return Promise.resolve();
   }
+};
+
+/**
+ * The goal of this method is to change the snapshot without reloading the page.
+ * All of the dispatched actions were added by trial and error - in case you need
+ * to alter, remove or add anything, you should properly test the changes.
+ */
+export const changeSnapshot = (projectID, snapshotID, nglViewList, stage) => async (dispatch, getState) => {
+  // A hacky way of changing the URL without triggering react-router
+  window.history.replaceState(null, null, `${URLS.projects}${projectID}/${snapshotID}`);
+
+  // Load the needed data
+  const snapshotResponse = await api({ url: `${base_url}/api/snapshots/${snapshotID}` });
+  const actionsResponse = await api({
+    url: `${base_url}/api/snapshot-actions/?snapshot=${snapshotID}`
+  });
+
+  dispatch(
+    setCurrentSnapshot({
+      id: snapshotResponse.data.id,
+      type: snapshotResponse.data.type,
+      title: snapshotResponse.data.title,
+      author: snapshotResponse.data.author,
+      description: snapshotResponse.data.description,
+      created: snapshotResponse.data.created,
+      children: snapshotResponse.data.children,
+      parent: snapshotResponse.data.parent,
+      data: snapshotResponse.data.data
+    })
+  );
+
+  let results = actionsResponse.data.results;
+  let listToSet = [];
+  results.forEach(r => {
+    let resultActions = JSON.parse(r.actions);
+    listToSet.push(...resultActions);
+  });
+  let snapshotActions = [...listToSet];
+  dispatch(setCurrentActionsList(snapshotActions));
+
+  dispatch(resetSelectionState());
+  dispatch(resetDatasetsStateOnSnapshotChange());
+  dispatch(resetViewerControlsState());
+  dispatch(resetNglTrackingState());
+
+  dispatch(removeAllNglComponents(stage));
+
+  dispatch(restoreStateBySavedActionList());
+  dispatch(restoreAfterSnapshotChange(nglViewList, projectID));
 };

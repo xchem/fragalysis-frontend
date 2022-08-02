@@ -7,8 +7,13 @@ import { DJANGO_CONTEXT } from '../../../../utils/djangoContext';
 import { updateTagProp, removeSelectedTag } from '../redux/dispatchActions';
 import { TextField, makeStyles, Button, Select, MenuItem, withStyles, Paper } from '@material-ui/core';
 import { createNewTag, deleteExistingTag } from '../api/tagsApi';
-import { appendTagList, setTagToEdit, removeFromTagList } from '../../../../reducers/selection/actions';
-import { appendMoleculeTag, updateMoleculeInMolLists } from '../../../../reducers/api/actions';
+import { setTagToEdit } from '../../../../reducers/selection/actions';
+import {
+  appendMoleculeTag,
+  appendTagList,
+  removeFromTagList,
+  updateMoleculeInMolLists
+} from '../../../../reducers/api/actions';
 
 const useStyles = makeStyles(theme => ({
   divContainer: {

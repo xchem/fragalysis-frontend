@@ -5,12 +5,11 @@
 import React, { memo, useEffect, useState, useRef, useContext } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { Grid, Button, makeStyles, Tooltip, IconButton } from '@material-ui/core';
-import { ClearOutlined, CheckOutlined } from '@material-ui/icons';
+import { ClearOutlined, CheckOutlined, Assignment, AssignmentTurnedIn } from '@material-ui/icons';
 import SVGInline from 'react-svg-inline';
 import classNames from 'classnames';
 import { VIEWS, ARROW_TYPE } from '../../../constants/constants';
 import { NglContext } from '../../nglView/nglProvider';
-// import { useDisableUserInteraction } from '../helpers/useEnableUserInteracion';
 import {
   addDatasetLigand,
   removeDatasetLigand,
@@ -50,6 +49,7 @@ import {
 import { colourList } from '../../preview/molecule/utils/color';
 import { useDragDropMoleculeView } from '../useDragDropMoleculeView';
 import DatasetMoleculeSelectCheckbox from './datasetMoleculeSelectCheckbox';
+import useCopyClipboard from 'react-use-clipboard';
 
 const useStyles = makeStyles(theme => ({
   container: {
@@ -107,7 +107,8 @@ const useStyles = makeStyles(theme => ({
   image: {
     border: 'solid 1px',
     borderColor: theme.palette.background.divider,
-    borderStyle: 'solid solid solid none'
+    borderStyle: 'solid solid solid none',
+    position: 'relative'
   },
   imageMargin: {
     marginTop: theme.spacing(1),
@@ -231,6 +232,18 @@ const useStyles = makeStyles(theme => ({
     color: theme.palette.primary.main,
     width: theme.spacing(2),
     height: theme.spacing(2)
+  },
+  copyIcon: {
+    padding: 0,
+    color: theme.palette.success.main,
+    '&:hover': {
+      color: theme.palette.success.dark
+    }
+  },
+  imageActions: {
+    position: 'absolute',
+    top: 0,
+    right: 0
   }
 }));
 
@@ -298,6 +311,8 @@ const DatasetMoleculeView = memo(
     const isComplexOn = C;
     const isSurfaceOn = S;
 
+    const [isCopied, setCopied] = useCopyClipboard(data.smiles, { successDuration: 5000 });
+
     const hasAllValuesOn = isLigandOn && isProteinOn && isComplexOn;
     const hasSomeValuesOn = !hasAllValuesOn && (isLigandOn || isProteinOn || isComplexOn || isSurfaceOn);
 
@@ -307,20 +322,12 @@ const DatasetMoleculeView = memo(
       areArrowsVisible = false;
     }
 
-    // const disableUserInteraction = useDisableUserInteraction();
-
     const refOnCancelImage = useRef();
     const getRandomColor = () => colourList[currentID % colourList.length];
     const colourToggle = getRandomColor();
 
     const [moleculeTooltipOpen, setMoleculeTooltipOpen] = useState(false);
     const moleculeImgRef = useRef(null);
-    const openMoleculeTooltip = () => {
-      setMoleculeTooltipOpen(true);
-    };
-    const closeMoleculeTooltip = () => {
-      setMoleculeTooltipOpen(false);
-    };
 
     // componentDidMount
     useEffect(() => {
@@ -873,21 +880,27 @@ const DatasetMoleculeView = memo(
             </Grid>
           </Grid>
           {/* Image */}
-          <Grid
-            item
+          <div
             style={{
               ...current_style,
               width: imageWidth
             }}
-            container
-            justify="center"
             className={classes.image}
-            onMouseEnter={openMoleculeTooltip}
-            onMouseLeave={closeMoleculeTooltip}
+            onMouseEnter={() => setMoleculeTooltipOpen(true)}
+            onMouseLeave={() => setMoleculeTooltipOpen(false)}
             ref={moleculeImgRef}
           >
-            <Grid item>{svg_image}</Grid>
-          </Grid>
+            {svg_image}
+            <div className={classes.imageActions}>
+              {moleculeTooltipOpen && (
+                <Tooltip title={!isCopied ? 'Copy smiles' : 'Copied'}>
+                  <IconButton className={classes.copyIcon} onClick={setCopied}>
+                    {!isCopied ? <Assignment /> : <AssignmentTurnedIn />}
+                  </IconButton>
+                </Tooltip>
+              )}
+            </div>
+          </div>
         </Grid>
         <SvgTooltip
           open={moleculeTooltipOpen}
