@@ -235,7 +235,7 @@ export const SelectedCompoundList = memo(() => {
 
   const downloadAsCsv = () => (dispatch, getState) => {
     dispatch(setDontShowShareSnapshot(true));
-    dispatch(saveAndShareSnapshot(nglViewList, false)).then(() => {
+    dispatch(saveAndShareSnapshot(nglViewList, false, {})).then(() => {
       const state = getState();
       const sharedSnapshot = state.snapshotReducers.sharedSnapshot;
 

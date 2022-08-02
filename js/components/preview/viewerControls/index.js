@@ -43,7 +43,8 @@ const useStyles = makeStyles(theme => ({
     display: 'flex',
     justifyContent: 'space-between',
     alignItems: 'flex-start',
-    gap: theme.spacing()
+    gap: theme.spacing(),
+    overflow: 'hidden'
   },
   button: {
     padding: theme.spacing()

@@ -16,7 +16,8 @@ const useStyles = makeStyles(theme => ({
     backgroundColor: theme.palette.background.paper,
     height: '100%',
     display: 'flex',
-    flexDirection: 'column'
+    flexDirection: 'column',
+    overflow: 'hidden'
   },
   body: {
     padding: theme.spacing(1),

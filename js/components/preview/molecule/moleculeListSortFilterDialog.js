@@ -12,6 +12,7 @@ import { setFilter } from '../../../reducers/selection/actions';
 import { Panel } from '../../common/Surfaces/Panel';
 import { setSortDialogOpen } from './redux/actions';
 import { moleculeProperty } from './helperConstants';
+import { useEffectDebugger } from '../../../utils/effects';
 
 const useStyles = makeStyles(theme => ({
   title: {
@@ -152,7 +153,7 @@ export const MoleculeListSortFilterDialog = memo(
       for (let attr of MOL_ATTRIBUTES) {
         const lowAttr = attr.key.toLowerCase();
         let minValue = -999999;
-        let maxValue = 0;
+        let maxValue = -999999;
 
         joinedMoleculeLists.forEach(molecule => {
           const attrValue = molecule[lowAttr];
@@ -179,60 +180,87 @@ export const MoleculeListSortFilterDialog = memo(
     const [filteredCount, setFilteredCount] = useState(getFilteredMoleculesCount(joinedMoleculeLists, filter));
     const [predefinedFilter, setPredefinedFilter] = useState(filter.predefined);
 
-    const handleFilterChange = useCallback(filter => {
-      const filterSet = Object.assign({}, filter);
-      for (let attr of MOL_ATTRIBUTES) {
-        if (filterSet.filter[attr.key].priority === undefined || filterSet.filter[attr.key].priority === '') {
-          filterSet.filter[attr.key].priority = 0;
+    const handleFilterChange = useCallback(
+      filter => {
+        const filterSet = Object.assign({}, filter);
+        for (let attr of MOL_ATTRIBUTES) {
+          if (filterSet.filter[attr.key].priority === undefined || filterSet.filter[attr.key].priority === '') {
+            filterSet.filter[attr.key].priority = 0;
+          }
         }
-      }
-      dispatch(setFilter(filterSet));
-    }, [dispatch]);
+        dispatch(setFilter(filterSet));
+      },
+      [dispatch]
+    );
 
-    useEffect(() => {
-      const init = initialize();
+    useEffectDebugger(
+      () => {
+        if (!filter.active) {
+          const init = initialize();
+          console.log(`Init filter effect init: ${JSON.stringify(init)}`);
 
-      setInitState(init);
-      
-      if (!filter.active) {
-        const initCopy = { ...init };
-        dispatch(setFilter(initCopy));
-        handleFilterChange(initCopy);
-      }
-    }, [initialize, dispatch, joinedMoleculeLists, handleFilterChange, filter.active]);
+          setInitState(init);
+          console.log(`Init filter effect: not active`);
+          const initCopy = { ...init };
+          dispatch(setFilter(initCopy));
+          handleFilterChange(initCopy);
+        }
+      },
+      [initialize, dispatch, joinedMoleculeLists, handleFilterChange, filter.active],
+      ['initialize', 'dispatch', 'joinedMoleculeLists', 'handleFilterChange', 'filter.active'],
+      'Init filter effect'
+    );
 
-    useEffect(() => {
-      setFilteredCount(getFilteredMoleculesCount(joinedMoleculeLists, filter));
-    }, [joinedMoleculeLists, filter]);
+    useEffectDebugger(
+      () => {
+        setFilteredCount(getFilteredMoleculesCount(joinedMoleculeLists, filter));
+      },
+      [joinedMoleculeLists, filter],
+      ['joinedMoleculeLists', 'filter'],
+      'Set filtered count effect'
+    );
 
-    useEffect(() => {
-      let changed = false;
-      const newFilter = { ...filter };
+    useEffectDebugger(
+      () => {
+        console.log(`Normalize filter range effect`);
+        let changed = false;
+        const newFilter = { ...filter };
 
-      for (let attr of MOL_ATTRIBUTES) {
-        if (!attr.filter) continue;
-        const key = attr.key;
-        const filterValue = newFilter.filter[key];
-        const initValue = initState.filter[key];
+        for (let attr of MOL_ATTRIBUTES) {
+          if (!attr.filter) continue;
+          const key = attr.key;
+          const filterValue = newFilter.filter[key];
+          const initValue = initState.filter[key];
 
-        if (filterValue.minValue < initValue.minValue || filterValue.minValue > initValue.maxValue) {
-          filterValue.minValue = initValue.minValue;
-          changed = true;
+          if (filterValue.minValue < initValue.minValue || filterValue.minValue > initValue.maxValue) {
+            console.log(
+              `minValue set filterValue.minValue: ${filterValue.minValue} initValue.minValue: ${initValue.minValue} initValue.maxValue: ${initValue.maxValue}`
+            );
+            filterValue.minValue = initValue.minValue;
+            changed = true;
+          }
+
+          if (filterValue.maxValue > initValue.maxValue || filterValue.maxValue < initValue.minValue) {
+            console.log(
+              `maxValue set filterValue.maxValue: ${filterValue.maxValue} initValue.maxValue: ${initValue.maxValue} initValue.minValue: ${initValue.minValue}`
+            );
+            filterValue.maxValue = initValue.maxValue;
+            changed = true;
+          }
         }
 
-        if (filterValue.maxValue > initValue.maxValue || filterValue.maxValue < initValue.minValue) {
-          filterValue.maxValue = initValue.maxValue;
-          changed = true;
+        if (changed) {
+          dispatch(setFilter(newFilter));
+          handleFilterChange(newFilter);
         }
-      }
-
-      if (changed) {
-        dispatch(setFilter(newFilter));
-        handleFilterChange(newFilter);
-      }
-    }, [initState, filter, dispatch, handleFilterChange]);
+      },
+      [initState, filter, dispatch, handleFilterChange],
+      ['initState', 'filter', 'dispatch', 'handleFilterChange'],
+      'Normalize filter range effect'
+    );
 
     const handleItemChange = key => setting => {
+      console.log(`handleItemChange attr: ${key} values: ${JSON.stringify(setting)}`);
       let newFilter = Object.assign({}, filter);
       newFilter.filter[key] = setting;
       newFilter.active = true;

@@ -84,7 +84,7 @@ const TagDetails = memo(() => {
   const dispatch = useDispatch();
   const [sortSwitch, setSortSwitch] = useState(0);
 
-  const preTagList = useSelector(state => state.selectionReducers.tagList);
+  const preTagList = useSelector(state => state.apiReducers.tagList);
   const [tagList, setTagList] = useState([]);
 
   const [searchString, setSearchString] = useState(null);

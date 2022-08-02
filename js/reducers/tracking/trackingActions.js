@@ -1133,8 +1133,8 @@ export const findTrackAction = (action, state) => (dispatch, getState) => {
         } = state.datasetsReducers;
         const { datasetID, key, properties, settings, dragDropState } = action.payload;
 
-        const filterPropertiesOfDataset = filterProperties[datasetID];
-        const filterSettingsOfDataset = filterSettings[datasetID];
+        const filterPropertiesOfDataset = (filterProperties[datasetID] = {});
+        const filterSettingsOfDataset = (filterSettings[datasetID] = {});
 
         const objectType = actionObjectType.COMPOUND;
         const descriptionProperties = getFilterKeyChange(filterPropertiesOfDataset[key], properties[key]);

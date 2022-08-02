@@ -493,6 +493,41 @@ export const datasetsReducers = (state = INITIAL_STATE, action = {}) => {
       };
     }
 
+    case constants.RESET_DATASETS_STATE_ON_SNAPSHOT_CHANGE: {
+      const {
+        datasets,
+        moleculeLists,
+        scoreDatasetMap,
+        scoreCompoundMap,
+        allInspirations,
+        filteredScoreProperties,
+        selectedDatasetIndex,
+        tabValue
+      } = state;
+
+      const newState = {
+        ...INITIAL_STATE,
+        datasets,
+        moleculeLists,
+        scoreDatasetMap,
+        scoreCompoundMap,
+        allInspirations,
+        filteredScoreProperties,
+        selectedDatasetIndex,
+        tabValue,
+        ligandLists: {},
+        proteinLists: {},
+        complexLists: {},
+        surfaceLists: {},
+        inspirationLists: {},
+        moleculeAllSelection: {}
+      };
+
+      Object.keys(moleculeLists).forEach(datasetID => initializeContainerLists(newState, datasetID));
+
+      return newState;
+    }
+
     default:
       return state;
   }

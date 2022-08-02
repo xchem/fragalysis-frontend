@@ -20,7 +20,6 @@ import { moleculeProperty } from '../preview/molecule/helperConstants';
 import { setIsOpenInspirationDialog } from './redux/actions';
 import { Button } from '../common/Inputs/Button';
 import classNames from 'classnames';
-// import { useDisableUserInteraction } from '../helpers/useEnableUserInteracion';
 import { colourList } from '../preview/molecule/utils/color';
 import { NglContext } from '../nglView/nglProvider';
 import { VIEWS } from '../../constants/constants';
@@ -115,6 +114,7 @@ const useStyles = makeStyles(theme => ({
 
 export const InspirationDialog = memo(
   forwardRef(({ open = false, anchorEl, datasetID }, ref) => {
+    // console.log('InspirationDialog refresh');
     const id = open ? 'simple-popover-compound-inspirations' : undefined;
     const imgHeight = 49;
     const imgWidth = 150;
@@ -143,7 +143,6 @@ export const InspirationDialog = memo(
     const moleculesToEditIds = useSelector(state => state.selectionReducers.moleculesToEdit);
 
     const dispatch = useDispatch();
-    // const disableUserInteraction = useDisableUserInteraction();
 
     const moleculeList = useMemo(() => {
       if (searchString !== null) {

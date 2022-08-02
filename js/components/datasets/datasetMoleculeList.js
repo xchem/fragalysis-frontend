@@ -22,7 +22,6 @@ import { Panel } from '../common/Surfaces/Panel';
 import { ComputeSize } from '../../utils/computeSize';
 import { VIEWS } from '../../constants/constants';
 import { NglContext } from '../nglView/nglProvider';
-// import { useDisableUserInteraction } from '../helpers/useEnableUserInteracion';
 import classNames from 'classnames';
 import {
   addDatasetLigand,

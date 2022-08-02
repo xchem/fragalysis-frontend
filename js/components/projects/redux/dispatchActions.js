@@ -12,7 +12,8 @@ import {
   setForceCreateProject,
   setForceProjectCreated,
   setIsLoadingListOfProjects,
-  setCurrentProjectDiscourseLink
+  setCurrentProjectDiscourseLink,
+  setJobLauncherSquonkUrl
 } from './actions';
 import { api, METHOD } from '../../../utils/api';
 import { base_url, URLS } from '../../routes/constants';
@@ -145,6 +146,7 @@ export const loadSnapshotByProjectID = projectID => (dispatch, getState) => {
           dispatch(resetCurrentSnapshot());
           return Promise.resolve(null);
         } else if (response.data.results[0] !== undefined) {
+          console.log(`Snapshot from server: ${JSON.stringify(response.data.results[0])}`);
           dispatch(
             setCurrentSnapshot({
               id: response.data.results[0].id,
@@ -215,7 +217,8 @@ const parseSnapshotAttributes = data => ({
   author: data.author,
   description: data.description,
   created: data.created,
-  children: data.children
+  children: data.children,
+  additional_info: data.additional_info
 });
 
 export const getSnapshotAttributesByID = snapshotID => (dispatch, getState) => {
@@ -225,13 +228,14 @@ export const getSnapshotAttributesByID = snapshotID => (dispatch, getState) => {
       if (currentSnapshotList === null) {
         currentSnapshotList = {};
       }
-      currentSnapshotList[snapshotID] = parseSnapshotAttributes(response.data);
+      const snapshot = parseSnapshotAttributes(response.data);
+      currentSnapshotList[snapshotID] = snapshot;
       dispatch(setCurrentSnapshotList(currentSnapshotList));
 
       if (response.data.children && response.data.children.length > 0) {
         return dispatch(populateChildren(response.data.children));
       } else {
-        return Promise.resolve();
+        return Promise.resolve(snapshot);
       }
     }
   });
@@ -253,10 +257,7 @@ export const loadSnapshotTree = projectID => (dispatch, getState) => {
       } else if (response.data.count === 1) {
         const tree = parseSnapshotAttributes(response.data.results[0]);
         dispatch(setCurrentSnapshotTree(tree));
-        if (tree.children && tree.children.length === 0) {
-          return dispatch(populateChildren([tree.id]));
-        }
-        return dispatch(populateChildren(tree.children));
+        return dispatch(populateChildren([tree.id]));
       }
     })
     .finally(() => {
@@ -462,4 +463,20 @@ export const createInitSnapshotToProjectWitActions = (session_project, author, p
       });
     })
   ]);
+};
+
+export const jobFileTransfer = data => {
+  return api({
+    url: `${base_url}/api/job_file_transfer/`,
+    method: METHOD.POST,
+    data
+  });
+};
+
+export const jobRequest = data => {
+  return api({
+    url: `${base_url}/api/job_request/`,
+    method: METHOD.POST,
+    data
+  });
 };

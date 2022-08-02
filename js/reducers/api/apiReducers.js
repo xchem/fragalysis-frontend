@@ -45,7 +45,9 @@ export const INITIAL_STATE = {
   noTagsReceived: true,
   downloadTags: [],
   directDownloadInProgress: false,
-  snapshotDownloadUrl: null
+  snapshotDownloadUrl: null,
+  tagList: [],
+  categoryList: []
 };
 
 export const RESET_TARGET_STATE = {
@@ -82,7 +84,8 @@ export const RESET_TARGET_STATE = {
   // direct_access_processed: false
   downloadTags: [],
   directDownloadInProgress: false,
-  snapshotDownloadUrl: null
+  snapshotDownloadUrl: null,
+  tagList: []
 };
 
 export default function apiReducers(state = INITIAL_STATE, action = {}) {
@@ -306,6 +309,43 @@ export default function apiReducers(state = INITIAL_STATE, action = {}) {
         direct_access: action.direct_access
         // direct_access_processed: action.direct_access_processed
       });
+
+    case constants.SET_TAG_LIST:
+      let newTagList = new Set();
+      action.tagList.forEach(f => {
+        newTagList.add(f);
+      });
+      return Object.assign({}, state, { tagList: [...newTagList] });
+
+    case constants.UPDATE_TAG:
+      let listWithUpdatedTag = [...state.tagList];
+      let foundTags = listWithUpdatedTag.filter(t => t.id === action.item.id);
+      if (foundTags && foundTags.length > 0) {
+        let foundTag = foundTags[0];
+        foundTag.tag = action.item.tag;
+        foundTag.colour = action.item.colour;
+        foundTag.category_id = action.item.category_id;
+        foundTag.discourse_url = action.item.discourse_url;
+
+        return { ...state, tagList: [...listWithUpdatedTag] };
+      } else {
+        return state;
+      }
+
+    case constants.APPEND_TAG_LIST:
+      return Object.assign({}, state, { tagList: [...new Set([...state.tagList, action.item])] });
+
+    case constants.REMOVE_FROM_TAG_LIST:
+      let diminishedTagList = new Set(state.tagList);
+      diminishedTagList.delete(action.item);
+      return Object.assign({}, state, { tagList: [...diminishedTagList] });
+
+    case constants.SET_CATEGORY_LIST:
+      let newCategoryList = new Set();
+      action.categoryList.forEach(f => {
+        newCategoryList.add(f);
+      });
+      return Object.assign({}, state, { categoryList: [...newCategoryList] });
 
     case constants.RESET_TARGET_STATE:
       return Object.assign({}, state, RESET_TARGET_STATE);

@@ -36,7 +36,8 @@ import {
   saveCurrentActionsList,
   addCurrentActionsListToSnapshot,
   sendTrackingActionsByProjectId,
-  manageSendTrackingActions
+  manageSendTrackingActions,
+  changeSnapshot
 } from '../../../reducers/tracking/dispatchActions';
 import { captureScreenOfSnapshot } from '../../userFeedback/browserApi';
 import { setCurrentProject } from '../../projects/redux/actions';
@@ -192,6 +193,38 @@ export const createInitSnapshotFromCopy = ({
   return Promise.reject('ProjectID is missing');
 };
 
+const getAdditionalInfo = state => {
+  const allMolecules = state.apiReducers.all_mol_lists;
+  const { moleculesToEdit, fragmentDisplayList } = state.selectionReducers;
+  const currentSnapshotSelectedCompounds = allMolecules
+    .filter(molecule => moleculesToEdit.includes(molecule.id))
+    .map(molecule => molecule.protein_code);
+  const currentSnapshotVisibleCompounds = allMolecules
+    .filter(molecule => fragmentDisplayList.includes(molecule.id))
+    .map(molecule => molecule.protein_code);
+
+  const { moleculeLists, ligandLists, compoundsToBuyDatasetMap } = state.datasetsReducers;
+  const currentSnapshotVisibleDatasetsCompounds = Object.fromEntries(
+    Object.entries(moleculeLists).map(([datasetID, mols]) => [
+      datasetID,
+      mols.filter(mol => ligandLists[datasetID].includes(mol.id)).map(mol => mol.name)
+    ])
+  );
+  const currentSnapshotSelectedDatasetsCompounds = Object.fromEntries(
+    Object.entries(moleculeLists).map(([datasetID, mols]) => [
+      datasetID,
+      mols.filter(mol => compoundsToBuyDatasetMap[datasetID]?.includes(mol.id)).map(mol => mol.name)
+    ])
+  );
+
+  return {
+    currentSnapshotSelectedCompounds,
+    currentSnapshotVisibleCompounds,
+    currentSnapshotSelectedDatasetsCompounds,
+    currentSnapshotVisibleDatasetsCompounds
+  };
+};
+
 export const createNewSnapshot = ({
   title,
   description,
@@ -200,6 +233,7 @@ export const createNewSnapshot = ({
   parent,
   session_project,
   nglViewList,
+  stage,
   overwriteSnapshot,
   createDiscourse = false
 }) => (dispatch, getState) => {
@@ -249,7 +283,8 @@ export const createNewSnapshot = ({
             parent,
             session_project,
             data: '[]',
-            children: []
+            children: [],
+            additional_info: getAdditionalInfo(state)
           },
           method: METHOD.POST
         }).then(res => {
@@ -259,13 +294,16 @@ export const createNewSnapshot = ({
             let project = { projectID: session_project, authorID: author };
             console.log('created snapshot id: ' + res.data.id);
 
-            Promise.resolve(dispatch(saveCurrentActionsList(snapshot, project, nglViewList))).then(() => {
+            return Promise.resolve(dispatch(saveCurrentActionsList(snapshot, project, nglViewList))).then(async () => {
               if (disableRedirect === false) {
                 if (selectedSnapshotToSwitch != null) {
                   if (createDiscourse) {
                     dispatch(createSnapshotDiscoursePost(res.data.id));
                   }
-                  window.location.replace(`${URLS.projects}${session_project}/${selectedSnapshotToSwitch}`);
+                  //window.location.replace(`${URLS.projects}${session_project}/${selectedSnapshotToSwitch}`);
+                  await dispatch(changeSnapshot(session_project, selectedSnapshotToSwitch, nglViewList, stage));
+                  dispatch(setOpenSnapshotSavingDialog(false));
+                  dispatch(setIsLoadingSnapshotDialog(false));
                 } else {
                   // A hacky way of changing the URL without triggering react-router
                   window.history.replaceState(
@@ -341,6 +379,7 @@ export const createNewSnapshot = ({
                     url: `${base_url}${URLS.projects}${session_project}/${res.data.id}`
                   })
                 );
+                return res.data.id;
               }
             });
           }
@@ -405,7 +444,8 @@ export const createNewSnapshotWithoutStateModification = ({
   parent,
   session_project,
   nglViewList,
-  axuData = {}
+  axuData = {},
+  additional_info
 }) => (dispatch, getState) => {
   if (!session_project) {
     return Promise.reject('Project ID is missing!');
@@ -426,7 +466,8 @@ export const createNewSnapshotWithoutStateModification = ({
       parent,
       session_project,
       data: JSON.stringify(axuData),
-      children: []
+      children: [],
+      additional_info
     };
     const dataString = JSON.stringify(dataToSend);
 
@@ -466,12 +507,16 @@ export const saveAndShareSnapshot = (nglViewList, showDialog = true, axuData = {
     if (showDialog) {
       dispatch(setIsLoadingSnapshotDialog(true));
     }
+
+    const additional_info = getAdditionalInfo(state);
+
     const data = {
       title: ProjectCreationType.READ_ONLY,
       description: ProjectCreationType.READ_ONLY,
       target: targetId,
       author: loggedInUserID || null,
-      tags: '[]'
+      tags: '[]',
+      additional_info
     };
 
     try {
@@ -496,7 +541,8 @@ export const saveAndShareSnapshot = (nglViewList, showDialog = true, axuData = {
           parent,
           session_project,
           nglViewList,
-          axuData
+          axuData,
+          additional_info
         })
       );
 
