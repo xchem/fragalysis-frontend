@@ -120,7 +120,7 @@ const JobLauncherDialog = () => {
       snapshot: jobLauncherData?.snapshot.id,
       target: targetId,
       // squonk_project: dispatch(getSquonkProject()),
-      squonk_project: 'project-e1ce441e-c4d1-4ad1-9057-1a11dbdccebe',
+      squonk_project: 'project-d89f85d2-cec1-4449-9435-6323bb5c34e0',
       squonk_job_spec: JSON.stringify({
         collection: 'fragmenstein',
         job: 'fragmenstein-combine',
