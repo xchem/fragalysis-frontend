@@ -287,37 +287,42 @@ const JobConfigurationDialog = ({ snapshots }) => {
       // Remove the unnecessary part from protein_code
       chosenLHSCompounds = chosenLHSCompounds.map(molecule => getMoleculeTitle(molecule));
 
-      // Close the actual pop up window
-      dispatch(setJobConfigurationDialogOpen(false));
+      if (chosenLHSCompounds.length > 0) {
+        // Close the actual pop up window
+        dispatch(setJobConfigurationDialogOpen(false));
 
-      const getFilteredJob = job => {
-        return jobList.find(jobFiltered => job === jobFiltered.id);
-      };
+        const getFilteredJob = job => {
+          return jobList.find(jobFiltered => job === jobFiltered.id);
+        };
 
-      // Set options for second window
-      dispatch(
-        setJobLauncherData({
-          job: getFilteredJob(job),
-          snapshot: chosenSnapshot,
-          // Prepares data for expanding, see comments in JobFragmentProteinSelectWindow
-          data: {
-            lhs: chosenLHSCompounds.map(compound => getMoleculeEnumName(compound))
-          }
-        })
-      );
+        // Set options for second window
+        dispatch(
+          setJobLauncherData({
+            job: getFilteredJob(job),
+            snapshot: chosenSnapshot,
+            // Prepares data for expanding, see comments in JobFragmentProteinSelectWindow
+            data: {
+              lhs: chosenLHSCompounds.map(compound => getMoleculeEnumName(compound))
+            }
+          })
+        );
 
-      await jobFileTransfer({
-        snapshot: chosenSnapshot.id,
-        target: targetId,
-        // squonk_project: dispatch(getSquonkProject()),
-        // need to switch to squonk project id associated with the target in the (near?) future
-        squonk_project: 'project-d89f85d2-cec1-4449-9435-6323bb5c34e0',
-        proteins: chosenLHSCompounds.join()
-      });
+        await jobFileTransfer({
+          snapshot: chosenSnapshot.id,
+          target: targetId,
+          // squonk_project: dispatch(getSquonkProject()),
+          // need to switch to squonk project id associated with the target in the (near?) future
+          squonk_project: 'project-d89f85d2-cec1-4449-9435-6323bb5c34e0',
+          proteins: chosenLHSCompounds.join()
+        });
 
-      setErrorMsg(null);
-      setIsError(false);
-      dispatch(setJobLauncherDialogOpen(true));
+        setErrorMsg(null);
+        setIsError(false);
+        dispatch(setJobLauncherDialogOpen(true));
+      } else {
+        setErrorMsg("There's no selected inputs to run the job.");
+        setIsError(true);
+      }
     } catch (err) {
       console.error(err);
       setErrorMsg(err.response.data);
