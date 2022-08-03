@@ -182,7 +182,7 @@ export const ResizableLayout = ({ gridRef, hideProjects, showHistory, onShowHist
         <div>
           <ViewerControls />
         </div>
-        {showHistory && (
+        {!hideProjects && (
           <div>
             <ProjectHistoryPanel showFullHistory={onShowHistoryChange} />
           </div>
