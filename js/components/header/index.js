@@ -58,6 +58,8 @@ import { lockLayout, resetCurrentLayout } from '../../reducers/layout/actions';
 import { ChangeLayoutButton } from './changeLayoutButton';
 import { setIsActionsRestoring } from '../../reducers/tracking/actions';
 import { layouts } from '../../reducers/layout/layouts';
+import { setDialogCurrentStep } from '../snapshot/redux/actions';
+import { setCurrentProject, setForceCreateProject } from '../projects/redux/actions';
 
 const useStyles = makeStyles(theme => ({
   padding: {
@@ -246,6 +248,9 @@ export default memo(
                     color="textPrimary"
                     onClick={() => {
                       dispatch(setIsActionsRestoring(false, false));
+                      // dispatch(setCurrentProject(null, null, null, null, null, [], null));
+                      // dispatch(setDialogCurrentStep(0));
+                      // dispatch(setForceCreateProject(false));
                       history.push(URLS.landing);
                     }}
                   >
