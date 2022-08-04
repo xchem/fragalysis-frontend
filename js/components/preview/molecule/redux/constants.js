@@ -81,14 +81,14 @@ export const MOL_ATTR = {
     isFloat: false,
     color: '#bfef45',
     filter: true
-  },
+  } /*,
   NCPD: {
     key: '#cpd',
     name: '# available follow-up cmpds. (#cpd)',
     isFloat: false,
     color: '#fabebe',
     filter: true
-  }
+  }*/
 };
 
 export const MOL_ATTRIBUTES = Object.values(MOL_ATTR);

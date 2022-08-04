@@ -144,6 +144,8 @@ export const InspirationDialog = memo(
 
     const dispatch = useDispatch();
 
+    const [tagEditorAnchorEl, setTagEditorAnchorEl] = useState(null);
+
     const moleculeList = useMemo(() => {
       if (searchString !== null) {
         return inspirationMoleculeDataList.filter(molecule =>
@@ -428,6 +430,7 @@ export const InspirationDialog = memo(
                           disableL={selected && groupNglControlButtonsDisabledState.ligand}
                           disableP={selected && groupNglControlButtonsDisabledState.protein}
                           disableC={selected && groupNglControlButtonsDisabledState.complex}
+                          setRef={setTagEditorAnchorEl}
                         />
                       </GroupNglControlButtonsContext.Provider>
                     );
