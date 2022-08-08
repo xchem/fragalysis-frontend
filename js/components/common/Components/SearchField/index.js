@@ -6,7 +6,8 @@ import { debounce } from 'lodash';
 
 const useStyles = makeStyles(theme => ({
   search: {
-    margin: theme.spacing(1),
+    fontSize: theme.typography.pxToRem(13),
+    margin: `0 ${theme.spacing(1)}px`,
     '& .MuiInputBase-root': {
       color: theme.palette.white
     },
@@ -15,7 +16,18 @@ const useStyles = makeStyles(theme => ({
     },
     '& .MuiInput-underline:after': {
       borderBottomColor: theme.palette.white
+    },
+    '& :before': {
+      bottom: -2
+    },
+    '& :after': {
+      bottom: -2
     }
+  },
+  input: {
+    height: '1em',
+    padding: '4px 0 4px',
+    fontSize: theme.typography.pxToRem(13)
   }
 }));
 
@@ -46,7 +58,8 @@ const SearchField = ({ className, id, placeholder, size, onChange, disabled }) =
           <InputAdornment position="start">
             <Search color="inherit" />
           </InputAdornment>
-        )
+        ),
+        className: classes.input
       }}
       onChange={onChangeDebounced}
       disabled={disabled}

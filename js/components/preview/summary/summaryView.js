@@ -19,7 +19,7 @@ const useStyles = makeStyles(theme => ({
   }
 }));
 
-export const SummaryView = memo(({ setSummaryViewHeight, summaryViewHeight }) => {
+export const SummaryView = memo(() => {
   const classes = useStyles();
   const [panelRef, setPanelRef] = useState();
   const dispatch = useDispatch();
@@ -46,37 +46,35 @@ export const SummaryView = memo(({ setSummaryViewHeight, summaryViewHeight }) =>
       headerActions={[]}
       title="Summary Info"
     >
-      <ComputeSize componentRef={panelRef} setHeight={setSummaryViewHeight} height={summaryViewHeight}>
-        <Grid container justify="space-between">
-          <Grid
-            item
-            container
-            direction="column"
-            justify="flex-start"
-            alignItems="flex-start"
-            className={classes.widthFitContent}
-          >
-            <Grid item>
-              <Typography variant="subtitle2">Number picked: {countOfPicked}</Typography>
-            </Grid>
-            <Grid item>
-              <Typography variant="subtitle2">Number vectors explored: {countOfExploredVectors}</Typography>
-            </Grid>
-            <Grid item>
-              <Typography variant="subtitle2">Number series explored: {countOfExploredSeries}</Typography>
-            </Grid>
-            <Grid item>
-              <Typography variant="subtitle2">Estimated cost: £{estimatedCost}</Typography>
-            </Grid>
-            <Grid item>
-              <Typography variant="subtitle2">Selected Interaction: {interaction_selectComponent}</Typography>
-            </Grid>
+      <Grid container justify="space-between">
+        <Grid
+          item
+          container
+          direction="column"
+          justify="flex-start"
+          alignItems="flex-start"
+          className={classes.widthFitContent}
+        >
+          <Grid item>
+            <Typography variant="subtitle2">Number picked: {countOfPicked}</Typography>
           </Grid>
           <Grid item>
-            <CmpdSummaryImage />
+            <Typography variant="subtitle2">Number vectors explored: {countOfExploredVectors}</Typography>
+          </Grid>
+          <Grid item>
+            <Typography variant="subtitle2">Number series explored: {countOfExploredSeries}</Typography>
+          </Grid>
+          <Grid item>
+            <Typography variant="subtitle2">Estimated cost: £{estimatedCost}</Typography>
+          </Grid>
+          <Grid item>
+            <Typography variant="subtitle2">Selected Interaction: {interaction_selectComponent}</Typography>
           </Grid>
         </Grid>
-      </ComputeSize>
+        <Grid item>
+          <CmpdSummaryImage />
+        </Grid>
+      </Grid>
     </Panel>
   );
 });

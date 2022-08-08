@@ -144,6 +144,8 @@ export const InspirationDialog = memo(
 
     const dispatch = useDispatch();
 
+    const [tagEditorAnchorEl, setTagEditorAnchorEl] = useState(null);
+
     const moleculeList = useMemo(() => {
       if (searchString !== null) {
         return inspirationMoleculeDataList.filter(molecule =>
@@ -398,7 +400,6 @@ export const InspirationDialog = memo(
                   moleculeList.map((molecule, index, array) => {
                     let data = molecule;
                     data.isInspiration = true;
-                    //let data = Object.assign({ isInspiration: true }, molecule);
                     let previousData = index > 0 && Object.assign({ isInspiration: true }, array[index - 1]);
                     let nextData = index < array?.length && Object.assign({ isInspiration: true }, array[index + 1]);
                     const selected = allSelectedMolecules.some(molecule => molecule.id === data.id);
@@ -429,6 +430,7 @@ export const InspirationDialog = memo(
                           disableL={selected && groupNglControlButtonsDisabledState.ligand}
                           disableP={selected && groupNglControlButtonsDisabledState.protein}
                           disableC={selected && groupNglControlButtonsDisabledState.complex}
+                          setRef={setTagEditorAnchorEl}
                         />
                       </GroupNglControlButtonsContext.Provider>
                     );

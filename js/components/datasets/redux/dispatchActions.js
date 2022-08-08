@@ -626,16 +626,10 @@ const removeSelectedTypesOfDatasetInspirations = (skipMolecules, stage, skipTrac
   getState
 ) => {
   const state = getState();
-  // const getJoinedMoleculeList = selectAllMoleculeList(state);
   const inspirationMoleculeDataList = flattenInspirationsList(
     state.datasetsReducers.allInspirations[datasetID],
     skipMolecules
   );
-
-  // const molecules = [...getJoinedMoleculeList, ...inspirationMoleculeDataList].filter(
-  //   molecule => !skipMolecules.includes(molecule)
-  // );
-  // const molecules = inspirationMoleculeDataList.filter(molecule => !skipMolecules.includes(molecule));
   dispatch(hideAllSelectedMolecules(stage, [...inspirationMoleculeDataList], false, skipTracking));
 };
 
@@ -649,7 +643,6 @@ const moveSelectedDatasetMoleculeInspirationsSettings = (data, newItemData, stag
   const state = getState();
 
   const objectsInView = state.nglReducers.objectsInView || {};
-
   const proteinListMolecule = state.selectionReducers.proteinList;
   const complexListMolecule = state.selectionReducers.complexList;
   const fragmentDisplayListMolecule = state.selectionReducers.fragmentDisplayList;

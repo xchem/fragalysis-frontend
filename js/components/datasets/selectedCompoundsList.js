@@ -49,7 +49,7 @@ const useStyles = makeStyles(theme => ({
   }
 }));
 
-export const SelectedCompoundList = memo(({ height }) => {
+export const SelectedCompoundList = memo(() => {
   const classes = useStyles();
 
   const imgHeight = 49;
@@ -323,7 +323,7 @@ export const SelectedCompoundList = memo(({ height }) => {
       {isOpenCrossReferenceDialog && (
         <CrossReferenceDialog open anchorEl={selectedMoleculeRef} ref={crossReferenceDialogRef} />
       )}
-      <Grid container direction="column" justify="flex-start" className={classes.container} style={{ height: height }}>
+      <Grid container direction="column" justify="flex-start" className={classes.container}>
         {currentMolecules.length > 0 && (
           <Grid item className={classes.gridItemList} ref={scrollBarRef}>
             <InfiniteScroll

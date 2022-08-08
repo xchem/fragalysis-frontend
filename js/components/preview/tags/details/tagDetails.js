@@ -1,6 +1,6 @@
 import React, { memo, useRef, useEffect, useCallback, useState, useMemo } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
-import { Grid, Typography, makeStyles, IconButton, Tooltip } from '@material-ui/core';
+import { Typography, makeStyles, IconButton, Tooltip } from '@material-ui/core';
 import { Panel } from '../../../common/Surfaces/Panel';
 import TagDetailRow from './tagDetailRow';
 import NewTagDetailRow from './newTagDetailRow';
@@ -18,17 +18,18 @@ import { UnfoldMore, KeyboardArrowDown, KeyboardArrowUp } from '@material-ui/ico
 import { getMoleculeForId } from '../redux/dispatchActions';
 import classNames from 'classnames';
 import SearchField from '../../../common/Components/SearchField';
+import { setPanelsExpanded } from '../../../../reducers/layout/actions';
+import { layoutItemNames } from '../../../../reducers/layout/constants';
 
 export const heightOfBody = '172px';
 export const defaultHeaderPadding = 15;
 
 const useStyles = makeStyles(theme => ({
   containerExpanded: {
-    height: heightOfBody,
     display: 'flex',
     flexDirection: 'column',
-    resize: 'vertical',
-    overflow: 'hidden',
+    overflow: 'auto',
+    height: '100%',
     width: '100%',
     marginTop: -theme.spacing(),
     justifyContent: 'space-between'
@@ -49,8 +50,7 @@ const useStyles = makeStyles(theme => ({
     display: 'grid',
     gridTemplateColumns: '1fr 35px 75px min-content 20px min-content auto',
     alignItems: 'center',
-    gap: 1,
-    overflow: 'auto'
+    gap: 1
   },
   columnLabel: {
     display: 'flex',
@@ -68,19 +68,20 @@ const useStyles = makeStyles(theme => ({
   },
   search: {
     width: 140
+  },
+  columnTitle: {
+    fontSize: theme.typography.pxToRem(13)
   }
 }));
 
 /**
  * TagDetails is a wrapper panel for tags summary, their editing and creating new ones
  */
-const TagDetails = memo(({ handleHeightChange }) => {
+const TagDetails = memo(() => {
   const classes = useStyles();
   const ref = useRef(null);
   const elementRef = useRef(null);
   const dispatch = useDispatch();
-  const [headerPadding, setheaderPadding] = useState(defaultHeaderPadding);
-  const [elementHeight, setElementHeight] = useState(0);
   const [sortSwitch, setSortSwitch] = useState(0);
 
   const preTagList = useSelector(state => state.apiReducers.tagList);
@@ -119,25 +120,6 @@ const TagDetails = memo(({ handleHeightChange }) => {
     }
     return () => { setMoleculesToEdit([]) };
   }, [moleculesToEditIds, dispatch]);*/
-
-  useEffect(() => {
-    const element = elementRef.current;
-    if (element) {
-      element.addEventListener('resize', handleResize);
-      const observer = new MutationObserver(checkResize);
-      observer.observe(element, { attributes: true, attributeOldValue: true, attributeFilter: ['style'] });
-    }
-
-    return () => {
-      if (element) {
-        element.removeEventListener('resize', handleResize);
-      }
-    };
-  }, [elementRef, handleResize, checkResize]);
-
-  useEffect(() => {
-    handleScroll(elementRef.current?.childNodes[1], headerPadding);
-  }, [elementRef, handleScroll, headerPadding, elementHeight]);
 
   const offsetName = 10;
   const offsetCategory = 20;
@@ -214,48 +196,6 @@ const TagDetails = memo(({ handleHeightChange }) => {
     [sortSwitch, tagList]
   );
 
-  const handleResize = useCallback(
-    event => {
-      //console.log('resize ' + ref.current.clientHeight);
-      handleHeightChange(ref.current.offsetHeight);
-    },
-    [handleHeightChange]
-  );
-
-  const handleScroll = useCallback(
-    (el, h) => {
-      if (el) {
-        const hasVerticalScrollbar = el.scrollHeight > el.clientHeight;
-        if (!hasVerticalScrollbar) {
-          if (h !== 0) {
-            setheaderPadding(0);
-          }
-        } else {
-          if (h !== defaultHeaderPadding) {
-            setheaderPadding(defaultHeaderPadding);
-          }
-        }
-      }
-    },
-    [setheaderPadding]
-  );
-
-  const checkResize = useCallback(
-    mutations => {
-      const el = mutations[0].target;
-      const w = el.clientWidth;
-      const h = el.clientHeight;
-
-      if (elementHeight !== h) {
-        setElementHeight(h);
-
-        const event = new CustomEvent('resize', { detail: { width: w, height: h } });
-        el.dispatchEvent(event);
-      }
-    },
-    [elementHeight]
-  );
-
   return (
     <Panel
       ref={ref}
@@ -263,18 +203,18 @@ const TagDetails = memo(({ handleHeightChange }) => {
       hasExpansion
       defaultExpanded
       title="Tag Details"
-      onExpandChange={expand => {
-        if (ref.current && handleHeightChange instanceof Function) {
-          handleHeightChange(ref.current.offsetHeight);
-        }
-      }}
+      onExpandChange={useCallback(expanded => dispatch(setPanelsExpanded(layoutItemNames.TAG_DETAILS, expanded)), [
+        dispatch
+      ])}
       headerActions={[<SearchField className={classes.search} id="search-tag-details" onChange={setSearchString} />]}
     >
       <div ref={elementRef} className={classes.containerExpanded}>
         <div className={classes.container}>
           {/* tag name */}
           <div className={classes.columnLabel}>
-            <Typography variant="subtitle1">Tag name</Typography>
+            <Typography className={classes.columnTitle} variant="subtitle1">
+              Tag name
+            </Typography>
             <IconButton size="small" onClick={() => handleHeaderSort('name')}>
               <Tooltip title="Sort" className={classes.sortButton}>
                 {[1, 2].includes(sortSwitch - offsetName) ? (
@@ -292,7 +232,9 @@ const TagDetails = memo(({ handleHeightChange }) => {
 
           {/* category */}
           <div className={classNames(classes.columnLabel, classes.categoryLabel)}>
-            <Typography variant="subtitle1">Category</Typography>
+            <Typography className={classes.columnTitle} variant="subtitle1">
+              Category
+            </Typography>
             <IconButton size="small" onClick={() => handleHeaderSort('category')}>
               <Tooltip title="Sort" className={classes.sortButton}>
                 {[1, 2].includes(sortSwitch - offsetCategory) ? (
@@ -310,7 +252,9 @@ const TagDetails = memo(({ handleHeightChange }) => {
 
           {/* creator */}
           <div className={classNames(classes.columnLabel, classes.creatorLabel)}>
-            <Typography variant="subtitle1">Creator</Typography>
+            <Typography className={classes.columnTitle} variant="subtitle1">
+              Creator
+            </Typography>
             <IconButton size="small" onClick={() => handleHeaderSort('creator')}>
               <Tooltip title="Sort" className={classes.sortButton}>
                 {[1, 2].includes(sortSwitch - offsetCreator) ? (
@@ -328,7 +272,9 @@ const TagDetails = memo(({ handleHeightChange }) => {
 
           {/* date */}
           <div className={classNames(classes.columnLabel, classes.dateLabel)}>
-            <Typography variant="subtitle1">Date</Typography>
+            <Typography className={classes.columnTitle} variant="subtitle1">
+              Date
+            </Typography>
             <IconButton size="small" onClick={() => handleHeaderSort('date')}>
               <Tooltip title="Sort" className={classes.sortButton}>
                 {[1, 2].includes(sortSwitch - offsetDate) ? (

@@ -10,7 +10,8 @@ export const NglProvider = memo(props => {
     if (nglViewList.filter(ngl => ngl.id === id).length > 0) {
       console.log(new Error('Cannot register NGL View with used ID! ', id));
     } else {
-      let extendedList = nglViewList;
+      let extendedList = [...nglViewList];
+      // let extendedList = nglViewList;
       extendedList.push({ id, stage });
       setNglViewList(extendedList);
     }

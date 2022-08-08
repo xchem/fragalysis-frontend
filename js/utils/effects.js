@@ -9,7 +9,7 @@ const usePrevious = (value, initialValue) => {
   return ref.current;
 };
 
-export const useEffectDebugger = (effectHook, dependencies, dependencyNames = []) => {
+export const useEffectDebugger = (effectHook, dependencies, dependencyNames = [], effectName = '') => {
   const previousDeps = usePrevious(dependencies, []);
 
   const changedDeps = dependencies.reduce((accum, dependency, index) => {
@@ -28,7 +28,7 @@ export const useEffectDebugger = (effectHook, dependencies, dependencyNames = []
   }, {});
 
   if (Object.keys(changedDeps).length) {
-    console.log('[use-effect-debugger] ', changedDeps);
+    console.log(`[use-effect-debugger] ${effectName}`, changedDeps);
   }
 
   useEffect(effectHook, dependencies);

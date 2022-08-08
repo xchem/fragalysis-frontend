@@ -16,7 +16,7 @@ export const heightOfProjectHistory = '164px';
 
 const useStyles = makeStyles(theme => ({
   root: {
-    marginTop: theme.spacing()
+    height: '100%'
   },
   containerExpanded: {
     width: '100%',
@@ -232,16 +232,16 @@ export const ProjectHistory = memo(({ showFullHistory, graphKey, expanded, onExp
           </Button>,
           <Button color="inherit" variant="text" size="small" onClick={showFullHistory} startIcon={<MergeType />}>
             Detail
-          </Button>,
-          <Button
-            color="inherit"
-            variant="text"
-            size="small"
-            onClick={() => onTabChange('jobTable')}
-            startIcon={<DynamicFeed />}
-          >
-            Job Table
           </Button>
+          // <Button
+          //   color="inherit"
+          //   variant="text"
+          //   size="small"
+          //   onClick={() => onTabChange('jobTable')}
+          //   startIcon={<DynamicFeed />}
+          // >
+          //   Job Table
+          // </Button>
         ]}
         hasExpansion
         defaultExpanded={expanded}

@@ -1,6 +1,6 @@
 {
   "name": "fragalysis-frontend",
-  "version": "0.10.122",
+  "version": "0.10.124",
   "description": "Frontend for fragalysis",
   "main": "webpack.config.js",
   "scripts": {
@@ -67,9 +67,12 @@
     "react-dom": "^16.12.0",
     "react-event-timeline": "^1.6.3",
     "react-grid-gallery": "^0.5.5",
+    "react-grid-layout": "^1.3.4",
     "react-hot-loader": "^4.12.18",
     "react-infinite-scroller": "^1.2.4",
     "react-redux": "^7.1.3",
+    "react-resizable": "^3.0.4",
+    "react-reverse-portal": "^2.1.1",
     "react-router-dom": "^5.1.2",
     "react-svg-inline": "^2.1.0",
     "react-table": "^7.8.0",

@@ -58,7 +58,7 @@ export const initializeFilter = (object_selection, cached_mol_lists) => (dispatc
   for (let attr of MOL_ATTRIBUTES) {
     const lowAttr = attr.key.toLowerCase();
     let minValue = -999999;
-    let maxValue = 0;
+    let maxValue = -999999;
     for (let molecule of cached_mol_lists) {
       const attrValue = molecule[lowAttr];
       if (attrValue > maxValue) maxValue = attrValue;

@@ -23,8 +23,10 @@ import { DirectDownload } from '../direct/directDownload';
 
 const useStyles = makeStyles(theme => ({
   content: {
+    overflow: 'hidden',
     backgroundColor: theme.palette.background.default,
-    padding: theme.spacing(1)
+    flex: 1
+    // padding: theme.spacing(1)
   }
 }));
 
@@ -52,7 +54,7 @@ const Routes = memo(() => {
   }, [location]);
 
   return (
-    <Box minHeight="100vh" width="100%" margin={0}>
+    <Box height="100vh" width="100%" margin={0} display="flex" flexDirection="column">
       <Header headerHeight={headerHeight} setHeaderHeight={setHeaderHeight} />
       <Box className={classes.content} minHeight={contentHeight} width={contentWidth}>
         <Switch>
