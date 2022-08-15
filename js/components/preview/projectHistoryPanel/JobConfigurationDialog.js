@@ -32,6 +32,7 @@ import moment from 'moment';
 import { SnapshotType } from '../../projects/redux/constants';
 import { DJANGO_CONTEXT } from '../../../utils/djangoContext';
 import { VIEWS } from '../../../constants/constants';
+import { getSquonkProject } from '../redux/dispatchActions';
 
 const useStyles = makeStyles(theme => ({
   jobLauncherPopup: {
@@ -350,27 +351,33 @@ const JobConfigurationDialog = ({ snapshots }) => {
           return jobList.find(jobFiltered => job === jobFiltered.id);
         };
 
+        const repsonse = await jobFileTransfer({
+          snapshot: chosenSnapshot.id,
+          target: targetId,
+          squonk_project: dispatch(getSquonkProject()),
+          proteins: chosenLHSCompounds.join(),
+          compounds: chosenRHSCompounds.join()
+        });
+
+        let transfer_root = null;
+        let transfer_target = null;
+        if (repsonse.data.transfer_root && repsonse.data.transfer_target) {
+          transfer_root = repsonse.data.transfer_root;
+          transfer_target = repsonse.data.transfer_target;
+        }
+
         // Set options for second window
         dispatch(
           setJobLauncherData({
             job: getFilteredJob(job),
             snapshot: chosenSnapshot,
+            inputs_dir: `${transfer_root}/${transfer_target}`,
             // Prepares data for expanding, see comments in JobFragmentProteinSelectWindow
             data: {
               lhs: chosenLHSCompounds.map(compound => getMoleculeEnumName(compound))
             }
           })
         );
-
-        await jobFileTransfer({
-          snapshot: chosenSnapshot.id,
-          target: targetId,
-          // squonk_project: dispatch(getSquonkProject()),
-          // need to switch to squonk project id associated with the target in the (near?) future
-          squonk_project: 'project-e1ce441e-c4d1-4ad1-9057-1a11dbdccebe',
-          proteins: chosenLHSCompounds.join(),
-          compounds: chosenRHSCompounds.join()
-        });
 
         setErrorMsg(null);
         setIsError(false);

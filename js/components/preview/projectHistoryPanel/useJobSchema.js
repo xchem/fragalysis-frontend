@@ -25,6 +25,7 @@ export const expandVars = (string, data, firstRound = true) => {
 
 export const getCompileData = (target, djangoContext, jobLauncherData, fragalysisJobsVars = {}) => ({
   target,
+  inputs_dir: jobLauncherData?.inputs_dir,
   username: djangoContext?.username,
   job_name: jobLauncherData?.job?.slug,
   timestamp: new Date().getTime(),

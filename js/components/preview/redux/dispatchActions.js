@@ -14,6 +14,7 @@ import { resetTrackingState } from '../../../reducers/tracking/actions';
 import { setTargetOn } from '../../../reducers/api/actions';
 import { resetNglTrackingState } from '../../../reducers/nglTracking/dispatchActions';
 import { resetViewerControlsState } from '../viewerControls/redux/actions';
+import { default_squonk_project } from '../../../../package.json';
 
 const loadProtein = nglView => (dispatch, getState) => {
   const state = getState();
@@ -175,6 +176,10 @@ export const getSquonkProject = () => (dispatch, getState) => {
   const currentTarget = allTargets?.find(t => t.id === currentTargetId);
 
   squonkProject = currentTarget?.default_squonk_project;
+
+  if (!squonkProject) {
+    squonkProject = default_squonk_project;
+  }
 
   return squonkProject;
 };
