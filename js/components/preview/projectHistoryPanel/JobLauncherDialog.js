@@ -13,6 +13,7 @@ import { DJANGO_CONTEXT } from '../../../utils/djangoContext';
 import { switchBetweenSnapshots } from '../redux/dispatchActions';
 import { NglContext } from '../../nglView/nglProvider';
 import { useHistory } from 'react-router-dom';
+import { getSquonkProject } from '../redux/dispatchActions';
 
 const useStyles = makeStyles(theme => ({
   jobLauncherPopup: {
@@ -119,8 +120,7 @@ const JobLauncherDialog = () => {
       squonk_job_name: 'fragmenstein-combine',
       snapshot: jobLauncherData?.snapshot.id,
       target: targetId,
-      // squonk_project: dispatch(getSquonkProject()),
-      squonk_project: 'project-d89f85d2-cec1-4449-9435-6323bb5c34e0',
+      squonk_project: dispatch(getSquonkProject()),
       squonk_job_spec: JSON.stringify({
         collection: 'fragmenstein',
         job: 'fragmenstein-combine',

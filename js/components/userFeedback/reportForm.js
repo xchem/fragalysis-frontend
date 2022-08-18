@@ -543,7 +543,7 @@ export const ReportForm = memo(({ formType }) => {
                 {formState.imageSource ? (
                   <div
                     ref={canvasWrapper}
-                    // TODO remove width and height!
+                    // TODO: remove width and height!
                     width={wrapperWidth}
                     height={wrapperHeight}
                     className={classes.canvasDrawWrapper}

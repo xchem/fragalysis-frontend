@@ -248,7 +248,7 @@ export const getFilteredDatasetMoleculeList = createSelector(
               }
               // String type
               else {
-                // TODO maybe in the future wi will filter string scores
+                // TODO: maybe in the future wi will filter string scores
               }
             }
           });

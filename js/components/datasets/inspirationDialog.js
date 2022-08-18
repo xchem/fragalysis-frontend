@@ -159,7 +159,7 @@ export const InspirationDialog = memo(
       molecule => moleculesToEditIds.includes(molecule.id) || molecule.id === molForTagEditId
     );
 
-    // TODO refactor from this line (duplicity in datasetMoleculeList.js)
+    // TODO: refactor from this line (duplicity in datasetMoleculeList.js)
     const isLigandOn = changeButtonClassname(
       ligandList.filter(moleculeID => allSelectedMolecules.find(molecule => molecule.id === moleculeID) !== undefined),
       allSelectedMolecules

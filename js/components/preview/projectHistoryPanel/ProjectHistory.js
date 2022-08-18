@@ -2,7 +2,7 @@ import React, { memo, useRef, useState } from 'react';
 import { Panel } from '../../common/Surfaces/Panel';
 import { templateExtend, TemplateName, Orientation, Gitgraph } from '@gitgraph/react';
 import { DynamicFeed, MergeType, PlayArrow, Refresh } from '@material-ui/icons';
-import { makeStyles } from '@material-ui/core';
+import { makeStyles, Tooltip } from '@material-ui/core';
 import { Button } from '../../common/Inputs/Button';
 import { useDispatch, useSelector } from 'react-redux';
 import palette from '../../../theme/palette';
@@ -11,6 +11,8 @@ import JobPopup from './JobPopup';
 import JobConfigurationDialog from './JobConfigurationDialog';
 import { setJobPopUpAnchorEl, setJobConfigurationDialogOpen, refreshJobsData } from '../../projects/redux/actions';
 import JobLauncherDialog from './JobLauncherDialog';
+import { DJANGO_CONTEXT } from '../../../utils/djangoContext';
+import { SQUONK_NOT_AVAILABLE } from './constants';
 
 export const heightOfProjectHistory = '164px';
 
@@ -212,24 +214,30 @@ export const ProjectHistory = memo(({ showFullHistory, graphKey, expanded, onExp
         hasHeader
         title="Project History"
         headerActions={[
-          <Button
-            color="inherit"
-            variant="text"
-            size="small"
-            onClick={() => dispatch(refreshJobsData())}
-            startIcon={<Refresh />}
-          >
-            Refresh
-          </Button>,
-          <Button
-            color="inherit"
-            variant="text"
-            size="small"
-            onClick={handleClickJobLauncher}
-            startIcon={<PlayArrow />}
-          >
-            Job Launcher
-          </Button>,
+          <Tooltip title={DJANGO_CONTEXT.squonk_available ? 'Refresh the job data' : SQUONK_NOT_AVAILABLE}>
+            <Button
+              color="inherit"
+              variant="text"
+              size="small"
+              onClick={() => dispatch(refreshJobsData())}
+              startIcon={<Refresh />}
+              disabled={DJANGO_CONTEXT.squonk_available === false}
+            >
+              Refresh
+            </Button>
+          </Tooltip>,
+          <Tooltip title={DJANGO_CONTEXT.squonk_available ? 'Open the job launcher' : SQUONK_NOT_AVAILABLE}>
+            <Button
+              color="inherit"
+              variant="text"
+              size="small"
+              onClick={handleClickJobLauncher}
+              startIcon={<PlayArrow />}
+              disabled={DJANGO_CONTEXT.squonk_available === false}
+            >
+              Job Launcher
+            </Button>
+          </Tooltip>,
           <Button color="inherit" variant="text" size="small" onClick={showFullHistory} startIcon={<MergeType />}>
             Detail
           </Button>

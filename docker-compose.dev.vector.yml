@@ -29,8 +29,8 @@ services:
       NEO4J_dbms_memory_pagecache_size: 4G
   web:
     container_name: web_dock
-    image: xchem/fragalysis-stack:latest
-    # image: alanbchristie/fragalysis-backend:859.1
+    # image: xchem/fragalysis-stack:latest
+    image: alanbchristie/fragalysis-backend:859.18
     command: /bin/bash /code/launch-stack.sh
     volumes:
       - ../data/logs:/code/logs/
@@ -51,8 +51,8 @@ services:
       ISPYB_FLAG: 'False'
       DISCOURSE_DEV_POST_SUFFIX: '-boris-local'
       DISCOURSE_HOST: 'https://discourse.xchem-dev.diamond.ac.uk'
-      SQUONK_UI_URL: 'https://data-manager-ui.xchem-dev.diamond.ac.uk/data-manager-ui'
-      SQUONK_API_URL: 'https://data-manager.xchem-dev.diamond.ac.uk/data-manager-api'
+      SQUONK2_UI_URL: 'https://data-manager-ui.xchem-dev.diamond.ac.uk/data-manager-ui'
+      SQUONK2_DMAPI_URL: 'https://data-manager.xchem-dev.diamond.ac.uk/data-manager-api'
     depends_on:
       - database
       - graph

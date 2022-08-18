@@ -221,7 +221,7 @@ export const DatasetMoleculeList = memo(({ title, datasetID, url }) => {
 
   // const disableUserInteraction = useDisableUserInteraction();
 
-  // TODO Reset Infinity scroll
+  // TODO: Reset Infinity scroll
 
   const loadNextMolecules = async () => {
     await setNextXMolecules(0);
@@ -269,9 +269,9 @@ export const DatasetMoleculeList = memo(({ title, datasetID, url }) => {
     surface: removeDatasetSurface
   };
 
-  // TODO "currentMolecules" do not need to correspondent to selections in {type}List
-  // TODO so this could lead to inconsistend behaviour while scrolling
-  // TODO maybe change "currentMolecules.forEach" to "{type}List.forEach"
+  // TODO: "currentMolecules" do not need to correspondent to selections in {type}List
+  // TODO: so this could lead to inconsistend behaviour while scrolling
+  // TODO: maybe change "currentMolecules.forEach" to "{type}List.forEach"
 
   const removeSelectedType = (type, skipTracking) => {
     selectedMolecules.forEach(molecule => {
