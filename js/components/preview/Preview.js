@@ -35,6 +35,10 @@ import { useUpdateGridLayout } from './useUpdateGridLayout';
 import { createHtmlPortalNode, InPortal, OutPortal } from 'react-reverse-portal';
 import { RHS } from './rhs';
 import { ResizableLayout } from './ResizableLayout';
+import { loadMoleculesAndTags } from './tags/redux/dispatchActions';
+import { getTagMolecules } from './tags/api/tagsApi';
+import { compareTagsAsc } from './tags/utils/tagUtils';
+import { setMoleculeTags } from '../../reducers/api/actions';
 
 const ReactGridLayout = WidthProvider(ResponsiveGridLayout);
 
@@ -63,7 +67,7 @@ const useStyles = makeStyles(theme => ({
   }
 }));
 
-const Preview = memo(({ isStateLoaded, hideProjects }) => {
+const Preview = memo(({ isStateLoaded, hideProjects, isSnapshot = false }) => {
   const classes = useStyles();
   const theme = useTheme();
 
@@ -83,6 +87,21 @@ const Preview = memo(({ isStateLoaded, hideProjects }) => {
   const layoutLocked = useSelector(state => state.layoutReducers.layoutLocked);
 
   const nglPortal = useMemo(() => createHtmlPortalNode({ attributes: { style: 'height: 100%' } }), []);
+
+  useEffect(() => {
+    if (target_on && !isSnapshot) {
+      dispatch(loadMoleculesAndTags(target_on));
+    }
+  }, [dispatch, target_on, isSnapshot]);
+
+  useEffect(() => {
+    if (target_on) {
+      getTagMolecules(target_on).then(data => {
+        const sorted = data.results.sort(compareTagsAsc);
+        dispatch(setMoleculeTags(sorted));
+      });
+    }
+  }, [dispatch, target_on]);
 
   /*
      Loading datasets
@@ -258,4 +277,4 @@ const Preview = memo(({ isStateLoaded, hideProjects }) => {
   );
 });
 
-export default withSnapshotManagement(withUpdatingTarget(withLoadingProtein(withLoadingMolecules(Preview))));
+export default withSnapshotManagement(withUpdatingTarget(withLoadingProtein(Preview)));

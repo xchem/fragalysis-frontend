@@ -81,6 +81,7 @@ export const ProjectPreview = memo(({}) => {
 
   return canShow === true && isSnapshotLoaded.current !== undefined ? (
     <Preview
+      isSnapshot={true}
       isStateLoaded={isSnapshotLoaded.current !== null}
       hideProjects={
         DJANGO_CONTEXT['pk'] === undefined ||

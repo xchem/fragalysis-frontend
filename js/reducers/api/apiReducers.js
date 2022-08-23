@@ -47,7 +47,9 @@ export const INITIAL_STATE = {
   directDownloadInProgress: false,
   snapshotDownloadUrl: null,
   tagList: [],
-  categoryList: []
+  categoryList: [],
+  target_data_loading_in_progress: false,
+  all_data_loaded: false
 };
 
 export const RESET_TARGET_STATE = {
@@ -85,7 +87,9 @@ export const RESET_TARGET_STATE = {
   downloadTags: [],
   directDownloadInProgress: false,
   snapshotDownloadUrl: null,
-  tagList: []
+  tagList: [],
+  target_data_loading_in_progress: false,
+  all_data_loaded: false
 };
 
 export default function apiReducers(state = INITIAL_STATE, action = {}) {
@@ -129,6 +133,12 @@ export default function apiReducers(state = INITIAL_STATE, action = {}) {
       return Object.assign({}, state, {
         cached_mol_lists: action.cached_mol_lists
       });
+
+    case constants.SET_TARGET_DATA_LOADING_IN_PROGRESS:
+      return { ...state, target_data_loading_in_progress: action.targetDataLoadingInProgress };
+
+    case constants.SET_ALL_DATA_LOADED:
+      return { ...state, all_data_loaded: action.allDataLoaded };
 
     case constants.SET_MOLECULE_TAGS:
       return { ...state, moleculeTags: [...action.moleculeTags] };
