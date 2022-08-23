@@ -10,12 +10,14 @@ export const withLoadingMolecules = WrappedComponent => {
     const dispatch = useDispatch();
 
     const target_on = useSelector(state => state.apiReducers.target_on);
+    const isTrackingRestoring = useSelector(state => state.trackingReducers.isTrackingCompoundsRestoring);
+    const isAllDataLoaded = useSelector(state => state.apiReducers.all_data_loaded);
 
     useEffect(() => {
-      if (target_on) {
+      if (target_on && !isTrackingRestoring && !isAllDataLoaded) {
         dispatch(loadMoleculesAndTags(target_on));
       }
-    }, [dispatch, target_on]);
+    }, [dispatch, target_on, isTrackingRestoring, isAllDataLoaded]);
 
     useEffect(() => {
       if (target_on) {

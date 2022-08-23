@@ -724,7 +724,7 @@ const loadAllDatasets = (orderedActionList, target_on, stage) => async dispatch 
 };
 
 const loadAllMolecules = target_on => async (dispatch, getState) => {
-  return dispatch(loadMoleculesAndTags(target_on));
+  await dispatch(loadMoleculesAndTags(target_on));
 };
 
 const restoreSitesActions = (orderedActionList, summaryView) => (dispatch, getState) => {

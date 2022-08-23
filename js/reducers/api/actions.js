@@ -245,6 +245,20 @@ export const setSnapshotDownloadUrl = snapshotDownloadUrl => {
   };
 };
 
+export const setTargetDataLoadingInProgress = targetDataLoadingInProgress => {
+  return {
+    type: constants.SET_TARGET_DATA_LOADING_IN_PROGRESS,
+    targetDataLoadingInProgress: targetDataLoadingInProgress
+  };
+};
+
+export const setAllDataLoaded = allDataLoaded => {
+  return {
+    type: constants.SET_ALL_DATA_LOADED,
+    allDataLoaded: allDataLoaded
+  };
+};
+
 export const reloadApiState = function(apiReducers) {
   const cachedMolList = apiReducers.cached_mol_lists;
   let fixedCachedMolList = {};

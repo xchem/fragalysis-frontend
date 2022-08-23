@@ -24,7 +24,9 @@ import {
   updateTag,
   setTagList,
   appendTagList,
-  setCategoryList
+  setCategoryList,
+  setTargetDataLoadingInProgress,
+  setAllDataLoaded
 } from '../../../../reducers/api/actions';
 import { setSortDialogOpen } from '../../molecule/redux/actions';
 import { resetCurrentCompoundsSettings } from '../../compounds/redux/actions';
@@ -168,9 +170,13 @@ export const unselectTag = tag => (dispatch, getState) => {
 };
 
 export const loadMoleculesAndTags = targetId => async (dispatch, getState) => {
+  // const state = getState();
+  // const isDataLoadingInProgress = state.apiReducers.target_data_loading_in_progress;
+  // const isAllDataLoaded = state.apiReducers.all_data_loaded;
+  // if (!isDataLoadingInProgress && !isAllDataLoaded) {
+  // dispatch(setTargetDataLoadingInProgress(true));
   return getAllData(targetId).then(data => {
     let tags_info = [];
-    let downloadTags = [];
     if (data.tags_info && data.tags_info.length > 0) {
       dispatch(setNoTagsReceived(false));
       data.tags_info.forEach(tag => {
@@ -189,18 +195,6 @@ export const loadMoleculesAndTags = targetId => async (dispatch, getState) => {
         if (!newObject.additional_info) {
           tags_info.push(newObject);
         }
-        // } else if (newObject.additional_info.requestObject && newObject.additional_info.downloadName) {
-        //   if (DJANGO_CONTEXT.pk) {
-        //     if (newObject.user_id === DJANGO_CONTEXT.pk) {
-        //       downloadTags.push(newObject);
-        //     }
-        //   } else {
-        //     const diffInDays = diffBetweenDatesInDays(new Date(newObject.create_date), new Date());
-        //     if (diffInDays <= 5) {
-        //       downloadTags.push(newObject);
-        //     }
-        //   }
-        // }
       });
     }
 
@@ -231,6 +225,9 @@ export const loadMoleculesAndTags = targetId => async (dispatch, getState) => {
     const categories = getCategoryIds();
     tags_info = tags_info.sort(compareTagsAsc);
     dispatch(setTagSelectorData(categories, tags_info));
+    dispatch(setAllDataLoaded(true));
+    // dispatch(setTargetDataLoadingInProgress(false));
     //console.log(tags_info);
   });
+  // }
 };
