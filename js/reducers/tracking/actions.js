@@ -21,12 +21,12 @@ export const appendToUndoRedoActionList = function(track_action) {
   };
 };
 
-export const setUndoRedoActionList = (undo_redo_actions_list) => {
+export const setUndoRedoActionList = undo_redo_actions_list => {
   return {
     type: constants.SET_UNDO_REDO_ACTIONS_LIST,
     undo_redo_actions_list: undo_redo_actions_list
   };
-}
+};
 
 export const setCurrentActionsList = function(current_actions_list) {
   return {
@@ -88,6 +88,13 @@ export const setProjectActionList = function(project_actions_list) {
   return {
     type: constants.SET_PROJECT_ACTIONS_LIST,
     project_actions_list: project_actions_list
+  };
+};
+
+export const setProjectActionListLoaded = isLoaded => {
+  return {
+    type: constants.SET_PROJECT_ACTIONS_LIST_LOADED,
+    isLoaded: isLoaded
   };
 };
 

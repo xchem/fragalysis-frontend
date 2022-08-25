@@ -1,5 +1,5 @@
 import { constants } from './constants';
-import {undoable } from '../../undoredo/reducer';
+import { undoable } from '../../undoredo/reducer';
 import { includeAction } from '../../undoredo/helpers';
 
 export const INITIAL_STATE = {
@@ -18,7 +18,8 @@ export const INITIAL_STATE = {
   isActionRestoring: false,
   isActionRestored: false,
   isActionTracking: false,
-  trackingImageSource: ''
+  trackingImageSource: '',
+  isProjectActionListLoaded: false
 };
 
 export function trackingReducers(state = INITIAL_STATE, action = {}) {
@@ -37,10 +38,11 @@ export function trackingReducers(state = INITIAL_STATE, action = {}) {
       return Object.assign({}, state, {
         undo_redo_actions_list: [...new Set([...state.undo_redo_actions_list, action.track_action])]
       });
-    
+
     case constants.SET_UNDO_REDO_ACTIONS_LIST:
       return {
-        ...state, undo_redo_actions_list: action.undo_redo_actions_list
+        ...state,
+        undo_redo_actions_list: action.undo_redo_actions_list
       };
 
     case constants.SET_CURRENT_ACTIONS_LIST:
@@ -103,6 +105,10 @@ export function trackingReducers(state = INITIAL_STATE, action = {}) {
         isActionRestoring: action.isActionRestoring,
         isActionRestored: action.isActionRestored
       });
+
+    case constants.SET_PROJECT_ACTIONS_LIST_LOADED:
+      return { ...state, isProjectActionListLoaded: action.isLoaded };
+
     case constants.SET_IS_ACTION_TRACKING:
       return Object.assign({}, state, {
         isActionTracking: action.isActionTracking
@@ -112,7 +118,7 @@ export function trackingReducers(state = INITIAL_STATE, action = {}) {
       return Object.assign({}, state, {
         trackingImageSource: action.payload
       });
-      
+
     case constants.RESET_TRACKING_STATE:
       return INITIAL_STATE;
 

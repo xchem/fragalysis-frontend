@@ -250,11 +250,30 @@ const JobConfigurationDialog = ({ snapshots }) => {
       let chosenSnapshot = null;
       if (inputs === 'snapshot') {
         chosenSnapshot = snapshot;
-        chosenLHSCompounds = snapshot.additional_info.currentSnapshotSelectedCompounds;
+        if (!snapshot.additional_info) {
+          chosenSnapshot = await createSnapshot();
+          const currentSnapshotSelectedCompounds = getAllMolecules
+            .filter(molecule => currentSnapshotSelectedCompoundsIDs.includes(molecule.id))
+            .map(molecule => molecule.protein_code);
+
+          const currentSnapshotSelectedDatasetsCompounds = [];
+          Object.keys(selectedDatasetCompounds).map(datasetName => {
+            const selectedCompoundIds = selectedDatasetCompounds[datasetName];
+            const datasetCompounds = allDatasets[datasetName];
+            const selectedCompoundsNames = datasetCompounds
+              .filter(cmp => selectedCompoundIds.includes(cmp.id))
+              .map(cmp => cmp.name);
+            currentSnapshotSelectedDatasetsCompounds.push(...selectedCompoundsNames);
+          });
+          chosenLHSCompounds = currentSnapshotSelectedCompounds;
+          chosenRHSCompounds = currentSnapshotSelectedDatasetsCompounds;
+        } else {
+          chosenLHSCompounds = snapshot.additional_info.currentSnapshotSelectedCompounds;
+        }
         const savedSelection = [];
-        Object.keys(currentSnapshot.additional_info.currentSnapshotSelectedDatasetsCompounds).map(datasetName => {
+        Object.keys(chosenSnapshot.additional_info.currentSnapshotSelectedDatasetsCompounds).map(datasetName => {
           const selectedCompoundNames =
-            currentSnapshot.additional_info.currentSnapshotSelectedDatasetsCompounds[datasetName];
+            chosenSnapshot.additional_info.currentSnapshotSelectedDatasetsCompounds[datasetName];
           savedSelection.push(...selectedCompoundNames);
         });
         chosenRHSCompounds = savedSelection;
@@ -274,16 +293,19 @@ const JobConfigurationDialog = ({ snapshots }) => {
         });
 
         const savedSelection = [];
-        Object.keys(currentSnapshot.additional_info.currentSnapshotSelectedDatasetsCompounds).map(datasetName => {
-          const selectedCompoundNames =
-            currentSnapshot.additional_info.currentSnapshotSelectedDatasetsCompounds[datasetName];
-          savedSelection.push(...selectedCompoundNames);
-        });
+        if (currentSnapshot.additional_info) {
+          Object.keys(currentSnapshot.additional_info.currentSnapshotSelectedDatasetsCompounds).map(datasetName => {
+            const selectedCompoundNames =
+              currentSnapshot.additional_info.currentSnapshotSelectedDatasetsCompounds[datasetName];
+            savedSelection.push(...selectedCompoundNames);
+          });
+        }
 
         console.log('onSubmitForm checkpoint');
 
         // In case the selection is different from the one saved with the snapshot, create a new snapshot with the current selection
         if (
+          !currentSnapshot.additional_info ||
           !areArraysSame(
             currentSnapshot.additional_info.currentSnapshotSelectedCompounds,
             currentSnapshotSelectedCompounds
@@ -314,16 +336,19 @@ const JobConfigurationDialog = ({ snapshots }) => {
         });
 
         const savedVisibleCompounds = [];
-        Object.keys(currentSnapshot.additional_info.currentSnapshotVisibleDatasetsCompounds).map(datasetName => {
-          const visibleCompoundsNames =
-            currentSnapshot.additional_info.currentSnapshotVisibleDatasetsCompounds[datasetName];
-          savedVisibleCompounds.push(...visibleCompoundsNames);
-        });
+        if (currentSnapshot.additional_info) {
+          Object.keys(currentSnapshot.additional_info?.currentSnapshotVisibleDatasetsCompounds).map(datasetName => {
+            const visibleCompoundsNames =
+              currentSnapshot.additional_info.currentSnapshotVisibleDatasetsCompounds[datasetName];
+            savedVisibleCompounds.push(...visibleCompoundsNames);
+          });
+        }
 
         console.log('onSubmitForm checkpoint');
 
         // In case the visible mols are different from the ones saved with the snapshot, create a new snapshot with the current visible mols
         if (
+          !currentSnapshot.additional_info ||
           !areArraysSame(
             currentSnapshot.additional_info.currentSnapshotVisibleCompounds,
             currentSnapshotVisibleCompounds
@@ -473,12 +498,12 @@ const JobConfigurationDialog = ({ snapshots }) => {
                         className={(classes.marginLeft10, classes.width60)}
                         label="Choose the snapshot"
                         disabled={values.inputs !== 'snapshot'}
-                        validate={value => {
-                          if (values.inputs === 'snapshot' && !value.additional_info) {
-                            return `Snapshot ${value.title} is not compatible with job functionality. You can try to select the snapshot directly and choose the option 'selected molecules'`;
-                          }
-                          // TODO: what to do if snapshot has nothing selected?
-                        }}
+                        // validate={value => {
+                        //   if (values.inputs === 'snapshot' && !value.additional_info) {
+                        //     return `Snapshot ${value.title} is not compatible with job functionality. You can try to select the snapshot directly and choose the option 'selected molecules'`;
+                        //   }
+                        //   // TODO: what to do if snapshot has nothing selected?
+                        // }}
                       >
                         {Object.values(snapshots).map(item => (
                           <MenuItem key={item.id} value={item}>
@@ -492,11 +517,11 @@ const JobConfigurationDialog = ({ snapshots }) => {
                         type="radio"
                         name="inputs"
                         value="selected-inputs"
-                        validate={() => {
-                          if (values.inputs === 'selected-inputs' && !currentSnapshot?.additional_info) {
-                            return "It can't be determined if the selection was changed from the saved selection in current snapshot. If you want to be sure please save current selection as a new snapshot and continue.";
-                          }
-                        }}
+                        // validate={() => {
+                        //   if (values.inputs === 'selected-inputs' && !currentSnapshot?.additional_info) {
+                        //     return "It can't be determined if the selection was changed from the saved selection in current snapshot. If you want to be sure please save current selection as a new snapshot and continue.";
+                        //   }
+                        // }}
                       />
                       Selected inputs
                       {errors.inputs && <FormHelperText error={true}>{errors.inputs}</FormHelperText>}
