@@ -2,7 +2,8 @@ import {
   setCurrentActionsList,
   setIsTrackingMoleculesRestoring,
   setIsTrackingCompoundsRestoring,
-  setIsUndoRedoAction
+  setIsUndoRedoAction,
+  setProjectActionListLoaded
 } from './actions';
 import { createInitAction } from './trackingActions';
 import { actionType, actionObjectType, NUM_OF_SECONDS_TO_IGNORE_MERGE, mapTypesStrings } from './constants';
@@ -1657,16 +1658,19 @@ const restoreViewerControlActions = moleculesAction => dispatch => {
 };
 
 const restoreSnapshotImageActions = projectID => async (dispatch, getState) => {
-  let actionList = await dispatch(getTrackingActions(projectID));
-
-  let snapshotActions = actionList.filter(action => action.type === actionType.SNAPSHOT);
-  if (snapshotActions) {
-    let actions = snapshotActions.map(s => {
-      return { id: s.object_id, image: s.image, title: s.object_name, timestamp: s.timestamp };
-    });
-    const key = 'object_id';
-    const arrayUniqueByKey = [...new Map(actions.map(item => [item[key], item])).values()];
-    dispatch(setSnapshotImageActionList(arrayUniqueByKey));
+  const state = getState();
+  const isProjectActionListLoaded = state.trackingReducers.isProjectActionListLoaded;
+  if (!isProjectActionListLoaded) {
+    let actionList = await dispatch(getTrackingActions(projectID));
+    let snapshotActions = actionList.filter(action => action.type === actionType.SNAPSHOT);
+    if (snapshotActions) {
+      let actions = snapshotActions.map(s => {
+        return { id: s.object_id, image: s.image, title: s.object_name, timestamp: s.timestamp };
+      });
+      const key = 'object_id';
+      const arrayUniqueByKey = [...new Map(actions.map(item => [item[key], item])).values()];
+      dispatch(setSnapshotImageActionList(arrayUniqueByKey));
+    }
   }
 };
 
@@ -3333,10 +3337,13 @@ const sendTrackingActions = (sendActions, project, clear = false) => async (disp
 
 export const setProjectTrackingActions = () => (dispatch, getState) => {
   const state = getState();
-  const currentProject = state.projectReducers.currentProject;
-  const projectID = currentProject && currentProject.projectID;
-  dispatch(setProjectActionList([]));
-  dispatch(getTrackingActions(projectID, true));
+  const isProjectActionListLoaded = state.trackingReducers.isProjectActionListLoaded;
+  if (!isProjectActionListLoaded) {
+    const currentProject = state.projectReducers.currentProject;
+    const projectID = currentProject && currentProject.projectID;
+    dispatch(setProjectActionList([]));
+    dispatch(getTrackingActions(projectID, true));
+  }
 };
 
 const getTrackingActions = (projectID, withTreeSeparation) => (dispatch, getState) => {
@@ -3374,6 +3381,7 @@ const getTrackingActions = (projectID, withTreeSeparation) => (dispatch, getStat
 
         let projectActions = currentProjectID && currentProjectID != null ? [...listToSet, ...sendActions] : listToSet;
         dispatch(setProjectActionList(projectActions));
+        dispatch(setProjectActionListLoaded(true));
         return Promise.resolve(projectActions);
       })
       .catch(error => {
