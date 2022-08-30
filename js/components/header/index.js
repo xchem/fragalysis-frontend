@@ -253,6 +253,7 @@ export default memo(
                       // dispatch(setDialogCurrentStep(0));
                       // dispatch(setForceCreateProject(false));
                       history.push(URLS.landing);
+                      window.location.reload();
                     }}
                   >
                     Fragalysis: <b>{headerNavbarTitle}</b>
