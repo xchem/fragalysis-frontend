@@ -34,16 +34,22 @@
           "ui:widget": "hidden"
         },
         "count": {
-          "default": 5,
-          "readOnly": true
+          "type": "integer",
+          "default": 5
         },
-        "smiles": {
+        "smilesFieldName": {
           "type": "string",
           "default": "original SMILES",
           "ui:widget": "hidden"
         },
         "fragIdField": {
+          "type": "string",
           "default": "_Name",
+          "ui:widget": "hidden"
+        },
+        "proteinFieldName": {
+          "type": "string",
+          "default": "ref_pdb",
           "ui:widget": "hidden"
         }
       },
