@@ -87,6 +87,7 @@ const JobLauncherDialog = () => {
   const jobLauncherSquonkUrl = useSelector(state => state.projectReducers.jobLauncherSquonkUrl);
 
   const targetId = useSelector(state => state.apiReducers.target_on);
+  const targetName = useSelector(state => state.apiReducers.target_on_name);
 
   // Get data from previous window
   const jobLauncherData = useSelector(state => state.projectReducers.jobLauncherData);
@@ -106,6 +107,15 @@ const JobLauncherDialog = () => {
   // Used to preserve data when clicking the submit button, without it the form resets on submit
   const [formData, setFormData] = useState({});
 
+  const resolveSelectedProtein = (selectedProtein, uiEnum, dataEnum) => {
+    let result = '';
+    const dataEnumIndex = dataEnum.findIndex(item => item === selectedProtein);
+    if (dataEnumIndex >= 0) {
+      result = uiEnum[dataEnumIndex];
+    }
+    return result;
+  };
+
   const onSubmitForm = event => {
     setIsSubmitting(true);
 
@@ -114,7 +124,13 @@ const JobLauncherDialog = () => {
     setIsError(false);
     dispatch(setJobLauncherSquonkUrl(null));
 
-    const variables = recompileSchemaResult(event.formData);
+    const selectedProtein = resolveSelectedProtein(
+      event.formData.protein,
+      schema.properties.protein.enumNames,
+      schema.properties.protein.enum
+    );
+
+    const variables = recompileSchemaResult(event.formData, { selected_protein: selectedProtein });
 
     jobRequest({
       squonk_job_name: 'fragmenstein-combine',

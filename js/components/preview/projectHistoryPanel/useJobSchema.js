@@ -82,8 +82,9 @@ export const useJobSchema = jobLauncherData => {
 
   const targetName = useSelector(state => state.apiReducers.target_on_name);
 
-  const recompileSchemaResult = result => {
-    const data = getCompileData(targetName, DJANGO_CONTEXT, jobLauncherData, jobsSpec?.global);
+  const recompileSchemaResult = (result, postSubmitLauncherData) => {
+    let data = getCompileData(targetName, DJANGO_CONTEXT, jobLauncherData, jobsSpec?.global);
+    data = { ...data, ...postSubmitLauncherData };
 
     return Object.fromEntries(
       Object.entries(result).map(([key, value]) => {

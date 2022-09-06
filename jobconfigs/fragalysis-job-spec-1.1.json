@@ -1,9 +1,10 @@
 {
   "global": {
     "job_dir": "fragalysis-jobs/{username}/{job_name}-{timestamp}",
-    "inputs_dir": "fragalysis-files/{target}"
+    "inputs_dir": "fragalysis-files/{target}",
+    "protein_id": "{target}-{selected_protein}"
   },
-  "precompilation_ignore": ["job_dir"],
+  "precompilation_ignore": ["job_dir", "protein_id"],
   "fragalysis-jobs": [
     {
       "job_collection": "fragmenstein",
@@ -50,6 +51,11 @@
         "proteinFieldName": {
           "type": "string",
           "default": "ref_pdb",
+          "ui:widget": "hidden"
+        },
+        "proteinFieldValue": {
+          "type": "string",
+          "default": "{protein_id}",
           "ui:widget": "hidden"
         }
       },
