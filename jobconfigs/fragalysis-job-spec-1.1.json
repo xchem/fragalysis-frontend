@@ -2,7 +2,7 @@
   "global": {
     "job_dir": "fragalysis-jobs/{username}/{job_name}-{timestamp}",
     "inputs_dir": "fragalysis-files/{target}",
-    "protein_id": "{target}-{selected_protein}"
+    "protein_id": "{selected_protein}"
   },
   "precompilation_ignore": ["job_dir", "protein_id"],
   "fragalysis-jobs": [
