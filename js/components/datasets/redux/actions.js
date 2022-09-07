@@ -2,7 +2,7 @@ import { constants } from './constants';
 
 export const addDataset = dataset => ({ type: constants.ADD_DATASET, payload: dataset });
 
-// datasetList has to contain follow structure
+// datasetList has to contain following structure
 //[{ id: 0, title: 'First dataset' },...]
 export const setDataset = datasetList => ({
   type: constants.SET_DATASET,

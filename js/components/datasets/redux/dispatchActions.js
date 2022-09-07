@@ -247,23 +247,20 @@ export const loadNewDataSets = targetId => async (dispatch, getState) =>
     const state = getState();
     const currentDatasets = state.datasetsReducers.datasets;
     const addedDatasets = [];
-    dispatch(
-      setDataset(
-        response.data.results.map(ds => {
-          const found = currentDatasets.find(cs => cs.id === ds.name);
-          if (found) {
-            addedDatasets.push(found);
-            return {
-              id: ds.name,
-              title: ds.unique_name,
-              url: ds.method_url,
-              version: ds.spec_version,
-              submitted_sdf: ds.submitted_sdf
-            };
-          }
-        })
-      )
-    );
+    response.data.results.forEach(ds => {
+      const found = currentDatasets.find(cs => cs.id === ds.name);
+      if (!found) {
+        const dataset = {
+          id: ds.name,
+          title: ds.unique_name,
+          url: ds.method_url,
+          version: ds.spec_version,
+          submitted_sdf: ds.submitted_sdf
+        };
+        addedDatasets.push(dataset);
+      }
+    });
+    dispatch(setDataset(addedDatasets));
     return addedDatasets;
   });
 
