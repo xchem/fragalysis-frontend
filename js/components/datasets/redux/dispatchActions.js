@@ -250,7 +250,7 @@ export const loadNewDataSets = targetId => async (dispatch, getState) =>
     dispatch(
       setDataset(
         response.data.results.map(ds => {
-          const found = currentDatasets.find(cs => cs.id === ds.id);
+          const found = currentDatasets.find(cs => cs.id === ds.name);
           if (found) {
             addedDatasets.push(found);
             return {
