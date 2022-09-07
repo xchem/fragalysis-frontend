@@ -6,6 +6,7 @@ import { loadSnapshotTree } from '../../projects/redux/dispatchActions';
 import { base_url } from '../../routes/constants';
 import { ProjectHistory } from './ProjectHistory';
 import { JobTable } from '../jobTable';
+import { loadNewDatasetsAndCompounds } from '../../datasets/redux/dispatchActions';
 
 export const ProjectHistoryPanel = ({ showFullHistory }) => {
   const dispatch = useDispatch();
@@ -26,6 +27,7 @@ export const ProjectHistoryPanel = ({ showFullHistory }) => {
   useEffect(() => {
     if (currentSnapshotID !== null) {
       dispatch(loadSnapshotTree(projectID));
+      dispatch(loadNewDatasetsAndCompounds());
     }
   }, [currentSnapshotID, dispatch, projectID, snapshotId, refreshData]);
 

@@ -225,7 +225,7 @@ export const removeDatasetLigand = (stage, data, colourToggle, datasetID, skipTr
   dispatch(removeFromLigandList(datasetID, generateMoleculeCompoundId(data), skipTracking));
 };
 
-export const loadDataSets = targetId => dispatch =>
+export const loadDataSets = targetId => async dispatch => {
   api({ url: `${base_url}/api/compound-sets/?target=${targetId}` }).then(response => {
     dispatch(
       setDataset(
@@ -240,9 +240,35 @@ export const loadDataSets = targetId => dispatch =>
     );
     return response?.data?.results;
   });
+};
 
-export const loadDatasetCompoundsWithScores = () => (dispatch, getState) => {
-  const datasets = getState().datasetsReducers.datasets;
+export const loadNewDataSets = targetId => async (dispatch, getState) =>
+  api({ url: `${base_url}/api/compound-sets/?target=${targetId}` }).then(response => {
+    const state = getState();
+    const currentDatasets = state.datasetsReducers.datasets;
+    const addedDatasets = [];
+    dispatch(
+      setDataset(
+        response.data.results.map(ds => {
+          const found = currentDatasets.find(cs => cs.id === ds.id);
+          if (found) {
+            addedDatasets.push(found);
+            return {
+              id: ds.name,
+              title: ds.unique_name,
+              url: ds.method_url,
+              version: ds.spec_version,
+              submitted_sdf: ds.submitted_sdf
+            };
+          }
+        })
+      )
+    );
+    return addedDatasets;
+  });
+
+export const loadDatasetCompoundsWithScores = (datasetsToLoad = null) => (dispatch, getState) => {
+  const datasets = datasetsToLoad ? datasetsToLoad : getState().datasetsReducers.datasets;
   return Promise.all(
     datasets.map(dataset =>
       // Hint for develop purposes add param &limit=20
@@ -273,6 +299,11 @@ export const loadDatasetCompoundsWithScores = () => (dispatch, getState) => {
       })
     )
   );
+};
+
+export const loadNewDatasetsAndCompounds = targetId => async (dispatch, getState) => {
+  const newDatasets = await dispatch(loadNewDataSets(targetId));
+  dispatch(loadDatasetCompoundsWithScores(newDatasets));
 };
 
 export const loadDatasetsAndCompounds = targetId => async dispatch => {

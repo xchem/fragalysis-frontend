@@ -98,7 +98,7 @@ const JobPopup = ({ jobPopUpAnchorEl, jobPopupInfo }) => {
           >
             Open in Squonk
           </Button>
-          {/* {jobInfo?.job_status === 'SUCCESS' && (
+          {jobInfo?.job_status === 'SUCCESS' && (
             <Button
               color="secondary"
               size="large"
@@ -108,7 +108,7 @@ const JobPopup = ({ jobPopUpAnchorEl, jobPopupInfo }) => {
             >
               Upload
             </Button>
-          )} */}
+          )}
         </div>
       </div>
     </Popper>
