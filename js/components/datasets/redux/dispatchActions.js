@@ -10,6 +10,7 @@ import {
   removeFromComplexList,
   removeFromSurfaceList,
   setDataset,
+  addDataset,
   appendToScoreDatasetMap,
   appendToScoreCompoundMapByScoreCategory,
   updateFilterShowedScoreProperties,
@@ -258,9 +259,9 @@ export const loadNewDataSets = targetId => async (dispatch, getState) =>
           submitted_sdf: ds.submitted_sdf
         };
         addedDatasets.push(dataset);
+        dispatch(addDataset(dataset));
       }
     });
-    dispatch(setDataset(addedDatasets));
     return addedDatasets;
   });
 
