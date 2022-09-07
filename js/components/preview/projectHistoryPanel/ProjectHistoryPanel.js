@@ -20,6 +20,8 @@ export const ProjectHistoryPanel = ({ showFullHistory }) => {
 
   const refreshData = useSelector(state => state.projectReducers.refreshJobsData);
 
+  const target_on = useSelector(state => state.apiReducers.target_on);
+
   const [expanded, setExpanded] = useState(true);
   const [currentTab, setCurrentTab] = useState('projectHistory');
   const [graphKey, setGraphKey] = useState(new Date().getTime());
@@ -27,9 +29,9 @@ export const ProjectHistoryPanel = ({ showFullHistory }) => {
   useEffect(() => {
     if (currentSnapshotID !== null) {
       dispatch(loadSnapshotTree(projectID));
-      dispatch(loadNewDatasetsAndCompounds());
+      dispatch(loadNewDatasetsAndCompounds(target_on));
     }
-  }, [currentSnapshotID, dispatch, projectID, snapshotId, refreshData]);
+  }, [currentSnapshotID, dispatch, projectID, snapshotId, refreshData, target_on]);
 
   const currentSnapshotTreeId = currentSnapshotTree?.id;
   useEffect(() => {
