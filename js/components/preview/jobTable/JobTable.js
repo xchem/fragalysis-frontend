@@ -24,6 +24,7 @@ import { JobVariablesDialog } from './JobVariablesDialog';
 import { setSelectedRows } from './redux/actions';
 import { refreshJobsData } from '../../projects/redux/actions';
 import { loadDatasetsAndCompounds } from '../../datasets/redux/dispatchActions';
+import { PROJECTS_JOBS_PANEL_HEIGHT } from '../constants';
 
 const useStyles = makeStyles(theme => ({
   root: {
@@ -42,6 +43,7 @@ const useStyles = makeStyles(theme => ({
     }
   },
   containerExpanded: {
+    height: PROJECTS_JOBS_PANEL_HEIGHT,
     width: '100%',
     overflow: 'auto'
   },

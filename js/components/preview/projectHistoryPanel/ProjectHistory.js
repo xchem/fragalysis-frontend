@@ -13,8 +13,9 @@ import { setJobPopUpAnchorEl, setJobConfigurationDialogOpen, refreshJobsData } f
 import JobLauncherDialog from './JobLauncherDialog';
 import { DJANGO_CONTEXT } from '../../../utils/djangoContext';
 import { SQUONK_NOT_AVAILABLE } from './constants';
+import { PROJECTS_JOBS_PANEL_HEIGHT } from '../constants';
 
-export const heightOfProjectHistory = '164px';
+export const heightOfProjectHistory = PROJECTS_JOBS_PANEL_HEIGHT;
 
 const useStyles = makeStyles(theme => ({
   root: {
