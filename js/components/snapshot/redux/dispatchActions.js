@@ -251,22 +251,21 @@ export const createNewSnapshot = ({
     dispatch(setIsLoadingSnapshotDialog(true));
     let project = { projectID: session_project, authorID: author };
 
-    // await api({
-    //   url: `${base_url}/api/snapshots/`,
-    //   data: {
-    //     id: currentSnapshotId,
-    //     title,
-    //     description,
-    //     type: type,
-    //     author,
-    //     parent,
-    //     session_project,
-    //     children: currentSnapshot.children,
-    //     data: '[]',
-    //     additional_info: getAdditionalInfo(state)
-    //   },
-    //   method: METHOD.PUT
-    // });
+    await api({
+      url: `${base_url}/api/snapshots/${currentSnapshotId}`,
+      data: {
+        title,
+        description,
+        type: type,
+        author,
+        parent,
+        session_project,
+        children: currentSnapshot.children,
+        data: '[]',
+        additional_info: getAdditionalInfo(state)
+      },
+      method: METHOD.PUT
+    });
 
     return Promise.resolve(dispatch(addCurrentActionsListToSnapshot(currentSnapshot, project, nglViewList))).then(
       () => {
