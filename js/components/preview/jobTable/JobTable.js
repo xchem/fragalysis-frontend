@@ -107,6 +107,11 @@ export const JobTable = ({ expanded, onExpanded, onTabChange }) => {
         displayName: 'Name'
       },
       {
+        accessor: 'job_start_datetime',
+        Header: 'Date',
+        displayName: 'Date'
+      },
+      {
         accessor: 'user',
         Header: 'User',
         displayName: 'User'
@@ -148,24 +153,6 @@ export const JobTable = ({ expanded, onExpanded, onTabChange }) => {
             Open
           </MUIButton>
         )
-      },
-      {
-        id: 'upload',
-        disableSortBy: true,
-        Header: 'Upload',
-        displayName: 'Upload',
-        Cell: ({ row }) =>
-          row.original.job_status === 'SUCCESS' ? (
-            <MUIButton
-              variant="contained"
-              color="primary"
-              onClick={() => {
-                // dispatch(loadDatasetsAndCompounds(target_on));
-              }}
-            >
-              Upload
-            </MUIButton>
-          ) : null
       }
     ],
     [dispatch]
