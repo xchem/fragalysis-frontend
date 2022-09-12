@@ -23,7 +23,6 @@ import { Panel } from '../../common/Surfaces/Panel';
 import { JobVariablesDialog } from './JobVariablesDialog';
 import { setSelectedRows } from './redux/actions';
 import { refreshJobsData } from '../../projects/redux/actions';
-import { loadDatasetsAndCompounds } from '../../datasets/redux/dispatchActions';
 import { PROJECTS_JOBS_PANEL_HEIGHT } from '../constants';
 import { selectDatasetResultsForJob } from './redux/dispatchActions';
 
@@ -83,7 +82,7 @@ export const JobTable = ({ expanded, onExpanded, onTabChange }) => {
   const dispatch = useDispatch();
 
   const currentSnapshotJobList = useSelector(state => state.projectReducers.currentSnapshotJobList);
-  const target_on = useSelector(state => state.apiReducers.target_on);
+  const jobSpecsList = useSelector(state => state.projectReducers.jobList);
 
   const [selectedJob, setSelectedJob] = useState(null);
   const [jobInputsDialogOpen, setJobInputsDialogOpen] = useState(false);
@@ -95,9 +94,16 @@ export const JobTable = ({ expanded, onExpanded, onTabChange }) => {
     if (!currentSnapshotJobList) {
       return [];
     }
-
-    return Object.values(currentSnapshotJobList).flat();
-  }, [currentSnapshotJobList]);
+    const flatenedJobList = Object.values(currentSnapshotJobList).flat();
+    const result = [];
+    for (const job of flatenedJobList) {
+      const jobSpec = jobSpecsList.filter(js => js.slug === job.name);
+      if (jobSpec && !job.category) {
+        result.push({ ...job, category: jobSpec.spec.category });
+      }
+    }
+    return result;
+  }, [currentSnapshotJobList, jobSpecsList]);
 
   const columns = useMemo(
     () => [
@@ -105,6 +111,11 @@ export const JobTable = ({ expanded, onExpanded, onTabChange }) => {
         accessor: 'squonk_job_name',
         Header: 'Name',
         displayName: 'Name'
+      },
+      {
+        accessor: 'category',
+        Header: 'Category',
+        displayName: 'Category'
       },
       {
         accessor: 'job_start_datetime',
