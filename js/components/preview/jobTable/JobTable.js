@@ -99,10 +99,11 @@ export const JobTable = ({ expanded, onExpanded, onTabChange }) => {
     const result = [];
     for (const job of flatenedJobList) {
       const jobSpec = jobSpecsList.find(js => js.slug === job.name);
-      if (jobSpec && !job.category) {
+      if (jobSpec) {
         result.push({ ...job, category: jobSpec.spec.category });
       }
     }
+    console.log(`Result: ${JSON.stringify(result)}`);
     return result;
   }, [currentSnapshotJobList, jobSpecsList]);
 
