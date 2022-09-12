@@ -97,10 +97,16 @@ export const JobTable = ({ expanded, onExpanded, onTabChange }) => {
     const flatenedJobList = Object.values(currentSnapshotJobList).flat();
     // console.log(`Flatened job list: ${JSON.stringify(flatenedJobList)}`);
     const result = [];
-    console.log(`Job specs list: ${JSON.stringify(jobSpecsList)}`);
+    // console.log(`Job specs list: ${JSON.stringify(jobSpecsList)}`);
     for (const job of flatenedJobList) {
-      console.log(`Job: ${JSON.stringify(job)}`);
-      const jobSpec = jobSpecsList.find(js => js.slug === job.name);
+      // console.log(`Job: ${JSON.stringify(job)}`);
+      const jobSpec = jobSpecsList.find(js => {
+        console.log(`js.slug = ${js.slug}, job.name = ${job.name}`);
+        if (js.slug === job.name) {
+          console.log(`Found`);
+          return true;
+        }
+      });
       if (jobSpec) {
         result.push({ ...job, category: jobSpec.spec.category });
       }
