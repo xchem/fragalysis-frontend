@@ -227,7 +227,7 @@ export const removeDatasetLigand = (stage, data, colourToggle, datasetID, skipTr
 };
 
 export const loadDataSets = targetId => async dispatch => {
-  api({ url: `${base_url}/api/compound-sets/?target=${targetId}` }).then(response => {
+  return api({ url: `${base_url}/api/compound-sets/?target=${targetId}` }).then(response => {
     dispatch(
       setDataset(
         response.data.results.map(ds => ({
@@ -270,31 +270,35 @@ export const loadDatasetCompoundsWithScores = (datasetsToLoad = null) => (dispat
   return Promise.all(
     datasets.map(dataset =>
       // Hint for develop purposes add param &limit=20
-      api({ url: `${base_url}/api/compound-mols-scores/?computed_set=${dataset.id}` }).then(response => {
-        dispatch(
-          addMoleculeList(
-            dataset.id,
-            response.data.results.sort((a, b) => a.id - b.id)
-          )
-        );
+      api({ url: `${base_url}/api/compound-mols-scores/?computed_set=${dataset.id}` })
+        .then(response => {
+          dispatch(
+            addMoleculeList(
+              dataset.id,
+              response.data.results.sort((a, b) => a.id - b.id)
+            )
+          );
 
-        return api({ url: `${base_url}/api/compound-scores/?computed_set=${dataset.id}` }).then(res => {
-          if (res && res.data && res.data.results && res.data.results.length > 0) {
-            const scores = res?.data?.results;
-            let lastScore = scores.reduce((a, b) => ({ id: Math.max(a.id, b.id), name: '', description: '' }));
-            scores.unshift({ id: lastScore.id + 1, name: '_id', description: 'id of the compound' });
-            dispatch(
-              updateFilterShowedScoreProperties({
-                datasetID: dataset.id,
-                scoreList: scores?.slice(0, COUNT_OF_VISIBLE_SCORES)
-              })
-            );
-            scores?.map(item => {
-              dispatch(appendToScoreDatasetMap(dataset.id, item));
-            });
-          }
-        });
-      })
+          return api({ url: `${base_url}/api/compound-scores/?computed_set=${dataset.id}` }).then(res => {
+            if (res && res.data && res.data.results && res.data.results.length > 0) {
+              const scores = res?.data?.results;
+              let lastScore = scores.reduce((a, b) => ({ id: Math.max(a.id, b.id), name: '', description: '' }));
+              scores.unshift({ id: lastScore.id + 1, name: '_id', description: 'id of the compound' });
+              dispatch(
+                updateFilterShowedScoreProperties({
+                  datasetID: dataset.id,
+                  scoreList: scores?.slice(0, COUNT_OF_VISIBLE_SCORES)
+                })
+              );
+              scores?.map(item => {
+                dispatch(appendToScoreDatasetMap(dataset.id, item));
+              });
+            }
+          });
+        })
+        .catch(err => {
+          console.log(`failed to load compounds for ${dataset}`, err);
+        })
     )
   );
 };
@@ -311,17 +315,21 @@ export const loadDatasetsAndCompounds = targetId => async dispatch => {
 
 export const loadMoleculesOfDataSet = datasetID => dispatch =>
   // TODO: remove limit
-  api({ url: `${base_url}/api/compound-molecules/?compound_set=${datasetID}` }).then(response => {
-    dispatch(addMoleculeList(datasetID, response.data.results));
-    return Promise.all(
-      response?.data?.results?.map(compoundMolecule => {
-        return Promise.all([
-          dispatch(loadCompoundNumericalScoreList(compoundMolecule?.compound, datasetID)),
-          dispatch(loadCompoundTextScoreList(compoundMolecule?.compound, datasetID))
-        ]);
-      })
-    );
-  });
+  api({ url: `${base_url}/api/compound-molecules/?compound_set=${datasetID}` })
+    .then(response => {
+      dispatch(addMoleculeList(datasetID, response.data.results));
+      return Promise.all(
+        response?.data?.results?.map(compoundMolecule => {
+          return Promise.all([
+            dispatch(loadCompoundNumericalScoreList(compoundMolecule?.compound, datasetID)),
+            dispatch(loadCompoundTextScoreList(compoundMolecule?.compound, datasetID))
+          ]);
+        })
+      );
+    })
+    .catch(err => {
+      console.log(`failed to load compounds for ${datasetID}`, err);
+    });
 
 // TODO: remove this method loadCompoundScoresListOfDataSet
 // export const loadCompoundScoresListOfDataSet = datasetID => dispatch =>
