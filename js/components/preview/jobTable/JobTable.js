@@ -138,6 +138,7 @@ export const JobTable = ({ expanded, onExpanded, onTabChange }) => {
           <MUIButton
             variant="contained"
             color="primary"
+            disabled={row.original.computed_set == null}
             onClick={() => {
               setSelectedJob(row.original);
               dispatch(selectDatasetResultsForJob(row.original));
