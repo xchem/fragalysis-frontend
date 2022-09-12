@@ -25,6 +25,7 @@ import { setSelectedRows } from './redux/actions';
 import { refreshJobsData } from '../../projects/redux/actions';
 import { PROJECTS_JOBS_PANEL_HEIGHT } from '../constants';
 import { selectDatasetResultsForJob } from './redux/dispatchActions';
+import moment from 'moment';
 
 const useStyles = makeStyles(theme => ({
   root: {
@@ -95,23 +96,17 @@ export const JobTable = ({ expanded, onExpanded, onTabChange }) => {
       return [];
     }
     const flatenedJobList = Object.values(currentSnapshotJobList).flat();
-    // console.log(`Flatened job list: ${JSON.stringify(flatenedJobList)}`);
     const result = [];
-    // console.log(`Job specs list: ${JSON.stringify(jobSpecsList)}`);
     for (const job of flatenedJobList) {
-      // console.log(`Job: ${JSON.stringify(job)}`);
-      const jobSpec = jobSpecsList.find(js => {
-        console.log(`js.slug = ${js.slug}, job.name = ${job.name}`);
-        if (js.slug === job.name) {
-          console.log(`Found`);
-          return true;
-        }
-      });
+      const jobSpec = jobSpecsList.find(js => js.slug === job.squonk_job_name);
       if (jobSpec) {
-        result.push({ ...job, category: jobSpec.spec.category });
+        result.push({
+          ...job,
+          category: jobSpec.spec.category,
+          job_start_datetime: moment(job.job_start_datetime).format('LLL')
+        });
       }
     }
-    console.log(`Result: ${JSON.stringify(result)}`);
     return result;
   }, [currentSnapshotJobList, jobSpecsList]);
 
