@@ -281,14 +281,14 @@ export const JobTable = ({ expanded, onExpanded, onTabChange }) => {
             </TableBody>
           </Table>
 
-          <div className={classes.buttonRow}>
+          {/* <div className={classes.buttonRow}>
             <MUIButton variant="contained" color="primary" disabled={!selectedFlatRows.length}>
               Remove selected
             </MUIButton>
             <MUIButton variant="contained" color="primary" disabled={selectedFlatRows.length < 2}>
               Combine to new job
             </MUIButton>
-          </div>
+          </div> */}
 
           <JobVariablesDialog
             open={jobInputsDialogOpen}
