@@ -243,8 +243,8 @@ export const loadDataSets = targetId => async dispatch => {
   });
 };
 
-export const loadNewDataSets = targetId => async (dispatch, getState) =>
-  api({ url: `${base_url}/api/compound-sets/?target=${targetId}` }).then(response => {
+export const loadNewDataSets = targetId => async (dispatch, getState) => {
+  return api({ url: `${base_url}/api/compound-sets/?target=${targetId}` }).then(response => {
     const state = getState();
     const currentDatasets = state.datasetsReducers.datasets;
     const addedDatasets = [];
@@ -264,6 +264,7 @@ export const loadNewDataSets = targetId => async (dispatch, getState) =>
     });
     return addedDatasets;
   });
+};
 
 export const loadDatasetCompoundsWithScores = (datasetsToLoad = null) => (dispatch, getState) => {
   const datasets = datasetsToLoad ? datasetsToLoad : getState().datasetsReducers.datasets;
@@ -305,6 +306,7 @@ export const loadDatasetCompoundsWithScores = (datasetsToLoad = null) => (dispat
 
 export const loadNewDatasetsAndCompounds = targetId => async (dispatch, getState) => {
   const newDatasets = await dispatch(loadNewDataSets(targetId));
+  console.log(newDatasets);
   dispatch(loadDatasetCompoundsWithScores(newDatasets));
 };
 
