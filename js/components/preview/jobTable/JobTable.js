@@ -25,6 +25,7 @@ import { setSelectedRows } from './redux/actions';
 import { refreshJobsData } from '../../projects/redux/actions';
 import { loadDatasetsAndCompounds } from '../../datasets/redux/dispatchActions';
 import { PROJECTS_JOBS_PANEL_HEIGHT } from '../constants';
+import { selectDatasetResultsForJob } from './redux/dispatchActions';
 
 const useStyles = makeStyles(theme => ({
   root: {
@@ -139,7 +140,8 @@ export const JobTable = ({ expanded, onExpanded, onTabChange }) => {
             color="primary"
             onClick={() => {
               setSelectedJob(row.original);
-              setJobOutputsDialogOpen(true);
+              dispatch(selectDatasetResultsForJob(row.original));
+              // setJobOutputsDialogOpen(true);
             }}
           >
             Open
@@ -157,7 +159,7 @@ export const JobTable = ({ expanded, onExpanded, onTabChange }) => {
               variant="contained"
               color="primary"
               onClick={() => {
-                dispatch(loadDatasetsAndCompounds(target_on));
+                // dispatch(loadDatasetsAndCompounds(target_on));
               }}
             >
               Upload
@@ -165,7 +167,7 @@ export const JobTable = ({ expanded, onExpanded, onTabChange }) => {
           ) : null
       }
     ],
-    [dispatch, target_on]
+    [dispatch]
   );
 
   const { getTableProps, getTableBodyProps, headerGroups, prepareRow, rows, selectedFlatRows, allColumns } = useTable(
