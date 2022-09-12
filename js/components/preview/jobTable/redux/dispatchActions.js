@@ -13,6 +13,9 @@ export const selectDatasetResultsForJob = jobInfo => (dispatch, getState) => {
     const newTitle = datasetsList[datasetIndex]?.title;
     datasetIndex = datasetIndex + 2;
     console.log(`Selecting dataset index ${datasetIndex}`);
+    console.log(
+      `from job table - currentDatasetIndex: ${currentDatasetIndex} datasetIndex: ${datasetIndex} newTitle: ${newTitle} oldTitle: ${oldTitle}`
+    );
     dispatch(setSelectedDatasetIndex(currentDatasetIndex, datasetIndex, newTitle, oldTitle));
   }
 };
