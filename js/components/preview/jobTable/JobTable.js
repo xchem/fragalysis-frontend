@@ -95,6 +95,7 @@ export const JobTable = ({ expanded, onExpanded, onTabChange }) => {
       return [];
     }
     const flatenedJobList = Object.values(currentSnapshotJobList).flat();
+    console.log(`Flatened job list: ${JSON.stringify(flatenedJobList)}`);
     const result = [];
     for (const job of flatenedJobList) {
       const jobSpec = jobSpecsList.find(js => js.slug === job.name);
