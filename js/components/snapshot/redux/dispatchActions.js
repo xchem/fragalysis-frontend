@@ -236,7 +236,7 @@ export const createNewSnapshot = ({
   stage,
   overwriteSnapshot,
   createDiscourse = false
-}) => (dispatch, getState) => {
+}) => async (dispatch, getState) => {
   const state = getState();
   const selectedSnapshotToSwitch = state.snapshotReducers.selectedSnapshotToSwitch;
   const disableRedirect = state.snapshotReducers.disableRedirect;
@@ -250,6 +250,22 @@ export const createNewSnapshot = ({
   if (overwriteSnapshot === true && currentSnapshotId) {
     dispatch(setIsLoadingSnapshotDialog(true));
     let project = { projectID: session_project, authorID: author };
+
+    await api({
+      url: `${base_url}/api/snapshots/${currentSnapshotId}`,
+      data: {
+        title,
+        description,
+        type: type,
+        author,
+        parent,
+        session_project,
+        children: currentSnapshot.children,
+        data: '[]',
+        additional_info: getAdditionalInfo(state)
+      },
+      method: METHOD.PUT
+    });
 
     return Promise.resolve(dispatch(addCurrentActionsListToSnapshot(currentSnapshot, project, nglViewList))).then(
       () => {

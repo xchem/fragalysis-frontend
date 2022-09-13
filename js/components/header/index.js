@@ -60,6 +60,7 @@ import { setIsActionsRestoring, setProjectActionListLoaded } from '../../reducer
 import { layouts } from '../../reducers/layout/layouts';
 import { setDialogCurrentStep } from '../snapshot/redux/actions';
 import { setCurrentProject, setForceCreateProject } from '../projects/redux/actions';
+import { getVersions } from '../../utils/version';
 
 const useStyles = makeStyles(theme => ({
   padding: {
@@ -117,6 +118,7 @@ export default memo(
     const [openMenu, setOpenMenu] = useState(false);
     const [openFunders, setOpenFunders] = useState(false);
     const [openTrackingModal, setOpenTrackingModal] = useState(false);
+    const [versions, setVersions] = useState({});
 
     const layoutEnabled = useSelector(state => state.layoutReducers.layoutEnabled);
     const layoutLocked = useSelector(state => state.layoutReducers.layoutLocked);
@@ -131,6 +133,15 @@ export default memo(
     const discourseAvailable = isDiscourseAvailable();
     const targetDiscourseVisible = discourseAvailable && targetName;
     const projectDiscourseVisible = discourseAvailable && currentProject && currentProject.title;
+
+    useEffect(() => {
+      getVersions()
+        .then(response => {
+          console.log(response);
+          setVersions(response.data);
+        })
+        .catch(err => console.log(err));
+    }, []);
 
     const openXchem = () => {
       // window.location.href = 'https://www.diamond.ac.uk/Instruments/Mx/Fragment-Screening.html';
@@ -484,7 +495,15 @@ export default memo(
               {authListItem}
             </Grid>
             <Grid item>
-              <Typography variant="body2">Fragalysis version {version}</Typography>
+              {versions &&
+                versions.hasOwnProperty('version') &&
+                Object.entries(versions['version']).map(([sw, version]) => {
+                  return (
+                    <Typography variant="body2">
+                      {sw}: {version}
+                    </Typography>
+                  );
+                })}
             </Grid>
           </Grid>
         </Drawer>

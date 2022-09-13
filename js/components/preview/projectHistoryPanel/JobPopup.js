@@ -6,7 +6,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { setIsOpenModalBeforeExit, setSelectedSnapshotToSwitch } from '../../snapshot/redux/actions';
 import { setJobPopUpAnchorEl } from '../../projects/redux/actions';
 import { DJANGO_CONTEXT } from '../../../utils/djangoContext';
-import { loadDatasetsAndCompounds } from '../../datasets/redux/dispatchActions';
+import { loadNewDatasetsAndCompounds } from '../../datasets/redux/dispatchActions';
 
 const useStyles = makeStyles(theme => ({
   jobPopup: {
@@ -98,17 +98,17 @@ const JobPopup = ({ jobPopUpAnchorEl, jobPopupInfo }) => {
           >
             Open in Squonk
           </Button>
-          {/* {jobInfo?.job_status === 'SUCCESS' && (
+          {jobInfo?.job_status === 'SUCCESS' && (
             <Button
               color="secondary"
               size="large"
               onClick={() => {
-                dispatch(loadDatasetsAndCompounds(target_on));
+                dispatch(loadNewDatasetsAndCompounds(target_on));
               }}
             >
               Upload
             </Button>
-          )} */}
+          )}
         </div>
       </div>
     </Popper>

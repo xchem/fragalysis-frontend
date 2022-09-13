@@ -1,6 +1,6 @@
 {
   "name": "fragalysis-frontend",
-  "version": "0.10.146",
+  "version": "0.10.161",
   "default_squonk_project": "project-d89f85d2-cec1-4449-9435-6323bb5c34e0",
   "description": "Frontend for fragalysis",
   "main": "webpack.config.js",

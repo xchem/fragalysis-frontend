@@ -1,4 +1,9 @@
 import { constants } from './constants';
+// eslint-disable-next-line import/extensions
+import fragmentsteinSpec from '../../../../jobconfigs/fragmenstein-combine.json';
+// eslint-disable-next-line import/extensions
+import fragmentsteinOverrides from '../../../../jobconfigs/fragalysis-job-spec-1.1.json';
+
 const initCurrentSnapshot = {
   id: null,
   type: null,
@@ -40,7 +45,9 @@ export const INITIAL_STATE = {
       id: 1,
       name: 'Fragmenstein',
       description: 'Combine fragments into a single merged molecule.',
-      slug: 'fragmenstein-combine'
+      slug: 'fragmenstein-combine',
+      spec: fragmentsteinSpec,
+      overrides: fragmentsteinOverrides
     }
   ],
   jobPopUpAnchorEl: null,

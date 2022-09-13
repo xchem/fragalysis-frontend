@@ -23,7 +23,9 @@ import { Panel } from '../../common/Surfaces/Panel';
 import { JobVariablesDialog } from './JobVariablesDialog';
 import { setSelectedRows } from './redux/actions';
 import { refreshJobsData } from '../../projects/redux/actions';
-import { loadDatasetsAndCompounds } from '../../datasets/redux/dispatchActions';
+import { PROJECTS_JOBS_PANEL_HEIGHT } from '../constants';
+import { selectDatasetResultsForJob } from './redux/dispatchActions';
+import moment from 'moment';
 
 const useStyles = makeStyles(theme => ({
   root: {
@@ -42,6 +44,7 @@ const useStyles = makeStyles(theme => ({
     }
   },
   containerExpanded: {
+    height: PROJECTS_JOBS_PANEL_HEIGHT,
     width: '100%',
     overflow: 'auto'
   },
@@ -80,7 +83,7 @@ export const JobTable = ({ expanded, onExpanded, onTabChange }) => {
   const dispatch = useDispatch();
 
   const currentSnapshotJobList = useSelector(state => state.projectReducers.currentSnapshotJobList);
-  const target_on = useSelector(state => state.apiReducers.target_on);
+  const jobSpecsList = useSelector(state => state.projectReducers.jobList);
 
   const [selectedJob, setSelectedJob] = useState(null);
   const [jobInputsDialogOpen, setJobInputsDialogOpen] = useState(false);
@@ -92,9 +95,20 @@ export const JobTable = ({ expanded, onExpanded, onTabChange }) => {
     if (!currentSnapshotJobList) {
       return [];
     }
-
-    return Object.values(currentSnapshotJobList).flat();
-  }, [currentSnapshotJobList]);
+    const flatenedJobList = Object.values(currentSnapshotJobList).flat();
+    const result = [];
+    for (const job of flatenedJobList) {
+      const jobSpec = jobSpecsList.find(js => js.slug === job.squonk_job_name);
+      if (jobSpec) {
+        result.push({
+          ...job,
+          category: jobSpec.spec.category,
+          job_start_datetime: moment(job.job_start_datetime).format('LLL')
+        });
+      }
+    }
+    return result;
+  }, [currentSnapshotJobList, jobSpecsList]);
 
   const columns = useMemo(
     () => [
@@ -102,6 +116,16 @@ export const JobTable = ({ expanded, onExpanded, onTabChange }) => {
         accessor: 'squonk_job_name',
         Header: 'Name',
         displayName: 'Name'
+      },
+      {
+        accessor: 'category',
+        Header: 'Category',
+        displayName: 'Category'
+      },
+      {
+        accessor: 'job_start_datetime',
+        Header: 'Date',
+        displayName: 'Date'
       },
       {
         accessor: 'user',
@@ -135,35 +159,19 @@ export const JobTable = ({ expanded, onExpanded, onTabChange }) => {
           <MUIButton
             variant="contained"
             color="primary"
+            disabled={row.original.computed_set == null}
             onClick={() => {
               setSelectedJob(row.original);
-              setJobOutputsDialogOpen(true);
+              dispatch(selectDatasetResultsForJob(row.original));
+              // setJobOutputsDialogOpen(true);
             }}
           >
             Open
           </MUIButton>
         )
-      },
-      {
-        id: 'upload',
-        disableSortBy: true,
-        Header: 'Upload',
-        displayName: 'Upload',
-        Cell: ({ row }) =>
-          row.original.job_status === 'SUCCESS' ? (
-            <MUIButton
-              variant="contained"
-              color="primary"
-              onClick={() => {
-                dispatch(loadDatasetsAndCompounds(target_on));
-              }}
-            >
-              Upload
-            </MUIButton>
-          ) : null
       }
     ],
-    [dispatch, target_on]
+    [dispatch]
   );
 
   const { getTableProps, getTableBodyProps, headerGroups, prepareRow, rows, selectedFlatRows, allColumns } = useTable(
@@ -289,14 +297,14 @@ export const JobTable = ({ expanded, onExpanded, onTabChange }) => {
             </TableBody>
           </Table>
 
-          <div className={classes.buttonRow}>
+          {/* <div className={classes.buttonRow}>
             <MUIButton variant="contained" color="primary" disabled={!selectedFlatRows.length}>
               Remove selected
             </MUIButton>
             <MUIButton variant="contained" color="primary" disabled={selectedFlatRows.length < 2}>
               Combine to new job
             </MUIButton>
-          </div>
+          </div> */}
 
           <JobVariablesDialog
             open={jobInputsDialogOpen}

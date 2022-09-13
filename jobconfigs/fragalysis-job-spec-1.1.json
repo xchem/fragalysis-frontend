@@ -1,9 +1,10 @@
 {
   "global": {
     "job_dir": "fragalysis-jobs/{username}/{job_name}-{timestamp}",
-    "inputs_dir": "fragalysis-files/{target}"
+    "inputs_dir": "fragalysis-files/{target}",
+    "protein_id": "{selected_protein}"
   },
-  "precompilation_ignore": ["job_dir"],
+  "precompilation_ignore": ["job_dir", "protein_id"],
   "fragalysis-jobs": [
     {
       "job_collection": "fragmenstein",
@@ -34,16 +35,27 @@
           "ui:widget": "hidden"
         },
         "count": {
-          "default": 5,
-          "readOnly": true
+          "type": "integer",
+          "default": 5
         },
-        "smiles": {
+        "smilesFieldName": {
           "type": "string",
           "default": "original SMILES",
           "ui:widget": "hidden"
         },
         "fragIdField": {
+          "type": "string",
           "default": "_Name",
+          "ui:widget": "hidden"
+        },
+        "proteinFieldName": {
+          "type": "string",
+          "default": "ref_pdb",
+          "ui:widget": "hidden"
+        },
+        "proteinFieldValue": {
+          "type": "string",
+          "default": "{protein_id}",
           "ui:widget": "hidden"
         }
       },
