@@ -86,7 +86,8 @@ import {
   setFilterShowedScoreProperties,
   setDragDropState,
   resetDragDropState,
-  resetDatasetsStateOnSnapshotChange
+  resetDatasetsStateOnSnapshotChange,
+  resetDatasetScrolledMap
 } from '../../components/datasets/redux/actions';
 import { getUrl, loadAllMolsFromMolGroup } from '../../../js/utils/genericList';
 import {
@@ -888,6 +889,7 @@ export const restoreAfterTargetActions = (stages, projectId) => async (dispatch,
     dispatch(restoreNglSettingsAction(orderedActionList, majorView.stage));
     dispatch(setIsActionsRestoring(false, true));
     dispatch(restoreViewerControlActions(orderedActionList));
+    dispatch(resetDatasetScrolledMap()); // Have a look at useScrollToSelected.js
   }
 };
 
@@ -921,6 +923,7 @@ export const restoreAfterSnapshotChange = (stages, projectId) => async (dispatch
     dispatch(restoreNglStateAction(orderedActionList, stages));
     dispatch(restoreNglSettingsAction(orderedActionList, majorView.stage));
     dispatch(restoreCompoundsActions(orderedActionList, majorView.stage));
+    dispatch(resetDatasetScrolledMap()); // Have a look at useScrollToSelected.js
     dispatch(setIsActionsRestoring(false, true));
   }
 };

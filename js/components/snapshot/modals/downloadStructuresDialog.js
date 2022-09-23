@@ -685,6 +685,17 @@ export const DownloadStructureDialog = memo(({}) => {
               (For coders) Copy JSON for API call
             </Button>
           </Tooltip>
+          <Tooltip title="Navigates to github thread with curl and python examples.">
+            <Button
+              className={classes.button}
+              color="primary"
+              onClick={() => {
+                window.open('https://github.com/m2ms/fragalysis-frontend/issues/934#issuecomment-1245262143', '_blank');
+              }}
+            >
+              Show Examples
+            </Button>
+          </Tooltip>
           <Button
             className={classes.closeButton}
             onClick={() => {
