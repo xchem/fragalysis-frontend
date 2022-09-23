@@ -441,3 +441,12 @@ export const enableDatasetMoleculeNglControlButton = (datasetId, moleculeId, typ
 export const resetDatasetsStateOnSnapshotChange = () => ({
   type: constants.RESET_DATASETS_STATE_ON_SNAPSHOT_CHANGE
 });
+
+export const setDatasetScrolled = datasetId => ({
+  type: constants.SET_DATASET_SCROLLED,
+  payload: datasetId
+});
+
+export const resetDatasetScrolledMap = () => ({
+  type: constants.RESET_DATASET_SCROLLED_MAP
+});

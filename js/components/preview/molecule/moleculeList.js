@@ -777,7 +777,7 @@ export const MoleculeList = memo(({ hideProjects }) => {
         }
       }}
       color={'inherit'}
-      disabled={!joinedMoleculeListsCopy.length || predefinedFilter !== 'none'}
+      disabled={/*!joinedMoleculeListsCopy.length || */ predefinedFilter !== 'none'}
     >
       <Tooltip title="Filter/Sort">
         <FilterList />
