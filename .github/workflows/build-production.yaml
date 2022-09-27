@@ -1,0 +1,40 @@
+---
+name: build production
+
+# Actions that take place after every commit and tag on the production branch.
+
+# ---------------
+# Control secrets
+# ---------------
+#
+# (none)
+#
+# -----------
+# Environment (GitHub Environments)
+# -----------
+#
+# (none)
+
+on:
+  push:
+    branches:
+    - 'production'
+    tags:
+    # Only handle production-grade tags (i.e. "2022.1" or "1.0.0")
+    - '[0-9]+.[0-9]+'
+    - '[0-9]+.[0-9]+.[0-9]+'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v2
+    - name: Setup node
+      uses: actions/setup-node@v2
+      with:
+        node-version: '12.22.11'
+    - name: Install
+      run: yarn
+    - name: Build
+      run: yarn run build
