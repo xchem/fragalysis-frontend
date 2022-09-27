@@ -1,12 +1,10 @@
 ---
-name: build main
+name: build staging
 
-# Actions that take place after every commit the master/main branch.
-# Here every commit is built.
+# Actions that take place after every commit to the staging branch.
+# Here every commit is built and a new 'latest' stack build is triggered.
 #
 # Actions also run if the repository is tagged.
-#
-# Actions also run on a schedule.
 
 # ---------------
 # Control secrets
@@ -39,9 +37,13 @@ name: build main
 on:
   push:
     branches:
-    - '**'
-    tags:
-    - '**'
+    - 'staging'
+    tags-ignore:
+    # Ignore any production-grade tags (i.e. "2022.1" or "1.0.0"),
+    # they're reserved for the production branch. Here
+    # we expect a non-production tag, i.e. "2022.1-rc.1" or "1.0.0-rc.1"
+    - '[0-9]+.[0-9]+'
+    - '[0-9]+.[0-9]+.[0-9]+'
 
 env:
   # The following 'defaults' are used in the 'Initialise workflow variables' step,
@@ -52,12 +54,12 @@ env:
   #   For Jobs conditional on the presence of a secret see this Gist...
   #   https://gist.github.com/jonico/24ffebee6d2fa2e679389fac8aef50a3
   BE_IMAGE_TAG: latest
-  BE_NAMESPACE: xchem
-  FE_BRANCH: master
-  FE_NAMESPACE: xchem
+  BE_NAMESPACE: alanbchristie
+  FE_BRANCH: staging
+  FE_NAMESPACE: alanbchristie
   STACK_BRANCH: master
-  STACK_GITHUB_NAMESPACE: xchem
-  STACK_NAMESPACE: xchem
+  STACK_GITHUB_NAMESPACE: alanbchristie
+  STACK_NAMESPACE: alanbchristie
 
 jobs:
   build:

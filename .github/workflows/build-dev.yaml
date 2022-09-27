@@ -1,0 +1,40 @@
+---
+name: build dev
+
+# Actions that take place after every commit that's not on either the
+# staging ore production branches.
+
+# ---------------
+# Control secrets
+# ---------------
+#
+# (none)
+#
+# -----------
+# Environment (GitHub Environments)
+# -----------
+#
+# (none)
+
+on:
+  push:
+    branches-ignore:
+    - 'staging'
+    - 'production'
+    tags-ignore:
+    - '**'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v2
+    - name: Setup node
+      uses: actions/setup-node@v2
+      with:
+        node-version: '12.22.11'
+    - name: Install
+      run: yarn
+    - name: Build
+      run: yarn run build
