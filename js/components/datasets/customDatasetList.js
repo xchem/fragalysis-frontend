@@ -4,7 +4,7 @@
 import React, { useEffect, memo } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { clearDatasetSettings, initializeDatasetFilter } from './redux/dispatchActions';
-import { DatasetMoleculeList } from './datasetMoleculeList';
+import DatasetMoleculeList from './datasetMoleculeList';
 
 export const CustomDatasetList = memo(({ dataset, hideProjects, isActive }) => {
   const dispatch = useDispatch();

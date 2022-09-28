@@ -479,11 +479,11 @@ export const MoleculeList = memo(({ hideProjects }) => {
 
   const joinedMoleculeListsCopy = useMemo(() => [...joinedMoleculeLists], [joinedMoleculeLists]);
 
-  useEffect(() => {
-    if (!joinedMoleculeListsCopy.length) {
-      dispatch(setSortDialogOpen(false));
-    }
-  }, [dispatch, joinedMoleculeListsCopy.length]);
+  // useEffect(() => {
+  //   if (!joinedMoleculeListsCopy.length) {
+  //     dispatch(setSortDialogOpen(false));
+  //   }
+  // }, [dispatch, joinedMoleculeListsCopy.length]);
 
   const handleFilterChange = filter => {
     const filterSet = Object.assign({}, filter);

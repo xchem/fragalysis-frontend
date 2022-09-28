@@ -58,8 +58,6 @@ export const INITIAL_STATE = {
   // disables NGL control buttons for molecules
   disableDatasetsNglControlButtons: {}, // datasetID.moleculeID.nglButtonDisableState
 
-  disableDatasetsNglControlButtons: {}, // datasetID.moleculeID.nglButtonDisableState
-
   // Used for initially scrolling to firstly selected molecule when loading up a project
   datasetScrolledMap: {}
 };

@@ -12,8 +12,8 @@ import {
   IconButton,
   ButtonGroup
 } from '@material-ui/core';
-import React, { useState, useEffect, memo, useRef, useContext, useCallback } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
+import React, { useState, useEffect, memo, useRef, useContext, useCallback, useMemo } from 'react';
+import { useDispatch, useSelector, shallowEqual } from 'react-redux';
 import DatasetMoleculeView from './datasetMoleculeView';
 import { colourList } from '../preview/molecule/utils/color';
 import InfiniteScroll from 'react-infinite-scroller';
@@ -51,6 +51,7 @@ import SearchField from '../common/Components/SearchField';
 import useDisableDatasetNglControlButtons from './useDisableDatasetNglControlButtons';
 import GroupDatasetNglControlButtonsContext from './groupDatasetNglControlButtonsContext';
 import { useScrollToSelected } from './useScrollToSelected';
+import { useEffectDebugger } from '../../utils/effects';
 
 const useStyles = makeStyles(theme => ({
   container: {
@@ -187,7 +188,7 @@ const useStyles = makeStyles(theme => ({
   }
 }));
 
-export const DatasetMoleculeList = memo(({ title, datasetID, url }) => {
+const DatasetMoleculeList = ({ title, datasetID, url }) => {
   const classes = useStyles();
   const dispatch = useDispatch();
 
@@ -218,7 +219,9 @@ export const DatasetMoleculeList = memo(({ title, datasetID, url }) => {
 
   const filterRef = useRef();
 
-  const joinedMoleculeLists = useSelector(state => getJoinedMoleculeLists(datasetID, state));
+  const joinedMoleculeLists = useSelector(state => getJoinedMoleculeLists(datasetID, state), shallowEqual);
+
+  // console.log('DatasetMoleculeList - update');
 
   // const disableUserInteraction = useDisableUserInteraction();
 
@@ -360,41 +363,52 @@ export const DatasetMoleculeList = memo(({ title, datasetID, url }) => {
     return data;
   };
 
-  const actions = [
-    <SearchField
-      className={classes.search}
-      id="input-with-icon-textfield"
-      placeholder="Search"
-      onChange={value => {
-        dispatch(setSearchStringOfCompoundSet(value));
-        dispatch(setDragDropState(datasetID, null));
-      }}
-      disabled={isLoadingMoleculeList}
-    />,
-    <IconButton className={classes.panelButton} color={'inherit'} onClick={() => window.open(url, '_blank')}>
-      <Tooltip title="Link to dataset">
-        <Link />
-      </Tooltip>
-    </IconButton>,
-    <IconButton
-      className={classes.panelButton}
-      onClick={event => {
-        if (sortDialogOpen === false) {
-          setSortDialogAnchorEl(filterRef.current);
-          dispatch(setFilterDialogOpen(true));
-        } else {
-          setSortDialogAnchorEl(null);
-          dispatch(setFilterDialogOpen(false));
-        }
-      }}
-      color={'inherit'}
-      disabled={isLoadingMoleculeList}
-    >
-      <Tooltip title="Filter/Sort">
-        <FilterList />
-      </Tooltip>
-    </IconButton>
-  ];
+  const actions = useMemo(
+    () => [
+      <SearchField
+        className={classes.search}
+        id="input-with-icon-textfield"
+        placeholder="Search"
+        onChange={value => {
+          dispatch(setSearchStringOfCompoundSet(value));
+          dispatch(setDragDropState(datasetID, null));
+        }}
+        disabled={isLoadingMoleculeList}
+      />,
+      <IconButton className={classes.panelButton} color={'inherit'} onClick={() => window.open(url, '_blank')}>
+        <Tooltip title="Link to dataset">
+          <Link />
+        </Tooltip>
+      </IconButton>,
+      <IconButton
+        className={classes.panelButton}
+        onClick={event => {
+          if (sortDialogOpen === false) {
+            setSortDialogAnchorEl(filterRef.current);
+            dispatch(setFilterDialogOpen(true));
+          } else {
+            setSortDialogAnchorEl(null);
+            dispatch(setFilterDialogOpen(false));
+          }
+        }}
+        color={'inherit'}
+        disabled={isLoadingMoleculeList}
+      >
+        <Tooltip title="Filter/Sort">
+          <FilterList />
+        </Tooltip>
+      </IconButton>
+    ],
+    [classes, datasetID, dispatch, filterRef, isLoadingMoleculeList, sortDialogOpen, url]
+  );
+
+  // useEffectDebugger(
+  //   () => {},
+  //   [classes, datasetID, dispatch, filterRef, isLoadingMoleculeList, sortDialogOpen, url],
+  //   ['classes', 'datasetID', 'dispatch', 'filterRef', 'isLoadingMoleculeList', 'sortDialogOpen', 'url'],
+  //   'DatasetMoleculeList - headerActions'
+  // );
+
   /*useEffect(() => {
       // setCurrentPage(0);
     }, [object_selection]);*/
@@ -415,6 +429,72 @@ export const DatasetMoleculeList = memo(({ title, datasetID, url }) => {
   const groupDatasetsNglControlButtonsDisabledState = useDisableDatasetNglControlButtons(
     selectedMolecules.map(molecule => ({ datasetID, molecule }))
   );
+
+  // useEffectDebugger(
+  //   () => {},
+  //   [setSortDialogAnchorEl, loadNextMolecules, addMoleculeViewRef, setSelectedMoleculeRef, moveMolecule],
+  //   ['setSortDialogAnchorEl', 'loadNextMolecules', 'addMoleculeViewRef', 'setSelectedMoleculeRef', 'moveMolecule'],
+  //   'DatasetMoleculeList - functions'
+  // );
+
+  // useEffectDebugger(
+  //   () => {},
+  //   [
+  //     title,
+  //     datasetID,
+  //     url,
+  //     sortDialogOpen,
+  //     isOpenInspirationDialog,
+  //     isOpenCrossReferenceDialog,
+  //     moleculeLists,
+  //     isLoadingMoleculeList,
+  //     filteredScoreProperties,
+  //     filterMap,
+  //     filterSettings,
+  //     filterPropertiesMap,
+  //     filterProperties,
+  //     sortDialogAnchorEl,
+  //     isActiveFilter,
+  //     selectedMoleculeRef,
+  //     joinedMoleculeLists,
+  //     nextXMolecules,
+  //     currentPage,
+  //     compoundsToBuyList,
+  //     ligandList,
+  //     proteinList,
+  //     complexList,
+  //     surfaceList,
+  //     isOpenAlert
+  //   ],
+  //   [
+  //     'title',
+  //     'datasetID',
+  //     'url',
+  //     'sortDialogOpen',
+  //     'isOpenInspirationDialog',
+  //     'isOpenCrossReferenceDialog',
+  //     'moleculeLists',
+  //     'isLoadingMoleculeList',
+  //     'filteredScoreProperties',
+  //     'filterMap',
+  //     'filterSettings',
+  //     'filterPropertiesMap',
+  //     'filterProperties',
+  //     'sortDialogAnchorEl',
+  //     'isActiveFilter',
+  //     'selectedMoleculeRef',
+  //     'joinedMoleculeLists',
+  //     'nextXMolecules',
+  //     'currentPage',
+  //     'compoundsToBuyList',
+  //     'ligandList',
+  //     'proteinList',
+  //     'complexList',
+  //     'surfaceList',
+  //     'isOpenAlert'
+  //   ],
+  //   'DatasetMoleculeList'
+  // );
 
   return (
     <Panel hasHeader title={title} withTooltip headerActions={actions}>
@@ -678,4 +758,6 @@ export const DatasetMoleculeList = memo(({ title, datasetID, url }) => {
       </Grid>
     </Panel>
   );
-});
+};
+
+export default memo(DatasetMoleculeList);
