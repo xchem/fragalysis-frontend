@@ -1,6 +1,6 @@
-import React, { memo, useState } from 'react';
+import React, { memo, useState, useCallback } from 'react';
 import { Typography, Popper, Grid, FormControlLabel, Checkbox, IconButton, Tooltip } from '@material-ui/core';
-import { useDispatch, useSelector } from 'react-redux';
+import { useDispatch, useSelector, shallowEqual } from 'react-redux';
 import { makeStyles } from '@material-ui/styles';
 import WarningIcon from '@material-ui/icons/Warning';
 import { Delete, Close } from '@material-ui/icons';
@@ -20,6 +20,7 @@ import {
 import { DatasetMoleculeListSortFilter } from './datasetMoleculeListSortFilterItem';
 import { createFilterSettingsObject } from './redux/constants';
 import { Panel } from '../common/Surfaces/Panel';
+import { useEffectDebugger } from '../../utils/effects';
 
 const useStyles = makeStyles(theme => ({
   title: {
@@ -90,55 +91,109 @@ export const DatasetFilter = memo(
     const scoreDatasetList = useSelector(state => state.datasetsReducers.scoreDatasetMap[datasetID]);
     const scoreCompoundMap = useSelector(state => state.datasetsReducers.scoreCompoundMap[datasetID]);
     const filterWithInspirations = useSelector(state => state.datasetsReducers.filterWithInspirations);
-    const filteredDatasetMoleculeList = useSelector(state => getFilteredDatasetMoleculeList(state, datasetID));
+    const filteredDatasetMoleculeList = useSelector(
+      state => getFilteredDatasetMoleculeList(state, datasetID),
+      shallowEqual
+    );
 
     const [predefinedFilter, setPredefinedFilter] = useState(predefined);
+
+    // console.log('DatasetFilter - update');
+
+    // useEffectDebugger(
+    //   () => {},
+    //   [
+    //     open,
+    //     anchorEl,
+    //     datasetID,
+    //     active,
+    //     predefined,
+    //     priorityOrder,
+    //     filterProperties,
+    //     setSortDialogAnchorEl,
+    //     defaultFilterSettings,
+    //     defaultFilterProperties,
+    //     scoreDatasetList,
+    //     scoreCompoundMap,
+    //     filterWithInspirations,
+    //     filteredDatasetMoleculeList,
+    //     predefinedFilter
+    //   ],
+    //   [
+    //     'open',
+    //     'anchorEl',
+    //     'datasetID',
+    //     'active',
+    //     'predefined',
+    //     'priorityOrder',
+    //     'filterProperties',
+    //     'setSortDialogAnchorEl',
+    //     'defaultFilterSettings',
+    //     'defaultFilterProperties',
+    //     'scoreDatasetList',
+    //     'scoreCompoundMap',
+    //     'filterWithInspirations',
+    //     'filteredDatasetMoleculeList',
+    //     'predefinedFilter'
+    //   ],
+    //   'DatasetFilter'
+    // );
 
     const getScoreDefinitionObject = attr => {
       return scoreDatasetList[Object.keys(scoreDatasetList).find(attrName => attrName === attr)];
     };
 
-    const handleFilterChange = (newFilterProperties, newFilterSettings, key, prio, oldPrio) => {
-      Object.keys(scoreDatasetList).forEach(attrKey => {
-        if (newFilterProperties[attrKey].priority === undefined || newFilterProperties[attrKey].priority === '') {
-          newFilterProperties[attrKey].priority = 0;
+    const handleFilterChange = useCallback(
+      (newFilterProperties, newFilterSettings, key, prio, oldPrio) => {
+        // console.log('DatasetFilter - handleFilterChange');
+        Object.keys(scoreDatasetList).forEach(attrKey => {
+          if (newFilterProperties[attrKey].priority === undefined || newFilterProperties[attrKey].priority === '') {
+            newFilterProperties[attrKey].priority = 0;
+          }
+          if (attrKey === key && prio !== undefined && prio !== null) {
+            newFilterProperties[attrKey].newPrio = prio;
+            newFilterProperties[attrKey].oldPrio = oldPrio;
+          }
+        });
+        const newDragDropState = null;
+        dispatch(setDatasetFilter(datasetID, newFilterProperties, newFilterSettings, key, newDragDropState));
+        dispatch(setFilterProperties(datasetID, newFilterProperties));
+        dispatch(setFilterSettings(datasetID, newFilterSettings));
+        dispatch(setDragDropState(datasetID, newDragDropState));
+      },
+      [datasetID, dispatch, scoreDatasetList]
+    );
+
+    const handleItemChange = useCallback(
+      (key, setting) => {
+        const newFilterSettings = createFilterSettingsObject({ active: true, predefined, priorityOrder });
+        const newFilterProperties = { ...filterProperties, [key]: setting };
+        handleFilterChange(newFilterProperties, newFilterSettings, key);
+      },
+      [filterProperties, handleFilterChange, predefined, priorityOrder]
+    );
+
+    const handlePrioChange = useCallback(
+      (key, inc) => {
+        const maxPrio = Object.keys(scoreDatasetList).length - 1;
+        const minPrio = 0;
+        let localPriorityOrder = JSON.parse(JSON.stringify(priorityOrder));
+        const index = localPriorityOrder.indexOf(key);
+        if (index > -1 && index + inc >= minPrio && index <= maxPrio) {
+          localPriorityOrder.splice(index, 1);
+          localPriorityOrder.splice(index + inc, 0, key);
+          let newFilterSettings = createFilterSettingsObject({ active, predefined, priorityOrder: localPriorityOrder });
+          newFilterSettings.priorityOrder = localPriorityOrder;
+          newFilterSettings.active = true;
+
+          let oldPrio = index;
+          let newPrio = index + inc;
+          let newFilterProperties = { ...filterProperties };
+          handleFilterChange(newFilterProperties, newFilterSettings, key, newPrio, oldPrio);
         }
-        if (attrKey === key && prio !== undefined && prio !== null) {
-          newFilterProperties[attrKey].newPrio = prio;
-          newFilterProperties[attrKey].oldPrio = oldPrio;
-        }
-      });
-      const newDragDropState = null;
-      dispatch(setDatasetFilter(datasetID, newFilterProperties, newFilterSettings, key, newDragDropState));
-      dispatch(setFilterProperties(datasetID, newFilterProperties));
-      dispatch(setFilterSettings(datasetID, newFilterSettings));
-      dispatch(setDragDropState(datasetID, newDragDropState));
-    };
-
-    const handleItemChange = key => setting => {
-      const newFilterSettings = createFilterSettingsObject({ active: true, predefined, priorityOrder });
-      const newFilterProperties = { ...filterProperties, [key]: setting };
-      handleFilterChange(newFilterProperties, newFilterSettings, key);
-    };
-
-    const handlePrioChange = key => inc => () => {
-      const maxPrio = Object.keys(scoreDatasetList).length - 1;
-      const minPrio = 0;
-      let localPriorityOrder = JSON.parse(JSON.stringify(priorityOrder));
-      const index = localPriorityOrder.indexOf(key);
-      if (index > -1 && index + inc >= minPrio && index <= maxPrio) {
-        localPriorityOrder.splice(index, 1);
-        localPriorityOrder.splice(index + inc, 0, key);
-        let newFilterSettings = createFilterSettingsObject({ active, predefined, priorityOrder: localPriorityOrder });
-        newFilterSettings.priorityOrder = localPriorityOrder;
-        newFilterSettings.active = true;
-
-        let oldPrio = index;
-        let newPrio = index + inc;
-        let newFilterProperties = { ...filterProperties };
-        handleFilterChange(newFilterProperties, newFilterSettings, key, newPrio, oldPrio);
-      }
-    };
+      },
+      [active, filterProperties, handleFilterChange, predefined, priorityOrder, scoreDatasetList]
+    );
 
     const handleClear = () => {
       setPredefinedFilter('none');
@@ -255,6 +310,7 @@ export const DatasetFilter = memo(
                 !disabled && (
                   <DatasetMoleculeListSortFilter
                     key={attr}
+                    // scoreKey={attr}
                     datasetID={datasetID}
                     scoreName={scoreDefinition.name}
                     scoreDescription={scoreDefinition.description}
@@ -268,8 +324,8 @@ export const DatasetFilter = memo(
                     isBoolean={defaultFilterProperties[attr].isBoolean}
                     isChecked={defaultFilterProperties[attr].isChecked}
                     isString={defaultFilterProperties[attr].isString}
-                    onChange={handleItemChange(attr)}
-                    onChangePrio={handlePrioChange(attr)}
+                    onChange={handleItemChange}
+                    onChangePrio={handlePrioChange}
                   />
                 )
               );

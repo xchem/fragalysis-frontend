@@ -12,6 +12,7 @@ import classNames from 'classnames';
 import { Checkbox, Tooltip } from '@material-ui/core';
 import { useDispatch, useSelector } from 'react-redux';
 import { selectScoreProperty } from './redux/dispatchActions';
+import { useEffectDebugger } from '../../utils/effects';
 
 const useStyles = makeStyles(theme => ({
   centered: {
@@ -78,6 +79,7 @@ const widthSlider = 170;
 
 export const DatasetMoleculeListSortFilter = memo(
   ({
+    key,
     scoreName,
     scoreID,
     min,
@@ -99,11 +101,11 @@ export const DatasetMoleculeListSortFilter = memo(
     // Because Slider works only with Integers we convert Float to Int by multiplying with 100
     const MULT = 100;
 
-    let normMin = isBoolean ? min : (isFloat ? min * MULT : min);
-    let normMax = isBoolean ? max : (isFloat ? max * MULT : max);
+    let normMin = isBoolean ? min : isFloat ? min * MULT : min;
+    let normMax = isBoolean ? max : isFloat ? max * MULT : max;
 
-    let normMinValue = isBoolean ? minValue : (isFloat ? minValue * MULT : minValue);
-    let normMaxValue = isBoolean ? maxValue : (isFloat ? maxValue * MULT : maxValue);
+    let normMinValue = isBoolean ? minValue : isFloat ? minValue * MULT : minValue;
+    let normMaxValue = isBoolean ? maxValue : isFloat ? maxValue * MULT : maxValue;
 
     let classes = useStyles();
     //const [sliderValue, setSliderValue] = useState([0, 100]); //useState([normMinValue, normMaxValue]); // Internal state of slider
@@ -120,7 +122,51 @@ export const DatasetMoleculeListSortFilter = memo(
       isString
     };
 
+    // console.log('DatasetMoleculeListSortFilter - update');
+
+    // useEffectDebugger(
+    //   () => {},
+    //   [
+    //     key,
+    //     scoreName,
+    //     scoreID,
+    //     min,
+    //     max,
+    //     onChange,
+    //     isFloat,
+    //     isBoolean,
+    //     isChecked,
+    //     isString,
+    //     onChangePrio,
+    //     order,
+    //     minValue,
+    //     maxValue,
+    //     datasetID,
+    //     scoreDescription
+    //   ],
+    //   [
+    //     'key',
+    //     'scoreName',
+    //     'scoreID',
+    //     'min',
+    //     'max',
+    //     'onChange',
+    //     'isFloat',
+    //     'isBoolean',
+    //     'isChecked',
+    //     'isString',
+    //     'onChangePrio',
+    //     'order',
+    //     'minValue',
+    //     'maxValue',
+    //     'datasetID',
+    //     'scoreDescription'
+    //   ],
+    //   'DatasetMoleculeListSortFilter'
+    // );
+
     useEffect(() => {
+      console.log('useEffect');
       setSliderValue([normMinValue, normMaxValue]);
     }, [normMinValue, normMaxValue]);
 
@@ -128,7 +174,7 @@ export const DatasetMoleculeListSortFilter = memo(
       const isChecked = e.target.checked;
 
       setting.isChecked = isChecked;
-      onChange(setting);
+      onChange(scoreName, setting);
       setIsCheckedBoolean(isChecked);
     };
 
@@ -136,12 +182,13 @@ export const DatasetMoleculeListSortFilter = memo(
       const value = parseInt(e.target.value);
       if (value !== order) {
         setting.order = value;
-        onChange(setting);
+        onChange(scoreName, setting);
       }
     };
 
     // We use internal state for slider for improved performance, so the uncommitted value is not passed to parent for processing
     const handleChangeSlider = (event, newValue) => {
+      // console.log('handleChangeSlider');
       setSliderValue(newValue);
     };
 
@@ -155,7 +202,7 @@ export const DatasetMoleculeListSortFilter = memo(
         setting.isChecked = true;
       }
       setSliderCommittedValue(newValue);
-      onChange(setting);
+      onChange(scoreName, setting);
     };
 
     // // In case of 'CLEAR' filter we need reset internal state
@@ -189,7 +236,9 @@ export const DatasetMoleculeListSortFilter = memo(
               <Button
                 variant="outlined"
                 className={classNames(classes.prioButton, classes.prioButtonGreen)}
-                onClick={onChangePrio(-1)}
+                onClick={() => {
+                  onChangePrio(scoreName, -1);
+                }}
               >
                 <KeyboardArrowUp />
               </Button>
@@ -198,7 +247,9 @@ export const DatasetMoleculeListSortFilter = memo(
               <Button
                 variant="outlined"
                 className={classNames(classes.prioButton, classes.prioButtonRed)}
-                onClick={onChangePrio(1)}
+                onClick={() => {
+                  onChangePrio(scoreName, 1);
+                }}
               >
                 <KeyboardArrowDown />
               </Button>

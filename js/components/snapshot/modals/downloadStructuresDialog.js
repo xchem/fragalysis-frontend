@@ -690,7 +690,7 @@ export const DownloadStructureDialog = memo(({}) => {
               className={classes.button}
               color="primary"
               onClick={() => {
-                window.open('https://github.com/m2ms/fragalysis-frontend/issues/934#issuecomment-1245262143', '_blank');
+                window.open('https://github.com/xchem/fragalysis-frontend/blob/master/EXAMPLES.md', '_blank');
               }}
             >
               Show Examples

@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
+import { useDispatch, useSelector, shallowEqual } from 'react-redux';
 import { setDatasetScrolled } from './redux/actions';
 import { getJoinedMoleculeLists } from './redux/selectors';
 
@@ -9,7 +9,7 @@ import { getJoinedMoleculeLists } from './redux/selectors';
 export const useScrollToSelected = (datasetID, moleculesPerPage, setCurrentPage) => {
   const dispatch = useDispatch();
 
-  const joinedMoleculeLists = useSelector(state => getJoinedMoleculeLists(datasetID, state));
+  const joinedMoleculeLists = useSelector(state => getJoinedMoleculeLists(datasetID, state), shallowEqual);
   const compoundsToBuyList = useSelector(state => state.datasetsReducers.compoundsToBuyDatasetMap[datasetID]);
   const scrollFired = useSelector(state => state.datasetsReducers.datasetScrolledMap[datasetID]);
   const rhsOpen = useSelector(state => state.previewReducers.viewerControls.sidesOpen.RHS);
