@@ -289,17 +289,29 @@ export const datasetsReducers = (state = INITIAL_STATE, action = {}) => {
       return Object.assign({}, state, { scoreCompoundMap: {} });
 
     case constants.UPDATE_FILTER_SHOWED_SCORE_PROPERTIES:
-      if (state.filteredScoreProperties[action.payload.datasetID]) {
-        return { ...state };
-      } else {
-        return {
-          ...state,
-          filteredScoreProperties: {
-            ...state.filteredScoreProperties,
-            [action.payload.datasetID]: action.payload.scoreList
-          }
-        };
-      }
+      //why is this implemeted like this? I think it should be implemented like my uncommented implementation
+      // if (state.filteredScoreProperties[action.payload.datasetID]) {
+      //   return { ...state };
+      // } else {
+      //   return {
+      //     ...state,
+      //     filteredScoreProperties: {
+      //       ...state.filteredScoreProperties,
+      //       [action.payload.datasetID]: action.payload.scoreList
+      //     }
+      //   };
+      // }
+      // if (state.filteredScoreProperties[action.payload.datasetID]) {
+      return {
+        ...state,
+        filteredScoreProperties: {
+          ...state.filteredScoreProperties,
+          [action.payload.datasetID]: action.payload.scoreList
+        }
+      };
+    // } else {
+    //   return { ...state };
+    // }
 
     case constants.REMOVE_FROM_FILTER_SHOWED_SCORE_PROPERTIES:
       const diminishedFilterShowedScoreProperties = JSON.parse(JSON.stringify(state.filteredScoreProperties));
