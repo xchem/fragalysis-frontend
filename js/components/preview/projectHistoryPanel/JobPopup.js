@@ -98,17 +98,6 @@ const JobPopup = ({ jobPopUpAnchorEl, jobPopupInfo }) => {
           >
             Open in Squonk
           </Button>
-          {jobInfo?.job_status === 'SUCCESS' && (
-            <Button
-              color="secondary"
-              size="large"
-              onClick={() => {
-                dispatch(loadNewDatasetsAndCompounds(target_on));
-              }}
-            >
-              Upload
-            </Button>
-          )}
         </div>
       </div>
     </Popper>
