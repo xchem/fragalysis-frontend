@@ -517,7 +517,11 @@ export const datasetsReducers = (state = INITIAL_STATE, action = {}) => {
         allInspirations,
         filteredScoreProperties,
         selectedDatasetIndex,
-        tabValue
+        tabValue,
+        ligandLists,
+        proteinLists,
+        complexLists,
+        surfaceLists
       } = state;
 
       const newState = {
@@ -530,12 +534,12 @@ export const datasetsReducers = (state = INITIAL_STATE, action = {}) => {
         filteredScoreProperties,
         selectedDatasetIndex,
         tabValue,
-        ligandLists: {},
-        proteinLists: {},
-        complexLists: {},
-        surfaceLists: {},
         inspirationLists: {},
-        moleculeAllSelection: {}
+        moleculeAllSelection: {},
+        ligandLists,
+        proteinLists,
+        complexLists,
+        surfaceLists
       };
 
       Object.keys(moleculeLists).forEach(datasetID => initializeContainerLists(newState, datasetID));

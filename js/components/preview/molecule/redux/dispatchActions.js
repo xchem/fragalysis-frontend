@@ -208,7 +208,7 @@ export const addComplex = (
   colourToggle,
   skipTracking = false,
   representations = undefined
-) => dispatch => {
+) => async dispatch => {
   dispatch(appendComplexList(generateMoleculeId(data), skipTracking));
   return dispatch(
     loadObject({
@@ -239,7 +239,7 @@ export const addSurface = (
   colourToggle,
   skipTracking = false,
   representations = undefined
-) => dispatch => {
+) => async dispatch => {
   dispatch(appendSurfaceList(generateMoleculeId(data), skipTracking));
   return dispatch(
     loadObject({
@@ -299,10 +299,14 @@ export const addDensity = (
   });
 };
 
-const setDensity = (stage, data, colourToggle, isWireframeStyle, skipTracking = false, representations = undefined) => (
-  dispatch,
-  getState
-) => {
+const setDensity = (
+  stage,
+  data,
+  colourToggle,
+  isWireframeStyle,
+  skipTracking = false,
+  representations = undefined
+) => async (dispatch, getState) => {
   const prepParams = dispatch(getDensityChangedParams(isWireframeStyle));
   const densityObject = generateDensityObject(data, colourToggle, base_url, isWireframeStyle);
   const combinedObject = { ...prepParams, ...densityObject };
@@ -429,7 +433,7 @@ const setDensityCustom = (
   isWireframeStyle,
   skipTracking = false,
   representations = undefined
-) => (dispatch, getState) => {
+) => async (dispatch, getState) => {
   let densityObject = dispatch(getDensityChangedParams());
   densityObject = dispatch(toggleDensityWireframe(isWireframeStyle, densityObject));
   const oldDensityData = dispatch(deleteDensityObject(data, colourToggle, stage, !isWireframeStyle));
@@ -492,7 +496,7 @@ export const addHitProtein = (
   withQuality = false,
   skipTracking = false,
   representations = undefined
-) => dispatch => {
+) => async dispatch => {
   // data.sdf_info = molFile;
   dispatch(appendProteinList(generateMoleculeId(data), skipTracking));
   let hitProteinObject = generateHitProteinObject(data, colourToggle, base_url);
@@ -540,7 +544,7 @@ export const addLigand = (
   withQuality = false,
   skipTracking = false,
   representations = undefined
-) => (dispatch, getState) => {
+) => async (dispatch, getState) => {
   // data.sdf_info = molFile;
   const currentOrientation = stage.viewerControls.getOrientation();
   dispatch(appendFragmentDisplayList(generateMoleculeId(data), skipTracking));

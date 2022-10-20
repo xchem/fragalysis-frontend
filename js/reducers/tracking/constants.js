@@ -109,6 +109,19 @@ export const actionType = {
   ALL_MOLECULES_UNSELECTED: 'ALL_MOLECULES_UNSELECTED'
 };
 
+export const snapshotSwitchManualActions = [
+  actionType.LIGAND_TURNED_ON,
+  actionType.SIDECHAINS_TURNED_ON,
+  actionType.SURFACE_TURNED_ON,
+  actionType.DENSITY_TURNED_ON,
+  actionType.DENSITY_CUSTOM_TURNED_ON,
+  actionType.DENSITY_TYPE_ON, //I don't know what this one is for but it's not processed anywhere
+  actionType.QUALITY_TURNED_OFF,
+  actionType.VECTORS_TURNED_ON,
+  actionType.INTERACTIONS_TURNED_ON,
+  actionType.ALL_TURNED_ON
+];
+
 export const actionDescription = {
   LOADED: 'was loaded',
   TURNED_ON: 'was turned on',

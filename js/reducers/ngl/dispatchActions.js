@@ -298,9 +298,9 @@ export const setElectronDesityMapColor = (mapType, newValue, oldValue, major) =>
   dispatch(setColorAction(mapType, newValue, oldValue));
 };
 
-export const setWarningIcon = (newValue, oldValue) => (dispatch, getState) => {
+export const setWarningIcon = (newValue, oldValue, skipTracking) => (dispatch, getState) => {
   dispatch(setNglViewParams(COMMON_PARAMS.warningIcon, newValue));
-  dispatch(setWarningIconAction(newValue, oldValue));
+  dispatch(setWarningIconAction(newValue, oldValue, skipTracking));
 };
 
 const updateDensityMapByType = (type, stage, key, newValue) => (dispatch, getState) => {

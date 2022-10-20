@@ -204,7 +204,7 @@ const renderComplex = (ol, representations, orientationMatrix) => {
   //   stage.viewerControls.orient(orientationMatrix);
   // } else if (orientationMatrix === undefined) {
   //   comp.autoView('ligand');
-  //   //TODO setFocus should be in condition
+  //   //TODO: setFocus should be in condition
   //   comp.stage.setFocus(focus_let_temp);
   // }
 
