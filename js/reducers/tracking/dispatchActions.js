@@ -3,7 +3,8 @@ import {
   setIsTrackingMoleculesRestoring,
   setIsTrackingCompoundsRestoring,
   setIsUndoRedoAction,
-  setProjectActionListLoaded
+  setProjectActionListLoaded,
+  setIsSnapshotDirty
 } from './actions';
 import { createInitAction } from './trackingActions';
 import { actionType, actionObjectType, NUM_OF_SECONDS_TO_IGNORE_MERGE, mapTypesStrings } from './constants';
@@ -823,7 +824,10 @@ export const restoreStateBySavedActionList = () => (dispatch, getState) => {
 
   let onCancel = () => {};
   dispatch(loadTargetList(onCancel))
-    .then(() => dispatch(restoreTargetActions(orderedActionList)))
+    .then(() => {
+      dispatch(restoreTargetActions(orderedActionList));
+      dispatch(setIsSnapshotDirty(false));
+    })
     .catch(error => {
       throw new Error(error);
     });
@@ -883,6 +887,7 @@ export const restoreAfterTargetActions = (stages, projectId) => async (dispatch,
     dispatch(setIsActionsRestoring(false, true));
     dispatch(restoreViewerControlActions(orderedActionList));
     dispatch(resetDatasetScrolledMap()); // Have a look at useScrollToSelected.js
+    dispatch(setIsSnapshotDirty(false));
   }
 };
 
@@ -1219,16 +1224,23 @@ export const restoreNglSettingsAction = (orderedActionList, majorViewStage) => (
 };
 
 export const restoreNglStateAction = (orderedActionList, stages) => (dispatch, getState) => {
-  let actions = orderedActionList.filter(action => action.type === actionType.NGL_STATE);
-  let action = [...actions].pop();
-  if (action && action.nglStateList) {
-    action.nglStateList.forEach(nglView => {
-      dispatch(setOrientation(nglView.id, nglView.orientation));
-      let viewStage = stages.find(s => s.id === nglView.id);
-      if (viewStage) {
-        viewStage.stage.viewerControls.orient(nglView.orientation.elements);
-      }
-    });
+  const state = getState();
+  const skipOrientation = state.trackingReducers.skipOrientationChange;
+
+  if (!skipOrientation) {
+    let actions = orderedActionList.filter(action => action.type === actionType.NGL_STATE);
+    let action = [...actions].pop();
+    if (action && action.nglStateList) {
+      action.nglStateList.forEach(nglView => {
+        dispatch(setOrientation(nglView.id, nglView.orientation));
+        let viewStage = stages.find(s => s.id === nglView.id);
+        if (viewStage) {
+          console.count(`Before restoring orientation - restoreNglStateAction - tracking`);
+          viewStage.stage.viewerControls.orient(nglView.orientation.elements);
+          console.count(`After restoring orientation - restoreNglStateAction - tracking`);
+        }
+      });
+    }
   }
 };
 

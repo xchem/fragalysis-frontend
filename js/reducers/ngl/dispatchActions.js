@@ -48,8 +48,9 @@ export const loadObject = ({
   markAsRightSideLigand,
   loadQuality,
   quality
-}) => dispatch => {
+}) => async (dispatch, getState) => {
   if (stage) {
+    const state = getState();
     dispatch(incrementCountOfPendingNglObjects(target.display_div));
 
     const versionFixedTarget = JSON.parse(JSON.stringify(target));
@@ -57,6 +58,7 @@ export const loadObject = ({
       versionFixedTarget.OBJECT_TYPE = OBJECT_TYPE.HIT_PROTEIN;
     }
 
+    console.count(`Before object is loaded`);
     return nglObjectDictionary[versionFixedTarget.OBJECT_TYPE]({
       stage,
       input_dict: versionFixedTarget,
@@ -66,9 +68,11 @@ export const loadObject = ({
       markAsRightSideLigand,
       loadQuality,
       quality,
-      dispatch
+      dispatch,
+      state
     })
       .then(representations => {
+        console.count(`Object loaded`);
         if (representations && representations.length > 0) {
           if (versionFixedTarget.OBJECT_TYPE === OBJECT_TYPE.DENSITY) {
             representations.forEach(repr => {
@@ -183,8 +187,13 @@ export const setOrientationByInteraction = (div_id, orientation) => (dispatch, g
 export const centerOnLigandByMoleculeID = (stage, moleculeID) => (dispatch, getState) => {
   if (moleculeID && stage) {
     const state = getState();
-    const storedOrientation = state.nglReducers.moleculeOrientations[moleculeID];
-    stage.viewerControls.orient(storedOrientation);
+    const skipOrientation = state.trackingReducers.skipOrientationChange;
+    if (!skipOrientation) {
+      const storedOrientation = state.nglReducers.moleculeOrientations[moleculeID];
+      console.count(`Before applying orientation centerOnLigandByMoleculeID`);
+      stage.viewerControls.orient(storedOrientation);
+      console.count(`After applying orientation centerOnLigandByMoleculeID`);
+    }
   }
 };
 
@@ -224,15 +233,22 @@ export const reloadNglViewFromSnapshot = (stage, display_div, snapshot) => (disp
         dispatch(setNglViewParams(param, snapshot.viewParams[param], stage, VIEWS.MAJOR_VIEW));
       });
 
+      const state = getState();
+      const skipOrientation = state.trackingReducers.skipOrientationChange;
       // nglOrientations
-      const newOrientation = snapshot.nglOrientations[display_div];
-      if (newOrientation) {
-        stage.viewerControls.orient(newOrientation.elements);
-      }
+      if (!skipOrientation) {
+        const newOrientation = snapshot.nglOrientations[display_div];
+        console.count(`Orientation retrieved reloadNglViewFromSnapshot`);
+        if (newOrientation) {
+          console.count(`Before applying orientation reloadNglViewFromSnapshot`);
+          stage.viewerControls.orient(newOrientation.elements);
+          console.count(`After applying orientation reloadNglViewFromSnapshot`);
+        }
 
-      // set molecule orientations
-      if (snapshot.moleculeOrientations) {
-        dispatch(setMoleculeOrientations(snapshot.moleculeOrientations));
+        // set molecule orientations
+        if (snapshot.moleculeOrientations) {
+          dispatch(setMoleculeOrientations(snapshot.moleculeOrientations));
+        }
       }
     }
   });
@@ -328,7 +344,14 @@ export const isDensityMapVisible = (type, stage) => {
 };
 
 export const restoreNglOrientation = (orientation, oldOrientation, div_id, stages) => (dispatch, getState) => {
-  const view = stages.find(view => view.id === div_id);
-  view.stage.viewerControls.orient(orientation);
-  dispatch(setNglOrientationByInteraction(orientation, oldOrientation, div_id));
+  const state = getState();
+  const skipOrientation = state.trackingReducers.skipOrientationChange;
+
+  if (!skipOrientation) {
+    const view = stages.find(view => view.id === div_id);
+    console.count(`Before restoring orientation - restoreNglOrientation`);
+    view.stage.viewerControls.orient(orientation);
+    console.count(`After restoring orientation - restoreNglOrientation`);
+    dispatch(setNglOrientationByInteraction(orientation, oldOrientation, div_id));
+  }
 };

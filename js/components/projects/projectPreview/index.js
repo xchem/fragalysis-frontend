@@ -6,6 +6,7 @@ import { loadCurrentSnapshotByID, loadSnapshotByProjectID } from '../redux/dispa
 import { HeaderContext } from '../../header/headerContext';
 import { DJANGO_CONTEXT } from '../../../utils/djangoContext';
 import { restoreCurrentActionsList } from '../../../reducers/tracking/dispatchActions';
+import { setIsSnapshotDirty } from '../../../reducers/tracking/actions';
 import { setDownloadStructuresDialogOpen } from '../../snapshot/redux/actions';
 
 export const ProjectPreview = memo(({}) => {
@@ -28,6 +29,7 @@ export const ProjectPreview = memo(({}) => {
         .then(response => {
           if (response !== false) {
             isSnapshotLoaded.current = response;
+            dispatch(setIsSnapshotDirty(false));
             setCanShow(true);
           }
         })
@@ -43,6 +45,7 @@ export const ProjectPreview = memo(({}) => {
               if (response) {
                 if (response.session_project && `${response.session_project.id}` === projectId) {
                   isSnapshotLoaded.current = response.id;
+                  dispatch(setIsSnapshotDirty(false));
                   setCanShow(true);
                 } else {
                   setCanShow(false);

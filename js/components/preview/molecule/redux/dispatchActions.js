@@ -310,50 +310,48 @@ const setDensity = (
   const prepParams = dispatch(getDensityChangedParams(isWireframeStyle));
   const densityObject = generateDensityObject(data, colourToggle, base_url, isWireframeStyle);
   const combinedObject = { ...prepParams, ...densityObject };
-  return Promise.resolve(
-    dispatch(
-      loadObject({
-        target: Object.assign({ display_div: VIEWS.MAJOR_VIEW }, combinedObject),
-        stage,
-        previousRepresentations: representations,
-        orientationMatrix: null
-      })
-    ).finally(() => {
-      const currentOrientation = stage.viewerControls.getOrientation();
-      dispatch(setOrientation(VIEWS.MAJOR_VIEW, currentOrientation));
-      let molDataId = generateMoleculeId(data);
-      if (!data.proteinData) {
-        dispatch(getProteinData(data)).then(i => {
-          if (i && i.length > 0) {
-            const proteinData = i[0];
-            data.proteinData = proteinData;
-
-            molDataId['render_event'] = data.proteinData.render_event;
-            molDataId['render_sigmaa'] = data.proteinData.render_sigmaa;
-            molDataId['render_diff'] = data.proteinData.render_diff;
-            molDataId['render_quality'] = data.proteinData.render_quality;
-
-            dispatch(appendDensityList(generateMoleculeId(data), skipTracking));
-            dispatch(appendToDensityListType(molDataId, skipTracking));
-            if (data.proteinData.render_quality) {
-              return dispatch(addQuality(stage, data, colourToggle, true));
-            }
-          }
-        });
-      } else {
-        molDataId['render_event'] = data.proteinData.render_event;
-        molDataId['render_sigmaa'] = data.proteinData.render_sigmaa;
-        molDataId['render_diff'] = data.proteinData.render_diff;
-        molDataId['render_quality'] = data.proteinData.render_quality;
-
-        dispatch(appendDensityList(generateMoleculeId(data), skipTracking));
-        dispatch(appendToDensityListType(molDataId, skipTracking));
-        if (data.proteinData.render_quality) {
-          return dispatch(addQuality(stage, data, colourToggle, true));
-        }
-      }
+  dispatch(
+    loadObject({
+      target: Object.assign({ display_div: VIEWS.MAJOR_VIEW }, combinedObject),
+      stage,
+      previousRepresentations: representations,
+      orientationMatrix: null
     })
-  );
+  ).finally(() => {
+    const currentOrientation = stage.viewerControls.getOrientation();
+    dispatch(setOrientation(VIEWS.MAJOR_VIEW, currentOrientation));
+    let molDataId = generateMoleculeId(data);
+    if (!data.proteinData) {
+      dispatch(getProteinData(data)).then(i => {
+        if (i && i.length > 0) {
+          const proteinData = i[0];
+          data.proteinData = proteinData;
+
+          molDataId['render_event'] = data.proteinData.render_event;
+          molDataId['render_sigmaa'] = data.proteinData.render_sigmaa;
+          molDataId['render_diff'] = data.proteinData.render_diff;
+          molDataId['render_quality'] = data.proteinData.render_quality;
+
+          dispatch(appendDensityList(generateMoleculeId(data), skipTracking));
+          dispatch(appendToDensityListType(molDataId, skipTracking));
+          if (data.proteinData.render_quality) {
+            return dispatch(addQuality(stage, data, colourToggle, true));
+          }
+        }
+      });
+    } else {
+      molDataId['render_event'] = data.proteinData.render_event;
+      molDataId['render_sigmaa'] = data.proteinData.render_sigmaa;
+      molDataId['render_diff'] = data.proteinData.render_diff;
+      molDataId['render_quality'] = data.proteinData.render_quality;
+
+      dispatch(appendDensityList(generateMoleculeId(data), skipTracking));
+      dispatch(appendToDensityListType(molDataId, skipTracking));
+      if (data.proteinData.render_quality) {
+        return dispatch(addQuality(stage, data, colourToggle, true));
+      }
+    }
+  });
 };
 
 const getDensityChangedParams = (isWireframeStyle = undefined) => (dispatch, getState) => {
@@ -546,6 +544,7 @@ export const addLigand = (
   representations = undefined
 ) => async (dispatch, getState) => {
   // data.sdf_info = molFile;
+  console.count(`Grabbing orientation before loading ligand.`);
   const currentOrientation = stage.viewerControls.getOrientation();
   dispatch(appendFragmentDisplayList(generateMoleculeId(data), skipTracking));
 
@@ -566,14 +565,20 @@ export const addLigand = (
       loadQuality: hasAdditionalInformation,
       quality: qualityInformation
     })
-  ).finally(() => {
-    const ligandOrientation = stage.viewerControls.getOrientation();
-    dispatch(setOrientation(VIEWS.MAJOR_VIEW, ligandOrientation));
+  ).then(() => {
+    const state = getState();
+    const skipOrientation = state.trackingReducers.skipOrientationChange;
+    if (!skipOrientation) {
+      const ligandOrientation = stage.viewerControls.getOrientation();
+      dispatch(setOrientation(VIEWS.MAJOR_VIEW, ligandOrientation));
 
-    dispatch(appendMoleculeOrientation(data?.id, ligandOrientation));
-    if (centerOn === false) {
-      // keep current orientation of NGL View
-      stage.viewerControls.orient(currentOrientation);
+      dispatch(appendMoleculeOrientation(data?.id, ligandOrientation));
+      if (centerOn === false) {
+        // keep current orientation of NGL View
+        console.count(`Before applying orientation matrix after loading ligand.`);
+        stage.viewerControls.orient(currentOrientation);
+        console.count(`After applying orientation matrix after loading ligand.`);
+      }
     }
   });
 };
