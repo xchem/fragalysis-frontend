@@ -14,9 +14,9 @@ name: build staging
 # have the following GitHub 'Repository Secrets' defined
 # (i.e. via 'Settings -> Secrets'): -
 #
-# BE_IMAGE_TAG            optional - default latest
+# BE_IMAGE_TAG            optional - default stable
 # BE_NAMESPACE            optional - default xchem
-# FE_BRANCH               optional - default master
+# FE_BRANCH               optional - default staging
 # FE_NAMESPACE            optional - default xchem
 # STACK_BRANCH            optional - default master
 # STACK_GITHUB_NAMESPACE  optional - default xchem
@@ -129,6 +129,8 @@ jobs:
     - name: Build
       run: yarn run build
 
+    # Trigger the stack for this build,
+    # identifying the 'stable' backend (or whatever BE_IMAGE_TAG has been set)
     - name: Trigger stack
       if: steps.vars.outputs.trigger == 'true'
       uses: informaticsmatters/trigger-ci-action@v1

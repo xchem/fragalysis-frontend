@@ -108,6 +108,8 @@ jobs:
     - name: Build
       run: yarn run build
 
+    # Trigger the stack for this build,
+    # identifying the 'stable' backend (or whatever BE_IMAGE_TAG was used)
     - name: Trigger stack
       if: steps.vars.outputs.trigger == 'true'
       uses: informaticsmatters/trigger-ci-action@v1
