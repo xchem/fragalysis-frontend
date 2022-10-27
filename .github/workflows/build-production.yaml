@@ -7,7 +7,23 @@ name: build production
 # Control secrets
 # ---------------
 #
-# (none)
+# At the GitHub 'organisation' or 'project' level you are expected to
+# have the following GitHub 'Repository Secrets' defined
+# (i.e. via 'Settings -> Secrets'): -
+#
+# BE_IMAGE_TAG            optional - default stable
+# BE_NAMESPACE            optional - default xchem
+# FE_BRANCH               optional - default production
+# FE_NAMESPACE            optional - default xchem
+# STACK_BRANCH            optional - default master
+# STACK_GITHUB_NAMESPACE  optional - default xchem
+# STACK_NAMESPACE         optional - default xchem
+#
+# TRIGGER_DOWNSTREAM      optional - set to 'yes'
+#                                    to trigger downstream projects
+#
+# STACK_USER              optional - set if triggering
+# STACK_USER_TOKEN        optional - set if triggering
 #
 # -----------
 # Environment (GitHub Environments)
