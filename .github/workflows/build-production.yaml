@@ -103,9 +103,11 @@ jobs:
         echo set-output name=STACK_NAMESPACE::${STACK_NAMESPACE}
         echo ::set-output name=STACK_NAMESPACE::${STACK_NAMESPACE}
 
-        # What branch/tag are we using? 'production' branch (if not tagged) or a GitHub tag
+        # What branch/tag are we using?
+        # FE_BRANCH, or tag if used or a secret if no tag?
         TAG="${{ env.FE_BRANCH }}"
-        if [[ "${{ github.ref }}" =~ ^refs/tags/ ]]; then TAG="${{ env.GITHUB_REF_SLUG }}"; fi
+        if [[ "${{ github.ref }}" =~ ^refs/tags/ ]]; then TAG="${{ env.GITHUB_REF_SLUG }}";
+        elif [ -n "${{ secrets.FE_BRANCH }}" ]; then TAG="${{ secrets.FE_BRANCH }}"; fi
         echo set-output name=tag::${TAG}
         echo ::set-output name=tag::${TAG}
 
