@@ -448,6 +448,12 @@ const saveActionsList = (project, snapshot, actionList, nglViewList) => async (d
     getCommonLastActionByType(orderedActionList, actionType.CONTOUR_DIFF, currentActions);
     getCommonLastActionByType(orderedActionList, actionType.COLOR_DIFF, currentActions);
     getCommonLastActionByType(orderedActionList, actionType.WARNING_ICON, currentActions);
+    getCommonLastActionByType(orderedActionList, actionType.BACKGROUND_COLOR_CHANGED, currentActions);
+    getCommonLastActionByType(orderedActionList, actionType.CLIP_NEAR, currentActions);
+    getCommonLastActionByType(orderedActionList, actionType.CLIP_FAR, currentActions);
+    getCommonLastActionByType(orderedActionList, actionType.CLIP_DIST, currentActions);
+    getCommonLastActionByType(orderedActionList, actionType.FOG_NEAR, currentActions);
+    getCommonLastActionByType(orderedActionList, actionType.FOG_FAR, currentActions);
 
     // Since drag and drop state can be influenced by filter as well, determine its state by the last influential action
     const action = orderedActionList.find(action =>
