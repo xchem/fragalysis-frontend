@@ -292,7 +292,34 @@ export function selectionReducers(state = INITIAL_STATE, action = {}) {
       });
 
     case constants.RESET_SELECTION_STATE:
-      return INITIAL_STATE;
+      const {
+        vector_list,
+        fragmentDisplayList,
+        proteinList,
+        complexList,
+        surfaceList,
+        densityList,
+        densityListType,
+        densityListCustom,
+        qualityList,
+        vectorOnList,
+        informationList
+      } = state;
+      const newState = {
+        ...INITIAL_STATE,
+        vector_list,
+        fragmentDisplayList,
+        proteinList,
+        complexList,
+        surfaceList,
+        densityList,
+        densityListType,
+        densityListCustom,
+        qualityList,
+        vectorOnList,
+        informationList
+      };
+      return newState;
 
     case constants.SET_MOL_GROUP_SELECTION:
       return Object.assign({}, state, {

@@ -3,7 +3,8 @@ import {
   setIsTrackingMoleculesRestoring,
   setIsTrackingCompoundsRestoring,
   setIsUndoRedoAction,
-  setProjectActionListLoaded
+  setProjectActionListLoaded,
+  setIsSnapshotDirty
 } from './actions';
 import { createInitAction } from './trackingActions';
 import { actionType, actionObjectType, NUM_OF_SECONDS_TO_IGNORE_MERGE, mapTypesStrings } from './constants';
@@ -13,15 +14,14 @@ import {
   setArrowUpDown,
   appendToMolListToEdit,
   removeFromMolListToEdit,
-  setNextXMolecules,
-  resetSelectionState
+  setNextXMolecules
 } from '../selection/actions';
 import {
   resetReducersForRestoringActions,
   shouldLoadProtein,
   loadProteinOfRestoringActions
 } from '../../components/preview/redux/dispatchActions';
-import { setCurrentProject, setCurrentSnapshot } from '../../components/projects/redux/actions';
+import { setCurrentProject } from '../../components/projects/redux/actions';
 import { loadMoleculeGroupsOfTarget } from '../../components/preview/moleculeGroups/redux/dispatchActions';
 import { loadTargetList } from '../../components/target/redux/dispatchActions';
 import { resetTargetState, setTargetOn } from '../api/actions';
@@ -85,22 +85,17 @@ import {
   updateFilterShowedScoreProperties,
   setFilterShowedScoreProperties,
   setDragDropState,
-  resetDragDropState,
-  resetDatasetsStateOnSnapshotChange,
   resetDatasetScrolledMap
 } from '../../components/datasets/redux/actions';
-import { getUrl, loadAllMolsFromMolGroup } from '../../../js/utils/genericList';
 import {
   removeComponentRepresentation,
   addComponentRepresentation,
   updateComponentRepresentation,
   updateComponentRepresentationVisibility,
   updateComponentRepresentationVisibilityAll,
-  changeComponentRepresentation,
-  removeAllNglComponents
+  changeComponentRepresentation
 } from '../../../js/reducers/ngl/actions';
 import { NGL_PARAMS, NGL_VIEW_DEFAULT_VALUES, COMMON_PARAMS } from '../../components/nglView/constants';
-import * as listType from '../../constants/listTypes';
 import { assignRepresentationToComp } from '../../components/nglView/generatingObjects';
 import {
   deleteObject,
@@ -127,7 +122,7 @@ import {
   setUndoRedoActionList
 } from './actions';
 import { api, METHOD } from '../../../js/utils/api';
-import { base_url, URLS } from '../../components/routes/constants';
+import { base_url } from '../../components/routes/constants';
 import { CONSTANTS } from '../../../js/constants/constants';
 import moment from 'moment';
 import {
@@ -160,12 +155,10 @@ import { MAP_TYPE } from '../ngl/constants';
 import {
   removeSelectedTag,
   addSelectedTag,
-  loadMoleculesAndTags,
-  getMoleculeForId
+  loadMoleculesAndTags
 } from '../../components/preview/tags/redux/dispatchActions';
-import { resetViewerControlsState, turnSide } from '../../components/preview/viewerControls/redux/actions';
-import { NetworkCheckSharp } from '@material-ui/icons';
-import { resetNglTrackingState } from '../nglTracking/dispatchActions';
+import { turnSide } from '../../components/preview/viewerControls/redux/actions';
+import { getQualityOffActions } from './utils';
 
 export const addCurrentActionsListToSnapshot = (snapshot, project, nglViewList) => async (dispatch, getState) => {
   let projectID = project && project.projectID;
@@ -324,12 +317,13 @@ const saveActionsList = (project, snapshot, actionList, nglViewList) => async (d
       getCollection(currentSurfaces),
       currentActions
     );
-    getCurrentActionList(
-      orderedActionList,
-      actionType.QUALITY_TURNED_ON,
-      getCollection(currentQualities),
-      currentActions
-    );
+    dispatch(getQualityOffActions(orderedActionList, currentActions));
+    // getCurrentActionList(
+    //   orderedActionList,
+    //   actionType.QUALITY_TURNED_OFF,
+    //   getCollection(currentQualities),
+    //   currentActions
+    // );
     getCurrentActionList(
       orderedActionList,
       actionType.DENSITY_TURNED_ON,
@@ -454,6 +448,12 @@ const saveActionsList = (project, snapshot, actionList, nglViewList) => async (d
     getCommonLastActionByType(orderedActionList, actionType.CONTOUR_DIFF, currentActions);
     getCommonLastActionByType(orderedActionList, actionType.COLOR_DIFF, currentActions);
     getCommonLastActionByType(orderedActionList, actionType.WARNING_ICON, currentActions);
+    getCommonLastActionByType(orderedActionList, actionType.BACKGROUND_COLOR_CHANGED, currentActions);
+    getCommonLastActionByType(orderedActionList, actionType.CLIP_NEAR, currentActions);
+    getCommonLastActionByType(orderedActionList, actionType.CLIP_FAR, currentActions);
+    getCommonLastActionByType(orderedActionList, actionType.CLIP_DIST, currentActions);
+    getCommonLastActionByType(orderedActionList, actionType.FOG_NEAR, currentActions);
+    getCommonLastActionByType(orderedActionList, actionType.FOG_FAR, currentActions);
 
     // Since drag and drop state can be influenced by filter as well, determine its state by the last influential action
     const action = orderedActionList.find(action =>
@@ -830,7 +830,10 @@ export const restoreStateBySavedActionList = () => (dispatch, getState) => {
 
   let onCancel = () => {};
   dispatch(loadTargetList(onCancel))
-    .then(() => dispatch(restoreTargetActions(orderedActionList)))
+    .then(() => {
+      dispatch(restoreTargetActions(orderedActionList));
+      dispatch(setIsSnapshotDirty(false));
+    })
     .catch(error => {
       throw new Error(error);
     });
@@ -890,45 +893,11 @@ export const restoreAfterTargetActions = (stages, projectId) => async (dispatch,
     dispatch(setIsActionsRestoring(false, true));
     dispatch(restoreViewerControlActions(orderedActionList));
     dispatch(resetDatasetScrolledMap()); // Have a look at useScrollToSelected.js
+    dispatch(setIsSnapshotDirty(false));
   }
 };
 
-/**
- * The goal of this method is to restore the state of the app based on the tracking
- * action. All of the dispatched actions were added by trial and error - in case you
- * need to alter, remove or add anything, you should properly test the changes.
- */
-export const restoreAfterSnapshotChange = (stages, projectId) => async (dispatch, getState) => {
-  const state = getState();
-
-  const currentActionList = state.trackingReducers.current_actions_list;
-  const orderedActionList = currentActionList.sort((a, b) => a.timestamp - b.timestamp);
-  const targetId = state.apiReducers.target_on;
-
-  if (targetId && stages && stages.length > 0) {
-    const majorView = stages.find(view => view.id === VIEWS.MAJOR_VIEW);
-
-    dispatch(restoreViewerControlActions(orderedActionList));
-
-    await dispatch(loadProteinOfRestoringActions({ nglViewList: stages }));
-
-    await dispatch(restoreSitesActions(orderedActionList));
-    await dispatch(restoreTagActions(orderedActionList));
-    await dispatch(restoreMoleculesActions(orderedActionList, majorView.stage));
-    await dispatch(restoreRepresentationActions(orderedActionList, stages));
-    dispatch(restoreMoleculeSelectionActions(orderedActionList));
-    dispatch(restoreTabActions(orderedActionList));
-    await dispatch(restoreCartActions(orderedActionList, majorView.stage));
-    dispatch(restoreSnapshotImageActions(projectId));
-    dispatch(restoreNglStateAction(orderedActionList, stages));
-    dispatch(restoreNglSettingsAction(orderedActionList, majorView.stage));
-    dispatch(restoreCompoundsActions(orderedActionList, majorView.stage));
-    dispatch(resetDatasetScrolledMap()); // Have a look at useScrollToSelected.js
-    dispatch(setIsActionsRestoring(false, true));
-  }
-};
-
-const restoreMoleculeSelectionActions = orderedActionList => (dispatch, getState) => {
+export const restoreMoleculeSelectionActions = orderedActionList => (dispatch, getState) => {
   const state = getState();
   let actions = orderedActionList.filter(action => action.type === actionType.MOLECULE_SELECTED);
   if (actions) {
@@ -945,7 +914,7 @@ export const restoreNglViewSettings = stages => (dispatch, getState) => {
   dispatch(restoreNglSettingsAction([], majorViewStage));
 };
 
-const restoreNglSettingsAction = (orderedActionList, majorViewStage) => (dispatch, getState) => {
+export const restoreNglSettingsAction = (orderedActionList, majorViewStage) => (dispatch, getState) => {
   const state = getState();
   const viewParams = state.nglReducers.viewParams;
 
@@ -1252,23 +1221,32 @@ const restoreNglSettingsAction = (orderedActionList, majorViewStage) => (dispatc
   let warningIconAction = orderedActionList.find(action => action.type === actionType.WARNING_ICON);
   if (warningIconAction && warningIconAction.newSetting !== undefined) {
     let value = warningIconAction.newSetting;
-    dispatch(setWarningIcon(value, viewParams[COMMON_PARAMS.warningIcon]));
+    dispatch(setWarningIcon(value, viewParams[COMMON_PARAMS.warningIcon], true));
   } else {
-    dispatch(setWarningIcon(NGL_VIEW_DEFAULT_VALUES[COMMON_PARAMS.warningIcon], viewParams[COMMON_PARAMS.warningIcon]));
+    dispatch(
+      setWarningIcon(NGL_VIEW_DEFAULT_VALUES[COMMON_PARAMS.warningIcon], viewParams[COMMON_PARAMS.warningIcon], true)
+    );
   }
 };
 
-const restoreNglStateAction = (orderedActionList, stages) => (dispatch, getState) => {
-  let actions = orderedActionList.filter(action => action.type === actionType.NGL_STATE);
-  let action = [...actions].pop();
-  if (action && action.nglStateList) {
-    action.nglStateList.forEach(nglView => {
-      dispatch(setOrientation(nglView.id, nglView.orientation));
-      let viewStage = stages.find(s => s.id === nglView.id);
-      if (viewStage) {
-        viewStage.stage.viewerControls.orient(nglView.orientation.elements);
-      }
-    });
+export const restoreNglStateAction = (orderedActionList, stages) => (dispatch, getState) => {
+  const state = getState();
+  const skipOrientation = state.trackingReducers.skipOrientationChange;
+
+  if (!skipOrientation) {
+    let actions = orderedActionList.filter(action => action.type === actionType.NGL_STATE);
+    let action = [...actions].pop();
+    if (action && action.nglStateList) {
+      action.nglStateList.forEach(nglView => {
+        dispatch(setOrientation(nglView.id, nglView.orientation));
+        let viewStage = stages.find(s => s.id === nglView.id);
+        if (viewStage) {
+          console.count(`Before restoring orientation - restoreNglStateAction - tracking`);
+          viewStage.stage.viewerControls.orient(nglView.orientation.elements);
+          console.count(`After restoring orientation - restoreNglStateAction - tracking`);
+        }
+      });
+    }
   }
 };
 
@@ -1291,7 +1269,7 @@ const loadAllMolecules = target_on => async (dispatch, getState) => {
   await dispatch(loadMoleculesAndTags(target_on));
 };
 
-const restoreSitesActions = orderedActionList => (dispatch, getState) => {
+export const restoreSitesActions = orderedActionList => (dispatch, getState) => {
   const state = getState();
 
   let sitesAction = orderedActionList.filter(action => action.type === actionType.SITE_TURNED_ON);
@@ -1306,7 +1284,7 @@ const restoreSitesActions = orderedActionList => (dispatch, getState) => {
   }
 };
 
-const restoreTagActions = orderedActionList => (dispatch, getState) => {
+export const restoreTagActions = orderedActionList => (dispatch, getState) => {
   const state = getState();
 
   let tagActions = orderedActionList.filter(action => action.type === actionType.TAG_SELECTED);
@@ -1321,7 +1299,7 @@ const restoreTagActions = orderedActionList => (dispatch, getState) => {
   }
 };
 
-const restoreMoleculesActions = (orderedActionList, stage) => async (dispatch, getState) => {
+export const restoreMoleculesActions = (orderedActionList, stage) => async (dispatch, getState) => {
   const state = getState();
   let moleculesAction = orderedActionList.filter(
     action => action.object_type === actionObjectType.MOLECULE || action.object_type === actionObjectType.INSPIRATION
@@ -1332,7 +1310,7 @@ const restoreMoleculesActions = (orderedActionList, stage) => async (dispatch, g
     await dispatch(addNewType(moleculesAction, actionType.SIDECHAINS_TURNED_ON, 'protein', stage, state));
     await dispatch(addNewType(moleculesAction, actionType.INTERACTIONS_TURNED_ON, 'complex', stage, state));
     await dispatch(addNewType(moleculesAction, actionType.SURFACE_TURNED_ON, 'surface', stage, state));
-    await dispatch(addNewType(moleculesAction, actionType.QUALITY_TURNED_ON, 'quality', stage, state));
+    await dispatch(addNewType(moleculesAction, actionType.QUALITY_TURNED_OFF, 'quality', stage, state));
     await dispatch(addNewType(moleculesAction, actionType.VECTORS_TURNED_ON, 'vector', stage, state));
     await dispatch(addNewType(moleculesAction, actionType.DENSITY_TURNED_ON, 'density', stage, state));
     await dispatch(addNewType(moleculesAction, actionType.DENSITY_TYPE_ON, 'density', stage, state));
@@ -1345,7 +1323,7 @@ const restoreMoleculesActions = (orderedActionList, stage) => async (dispatch, g
   dispatch(setIsTrackingMoleculesRestoring(false));
 };
 
-const restoreCartActions = (orderedActionList, majorViewStage) => async (dispatch, getState) => {
+export const restoreCartActions = (orderedActionList, majorViewStage) => async (dispatch, getState) => {
   let vectorAction = orderedActionList.find(action => action.type === actionType.VECTOR_SELECTED);
   if (vectorAction) {
     await dispatch(selectVectorAndResetCompounds(vectorAction.object_name));
@@ -1559,7 +1537,7 @@ const restoreAllSelectionByTypeActions = (moleculesAction, stage, isSelection) =
   }
 };
 
-const restoreRepresentationActions = (moleculesAction, stages) => (dispatch, getState) => {
+export const restoreRepresentationActions = (moleculesAction, stages) => (dispatch, getState) => {
   const nglView = stages.find(view => view.id === VIEWS.MAJOR_VIEW);
 
   let representationsActions = moleculesAction.filter(action => action.type === actionType.REPRESENTATION_ADDED);
@@ -1581,7 +1559,7 @@ const restoreRepresentationActions = (moleculesAction, stages) => (dispatch, get
   }
 };
 
-const restoreTabActions = moleculesAction => (dispatch, getState) => {
+export const restoreTabActions = moleculesAction => (dispatch, getState) => {
   const state = getState();
   const customDatasets = state.datasetsReducers.datasets;
   let firstCustomDatasetTitle = (customDatasets && customDatasets[0] && customDatasets[0].title) || '';
@@ -1652,7 +1630,7 @@ const restoreTabActions = moleculesAction => (dispatch, getState) => {
   }
 };
 
-const restoreViewerControlActions = moleculesAction => dispatch => {
+export const restoreViewerControlActions = moleculesAction => dispatch => {
   const turnSideActions = moleculesAction.filter(action => action.type === actionType.TURN_SIDE);
   turnSideActions.forEach(action => {
     const { side, open } = action;
@@ -1660,7 +1638,7 @@ const restoreViewerControlActions = moleculesAction => dispatch => {
   });
 };
 
-const restoreSnapshotImageActions = projectID => async (dispatch, getState) => {
+export const restoreSnapshotImageActions = projectID => async (dispatch, getState) => {
   const state = getState();
   const isProjectActionListLoaded = state.trackingReducers.isProjectActionListLoaded;
   if (!isProjectActionListLoaded) {
@@ -1698,7 +1676,7 @@ const restoreProject = projectId => (dispatch, getState) => {
   }
 };
 
-const restoreCompoundsActions = (orderedActionList, stage) => (dispatch, getState) => {
+export const restoreCompoundsActions = (orderedActionList, stage) => (dispatch, getState) => {
   const state = getState();
 
   let compoundsAction = orderedActionList.filter(
@@ -1745,6 +1723,23 @@ const addTypeCompound = {
   surface: addDatasetSurface
 };
 
+const removeType = {
+  ligand: removeLigand,
+  protein: removeHitProtein,
+  complex: removeComplex,
+  surface: removeSurface,
+  density: removeDensity,
+  quality: removeQuality,
+  vector: removeVector
+};
+
+const removeTypeCompound = {
+  ligand: removeDatasetLigand,
+  protein: removeDatasetHitProtein,
+  complex: removeDatasetComplex,
+  surface: removeDatasetSurface
+};
+
 const addNewType = (moleculesAction, actionType, type, stage, state, skipTracking = false) => async dispatch => {
   let actions = moleculesAction.filter(action => action.type === actionType);
   if (actions) {
@@ -1777,8 +1772,10 @@ const addNewType = (moleculesAction, actionType, type, stage, state, skipTrackin
             data.proteinData.render_quality = !!action.render_quality;
             await dispatch(addType[type](stage, data, colourList[data.id % colourList.length], true, skipTracking));
           }
+        } else if (type === 'quality') {
+          await dispatch(removeType[type](stage, data, colourList[data.id % colourList.length], skipTracking));
         } else {
-          dispatch(addType[type](stage, data, colourList[data.id % colourList.length], skipTracking));
+          await dispatch(addType[type](stage, data, colourList[data.id % colourList.length], skipTracking));
         }
       }
     }
@@ -1833,19 +1830,13 @@ const getTarget = (targetName, state) => {
   return target;
 };
 
-const getMolGroup = (molGroupName, state) => {
-  let molGroupList = state.apiReducers.mol_group_list;
-  let molGroup = molGroupList.find(group => group.description === molGroupName);
-  return molGroup;
-};
-
 const getTag = (tagId, state) => {
   const tagList = state.apiReducers.tagList;
   const tag = tagList.find(t => t.id === tagId);
   return tag;
 };
 
-const getMolecule = (moleculeName, state) => {
+export const getMolecule = (moleculeName, state) => {
   let moleculeList = state.apiReducers.all_mol_lists;
   let molecule = null;
 
@@ -1854,7 +1845,7 @@ const getMolecule = (moleculeName, state) => {
   return molecule;
 };
 
-const getCompound = (action, state) => {
+export const getCompound = (action, state) => {
   let moleculeList = state.datasetsReducers.moleculeLists;
   let molecule = null;
 
@@ -1870,7 +1861,7 @@ const getCompound = (action, state) => {
   return molecule;
 };
 
-const getCompoundByName = (name, datasetID, state) => {
+export const getCompoundByName = (name, datasetID, state) => {
   let moleculeList = state.datasetsReducers.moleculeLists;
   let molecule = null;
 
@@ -3158,23 +3149,6 @@ const handleMoleculeAction = (action, type, isAdd, stage, state, skipTracking) =
   }
 };
 
-const removeType = {
-  ligand: removeLigand,
-  protein: removeHitProtein,
-  complex: removeComplex,
-  surface: removeSurface,
-  density: removeDensity,
-  quality: removeQuality,
-  vector: removeVector
-};
-
-const removeTypeCompound = {
-  ligand: removeDatasetLigand,
-  protein: removeDatasetHitProtein,
-  complex: removeDatasetComplex,
-  surface: removeDatasetSurface
-};
-
 const removeNewType = (action, type, stage, state, skipTracking) => dispatch => {
   if (action) {
     let data = getMolecule(action.object_name, state);
@@ -3562,53 +3536,4 @@ export const setAndUpdateTrackingActions = (actionList, projectID) => (dispatch,
   } else {
     return Promise.resolve();
   }
-};
-
-/**
- * The goal of this method is to change the snapshot without reloading the page.
- * All of the dispatched actions were added by trial and error - in case you need
- * to alter, remove or add anything, you should properly test the changes.
- */
-export const changeSnapshot = (projectID, snapshotID, nglViewList, stage) => async (dispatch, getState) => {
-  // A hacky way of changing the URL without triggering react-router
-  window.history.replaceState(null, null, `${URLS.projects}${projectID}/${snapshotID}`);
-
-  // Load the needed data
-  const snapshotResponse = await api({ url: `${base_url}/api/snapshots/${snapshotID}` });
-  const actionsResponse = await api({
-    url: `${base_url}/api/snapshot-actions/?snapshot=${snapshotID}`
-  });
-
-  dispatch(
-    setCurrentSnapshot({
-      id: snapshotResponse.data.id,
-      type: snapshotResponse.data.type,
-      title: snapshotResponse.data.title,
-      author: snapshotResponse.data.author,
-      description: snapshotResponse.data.description,
-      created: snapshotResponse.data.created,
-      children: snapshotResponse.data.children,
-      parent: snapshotResponse.data.parent,
-      data: snapshotResponse.data.data
-    })
-  );
-
-  let results = actionsResponse.data.results;
-  let listToSet = [];
-  results.forEach(r => {
-    let resultActions = JSON.parse(r.actions);
-    listToSet.push(...resultActions);
-  });
-  let snapshotActions = [...listToSet];
-  dispatch(setCurrentActionsList(snapshotActions));
-
-  dispatch(resetSelectionState());
-  dispatch(resetDatasetsStateOnSnapshotChange());
-  dispatch(resetViewerControlsState());
-  dispatch(resetNglTrackingState());
-
-  dispatch(removeAllNglComponents(stage));
-
-  dispatch(restoreStateBySavedActionList());
-  dispatch(restoreAfterSnapshotChange(nglViewList, projectID));
 };

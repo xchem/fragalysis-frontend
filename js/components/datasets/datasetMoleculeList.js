@@ -698,10 +698,10 @@ const DatasetMoleculeList = ({ title, datasetID, url }) => {
                             showCrossReferenceModal
                             previousItemData={index > 0 && array[index - 1]}
                             nextItemData={index < array?.length && array[index + 1]}
-                            L={ligandList.includes(data.id)}
-                            P={proteinList.includes(data.id)}
-                            C={complexList.includes(data.id)}
-                            S={surfaceList.includes(data.id)}
+                            L={ligandList?.includes(data.id)}
+                            P={proteinList?.includes(data.id)}
+                            C={complexList?.includes(data.id)}
+                            S={surfaceList?.includes(data.id)}
                             V={false}
                             moveMolecule={moveMolecule}
                             isCheckedToBuy={isCheckedToBuy}

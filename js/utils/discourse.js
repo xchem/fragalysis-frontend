@@ -52,7 +52,6 @@ export const createProjectPost = (projectName, targetName, msg, tags) => {
     post_content: msg,
     post_tags: JSON.stringify(tags)
   });
-  console.log(JSON.stringify(jsonData));
   return api({
     url: `${base_url}/api/discourse_post/`,
     method: METHOD.POST,
@@ -66,7 +65,6 @@ export const createTagPost = (tag, targetName, msg) => {
     post_title: tag.tag,
     post_content: msg
   });
-  console.log(JSON.stringify(jsonData));
   return api({
     url: `${base_url}/api/discourse_post/`,
     method: METHOD.POST,
@@ -78,7 +76,6 @@ export const getExistingPost = projectName => {
   let jsonData = getDiscourseRequestObject({
     post_title: projectName
   });
-  console.log(JSON.stringify(jsonData));
   return api({
     url: `${base_url}/api/discourse_post/`,
     method: METHOD.POST,
@@ -100,5 +97,3 @@ export const openDiscourseLink = url => {
     window.open(`${DJANGO_CONTEXT.discourse_host}${url}`, '_blank');
   }
 };
-
-console.log(DJANGO_CONTEXT.discourse_host);

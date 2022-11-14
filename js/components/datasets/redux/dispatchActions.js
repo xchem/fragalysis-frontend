@@ -94,7 +94,7 @@ export const addDatasetHitProtein = (
   datasetID,
   skipTracking = false,
   representations = undefined
-) => dispatch => {
+) => async dispatch => {
   dispatch(appendProteinList(datasetID, generateMoleculeCompoundId(data), skipTracking));
   return dispatch(
     loadObject({
@@ -132,7 +132,7 @@ export const addDatasetComplex = (
   datasetID,
   skipTracking = false,
   representations = undefined
-) => dispatch => {
+) => async dispatch => {
   dispatch(appendComplexList(datasetID, generateMoleculeCompoundId(data), skipTracking));
   return dispatch(
     loadObject({
@@ -160,7 +160,13 @@ export const removeDatasetComplex = (stage, data, colourToggle, datasetID, skipT
   dispatch(removeFromComplexList(datasetID, generateMoleculeCompoundId(data), skipTracking));
 };
 
-export const addDatasetSurface = (stage, data, colourToggle, datasetID, representations = undefined) => dispatch => {
+export const addDatasetSurface = (
+  stage,
+  data,
+  colourToggle,
+  datasetID,
+  representations = undefined
+) => async dispatch => {
   dispatch(appendSurfaceList(datasetID, generateMoleculeCompoundId(data)));
   return dispatch(
     loadObject({
@@ -195,8 +201,9 @@ export const addDatasetLigand = (
   datasetID,
   skipTracking = false,
   representations = undefined
-) => dispatch => {
+) => async (dispatch, getState) => {
   dispatch(appendLigandList(datasetID, generateMoleculeCompoundId(data), skipTracking));
+  console.count(`Grabbed orientation before loading dataset ligand`);
   const currentOrientation = stage.viewerControls.getOrientation();
   return dispatch(
     loadObject({
@@ -206,13 +213,21 @@ export const addDatasetLigand = (
       markAsRightSideLigand: true
     })
   ).finally(() => {
-    const ligandOrientation = stage.viewerControls.getOrientation();
-    dispatch(setOrientation(VIEWS.MAJOR_VIEW, ligandOrientation));
+    const state = getState();
+    const skipOrientation = state.trackingReducers.skipOrientationChange;
+    if (!skipOrientation) {
+      const ligandOrientation = stage.viewerControls.getOrientation();
+      dispatch(setOrientation(VIEWS.MAJOR_VIEW, ligandOrientation));
 
-    dispatch(appendMoleculeOrientation(getDatasetMoleculeID(datasetID, data?.id), ligandOrientation));
+      dispatch(appendMoleculeOrientation(getDatasetMoleculeID(datasetID, data?.id), ligandOrientation));
 
-    // keep current orientation of NGL View
-    stage.viewerControls.orient(currentOrientation);
+      // keep current orientation of NGL View
+      if (!skipOrientation) {
+        console.count(`Before applying orientation after loading dataset ligand.`);
+        stage.viewerControls.orient(currentOrientation);
+        console.count(`After applying orientation after loading dataset ligand.`);
+      }
+    }
   });
 };
 

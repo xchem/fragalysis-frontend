@@ -1,4 +1,4 @@
-import React, { memo, useRef, useState } from 'react';
+import React, { memo, useRef, useState, useContext, useEffect, useCallback } from 'react';
 import { Panel } from '../../common/Surfaces/Panel';
 import { templateExtend, TemplateName, Orientation, Gitgraph } from '@gitgraph/react';
 import { DynamicFeed, MergeType, PlayArrow, Refresh } from '@material-ui/icons';
@@ -14,6 +14,10 @@ import JobLauncherDialog from './JobLauncherDialog';
 import { DJANGO_CONTEXT } from '../../../utils/djangoContext';
 import { SQUONK_NOT_AVAILABLE } from './constants';
 import { PROJECTS_JOBS_PANEL_HEIGHT } from '../constants';
+import { changeSnapshot } from '../../../reducers/tracking/dispatchActionsSwitchSnapshot';
+import { NglContext } from '../../nglView/nglProvider';
+import { VIEWS } from '../../../constants/constants';
+import { useRouteMatch } from 'react-router-dom';
 
 export const heightOfProjectHistory = PROJECTS_JOBS_PANEL_HEIGHT;
 
@@ -73,6 +77,10 @@ const options = {
 
 export const ProjectHistory = memo(({ showFullHistory, graphKey, expanded, onExpanded, onTabChange }) => {
   const classes = useStyles();
+  const { nglViewList, getNglView } = useContext(NglContext);
+  const stage = getNglView(VIEWS.MAJOR_VIEW) && getNglView(VIEWS.MAJOR_VIEW).stage;
+  let match = useRouteMatch();
+  const paramsProjectID = match && match.params && match.params.projectId;
   const ref = useRef(null);
   const dispatch = useDispatch();
   const currentSnapshotID = useSelector(state => state.projectReducers.currentSnapshot.id);
@@ -80,6 +88,13 @@ export const ProjectHistory = memo(({ showFullHistory, graphKey, expanded, onExp
   const currentSnapshotJobList = useSelector(state => state.projectReducers.currentSnapshotJobList);
   const currentSnapshotTree = useSelector(state => state.projectReducers.currentSnapshotTree);
   const jobPopUpAnchorEl = useSelector(state => state.projectReducers.jobPopUpAnchorEl);
+  const isSnapshotDirty = useSelector(state => state.trackingReducers.isSnapshotDirty);
+  const currentProject = useSelector(state => state.projectReducers.currentProject);
+  const currentProjectID = currentProject && currentProject.projectID;
+  const projectID = paramsProjectID && paramsProjectID != null ? paramsProjectID : currentProjectID;
+
+  const [tryToOpen, setTryToOpen] = useState(false);
+  const [transitionToSnapshot, setTransitionToSnapshot] = useState(null);
 
   const [jobPopupInfo, setJobPopupInfo] = useState({
     hash: null,
@@ -90,19 +105,35 @@ export const ProjectHistory = memo(({ showFullHistory, graphKey, expanded, onExp
     dispatch(setJobConfigurationDialogOpen(true));
   };
 
-  const handleClickOnCommit = commit => {
-    dispatch(setSelectedSnapshotToSwitch(commit.hash));
-    dispatch(setIsOpenModalBeforeExit(true));
-  };
+  const handleClickOnCommit = useCallback(commit => {
+    setTryToOpen(true);
+    setTransitionToSnapshot(commit);
+  }, []);
 
-  const commitFunction = ({ title, hash, isSelected = false }) => ({
-    hash: `${hash}`,
-    subject: `${title}`,
-    onMessageClick: handleClickOnCommit,
-    onClick: handleClickOnCommit,
-    style:
-      (isSelected === true && { dot: { size: 10, color: 'red', strokeColor: 'blue', strokeWidth: 2 } }) || undefined
-  });
+  useEffect(() => {
+    if (isSnapshotDirty && tryToOpen && transitionToSnapshot) {
+      dispatch(setSelectedSnapshotToSwitch(transitionToSnapshot.hash));
+      dispatch(setIsOpenModalBeforeExit(true));
+      setTryToOpen(false);
+    } else if (!isSnapshotDirty && tryToOpen && transitionToSnapshot) {
+      dispatch(changeSnapshot(projectID, transitionToSnapshot.hash, nglViewList, stage));
+      setTryToOpen(false);
+    }
+  }, [dispatch, isSnapshotDirty, nglViewList, projectID, stage, transitionToSnapshot, tryToOpen]);
+
+  const commitFunction = useCallback(
+    ({ title, hash, isSelected = false }) => {
+      return {
+        hash: `${hash}`,
+        subject: `${title}`,
+        onMessageClick: handleClickOnCommit,
+        onClick: handleClickOnCommit,
+        style:
+          (isSelected === true && { dot: { size: 10, color: 'red', strokeColor: 'blue', strokeWidth: 2 } }) || undefined
+      };
+    },
+    [handleClickOnCommit]
+  );
 
   const handleClickTriangle = (event, hash, jobInfo) => {
     dispatch(setJobPopUpAnchorEl(event.currentTarget));

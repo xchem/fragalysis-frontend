@@ -6,7 +6,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { NglContext } from '../../nglView/nglProvider';
 import { useRouteMatch } from 'react-router-dom';
 import { setIsOpenModalBeforeExit, setOpenSnapshotSavingDialog, setSelectedSnapshotToSwitch } from '../redux/actions';
-import { changeSnapshot } from '../../../reducers/tracking/dispatchActions';
+import { changeSnapshot } from '../../../reducers/tracking/dispatchActionsSwitchSnapshot';
 import { VIEWS } from '../../../constants/constants';
 
 export const SaveSnapshotBeforeExit = memo(() => {

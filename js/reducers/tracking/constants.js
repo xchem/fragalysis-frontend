@@ -20,7 +20,9 @@ export const constants = {
   SET_SNAPSOT_IMAGE_ACTIONS_LIST: prefix + 'SET_SNAPSOT_IMAGE_ACTIONS_LIST',
   APPEND_UNDO_REDO_ACTIONS_LIST: prefix + 'APPEND_UNDO_REDO_ACTIONS_LIST',
   SET_UNDO_REDO_ACTIONS_LIST: prefix + 'SET_UNDO_REDO_ACTIONS_LIST',
-  SET_PROJECT_ACTIONS_LIST_LOADED: prefix + 'SET_PROJECT_ACTIONS_LIST_LOADED'
+  SET_PROJECT_ACTIONS_LIST_LOADED: prefix + 'SET_PROJECT_ACTIONS_LIST_LOADED',
+  SET_SKIP_ORIENTATION_CHANGE: prefix + 'SET_SKIP_ORIENTATION_CHANGE', //when snapshot is switched we want to skip orientation change so it doesn't blink through multiple states
+  SET_IS_SNAPSHOT_DIRTY: prefix + 'SET_IS_SNAPSHOT_DIRTY'
 };
 
 export const actionType = {
@@ -108,6 +110,19 @@ export const actionType = {
   ALL_MOLECULES_SELECTED: 'ALL_MOLECULES_SELECTED',
   ALL_MOLECULES_UNSELECTED: 'ALL_MOLECULES_UNSELECTED'
 };
+
+export const snapshotSwitchManualActions = [
+  actionType.LIGAND_TURNED_ON,
+  actionType.SIDECHAINS_TURNED_ON,
+  actionType.SURFACE_TURNED_ON,
+  actionType.DENSITY_TURNED_ON,
+  actionType.DENSITY_CUSTOM_TURNED_ON,
+  // actionType.DENSITY_TYPE_ON, //I don't know what this one is for but it's not processed anywhere
+  actionType.QUALITY_TURNED_OFF,
+  actionType.VECTORS_TURNED_ON,
+  actionType.INTERACTIONS_TURNED_ON,
+  actionType.ALL_TURNED_ON
+];
 
 export const actionDescription = {
   LOADED: 'was loaded',

@@ -36,9 +36,9 @@ import {
   saveCurrentActionsList,
   addCurrentActionsListToSnapshot,
   sendTrackingActionsByProjectId,
-  manageSendTrackingActions,
-  changeSnapshot
+  manageSendTrackingActions
 } from '../../../reducers/tracking/dispatchActions';
+import { changeSnapshot } from '../../../reducers/tracking/dispatchActionsSwitchSnapshot';
 import { captureScreenOfSnapshot } from '../../userFeedback/browserApi';
 import { setCurrentProject } from '../../projects/redux/actions';
 import { createProjectPost } from '../../../utils/discourse';
@@ -207,7 +207,7 @@ const getAdditionalInfo = state => {
   const currentSnapshotVisibleDatasetsCompounds = Object.fromEntries(
     Object.entries(moleculeLists).map(([datasetID, mols]) => [
       datasetID,
-      mols.filter(mol => ligandLists[datasetID].includes(mol.id)).map(mol => mol.name)
+      mols.filter(mol => ligandLists[datasetID]?.includes(mol.id)).map(mol => mol.name)
     ])
   );
   const currentSnapshotSelectedDatasetsCompounds = Object.fromEntries(

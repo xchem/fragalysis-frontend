@@ -27,7 +27,7 @@ const showSphere = ({ stage, input_dict, object_name, representations }) => {
   return Promise.resolve(assignRepresentationArrayToComp(reprArray, comp));
 };
 
-const showLigand = ({
+const showLigand = async ({
   stage,
   input_dict,
   object_name,
@@ -35,9 +35,12 @@ const showLigand = ({
   orientationMatrix,
   markAsRightSideLigand,
   loadQuality,
-  quality
+  quality,
+  state
 }) => {
   let stringBlob = new Blob([input_dict.sdf_info], { type: 'text/plain' });
+  console.count(`showLigand started`);
+  const skipOrientation = state.trackingReducers.skipOrientationChange;
 
   if (loadQuality && quality && quality.badids?.length > 0) {
     return loadQualityFromFile(
@@ -47,7 +50,8 @@ const showLigand = ({
       object_name,
       orientationMatrix,
       input_dict.colour,
-      QUALITY_TYPES.LIGAND
+      QUALITY_TYPES.LIGAND,
+      skipOrientation
     );
   } else {
     return loadLigandFromFile(
@@ -57,7 +61,8 @@ const showLigand = ({
       representations,
       markAsRightSideLigand,
       input_dict,
-      orientationMatrix
+      orientationMatrix,
+      skipOrientation
     );
   }
 };
@@ -69,9 +74,12 @@ const loadLigandFromFile = (
   representations,
   markAsRightSideLigand,
   input_dict,
-  orientationMatrix
+  orientationMatrix,
+  skipOrientation
 ) => {
+  console.count(`loadLigandFromFile started`);
   return stage.loadFile(stringBlob, { name: object_name, ext: 'sdf' }).then(comp => {
+    console.count(`loadLigandFromFile file loaded`);
     const reprArray =
       representations ||
       createRepresentationsArray([
@@ -86,14 +94,19 @@ const loadLigandFromFile = (
         )
       ]);
 
-    if (orientationMatrix && orientationMatrix.elements) {
-      const matrix = new Matrix4();
-      matrix.fromArray(orientationMatrix.elements);
-
-      stage.viewerControls.orient(matrix);
-    } else if (orientationMatrix === undefined) {
-      comp.autoView('ligand');
+    if (!skipOrientation) {
+      if (orientationMatrix && orientationMatrix.elements) {
+        const matrix = new Matrix4();
+        matrix.fromArray(orientationMatrix.elements);
+        console.count(`Before applying orientation matrix - loadLigandFromFile`);
+        stage.viewerControls.orient(matrix);
+        console.count(`After applying orientation matrix - loadLigandFromFile`);
+      } else if (orientationMatrix === undefined) {
+        comp.autoView('ligand');
+        console.count(`Orientation matrix not found for loadLigandFromFile, using autoView instead.`);
+      }
     }
+    console.count(`loadLigandFromFile finished`);
     return assignRepresentationArrayToComp(reprArray, comp);
   });
 };
@@ -204,7 +217,7 @@ const renderComplex = (ol, representations, orientationMatrix) => {
   //   stage.viewerControls.orient(orientationMatrix);
   // } else if (orientationMatrix === undefined) {
   //   comp.autoView('ligand');
-  //   //TODO setFocus should be in condition
+  //   //TODO: setFocus should be in condition
   //   comp.stage.setFocus(focus_let_temp);
   // }
 
@@ -360,15 +373,22 @@ const showArrow = ({ stage, input_dict, object_name, representations, orientatio
   return Promise.resolve(assignRepresentationArrayToComp(reprArray, comp));
 };
 
-const showProtein = ({ stage, input_dict, object_name, representations, orientationMatrix }) =>
+const showProtein = ({ stage, input_dict, object_name, representations, orientationMatrix, state }) =>
   stage.loadFile(input_dict.prot_url, { name: object_name, ext: 'pdb', defaultAssembly: 'BU1' }).then(comp => {
     const reprArray =
       representations || createRepresentationsArray([createRepresentationStructure(input_dict.nglProtStyle, {})]);
 
-    if (orientationMatrix) {
-      stage.viewerControls.orient(orientationMatrix);
-    } else if (orientationMatrix === undefined) {
-      comp.autoView();
+    const skipOrientation = state.trackingReducers.skipOrientationChange;
+
+    if (!skipOrientation) {
+      if (orientationMatrix) {
+        console.count(`Before applying orientation matrix - showProtein`);
+        stage.viewerControls.orient(orientationMatrix);
+        console.count(`After applying orientation matrix - showProtein`);
+      } else if (orientationMatrix === undefined) {
+        comp.autoView();
+        console.count(`Orientation matrix not found for showProtein, using autoView instead.`);
+      }
     }
     return Promise.resolve(assignRepresentationArrayToComp(reprArray, comp));
   });
@@ -431,7 +451,7 @@ const showHotspot = ({ stage, input_dict, object_name, representations }) => {
   }
 };
 
-const showDensity = ({ stage, input_dict, object_name, representations, dispatch }) => {
+const showDensity = ({ stage, input_dict, object_name, representations }) => {
   let densityParams_event = {
     color: input_dict.color_DENSITY,
     isolevel: input_dict.isolevel_DENSITY,

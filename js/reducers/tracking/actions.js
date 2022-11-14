@@ -137,3 +137,17 @@ export const setTrackingImageSource = imageSource => ({
   type: constants.SET_TRACKING_IMAGE_SOURCE,
   payload: imageSource
 });
+
+export const setSkipOrientationChange = skipOrientationChange => ({
+  type: constants.SET_SKIP_ORIENTATION_CHANGE,
+  skipOrientationChange: skipOrientationChange
+});
+
+export const setIsSnapshotDirty = isSnapshotDirty => {
+  // console.count(`setIsSnapshotDirty with value ${isSnapshotDirty}`);
+  return {
+    type: constants.SET_IS_SNAPSHOT_DIRTY,
+    isSnapshotDirty: isSnapshotDirty,
+    skipTracking: true
+  };
+};
