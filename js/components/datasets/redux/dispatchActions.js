@@ -1161,29 +1161,37 @@ export const deleteDataset = (datasetID, stage) => async (dispatch, getState) =>
   ligandsListOfDataset &&
     ligandsListOfDataset.forEach(cmpId => {
       const cmp = dispatch(getCompoundById(cmpId, datasetID));
-      //I think we can leave it to execute asynchronously
-      dispatch(removeDatasetLigand(stage, cmp, getRandomColor(cmp), datasetID, true));
+      if (cmp) {
+        //I think we can leave it to execute asynchronously
+        dispatch(removeDatasetLigand(stage, cmp, getRandomColor(cmp), datasetID, true));
+      }
     });
   //remove proteins
   const proteinListOfDataset = state.datasetsReducers.proteinLists[datasetID];
   proteinListOfDataset &&
     proteinListOfDataset.forEach(cmpId => {
       const cmp = dispatch(getCompoundById(cmpId, datasetID));
-      dispatch(removeDatasetHitProtein(stage, cmp, getRandomColor(cmp), datasetID, true));
+      if (cmp) {
+        dispatch(removeDatasetHitProtein(stage, cmp, getRandomColor(cmp), datasetID, true));
+      }
     });
   //remove complexes
   const complexListOfDataset = state.datasetsReducers.complexLists[datasetID];
   complexListOfDataset &&
     complexListOfDataset.forEach(cmpId => {
       const cmp = dispatch(getCompoundById(cmpId, datasetID));
-      dispatch(removeDatasetComplex(stage, cmp, getRandomColor(cmp), datasetID, true));
+      if (cmp) {
+        dispatch(removeDatasetComplex(stage, cmp, getRandomColor(cmp), datasetID, true));
+      }
     });
   //remove surfaces
   const surfaceListOfDataset = state.datasetsReducers.surfaceLists[datasetID];
   surfaceListOfDataset &&
     surfaceListOfDataset.forEach(cmpId => {
       const cmp = dispatch(getCompoundById(cmpId, datasetID));
-      dispatch(removeDatasetSurface(stage, cmp, getRandomColor(cmp), datasetID, true));
+      if (cmp) {
+        dispatch(removeDatasetSurface(stage, cmp, getRandomColor(cmp), datasetID, true));
+      }
     });
 
   await api({ url: `${base_url}/api/compound-sets/${datasetID}/`, method: METHOD.DELETE });
