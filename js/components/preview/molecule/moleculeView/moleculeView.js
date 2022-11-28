@@ -4,11 +4,11 @@
 
 import React, { memo, useEffect, useState, useRef, useContext, useCallback } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { Grid, Button, makeStyles, Tooltip, IconButton, Checkbox, Paper } from '@material-ui/core';
-import { MyLocation, ArrowDownward, ArrowUpward, Warning, Assignment, AssignmentTurnedIn } from '@material-ui/icons';
+import { Grid, Button, makeStyles, Tooltip, IconButton, Paper } from '@material-ui/core';
+import { MyLocation, Warning, Assignment, AssignmentTurnedIn } from '@material-ui/icons';
 import SVGInline from 'react-svg-inline';
 import classNames from 'classnames';
-import { VIEWS, ARROW_TYPE } from '../../../../constants/constants';
+import { VIEWS } from '../../../../constants/constants';
 import { NGL_PARAMS, COMMON_PARAMS } from '../../../nglView/constants';
 import { NglContext } from '../../../nglView/nglProvider';
 import {
@@ -31,8 +31,7 @@ import {
   getQualityInformation,
   getDensityMapData,
   getProteinData,
-  withDisabledMoleculeNglControlButton,
-  moveMoleculeUpDown
+  withDisabledMoleculeNglControlButton
 } from '../redux/dispatchActions';
 import {
   setSelectedAll,
@@ -42,7 +41,6 @@ import {
   appendToMolListToEdit,
   removeFromMolListToEdit
 } from '../../../../reducers/selection/actions';
-import { base_url } from '../../../routes/constants';
 import { moleculeProperty } from '../helperConstants';
 import { centerOnLigandByMoleculeID } from '../../../../reducers/ngl/dispatchActions';
 import { SvgTooltip } from '../../../common';
@@ -851,31 +849,6 @@ const MoleculeView = memo(
               </Grid>
             </Grid>
           </Grid>
-          {/* Up/Down arrows */}
-          {/* <Grid item>
-            <Grid container direction="column" justify="space-between" className={classes.arrows}>
-              <Grid item>
-                <IconButton
-                  color="primary"
-                  size="small"
-                  disabled={false || !previousItemData || !areArrowsVisible}
-                  onClick={handleClickOnUpArrow}
-                >
-                  <ArrowUpward className={areArrowsVisible ? classes.arrow : classes.invisArrow} />
-                </IconButton>
-              </Grid>
-              <Grid item>
-                <IconButton
-                  color="primary"
-                  size="small"
-                  disabled={false || !nextItemData || !areArrowsVisible}
-                  onClick={handleClickOnDownArrow}
-                >
-                  <ArrowDownward className={areArrowsVisible ? classes.arrow : classes.invisArrow} />
-                </IconButton>
-              </Grid>
-            </Grid>
-          </Grid> */}
           {/* Image */}
           <div
             style={{
