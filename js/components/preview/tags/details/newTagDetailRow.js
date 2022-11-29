@@ -12,7 +12,8 @@ import {
   appendMoleculeTag,
   appendTagList,
   removeFromTagList,
-  updateMoleculeInMolLists
+  updateMoleculeInMolLists,
+  setNoTagsReceived
 } from '../../../../reducers/api/actions';
 
 const useStyles = makeStyles(theme => ({
@@ -144,6 +145,7 @@ const NewTagDetailRow = memo(({ moleculesToEditIds, moleculesToEdit }) => {
         );
         dispatch(appendTagList(augMolTagObject));
         dispatch(appendMoleculeTag(molTag));
+        dispatch(setNoTagsReceived(false));
       });
       // reset tag/fields after creating new one
       resetTagToEditState();
