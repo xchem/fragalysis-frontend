@@ -1229,7 +1229,7 @@ export const restoreNglSettingsAction = (orderedActionList, majorViewStage) => (
   }
 };
 
-export const restoreNglStateAction = (orderedActionList, stages) => (dispatch, getState) => {
+export const restoreNglStateAction = (orderedActionList, stages, animate = false) => (dispatch, getState) => {
   const state = getState();
   const skipOrientation = state.trackingReducers.skipOrientationChange;
 
@@ -1242,7 +1242,11 @@ export const restoreNglStateAction = (orderedActionList, stages) => (dispatch, g
         let viewStage = stages.find(s => s.id === nglView.id);
         if (viewStage) {
           console.count(`Before restoring orientation - restoreNglStateAction - tracking`);
-          viewStage.stage.viewerControls.orient(nglView.orientation.elements);
+          if (!animate) {
+            viewStage.stage.viewerControls.orient(nglView.orientation.elements);
+          } else {
+            viewStage.stage.animationControls.orient(nglView.orientation.elements, 2000);
+          }
           console.count(`After restoring orientation - restoreNglStateAction - tracking`);
         }
       });

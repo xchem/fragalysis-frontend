@@ -115,7 +115,7 @@ export const restoreAfterSnapshotChange = (stages, projectId) => async (dispatch
 
     dispatch(setSkipOrientationChange(false));
     console.count(`BEFORE restoration orientation from snapshot`);
-    await dispatch(restoreNglStateAction(orderedActionList, stages));
+    await dispatch(restoreNglStateAction(orderedActionList, stages, true));
     console.count(`AFTER restoration orientation from snapshot`);
 
     dispatch(resetDatasetScrolledMap()); // Have a look at useScrollToSelected.js
