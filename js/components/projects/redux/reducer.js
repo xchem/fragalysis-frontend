@@ -1,8 +1,4 @@
 import { constants } from './constants';
-// eslint-disable-next-line import/extensions
-import fragmentsteinSpec from '../../../../jobconfigs/fragmenstein-combine.json';
-// eslint-disable-next-line import/extensions
-import fragmentsteinOverrides from '../../../../jobconfigs/fragalysis-job-spec-1.1.json';
 
 const initCurrentSnapshot = {
   id: null,
@@ -40,16 +36,7 @@ export const INITIAL_STATE = {
   forceCreateProject: false,
   isForceProjectCreated: false,
   projectDiscourseLinks: null,
-  jobList: [
-    {
-      id: 1,
-      name: 'Fragmenstein',
-      description: 'Combine fragments into a single merged molecule.',
-      slug: 'fragmenstein-combine',
-      spec: fragmentsteinSpec,
-      overrides: fragmentsteinOverrides
-    }
-  ],
+  jobList: [],
   jobPopUpAnchorEl: null,
   jobConfigurationDialogOpen: false,
   jobLauncherDialogOpen: false,
@@ -121,6 +108,9 @@ export const projectReducers = (state = INITIAL_STATE, action = {}) => {
       currentSnapshotJobList[snapshotId] = jobList;
       return { ...state, currentSnapshotJobList };
     }
+
+    case constants.SET_JOB_LIST:
+      return { ...state, jobList: [...action.jobList] };
 
     case constants.SET_FORCE_CREATE_PROJECT:
       return Object.assign({}, state, { forceCreateProject: action.payload });

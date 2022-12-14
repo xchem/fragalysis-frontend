@@ -13,7 +13,8 @@ import {
   setForceProjectCreated,
   setIsLoadingListOfProjects,
   setCurrentProjectDiscourseLink,
-  setJobLauncherSquonkUrl
+  setJobLauncherSquonkUrl,
+  setJobList
 } from './actions';
 import { api, METHOD } from '../../../utils/api';
 import { base_url, URLS } from '../../routes/constants';
@@ -28,6 +29,14 @@ import { setOpenDiscourseErrorModal } from '../../../reducers/api/actions';
 
 import moment from 'moment';
 import { resetNglTrackingState } from '../../../reducers/nglTracking/dispatchActions';
+// eslint-disable-next-line import/extensions
+import fragmentsteinSpec from '../../../../jobconfigs/fragmenstein-combine.json';
+// eslint-disable-next-line import/extensions
+import fragmentsteinMultiSpec from '../../../../jobconfigs/fragmenstein-combine-multi.json';
+// eslint-disable-next-line import/extensions
+import fragmentsteinStringSpec from '../../../../jobconfigs/fragmenstein-place-string.json';
+// eslint-disable-next-line import/extensions
+import fragmentsteinOverrides from '../../../../jobconfigs/fragalysis-job-spec-1.2.json';
 
 export const assignSnapshotToProject = ({ projectID, snapshotID, ...rest }) => (dispatch, getState) => {
   dispatch(resetCurrentSnapshot());
@@ -480,4 +489,37 @@ export const jobRequest = data => {
     method: METHOD.POST,
     data
   });
+};
+
+export const getJobConfigurations = () => (dispatch, getState) => {
+  const jobs = [
+    {
+      id: fragmentsteinSpec.id,
+      name: fragmentsteinSpec.collection,
+      description: fragmentsteinSpec.description,
+      slug: fragmentsteinSpec.job,
+      spec: fragmentsteinSpec,
+      overrides: fragmentsteinOverrides,
+      overrideIndex: 0
+    },
+    {
+      id: fragmentsteinMultiSpec.id,
+      name: fragmentsteinMultiSpec.collection,
+      description: fragmentsteinMultiSpec.description,
+      slug: fragmentsteinMultiSpec.job,
+      spec: fragmentsteinMultiSpec,
+      overrides: fragmentsteinOverrides,
+      overrideIndex: 1
+    },
+    {
+      id: fragmentsteinStringSpec.id,
+      name: fragmentsteinStringSpec.collection,
+      description: fragmentsteinStringSpec.description,
+      slug: fragmentsteinStringSpec.job,
+      spec: fragmentsteinStringSpec,
+      overrides: fragmentsteinOverrides,
+      overrideIndex: 2
+    }
+  ];
+  dispatch(setJobList(jobs));
 };

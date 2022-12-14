@@ -133,14 +133,14 @@ const JobLauncherDialog = () => {
     const variables = recompileSchemaResult(event.formData, { selected_protein: selectedProtein });
 
     jobRequest({
-      squonk_job_name: 'fragmenstein-combine',
+      squonk_job_name: jobLauncherData.job.slug,
       snapshot: jobLauncherData?.snapshot.id,
       target: targetId,
       squonk_project: dispatch(getSquonkProject()),
       squonk_job_spec: JSON.stringify({
-        collection: 'fragmenstein',
-        job: 'fragmenstein-combine',
-        version: '1.0.0',
+        collection: jobLauncherData.job.name,
+        job: jobLauncherData.job.slug,
+        version: jobLauncherData.job.spec.version,
         variables
       })
     })

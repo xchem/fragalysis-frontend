@@ -452,7 +452,7 @@ const JobConfigurationDialog = ({ snapshots }) => {
                   >
                     {Object.values(jobList).map(item => (
                       <MenuItem key={item.id} value={item.id}>
-                        {item.name}
+                        {item.slug}
                       </MenuItem>
                     ))}
                   </Field>

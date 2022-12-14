@@ -1,7 +1,3 @@
-// eslint-disable-next-line import/extensions
-import fragmensteinSpec from '../../jobconfigs/fragmenstein-combine.json';
-// eslint-disable-next-line import/extensions
-import jobsSpec from '../../jobconfigs/fragalysis-job-spec-1.1.json';
 import { useMemo } from 'react';
 
 // Merges job definitions with fragalysis-jobs definitions
@@ -17,29 +13,38 @@ const getSchemaDefinition = (configDefinitions, overrideDefinitions) => {
   return mergedDefinitions;
 };
 
-export const useGetJobDefinition = () => {
-  const selectedJob = fragmensteinSpec;
+export const useGetJobDefinition = jobInfo => {
+  const selectedJob = jobInfo?.spec;
+  const overrideIndex = jobInfo?.overrideIndex;
+  const overrides = jobInfo?.overrides;
+  const inputsJson = selectedJob?.variables.inputs;
+  const optionsJson = selectedJob?.variables.options;
+  const outputsJson = selectedJob?.variables.outputs;
 
   return useMemo(() => {
-    const inputs = JSON.parse(selectedJob.variables.inputs);
-    const options = JSON.parse(selectedJob.variables.options);
-    const outputs = JSON.parse(selectedJob.variables.outputs);
+    if (jobInfo) {
+      const inputs = JSON.parse(inputsJson);
+      const options = JSON.parse(optionsJson);
+      const outputs = JSON.parse(outputsJson);
 
-    const jobOverrides = jobsSpec['fragalysis-jobs'].find(job => job.job_name === selectedJob.job);
+      const jobOverrides = overrides['fragalysis-jobs'][overrideIndex];
 
-    return {
-      inputs: {
-        ...inputs,
-        properties: getSchemaDefinition(inputs.properties || {}, jobOverrides?.inputs || {})
-      },
-      options: {
-        ...options,
-        properties: getSchemaDefinition(options.properties || {}, jobOverrides?.options || {})
-      },
-      outputs: {
-        ...outputs,
-        properties: getSchemaDefinition(outputs.properties || {}, jobOverrides?.outputs || {})
-      }
-    };
-  }, [selectedJob.job, selectedJob.variables.inputs, selectedJob.variables.options, selectedJob.variables.outputs]);
+      return {
+        inputs: {
+          ...inputs,
+          properties: getSchemaDefinition(inputs.properties || {}, jobOverrides?.inputs || {})
+        },
+        options: {
+          ...options,
+          properties: getSchemaDefinition(options.properties || {}, jobOverrides?.options || {})
+        },
+        outputs: {
+          ...outputs,
+          properties: getSchemaDefinition(outputs.properties || {}, jobOverrides?.outputs || {})
+        }
+      };
+    } else {
+      return null;
+    }
+  }, [jobInfo, inputsJson, optionsJson, outputsJson, overrideIndex, overrides]);
 };

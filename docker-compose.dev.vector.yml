@@ -53,6 +53,7 @@ services:
       DISCOURSE_HOST: 'https://discourse.xchem-dev.diamond.ac.uk'
       SQUONK2_UI_URL: 'https://data-manager-ui.xchem-dev.diamond.ac.uk/data-manager-ui'
       SQUONK2_DMAPI_URL: 'https://data-manager.xchem-dev.diamond.ac.uk/data-manager-api'
+      OIDC_RENEW_ID_TOKEN_EXPIRY_MINUTES: 210
     depends_on:
       - database
       - graph

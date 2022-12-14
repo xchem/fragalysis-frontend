@@ -11,6 +11,7 @@ import TagDetails from './tags/details/tagDetails';
 import { withUpdatingTarget } from '../target/withUpdatingTarget';
 import { VIEWS } from '../../constants/constants';
 import { withLoadingProtein } from './withLoadingProtein';
+import { withLoadingJobSpecs } from './withLoadingJobSpecs';
 import { withSnapshotManagement } from '../snapshot/withSnapshotManagement';
 import { useDispatch, useSelector } from 'react-redux';
 import { ProjectHistoryPanel } from './projectHistoryPanel';
@@ -277,4 +278,4 @@ const Preview = memo(({ isStateLoaded, hideProjects, isSnapshot = false }) => {
   );
 });
 
-export default withSnapshotManagement(withUpdatingTarget(withLoadingProtein(Preview)));
+export default withLoadingJobSpecs(withSnapshotManagement(withUpdatingTarget(withLoadingProtein(Preview))));
