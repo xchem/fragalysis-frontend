@@ -56,7 +56,10 @@ const useStyles = makeStyles(theme => ({
   bodyPopup: {
     padding: '10px',
     backgroundColor: '#ffffff',
-    borderRadius: '0 0 5px 5px'
+    borderRadius: '0 0 5px 5px',
+    '& .MuiInputBase-inputMultiline': {
+      height: '1.9em'
+    }
   },
 
   successMsg: {

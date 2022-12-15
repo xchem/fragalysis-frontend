@@ -161,6 +161,11 @@
           "default": "original SMILES",
           "ui:widget": "hidden"
         },
+        "smiles": {
+          "items": {
+            "ui:widget": "textarea"
+          }
+        },
         "fragIdField": {
           "type": "string",
           "default": "_Name",
