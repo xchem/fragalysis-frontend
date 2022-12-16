@@ -447,6 +447,72 @@ const DatasetMoleculeList = ({ title, datasetID, url }) => {
     selectedMolecules.map(molecule => ({ datasetID, molecule }))
   );
 
+  // useEffectDebugger(
+  //   () => {},
+  //   [setSortDialogAnchorEl, loadNextMolecules, addMoleculeViewRef, setSelectedMoleculeRef, moveMolecule],
+  //   ['setSortDialogAnchorEl', 'loadNextMolecules', 'addMoleculeViewRef', 'setSelectedMoleculeRef', 'moveMolecule'],
+  //   'DatasetMoleculeList - functions'
+  // );
+
+  // useEffectDebugger(
+  //   () => {},
+  //   [
+  //     title,
+  //     datasetID,
+  //     url,
+  //     sortDialogOpen,
+  //     isOpenInspirationDialog,
+  //     isOpenCrossReferenceDialog,
+  //     moleculeLists,
+  //     isLoadingMoleculeList,
+  //     filteredScoreProperties,
+  //     filterMap,
+  //     filterSettings,
+  //     filterPropertiesMap,
+  //     filterProperties,
+  //     sortDialogAnchorEl,
+  //     isActiveFilter,
+  //     selectedMoleculeRef,
+  //     joinedMoleculeLists,
+  //     nextXMolecules,
+  //     currentPage,
+  //     compoundsToBuyList,
+  //     ligandList,
+  //     proteinList,
+  //     complexList,
+  //     surfaceList,
+  //     isOpenAlert
+  //   ],
+  //   [
+  //     'title',
+  //     'datasetID',
+  //     'url',
+  //     'sortDialogOpen',
+  //     'isOpenInspirationDialog',
+  //     'isOpenCrossReferenceDialog',
+  //     'moleculeLists',
+  //     'isLoadingMoleculeList',
+  //     'filteredScoreProperties',
+  //     'filterMap',
+  //     'filterSettings',
+  //     'filterPropertiesMap',
+  //     'filterProperties',
+  //     'sortDialogAnchorEl',
+  //     'isActiveFilter',
+  //     'selectedMoleculeRef',
+  //     'joinedMoleculeLists',
+  //     'nextXMolecules',
+  //     'currentPage',
+  //     'compoundsToBuyList',
+  //     'ligandList',
+  //     'proteinList',
+  //     'complexList',
+  //     'surfaceList',
+  //     'isOpenAlert'
+  //   ],
+  //   'DatasetMoleculeList'
+  // );
+
   return (
     <Panel hasHeader title={title} withTooltip headerActions={actions}>
       <AlertModal
