@@ -11,6 +11,10 @@ export const useScrollToSelected = (datasetID, moleculesPerPage, setCurrentPage)
 
   const joinedMoleculeLists = useSelector(state => getJoinedMoleculeLists(datasetID, state), shallowEqual);
   const compoundsToBuyList = useSelector(state => state.datasetsReducers.compoundsToBuyDatasetMap[datasetID]);
+  const ligands = useSelector(state => state.datasetsReducers.ligandLists[datasetID]);
+  const proteins = useSelector(state => state.datasetsReducers.proteinLists[datasetID]);
+  const complexes = useSelector(state => state.datasetsReducers.complexLists[datasetID]);
+  const surfaces = useSelector(state => state.datasetsReducers.surfaceLists[datasetID]);
   const scrollFired = useSelector(state => state.datasetsReducers.datasetScrolledMap[datasetID]);
   const rhsOpen = useSelector(state => state.previewReducers.viewerControls.sidesOpen.RHS);
 
@@ -24,11 +28,23 @@ export const useScrollToSelected = (datasetID, moleculesPerPage, setCurrentPage)
   useEffect(() => {
     if (rhsOpen) {
       if (!scrollFired) {
-        if (compoundsToBuyList?.length) {
+        if (
+          compoundsToBuyList?.length ||
+          ligands?.length ||
+          proteins?.length ||
+          complexes?.length ||
+          surfaces?.length
+        ) {
           for (let i = 0; i < joinedMoleculeLists.length; i++) {
             const molecule = joinedMoleculeLists[i];
 
-            if (compoundsToBuyList.includes(molecule.id)) {
+            if (
+              compoundsToBuyList?.includes(molecule.id) ||
+              ligands?.includes(molecule.id) ||
+              proteins?.includes(molecule.id) ||
+              complexes?.includes(molecule.id) ||
+              surfaces?.includes(molecule.id)
+            ) {
               setCurrentPage(i / moleculesPerPage + 1);
               setScrollToMoleculeId(molecule.id);
               break;
@@ -47,7 +63,11 @@ export const useScrollToSelected = (datasetID, moleculesPerPage, setCurrentPage)
     moleculesPerPage,
     rhsOpen,
     scrollFired,
-    setCurrentPage
+    setCurrentPage,
+    ligands,
+    proteins,
+    complexes,
+    surfaces
   ]);
 
   // Second pass, once the list of molecules is displayed and the refs to their DOM nodes have been

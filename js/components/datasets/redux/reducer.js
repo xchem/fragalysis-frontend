@@ -143,6 +143,24 @@ const initializeContainerLists = (state, datasetID) => {
   return state;
 };
 
+/**
+ *  Helper function which takes the datasetReducers and removes any mention of the given dataset
+ */
+const removeDatasetFromState = (state, datasetId) => {
+  console.log('removeDatasetFromState - start');
+  const newState = { ...state };
+  Object.keys(state).forEach(key => {
+    if (typeof state[key] === 'object') {
+      if (newState[key] && newState[key].hasOwnProperty(datasetId)) {
+        delete newState[key][datasetId];
+      }
+    }
+  });
+
+  console.log('removeDatasetFromState - end');
+  return newState;
+};
+
 export const datasetsReducers = (state = INITIAL_STATE, action = {}) => {
   switch (action.type) {
     case constants.ADD_DATASET:
@@ -472,6 +490,11 @@ export const datasetsReducers = (state = INITIAL_STATE, action = {}) => {
         inProgress: false
       };
       return { ...state, dragDropStatus };
+    }
+
+    case constants.DELETE_DATASET: {
+      const newState = { ...state, datasets: state.datasets.filter(dataset => dataset.id !== action.datasetId) };
+      return removeDatasetFromState(newState, action.datasetId);
     }
 
     case constants.DISABLE_DATASET_NGL_CONTROL_BUTTON: {

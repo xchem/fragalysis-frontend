@@ -115,7 +115,7 @@ export const restoreAfterSnapshotChange = (stages, projectId) => async (dispatch
 
     dispatch(setSkipOrientationChange(false));
     console.count(`BEFORE restoration orientation from snapshot`);
-    await dispatch(restoreNglStateAction(orderedActionList, stages));
+    await dispatch(restoreNglStateAction(orderedActionList, stages, true));
     console.count(`AFTER restoration orientation from snapshot`);
 
     dispatch(resetDatasetScrolledMap()); // Have a look at useScrollToSelected.js
@@ -189,18 +189,20 @@ const handleShowAllOfMols = (actions, stage) => async (dispatch, getState) => {
 
   for (const molId of molIds) {
     const mol = dispatch(getMoleculeForId(molId.id));
-    const action = actions.find(
-      a =>
-        a.type === actionType.ALL_TURNED_ON && a.object_id === molId.id && a.object_type === actionObjectType.MOLECULE
-    );
-    if (action.isLigand && !ligands.find(l => l === molId.id)) {
-      await dispatch(addLigand(stage, mol, getRandomColor(mol), false, true, true));
-    }
-    if (action.isProtein && !proteins.find(p => p === molId.id)) {
-      await dispatch(addHitProtein(stage, mol, getRandomColor(mol), true, true));
-    }
-    if (action.isComplex && !complexes.find(c => c === molId.id)) {
-      await dispatch(addComplex(stage, mol, getRandomColor(mol), true));
+    if (mol) {
+      const action = actions.find(
+        a =>
+          a.type === actionType.ALL_TURNED_ON && a.object_id === molId.id && a.object_type === actionObjectType.MOLECULE
+      );
+      if (action.isLigand && !ligands.find(l => l === molId.id)) {
+        await dispatch(addLigand(stage, mol, getRandomColor(mol), false, true, true));
+      }
+      if (action.isProtein && !proteins.find(p => p === molId.id)) {
+        await dispatch(addHitProtein(stage, mol, getRandomColor(mol), true, true));
+      }
+      if (action.isComplex && !complexes.find(c => c === molId.id)) {
+        await dispatch(addComplex(stage, mol, getRandomColor(mol), true));
+      }
     }
   }
 };
@@ -216,18 +218,22 @@ const handleShowAllOfCompounds = (actions, stage) => async (dispatch, getState) 
   for (const [datasetId, cmpIds] of Object.entries(compounds)) {
     for (const cmpId of cmpIds) {
       const cmp = dispatch(getCompoundById(cmpId.id, datasetId));
-      const action = actions.find(
-        a =>
-          a.type === actionType.ALL_TURNED_ON && a.object_id === cmpId.id && a.object_type === actionObjectType.COMPOUND
-      );
-      if (action.isLigand && !ligands[datasetId]?.find(l => l === cmpId.id)) {
-        await dispatch(addDatasetLigand(stage, cmp, getRandomColor(cmp), datasetId, true));
-      }
-      if (action.isProtein && !proteins[datasetId]?.find(p => p === cmpId.id)) {
-        await dispatch(addDatasetHitProtein(stage, cmp, getRandomColor(cmp), datasetId, true));
-      }
-      if (action.isComplex && !complexes[datasetId]?.find(c => c === cmpId.id)) {
-        await dispatch(addDatasetComplex(stage, cmp, getRandomColor(cmp), datasetId, true));
+      if (cmp) {
+        const action = actions.find(
+          a =>
+            a.type === actionType.ALL_TURNED_ON &&
+            a.object_id === cmpId.id &&
+            a.object_type === actionObjectType.COMPOUND
+        );
+        if (action.isLigand && !ligands[datasetId]?.find(l => l === cmpId.id)) {
+          await dispatch(addDatasetLigand(stage, cmp, getRandomColor(cmp), datasetId, true));
+        }
+        if (action.isProtein && !proteins[datasetId]?.find(p => p === cmpId.id)) {
+          await dispatch(addDatasetHitProtein(stage, cmp, getRandomColor(cmp), datasetId, true));
+        }
+        if (action.isComplex && !complexes[datasetId]?.find(c => c === cmpId.id)) {
+          await dispatch(addDatasetComplex(stage, cmp, getRandomColor(cmp), datasetId, true));
+        }
       }
     }
   }
@@ -241,12 +247,16 @@ const handleLigandsOfMols = (actions, stage) => async (dispatch, getState) => {
 
   instructions.toTurnOff.forEach(molId => {
     const mol = dispatch(getMoleculeForId(molId));
-    dispatch(removeLigand(stage, mol, true));
+    if (mol) {
+      dispatch(removeLigand(stage, mol, true));
+    }
   });
 
   for (const molId of instructions.toTurnOn) {
     const mol = dispatch(getMoleculeForId(molId));
-    await dispatch(addLigand(stage, mol, getRandomColor(mol), false, true, true));
+    if (mol) {
+      await dispatch(addLigand(stage, mol, getRandomColor(mol), false, true, true));
+    }
   }
 };
 
@@ -259,11 +269,15 @@ const handleLigandsOfCompounds = (actions, stage) => async (dispatch, getState) 
   for (const [datasetId, cmpIds] of Object.entries(instructions)) {
     cmpIds.toTurnOff.forEach(cmpId => {
       const cmp = dispatch(getCompoundById(cmpId, datasetId));
-      dispatch(removeDatasetLigand(stage, cmp, getRandomColor(cmp), datasetId, true));
+      if (cmp) {
+        dispatch(removeDatasetLigand(stage, cmp, getRandomColor(cmp), datasetId, true));
+      }
     });
     for (const cmpId of cmpIds.toTurnOn) {
       const cmp = dispatch(getCompoundById(cmpId, datasetId));
-      await dispatch(addDatasetLigand(stage, cmp, getRandomColor(cmp), datasetId, true));
+      if (cmp) {
+        await dispatch(addDatasetLigand(stage, cmp, getRandomColor(cmp), datasetId, true));
+      }
     }
   }
 };
@@ -276,11 +290,15 @@ const handleProteinsOfMols = (actions, stage) => async (dispatch, getState) => {
 
   instructions.toTurnOff.forEach(molId => {
     const mol = dispatch(getMoleculeForId(molId));
-    dispatch(removeHitProtein(stage, mol, getRandomColor(mol), true));
+    if (mol) {
+      dispatch(removeHitProtein(stage, mol, getRandomColor(mol), true));
+    }
   });
   for (const molId of instructions.toTurnOn) {
     const mol = dispatch(getMoleculeForId(molId));
-    await dispatch(addHitProtein(stage, mol, getRandomColor(mol), true, true));
+    if (mol) {
+      await dispatch(addHitProtein(stage, mol, getRandomColor(mol), true, true));
+    }
   }
 };
 
@@ -293,11 +311,15 @@ const handleProteinsOfCompounds = (actions, stage) => async (dispatch, getState)
   for (const [datasetId, cmpIds] of Object.entries(instructions)) {
     cmpIds.toTurnOff.forEach(cmpId => {
       const cmp = dispatch(getCompoundById(cmpId, datasetId));
-      dispatch(removeDatasetHitProtein(stage, cmp, getRandomColor(cmp), datasetId, true));
+      if (cmp) {
+        dispatch(removeDatasetHitProtein(stage, cmp, getRandomColor(cmp), datasetId, true));
+      }
     });
     for (const cmpId of cmpIds.toTurnOn) {
       const cmp = dispatch(getCompoundById(cmpId, datasetId));
-      await dispatch(addDatasetHitProtein(stage, cmp, getRandomColor(cmp), datasetId, true));
+      if (cmp) {
+        await dispatch(addDatasetHitProtein(stage, cmp, getRandomColor(cmp), datasetId, true));
+      }
     }
   }
 };
@@ -310,12 +332,16 @@ const handleSurfacesOfMols = (actions, stage) => async (dispatch, getState) => {
 
   instructions.toTurnOff.forEach(molId => {
     const mol = dispatch(getMoleculeForId(molId));
-    dispatch(removeSurface(stage, mol, getRandomColor(mol), true));
+    if (mol) {
+      dispatch(removeSurface(stage, mol, getRandomColor(mol), true));
+    }
   });
 
   for (const molId of instructions.toTurnOn) {
     const mol = dispatch(getMoleculeForId(molId));
-    await dispatch(addSurface(stage, mol, getRandomColor(mol), true, true));
+    if (mol) {
+      await dispatch(addSurface(stage, mol, getRandomColor(mol), true, true));
+    }
   }
 };
 
@@ -328,11 +354,15 @@ const handleSurfacesOfCompounds = (actions, stage) => async (dispatch, getState)
   for (const [datasetId, cmpIds] of Object.entries(instructions)) {
     cmpIds.toTurnOff.forEach(cmpId => {
       const cmp = dispatch(getCompoundById(cmpId, datasetId));
-      dispatch(removeDatasetSurface(stage, cmp, getRandomColor(cmp), datasetId, true));
+      if (cmp) {
+        dispatch(removeDatasetSurface(stage, cmp, getRandomColor(cmp), datasetId, true));
+      }
     });
     for (const cmpId of cmpIds.toTurnOn) {
       const cmp = dispatch(getCompoundById(cmpId, datasetId));
-      await dispatch(addDatasetSurface(stage, cmp, getRandomColor(cmp), datasetId, true));
+      if (cmp) {
+        await dispatch(addDatasetSurface(stage, cmp, getRandomColor(cmp), datasetId, true));
+      }
     }
   }
 };
@@ -345,7 +375,9 @@ const handleQualityOfMols = (actions, stage) => async (dispatch, getState) => {
   let molIds = dispatch(getMoleculeIdsFromActions(actions, actionType.QUALITY_TURNED_OFF));
   molIds.forEach(async molId => {
     const mol = dispatch(getMoleculeForId(molId.id));
-    await dispatch(removeQuality(stage, mol, getRandomColor(mol), true));
+    if (mol) {
+      await dispatch(removeQuality(stage, mol, getRandomColor(mol), true));
+    }
   });
 
   //now we need to get all the ligands that should be on and turn on quality for them if the quality
@@ -356,7 +388,9 @@ const handleQualityOfMols = (actions, stage) => async (dispatch, getState) => {
   for (const molId of molIds) {
     if (!currentlyOnQuality.find(q => q === molId.id)) {
       const mol = dispatch(getMoleculeForId(molId.id));
-      await dispatch(addQuality(stage, mol, getRandomColor(mol), true));
+      if (mol) {
+        await dispatch(addQuality(stage, mol, getRandomColor(mol), true));
+      }
     }
   }
 };
@@ -369,12 +403,16 @@ const handleComplexesOfMols = (actions, stage) => async (dispatch, getState) => 
 
   instructions.toTurnOff.forEach(molId => {
     const mol = dispatch(getMoleculeForId(molId));
-    dispatch(removeComplex(stage, mol, getRandomColor(mol), true));
+    if (mol) {
+      dispatch(removeComplex(stage, mol, getRandomColor(mol), true));
+    }
   });
 
   for (const molId of instructions.toTurnOn) {
     const mol = dispatch(getMoleculeForId(molId));
-    await dispatch(addComplex(stage, mol, getRandomColor(mol), true));
+    if (mol) {
+      await dispatch(addComplex(stage, mol, getRandomColor(mol), true));
+    }
   }
 };
 
@@ -387,11 +425,15 @@ const handleComplexesOfCompounds = (actions, stage) => async (dispatch, getState
   for (const [datasetId, cmpIds] of Object.entries(instructions)) {
     cmpIds.toTurnOff.forEach(cmpId => {
       const cmp = dispatch(getCompoundById(cmpId, datasetId));
-      dispatch(removeDatasetComplex(stage, cmp, getRandomColor(cmp), datasetId, true));
+      if (cmp) {
+        dispatch(removeDatasetComplex(stage, cmp, getRandomColor(cmp), datasetId, true));
+      }
     });
     for (const cmpId of cmpIds.toTurnOn) {
       const cmp = dispatch(getCompoundById(cmpId, datasetId));
-      await dispatch(addDatasetComplex(stage, cmp, getRandomColor(cmp), datasetId, true));
+      if (cmp) {
+        await dispatch(addDatasetComplex(stage, cmp, getRandomColor(cmp), datasetId, true));
+      }
     }
   }
 };
@@ -404,12 +446,16 @@ const handleVectorsOfMols = (actions, stage) => async (dispatch, getState) => {
 
   instructions.toTurnOff.forEach(molId => {
     const mol = dispatch(getMoleculeForId(molId));
-    dispatch(removeVector(stage, mol, true));
+    if (mol) {
+      dispatch(removeVector(stage, mol, true));
+    }
   });
 
   for (const molId of instructions.toTurnOn) {
     const mol = dispatch(getMoleculeForId(molId));
-    await dispatch(addVector(stage, mol, true));
+    if (mol) {
+      await dispatch(addVector(stage, mol, true));
+    }
   }
 };
 
@@ -421,11 +467,15 @@ const handleDensityOfMols = (actions, stage) => async (dispatch, getState) => {
 
   instructions.toTurnOff.forEach(molId => {
     const mol = dispatch(getMoleculeForId(molId));
-    dispatch(removeDensity(stage, mol, getRandomColor(mol), false, true));
+    if (mol) {
+      dispatch(removeDensity(stage, mol, getRandomColor(mol), false, true));
+    }
   });
   for (const molId of instructions.toTurnOn) {
     const mol = dispatch(getMoleculeForId(molId));
-    await dispatch(addDensity(stage, mol, getRandomColor(mol), true, true));
+    if (mol) {
+      await dispatch(addDensity(stage, mol, getRandomColor(mol), true, true));
+    }
   }
 };
 
@@ -441,12 +491,16 @@ const handleCustomDensityOfMols = (actions, stage) => async (dispatch, getState)
 
   instructions.toTurnOff.forEach(molId => {
     const mol = dispatch(getMoleculeForId(molId));
-    dispatch(removeDensity(stage, mol, getRandomColor(mol), false, true));
+    if (mol) {
+      dispatch(removeDensity(stage, mol, getRandomColor(mol), false, true));
+    }
   });
 
   for (const molId of instructions.toTurnOn) {
     const mol = dispatch(getMoleculeForId(molId));
-    await dispatch(addDensityCustomView(stage, mol, getRandomColor(mol), true, true));
+    if (mol) {
+      await dispatch(addDensityCustomView(stage, mol, getRandomColor(mol), true, true));
+    }
   }
 };
 
@@ -504,7 +558,9 @@ const getMoleculeIdsFromActions = (actions, actionType) => (dispatch, getState) 
     .filter(action => action.type === actionType && action.object_type === actionObjectType.MOLECULE)
     .map(action => {
       const mol = getMolecule(action.object_name, state);
-      return { id: mol?.id, name: mol?.protein_code };
+      if (mol) {
+        return { id: mol?.id, name: mol?.protein_code };
+      }
     });
 
   return result;
@@ -517,22 +573,26 @@ const getCompoundsIdsFromActions = (actions, actionType) => (dispatch, getState)
     .filter(action => action.type === actionType && action.object_type === actionObjectType.COMPOUND)
     .map(action => {
       const cmp = getCompound(action, state);
-      return { datasetId: action.dataset_id, id: cmp?.id, name: cmp.name };
+      if (cmp) {
+        return { datasetId: action.dataset_id, id: cmp?.id, name: cmp.name };
+      }
     });
   const result = {};
   cmpOjects.forEach(cmp => {
-    let datasetCmps = [];
-    if (result.hasOwnProperty(cmp.datasetId)) {
-      datasetCmps = result[cmp.datasetId];
+    if (cmp) {
+      let datasetCmps = [];
+      if (result.hasOwnProperty(cmp.datasetId)) {
+        datasetCmps = result[cmp.datasetId];
+      }
+      datasetCmps = [...datasetCmps, { id: cmp.id, name: cmp.name }];
+      result[cmp.datasetId] = datasetCmps;
     }
-    datasetCmps = [...datasetCmps, { id: cmp.id, name: cmp.name }];
-    result[cmp.datasetId] = datasetCmps;
   });
 
   return result;
 };
 
-const getCompoundById = (id, datasetId) => (dispatch, getState) => {
+export const getCompoundById = (id, datasetId) => (dispatch, getState) => {
   const state = getState();
   const datasetCmps = state.datasetsReducers.moleculeLists[datasetId];
   return datasetCmps?.find(cmp => cmp.id === id);

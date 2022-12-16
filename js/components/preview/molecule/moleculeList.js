@@ -749,7 +749,7 @@ export const MoleculeList = memo(({ hideProjects }) => {
 
     <IconButton
       color={'inherit'}
-      disabled={!joinedMoleculeListsCopy.length || noTagsReceived}
+      disabled={!joinedMoleculeListsCopy.length || noTagsReceived || !tags.length}
       onClick={event => {
         if (isTagEditorOpen === false) {
           setTagEditorAnchorEl(event.currentTarget);

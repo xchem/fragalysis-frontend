@@ -33,7 +33,8 @@ import {
   dragDropFinished,
   disableDatasetMoleculeNglControlButton,
   enableDatasetMoleculeNglControlButton,
-  setArrowUpDown
+  setArrowUpDown,
+  removeDataset
 } from './actions';
 import { base_url } from '../../routes/constants';
 import {
@@ -45,7 +46,7 @@ import {
 } from '../../nglView/generatingObjects';
 import { VIEWS } from '../../../constants/constants';
 import { addMoleculeList } from './actions';
-import { api } from '../../../utils/api';
+import { api, METHOD } from '../../../utils/api';
 import {
   getInitialDatasetFilterProperties,
   getInitialDatasetFilterSettings,
@@ -69,6 +70,8 @@ import {
 import { OBJECT_TYPE } from '../../nglView/constants';
 import { getRepresentationsByType } from '../../nglView/generatingObjects';
 import { selectAllMoleculeList } from '../../preview/molecule/redux/selectors';
+import { getCompoundById } from '../../../reducers/tracking/dispatchActionsSwitchSnapshot';
+import { getRandomColor } from '../../preview/molecule/utils/color';
 
 export const initializeDatasetFilter = datasetID => (dispatch, getState) => {
   const state = getState();
@@ -242,7 +245,9 @@ export const removeDatasetLigand = (stage, data, colourToggle, datasetID, skipTr
 };
 
 export const loadDataSets = targetId => async dispatch => {
+  console.log('loadDataSets');
   return api({ url: `${base_url}/api/compound-sets/?target=${targetId}` }).then(response => {
+    console.log('loadDataSets - data received');
     dispatch(
       setDataset(
         response.data.results.map(ds => ({
@@ -1139,4 +1144,59 @@ export const withDisabledDatasetMoleculesNglControlButtons = (
       dispatch(enableDatasetMoleculeNglControlButton(datasetId, moleculeId, type));
     });
   });
+};
+
+/**
+ * 1. Function first removes everything visible in the ngl view
+ * 2. Removes every mention of the dataset from the redux store (state.datasetsReducers)
+ * 3. Calls the backend api/compound-sets/ DELETE endpoint to remove the dataset from the database
+ * @param {*} datasetID
+ * @returns
+ */
+export const deleteDataset = (datasetID, stage) => async (dispatch, getState) => {
+  const state = getState();
+
+  //remove ligands
+  const ligandsListOfDataset = state.datasetsReducers.ligandLists[datasetID];
+  ligandsListOfDataset &&
+    ligandsListOfDataset.forEach(cmpId => {
+      const cmp = dispatch(getCompoundById(cmpId, datasetID));
+      if (cmp) {
+        //I think we can leave it to execute asynchronously
+        dispatch(removeDatasetLigand(stage, cmp, getRandomColor(cmp), datasetID, true));
+      }
+    });
+  //remove proteins
+  const proteinListOfDataset = state.datasetsReducers.proteinLists[datasetID];
+  proteinListOfDataset &&
+    proteinListOfDataset.forEach(cmpId => {
+      const cmp = dispatch(getCompoundById(cmpId, datasetID));
+      if (cmp) {
+        dispatch(removeDatasetHitProtein(stage, cmp, getRandomColor(cmp), datasetID, true));
+      }
+    });
+  //remove complexes
+  const complexListOfDataset = state.datasetsReducers.complexLists[datasetID];
+  complexListOfDataset &&
+    complexListOfDataset.forEach(cmpId => {
+      const cmp = dispatch(getCompoundById(cmpId, datasetID));
+      if (cmp) {
+        dispatch(removeDatasetComplex(stage, cmp, getRandomColor(cmp), datasetID, true));
+      }
+    });
+  //remove surfaces
+  const surfaceListOfDataset = state.datasetsReducers.surfaceLists[datasetID];
+  surfaceListOfDataset &&
+    surfaceListOfDataset.forEach(cmpId => {
+      const cmp = dispatch(getCompoundById(cmpId, datasetID));
+      if (cmp) {
+        dispatch(removeDatasetSurface(stage, cmp, getRandomColor(cmp), datasetID, true));
+      }
+    });
+
+  await api({ url: `${base_url}/api/compound-sets/${datasetID}/`, method: METHOD.DELETE });
+
+  //remove dataset from redux store
+  dispatch(removeDataset(datasetID));
+  console.log('dataset removed from redux store');
 };
