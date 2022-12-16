@@ -4,11 +4,11 @@
 
 import React, { memo, useEffect, useState, useRef, useContext, useCallback } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { Grid, Button, makeStyles, Tooltip, IconButton, Checkbox, Paper } from '@material-ui/core';
-import { MyLocation, ArrowDownward, ArrowUpward, Warning, Assignment, AssignmentTurnedIn } from '@material-ui/icons';
+import { Grid, Button, makeStyles, Tooltip, IconButton, Paper } from '@material-ui/core';
+import { MyLocation, Warning, Assignment, AssignmentTurnedIn } from '@material-ui/icons';
 import SVGInline from 'react-svg-inline';
 import classNames from 'classnames';
-import { VIEWS, ARROW_TYPE } from '../../../../constants/constants';
+import { VIEWS } from '../../../../constants/constants';
 import { NGL_PARAMS, COMMON_PARAMS } from '../../../nglView/constants';
 import { NglContext } from '../../../nglView/nglProvider';
 import {
@@ -31,8 +31,7 @@ import {
   getQualityInformation,
   getDensityMapData,
   getProteinData,
-  withDisabledMoleculeNglControlButton,
-  moveMoleculeUpDown
+  withDisabledMoleculeNglControlButton
 } from '../redux/dispatchActions';
 import {
   setSelectedAll,
@@ -42,7 +41,6 @@ import {
   appendToMolListToEdit,
   removeFromMolListToEdit
 } from '../../../../reducers/selection/actions';
-import { base_url } from '../../../routes/constants';
 import { moleculeProperty } from '../helperConstants';
 import { centerOnLigandByMoleculeID } from '../../../../reducers/ngl/dispatchActions';
 import { SvgTooltip } from '../../../common';
@@ -270,12 +268,10 @@ const MoleculeView = memo(
     const ref = useRef(null);
     const currentID = (data && data.id) || undefined;
     const classes = useStyles();
-    const key = 'mol_image';
 
     const dispatch = useDispatch();
     const target_on_name = useSelector(state => state.apiReducers.target_on_name);
     const filter = useSelector(state => state.selectionReducers.filter);
-    const url = new URL(base_url + '/api/molimg/' + data.id + '/');
     const [img_data, setImg_data] = useState(img_data_init);
 
     const viewParams = useSelector(state => state.nglReducers.viewParams);
@@ -301,21 +297,11 @@ const MoleculeView = memo(
     const hasAllValuesOn = isLigandOn && isProteinOn && isComplexOn;
     const hasSomeValuesOn = !hasAllValuesOn && (isLigandOn || isProteinOn || isComplexOn);
 
-    const areArrowsVisible = isLigandOn || isProteinOn || isComplexOn || isSurfaceOn || isDensityOn || isVectorOn;
-
     let warningIconVisible = viewParams[COMMON_PARAMS.warningIcon] === true && hasAdditionalInformation === true;
     let isWireframeStyle = viewParams[NGL_PARAMS.contour_DENSITY];
 
     const disableMoleculeNglControlButtons =
       useSelector(state => state.previewReducers.molecule.disableNglControlButtons[currentID]) || {};
-
-    let tagEditIconVisible = true;
-
-    const oldUrl = useRef('');
-    const setOldUrl = url => {
-      oldUrl.current = url;
-    };
-    const refOnCancel = useRef();
 
     const colourToggle = getRandomColor(data);
 
@@ -337,7 +323,6 @@ const MoleculeView = memo(
     );
 
     const [densityModalOpen, setDensityModalOpen] = useState(false);
-    const [tagAddModalOpen, setTagAddModalOpen] = useState(false);
     const [moleculeTooltipOpen, setMoleculeTooltipOpen] = useState(false);
     const [tagEditorTooltipOpen, setTagEditorTooltipOpen] = useState(false);
     const moleculeImgRef = useRef(null);
@@ -479,9 +464,6 @@ const MoleculeView = memo(
     };
 
     const addNewComplex = (skipTracking = false) => {
-      // if (selectMoleculeSite) {
-      //   selectMoleculeSite(data.site);
-      // }
       dispatch(
         withDisabledMoleculeNglControlButton(currentID, 'complex', async () => {
           await dispatch(addComplex(stage, data, colourToggle, skipTracking));
@@ -541,10 +523,6 @@ const MoleculeView = memo(
     };
 
     const addNewDensity = async () => {
-      // if (selectMoleculeSite) {
-      //   selectMoleculeSite(data.site);
-      // }
-      // Selecting quality will render ligand
       dispatch(
         withDisabledMoleculeNglControlButton(currentID, 'ligand', async () => {
           await dispatch(
@@ -656,48 +634,6 @@ const MoleculeView = memo(
         block: 'nearest',
         inline: 'nearest'
       });
-    };
-
-    const handleClickOnDownArrow = async () => {
-      const refNext = ref.current.nextSibling;
-      scrollToElement(refNext);
-
-      let dataValue = {
-        isLigandOn: isLigandOn,
-        isProteinOn: isProteinOn,
-        isComplexOn: isComplexOn,
-        isSurfaceOn: isSurfaceOn,
-        isQualityOn: isQualityOn,
-        isDensityOn: isDensityOn,
-        isDensityCustomOn: isDensityCustomOn,
-        isVectorOn: isVectorOn,
-        // objectsInView moved to moveMoleculeUpDown due to performance
-        colourToggle: colourToggle
-      };
-      // Needs to be awaited since adding elements to NGL viewer is done asynchronously
-      await dispatch(moveMoleculeUpDown(stage, data, nextItemData, dataValue, ARROW_TYPE.DOWN));
-      removeSelectedTypes([nextItemData], true);
-    };
-
-    const handleClickOnUpArrow = async () => {
-      const refPrevious = ref.current.previousSibling;
-      scrollToElement(refPrevious);
-
-      let dataValue = {
-        isLigandOn: isLigandOn,
-        isProteinOn: isProteinOn,
-        isComplexOn: isComplexOn,
-        isSurfaceOn: isSurfaceOn,
-        isQualityOn: isQualityOn,
-        isDensityOn: isDensityOn,
-        isDensityCustomOn: isDensityCustomOn,
-        isVectorOn: isVectorOn,
-        // objectsInView moved to moveMoleculeUpDown due to performance
-        colourToggle: colourToggle
-      };
-      // Needs to be awaited since adding elements to NGL viewer is done asynchronously
-      await dispatch(moveMoleculeUpDown(stage, data, previousItemData, dataValue, ARROW_TYPE.UP));
-      removeSelectedTypes([previousItemData], true);
     };
 
     let moleculeTitle = data?.protein_code.replace(new RegExp(`${target_on_name}-`, 'i'), '');
@@ -913,31 +849,6 @@ const MoleculeView = memo(
               </Grid>
             </Grid>
           </Grid>
-          {/* Up/Down arrows */}
-          {/* <Grid item>
-            <Grid container direction="column" justify="space-between" className={classes.arrows}>
-              <Grid item>
-                <IconButton
-                  color="primary"
-                  size="small"
-                  disabled={false || !previousItemData || !areArrowsVisible}
-                  onClick={handleClickOnUpArrow}
-                >
-                  <ArrowUpward className={areArrowsVisible ? classes.arrow : classes.invisArrow} />
-                </IconButton>
-              </Grid>
-              <Grid item>
-                <IconButton
-                  color="primary"
-                  size="small"
-                  disabled={false || !nextItemData || !areArrowsVisible}
-                  onClick={handleClickOnDownArrow}
-                >
-                  <ArrowDownward className={areArrowsVisible ? classes.arrow : classes.invisArrow} />
-                </IconButton>
-              </Grid>
-            </Grid>
-          </Grid> */}
           {/* Image */}
           <div
             style={{

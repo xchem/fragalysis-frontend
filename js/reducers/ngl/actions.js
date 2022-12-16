@@ -192,13 +192,14 @@ export const setColorAction = (mapType, newValue, oldValue) => {
   };
 };
 
-export const setWarningIconAction = (newValue, oldValue) => {
+export const setWarningIconAction = (newValue, oldValue, skipTracking = false) => {
   return {
     type: CONSTANTS.SET_WARNING_ICON,
     payload: {
       newValue: newValue,
       oldValue: oldValue
-    }
+    },
+    skipTracking: skipTracking
   };
 };
 

@@ -51,13 +51,11 @@ export const AddProjectDetail = memo(({ handleCloseModal }) => {
 
   const validateProjectName = async value => {
     let error;
-    // console.log(`Project title validating and value is: ${value}`);
 
     if (!value) {
       error = 'Required!';
     } else if (createDiscourse) {
       const response = await getExistingPost(value);
-      // console.log(response);
       if (response.data['Post url']) {
         error = 'Already exists!';
       }

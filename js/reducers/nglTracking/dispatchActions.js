@@ -690,17 +690,24 @@ export const restoreAfterTargetActions = (stages, projectId) => async (dispatch,
   }
 };
 
-const restoreNglStateAction = (orderedActionList, stages) => dispatch => {
-  let actions = orderedActionList.filter(action => action.type === actionType.NGL_STATE);
-  let action = [...actions].pop();
-  if (action && action.nglStateList) {
-    action.nglStateList.forEach(nglView => {
-      dispatch(setOrientation(nglView.id, nglView.orientation));
-      let viewStage = stages.find(s => s.id === nglView.id);
-      if (viewStage) {
-        viewStage.stage.viewerControls.orient(nglView.orientation.elements);
-      }
-    });
+const restoreNglStateAction = (orderedActionList, stages) => (dispatch, getState) => {
+  const state = getState();
+  const skipOrientation = state.trackingReducers.skipOrientationChange;
+
+  if (!skipOrientation) {
+    let actions = orderedActionList.filter(action => action.type === actionType.NGL_STATE);
+    let action = [...actions].pop();
+    if (action && action.nglStateList) {
+      action.nglStateList.forEach(nglView => {
+        dispatch(setOrientation(nglView.id, nglView.orientation));
+        let viewStage = stages.find(s => s.id === nglView.id);
+        if (viewStage) {
+          console.count(`Before restoring orientation - restoreNglStateAction - nglTracking`);
+          viewStage.stage.viewerControls.orient(nglView.orientation.elements);
+          console.count(`After restoring orientation - restoreNglStateAction - nglTracking`);
+        }
+      });
+    }
   }
 };
 

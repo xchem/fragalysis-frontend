@@ -22,7 +22,7 @@ import { createInitSnapshotFromCopy, getListOfSnapshots } from '../../snapshot/r
 import { SnapshotType } from './constants';
 import { DJANGO_CONTEXT } from '../../../utils/djangoContext';
 import { sendInitTrackingActionByProjectId } from '../../../reducers/tracking/dispatchActions';
-import { resetTrackingState } from '../../../reducers/tracking/actions';
+import { resetTrackingState, setIsSnapshotDirty } from '../../../reducers/tracking/actions';
 import { createProjectPost } from '../../../utils/discourse';
 import { setOpenDiscourseErrorModal } from '../../../reducers/api/actions';
 
@@ -262,6 +262,7 @@ export const loadSnapshotTree = projectID => (dispatch, getState) => {
     })
     .finally(() => {
       dispatch(setIsLoadingTree(false));
+      dispatch(setIsSnapshotDirty(false));
     });
 };
 

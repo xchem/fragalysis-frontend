@@ -33,7 +33,8 @@ import {
   dragDropFinished,
   disableDatasetMoleculeNglControlButton,
   enableDatasetMoleculeNglControlButton,
-  setArrowUpDown
+  setArrowUpDown,
+  removeDataset
 } from './actions';
 import { base_url } from '../../routes/constants';
 import {
@@ -45,7 +46,7 @@ import {
 } from '../../nglView/generatingObjects';
 import { VIEWS } from '../../../constants/constants';
 import { addMoleculeList } from './actions';
-import { api } from '../../../utils/api';
+import { api, METHOD } from '../../../utils/api';
 import {
   getInitialDatasetFilterProperties,
   getInitialDatasetFilterSettings,
@@ -69,6 +70,8 @@ import {
 import { OBJECT_TYPE } from '../../nglView/constants';
 import { getRepresentationsByType } from '../../nglView/generatingObjects';
 import { selectAllMoleculeList } from '../../preview/molecule/redux/selectors';
+import { getCompoundById } from '../../../reducers/tracking/dispatchActionsSwitchSnapshot';
+import { getRandomColor } from '../../preview/molecule/utils/color';
 
 export const initializeDatasetFilter = datasetID => (dispatch, getState) => {
   const state = getState();
@@ -94,7 +97,7 @@ export const addDatasetHitProtein = (
   datasetID,
   skipTracking = false,
   representations = undefined
-) => dispatch => {
+) => async dispatch => {
   dispatch(appendProteinList(datasetID, generateMoleculeCompoundId(data), skipTracking));
   return dispatch(
     loadObject({
@@ -132,7 +135,7 @@ export const addDatasetComplex = (
   datasetID,
   skipTracking = false,
   representations = undefined
-) => dispatch => {
+) => async dispatch => {
   dispatch(appendComplexList(datasetID, generateMoleculeCompoundId(data), skipTracking));
   return dispatch(
     loadObject({
@@ -160,7 +163,13 @@ export const removeDatasetComplex = (stage, data, colourToggle, datasetID, skipT
   dispatch(removeFromComplexList(datasetID, generateMoleculeCompoundId(data), skipTracking));
 };
 
-export const addDatasetSurface = (stage, data, colourToggle, datasetID, representations = undefined) => dispatch => {
+export const addDatasetSurface = (
+  stage,
+  data,
+  colourToggle,
+  datasetID,
+  representations = undefined
+) => async dispatch => {
   dispatch(appendSurfaceList(datasetID, generateMoleculeCompoundId(data)));
   return dispatch(
     loadObject({
@@ -195,8 +204,9 @@ export const addDatasetLigand = (
   datasetID,
   skipTracking = false,
   representations = undefined
-) => dispatch => {
+) => async (dispatch, getState) => {
   dispatch(appendLigandList(datasetID, generateMoleculeCompoundId(data), skipTracking));
+  console.count(`Grabbed orientation before loading dataset ligand`);
   const currentOrientation = stage.viewerControls.getOrientation();
   return dispatch(
     loadObject({
@@ -206,13 +216,21 @@ export const addDatasetLigand = (
       markAsRightSideLigand: true
     })
   ).finally(() => {
-    const ligandOrientation = stage.viewerControls.getOrientation();
-    dispatch(setOrientation(VIEWS.MAJOR_VIEW, ligandOrientation));
+    const state = getState();
+    const skipOrientation = state.trackingReducers.skipOrientationChange;
+    if (!skipOrientation) {
+      const ligandOrientation = stage.viewerControls.getOrientation();
+      dispatch(setOrientation(VIEWS.MAJOR_VIEW, ligandOrientation));
 
-    dispatch(appendMoleculeOrientation(getDatasetMoleculeID(datasetID, data?.id), ligandOrientation));
+      dispatch(appendMoleculeOrientation(getDatasetMoleculeID(datasetID, data?.id), ligandOrientation));
 
-    // keep current orientation of NGL View
-    stage.viewerControls.orient(currentOrientation);
+      // keep current orientation of NGL View
+      if (!skipOrientation) {
+        console.count(`Before applying orientation after loading dataset ligand.`);
+        stage.viewerControls.orient(currentOrientation);
+        console.count(`After applying orientation after loading dataset ligand.`);
+      }
+    }
   });
 };
 
@@ -227,7 +245,9 @@ export const removeDatasetLigand = (stage, data, colourToggle, datasetID, skipTr
 };
 
 export const loadDataSets = targetId => async dispatch => {
+  console.log('loadDataSets');
   return api({ url: `${base_url}/api/compound-sets/?target=${targetId}` }).then(response => {
+    console.log('loadDataSets - data received');
     dispatch(
       setDataset(
         response.data.results.map(ds => ({
@@ -1124,4 +1144,59 @@ export const withDisabledDatasetMoleculesNglControlButtons = (
       dispatch(enableDatasetMoleculeNglControlButton(datasetId, moleculeId, type));
     });
   });
+};
+
+/**
+ * 1. Function first removes everything visible in the ngl view
+ * 2. Removes every mention of the dataset from the redux store (state.datasetsReducers)
+ * 3. Calls the backend api/compound-sets/ DELETE endpoint to remove the dataset from the database
+ * @param {*} datasetID
+ * @returns
+ */
+export const deleteDataset = (datasetID, stage) => async (dispatch, getState) => {
+  const state = getState();
+
+  //remove ligands
+  const ligandsListOfDataset = state.datasetsReducers.ligandLists[datasetID];
+  ligandsListOfDataset &&
+    ligandsListOfDataset.forEach(cmpId => {
+      const cmp = dispatch(getCompoundById(cmpId, datasetID));
+      if (cmp) {
+        //I think we can leave it to execute asynchronously
+        dispatch(removeDatasetLigand(stage, cmp, getRandomColor(cmp), datasetID, true));
+      }
+    });
+  //remove proteins
+  const proteinListOfDataset = state.datasetsReducers.proteinLists[datasetID];
+  proteinListOfDataset &&
+    proteinListOfDataset.forEach(cmpId => {
+      const cmp = dispatch(getCompoundById(cmpId, datasetID));
+      if (cmp) {
+        dispatch(removeDatasetHitProtein(stage, cmp, getRandomColor(cmp), datasetID, true));
+      }
+    });
+  //remove complexes
+  const complexListOfDataset = state.datasetsReducers.complexLists[datasetID];
+  complexListOfDataset &&
+    complexListOfDataset.forEach(cmpId => {
+      const cmp = dispatch(getCompoundById(cmpId, datasetID));
+      if (cmp) {
+        dispatch(removeDatasetComplex(stage, cmp, getRandomColor(cmp), datasetID, true));
+      }
+    });
+  //remove surfaces
+  const surfaceListOfDataset = state.datasetsReducers.surfaceLists[datasetID];
+  surfaceListOfDataset &&
+    surfaceListOfDataset.forEach(cmpId => {
+      const cmp = dispatch(getCompoundById(cmpId, datasetID));
+      if (cmp) {
+        dispatch(removeDatasetSurface(stage, cmp, getRandomColor(cmp), datasetID, true));
+      }
+    });
+
+  await api({ url: `${base_url}/api/compound-sets/${datasetID}/`, method: METHOD.DELETE });
+
+  //remove dataset from redux store
+  dispatch(removeDataset(datasetID));
+  console.log('dataset removed from redux store');
 };

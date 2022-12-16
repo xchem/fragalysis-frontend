@@ -34,11 +34,12 @@ import {
   removeDatasetSurface,
   autoHideDatasetDialogsOnScroll,
   withDisabledDatasetMoleculesNglControlButtons,
-  moveDatasetMolecule
+  moveDatasetMolecule,
+  deleteDataset
 } from './redux/dispatchActions';
 import { setDragDropState, setFilterDialogOpen, setSearchStringOfCompoundSet } from './redux/actions';
 import { DatasetFilter } from './datasetFilter';
-import { FilterList, Link } from '@material-ui/icons';
+import { FilterList, Link, DeleteForever } from '@material-ui/icons';
 import { getJoinedMoleculeLists } from './redux/selectors';
 import { InspirationDialog } from './inspirationDialog';
 import { CrossReferenceDialog } from './crossReferenceDialog';
@@ -52,6 +53,7 @@ import useDisableDatasetNglControlButtons from './useDisableDatasetNglControlBut
 import GroupDatasetNglControlButtonsContext from './groupDatasetNglControlButtonsContext';
 import { useScrollToSelected } from './useScrollToSelected';
 import { useEffectDebugger } from '../../utils/effects';
+import { DJANGO_CONTEXT } from '../../utils/djangoContext';
 
 const useStyles = makeStyles(theme => ({
   container: {
@@ -220,6 +222,8 @@ const DatasetMoleculeList = ({ title, datasetID, url }) => {
   const filterRef = useRef();
 
   const joinedMoleculeLists = useSelector(state => getJoinedMoleculeLists(datasetID, state), shallowEqual);
+
+  const datasetObj = useSelector(state => state.datasetsReducers.datasets.find(d => d.id === datasetID));
 
   // console.log('DatasetMoleculeList - update');
 
@@ -397,6 +401,18 @@ const DatasetMoleculeList = ({ title, datasetID, url }) => {
         <Tooltip title="Filter/Sort">
           <FilterList />
         </Tooltip>
+      </IconButton>,
+      <IconButton
+        disabled={DJANGO_CONTEXT['authenticated'] !== true}
+        className={classes.panelButton}
+        color={'inherit'}
+        onClick={event => {
+          setIsDeleteDatasetAlertOpen(true);
+        }}
+      >
+        <Tooltip title="Delete dataset">
+          <DeleteForever />
+        </Tooltip>
       </IconButton>
     ],
     [classes, datasetID, dispatch, filterRef, isLoadingMoleculeList, sortDialogOpen, url]
@@ -418,6 +434,7 @@ const DatasetMoleculeList = ({ title, datasetID, url }) => {
   const scrollBarRef = useRef();
 
   const [isOpenAlert, setIsOpenAlert] = useState(false);
+  const [isDeleteDatasetAlertOpen, setIsDeleteDatasetAlertOpen] = useState(false);
 
   const moveMolecule = useCallback(
     (dragIndex, hoverIndex) => {
@@ -508,6 +525,18 @@ const DatasetMoleculeList = ({ title, datasetID, url }) => {
         }}
         handleOnCancel={() => {
           setIsOpenAlert(false);
+        }}
+      />
+      <AlertModal
+        title="Are you sure?"
+        description={`Are you sure to permanentaly delete dataset: ${datasetObj.title}`}
+        open={isDeleteDatasetAlertOpen}
+        handleOnOk={() => {
+          dispatch(deleteDataset(datasetID, stage));
+          setIsDeleteDatasetAlertOpen(false);
+        }}
+        handleOnCancel={() => {
+          setIsDeleteDatasetAlertOpen(false);
         }}
       />
       {sortDialogOpen && (
@@ -698,10 +727,10 @@ const DatasetMoleculeList = ({ title, datasetID, url }) => {
                             showCrossReferenceModal
                             previousItemData={index > 0 && array[index - 1]}
                             nextItemData={index < array?.length && array[index + 1]}
-                            L={ligandList.includes(data.id)}
-                            P={proteinList.includes(data.id)}
-                            C={complexList.includes(data.id)}
-                            S={surfaceList.includes(data.id)}
+                            L={ligandList?.includes(data.id)}
+                            P={proteinList?.includes(data.id)}
+                            C={complexList?.includes(data.id)}
+                            S={surfaceList?.includes(data.id)}
                             V={false}
                             moveMolecule={moveMolecule}
                             isCheckedToBuy={isCheckedToBuy}

@@ -450,3 +450,10 @@ export const setDatasetScrolled = datasetId => ({
 export const resetDatasetScrolledMap = () => ({
   type: constants.RESET_DATASET_SCROLLED_MAP
 });
+
+export const removeDataset = datasetId => {
+  return {
+    type: constants.DELETE_DATASET,
+    datasetId: datasetId
+  };
+};

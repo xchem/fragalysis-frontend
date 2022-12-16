@@ -32,7 +32,17 @@ const drawStripyBond = (atom_a, atom_b, color_a, color_b, label, size = 0.1, sha
   }
 };
 
-export function loadQualityFromFile(stage, file, quality, object_name, orientationMatrix, color, qualityType) {
+export const loadQualityFromFile = async (
+  stage,
+  file,
+  quality,
+  object_name,
+  orientationMatrix,
+  color,
+  qualityType,
+  skipOrientation
+) => {
+  console.count(`loadQualityFromFile started`);
   // let goodids =
   //   qualityType === QUALITY_TYPES.LIGAND
   //     ? (quality && quality.goodids) || []
@@ -50,6 +60,7 @@ export function loadQualityFromFile(stage, file, quality, object_name, orientati
   let extension = qualityType === QUALITY_TYPES.LIGAND ? 'sdf' : 'pdb';
 
   return stage.loadFile(file, { name: object_name, ext: extension }).then(function(comp) {
+    console.count(`loadQualityFromFile file loaded`);
     let representationStructures = [];
     let rgbColor = hexToRgb(color);
 
@@ -196,19 +207,25 @@ export function loadQualityFromFile(stage, file, quality, object_name, orientati
       }
     }
 
-    if (orientationMatrix && orientationMatrix.elements) {
-      const matrix = new Matrix4();
-      matrix.fromArray(orientationMatrix.elements);
+    if (!skipOrientation) {
+      if (orientationMatrix && orientationMatrix.elements) {
+        const matrix = new Matrix4();
+        matrix.fromArray(orientationMatrix.elements);
 
-      stage.viewerControls.orient(matrix);
-    } else if (orientationMatrix === undefined) {
-      comp.autoView('ligand');
+        console.count(`Before applying quality orientation matrix.`);
+        stage.viewerControls.orient(matrix);
+        console.count(`After applying quality orientation matrix.`);
+      } else if (orientationMatrix === undefined) {
+        comp.autoView('ligand');
+        console.count(`Orientation matrix not found for quality, using autoView instead.`);
+      }
     }
 
     const reprArray = createRepresentationsArray(representationStructures);
+    console.count(`loadQualityFromFile finnished`);
     return assignRepresentationArrayToComp(reprArray, comp);
   });
-}
+};
 
 export const readQualityInformation = (name, text) => (dispatch, getState) => {
   const state = getState();

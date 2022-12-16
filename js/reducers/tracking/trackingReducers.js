@@ -19,7 +19,9 @@ export const INITIAL_STATE = {
   isActionRestored: false,
   isActionTracking: false,
   trackingImageSource: '',
-  isProjectActionListLoaded: false
+  isProjectActionListLoaded: false,
+  skipOrientationChange: false,
+  isSnapshotDirty: false
 };
 
 export function trackingReducers(state = INITIAL_STATE, action = {}) {
@@ -118,6 +120,12 @@ export function trackingReducers(state = INITIAL_STATE, action = {}) {
       return Object.assign({}, state, {
         trackingImageSource: action.payload
       });
+
+    case constants.SET_SKIP_ORIENTATION_CHANGE:
+      return { ...state, skipOrientationChange: action.skipOrientationChange };
+
+    case constants.SET_IS_SNAPSHOT_DIRTY:
+      return { ...state, isSnapshotDirty: action.isSnapshotDirty };
 
     case constants.RESET_TRACKING_STATE:
       return INITIAL_STATE;
