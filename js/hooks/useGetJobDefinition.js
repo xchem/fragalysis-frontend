@@ -1,4 +1,5 @@
 import { useMemo } from 'react';
+import { deepMerge } from '../utils/merge';
 
 // Merges job definitions with fragalysis-jobs definitions
 const getSchemaDefinition = (configDefinitions, overrideDefinitions) => {
@@ -7,7 +8,8 @@ const getSchemaDefinition = (configDefinitions, overrideDefinitions) => {
   Object.entries(overrideDefinitions).forEach(([key, overrideDefinition]) => {
     let mergedDefinition = mergedDefinitions[key] || {};
 
-    mergedDefinitions[key] = { ...mergedDefinition, ...overrideDefinition };
+    // mergedDefinitions[key] = { ...mergedDefinition, ...overrideDefinition };
+    mergedDefinitions[key] = deepMerge({ ...mergedDefinition }, { ...overrideDefinition });
   });
 
   return mergedDefinitions;

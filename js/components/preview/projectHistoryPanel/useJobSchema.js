@@ -50,16 +50,24 @@ const compileProperty = (property, data, ignoreFirstRound) => {
   if (items) {
     const itemsData = dataObject[items.from] || [];
 
-    copy.items = {
-      enum: itemsData.map(item => {
-        const localData = { ...dataObject, item };
-        return expandVars(items.enum, localData, ignoreFirstRound);
-      }),
-      enumNames: itemsData.map(item => {
-        const localData = { ...dataObject, item };
-        return expandVars(items.enumNames, localData, ignoreFirstRound);
-      })
-    };
+    if (items.hasOwnProperty('from')) {
+      copy.items = {
+        enum: itemsData.map(item => {
+          const localData = { ...dataObject, item };
+          return expandVars(items.enum, localData, ignoreFirstRound);
+        }),
+        enumNames: itemsData.map(item => {
+          const localData = { ...dataObject, item };
+          return expandVars(items.enumNames, localData, ignoreFirstRound);
+        })
+      };
+    } else {
+      Object.entries(items).forEach(([key, value]) => {
+        if (key.startsWith('ui:')) {
+          delete copy.items[key];
+        }
+      });
+    }
   }
 
   if (value) {
