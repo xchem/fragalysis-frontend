@@ -1229,7 +1229,7 @@ export const restoreNglSettingsAction = (orderedActionList, majorViewStage) => (
   }
 };
 
-export const restoreNglStateAction = (orderedActionList, stages, animate = false) => (dispatch, getState) => {
+export const restoreNglStateAction = (orderedActionList, stages, animate = false) => async (dispatch, getState) => {
   const state = getState();
   const skipOrientation = state.trackingReducers.skipOrientationChange;
 
@@ -1250,6 +1250,27 @@ export const restoreNglStateAction = (orderedActionList, stages, animate = false
           console.count(`After restoring orientation - restoreNglStateAction - tracking`);
         }
       });
+    }
+  }
+};
+
+export const restoreNglOrientationAnim = (orderedActionList, stages) => async (dispatch, getState) => {
+  const state = getState();
+  const skipOrientation = state.trackingReducers.skipOrientationChange;
+
+  if (!skipOrientation) {
+    let actions = orderedActionList.filter(action => action.type === actionType.NGL_STATE);
+    let action = [...actions].pop();
+    if (action && action.nglStateList) {
+      const nglView = action.nglStateList[0];
+      dispatch(setOrientation(nglView.id, nglView.orientation));
+      let viewStage = stages.find(s => s.id === nglView.id);
+      if (viewStage) {
+        console.count(`Before restoring orientation - restoreNglStateAction - tracking`);
+
+        console.count(`After restoring orientation - restoreNglStateAction - tracking`);
+        return viewStage.stage.animationControls.orient(nglView.orientation.elements, 2000);
+      }
     }
   }
 };
