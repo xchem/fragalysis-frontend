@@ -64,6 +64,8 @@ const JobPopup = ({ jobPopUpAnchorEl, jobPopupInfo }) => {
     } else {
       status = jobInfo ? jobInfo.job_status : 'UNKNOWN';
     }
+
+    return status;
   };
 
   return (

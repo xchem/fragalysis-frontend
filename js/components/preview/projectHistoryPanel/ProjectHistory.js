@@ -232,7 +232,7 @@ export const ProjectHistory = memo(({ showFullHistory, graphKey, expanded, onExp
           commitJobFunction({
             title: job.id,
             hash: `#${job.id}`,
-            customDot: renderTriangle(getJobColorCode(job.job_status), node.id, job)
+            customDot: renderTriangle(getJobColorCode(job.job_status, job.upload_status), node.id, job)
           })
         );
       });
