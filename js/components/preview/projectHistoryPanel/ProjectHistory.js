@@ -174,30 +174,34 @@ export const ProjectHistory = memo(({ showFullHistory, graphKey, expanded, onExp
     );
   };
 
-  const getJobColorCode = status => {
+  const getJobColorCode = (jobStatus, uploadStatus) => {
     let hexColor;
-    switch (status) {
-      case 'STARTED':
-        hexColor = '#FFF2CC';
-        break;
-      case 'SUCCESS':
-        hexColor = '#D5E8D4';
-        break;
-      case 'FAILURE':
-        hexColor = '#F9D5D3';
-        break;
-      case 'PENDING':
-        hexColor = '#8c8c8c';
-        break;
-      case 'RETRY':
-        hexColor = '#d2a5ff';
-        break;
-      case 'REVOKED':
-        hexColor = '#88f7e2';
-        break;
-      default:
-        hexColor = '#F9D5D3';
-        break;
+    if (uploadStatus && uploadStatus === 'FAILURE') {
+      hexColor = '#F9D5D3';
+    } else {
+      switch (jobStatus) {
+        case 'STARTED':
+          hexColor = '#FFF2CC';
+          break;
+        case 'SUCCESS':
+          hexColor = '#D5E8D4';
+          break;
+        case 'FAILURE':
+          hexColor = '#F9D5D3';
+          break;
+        case 'PENDING':
+          hexColor = '#8c8c8c';
+          break;
+        case 'RETRY':
+          hexColor = '#d2a5ff';
+          break;
+        case 'REVOKED':
+          hexColor = '#88f7e2';
+          break;
+        default:
+          hexColor = '#F9D5D3';
+          break;
+      }
     }
 
     return hexColor;
