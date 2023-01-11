@@ -177,7 +177,7 @@ export const ProjectHistory = memo(({ showFullHistory, graphKey, expanded, onExp
   const getJobColorCode = (jobStatus, uploadStatus) => {
     let hexColor;
     if (uploadStatus && uploadStatus === 'FAILURE') {
-      hexColor = '#F9D5D3';
+      hexColor = '#F51B0F';
     } else {
       switch (jobStatus) {
         case 'STARTED':
@@ -187,7 +187,7 @@ export const ProjectHistory = memo(({ showFullHistory, graphKey, expanded, onExp
           hexColor = '#D5E8D4';
           break;
         case 'FAILURE':
-          hexColor = '#F9D5D3';
+          hexColor = '#F51B0F';
           break;
         case 'PENDING':
           hexColor = '#8c8c8c';
