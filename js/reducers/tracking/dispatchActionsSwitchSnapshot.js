@@ -22,7 +22,8 @@ import {
   restoreNglSettingsAction,
   restoreCompoundsActions,
   getMolecule,
-  getCompound
+  getCompound,
+  restoreNglOrientationAnim
 } from './dispatchActions';
 import { VIEWS } from '../../../js/constants/constants';
 import { loadProteinOfRestoringActions } from '../../components/preview/redux/dispatchActions';
@@ -73,6 +74,10 @@ export const restoreAfterSnapshotChange = (stages, projectId) => async (dispatch
   const targetId = state.apiReducers.target_on;
 
   if (targetId && stages && stages.length > 0) {
+    console.count(`BEFORE restoration orientation from snapshot`);
+    await dispatch(restoreNglOrientationAnim(orderedActionList, stages));
+    console.count(`AFTER restoration orientation from snapshot`);
+
     dispatch(setSkipOrientationChange(true));
     const majorView = stages.find(view => view.id === VIEWS.MAJOR_VIEW);
 
@@ -114,9 +119,9 @@ export const restoreAfterSnapshotChange = (stages, projectId) => async (dispatch
     await dispatch(restoreCompoundsActions(orderedActionList, majorView.stage));
 
     dispatch(setSkipOrientationChange(false));
-    console.count(`BEFORE restoration orientation from snapshot`);
-    await dispatch(restoreNglStateAction(orderedActionList, stages, true));
-    console.count(`AFTER restoration orientation from snapshot`);
+    // console.count(`BEFORE restoration orientation from snapshot`);
+    // await dispatch(restoreNglStateAction(orderedActionList, stages, true));
+    // console.count(`AFTER restoration orientation from snapshot`);
 
     dispatch(resetDatasetScrolledMap()); // Have a look at useScrollToSelected.js
     dispatch(setIsActionsRestoring(false, true));
