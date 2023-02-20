@@ -8,3 +8,4 @@ npm-debug.log
 *.offsets
 yarn-error.log
 /debug.log
+.env

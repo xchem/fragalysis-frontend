@@ -14,7 +14,9 @@ import { resetTrackingState } from '../../../reducers/tracking/actions';
 import { setTargetOn } from '../../../reducers/api/actions';
 import { resetNglTrackingState } from '../../../reducers/nglTracking/dispatchActions';
 import { resetViewerControlsState } from '../viewerControls/redux/actions';
+// eslint-disable-next-line import/extensions
 import { default_squonk_project } from '../../../../package.json';
+import { getProjectsForTarget } from '../utils';
 
 const loadProtein = nglView => (dispatch, getState) => {
   const state = getState();
@@ -182,4 +184,32 @@ export const getSquonkProject = () => (dispatch, getState) => {
   }
 
   return squonkProject;
+};
+
+export const getProjectsForSelectedTarget = () => (dispatch, getState) => {
+  const state = getState();
+
+  const targetOn = state.apiReducers.target_on;
+  const allTargets = state.apiReducers.target_id_list;
+  const currentTarget = allTargets?.find(t => t.id === targetOn);
+  const projects = state.targetReducers.projects;
+
+  return getProjectsForTarget(currentTarget, projects);
+};
+
+export const getProjectsForTargetDisp = targetName => (dispatch, getState) => {
+  const state = getState();
+  const projects = state.targetReducers.projects;
+  const targets = state.apiReducers.target_id_list;
+  const target = targets?.find(t => t.title === targetName);
+
+  return getProjectsForTarget(target, projects);
+};
+
+export const getProjectForProjectName = projectName => (dispatch, getState) => {
+  const state = getState();
+
+  const projects = state.targetReducers.projects;
+
+  return projects?.find(p => p.target_access_string === projectName);
 };

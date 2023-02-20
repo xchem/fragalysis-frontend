@@ -39,8 +39,9 @@ export const AddProjectDetail = memo(({ handleCloseModal }) => {
   const dispatch = useDispatch();
   const targetId = useSelector(state => state.apiReducers.target_on);
   const targetName = useSelector(state => state.apiReducers.target_on_name);
-  const projectID = useSelector(state => state.projectReducers.currentProject.projectID);
+  const sessionProjectID = useSelector(state => state.projectReducers.currentProject.projectID);
   const isProjectModalLoading = useSelector(state => state.projectReducers.isProjectModalLoading);
+  const currentProject = useSelector(state => state.targetReducers.currentProject);
 
   const [tags, setTags] = React.useState([]);
 
@@ -88,10 +89,11 @@ export const AddProjectDetail = memo(({ handleCloseModal }) => {
             description: values.description,
             target: targetId,
             author: DJANGO_CONTEXT['pk'] || null,
-            tags: JSON.stringify(tags)
+            tags: JSON.stringify(tags),
+            project: currentProject?.id
           };
 
-          const oldProjectID = projectID;
+          const oldProjectID = sessionProjectID;
           if (createDiscourse) {
             dispatch(createProjectDiscoursePost(values.title, targetName, values.description, tags))
               .then(() => dispatch(createProjectFromSnapshotDialog(data)))

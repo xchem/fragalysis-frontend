@@ -17,11 +17,8 @@
   "image_tag": "stable",
   "image_type": "NEXTFLOW",
   "image_working_directory": "/data",
-  "job": "fragmenstein-combine-multi",
-  "keywords": [
-    "fragmenstein",
-    "fbdd"
-  ],
+  "job": "fragmenstein-combine-multi-scoring",
+  "keywords": ["fragmenstein", "fbdd"],
   "name": "Combine combinations of fragments using Fragmenstein",
   "variables": {
     "inputs": "{\"type\": \"object\", \"required\": [\"fragments\", \"protein\"], \"properties\": {\"fragments\": {\"title\": \"Fragment molecules\", \"multiple\": true, \"mime-types\": [\"chemical/x-mdl-molfile\", \"chemical/x-mdl-sdfile\"], \"type\": \"file\"}, \"protein\": {\"title\": \"PDB file for protein\", \"mime-types\": [\"chemical/x-pdb\"], \"type\": \"file\"}}}",

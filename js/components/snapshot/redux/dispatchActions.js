@@ -362,7 +362,7 @@ export const createNewSnapshot = ({
                           await dispatch(
                             setCurrentProject({
                               projectID: projectResponse.data.id,
-                              authorID: (projectResponse.data.author && projectResponse.data.author.id) || null,
+                              authorID: projectResponse.data.author || null,
                               title: projectResponse.data.title,
                               description: projectResponse.data.description,
                               targetID: projectResponse.data.target.id,
@@ -421,8 +421,9 @@ export const activateSnapshotDialog = (loggedInUserID = undefined, finallyShareS
 ) => {
   const state = getState();
   const targetId = state.apiReducers.target_on;
-  const projectID = state.projectReducers.currentProject.projectID;
+  const sessionProjectID = state.projectReducers.currentProject.projectID;
   const currentSnapshotAuthor = state.projectReducers.currentSnapshot.author;
+  const currentProject = state.targetReducers.currentProject;
 
   dispatch(captureScreenOfSnapshot());
   dispatch(manageSendTrackingActions());
@@ -434,17 +435,23 @@ export const activateSnapshotDialog = (loggedInUserID = undefined, finallyShareS
       description: ProjectCreationType.READ_ONLY,
       target: targetId,
       author: null,
-      tags: '[]'
+      tags: '[]',
+      project: currentProject.id
     };
     dispatch(createProjectFromSnapshotDialog(data))
       .then(() => {
-        dispatch(manageSendTrackingActions(projectID, true));
+        dispatch(manageSendTrackingActions(sessionProjectID, true));
         dispatch(setOpenSnapshotSavingDialog(true));
       })
       .catch(error => {
         throw new Error(error);
       });
-  } else if (finallyShareSnapshot === true && loggedInUserID && projectID !== null && currentSnapshotAuthor === null) {
+  } else if (
+    finallyShareSnapshot === true &&
+    loggedInUserID &&
+    sessionProjectID !== null &&
+    currentSnapshotAuthor === null
+  ) {
     dispatch(setForceCreateProject(true));
     dispatch(setOpenSnapshotSavingDialog(true));
   } else {
@@ -515,6 +522,7 @@ export const saveAndShareSnapshot = (nglViewList, showDialog = true, axuData = {
   const state = getState();
   const targetId = state.apiReducers.target_on;
   const loggedInUserID = DJANGO_CONTEXT['pk'];
+  const currentProject = state.targetReducers.currentProject;
 
   dispatch(setDisableRedirect(true));
 
@@ -532,7 +540,8 @@ export const saveAndShareSnapshot = (nglViewList, showDialog = true, axuData = {
       target: targetId,
       author: loggedInUserID || null,
       tags: '[]',
-      additional_info
+      additional_info,
+      project: currentProject?.id
     };
 
     try {

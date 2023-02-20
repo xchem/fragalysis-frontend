@@ -89,9 +89,11 @@ export const ProjectHistory = memo(({ showFullHistory, graphKey, expanded, onExp
   const currentSnapshotTree = useSelector(state => state.projectReducers.currentSnapshotTree);
   const jobPopUpAnchorEl = useSelector(state => state.projectReducers.jobPopUpAnchorEl);
   const isSnapshotDirty = useSelector(state => state.trackingReducers.isSnapshotDirty);
-  const currentProject = useSelector(state => state.projectReducers.currentProject);
-  const currentProjectID = currentProject && currentProject.projectID;
-  const projectID = paramsProjectID && paramsProjectID != null ? paramsProjectID : currentProjectID;
+  const currentSessionProject = useSelector(state => state.projectReducers.currentProject);
+  const currentSessionProjectID = currentSessionProject && currentSessionProject.projectID;
+  const sessionProjectID = paramsProjectID && paramsProjectID != null ? paramsProjectID : currentSessionProjectID;
+
+  const currentProject = useSelector(state => state.targetReducers.currentProject);
 
   const [tryToOpen, setTryToOpen] = useState(false);
   const [transitionToSnapshot, setTransitionToSnapshot] = useState(null);
@@ -116,10 +118,10 @@ export const ProjectHistory = memo(({ showFullHistory, graphKey, expanded, onExp
       dispatch(setIsOpenModalBeforeExit(true));
       setTryToOpen(false);
     } else if (!isSnapshotDirty && tryToOpen && transitionToSnapshot) {
-      dispatch(changeSnapshot(projectID, transitionToSnapshot.hash, nglViewList, stage));
+      dispatch(changeSnapshot(sessionProjectID, transitionToSnapshot.hash, nglViewList, stage));
       setTryToOpen(false);
     }
-  }, [dispatch, isSnapshotDirty, nglViewList, projectID, stage, transitionToSnapshot, tryToOpen]);
+  }, [dispatch, isSnapshotDirty, nglViewList, sessionProjectID, stage, transitionToSnapshot, tryToOpen]);
 
   const commitFunction = useCallback(
     ({ title, hash, isSelected = false }) => {
@@ -257,7 +259,7 @@ export const ProjectHistory = memo(({ showFullHistory, graphKey, expanded, onExp
               size="small"
               onClick={() => dispatch(refreshJobsData())}
               startIcon={<Refresh />}
-              disabled={DJANGO_CONTEXT.squonk_available === false}
+              disabled={DJANGO_CONTEXT.squonk_available === false || !currentProject || !currentSessionProject}
             >
               Refresh
             </Button>
@@ -269,7 +271,7 @@ export const ProjectHistory = memo(({ showFullHistory, graphKey, expanded, onExp
               size="small"
               onClick={handleClickJobLauncher}
               startIcon={<PlayArrow />}
-              disabled={DJANGO_CONTEXT.squonk_available === false}
+              disabled={DJANGO_CONTEXT.squonk_available === false || !currentProject || !currentSessionProject}
             >
               Job Launcher
             </Button>

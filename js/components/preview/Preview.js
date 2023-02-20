@@ -40,6 +40,12 @@ import { loadMoleculesAndTags } from './tags/redux/dispatchActions';
 import { getTagMolecules } from './tags/api/tagsApi';
 import { compareTagsAsc } from './tags/utils/tagUtils';
 import { setMoleculeTags } from '../../reducers/api/actions';
+import { useRouteMatch } from 'react-router-dom';
+import { extractProjectFromURLParam } from './utils';
+import { PickProjectModal } from './PickProjectModal';
+import { setCurrentProject, setOpenPickProjectModal } from '../target/redux/actions';
+import { getProjectsForSelectedTarget } from './redux/dispatchActions';
+import { withLoadingProjects } from '../target/withLoadingProjects';
 
 const ReactGridLayout = WidthProvider(ResponsiveGridLayout);
 
@@ -73,6 +79,27 @@ const Preview = memo(({ isStateLoaded, hideProjects, isSnapshot = false }) => {
   const theme = useTheme();
 
   const dispatch = useDispatch();
+  // let match = useRouteMatch();
+
+  // const currentPorject = useSelector(state => state.targetReducers.currentProject);
+
+  // if (!currentPorject && match && match.params && match.params.length > 0) {
+  //   const project = extractProjectFromURLParam(match.params[0]);
+  //   if (!project) {
+  //     const projectsForSelectedTarget = dispatch(getProjectsForSelectedTarget());
+  //     if (projectsForSelectedTarget && projectsForSelectedTarget.length > 0) {
+  //       if (projectsForSelectedTarget.length === 1) {
+  //         dispatch(setCurrentProject(projectsForSelectedTarget[0]));
+  //       } else {
+  //         dispatch(setOpenPickProjectModal(true));
+  //       }
+  //     } else {
+  //       //show message that there are no projects for this target
+  //     }
+  //   } else {
+  //     dispatch(setCurrentProject(project));
+  //   }
+  // }
 
   dispatch(prepareFakeFilterData());
 
@@ -273,9 +300,12 @@ const Preview = memo(({ isStateLoaded, hideProjects, isSnapshot = false }) => {
       <ModalShareSnapshot />
       <SaveSnapshotBeforeExit />
       <DownloadStructureDialog />
+      <PickProjectModal />
       {!hideProjects && <ProjectDetailDrawer showHistory={showHistory} setShowHistory={setShowHistory} />}
     </>
   );
 });
 
-export default withLoadingJobSpecs(withSnapshotManagement(withUpdatingTarget(withLoadingProtein(Preview))));
+export default withLoadingJobSpecs(
+  withSnapshotManagement(withUpdatingTarget(withLoadingProtein(withLoadingProjects(Preview))))
+);
