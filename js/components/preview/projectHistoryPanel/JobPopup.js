@@ -53,9 +53,23 @@ const JobPopup = ({ jobPopUpAnchorEl, jobPopupInfo }) => {
   const classes = useStyles();
   const dispatch = useDispatch();
   const { jobInfo, hash } = jobPopupInfo;
-  const jobLauncherSquonkUrl = DJANGO_CONTEXT['squonk_ui_url'] + jobInfo?.squonk_url_ext.replace('data-manager-ui', '');
+  let jobLauncherSquonkUrl = null;
+  if (jobInfo?.squonk_url_ext) {
+    jobLauncherSquonkUrl = DJANGO_CONTEXT['squonk_ui_url'] + jobInfo?.squonk_url_ext.replace('data-manager-ui', '');
+  }
 
   const target_on = useSelector(state => state.apiReducers.target_on);
+
+  const getStatus = jobInfo => {
+    let status = 'UNKNOWN';
+    if (jobInfo?.upload_status === 'FAILURE') {
+      status = 'UPLOADF FAILED';
+    } else {
+      status = jobInfo ? jobInfo.job_status : 'UNKNOWN';
+    }
+
+    return status;
+  };
 
   return (
     <Popper
@@ -73,7 +87,7 @@ const JobPopup = ({ jobPopUpAnchorEl, jobPopupInfo }) => {
         </div>
         <div className={classes.bodyPopup}>
           <p>
-            Status: <strong>{jobInfo?.job_status}</strong>
+            Status: <strong>{getStatus(jobInfo)}</strong>
           </p>
           <p>
             Parameters: <strong></strong>
@@ -92,7 +106,11 @@ const JobPopup = ({ jobPopUpAnchorEl, jobPopupInfo }) => {
           </Button>
           <Button
             key={jobInfo?.id}
-            onClick={() => window.open(jobLauncherSquonkUrl, '_blank')}
+            onClick={() => {
+              if (jobLauncherSquonkUrl) {
+                window.open(jobLauncherSquonkUrl, '_blank');
+              }
+            }}
             color="secondary"
             size="large"
           >

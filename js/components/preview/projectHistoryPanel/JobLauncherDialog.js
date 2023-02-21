@@ -56,7 +56,10 @@ const useStyles = makeStyles(theme => ({
   bodyPopup: {
     padding: '10px',
     backgroundColor: '#ffffff',
-    borderRadius: '0 0 5px 5px'
+    borderRadius: '0 0 5px 5px',
+    '& .MuiInputBase-inputMultiline': {
+      height: '1.9em'
+    }
   },
 
   successMsg: {
@@ -88,6 +91,11 @@ const JobLauncherDialog = () => {
 
   const targetId = useSelector(state => state.apiReducers.target_on);
   const targetName = useSelector(state => state.apiReducers.target_on_name);
+  const currentProject = useSelector(state => state.targetReducers.currentProject);
+
+  // if (!currentProject) {
+  //   setErrorMsg('No project selected, please navigate to landing page and select a target.');
+  // }
 
   // Get data from previous window
   const jobLauncherData = useSelector(state => state.projectReducers.jobLauncherData);
@@ -95,8 +103,8 @@ const JobLauncherDialog = () => {
 
   const isDifferentSnapshot = jobLauncherData?.snapshot.id !== currentSnapshotID;
 
-  const currentProject = useSelector(state => state.projectReducers.currentProject);
-  const currentProjectID = currentProject && currentProject.projectID;
+  const currentSessionProject = useSelector(state => state.projectReducers.currentProject);
+  const currentSessionProjectID = currentSessionProject && currentSessionProject.projectID;
   const { nglViewList } = useContext(NglContext);
 
   const {
@@ -133,14 +141,16 @@ const JobLauncherDialog = () => {
     const variables = recompileSchemaResult(event.formData, { selected_protein: selectedProtein });
 
     jobRequest({
-      squonk_job_name: 'fragmenstein-combine',
+      squonk_job_name: jobLauncherData.job.slug,
+      access: currentProject.id,
+      session_project: currentSessionProjectID,
       snapshot: jobLauncherData?.snapshot.id,
       target: targetId,
       squonk_project: dispatch(getSquonkProject()),
       squonk_job_spec: JSON.stringify({
-        collection: 'fragmenstein',
-        job: 'fragmenstein-combine',
-        version: '1.0.0',
+        collection: jobLauncherData.job.name,
+        job: jobLauncherData.job.slug,
+        version: jobLauncherData.job.spec.version,
         variables
       })
     })
@@ -200,7 +210,7 @@ const JobLauncherDialog = () => {
             )}
             {isError && (
               <Paper variant="elevation" rounded="true" className={classes.errorMsg}>
-                {errorMsg}
+                {errorMsg?.message ?? errorMsg}
               </Paper>
             )}
             <Button disabled={isSubmitting} type="submit" color="primary" size="large">
@@ -217,7 +227,7 @@ const JobLauncherDialog = () => {
                   dispatch(
                     switchBetweenSnapshots({
                       nglViewList,
-                      projectID: currentProjectID,
+                      projectID: currentSessionProjectID,
                       snapshotID: jobLauncherData?.snapshot.id,
                       history
                     })

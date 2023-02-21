@@ -1,19 +1,15 @@
 import { useMemo } from 'react';
 import { useGetJobDefinition } from '../../../hooks/useGetJobDefinition';
 import { DJANGO_CONTEXT } from '../../../utils/djangoContext';
-// eslint-disable-next-line import/extensions
-import jobsSpec from '../../../../jobconfigs/fragalysis-job-spec-1.1.json';
+
 import { useSelector } from 'react-redux';
 
-const ignoreFirstRound = jobsSpec?.precompilation_ignore || [];
-
-const firstRoundRegex = new RegExp(`{(${ignoreFirstRound.length ? `(?!${ignoreFirstRound.join('|')})` : ''}.*?)}`);
-const secondRoundRegex = /{(.*?)}/;
-
-export const expandVars = (string, data, firstRound = true) => {
+export const expandVars = (string, data, ignoreFirstRound, firstRound = true) => {
   let resultingString = string;
   let result;
 
+  const firstRoundRegex = new RegExp(`{(${ignoreFirstRound.length ? `(?!${ignoreFirstRound.join('|')})` : ''}.*?)}`);
+  const secondRoundRegex = /{(.*?)}/;
   const regex = firstRound ? firstRoundRegex : secondRoundRegex;
 
   while ((result = regex.exec(resultingString)) !== null) {
@@ -33,7 +29,7 @@ export const getCompileData = (target, djangoContext, jobLauncherData, fragalysi
   ...fragalysisJobsVars
 });
 
-const compileProperty = (property, data) => {
+const compileProperty = (property, data, ignoreFirstRound) => {
   const copy = { ...property };
   const { from, items, value, default: dflt } = copy;
   const dataObject = data || {};
@@ -43,47 +39,56 @@ const compileProperty = (property, data) => {
 
     copy.enum = itemsData.map(item => {
       const localData = { ...dataObject, item };
-      return expandVars(copy.enum, localData);
+      return expandVars(copy.enum, localData, ignoreFirstRound);
     });
     copy.enumNames = itemsData.map(item => {
       const localData = { ...dataObject, item };
-      return expandVars(copy.enumNames, localData);
+      return expandVars(copy.enumNames, localData, ignoreFirstRound);
     });
   }
 
   if (items) {
     const itemsData = dataObject[items.from] || [];
 
-    copy.items = {
-      enum: itemsData.map(item => {
-        const localData = { ...dataObject, item };
-        return expandVars(items.enum, localData);
-      }),
-      enumNames: itemsData.map(item => {
-        const localData = { ...dataObject, item };
-        return expandVars(items.enumNames, localData);
-      })
-    };
+    if (items.hasOwnProperty('from')) {
+      copy.items = {
+        enum: itemsData.map(item => {
+          const localData = { ...dataObject, item };
+          return expandVars(items.enum, localData, ignoreFirstRound);
+        }),
+        enumNames: itemsData.map(item => {
+          const localData = { ...dataObject, item };
+          return expandVars(items.enumNames, localData, ignoreFirstRound);
+        })
+      };
+    } else {
+      Object.entries(items).forEach(([key, value]) => {
+        if (key.startsWith('ui:')) {
+          delete copy.items[key];
+        }
+      });
+    }
   }
 
   if (value) {
-    copy.value = expandVars(value, dataObject);
+    copy.value = expandVars(value, dataObject, ignoreFirstRound);
   }
 
   if (dflt) {
-    copy.default = expandVars(dflt, dataObject);
+    copy.default = expandVars(dflt, dataObject, ignoreFirstRound);
   }
 
   return copy;
 };
 
 export const useJobSchema = jobLauncherData => {
-  const jobDefinition = useGetJobDefinition();
+  const ignoreFirstRound = jobLauncherData?.job?.overrides.precompilation_ignore || [];
+  const jobDefinition = useGetJobDefinition(jobLauncherData?.job);
 
   const targetName = useSelector(state => state.apiReducers.target_on_name);
 
   const recompileSchemaResult = (result, postSubmitLauncherData) => {
-    let data = getCompileData(targetName, DJANGO_CONTEXT, jobLauncherData, jobsSpec?.global);
+    let data = getCompileData(targetName, DJANGO_CONTEXT, jobLauncherData, jobLauncherData?.job?.global);
     data = { ...data, ...postSubmitLauncherData };
 
     return Object.fromEntries(
@@ -102,34 +107,38 @@ export const useJobSchema = jobLauncherData => {
   };
 
   const schemas = useMemo(() => {
-    const { inputs, options, outputs } = jobDefinition;
+    if (jobDefinition) {
+      const { inputs, options, outputs } = jobDefinition;
 
-    const data = getCompileData(targetName, DJANGO_CONTEXT, jobLauncherData, jobsSpec?.global);
+      const data = getCompileData(targetName, DJANGO_CONTEXT, jobLauncherData, jobLauncherData?.job?.global);
 
-    // Prepare schema
-    const schema = {
-      type: options.type,
-      required: [...(inputs.required || []), ...(options.required || []), ...(outputs.required || [])],
-      properties: Object.fromEntries(
-        Object.entries({
-          ...inputs.properties,
-          ...options.properties,
-          ...outputs.properties
-        }).map(([key, property]) => {
-          return [key, compileProperty(property, data)];
-        })
-      )
-    };
+      // Prepare schema
+      const schema = {
+        type: options.type,
+        required: [...(inputs.required || []), ...(options.required || []), ...(outputs.required || [])],
+        properties: Object.fromEntries(
+          Object.entries({
+            ...inputs.properties,
+            ...options.properties,
+            ...outputs.properties
+          }).map(([key, property]) => {
+            return [key, compileProperty(property, data, ignoreFirstRound)];
+          })
+        )
+      };
 
-    // Prepare UI schema
-    const uiSchema = {
-      ...inputs.properties,
-      ...options.properties,
-      ...outputs.properties
-    };
+      // Prepare UI schema
+      const uiSchema = {
+        ...inputs.properties,
+        ...options.properties,
+        ...outputs.properties
+      };
 
-    return { schema, uiSchema };
-  }, [jobDefinition, jobLauncherData, targetName]);
+      return { schema, uiSchema };
+    } else {
+      return { schema: null, uiSchema: null };
+    }
+  }, [ignoreFirstRound, jobDefinition, jobLauncherData, targetName]);
 
   return { schemas, recompileSchemaResult };
 };

@@ -20,6 +20,7 @@ import { DirectDisplay } from '../direct/directDisplay';
 import { setSnapshotJustSaved } from '../snapshot/redux/actions';
 import { useDispatch } from 'react-redux';
 import { DirectDownload } from '../direct/directDownload';
+import { TASPreview } from '../preview/TASPreview';
 
 const useStyles = makeStyles(theme => ({
   content: {
@@ -67,9 +68,8 @@ const Routes = memo(() => {
           <Route exact path={URLS.landing} component={Landing} />
           <Route exact path={`${URLS.snapshot}:sessionUUID`} component={SessionRedirect} />
           <Route
-            exact
-            path={`${URLS.target}:target`}
-            render={routeProps => <Preview hideProjects resetSelection {...routeProps} />}
+            path={`${URLS.target}*`}
+            render={routeProps => <TASPreview hideProjects resetSelection {...routeProps} />}
           />
           <Route exact path={URLS.funders} component={Funders} />
           <Route path={`${URLS.direct}*`} component={DirectDisplay} />

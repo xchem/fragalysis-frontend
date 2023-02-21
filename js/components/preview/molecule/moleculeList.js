@@ -67,6 +67,7 @@ import { getMoleculeForId, selectTag } from '../tags/redux/dispatchActions';
 import SearchField from '../../common/Components/SearchField';
 import useDisableNglControlButtons from './useDisableNglControlButtons';
 import GroupNglControlButtonsContext from './groupNglControlButtonsContext';
+import { extractTargetFromURLParam } from '../utils';
 
 const useStyles = makeStyles(theme => ({
   container: {
@@ -218,7 +219,8 @@ export const MoleculeList = memo(({ hideProjects }) => {
   const classes = useStyles();
   const dispatch = useDispatch();
   let match = useRouteMatch();
-  let target = match && match.params && match.params.target;
+  // let target = match && match.params && match.params.target;
+  let target = match && match.params && extractTargetFromURLParam(match.params[0]);
 
   const nextXMolecules = useSelector(state => state.selectionReducers.nextXMolecules);
   const [selectAllHitsPressed, setSelectAllHitsPressed] = useState(false);
