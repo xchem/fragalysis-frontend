@@ -17,7 +17,8 @@ const getSchemaDefinition = (configDefinitions, overrideDefinitions) => {
 
 export const useGetJobDefinition = jobInfo => {
   console.log(`useGetJobDefinition: jobInfo = ${JSON.stringify(jobInfo)}`);
-  const selectedJob = jobInfo?.spec;
+  // const selectedJob = jobInfo?.spec;
+  const selectedJob = jobInfo?.spec ?? jobInfo?.squonk_job_spec;
   const overrideIndex = jobInfo?.overrideIndex;
   const overrides = jobInfo?.overrides;
   const inputsJson = selectedJob?.variables.inputs;
