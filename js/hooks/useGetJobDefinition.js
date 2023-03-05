@@ -19,8 +19,10 @@ export const useGetJobDefinition = jobInfo => {
   console.log(`useGetJobDefinition: jobInfo = ${JSON.stringify(jobInfo)}`);
   // const selectedJob = jobInfo?.spec;
   const selectedJob = jobInfo?.spec ?? jobInfo?.squonk_job_spec;
+  console.log(`useGetJobDefinition: selectedJob = ${JSON.stringify(selectedJob)}`);
   const overrideIndex = jobInfo?.overrideIndex;
   const overrides = jobInfo?.overrides;
+  console.log(`useGetJobDefinition: variables = ${JSON.stringify(selectedJob?.variables)}`);
   const inputsJson = selectedJob?.variables.inputs;
   console.log(`useGetJobDefinition: inputsJson = ${inputsJson}`);
   const optionsJson = selectedJob?.variables.options;

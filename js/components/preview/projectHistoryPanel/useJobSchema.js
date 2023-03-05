@@ -83,6 +83,7 @@ const compileProperty = (property, data, ignoreFirstRound) => {
 
 export const useJobSchema = jobLauncherData => {
   const ignoreFirstRound = jobLauncherData?.job?.overrides.precompilation_ignore || [];
+  console.log(`useJobSchema - ${JSON.stringify(jobLauncherData?.job)}`);
   const jobDefinition = useGetJobDefinition(jobLauncherData?.job);
 
   const targetName = useSelector(state => state.apiReducers.target_on_name);
