@@ -25,8 +25,8 @@ export const useGetJobDefinition = jobInfo => {
   } else if (jobInfo?.squonk_job_spec) {
     selectedJob = JSON.parse(jobInfo?.squonk_job_spec);
     console.log(`useGetJobDefinition: selectedJob parsed = ${JSON.stringify(selectedJob)}`);
-    selectedJob = JSON.stringify(selectedJob);
-    console.log(`useGetJobDefinition: selectedJob json = ${JSON.stringify(selectedJob)}`);
+    // selectedJob = JSON.stringify(selectedJob);
+    // console.log(`useGetJobDefinition: selectedJob json = ${JSON.stringify(selectedJob)}`);
   }
   // selectedJob = jobInfo?.spec ?? JSON.parse(jobInfo?.squonk_job_spec);
 
