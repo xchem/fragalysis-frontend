@@ -142,7 +142,7 @@ export const JobTable = ({ expanded, onExpanded, onTabChange }) => {
             variant="contained"
             color="primary"
             onClick={() => {
-              console.log(`Open inputs for job ${row.original}`);
+              console.log(`Open inputs for job ${JSON.stringify(row.original)}`);
               setSelectedJob(row.original);
               setJobInputsDialogOpen(true);
             }}
@@ -162,7 +162,7 @@ export const JobTable = ({ expanded, onExpanded, onTabChange }) => {
             color="primary"
             disabled={row.original.computed_set == null}
             onClick={() => {
-              console.log(`Open outputs for job ${row.original}`);
+              console.log(`Open outputs for job ${JSON.stringify(row.original)}`);
               setSelectedJob(row.original);
               dispatch(selectDatasetResultsForJob(row.original));
               // setJobOutputsDialogOpen(true);

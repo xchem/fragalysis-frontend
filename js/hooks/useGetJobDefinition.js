@@ -16,12 +16,16 @@ const getSchemaDefinition = (configDefinitions, overrideDefinitions) => {
 };
 
 export const useGetJobDefinition = jobInfo => {
+  console.log(`useGetJobDefinition: jobInfo = ${JSON.stringify(jobInfo)}`);
   const selectedJob = jobInfo?.spec;
   const overrideIndex = jobInfo?.overrideIndex;
   const overrides = jobInfo?.overrides;
   const inputsJson = selectedJob?.variables.inputs;
+  console.log(`useGetJobDefinition: inputsJson = ${inputsJson}`);
   const optionsJson = selectedJob?.variables.options;
+  console.log(`useGetJobDefinition: optionsJson = ${optionsJson}`);
   const outputsJson = selectedJob?.variables.outputs;
+  console.log(`useGetJobDefinition: outputsJson = ${outputsJson}`);
 
   return useMemo(() => {
     if (jobInfo) {
