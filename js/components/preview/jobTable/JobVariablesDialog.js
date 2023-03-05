@@ -14,6 +14,7 @@ const renderInput = input => {
 };
 
 export const JobVariablesDialog = ({ open, onClose, title, variableType, jobInfo }) => {
+  console.log(`JobVariablesDialog: jobInfo = ${JSON.stringify(jobInfo)}`);
   const jobDefinition = useGetJobDefinition(jobInfo);
 
   const jobSpec = !!jobInfo ? JSON.parse(jobInfo.squonk_job_spec) : null;
