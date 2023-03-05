@@ -28,12 +28,13 @@ export const JobVariablesDialog = ({ open, onClose, title, variableType, jobInfo
     <Dialog open={open} onClose={onClose}>
       <DialogTitle>{title}</DialogTitle>
       <DialogContent>
-        {Object.entries(jobInputs).map(([key, value]) => (
-          <Fragment key={key}>
-            <Typography variant="h6">{key}</Typography>
-            {!!jobInputs[key] && <ul>{renderInput(jobInputs[key])}</ul>}
-          </Fragment>
-        ))}
+        {jobInputs &&
+          Object.entries(jobInputs).map(([key, value]) => (
+            <Fragment key={key}>
+              <Typography variant="h6">{key}</Typography>
+              {!!jobInputs[key] && <ul>{renderInput(jobInputs[key])}</ul>}
+            </Fragment>
+          ))}
       </DialogContent>
     </Dialog>
   );
