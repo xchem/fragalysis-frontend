@@ -315,13 +315,6 @@ export const JobTable = ({ expanded, onExpanded, onTabChange }) => {
             variableType="inputs"
             jobInfo={selectedJob}
           />
-          <JobVariablesDialog
-            open={jobOutputsDialogOpen}
-            onClose={() => setJobOutputsDialogOpen(false)}
-            title="Job Outputs"
-            variableType="outputs"
-            jobInfo={selectedJob}
-          />
           <Popover
             open={!!columnSelectorAnchor}
             anchorEl={columnSelectorAnchor}
