@@ -7,6 +7,7 @@ import { setIsOpenModalBeforeExit, setSelectedSnapshotToSwitch } from '../../sna
 import { setJobPopUpAnchorEl } from '../../projects/redux/actions';
 import { DJANGO_CONTEXT } from '../../../utils/djangoContext';
 import { loadNewDatasetsAndCompounds } from '../../datasets/redux/dispatchActions';
+import { isSquonkProjectAccessible } from './utils';
 
 const useStyles = makeStyles(theme => ({
   jobPopup: {
@@ -106,9 +107,14 @@ const JobPopup = ({ jobPopUpAnchorEl, jobPopupInfo }) => {
           </Button>
           <Button
             key={jobInfo?.id}
-            onClick={() => {
-              if (jobLauncherSquonkUrl) {
-                window.open(jobLauncherSquonkUrl, '_blank');
+            onClick={async () => {
+              if (jobInfo) {
+                const resp = await isSquonkProjectAccessible(jobInfo.id);
+                if (resp && resp.data && resp.data.accessible) {
+                  if (jobLauncherSquonkUrl) {
+                    window.open(jobLauncherSquonkUrl, '_blank');
+                  }
+                }
               }
             }}
             color="secondary"

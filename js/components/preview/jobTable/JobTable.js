@@ -29,6 +29,8 @@ import moment from 'moment';
 import { useContext } from 'react';
 import { NglContext } from '../../nglView/nglProvider';
 import { VIEWS } from '../../../constants/constants';
+import { isSquonkProjectAccessible } from '../projectHistoryPanel/utils';
+import { DJANGO_CONTEXT } from '../../../utils/djangoContext';
 
 const useStyles = makeStyles(theme => ({
   root: {
@@ -177,9 +179,38 @@ export const JobTable = ({ expanded, onExpanded, onTabChange }) => {
             Open
           </MUIButton>
         )
+      },
+      {
+        id: 'job',
+        disableSortBy: true,
+        Header: 'Job',
+        displayName: 'Job',
+        Cell: ({ row }) => (
+          <MUIButton
+            variant="contained"
+            color="primary"
+            disabled={false}
+            onClick={() => {
+              isSquonkProjectAccessible(row.original).then(resp => {
+                if (resp && resp.data && resp.data.accessible) {
+                  let jobLauncherSquonkUrl = null;
+                  if (row.original?.squonk_url_ext) {
+                    jobLauncherSquonkUrl =
+                      DJANGO_CONTEXT['squonk_ui_url'] + row.original?.squonk_url_ext.replace('data-manager-ui', '');
+                  }
+                  if (jobLauncherSquonkUrl) {
+                    window.open(jobLauncherSquonkUrl, '_blank');
+                  }
+                }
+              });
+            }}
+          >
+            Open
+          </MUIButton>
+        )
       }
     ],
-    [dispatch]
+    [dispatch, majorViewStage]
   );
 
   const { getTableProps, getTableBodyProps, headerGroups, prepareRow, rows, selectedFlatRows, allColumns } = useTable(
