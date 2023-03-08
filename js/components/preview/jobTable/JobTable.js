@@ -191,7 +191,7 @@ export const JobTable = ({ expanded, onExpanded, onTabChange }) => {
             color="primary"
             disabled={false}
             onClick={() => {
-              isSquonkProjectAccessible(row.original).then(resp => {
+              isSquonkProjectAccessible(row.original.id).then(resp => {
                 if (resp && resp.data && resp.data.accessible) {
                   let jobLauncherSquonkUrl = null;
                   if (row.original?.squonk_url_ext) {
