@@ -14,6 +14,8 @@ import { getJoinedMoleculeLists } from '../../../datasets/redux/selectors';
 const removeRHSfromNGL = stage => (dispatch, getState) => {
   const state = getState();
 
+  console.log(`removeRHSfromNGL ${state.datasetsReducers.ligandLists}`);
+  console.log(`removeRHSfromNGL ${JSON.stringify(state.datasetsReducers.ligandLists)}`);
   state.datasetsReducers.ligandLists.entries().forEach(([datasetId, value]) => {
     value.forEach(cmpId => {
       const cmp = dispatch(getCompoundById(cmpId, datasetId));
