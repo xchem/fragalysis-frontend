@@ -14,9 +14,7 @@ import { getJoinedMoleculeLists } from '../../../datasets/redux/selectors';
 const removeRHSfromNGL = stage => (dispatch, getState) => {
   const state = getState();
 
-  console.log(`removeRHSfromNGL ${state.datasetsReducers.ligandLists}`);
-  console.log(`removeRHSfromNGL ${JSON.stringify(state.datasetsReducers.ligandLists)}`);
-  state.datasetsReducers.ligandLists.entries().forEach(([datasetId, value]) => {
+  Object.entries(state.datasetsReducers.ligandLists).forEach(([datasetId, value]) => {
     value.forEach(cmpId => {
       const cmp = dispatch(getCompoundById(cmpId, datasetId));
       if (cmp) {
@@ -25,7 +23,7 @@ const removeRHSfromNGL = stage => (dispatch, getState) => {
     });
   });
 
-  state.datasetsReducers.proteinLists.entries().forEach(([datasetId, value]) => {
+  Object.entries(state.datasetsReducers.proteinLists).forEach(([datasetId, value]) => {
     value.forEach(cmpId => {
       const cmp = dispatch(getCompoundById(cmpId, datasetId));
       if (cmp) {
@@ -34,7 +32,7 @@ const removeRHSfromNGL = stage => (dispatch, getState) => {
     });
   });
 
-  state.datasetsReducers.complexLists.entries().forEach(([datasetId, value]) => {
+  Object.entries(state.datasetsReducers.complexLists).forEach(([datasetId, value]) => {
     value.forEach(cmpId => {
       const cmp = dispatch(getCompoundById(cmpId, datasetId));
       if (cmp) {
@@ -43,7 +41,7 @@ const removeRHSfromNGL = stage => (dispatch, getState) => {
     });
   });
 
-  state.datasetsReducers.surfaceLists.entries().forEach(([datasetId, value]) => {
+  Object.entries(state.datasetsReducers.surfaceLists).forEach(([datasetId, value]) => {
     value.forEach(cmpId => {
       const cmp = dispatch(getCompoundById(cmpId, datasetId));
       if (cmp) {
