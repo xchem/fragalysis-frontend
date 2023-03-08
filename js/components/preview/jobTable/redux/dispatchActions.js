@@ -55,9 +55,12 @@ const showFirstCompound = (stage, datasetId) => async (dispatch, getState) => {
   const state = getState();
 
   const cmpList = getJoinedMoleculeLists(datasetId, state);
+  console.log(`showFirstCompound - datasetId: ${JSON.stringify(datasetId)}`);
+  console.log(`showFirstCompound - cmpList: ${JSON.stringify(cmpList)}`);
 
   if (cmpList && cmpList.length > 0) {
-    const cmp = dispatch(getCompoundById(cmpList[0], datasetId));
+    const cmp = dispatch(getCompoundById(cmpList[0].id, datasetId));
+    console.log(`showFirstCompound - cmp: ${JSON.stringify(cmp)}`);
     await dispatch(addDatasetLigand(stage, cmp, getRandomColor(cmp), datasetId, true));
   }
 };
