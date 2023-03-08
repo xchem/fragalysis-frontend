@@ -26,6 +26,9 @@ import { refreshJobsData } from '../../projects/redux/actions';
 import { PROJECTS_JOBS_PANEL_HEIGHT } from '../constants';
 import { selectDatasetResultsForJob } from './redux/dispatchActions';
 import moment from 'moment';
+import { useContext } from 'react';
+import { NglContext } from '../../nglView/nglProvider';
+import { VIEWS } from '../../../constants/constants';
 
 const useStyles = makeStyles(theme => ({
   root: {
@@ -90,6 +93,9 @@ export const JobTable = ({ expanded, onExpanded, onTabChange }) => {
   const [jobOutputsDialogOpen, setJobOutputsDialogOpen] = useState(false);
 
   const [columnSelectorAnchor, setColumnSelectorAnchor] = useState(null);
+
+  const { getNglView } = useContext(NglContext);
+  const majorViewStage = getNglView(VIEWS.MAJOR_VIEW) && getNglView(VIEWS.MAJOR_VIEW).stage;
 
   const jobList = useMemo(() => {
     if (!currentSnapshotJobList) {
@@ -164,7 +170,7 @@ export const JobTable = ({ expanded, onExpanded, onTabChange }) => {
             onClick={() => {
               console.log(`Open outputs for job ${JSON.stringify(row.original)}`);
               setSelectedJob(row.original);
-              dispatch(selectDatasetResultsForJob(row.original));
+              dispatch(selectDatasetResultsForJob(row.original, majorViewStage));
               // setJobOutputsDialogOpen(true);
             }}
           >
