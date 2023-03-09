@@ -26,6 +26,11 @@ import { refreshJobsData } from '../../projects/redux/actions';
 import { PROJECTS_JOBS_PANEL_HEIGHT } from '../constants';
 import { selectDatasetResultsForJob } from './redux/dispatchActions';
 import moment from 'moment';
+import { useContext } from 'react';
+import { NglContext } from '../../nglView/nglProvider';
+import { VIEWS } from '../../../constants/constants';
+import { isSquonkProjectAccessible } from '../projectHistoryPanel/utils';
+import { DJANGO_CONTEXT } from '../../../utils/djangoContext';
 
 const useStyles = makeStyles(theme => ({
   root: {
@@ -91,6 +96,9 @@ export const JobTable = ({ expanded, onExpanded, onTabChange }) => {
 
   const [columnSelectorAnchor, setColumnSelectorAnchor] = useState(null);
 
+  const { getNglView } = useContext(NglContext);
+  const majorViewStage = getNglView(VIEWS.MAJOR_VIEW) && getNglView(VIEWS.MAJOR_VIEW).stage;
+
   const jobList = useMemo(() => {
     if (!currentSnapshotJobList) {
       return [];
@@ -142,6 +150,7 @@ export const JobTable = ({ expanded, onExpanded, onTabChange }) => {
             variant="contained"
             color="primary"
             onClick={() => {
+              console.log(`Open inputs for job ${JSON.stringify(row.original)}`);
               setSelectedJob(row.original);
               setJobInputsDialogOpen(true);
             }}
@@ -161,9 +170,43 @@ export const JobTable = ({ expanded, onExpanded, onTabChange }) => {
             color="primary"
             disabled={row.original.computed_set == null}
             onClick={() => {
+              console.log(`Open outputs for job ${JSON.stringify(row.original)}`);
               setSelectedJob(row.original);
-              dispatch(selectDatasetResultsForJob(row.original));
+              dispatch(selectDatasetResultsForJob(row.original, majorViewStage));
               // setJobOutputsDialogOpen(true);
+            }}
+          >
+            Open
+          </MUIButton>
+        )
+      },
+      {
+        id: 'job',
+        disableSortBy: true,
+        Header: 'Job',
+        displayName: 'Job',
+        Cell: ({ row }) => (
+          <MUIButton
+            variant="contained"
+            color="primary"
+            disabled={false}
+            onClick={() => {
+              isSquonkProjectAccessible(row.original.id).then(resp => {
+                console.log(`OpenInSquonkFromTable resp: ${resp}`);
+                if (resp && resp.data && resp.data.accessible) {
+                  let jobLauncherSquonkUrl = null;
+                  if (row.original?.squonk_url_ext) {
+                    jobLauncherSquonkUrl =
+                      DJANGO_CONTEXT['squonk_ui_url'] + row.original?.squonk_url_ext.replace('data-manager-ui', '');
+                  }
+                  if (jobLauncherSquonkUrl) {
+                    window.open(jobLauncherSquonkUrl, '_blank');
+                  } else {
+                    console.log('Access to squonk job denied');
+                    alert('Access to squonk job denied');
+                  }
+                }
+              });
             }}
           >
             Open
@@ -171,7 +214,7 @@ export const JobTable = ({ expanded, onExpanded, onTabChange }) => {
         )
       }
     ],
-    [dispatch]
+    [dispatch, majorViewStage]
   );
 
   const { getTableProps, getTableBodyProps, headerGroups, prepareRow, rows, selectedFlatRows, allColumns } = useTable(
@@ -311,13 +354,6 @@ export const JobTable = ({ expanded, onExpanded, onTabChange }) => {
             onClose={() => setJobInputsDialogOpen(false)}
             title="Job Inputs"
             variableType="inputs"
-            jobInfo={selectedJob}
-          />
-          <JobVariablesDialog
-            open={jobOutputsDialogOpen}
-            onClose={() => setJobOutputsDialogOpen(false)}
-            title="Job Outputs"
-            variableType="outputs"
             jobInfo={selectedJob}
           />
           <Popover

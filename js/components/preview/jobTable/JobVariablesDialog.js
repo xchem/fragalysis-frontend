@@ -1,6 +1,6 @@
 import React, { Fragment } from 'react';
 import { Dialog, DialogContent, DialogTitle, Typography } from '@material-ui/core';
-import { useGetJobDefinition } from '../../../hooks/useGetJobDefinition';
+import { getJobInputs, useGetJobDefinition } from '../../../hooks/useGetJobDefinition';
 
 const renderListItem = item => <li key={item}>{item}</li>;
 
@@ -14,23 +14,27 @@ const renderInput = input => {
 };
 
 export const JobVariablesDialog = ({ open, onClose, title, variableType, jobInfo }) => {
-  const jobDefinition = useGetJobDefinition(jobInfo);
+  console.log(`JobVariablesDialog: jobInfo = ${JSON.stringify(jobInfo)}`);
+  // const jobDefinition = useGetJobDefinition(jobInfo);
+  const jobInputs = getJobInputs(jobInfo);
+  console.log(`JobVariablesDialog: jobInputs = ${JSON.stringify(jobInputs)}`);
 
-  const jobSpec = !!jobInfo ? JSON.parse(jobInfo.squonk_job_spec) : null;
-  const jobVariables = jobSpec?.variables || {};
+  // const jobSpec = !!jobInfo ? JSON.parse(jobInfo.squonk_job_spec) : null;
+  // const jobVariables = jobSpec?.variables || {};
 
-  const variableProperties = jobDefinition?.[variableType]?.properties || {};
+  // const variableProperties = jobDefinition?.[variableType]?.properties || {};
 
   return (
     <Dialog open={open} onClose={onClose}>
       <DialogTitle>{title}</DialogTitle>
       <DialogContent>
-        {Object.entries(variableProperties).map(([key, property]) => (
-          <Fragment key={key}>
-            <Typography variant="h6">{property.title}</Typography>
-            {!!jobVariables[key] && <ul>{renderInput(jobVariables[key])}</ul>}
-          </Fragment>
-        ))}
+        {jobInputs &&
+          Object.entries(jobInputs).map(([key, value]) => (
+            <Fragment key={key}>
+              <Typography variant="h6">{key}</Typography>
+              {!!jobInputs[key] && <ul>{renderInput(jobInputs[key])}</ul>}
+            </Fragment>
+          ))}
       </DialogContent>
     </Dialog>
   );

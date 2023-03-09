@@ -50,3 +50,15 @@ export const useGetJobDefinition = jobInfo => {
     }
   }, [jobInfo, inputsJson, optionsJson, outputsJson, overrideIndex, overrides]);
 };
+
+export const getJobInputs = jobInfo => {
+  console.log(`getJobInputs: jobInfo = ${JSON.stringify(jobInfo)}`);
+  const selectedJob = jobInfo?.squonk_job_spec;
+  console.log(`getJobInputs: selectedJob = ${JSON.stringify(selectedJob)}`);
+  if (selectedJob) {
+    const parsedJob = JSON.parse(selectedJob);
+    return parsedJob.variables;
+  } else {
+    return null;
+  }
+};
