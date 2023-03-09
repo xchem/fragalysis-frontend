@@ -110,9 +110,13 @@ const JobPopup = ({ jobPopUpAnchorEl, jobPopupInfo }) => {
             onClick={async () => {
               if (jobInfo) {
                 const resp = await isSquonkProjectAccessible(jobInfo.id);
+                console.log(`OpenInSquonkFromJobPopup resp: ${resp}`);
                 if (resp && resp.data && resp.data.accessible) {
                   if (jobLauncherSquonkUrl) {
                     window.open(jobLauncherSquonkUrl, '_blank');
+                  } else {
+                    console.log('Access to squonk job denied');
+                    alert('Access to squonk job denied');
                   }
                 }
               }
