@@ -213,8 +213,13 @@ const JobLauncherDialog = () => {
                 {errorMsg?.message ?? errorMsg}
               </Paper>
             )}
-            <Button disabled={isSubmitting} type="submit" color="primary" size="large">
-              {!isError ? 'Submit' : 'Retry'}
+            {!jobLauncherSquonkUrl && (
+              <Button disabled={isSubmitting} type="submit" color="primary" size="large">
+                {!isError ? 'Submit' : 'Retry'}
+              </Button>
+            )}
+            <Button onClick={onClose} color="primary" size="large">
+              Close
             </Button>
             {jobLauncherSquonkUrl && (
               <Button onClick={() => window.open(jobLauncherSquonkUrl, '_blank')} color="secondary" size="large">

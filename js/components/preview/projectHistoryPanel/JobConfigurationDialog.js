@@ -245,6 +245,16 @@ const JobConfigurationDialog = ({ snapshots }) => {
     return newSnapshot;
   };
 
+  const validate = values => {
+    const errors = {};
+
+    if (values.job === '') {
+      errors.job = 'Required';
+    }
+
+    return errors;
+  };
+
   const onSubmitForm = async ({ job, inputs, snapshot }) => {
     try {
       let chosenLHSCompounds = null;
@@ -441,7 +451,11 @@ const JobConfigurationDialog = ({ snapshots }) => {
           </button>
         </div>
         <div className={classes.bodyPopup}>
-          <Formik initialValues={{ inputs: 'snapshot', snapshot: '', job: '' }} onSubmit={onSubmitForm}>
+          <Formik
+            initialValues={{ inputs: 'snapshot', snapshot: '', job: '' }}
+            onSubmit={onSubmitForm}
+            validate={validate}
+          >
             {({ values, errors }) => (
               <Form className={classes.flexRow}>
                 <div className={classes.sideBody}>

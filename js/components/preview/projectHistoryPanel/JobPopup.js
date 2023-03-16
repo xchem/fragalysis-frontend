@@ -99,6 +99,7 @@ const JobPopup = ({ jobPopUpAnchorEl, jobPopupInfo }) => {
           <Button
             color="primary"
             onClick={() => {
+              dispatch(setJobPopUpAnchorEl(null));
               dispatch(setSelectedSnapshotToSwitch(hash));
               dispatch(setIsOpenModalBeforeExit(true));
             }}

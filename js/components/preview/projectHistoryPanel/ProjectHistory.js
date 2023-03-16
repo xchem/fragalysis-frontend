@@ -131,7 +131,7 @@ export const ProjectHistory = memo(({ showFullHistory, graphKey, expanded, onExp
         onMessageClick: handleClickOnCommit,
         onClick: handleClickOnCommit,
         style:
-          (isSelected === true && { dot: { size: 10, color: 'red', strokeColor: 'blue', strokeWidth: 2 } }) || undefined
+          (isSelected === true && { dot: { size: 15, color: 'red', strokeColor: 'blue', strokeWidth: 2 } }) || undefined
       };
     },
     [handleClickOnCommit]
