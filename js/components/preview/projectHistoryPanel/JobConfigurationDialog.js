@@ -33,7 +33,6 @@ import { SnapshotType } from '../../projects/redux/constants';
 import { DJANGO_CONTEXT } from '../../../utils/djangoContext';
 import { VIEWS } from '../../../constants/constants';
 import { getSquonkProject } from '../redux/dispatchActions';
-import * as Yup from 'yup';
 
 const useStyles = makeStyles(theme => ({
   jobLauncherPopup: {
@@ -246,9 +245,15 @@ const JobConfigurationDialog = ({ snapshots }) => {
     return newSnapshot;
   };
 
-  const configSchema = Yup.object().shape({
-    job: Yup.string().required('Required')
-  });
+  const validate = values => {
+    const errors = {};
+
+    if (values.job === '') {
+      errors.job = 'Required';
+    }
+
+    return errors;
+  };
 
   const onSubmitForm = async ({ job, inputs, snapshot }) => {
     try {
@@ -449,7 +454,7 @@ const JobConfigurationDialog = ({ snapshots }) => {
           <Formik
             initialValues={{ inputs: 'snapshot', snapshot: '', job: '' }}
             onSubmit={onSubmitForm}
-            validationSchema={configSchema}
+            validate={validate}
           >
             {({ values, errors }) => (
               <Form className={classes.flexRow}>
