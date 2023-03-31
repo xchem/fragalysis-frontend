@@ -64,7 +64,7 @@ const JobPopup = ({ jobPopUpAnchorEl, jobPopupInfo }) => {
   const getStatus = jobInfo => {
     let status = 'UNKNOWN';
     if (jobInfo?.upload_status === 'FAILURE') {
-      status = 'UPLOADF FAILED';
+      status = 'UPLOAD FAILED';
     } else {
       status = jobInfo ? jobInfo.job_status : 'UNKNOWN';
     }
