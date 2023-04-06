@@ -108,6 +108,7 @@ const JobPopup = ({ jobPopUpAnchorEl, jobPopupInfo }) => {
           </Button>
           <Button
             key={jobInfo?.id}
+            disabled={!jobLauncherSquonkUrl || !jobInfo?.squonk_url_ext}
             onClick={async () => {
               if (jobInfo) {
                 const resp = await isSquonkProjectAccessible(jobInfo.id);
