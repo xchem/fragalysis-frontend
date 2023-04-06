@@ -64,7 +64,7 @@ const JobPopup = ({ jobPopUpAnchorEl, jobPopupInfo }) => {
   const getStatus = jobInfo => {
     let status = 'UNKNOWN';
     if (jobInfo?.upload_status === 'FAILURE') {
-      status = 'UPLOADF FAILED';
+      status = 'UPLOAD FAILED';
     } else {
       status = jobInfo ? jobInfo.job_status : 'UNKNOWN';
     }
@@ -116,9 +116,12 @@ const JobPopup = ({ jobPopUpAnchorEl, jobPopupInfo }) => {
                   if (jobLauncherSquonkUrl) {
                     window.open(jobLauncherSquonkUrl, '_blank');
                   } else {
-                    console.log('Access to squonk job denied');
-                    alert('Access to squonk job denied');
+                    console.log('Could not open job in Squonk - can not create squonk job url');
+                    alert('Could not open job in Squonk - can not create squonk job url');
                   }
+                } else {
+                  console.log('Access to squonk job denied');
+                  alert('Access to squonk job denied');
                 }
               }
             }}

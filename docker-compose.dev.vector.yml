@@ -30,7 +30,7 @@ services:
   web:
     container_name: web_dock
     # image: xchem/fragalysis-stack:latest
-    image: alanbchristie/fragalysis-backend:1041.2
+    image: alanbchristie/fragalysis-backend:937-b.2
     command: /bin/bash /code/launch-stack.sh
     volumes:
       - ../data/logs:/code/logs/

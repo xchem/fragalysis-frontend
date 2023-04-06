@@ -202,9 +202,12 @@ export const JobTable = ({ expanded, onExpanded, onTabChange }) => {
                   if (jobLauncherSquonkUrl) {
                     window.open(jobLauncherSquonkUrl, '_blank');
                   } else {
-                    console.log('Access to squonk job denied');
-                    alert('Access to squonk job denied');
+                    console.log('Could not open job in Squonk - can not create squonk job url');
+                    alert('Could not open job in Squonk - can not create squonk job url');
                   }
+                } else {
+                  console.log('Access to squonk job denied');
+                  alert('Access to squonk job denied');
                 }
               });
             }}
