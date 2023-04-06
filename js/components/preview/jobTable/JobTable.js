@@ -189,7 +189,7 @@ export const JobTable = ({ expanded, onExpanded, onTabChange }) => {
           <MUIButton
             variant="contained"
             color="primary"
-            disabled={false}
+            disabled={!row.original?.squonk_url_ext}
             onClick={() => {
               isSquonkProjectAccessible(row.original.id).then(resp => {
                 console.log(`OpenInSquonkFromTable resp: ${resp}`);
