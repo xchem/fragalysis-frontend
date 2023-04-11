@@ -211,6 +211,7 @@ const JobConfigurationDialog = ({ snapshots }) => {
   //   );
   // }
 
+
   const createSnapshot = async () => {
     // Prepare snapshot data
     const title = moment().format('-- YYYY-MM-DD -- HH:mm:ss');
