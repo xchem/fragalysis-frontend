@@ -111,18 +111,23 @@ const JobPopup = ({ jobPopUpAnchorEl, jobPopupInfo }) => {
             disabled={!jobLauncherSquonkUrl || !jobInfo?.squonk_url_ext}
             onClick={async () => {
               if (jobInfo) {
-                const resp = await isSquonkProjectAccessible(jobInfo.id);
-                console.log(`OpenInSquonkFromJobPopup resp: ${resp}`);
-                if (resp && resp.data && resp.data.accessible) {
-                  if (jobLauncherSquonkUrl) {
-                    window.open(jobLauncherSquonkUrl, '_blank');
+                try {
+                  const resp = await isSquonkProjectAccessible(jobInfo.id);
+                  console.log(`OpenInSquonkFromJobPopup resp: ${resp}`);
+                  if (resp && resp.data && resp.data.accessible) {
+                    if (jobLauncherSquonkUrl) {
+                      window.open(jobLauncherSquonkUrl, '_blank');
+                    } else {
+                      console.log('Could not open job in Squonk - can not create squonk job url');
+                      alert('Could not open job in Squonk - can not create squonk job url');
+                    }
                   } else {
-                    console.log('Could not open job in Squonk - can not create squonk job url');
-                    alert('Could not open job in Squonk - can not create squonk job url');
+                    console.log(`Access to squonk job denied with reason: ${resp.data.error}`);
+                    alert(`Access to squonk job denied with reason: ${resp.data.error}`);
                   }
-                } else {
-                  console.log('Access to squonk job denied');
-                  alert('Access to squonk job denied');
+                } catch (err) {
+                  console.log(`Access to squonk job denied with reason: ${err.message}`);
+                  alert(`Access to squonk job denied with reason: ${err.message}`);
                 }
               }
             }}

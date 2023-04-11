@@ -295,12 +295,7 @@ export const ProjectHistory = memo(({ showFullHistory, graphKey, expanded, onExp
             size="small"
             onClick={() => onTabChange('jobTable')}
             startIcon={<DynamicFeed />}
-            disabled={
-              DJANGO_CONTEXT.squonk_available === false ||
-              !currentProject ||
-              !currentProject.user_can_use_squonk ||
-              !currentSessionProject
-            }
+            disabled={DJANGO_CONTEXT.squonk_available === false || !currentProject || !currentSessionProject}
           >
             Job Table
           </Button>

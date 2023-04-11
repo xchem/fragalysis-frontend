@@ -131,6 +131,11 @@ export const JobTable = ({ expanded, onExpanded, onTabChange }) => {
         displayName: 'Category'
       },
       {
+        accessor: 'job_status',
+        Header: 'Status',
+        displayName: 'status'
+      },
+      {
         accessor: 'job_start_datetime',
         Header: 'Date',
         displayName: 'Date'
@@ -191,25 +196,30 @@ export const JobTable = ({ expanded, onExpanded, onTabChange }) => {
             color="primary"
             disabled={!row.original?.squonk_url_ext}
             onClick={() => {
-              isSquonkProjectAccessible(row.original.id).then(resp => {
-                console.log(`OpenInSquonkFromTable resp: ${resp}`);
-                if (resp && resp.data && resp.data.accessible) {
-                  let jobLauncherSquonkUrl = null;
-                  if (row.original?.squonk_url_ext) {
-                    jobLauncherSquonkUrl =
-                      DJANGO_CONTEXT['squonk_ui_url'] + row.original?.squonk_url_ext.replace('data-manager-ui', '');
-                  }
-                  if (jobLauncherSquonkUrl) {
-                    window.open(jobLauncherSquonkUrl, '_blank');
+              isSquonkProjectAccessible(row.original.id)
+                .then(resp => {
+                  console.log(`OpenInSquonkFromTable resp: ${resp}`);
+                  if (resp && resp.data && resp.data.accessible) {
+                    let jobLauncherSquonkUrl = null;
+                    if (row.original?.squonk_url_ext) {
+                      jobLauncherSquonkUrl =
+                        DJANGO_CONTEXT['squonk_ui_url'] + row.original?.squonk_url_ext.replace('data-manager-ui', '');
+                    }
+                    if (jobLauncherSquonkUrl) {
+                      window.open(jobLauncherSquonkUrl, '_blank');
+                    } else {
+                      console.log('Could not open job in Squonk - can not create squonk job url');
+                      alert('Could not open job in Squonk - can not create squonk job url');
+                    }
                   } else {
-                    console.log('Could not open job in Squonk - can not create squonk job url');
-                    alert('Could not open job in Squonk - can not create squonk job url');
+                    console.log(`Access to squonk job denied with reason: ${resp.data.error}`);
+                    alert(`Access to squonk job denied with reason: ${resp.data.error}`);
                   }
-                } else {
-                  console.log('Access to squonk job denied');
-                  alert('Access to squonk job denied');
-                }
-              });
+                })
+                .catch(err => {
+                  console.log(`Access to squonk job denied with reason: ${err.message}`);
+                  alert(`Access to squonk job denied with reason: ${err.message}`);
+                });
             }}
           >
             Open
