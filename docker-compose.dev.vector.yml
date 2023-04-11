@@ -30,7 +30,7 @@ services:
   web:
     container_name: web_dock
     # image: xchem/fragalysis-stack:latest
-    image: alanbchristie/fragalysis-backend:937-b.2
+    image: alanbchristie/fragalysis-backend:937-b.5
     command: /bin/bash /code/launch-stack.sh
     volumes:
       - ../data/logs:/code/logs/
@@ -57,9 +57,9 @@ services:
       SQUONK2_ASAPI_URL: 'https://account-server.xchem-dev.diamond.ac.uk/account-server-api'
       SQUONK2_ORG_OWNER: ${SQUONK2_ORG_OWNER}
       SQUONK2_ORG_OWNER_PASSWORD: ${SQUONK2_ORG_OWNER_PASSWORD}
-      SQUONK2_ORG_UUID: 'org-772c005a-5f34-4527-9f8b-62463bed11a9'
+      SQUONK2_ORG_UUID: ${SQUONK2_ORG_UUID}
       SQUONK2_PRODUCT_FLAVOUR: 'SILVER'
-      SQUONK2_SLUG: 'fs-dev'
+      SQUONK2_SLUG: ${SQUONK2_SLUG}
       SQUONK2_UNIT_BILLING_DAY: 3
       OIDC_AS_CLIENT_ID: 'account-server-api-dev'
       OIDC_DM_CLIENT_ID: 'data-manager-api-dev'
