@@ -205,11 +205,12 @@ const JobConfigurationDialog = ({ snapshots }) => {
 
   const jobList = useSelector(state => state.projectReducers.jobList);
 
-  if (currentProject && !currentProject.user_can_use_squonk) {
-    setErrorMsg(
-      `You do not have permission to use the Squonk job launcher for ${currentProject?.target_access_string}`
-    );
-  }
+  // if (currentProject && !currentProject.user_can_use_squonk) {
+  //   setErrorMsg(
+  //     `You do not have permission to use the Squonk job launcher for ${currentProject?.target_access_string}`
+  //   );
+  // }
+
 
   const createSnapshot = async () => {
     // Prepare snapshot data
