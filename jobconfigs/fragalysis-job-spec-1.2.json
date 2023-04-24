@@ -1,7 +1,6 @@
 {
   "global": {
     "job_dir": "fragalysis-jobs/{username}/{job_name}-{timestamp}",
-    "inputs_dir": "fragalysis-files/{target}",
     "protein_id": "{selected_protein}"
   },
   "precompilation_ignore": ["job_dir", "protein_id"],
@@ -31,7 +30,7 @@
       },
       "options": {
         "outfile": {
-          "value": "{job_dir}/results_merged.sdf",
+          "default": "{job_dir}/merged.sdf",
           "ui:widget": "hidden"
         },
         "count": {
@@ -90,7 +89,7 @@
       },
       "options": {
         "outfile": {
-          "value": "{job_dir}/results_merged.sdf",
+          "default": "{job_dir}/merged.sdf",
           "ui:widget": "hidden"
         },
         "count": {
@@ -149,7 +148,7 @@
       },
       "options": {
         "outfile": {
-          "value": "{job_dir}/results_merged.sdf",
+          "default": "{job_dir}/merged.sdf",
           "ui:widget": "hidden"
         },
         "count": {

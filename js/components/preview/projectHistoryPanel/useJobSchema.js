@@ -24,6 +24,8 @@ export const getCompileData = (target, djangoContext, jobLauncherData, fragalysi
   inputs_dir: jobLauncherData?.inputs_dir,
   username: djangoContext?.username,
   job_name: jobLauncherData?.job?.slug,
+  // transfer_root: jobLauncherData?.transfer_root,
+  // transfer_target: jobLauncherData?.transfer_target,
   timestamp: new Date().getTime(),
   ...(jobLauncherData?.data || {}),
   ...fragalysisJobsVars
@@ -89,17 +91,19 @@ export const useJobSchema = jobLauncherData => {
   const targetName = useSelector(state => state.apiReducers.target_on_name);
 
   const recompileSchemaResult = (result, postSubmitLauncherData) => {
-    let data = getCompileData(targetName, DJANGO_CONTEXT, jobLauncherData, jobLauncherData?.job?.global);
+    let data = getCompileData(targetName, DJANGO_CONTEXT, jobLauncherData, jobLauncherData?.job?.overrides?.global);
     data = { ...data, ...postSubmitLauncherData };
 
     return Object.fromEntries(
       Object.entries(result).map(([key, value]) => {
-        if (typeof value === 'string') {
-          return [key, expandVars(value, data, false)];
+        // if (typeof value === 'string') {
+        //   return [key, expandVars(value, data, false)];
+        // }
+        if (!Array.isArray(value)) {
+          return [key, expandVars(value, data, false, false)];
         }
-
         if (Array.isArray(value)) {
-          return [key, value.map(val => expandVars(val, data, false))];
+          return [key, value.map(val => expandVars(val, data, false, false))];
         }
 
         return [key, value];
@@ -111,7 +115,7 @@ export const useJobSchema = jobLauncherData => {
     if (jobDefinition) {
       const { inputs, options, outputs } = jobDefinition;
 
-      const data = getCompileData(targetName, DJANGO_CONTEXT, jobLauncherData, jobLauncherData?.job?.global);
+      const data = getCompileData(targetName, DJANGO_CONTEXT, jobLauncherData, jobLauncherData?.job?.overrides?.global);
 
       // Prepare schema
       const schema = {
