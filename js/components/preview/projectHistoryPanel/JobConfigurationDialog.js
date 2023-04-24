@@ -211,7 +211,6 @@ const JobConfigurationDialog = ({ snapshots }) => {
   //   );
   // }
 
-
   const createSnapshot = async () => {
     // Prepare snapshot data
     const title = moment().format('-- YYYY-MM-DD -- HH:mm:ss');
@@ -419,6 +418,8 @@ const JobConfigurationDialog = ({ snapshots }) => {
           setJobLauncherData({
             job: getFilteredJob(job),
             snapshot: chosenSnapshot,
+            // transfer_root: transfer_root,
+            // transfer_target: transfer_target,
             inputs_dir: `${transfer_root}/${transfer_target}`,
             // Prepares data for expanding, see comments in JobFragmentProteinSelectWindow
             data: {
