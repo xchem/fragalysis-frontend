@@ -91,10 +91,11 @@ export const JobTable = ({ expanded, onExpanded, onTabChange }) => {
 
   const currentSnapshotJobList = useSelector(state => state.projectReducers.currentSnapshotJobList);
   const jobSpecsList = useSelector(state => state.projectReducers.jobList);
+  const currentSessionProject = useSelector(state => state.projectReducers.currentProject);
+  const currentSessionProjectId = currentSessionProject?.projectID;
 
   const [selectedJob, setSelectedJob] = useState(null);
   const [jobInputsDialogOpen, setJobInputsDialogOpen] = useState(false);
-  const [jobOutputsDialogOpen, setJobOutputsDialogOpen] = useState(false);
 
   const [columnSelectorAnchor, setColumnSelectorAnchor] = useState(null);
 
@@ -239,7 +240,7 @@ export const JobTable = ({ expanded, onExpanded, onTabChange }) => {
             color="primary"
             disabled={false}
             onClick={() => {
-              const url = `${base_url}${URLS.projects}${row.original?.project}/${row.original?.snapshot}`;
+              const url = `${base_url}${URLS.projects}${currentSessionProjectId}/${row.original?.snapshot}`;
               updateClipboard(url);
             }}
           >
@@ -248,7 +249,7 @@ export const JobTable = ({ expanded, onExpanded, onTabChange }) => {
         )
       }
     ],
-    [dispatch, majorViewStage]
+    [currentSessionProjectId, dispatch, majorViewStage]
   );
 
   const { getTableProps, getTableBodyProps, headerGroups, prepareRow, rows, selectedFlatRows, allColumns } = useTable(
