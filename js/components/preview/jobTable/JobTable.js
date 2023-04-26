@@ -31,6 +31,8 @@ import { NglContext } from '../../nglView/nglProvider';
 import { VIEWS } from '../../../constants/constants';
 import { isSquonkProjectAccessible } from '../projectHistoryPanel/utils';
 import { DJANGO_CONTEXT } from '../../../utils/djangoContext';
+import { URLS, base_url } from '../../routes/constants';
+import { updateClipboard } from '../../snapshot/helpers';
 
 const useStyles = makeStyles(theme => ({
   root: {
@@ -89,10 +91,11 @@ export const JobTable = ({ expanded, onExpanded, onTabChange }) => {
 
   const currentSnapshotJobList = useSelector(state => state.projectReducers.currentSnapshotJobList);
   const jobSpecsList = useSelector(state => state.projectReducers.jobList);
+  const currentSessionProject = useSelector(state => state.projectReducers.currentProject);
+  const currentSessionProjectId = currentSessionProject?.projectID;
 
   const [selectedJob, setSelectedJob] = useState(null);
   const [jobInputsDialogOpen, setJobInputsDialogOpen] = useState(false);
-  const [jobOutputsDialogOpen, setJobOutputsDialogOpen] = useState(false);
 
   const [columnSelectorAnchor, setColumnSelectorAnchor] = useState(null);
 
@@ -225,9 +228,28 @@ export const JobTable = ({ expanded, onExpanded, onTabChange }) => {
             Open
           </MUIButton>
         )
+      },
+      {
+        id: 'snapshot',
+        disableSortBy: true,
+        Header: 'Snapshot',
+        displayName: 'Snapshot',
+        Cell: ({ row }) => (
+          <MUIButton
+            variant="contained"
+            color="primary"
+            disabled={false}
+            onClick={() => {
+              const url = `${base_url}${URLS.projects}${currentSessionProjectId}/${row.original?.snapshot}`;
+              updateClipboard(url);
+            }}
+          >
+            Copy
+          </MUIButton>
+        )
       }
     ],
-    [dispatch, majorViewStage]
+    [currentSessionProjectId, dispatch, majorViewStage]
   );
 
   const { getTableProps, getTableBodyProps, headerGroups, prepareRow, rows, selectedFlatRows, allColumns } = useTable(
