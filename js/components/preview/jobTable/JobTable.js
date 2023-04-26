@@ -31,6 +31,8 @@ import { NglContext } from '../../nglView/nglProvider';
 import { VIEWS } from '../../../constants/constants';
 import { isSquonkProjectAccessible } from '../projectHistoryPanel/utils';
 import { DJANGO_CONTEXT } from '../../../utils/djangoContext';
+import { URLS, base_url } from '../../routes/constants';
+import { updateClipboard } from '../../snapshot/helpers';
 
 const useStyles = makeStyles(theme => ({
   root: {
@@ -223,6 +225,25 @@ export const JobTable = ({ expanded, onExpanded, onTabChange }) => {
             }}
           >
             Open
+          </MUIButton>
+        )
+      },
+      {
+        id: 'snapshot',
+        disableSortBy: true,
+        Header: 'Snapshot',
+        displayName: 'Snapshot',
+        Cell: ({ row }) => (
+          <MUIButton
+            variant="contained"
+            color="primary"
+            disabled={false}
+            onClick={() => {
+              const url = `${base_url}${URLS.projects}${row.original?.project}/${row.original?.snapshot}`;
+              updateClipboard(url);
+            }}
+          >
+            Copy
           </MUIButton>
         )
       }
