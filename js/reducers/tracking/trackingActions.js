@@ -1197,6 +1197,16 @@ export const findTrackAction = (action, state) => (dispatch, getState) => {
           text: `Filter parameter: ${action.payload.scoreName} ${actionDescription.CHANGED} to ${valueDescription} of dataset: ${action.payload.datasetID}`
         };
       }
+    } else if (action.type === customDatasetConstants.SET_SEARCH_STRING) {
+      let searchString = action.payload;
+      console.log("action",action)
+      trackAction = {
+        type: actionType.SET_SEARCH_STRING,
+        annotation: actionAnnotation.CHECK,
+        timestamp: Date.now(),
+        username: username,
+        text: `Searched string: ${searchString}`
+      };
     } else if (action.type === nglConstants.UPDATE_COMPONENT_REPRESENTATION_VISIBILITY) {
       let objectType = actionObjectType.REPRESENTATION;
       let value = action.newVisibility;
