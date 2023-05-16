@@ -39,7 +39,7 @@ const SearchField = ({ className, id, placeholder, size, onChange, disabled, sea
     () =>
       debounce(value => {
         onChange(value);
-      }, 350),
+      }, 1000),
     [onChange]
   );
 
