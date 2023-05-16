@@ -13,7 +13,8 @@ import {
   setForceProjectCreated,
   setIsLoadingListOfProjects,
   setCurrentProjectDiscourseLink,
-  setJobLauncherSquonkUrl
+  setJobLauncherSquonkUrl,
+  setJobList
 } from './actions';
 import { api, METHOD } from '../../../utils/api';
 import { base_url, URLS } from '../../routes/constants';
@@ -28,6 +29,14 @@ import { setOpenDiscourseErrorModal } from '../../../reducers/api/actions';
 
 import moment from 'moment';
 import { resetNglTrackingState } from '../../../reducers/nglTracking/dispatchActions';
+// eslint-disable-next-line import/extensions
+import fragmentsteinSpec from '../../../../jobconfigs/fragmenstein-combine.json';
+// eslint-disable-next-line import/extensions
+import fragmentsteinMultiSpec from '../../../../jobconfigs/fragmenstein-combine-multi-scoring.json';
+// eslint-disable-next-line import/extensions
+import fragmentsteinStringSpec from '../../../../jobconfigs/fragmenstein-place-string.json';
+// eslint-disable-next-line import/extensions
+import fragmentsteinOverrides from '../../../../jobconfigs/fragalysis-job-spec-1.2.json';
 
 export const assignSnapshotToProject = ({ projectID, snapshotID, ...rest }) => (dispatch, getState) => {
   dispatch(resetCurrentSnapshot());
@@ -292,12 +301,12 @@ export const createProjectDiscoursePost = (projectName, targetName, msg, tags) =
     });
 };
 
-export const createProject = ({ title, description, target, author, tags }) => dispatch => {
+export const createProject = ({ title, description, target, author, tags, project }) => dispatch => {
   dispatch(setProjectModalIsLoading(true));
   return api({
     url: `${base_url}/api/session-projects/`,
     method: METHOD.POST,
-    data: { title, description, target, author, tags }
+    data: { title, description, target, author, tags, project }
   }).then(response => {
     const projectID = response.data.id;
     const title = response.data.title;
@@ -336,6 +345,7 @@ export const createProjectFromSnapshot = ({ title, description, author, tags, hi
   getState
 ) => {
   const listOfSnapshots = getState().snapshotReducers.listOfSnapshots;
+  const currentProject = getState().targetReducers.currentProject;
   const selectedSnapshot = listOfSnapshots.find(item => item.id === parentSnapshotId);
   const snapshotData = JSON.parse(selectedSnapshot && selectedSnapshot.data);
 
@@ -348,7 +358,8 @@ export const createProjectFromSnapshot = ({ title, description, author, tags, hi
       description,
       target: (snapshotData && snapshotData.apiReducers && snapshotData.apiReducers.target_on) || null,
       author,
-      tags
+      tags,
+      project: currentProject?.id
     })
   ).then(() => {
     const { projectID } = getState().projectReducers.currentProject;
@@ -382,7 +393,7 @@ export const createProjectFromSnapshot = ({ title, description, author, tags, hi
   });
 };
 
-export const createProjectFromScratch = ({ title, description, target, author, tags, history }) => (
+export const createProjectFromScratch = ({ title, description, target, author, tags, history, project }) => (
   dispatch,
   getState
 ) => {
@@ -392,7 +403,7 @@ export const createProjectFromScratch = ({ title, description, target, author, t
   return api({
     url: `${base_url}/api/session-projects/`,
     method: METHOD.POST,
-    data: { title, description, target, author, tags }
+    data: { title, description, target, author, tags, project }
   })
     .then(response => {
       const projectID = response.data.id;
@@ -480,4 +491,37 @@ export const jobRequest = data => {
     method: METHOD.POST,
     data
   });
+};
+
+export const getJobConfigurations = () => (dispatch, getState) => {
+  const jobs = [
+    {
+      id: fragmentsteinSpec.id,
+      name: fragmentsteinSpec.collection,
+      description: fragmentsteinSpec.description,
+      slug: fragmentsteinSpec.job,
+      spec: fragmentsteinSpec,
+      overrides: fragmentsteinOverrides,
+      overrideIndex: 0
+    },
+    {
+      id: fragmentsteinMultiSpec.id,
+      name: fragmentsteinMultiSpec.collection,
+      description: fragmentsteinMultiSpec.description,
+      slug: fragmentsteinMultiSpec.job,
+      spec: fragmentsteinMultiSpec,
+      overrides: fragmentsteinOverrides,
+      overrideIndex: 1
+    },
+    {
+      id: fragmentsteinStringSpec.id,
+      name: fragmentsteinStringSpec.collection,
+      description: fragmentsteinStringSpec.description,
+      slug: fragmentsteinStringSpec.job,
+      spec: fragmentsteinStringSpec,
+      overrides: fragmentsteinOverrides,
+      overrideIndex: 2
+    }
+  ];
+  dispatch(setJobList(jobs));
 };

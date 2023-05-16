@@ -7,6 +7,7 @@ import { setIsOpenModalBeforeExit, setSelectedSnapshotToSwitch } from '../../sna
 import { setJobPopUpAnchorEl } from '../../projects/redux/actions';
 import { DJANGO_CONTEXT } from '../../../utils/djangoContext';
 import { loadNewDatasetsAndCompounds } from '../../datasets/redux/dispatchActions';
+import { isSquonkProjectAccessible } from './utils';
 
 const useStyles = makeStyles(theme => ({
   jobPopup: {
@@ -53,9 +54,23 @@ const JobPopup = ({ jobPopUpAnchorEl, jobPopupInfo }) => {
   const classes = useStyles();
   const dispatch = useDispatch();
   const { jobInfo, hash } = jobPopupInfo;
-  const jobLauncherSquonkUrl = DJANGO_CONTEXT['squonk_ui_url'] + jobInfo?.squonk_url_ext.replace('data-manager-ui', '');
+  let jobLauncherSquonkUrl = null;
+  if (jobInfo?.squonk_url_ext) {
+    jobLauncherSquonkUrl = DJANGO_CONTEXT['squonk_ui_url'] + jobInfo?.squonk_url_ext.replace('data-manager-ui', '');
+  }
 
   const target_on = useSelector(state => state.apiReducers.target_on);
+
+  const getStatus = jobInfo => {
+    let status = 'UNKNOWN';
+    if (jobInfo?.upload_status === 'FAILURE') {
+      status = 'UPLOAD FAILED';
+    } else {
+      status = jobInfo ? jobInfo.job_status : 'UNKNOWN';
+    }
+
+    return status;
+  };
 
   return (
     <Popper
@@ -73,7 +88,7 @@ const JobPopup = ({ jobPopUpAnchorEl, jobPopupInfo }) => {
         </div>
         <div className={classes.bodyPopup}>
           <p>
-            Status: <strong>{jobInfo?.job_status}</strong>
+            Status: <strong>{getStatus(jobInfo)}</strong>
           </p>
           <p>
             Parameters: <strong></strong>
@@ -84,6 +99,7 @@ const JobPopup = ({ jobPopUpAnchorEl, jobPopupInfo }) => {
           <Button
             color="primary"
             onClick={() => {
+              dispatch(setJobPopUpAnchorEl(null));
               dispatch(setSelectedSnapshotToSwitch(hash));
               dispatch(setIsOpenModalBeforeExit(true));
             }}
@@ -92,7 +108,29 @@ const JobPopup = ({ jobPopUpAnchorEl, jobPopupInfo }) => {
           </Button>
           <Button
             key={jobInfo?.id}
-            onClick={() => window.open(jobLauncherSquonkUrl, '_blank')}
+            disabled={!jobLauncherSquonkUrl || !jobInfo?.squonk_url_ext}
+            onClick={async () => {
+              if (jobInfo) {
+                try {
+                  const resp = await isSquonkProjectAccessible(jobInfo.id);
+                  console.log(`OpenInSquonkFromJobPopup resp: ${resp}`);
+                  if (resp && resp.data && resp.data.accessible) {
+                    if (jobLauncherSquonkUrl) {
+                      window.open(jobLauncherSquonkUrl, '_blank');
+                    } else {
+                      console.log('Could not open job in Squonk - can not create squonk job url');
+                      alert('Could not open job in Squonk - can not create squonk job url');
+                    }
+                  } else {
+                    console.log(`Access to squonk job denied with reason: ${resp.data.error}`);
+                    alert(`Access to squonk job denied with reason: ${resp.data.error}`);
+                  }
+                } catch (err) {
+                  console.log(`Access to squonk job denied with reason: ${err.message}`);
+                  alert(`Access to squonk job denied with reason: ${err.message}`);
+                }
+              }
+            }}
             color="secondary"
             size="large"
           >

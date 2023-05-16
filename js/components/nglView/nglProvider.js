@@ -7,6 +7,7 @@ export const NglProvider = memo(props => {
   const [nglViewList, setNglViewList] = useState([]);
 
   const registerNglView = (id, stage) => {
+    console.count(`registerNglView`);
     if (nglViewList.filter(ngl => ngl.id === id).length > 0) {
       console.log(new Error('Cannot register NGL View with used ID! ', id));
     } else {
@@ -18,6 +19,7 @@ export const NglProvider = memo(props => {
   };
 
   const unregisterNglView = id => {
+    console.count(`unregisterNglView`);
     if (nglViewList.filter(ngl => ngl.id === id).length === 0) {
       console.log(new Error('Cannot remove NGL View with given ID! ', id));
     } else {

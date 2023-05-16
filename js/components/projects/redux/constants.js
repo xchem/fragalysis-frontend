@@ -31,7 +31,9 @@ export const constants = {
   SET_JOB_LAUNCHER_DIALOG_OPEN: prefix + 'SET_JOB_LAUNCHER_DIALOG_OPEN',
   SET_JOB_LAUNCHER_DATA: prefix + 'SET_JOB_LAUNCHER_DATA',
   SET_JOB_LAUNCHER_SQUONK_URL: prefix + 'SET_JOB_LAUNCHER_SQUONK_URL',
-  REFRESH_JOBS_DATA: prefix + 'REFRESH_JOBS_DATA'
+  REFRESH_JOBS_DATA: prefix + 'REFRESH_JOBS_DATA',
+
+  SET_JOB_LIST: prefix + 'SET_JOB_LIST'
 };
 
 export const ProjectCreationType = {

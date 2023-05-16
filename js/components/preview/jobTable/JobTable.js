@@ -26,6 +26,13 @@ import { refreshJobsData } from '../../projects/redux/actions';
 import { PROJECTS_JOBS_PANEL_HEIGHT } from '../constants';
 import { selectDatasetResultsForJob } from './redux/dispatchActions';
 import moment from 'moment';
+import { useContext } from 'react';
+import { NglContext } from '../../nglView/nglProvider';
+import { VIEWS } from '../../../constants/constants';
+import { isSquonkProjectAccessible } from '../projectHistoryPanel/utils';
+import { DJANGO_CONTEXT } from '../../../utils/djangoContext';
+import { URLS, base_url } from '../../routes/constants';
+import { updateClipboard } from '../../snapshot/helpers';
 
 const useStyles = makeStyles(theme => ({
   root: {
@@ -84,12 +91,16 @@ export const JobTable = ({ expanded, onExpanded, onTabChange }) => {
 
   const currentSnapshotJobList = useSelector(state => state.projectReducers.currentSnapshotJobList);
   const jobSpecsList = useSelector(state => state.projectReducers.jobList);
+  const currentSessionProject = useSelector(state => state.projectReducers.currentProject);
+  const currentSessionProjectId = currentSessionProject?.projectID;
 
   const [selectedJob, setSelectedJob] = useState(null);
   const [jobInputsDialogOpen, setJobInputsDialogOpen] = useState(false);
-  const [jobOutputsDialogOpen, setJobOutputsDialogOpen] = useState(false);
 
   const [columnSelectorAnchor, setColumnSelectorAnchor] = useState(null);
+
+  const { getNglView } = useContext(NglContext);
+  const majorViewStage = getNglView(VIEWS.MAJOR_VIEW) && getNglView(VIEWS.MAJOR_VIEW).stage;
 
   const jobList = useMemo(() => {
     if (!currentSnapshotJobList) {
@@ -123,6 +134,11 @@ export const JobTable = ({ expanded, onExpanded, onTabChange }) => {
         displayName: 'Category'
       },
       {
+        accessor: 'job_status',
+        Header: 'Status',
+        displayName: 'status'
+      },
+      {
         accessor: 'job_start_datetime',
         Header: 'Date',
         displayName: 'Date'
@@ -142,6 +158,7 @@ export const JobTable = ({ expanded, onExpanded, onTabChange }) => {
             variant="contained"
             color="primary"
             onClick={() => {
+              console.log(`Open inputs for job ${JSON.stringify(row.original)}`);
               setSelectedJob(row.original);
               setJobInputsDialogOpen(true);
             }}
@@ -161,17 +178,78 @@ export const JobTable = ({ expanded, onExpanded, onTabChange }) => {
             color="primary"
             disabled={row.original.computed_set == null}
             onClick={() => {
+              console.log(`Open outputs for job ${JSON.stringify(row.original)}`);
               setSelectedJob(row.original);
-              dispatch(selectDatasetResultsForJob(row.original));
+              dispatch(selectDatasetResultsForJob(row.original, majorViewStage));
               // setJobOutputsDialogOpen(true);
             }}
           >
             Open
           </MUIButton>
         )
+      },
+      {
+        id: 'job',
+        disableSortBy: true,
+        Header: 'Job',
+        displayName: 'Job',
+        Cell: ({ row }) => (
+          <MUIButton
+            variant="contained"
+            color="primary"
+            disabled={!row.original?.squonk_url_ext}
+            onClick={() => {
+              isSquonkProjectAccessible(row.original.id)
+                .then(resp => {
+                  console.log(`OpenInSquonkFromTable resp: ${resp}`);
+                  if (resp && resp.data && resp.data.accessible) {
+                    let jobLauncherSquonkUrl = null;
+                    if (row.original?.squonk_url_ext) {
+                      jobLauncherSquonkUrl =
+                        DJANGO_CONTEXT['squonk_ui_url'] + row.original?.squonk_url_ext.replace('data-manager-ui', '');
+                    }
+                    if (jobLauncherSquonkUrl) {
+                      window.open(jobLauncherSquonkUrl, '_blank');
+                    } else {
+                      console.log('Could not open job in Squonk - can not create squonk job url');
+                      alert('Could not open job in Squonk - can not create squonk job url');
+                    }
+                  } else {
+                    console.log(`Access to squonk job denied with reason: ${resp.data.error}`);
+                    alert(`Access to squonk job denied with reason: ${resp.data.error}`);
+                  }
+                })
+                .catch(err => {
+                  console.log(`Access to squonk job denied with reason: ${err.message}`);
+                  alert(`Access to squonk job denied with reason: ${err.message}`);
+                });
+            }}
+          >
+            Open
+          </MUIButton>
+        )
+      },
+      {
+        id: 'snapshot',
+        disableSortBy: true,
+        Header: 'Snapshot',
+        displayName: 'Snapshot',
+        Cell: ({ row }) => (
+          <MUIButton
+            variant="contained"
+            color="primary"
+            disabled={false}
+            onClick={() => {
+              const url = `${base_url}${URLS.projects}${currentSessionProjectId}/${row.original?.snapshot}`;
+              updateClipboard(url);
+            }}
+          >
+            Copy
+          </MUIButton>
+        )
       }
     ],
-    [dispatch]
+    [currentSessionProjectId, dispatch, majorViewStage]
   );
 
   const { getTableProps, getTableBodyProps, headerGroups, prepareRow, rows, selectedFlatRows, allColumns } = useTable(
@@ -311,13 +389,6 @@ export const JobTable = ({ expanded, onExpanded, onTabChange }) => {
             onClose={() => setJobInputsDialogOpen(false)}
             title="Job Inputs"
             variableType="inputs"
-            jobInfo={selectedJob}
-          />
-          <JobVariablesDialog
-            open={jobOutputsDialogOpen}
-            onClose={() => setJobOutputsDialogOpen(false)}
-            title="Job Outputs"
-            variableType="outputs"
             jobInfo={selectedJob}
           />
           <Popover

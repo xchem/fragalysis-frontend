@@ -72,6 +72,7 @@ export const ProjectModal = memo(({}) => {
     'session_project.id'
   );
   const targetList = useSelector(state => state.apiReducers.target_id_list);
+  const currentProject = useSelector(state => state.targetReducers.currentProject);
 
   const findTargetNameForId = id => {
     return targetList.find(target => target.id === id);
@@ -153,7 +154,8 @@ export const ProjectModal = memo(({}) => {
             description: values.description,
             target: values.targetId,
             author: DJANGO_CONTEXT['pk'],
-            tags: JSON.stringify(tags)
+            tags: JSON.stringify(tags),
+            project: currentProject?.id
           };
 
           // Create from snapshot

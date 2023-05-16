@@ -174,7 +174,11 @@ const JobConfigurationDialog = ({ snapshots }) => {
   const selectedDatasetCompounds = useSelector(state => state.datasetsReducers.compoundsToBuyDatasetMap);
   const datasetVisibleDatasetCompoundsList = useSelector(state => state.datasetsReducers.ligandLists);
 
-  const currentProject = useSelector(state => state.projectReducers.currentProject);
+  const currentSessionProject = useSelector(state => state.projectReducers.currentProject);
+  const currentProject = useSelector(state => state.targetReducers.currentProject);
+  // if (!currentProject) {
+  //   setErrorMsg('No project selected, please navigate to landing page and select a target.');
+  // }
   const currentSnapshotID = useSelector(state => state.projectReducers.currentSnapshot.id);
   const currentSnapshot = snapshots?.[currentSnapshotID];
   const targetId = useSelector(state => state.apiReducers.target_on);
@@ -201,6 +205,12 @@ const JobConfigurationDialog = ({ snapshots }) => {
 
   const jobList = useSelector(state => state.projectReducers.jobList);
 
+  // if (currentProject && !currentProject.user_can_use_squonk) {
+  //   setErrorMsg(
+  //     `You do not have permission to use the Squonk job launcher for ${currentProject?.target_access_string}`
+  //   );
+  // }
+
   const createSnapshot = async () => {
     // Prepare snapshot data
     const title = moment().format('-- YYYY-MM-DD -- HH:mm:ss');
@@ -208,7 +218,7 @@ const JobConfigurationDialog = ({ snapshots }) => {
     const type = SnapshotType.MANUAL;
     const author = DJANGO_CONTEXT['pk'] || null;
     const parent = currentSnapshot.id;
-    const session_project = currentProject.projectID;
+    const session_project = currentSessionProject.projectID;
 
     // Prevents redirect and displaying of share snapshot dialog
     dispatch(setDisableRedirect(true));
@@ -239,6 +249,16 @@ const JobConfigurationDialog = ({ snapshots }) => {
     dispatch(refreshJobsData());
 
     return newSnapshot;
+  };
+
+  const validate = values => {
+    const errors = {};
+
+    if (values.job === '') {
+      errors.job = 'Required';
+    }
+
+    return errors;
   };
 
   const onSubmitForm = async ({ job, inputs, snapshot }) => {
@@ -370,7 +390,7 @@ const JobConfigurationDialog = ({ snapshots }) => {
 
       if (chosenLHSCompounds.length > 0) {
         // Close the actual pop up window
-        dispatch(setJobConfigurationDialogOpen(false));
+        // dispatch(setJobConfigurationDialogOpen(false));
 
         const getFilteredJob = job => {
           return jobList.find(jobFiltered => job === jobFiltered.id);
@@ -378,6 +398,8 @@ const JobConfigurationDialog = ({ snapshots }) => {
 
         const repsonse = await jobFileTransfer({
           snapshot: chosenSnapshot.id,
+          access: currentProject.id,
+          session_project: currentSessionProject.projectID,
           target: targetId,
           squonk_project: dispatch(getSquonkProject()),
           proteins: chosenLHSCompounds.join(),
@@ -396,6 +418,8 @@ const JobConfigurationDialog = ({ snapshots }) => {
           setJobLauncherData({
             job: getFilteredJob(job),
             snapshot: chosenSnapshot,
+            // transfer_root: transfer_root,
+            // transfer_target: transfer_target,
             inputs_dir: `${transfer_root}/${transfer_target}`,
             // Prepares data for expanding, see comments in JobFragmentProteinSelectWindow
             data: {
@@ -406,6 +430,7 @@ const JobConfigurationDialog = ({ snapshots }) => {
 
         setErrorMsg(null);
         setIsError(false);
+        dispatch(setJobConfigurationDialogOpen(false));
         dispatch(setJobLauncherDialogOpen(true));
       } else {
         setErrorMsg("There's no selected inputs to run the job.");
@@ -434,7 +459,11 @@ const JobConfigurationDialog = ({ snapshots }) => {
           </button>
         </div>
         <div className={classes.bodyPopup}>
-          <Formik initialValues={{ inputs: 'snapshot', snapshot: '', job: '' }} onSubmit={onSubmitForm}>
+          <Formik
+            initialValues={{ inputs: 'snapshot', snapshot: '', job: '' }}
+            onSubmit={onSubmitForm}
+            validate={validate}
+          >
             {({ values, errors }) => (
               <Form className={classes.flexRow}>
                 <div className={classes.sideBody}>
@@ -452,7 +481,7 @@ const JobConfigurationDialog = ({ snapshots }) => {
                   >
                     {Object.values(jobList).map(item => (
                       <MenuItem key={item.id} value={item.id}>
-                        {item.name}
+                        {item.slug}
                       </MenuItem>
                     ))}
                   </Field>
@@ -533,7 +562,7 @@ const JobConfigurationDialog = ({ snapshots }) => {
                   </Box>
                   {isError && (
                     <Paper variant="elevation" rounded="true" className={classes.errorMsg}>
-                      {errorMsg}
+                      {errorMsg?.message ?? errorMsg}
                     </Paper>
                   )}
                   <Button color="primary" size="large" type="submit">

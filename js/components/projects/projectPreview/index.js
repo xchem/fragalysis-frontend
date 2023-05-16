@@ -19,7 +19,7 @@ export const ProjectPreview = memo(({}) => {
   const projectId = match && match.params && match.params.projectId;
   const snapshotId = match && match.params && match.params.snapshotId;
   const currentSnapshotID = useSelector(state => state.projectReducers.currentSnapshot.id);
-  const currentProject = useSelector(state => state.projectReducers.currentProject);
+  const currentSessionProject = useSelector(state => state.projectReducers.currentProject);
   const isActionRestoring = useSelector(state => state.trackingReducers.isActionRestoring);
   const isActionRestored = useSelector(state => state.trackingReducers.isActionRestored);
 
@@ -82,13 +82,18 @@ export const ProjectPreview = memo(({}) => {
     setSnackBarTitle('Not valid snapshot!');
   }
 
+  console.log(
+    `Logged in user: ${DJANGO_CONTEXT['pk']} and project author: ${currentSessionProject.authorID} and project id: ${currentSessionProject.projectID}`
+  );
+
   return canShow === true && isSnapshotLoaded.current !== undefined ? (
     <Preview
       isSnapshot={true}
       isStateLoaded={isSnapshotLoaded.current !== null}
       hideProjects={
         DJANGO_CONTEXT['pk'] === undefined ||
-        (DJANGO_CONTEXT['pk'] !== undefined && (currentProject.projectID === null || currentProject.authorID === null))
+        (DJANGO_CONTEXT['pk'] !== undefined &&
+          (currentSessionProject.projectID === null || currentSessionProject.authorID === null))
       }
     />
   ) : null;

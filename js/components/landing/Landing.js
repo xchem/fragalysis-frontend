@@ -12,6 +12,7 @@ import { Projects } from '../projects';
 import { HeaderContext } from '../header/headerContext';
 import { resetCurrentCompoundsSettings } from '../preview/compounds/redux/actions';
 import { resetProjectsReducer } from '../projects/redux/actions';
+import { withLoadingProjects } from '../target/withLoadingProjects';
 
 const useStyles = makeStyles(theme => ({
   root: {
@@ -80,4 +81,4 @@ const mapDispatchToProps = {
   resetProjectsReducer
 };
 
-export default connect(mapStateToProps, mapDispatchToProps)(Landing);
+export default connect(mapStateToProps, mapDispatchToProps)(withLoadingProjects(Landing));

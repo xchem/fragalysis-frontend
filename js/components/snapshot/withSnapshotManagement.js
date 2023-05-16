@@ -9,6 +9,7 @@ import { DJANGO_CONTEXT } from '../../utils/djangoContext';
 import { activateSnapshotDialog, saveAndShareSnapshot } from './redux/dispatchActions';
 import { NglContext } from '../nglView/nglProvider';
 import { restoreSnapshotActions } from '../preview/moleculeGroups/redux/dispatchActions';
+import { extractTargetFromURLParam } from '../preview/utils';
 
 /**
  * Created by ricgillams on 13/06/2018.
@@ -27,13 +28,15 @@ export const withSnapshotManagement = WrappedComponent => {
 
     const targetIdList = useSelector(state => state.apiReducers.target_id_list);
     const targetName = useSelector(state => state.apiReducers.target_on_name);
-    const currentProject = useSelector(state => state.projectReducers.currentProject);
+    const currentSessionProject = useSelector(state => state.projectReducers.currentProject);
     const currentSnapshot = useSelector(state => state.projectReducers.currentSnapshot);
     const directDisplay = useSelector(state => state.apiReducers.direct_access);
+    const currentProject = useSelector(state => state.targetReducers.currentProject);
 
-    const projectId = currentProject.projectID;
+    const sessionProjectId = currentSessionProject.projectID;
     const snapshotJustSaved = useSelector(state => state.snapshotReducers.snapshotJustSaved);
-    let target = match && match.params && match.params.target;
+    // let target = match && match.params && match.params.target;
+    let target = match && match.params && extractTargetFromURLParam(match.params[0]);
     // Check whether the snapshot was just saved
     target = snapshotJustSaved ? undefined : target;
 
@@ -42,17 +45,27 @@ export const withSnapshotManagement = WrappedComponent => {
     }
 
     const enableSaveButton =
-      (projectId && currentProject.projectID !== null && currentProject.authorID !== null && DJANGO_CONTEXT['pk']) ||
+      (sessionProjectId &&
+        currentSessionProject.projectID !== null &&
+        currentSessionProject.authorID !== null &&
+        DJANGO_CONTEXT['pk']) ||
       target !== undefined;
 
     const disableShareButton =
-      (projectId !== undefined && currentProject.projectID === null && currentSnapshotID === null && !target) ||
-      (!target && !projectId);
+      (sessionProjectId !== undefined &&
+        currentSessionProject.projectID === null &&
+        currentSnapshotID === null &&
+        !target) ||
+      (!target && !sessionProjectId);
 
     // Function for set Header buttons, target title and snackBar information about session
     useEffect(() => {
       if (targetName !== undefined) {
-        setHeaderNavbarTitle(targetName);
+        if (currentProject) {
+          setHeaderNavbarTitle(`${targetName} | ${currentProject?.target_access_string}`);
+        } else {
+          setHeaderNavbarTitle(`${targetName}`);
+        }
       }
       setHeaderButtons([
         <Button
@@ -69,7 +82,14 @@ export const withSnapshotManagement = WrappedComponent => {
             key="restoreSnapshot"
             color="primary"
             onClick={() =>
-              dispatch(restoreSnapshotActions({ nglViewList, projectId, snapshotId: currentSnapshot.id, history }))
+              dispatch(
+                restoreSnapshotActions({
+                  nglViewList,
+                  projectId: sessionProjectId,
+                  snapshotId: currentSnapshot.id,
+                  history
+                })
+              )
             }
             startIcon={<Restore />}
             disabled={disableShareButton || false}
@@ -107,14 +127,15 @@ export const withSnapshotManagement = WrappedComponent => {
       targetIdList,
       targetName,
       setSnackBarColor,
-      projectId,
+      sessionProjectId,
       currentSnapshotID,
-      currentProject,
+      currentSessionProject,
       disableShareButton,
       target,
       nglViewList,
       currentSnapshot.id,
-      history
+      history,
+      currentProject
     ]);
 
     return (
@@ -123,7 +144,7 @@ export const withSnapshotManagement = WrappedComponent => {
         hideProjects={
           DJANGO_CONTEXT['pk'] === undefined ||
           (DJANGO_CONTEXT['pk'] !== undefined &&
-            (currentProject.projectID === null || currentProject.authorID === null))
+            (currentSessionProject.projectID === null || currentSessionProject.authorID === null))
         }
       />
     );
