@@ -31,8 +31,9 @@ const useStyles = makeStyles(theme => ({
   }
 }));
 
-const SearchField = ({ className, id, placeholder, size, onChange, disabled }) => {
+const SearchField = ({ className, id, placeholder, size, onChange, disabled, searchString }) => {
   const classes = useStyles();
+  let value = searchString ??  '';
 
   const debounced = useMemo(
     () =>
@@ -63,6 +64,7 @@ const SearchField = ({ className, id, placeholder, size, onChange, disabled }) =
       }}
       onChange={onChangeDebounced}
       disabled={disabled}
+      defaultValue={value ?? ''}
     />
   );
 };

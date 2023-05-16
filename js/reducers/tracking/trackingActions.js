@@ -1198,13 +1198,17 @@ export const findTrackAction = (action, state) => (dispatch, getState) => {
         };
       }
     } else if (action.type === customDatasetConstants.SET_SEARCH_STRING) {
-      let searchString = action.payload;
-      console.log("action",action)
+      let searchString = action.payload.searchString;
+      let objectType = actionType.SEARCH_STRING;
+
       trackAction = {
-        type: actionType.SET_SEARCH_STRING,
+        type: actionType.SEARCH_STRING,
         annotation: actionAnnotation.CHECK,
         timestamp: Date.now(),
         username: username,
+        object_type: objectType,
+        dataset_id: action.payload.datasetID,
+        searchString: searchString,
         text: `Searched string: ${searchString}`
       };
     } else if (action.type === nglConstants.UPDATE_COMPONENT_REPRESENTATION_VISIBILITY) {
