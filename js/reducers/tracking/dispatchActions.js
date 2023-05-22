@@ -48,7 +48,7 @@ import {
   getProteinData,
   selectAllHits
 } from '../../components/preview/molecule/redux/dispatchActions';
-import { setSortDialogOpen } from '../../components/preview/molecule/redux/actions';
+import { setSortDialogOpen, setSearchStringOfHitNavigator } from '../../components/preview/molecule/redux/actions';
 import {
   handleBuyList,
   handleBuyListAll,
@@ -457,6 +457,7 @@ const saveActionsList = (project, snapshot, actionList, nglViewList) => async (d
     getCommonLastActionByType(orderedActionList, actionType.FOG_NEAR, currentActions);
     getCommonLastActionByType(orderedActionList, actionType.FOG_FAR, currentActions);
     getCommonLastActionByType(orderedActionList, actionType.SEARCH_STRING, currentActions);
+    getCommonLastActionByType(orderedActionList, actionType.SEARCH_STRING_HIT_NAVIGATOR, currentActions);
 
     // Since drag and drop state can be influenced by filter as well, determine its state by the last influential action
     const action = orderedActionList.find(action =>
@@ -898,6 +899,7 @@ export const restoreAfterTargetActions = (stages, projectId) => async (dispatch,
     dispatch(resetDatasetScrolledMap()); // Have a look at useScrollToSelected.js
     dispatch(setIsSnapshotDirty(false));
     dispatch(restoreSearchString(orderedActionList));
+    dispatch(restoreSearchStringHitNavigator(orderedActionList));
   }
 };
 
@@ -1661,9 +1663,16 @@ export const restoreTabActions = moleculesAction => (dispatch, getState) => {
 
 const restoreSearchString = moleculesAction => dispatch => {
   let filterSearchString = moleculesAction.find(action => action.type === actionType.SEARCH_STRING);
-  let datasetID = filterSearchString.dataset_id;
   if (filterSearchString) {
+    let datasetID = filterSearchString.dataset_id;
     dispatch(setSearchStringOfCompoundSet(datasetID, filterSearchString.searchString))
+  }
+};
+
+const restoreSearchStringHitNavigator = moleculesAction => (dispatch, getState) => {
+  let filterSearchString = moleculesAction.find(action => action.type === actionType.SEARCH_STRING_HIT_NAVIGATOR);
+  if (filterSearchString) {   
+   dispatch(setSearchStringOfHitNavigator(filterSearchString.searchStringHitNavigator))
   }
 };
 

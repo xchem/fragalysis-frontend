@@ -54,7 +54,7 @@ import { setFilter, setMolListToEdit, setNextXMolecules } from '../../../reducer
 import { initializeFilter } from '../../../reducers/selection/dispatchActions';
 import * as listType from '../../../constants/listTypes';
 import { useRouteMatch } from 'react-router-dom';
-import { setSortDialogOpen } from './redux/actions';
+import { setSortDialogOpen, setSearchStringOfHitNavigator } from './redux/actions';
 import { AlertModal } from '../../common/Modal/AlertModal';
 import {
   setSelectedAllByType,
@@ -266,6 +266,7 @@ export const MoleculeList = memo(({ hideProjects }) => {
   const categories = useSelector(state => state.apiReducers.categoryList);
 
   const proteinsHasLoaded = useSelector(state => state.nglReducers.proteinsHasLoaded);
+  const currentActionList = useSelector(state => state.trackingReducers.current_actions_list);
 
   const [predefinedFilter, setPredefinedFilter] = useState(filter !== undefined ? filter.predefined : DEFAULT_FILTER);
 
@@ -288,11 +289,18 @@ export const MoleculeList = memo(({ hideProjects }) => {
     }, [object_selection]);*/
 
   let joinedMoleculeLists = useMemo(() => {
-    if (searchString) {
+    const searchedString = currentActionList.find(action => action.type === 'SEARCH_STRING_HIT_NAVIGATOR');
+    if (searchString ) {
       return allMoleculesList.filter(molecule =>
         molecule.protein_code.toLowerCase().includes(searchString.toLowerCase())
       );
-    } else {
+    }
+    else if (searchedString ) {
+      return getJoinedMoleculeList.filter(molecule =>
+        molecule.protein_code.toLowerCase().includes(searchedString.searchStringHitNavigator.toLowerCase())
+      );
+    }
+    else {
       return getJoinedMoleculeList;
     }
   }, [getJoinedMoleculeList, allMoleculesList, searchString]);
@@ -718,7 +726,13 @@ export const MoleculeList = memo(({ hideProjects }) => {
     return molecules;
   };
 
-  const openGlobalTagEditor = () => {};
+  const openGlobalTagEditor = () => { };
+
+  let filterSearchString = "";
+  const getSearchedString = () => {
+    filterSearchString = currentActionList.find(action => action.type === 'SEARCH_STRING_HIT_NAVIGATOR');
+  };
+  getSearchedString();
 
   const actions = [
     /* do not disable filter by itself if it does not have any result */
@@ -745,8 +759,10 @@ export const MoleculeList = memo(({ hideProjects }) => {
     <SearchField
       className={classes.search}
       id="search-hit-navigator"
-      onChange={setSearchString}
+      onChange={value => {setSearchString(value); 
+        dispatch(setSearchStringOfHitNavigator(value))}}
       disabled={false || (getJoinedMoleculeList && getJoinedMoleculeList.length === 0)}
+      searchString={filterSearchString?.searchStringHitNavigator ?? ''}
     />,
 
     <IconButton
