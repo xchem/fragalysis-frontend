@@ -290,12 +290,12 @@ export const MoleculeList = memo(({ hideProjects }) => {
 
   let joinedMoleculeLists = useMemo(() => {
     const searchedString = currentActionList.find(action => action.type === 'SEARCH_STRING_HIT_NAVIGATOR');
-    if (searchString ) {
+    if (searchString) {
       return allMoleculesList.filter(molecule =>
         molecule.protein_code.toLowerCase().includes(searchString.toLowerCase())
       );
     }
-    else if (searchedString ) {
+    else if (searchedString) {
       return getJoinedMoleculeList.filter(molecule =>
         molecule.protein_code.toLowerCase().includes(searchedString.searchStringHitNavigator.toLowerCase())
       );

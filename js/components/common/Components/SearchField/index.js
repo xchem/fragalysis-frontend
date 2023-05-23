@@ -65,6 +65,7 @@ const SearchField = ({ className, id, placeholder, size, onChange, disabled, sea
       onChange={onChangeDebounced}
       disabled={disabled}
       defaultValue={value ?? ''}
+      key={value}
     />
   );
 };
