@@ -17,7 +17,8 @@ import {
   Box,
   ButtonGroup,
   LinearProgress,
-  Tooltip
+  Tooltip,
+  Popper  
 } from '@material-ui/core';
 import {
   PowerSettingsNew,
@@ -34,7 +35,9 @@ import {
   Lock,
   LockOpen,
   Restore,
-  Layers
+  Layers,
+  CreateNewFolder,
+  Save
 } from '@material-ui/icons';
 import { HeaderContext } from './headerContext';
 import { Button } from '../common';
@@ -59,8 +62,10 @@ import { ChangeLayoutButton } from './changeLayoutButton';
 import { setIsActionsRestoring, setProjectActionListLoaded } from '../../reducers/tracking/actions';
 import { layouts } from '../../reducers/layout/layouts';
 import { setDialogCurrentStep } from '../snapshot/redux/actions';
-import { setCurrentProject, setForceCreateProject } from '../projects/redux/actions';
+import { activateSnapshotDialog } from '../snapshot/redux/dispatchActions';
+import { setCurrentProject, setForceCreateProject, setProjectModalOpen } from '../projects/redux/actions';
 import { getVersions } from '../../utils/version';
+import { ProjectModal } from '../../components/projects/projectModal';
 
 const useStyles = makeStyles(theme => ({
   padding: {
@@ -233,6 +238,19 @@ export default memo(
       }
     }, [combinedRef, forceCompute]);
 
+    const [anchorEl, setAnchorEl] = React.useState(null);
+
+    const handleClick = (event) => {
+      setAnchorEl(event.currentTarget);
+    };
+  
+    const handleClose = () => {
+      setAnchorEl(null);
+    };
+  
+    const open = Boolean(anchorEl);
+    const id = open ? 'simple-popover' : undefined;
+    
     return (
       <ComputeSize
         componentRef={combinedRef.current}
@@ -270,8 +288,43 @@ export default memo(
                     Fragalysis: <b>{headerNavbarTitle}</b>
                   </Typography>
                 </Button>
-                {headerButtons && headerButtons.map(item => item)}
-              </ButtonGroup>
+                {username !== null ? targetName !== undefined ?
+                <>
+                <Button aria-describedby={id}
+                 onClick={handleClick} 
+                 onMouseLeave={handleClose}
+                 key="newProject"
+                 color="primary"
+                 startIcon={<CreateNewFolder />}
+                >
+                   New project
+                </Button> 
+                {currentProject.projectID !== null ?
+                <Button
+                   key="saveSnapshot"
+                   color="primary"
+                   onClick={() => dispatch(activateSnapshotDialog(DJANGO_CONTEXT['pk']))}
+                   startIcon={<Save />}
+                >
+                  Save
+                </Button> : ''}
+                </>
+                : '' : '' }
+                {headerButtons && headerButtons.map(item => item)} 
+                <Popper 
+                  id={id}
+                  open={open}
+                  anchorEl={anchorEl}
+                  onClose={handleClose}
+                  anchorOrigin={{
+                  vertical: 'bottom',
+                  horizontal: 'left',
+                  }}
+                >
+                  <Typography sx={{ p: 2 }}>{ open === true ? (dispatch(setProjectModalOpen(true))) : ''}</Typography>
+                </Popper >
+                <ProjectModal />
+             </ButtonGroup>
             </Grid>
             <Grid item>
               {discourseAvailable && (
