@@ -17,8 +17,7 @@ import {
   Box,
   ButtonGroup,
   LinearProgress,
-  Tooltip,
-  Popper  
+  Tooltip  
 } from '@material-ui/core';
 import {
   PowerSettingsNew,
@@ -61,7 +60,7 @@ import { lockLayout, resetCurrentLayout } from '../../reducers/layout/actions';
 import { ChangeLayoutButton } from './changeLayoutButton';
 import { setIsActionsRestoring, setProjectActionListLoaded } from '../../reducers/tracking/actions';
 import { layouts } from '../../reducers/layout/layouts';
-import { setDialogCurrentStep } from '../snapshot/redux/actions';
+import { setDialogCurrentStep, setOpenSnapshotSavingDialog } from '../snapshot/redux/actions';
 import { activateSnapshotDialog } from '../snapshot/redux/dispatchActions';
 import { setCurrentProject, setForceCreateProject, setProjectModalOpen } from '../projects/redux/actions';
 import { getVersions } from '../../utils/version';
@@ -130,6 +129,9 @@ export default memo(
 
     const currentProject = useSelector(state => state.projectReducers.currentProject);
     const targetName = useSelector(state => state.apiReducers.target_on_name);
+
+    const openNewProjectModal = useSelector(state => state.projectReducers.isProjectModalOpen);
+    const openSaveSnapshotModal = useSelector(state => state.snapshotReducers.openSavingDialog);
 
     const openDiscourseError = useSelector(state => state.apiReducers.open_discourse_error_modal);
 
@@ -238,19 +240,6 @@ export default memo(
       }
     }, [combinedRef, forceCompute]);
 
-    const [anchorEl, setAnchorEl] = React.useState(null);
-
-    const handleClick = (event) => {
-      setAnchorEl(event.currentTarget);
-    };
-  
-    const handleClose = () => {
-      setAnchorEl(null);
-    };
-  
-    const open = Boolean(anchorEl);
-    const id = open ? 'simple-popover' : undefined;
-    
     return (
       <ComputeSize
         componentRef={combinedRef.current}
@@ -285,14 +274,14 @@ export default memo(
                       window.location.reload();
                     }}
                   >
-                    Fragalysis: <b>{headerNavbarTitle}</b>
+                    Fragalysis: <b id={"headerNavbarTitle"}>{headerNavbarTitle}</b>
                   </Typography>
                 </Button>
                 {username !== null ? targetName !== undefined ?
                 <>
-                <Button aria-describedby={id}
-                 onClick={handleClick} 
-                 onMouseLeave={handleClose}
+                <Button
+                 onClick={() => {openNewProjectModal === false ? dispatch(setProjectModalOpen(true)) : dispatch(setProjectModalOpen(false)),
+                  openSaveSnapshotModal === true ? dispatch(setOpenSnapshotSavingDialog(false)) : ''}} 
                  key="newProject"
                  color="primary"
                  startIcon={<CreateNewFolder />}
@@ -303,7 +292,10 @@ export default memo(
                 <Button
                    key="saveSnapshot"
                    color="primary"
-                   onClick={() => dispatch(activateSnapshotDialog(DJANGO_CONTEXT['pk']))}
+                   onClick={() => {dispatch(activateSnapshotDialog(DJANGO_CONTEXT['pk']),
+                   openSaveSnapshotModal === false ? dispatch(setOpenSnapshotSavingDialog(true)) : dispatch(setOpenSnapshotSavingDialog(false)),
+                   openSaveSnapshotModal === true ? dispatch(setOpenSnapshotSavingDialog(false)) : '',
+                   openNewProjectModal === true ? dispatch(setProjectModalOpen(false)) : '')}}
                    startIcon={<Save />}
                 >
                   Save
@@ -311,18 +303,6 @@ export default memo(
                 </>
                 : '' : '' }
                 {headerButtons && headerButtons.map(item => item)} 
-                <Popper 
-                  id={id}
-                  open={open}
-                  anchorEl={anchorEl}
-                  onClose={handleClose}
-                  anchorOrigin={{
-                  vertical: 'bottom',
-                  horizontal: 'left',
-                  }}
-                >
-                  <Typography sx={{ p: 2 }}>{ open === true ? (dispatch(setProjectModalOpen(true))) : ''}</Typography>
-                </Popper >
                 <ProjectModal />
              </ButtonGroup>
             </Grid>

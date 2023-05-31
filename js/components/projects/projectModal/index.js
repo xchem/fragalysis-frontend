@@ -1,5 +1,5 @@
 import React, { memo, useEffect, useState } from 'react';
-import Modal from '../../common/Modal';
+import ModalNewProject from '../../common/ModalNewProject';
 import { useDispatch, useSelector } from 'react-redux';
 import { groupBy } from 'lodash';
 import { setProjectModalOpen } from '../redux/actions';
@@ -73,6 +73,9 @@ export const ProjectModal = memo(({}) => {
   );
   const targetList = useSelector(state => state.apiReducers.target_id_list);
   const currentProject = useSelector(state => state.targetReducers.currentProject);
+  const currentTarget = useSelector(state => state.apiReducers.target_on_name);
+
+  const actualDate = moment().format('-YYYY-MM-DD');
 
   const findTargetNameForId = id => {
     return targetList.find(target => target.id === id);
@@ -116,13 +119,12 @@ export const ProjectModal = memo(({}) => {
   };
 
   return (
-    <Modal open={isProjectModalOpen} onClose={handleCloseModal}>
-      <Typography variant="h3">Create project</Typography>
+    <ModalNewProject open={isProjectModalOpen} onClose={handleCloseModal}>
       <Formik
         initialValues={{
           type: ProjectCreationType.NEW,
-          title: '',
-          description: '',
+          title: currentTarget + actualDate,
+          description: 'Project created from ' + currentTarget,
           targetId: '',
           parentSnapshotId: '',
           tags: ''
@@ -215,30 +217,6 @@ export const ProjectModal = memo(({}) => {
         {({ submitForm, isSubmitting, errors, values }) => (
           <Form>
             <Grid container direction="column" className={classes.body}>
-              <Grid item>
-                <FormControl
-                  className={classes.input}
-                  error={errors.type !== undefined}
-                  required
-                  disabled={isProjectModalLoading}
-                >
-                  <Form component={RadioGroup} name="type" row>
-                    <FormControlLabel
-                      value={ProjectCreationType.NEW}
-                      control={<Radio disabled={isProjectModalLoading} />}
-                      label="New Project"
-                      disabled={isProjectModalLoading}
-                    />
-                    <FormControlLabel
-                      value={ProjectCreationType.FROM_SNAPSHOT}
-                      control={<Radio disabled={isProjectModalLoading} />}
-                      label="From Snapshot"
-                      disabled={isProjectModalLoading}
-                    />
-                  </Form>
-                  {errors.type && <FormHelperText disabled={isProjectModalLoading}>{errors.type}</FormHelperText>}
-                </FormControl>
-              </Grid>
               <Grid item>
                 <InputFieldAvatar
                   icon={<Title />}
@@ -419,6 +397,6 @@ export const ProjectModal = memo(({}) => {
           </Form>
         )}
       </Formik>
-    </Modal>
+    </ModalNewProject>
   );
 });
