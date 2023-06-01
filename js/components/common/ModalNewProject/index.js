@@ -8,7 +8,6 @@ const useStyles = makeStyles(theme => ({
   paper: {
     position: 'absolute',
     top: '238px',
-    left: '572px',
     transform: 'translate(-50%, -50%)',
     backgroundColor: theme.palette.background.paper,
     borderRadius: theme.spacing(1) / 2,
@@ -42,6 +41,16 @@ export const ModalNewProject = memo(
     modalBackground,
     ...rest
   }) => {
+
+     // counting title width for fixed position modal window for create new project
+    const defaultTitleLength = 445;
+    const titleLength =  document.getElementById("headerNavbarTitle");
+    let newTitleLength = 0;
+    if (titleLength !== null) {
+      newTitleLength = titleLength.offsetWidth;
+    }
+    const absolutTitleLength = defaultTitleLength + newTitleLength; 
+
     const classes = useStyles();
     const content = loading ? <CircularProgress /> : children;
 
@@ -56,6 +65,7 @@ export const ModalNewProject = memo(
       >
          <div>      
         <div
+          style={{left: absolutTitleLength + 'px'}}
           ref={containerDiv}
           className={classNames(
             classes.paper,

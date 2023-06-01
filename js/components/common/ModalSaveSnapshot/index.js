@@ -7,7 +7,6 @@ const useStyles = makeStyles(theme => ({
   paper: {
     position: 'absolute',
     top: '203px',
-    left: '759px',
     transform: 'translate(-50%, -50%)',
     backgroundColor: theme.palette.background.paper,
     borderRadius: theme.spacing(1) / 2,
@@ -40,6 +39,16 @@ export const ModalSaveSnapshot = memo(
     otherContentClasses,
     ...rest
   }) => {
+
+  // counting title width for fix position modal window for save new snapshot
+    const defaultTitleLength = 600;
+    const titleLength =  document.getElementById("headerNavbarTitle");
+    let newTitleLength = 0;
+    if (titleLength !== null) {
+      newTitleLength = titleLength.offsetWidth;
+    }
+    const absolutTitleLength = defaultTitleLength + newTitleLength; // for fix popover/modal dialog under button
+
     const classes = useStyles();
     const content = loading ? <CircularProgress /> : children;
 
@@ -55,6 +64,7 @@ export const ModalSaveSnapshot = memo(
         style={{position: 'none'}}
       >
         <div
+         style={{left: absolutTitleLength + 'px'}}
           ref={containerDiv}
           className={classNames(
             classes.paper,
