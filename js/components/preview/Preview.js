@@ -46,6 +46,8 @@ import { PickProjectModal } from './PickProjectModal';
 import { setCurrentProject, setOpenPickProjectModal } from '../target/redux/actions';
 import { getProjectsForSelectedTarget } from './redux/dispatchActions';
 import { withLoadingProjects } from '../target/withLoadingProjects';
+import { setProjectModalOpen } from '../projects/redux/actions';
+import { setOpenSnapshotSavingDialog } from '../snapshot/redux/actions';
 
 const ReactGridLayout = WidthProvider(ResponsiveGridLayout);
 
@@ -113,6 +115,9 @@ const Preview = memo(({ isStateLoaded, hideProjects, isSnapshot = false }) => {
 
   const currentLayout = useSelector(state => state.layoutReducers.currentLayout);
   const layoutLocked = useSelector(state => state.layoutReducers.layoutLocked);
+
+  const openNewProjectModal = useSelector(state => state.projectReducers.isProjectModalOpen);
+  const openSaveSnapshotModal = useSelector(state => state.snapshotReducers.openSavingDialog);
 
   const nglPortal = useMemo(() => createHtmlPortalNode({ attributes: { style: 'height: 100%' } }), []);
 
@@ -276,7 +281,8 @@ const Preview = memo(({ isStateLoaded, hideProjects, isSnapshot = false }) => {
 
   return (
     <>
-      <div ref={ref} className={classes.root}>
+      <div ref={ref} className={classes.root}  onClick={() => (openNewProjectModal === true ? dispatch(setProjectModalOpen(false)) : '',
+       openSaveSnapshotModal === true ? dispatch(setOpenSnapshotSavingDialog(false)) : '' )}>
         <ReactGridLayout
           // cols={4}
           ref={gridRef}
