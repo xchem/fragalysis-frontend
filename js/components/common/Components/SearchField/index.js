@@ -52,7 +52,7 @@ const SearchField = ({ className, id, placeholder, size, onChange, disabled, sea
     <TextField
       className={classNames(classes.search, className)}
       id={id}
-      placeholder={placeholder ?? 'Search'}
+      placeholder={placeholder ?? 'Search tags'}
       size={size}
       InputProps={{
         startAdornment: (

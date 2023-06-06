@@ -1,6 +1,6 @@
 import React, { memo, useRef, useEffect, useCallback, useState, useMemo } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
-import { Typography, makeStyles, IconButton, Tooltip } from '@material-ui/core';
+import { Switch, Typography, makeStyles, IconButton, Tooltip, Grid, FormControlLabel } from '@material-ui/core';
 import { Panel } from '../../../common/Surfaces/Panel';
 import TagDetailRow from './tagDetailRow';
 import NewTagDetailRow from './newTagDetailRow';
@@ -20,6 +20,9 @@ import classNames from 'classnames';
 import SearchField from '../../../common/Components/SearchField';
 import { setPanelsExpanded } from '../../../../reducers/layout/actions';
 import { layoutItemNames } from '../../../../reducers/layout/constants';
+import { setTagFilteringMode } from '../../../../reducers/selection/actions';
+import { withStyles } from '@material-ui/core/styles';
+import { blue } from '@material-ui/core/colors';
 
 export const heightOfBody = '172px';
 export const defaultHeaderPadding = 15;
@@ -67,11 +70,27 @@ const useStyles = makeStyles(theme => ({
     gridColumn: '6'
   },
   search: {
-    width: 140
+    width: 140,
+    paddingTop: '5px'
   },
   columnTitle: {
     fontSize: theme.typography.pxToRem(13)
-  }
+  },
+  tagModeSwitch: {
+    width: 132, // Should be adjusted if a label for the switch changes
+    // justify: 'flex-end',
+    marginRight: '110px',
+    marginLeft: '1px'
+  },
+  headerContainer: {
+    marginRight: '0px',
+    paddingLeft: '0px',
+    paddingRight: '0px',
+    justifyContent: 'flex-end',
+    minHeight: '100%',
+    alignItems: 'center',
+    flexWrap: 'nowrap'
+  },
 }));
 
 /**
@@ -85,6 +104,7 @@ const TagDetails = memo(() => {
   const [sortSwitch, setSortSwitch] = useState(0);
 
   const preTagList = useSelector(state => state.apiReducers.tagList);
+  const tagMode = useSelector(state => state.selectionReducers.tagFilteringMode);
   const [tagList, setTagList] = useState([]);
 
   const [searchString, setSearchString] = useState(null);
@@ -196,6 +216,28 @@ const TagDetails = memo(() => {
     [sortSwitch, tagList]
   );
 
+  const filteringModeSwitched = () => {
+    dispatch(setTagFilteringMode(!tagMode));
+  };
+
+  const TagModeSwitch = withStyles({
+    // '& .MuiFormControlLabel-root': {
+    //   marginLeft: '0px',
+    //   marginRight: '0px'
+    // },
+    switchBase: {
+      color: blue[300],
+      '&$checked': {
+        color: blue[500]
+      },
+      '&$checked + $track': {
+        backgroundColor: blue[500]
+      }
+    },
+    checked: {},
+    track: {}
+  })(Switch);
+
   return (
     <Panel
       ref={ref}
@@ -206,8 +248,38 @@ const TagDetails = memo(() => {
       onExpandChange={useCallback(expanded => dispatch(setPanelsExpanded(layoutItemNames.TAG_DETAILS, expanded)), [
         dispatch
       ])}
-      headerActions={[<SearchField className={classes.search} id="search-tag-details" onChange={setSearchString} />]}
-    >
+      headerActions={[
+      <Grid container item direction="row" className={classes.headerContainer}>
+        <Grid item>
+          <Tooltip
+            title={
+              tagMode
+                ? 'Intersection: Only the compounds labelled with all the active tags will be selected'
+                : 'Union: Any compound labelled with any of the active tags will be selected'
+            }
+          >
+            <FormControlLabel
+              className={classes.tagModeSwitch}
+              classes={{ label: classes.tagLabel }}
+              control={
+                <TagModeSwitch
+                  checked={tagMode}
+                  onChange={filteringModeSwitched}
+                  name="tag-filtering-mode"
+                  size="small"
+                />
+              }
+              label={tagMode ? 'Intersection' : 'Union'}
+            />
+          </Tooltip>
+          </Grid>
+          <Grid>
+            <SearchField className={classes.search} id="search-tag-details" onChange={setSearchString} />
+          </Grid>
+        </Grid>
+    
+      ]}
+    >  
       <div ref={elementRef} className={classes.containerExpanded}>
         <div className={classes.container}>
           {/* tag name */}
