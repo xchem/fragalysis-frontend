@@ -20,9 +20,15 @@ import classNames from 'classnames';
 import SearchField from '../../../common/Components/SearchField';
 import { setPanelsExpanded } from '../../../../reducers/layout/actions';
 import { layoutItemNames } from '../../../../reducers/layout/constants';
-import { setTagFilteringMode } from '../../../../reducers/selection/actions';
 import { withStyles } from '@material-ui/core/styles';
 import { blue } from '@material-ui/core/colors';
+import {
+  setTagFilteringMode,
+  setDisplayAllMolecules,
+  setDisplayUntaggedMolecules
+} from '../../../../reducers/selection/actions';
+import { selectAllTags, clearAllTags } from '../redux/dispatchActions';
+import { Button } from '../../../common/Inputs/Button';
 
 export const heightOfBody = '172px';
 export const defaultHeaderPadding = 15;
@@ -32,10 +38,11 @@ const useStyles = makeStyles(theme => ({
     display: 'flex',
     flexDirection: 'column',
     overflow: 'auto',
-    height: '100%',
+    height: '90%',
     width: '100%',
     marginTop: -theme.spacing(),
-    justifyContent: 'space-between'
+    justifyContent: 'space-between',
+    paddingTop: '5px'
   },
   tagListWrapper: {
     overflowY: 'auto',
@@ -91,6 +98,43 @@ const useStyles = makeStyles(theme => ({
     alignItems: 'center',
     flexWrap: 'nowrap'
   },
+  contColButton: {
+    minWidth: 'fit-content',
+    paddingLeft: theme.spacing(1) / 2,
+    paddingRight: theme.spacing(1) / 2,
+    paddingBottom: 1,
+    paddingTop: 1,
+    fontWeight: 'bold',
+    fontSize: 9,
+    borderRadius: 0,
+    borderColor: theme.palette.primary.main,
+    backgroundColor: theme.palette.primary.light,
+    border: '1px solid',
+    '&:hover': {
+      backgroundColor: theme.palette.primary.light
+      // color: theme.palette.primary.contrastText
+    },
+    '&:disabled': {
+      borderRadius: 0,
+      borderColor: '#FFFFFF',
+    }
+  },
+  contColButtonSelected: {
+    minWidth: 'fit-content',
+    paddingLeft: theme.spacing(1) / 2,
+    paddingRight: theme.spacing(1) / 2,
+    paddingBottom: 1,
+    paddingTop: 1,
+    fontWeight: 'bold',
+    fontSize: 9,
+    borderRadius: 0,
+    backgroundColor: theme.palette.primary.main,
+    color: theme.palette.primary.contrastText,
+    '&:hover': {
+      backgroundColor: theme.palette.primary.main
+      // color: theme.palette.black
+    }
+  },
 }));
 
 /**
@@ -105,7 +149,11 @@ const TagDetails = memo(() => {
 
   const preTagList = useSelector(state => state.apiReducers.tagList);
   const tagMode = useSelector(state => state.selectionReducers.tagFilteringMode);
+  const displayAllMolecules = useSelector(state => state.selectionReducers.displayAllMolecules);
+  const displayUntaggedMolecules = useSelector(state => state.selectionReducers.displayUntaggedMolecules);
+
   const [tagList, setTagList] = useState([]);
+  const [selectAll, setSelectAll] = useState(true);
 
   const [searchString, setSearchString] = useState(null);
   const filteredTagList = useMemo(() => {
@@ -238,6 +286,28 @@ const TagDetails = memo(() => {
     track: {}
   })(Switch);
 
+  const handleAllMoleculesButton = () => {
+    dispatch(setDisplayUntaggedMolecules(false));
+    dispatch(setDisplayAllMolecules(!displayAllMolecules));
+  };
+
+  const handleShowUntaggedMoleculesButton = () => {
+    dispatch(setDisplayAllMolecules(false));
+    setSelectAll(true);
+    dispatch(clearAllTags());
+    dispatch(setDisplayUntaggedMolecules(!displayUntaggedMolecules));
+  };
+
+  const handleSelectionButton = () => {
+    dispatch(setDisplayUntaggedMolecules(false));
+    if (selectAll) {
+      dispatch(selectAllTags());
+    } else {
+      dispatch(clearAllTags());
+    }
+    setSelectAll(!selectAll);
+  };
+
   return (
     <Panel
       ref={ref}
@@ -249,8 +319,8 @@ const TagDetails = memo(() => {
         dispatch
       ])}
       headerActions={[
-      <Grid container item direction="row" className={classes.headerContainer}>
-        <Grid item>
+      <Grid xs={12} container className={classes.headerContainer}>
+        <Grid item xs={8}>
           <Tooltip
             title={
               tagMode
@@ -272,14 +342,59 @@ const TagDetails = memo(() => {
               label={tagMode ? 'Intersection' : 'Union'}
             />
           </Tooltip>
-          </Grid>
-          <Grid>
+        </Grid>
+         <Grid item xs={4}>
             <SearchField className={classes.search} id="search-tag-details" onChange={setSearchString} />
           </Grid>
+          <Grid item xs={4}>
+          </Grid>
         </Grid>
-    
+
       ]}
     >  
+    <div>
+      <Grid style={{paddingLeft: '70px'}} container item rowSpacing={1} spacing={2}>
+        <Grid item>
+           <Button
+              onClick={() => handleShowUntaggedMoleculesButton()}
+              disabled={false}
+              color="inherit"
+              variant="text"
+              size="small"
+              data-id="showUntaggedHitsButton"
+              className={displayUntaggedMolecules ? classes.contColButton : classes.contColButtonSelected}
+            >
+              Show untagged hits
+            </Button>
+          </Grid>
+          <Grid item>
+            <Button
+              onClick={() => handleAllMoleculesButton()}
+              disabled={false}
+              color="inherit"
+              variant="text"
+              size="small"
+              data-id="showAllHitsButton"
+              className={displayAllMolecules ? classes.contColButton : classes.contColButtonSelected}
+            >
+              Show all hits
+           </Button>
+         </Grid>
+         <Grid item>
+           <Button
+              onClick={() => handleSelectionButton()}
+              disabled={false}
+              color="inherit"
+              variant="text"
+              size="small"
+              data-id="tagSelectionButton"
+              className={selectAll ? classes.contColButton : classes.contColButtonSelected}
+            >
+               Select all tags
+            </Button>
+         </Grid>
+      </Grid>
+    </div>
       <div ref={elementRef} className={classes.containerExpanded}>
         <div className={classes.container}>
           {/* tag name */}
