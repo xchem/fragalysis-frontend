@@ -1,4 +1,4 @@
-import React, { useContext, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import {
   Box,
   ClickAwayListener,
@@ -21,9 +21,14 @@ import {
   setJobConfigurationDialogOpen,
   setJobLauncherDialogOpen,
   setJobLauncherData,
-  refreshJobsData
+  refreshJobsData,
+  setJobList
 } from '../../projects/redux/actions';
-import { getSnapshotAttributesByID, jobFileTransfer } from '../../projects/redux/dispatchActions';
+import {
+  getJobConfigurationsFromServer,
+  getSnapshotAttributesByID,
+  jobFileTransfer
+} from '../../projects/redux/dispatchActions';
 import { areArraysSame } from '../../../utils/array';
 import { setDisableRedirect, setDontShowShareSnapshot } from '../../snapshot/redux/actions';
 import { createNewSnapshot } from '../../snapshot/redux/dispatchActions';
@@ -204,6 +209,13 @@ const JobConfigurationDialog = ({ snapshots }) => {
   };
 
   const jobList = useSelector(state => state.projectReducers.jobList);
+
+  useEffect(() => {
+    if (!jobList || jobList.length === 0)
+      dispatch(getJobConfigurationsFromServer()).then(jobs => {
+        dispatch(setJobList(jobs));
+      });
+  }, [dispatch, jobList]);
 
   // if (currentProject && !currentProject.user_can_use_squonk) {
   //   setErrorMsg(
@@ -393,7 +405,7 @@ const JobConfigurationDialog = ({ snapshots }) => {
         // dispatch(setJobConfigurationDialogOpen(false));
 
         const getFilteredJob = job => {
-          return jobList.find(jobFiltered => job === jobFiltered.id);
+          return jobList && jobList.find(jobFiltered => job === jobFiltered.id);
         };
 
         const repsonse = await jobFileTransfer({
@@ -479,11 +491,12 @@ const JobConfigurationDialog = ({ snapshots }) => {
                     className={classes.width70}
                     disabled={false}
                   >
-                    {Object.values(jobList).map(item => (
-                      <MenuItem key={item.id} value={item.id}>
-                        {item.slug}
-                      </MenuItem>
-                    ))}
+                    {jobList &&
+                      Object.values(jobList).map(item => (
+                        <MenuItem key={item.id} value={item.id}>
+                          {item.slug}
+                        </MenuItem>
+                      ))}
                   </Field>
                   <ClickAwayListener onClickAway={handleTooltipClose}>
                     <Tooltip
@@ -504,7 +517,8 @@ const JobConfigurationDialog = ({ snapshots }) => {
                   </ClickAwayListener>
                   <Typography className={classes.typographyH}>Description</Typography>
                   <Typography align="justify" className={classes.marginTop5}>
-                    {jobList.filter(jobType => jobType['id'] === values.job).map(jobType => jobType['description'])}
+                    {jobList &&
+                      jobList.filter(jobType => jobType['id'] === values.job).map(jobType => jobType['description'])}
                   </Typography>
                 </div>
                 <div className={classes.sideBody}>

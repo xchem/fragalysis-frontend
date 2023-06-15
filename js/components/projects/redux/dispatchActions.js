@@ -29,14 +29,7 @@ import { setOpenDiscourseErrorModal } from '../../../reducers/api/actions';
 
 import moment from 'moment';
 import { resetNglTrackingState } from '../../../reducers/nglTracking/dispatchActions';
-// eslint-disable-next-line import/extensions
-import fragmentsteinSpec from '../../../../jobconfigs/fragmenstein-combine.json';
-// eslint-disable-next-line import/extensions
-import fragmentsteinMultiSpec from '../../../../jobconfigs/fragmenstein-combine-multi-scoring.json';
-// eslint-disable-next-line import/extensions
-import fragmentsteinStringSpec from '../../../../jobconfigs/fragmenstein-place-string.json';
-// eslint-disable-next-line import/extensions
-import fragmentsteinOverrides from '../../../../jobconfigs/fragalysis-job-spec-1.2.json';
+import _ from 'lodash';
 
 export const assignSnapshotToProject = ({ projectID, snapshotID, ...rest }) => (dispatch, getState) => {
   dispatch(resetCurrentSnapshot());
@@ -493,35 +486,70 @@ export const jobRequest = data => {
   });
 };
 
-export const getJobConfigurations = () => (dispatch, getState) => {
-  const jobs = [
-    {
-      id: fragmentsteinSpec.id,
-      name: fragmentsteinSpec.collection,
-      description: fragmentsteinSpec.description,
-      slug: fragmentsteinSpec.job,
-      spec: fragmentsteinSpec,
-      overrides: fragmentsteinOverrides,
-      overrideIndex: 0
-    },
-    {
-      id: fragmentsteinMultiSpec.id,
-      name: fragmentsteinMultiSpec.collection,
-      description: fragmentsteinMultiSpec.description,
-      slug: fragmentsteinMultiSpec.job,
-      spec: fragmentsteinMultiSpec,
-      overrides: fragmentsteinOverrides,
-      overrideIndex: 1
-    },
-    {
-      id: fragmentsteinStringSpec.id,
-      name: fragmentsteinStringSpec.collection,
-      description: fragmentsteinStringSpec.description,
-      slug: fragmentsteinStringSpec.job,
-      spec: fragmentsteinStringSpec,
-      overrides: fragmentsteinOverrides,
-      overrideIndex: 2
+export const getJobConfigurationsFromServer = () => async (dispatch, getState) => {
+  const result = [];
+
+  const overrides = await getJobOverrides();
+  if (!overrides) {
+    return result;
+  }
+
+  const availableJobs = overrides['fragalysis-jobs'].map((job, index) => {
+    return { job_collection: job.job_collection, job_name: job.job_name, job_version: job.job_version, index: index };
+  });
+  if (!availableJobs) {
+    return result;
+  }
+
+  for (let i = 0; i < availableJobs.length; i++) {
+    const job = availableJobs[i];
+    let jobConfig = await getJobConfigFromServer(job.job_collection, job.job_name, job.job_version);
+    jobConfig = preprocessJobConfig(jobConfig);
+    // console.log(JSON.stringify(filteredJobConfig));
+    const jobOject = {
+      id: jobConfig.id,
+      name: jobConfig.collection,
+      description: jobConfig.description,
+      slug: jobConfig.job,
+      spec: jobConfig,
+      overrides: overrides,
+      overrideIndex: job.index
+    };
+    result.push(jobOject);
+  }
+
+  return result;
+};
+
+const preprocessJobConfig = jobConfig => {
+  const result = { ...jobConfig };
+  removePropDeep(result, 'pattern');
+  return result;
+};
+
+const removePropDeep = (obj, propName) => {
+  const keys = Object.keys(obj);
+  for (let i = 0; i < keys.length; i++) {
+    const key = keys[i];
+    if (key === propName) {
+      delete obj[key];
+    } else if (_.isPlainObject(obj[key])) {
+      removePropDeep(obj[key], propName);
     }
-  ];
-  dispatch(setJobList(jobs));
+  }
+};
+
+const getJobConfigFromServer = async (job_collection, job_name, job_version) => {
+  const resultCall = await api({
+    url: `${base_url}/api/job_config/?job_name=${job_name.trim()}&job_version=${job_version.trim()}&job_collection=${job_collection.trim()}`
+  });
+
+  return resultCall.data;
+};
+
+const getJobOverrides = async () => {
+  const resultCall = await api({
+    url: `${base_url}/api/job_override/`
+  });
+  return resultCall.data.results[0].override;
 };
