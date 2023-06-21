@@ -42,7 +42,8 @@ export const INITIAL_STATE = {
   jobLauncherDialogOpen: false,
   jobLauncherData: null,
   jobLauncherSquonkUrl: null,
-  refreshJobsData: new Date().getTime()
+  refreshJobsData: new Date().getTime(),
+  projectListFilterDialog: false
 };
 
 export const projectReducers = (state = INITIAL_STATE, action = {}) => {
@@ -150,7 +151,10 @@ export const projectReducers = (state = INITIAL_STATE, action = {}) => {
     case constants.REFRESH_JOBS_DATA:
       return { ...state, refreshJobsData: new Date().getTime() };
 
-    default:
+    case constants.SET_SORT_DIALOG_OPEN:
+      return Object.assign({}, state, { projectListFilterDialog: action.payload });
+
+      default:
       return state;
   }
 };

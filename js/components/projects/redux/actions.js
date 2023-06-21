@@ -1,13 +1,20 @@
 import { constants } from './constants';
 
+export const setSortDialogOpen = isOpen => ({
+  type: constants.SET_SORT_DIALOG_OPEN,
+  payload: isOpen
+});
+
 export const setCurrentProject = ({ projectID, authorID, title, description, targetID, tags, type }) => ({
   type: constants.SET_CURRENT_PROJECT,
   payload: { projectID, authorID, title, description, targetID, tags, type }
 });
+
 export const setCurrentProjectProperty = (key, value) => ({
   type: constants.SET_CURRENT_PROJECT_PROPERTY,
   payload: { key, value }
 });
+
 export const resetProjectState = () => ({
   type: constants.RESET_CURRENT_PROJECT_STATE
 });
