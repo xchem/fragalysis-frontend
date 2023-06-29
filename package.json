@@ -63,6 +63,7 @@
     "react": "^16.11.0",
     "react-canvas-draw": "^1.1.0",
     "react-color": "^2.19.3",
+    "react-datepicker": "^4.14.1",
     "react-dnd": "^14.0.4",
     "react-dnd-html5-backend": "^14.0.2",
     "react-dom": "^16.12.0",

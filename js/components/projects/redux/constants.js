@@ -13,6 +13,7 @@ export const constants = {
 
   RESET_PROJECTS_REDUCER: prefix + 'RESET_PROJECTS_REDUCER',
   SET_LIST_OF_PROJECTS: prefix + 'SET_LIST_OF_PROJECTS',
+  SET_LIST_OF_FILTERED_PROJECTS: prefix + 'SET_LIST_OF_FILTERED_PROJECTS',
   SET_IS_LOADING_LIST_OF_PROJECTS: prefix + 'SET_IS_LOADING_LIST_OF_PROJECTS',
   SET_IS_LOADING_TREE: prefix + 'SET_IS_LOADING_TREE',
   SET_CURRENT_SNAPSHOT_TREE: prefix + 'SET_CURRENT_SNAPSHOT_TREE',
@@ -101,15 +102,16 @@ export const MOL_ATTR = {
     color: '#86844a',
     filter: true,
     dateFilter: false
-  },
-  tags: {
+  }
+  /*tags: {
     key: 'tags',
     name: 'Tags',
     isFloat: false,
     color: '#42d4f4',
     filter: true,
-    dateFilter: false
-  }
+    dateFilter: false,
+    value: ''
+  }*/
 };
 
 export const MOL_ATTRIBUTES = Object.values(MOL_ATTR);

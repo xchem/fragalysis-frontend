@@ -57,6 +57,11 @@ export const setListOfProjects = projects => ({
   payload: projects
 });
 
+export const setListOfFilteredProjects = projects => ({
+  type: constants.SET_LIST_OF_FILTERED_PROJECTS,
+  payload: projects
+});
+
 export const setIsLoadingListOfProjects = isLoading => ({
   type: constants.SET_IS_LOADING_LIST_OF_PROJECTS,
   payload: isLoading

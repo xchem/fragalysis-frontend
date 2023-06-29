@@ -88,6 +88,9 @@ export const projectReducers = (state = INITIAL_STATE, action = {}) => {
     case constants.SET_LIST_OF_PROJECTS:
       return Object.assign({}, state, { listOfProjects: action.payload });
 
+    case constants.SET_LIST_OF_FILTERED_PROJECTS:
+      return Object.assign({}, state, { listOfFilteredProjects: action.payload });
+
     case constants.SET_IS_LOADING_LIST_OF_PROJECTS:
       return Object.assign({}, state, { isLoadingListOfProjects: action.payload });
 
