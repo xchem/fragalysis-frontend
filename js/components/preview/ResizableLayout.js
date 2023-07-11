@@ -176,7 +176,7 @@ export const ResizableLayout = ({ gridRef, hideProjects, showHistory, onShowHist
       <div
         className={classes.nglColumn}
         style={{
-          width: `calc(1000% - ${lhsWidth}px - ${rhsWidth}px - ${sidesOpen.LHS * resizerSize}px - ${sidesOpen.RHS *
+          width: `calc(100% - ${lhsWidth}px - ${rhsWidth}px - ${sidesOpen.LHS * resizerSize}px - ${sidesOpen.RHS *
             resizerSize}px)`
         }}
       >
