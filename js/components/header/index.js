@@ -60,11 +60,11 @@ import { lockLayout, resetCurrentLayout } from '../../reducers/layout/actions';
 import { ChangeLayoutButton } from './changeLayoutButton';
 import { setIsActionsRestoring, setProjectActionListLoaded } from '../../reducers/tracking/actions';
 import { layouts } from '../../reducers/layout/layouts';
-import { setDialogCurrentStep, setOpenSnapshotSavingDialog } from '../snapshot/redux/actions';
+import { setOpenSnapshotSavingDialog } from '../snapshot/redux/actions';
 import { activateSnapshotDialog } from '../snapshot/redux/dispatchActions';
-import { setCurrentProject, setForceCreateProject, setProjectModalOpen } from '../projects/redux/actions';
+import { setAddButton, setProjectModalIsLoading } from '../projects/redux/actions';
 import { getVersions } from '../../utils/version';
-import { ProjectModal } from '../../components/projects/projectModal';
+import { AddProjectDetail } from '../projects/addProjectDetail';
 
 const useStyles = makeStyles(theme => ({
   padding: {
@@ -131,6 +131,8 @@ export default memo(
     const targetName = useSelector(state => state.apiReducers.target_on_name);
 
     const openNewProjectModal = useSelector(state => state.projectReducers.isProjectModalOpen);
+    const isProjectModalLoading = useSelector(state => state.projectReducers.isProjectModalLoading);
+    
     const openSaveSnapshotModal = useSelector(state => state.snapshotReducers.openSavingDialog);
 
     const openDiscourseError = useSelector(state => state.apiReducers.open_discourse_error_modal);
@@ -182,6 +184,7 @@ export default memo(
     let authListItem;
 
     let username = null;
+    let userId = null;
 
     if (DJANGO_CONTEXT['username'] === 'NOT_LOGGED_IN') {
       authListItem = (
@@ -213,6 +216,7 @@ export default memo(
       );
 
       username = DJANGO_CONTEXT['username'];
+      userId = DJANGO_CONTEXT['pk'];
     }
 
     const prodSite = (
@@ -279,8 +283,10 @@ export default memo(
                 </Button>
                 {username !== null ? targetName !== undefined ?
                 <>
+                 {
+                 currentProject.authorID === null || currentProject.projectID === null || currentProject.authorID ===  userId ?
                 <Button
-                 onClick={() => {openNewProjectModal === false ? dispatch(setProjectModalOpen(true)) : dispatch(setProjectModalOpen(false)),
+                 onClick={() => {isProjectModalLoading === false ? (dispatch(setProjectModalIsLoading(true)), dispatch(setAddButton(false))) : dispatch(setProjectModalIsLoading(false)),
                   openSaveSnapshotModal === true ? dispatch(setOpenSnapshotSavingDialog(false)) : ''}} 
                  key="newProject"
                  color="primary"
@@ -288,6 +294,16 @@ export default memo(
                 >
                    New project
                 </Button> 
+                :
+                <Button
+                 onClick={() => {openNewProjectModal === false ? (dispatch(setProjectModalIsLoading(true)), dispatch(setAddButton(false))) : dispatch(setProjectModalIsLoading(false)),
+                  openSaveSnapshotModal === true ? dispatch(setOpenSnapshotSavingDialog(false)) : ''}} 
+                 key="newProject"
+                 color="primary"
+                 startIcon={<CreateNewFolder />}
+                >
+                   New project from snapshot
+                </Button>  }
                 {currentProject.projectID !== null ?
                 <Button
                    key="saveSnapshot"
@@ -295,7 +311,7 @@ export default memo(
                    onClick={() => {dispatch(activateSnapshotDialog(DJANGO_CONTEXT['pk']),
                    openSaveSnapshotModal === false ? dispatch(setOpenSnapshotSavingDialog(true)) : dispatch(setOpenSnapshotSavingDialog(false)),
                    openSaveSnapshotModal === true ? dispatch(setOpenSnapshotSavingDialog(false)) : '',
-                   openNewProjectModal === true ? dispatch(setProjectModalOpen(false)) : '')}}
+                   isProjectModalLoading === true ? dispatch(setProjectModalIsLoading(false)) : ''), dispatch(setAddButton(false))}}
                    startIcon={<Save />}
                 >
                   Save
@@ -303,7 +319,7 @@ export default memo(
                 </>
                 : '' : '' }
                 {headerButtons && headerButtons.map(item => item)} 
-                <ProjectModal />
+                <AddProjectDetail />
              </ButtonGroup>
             </Grid>
             <Grid item>

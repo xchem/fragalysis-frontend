@@ -3,14 +3,14 @@ import PropTypes from 'prop-types';
 import { Popper, Tooltip, IconButton } from '@material-ui/core';
 import { Close, Delete } from '@material-ui/icons';
 import Grid from '@material-ui/core/Grid';
-import MoleculeListSortFilterItem from './projectListSortFilterItem';
+import ProjectListSortFilterItem from './projectListSortFilterItem';
 import WarningIcon from '@material-ui/icons/Warning';
 import { makeStyles } from '@material-ui/styles';
 import { useDispatch, useSelector } from 'react-redux';
 import { MOL_ATTRIBUTES } from './redux/constants';
 import { setFilter } from '../../reducers/selection/actions';
 import { Panel } from '../common/Surfaces/Panel';
-import { setSortDialogOpen, setListOfFilteredProjects } from './redux/actions';
+import { setSortDialogOpen, setListOfFilteredProjects, setListOfProjects, setDefaultFilter } from './redux/actions';
 import { debounce } from 'lodash';
 
 const useStyles = makeStyles(theme => ({
@@ -44,14 +44,14 @@ const useStyles = makeStyles(theme => ({
   },
   paper: {
     width: 490,
-    overflow: 'none'
+    overflow: 'none',
   }
 }));
 
 const widthPrio = 50;
 const widthOrder = 60;
-const widthProperty = 212;
-const filterData = 100
+const widthProperty = 170;
+const filterData = 160
 
 
 export const getAttrDefinition = attr => {
@@ -65,7 +65,6 @@ export const ProjectListSortFilterDialog = memo(
     open,
     parentID = 'default',
     placement = 'right-start',
-    joinedMoleculeLists
   }) => {
     let classes = useStyles();
     const dispatch = useDispatch();
@@ -79,27 +78,20 @@ export const ProjectListSortFilterDialog = memo(
 
       for (let attr of MOL_ATTRIBUTES) {
         const lowAttr = attr.key.toLowerCase();
-        let minValue = -999999;
-        let maxValue = -999999;
-
-        joinedMoleculeLists.forEach(molecule => {
-          const attrValue = molecule[lowAttr];
-          if (attrValue > maxValue) maxValue = attrValue;
-          if (minValue === -999999) minValue = maxValue;
-          if (attrValue < minValue) minValue = attrValue;
-        });
 
         initObject.filter[attr.key] = {
           priority: 0,
           order: 1,
-          minValue: minValue,
-          maxValue: maxValue,
           isFloat: attr.isFloat,
-          value: ''
         };
       }
       return initObject;
-    }, [joinedMoleculeLists]);
+    });
+
+    useEffect(() => {
+      const init = initialize();
+      setInitState(init);
+    }, [])
 
     const [initState, setInitState] = useState(initialize());
     const defaultListOfProjects = useSelector(state => state.projectReducers.listOfProjects);
@@ -119,8 +111,18 @@ export const ProjectListSortFilterDialog = memo(
       [dispatch]
     );
 
+    
+    const handleItemChange = key => setting => {
+      console.log(`handleItemChange attr: ${key} values: ${JSON.stringify(setting)}`);
+      let newFilter = Object.assign({}, filter);
+      newFilter.filter[key] = setting;
+      newFilter.active = true;
+      dispatch(setFilter(newFilter));
+      handleFilterChange(newFilter);
+    };
+
     const handlePrioChange = key => inc => () => {
-      const maxPrio = MOL_ATTRIBUTES.length - 1;
+      const maxPrio = 5;
       const minPrio = 0;
       let priorityOrder = filter.priorityOrder;
       const index = filter.priorityOrder.indexOf(key);
@@ -135,12 +137,14 @@ export const ProjectListSortFilterDialog = memo(
       }
     };
 
-    const handleClear = debounce(() => {
+    const handleClearFilter = debounce(() => {
+      dispatch(setDefaultFilter(true));
       dispatch(setSortDialogOpen(false));
-      dispatch(setListOfFilteredProjects(defaultListOfProjects))
+      dispatch(setListOfFilteredProjects(defaultListOfProjects));
+      dispatch(setListOfProjects(defaultListOfProjects));
       dispatch(setSortDialogOpen(true));
     });
-
+    dispatch(setFilter(filter));
     // Check for multiple attributes with same sorting priority
     let prioWarning = false;
     let prioWarningTest = {};
@@ -164,7 +168,7 @@ export const ProjectListSortFilterDialog = memo(
           className={classes.paper}
           headerActions={[
             <Tooltip title="Clear filter">
-              <IconButton onClick={handleClear} color="inherit" className={classes.headerButton}>
+              <IconButton onClick={handleClearFilter} color="inherit" className={classes.headerButton}>
                 <Delete />
               </IconButton>
             </Tooltip>,
@@ -209,17 +213,14 @@ export const ProjectListSortFilterDialog = memo(
             {filter.priorityOrder.map(attr => {
               let attrDef = getAttrDefinition(attr);
               return (
-                <MoleculeListSortFilterItem
+                <ProjectListSortFilterItem
                   key={attr}
                   property={attrDef.name}
                   order={filter.filter[attr].order}
-                  minValue={filter.filter[attr].minValue}
-                  maxValue={filter.filter[attr].maxValue}
-                  min={initState.filter[attr].minValue}
-                  max={initState.filter[attr].maxValue}
                   isFloat={initState.filter[attr].isFloat}
                   color={attrDef.color}
                   onChangePrio={handlePrioChange(attr)}
+                  onChange={handleItemChange(attr)}
                   filter={attrDef.filter}
                   dateFilter={attrDef.dateFilter}
                 />

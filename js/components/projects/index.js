@@ -30,7 +30,7 @@ import {
 import { Link } from 'react-router-dom';
 import { URLS } from '../routes/constants';
 import moment from 'moment';
-import { setProjectModalOpen } from './redux/actions';
+import { setProjectModalOpen, setAddButton } from './redux/actions';
 import { useDispatch, useSelector } from 'react-redux';
 import { ProjectModal } from './projectModal';
 import { loadListOfAllProjects, removeProject } from './redux/dispatchActions';
@@ -52,10 +52,9 @@ import {
   compareCreatedAtDateAsc,
   compareCreatedAtDateDesc
 } from './sortProjects/sortProjects';
-import { DEFAULT_FILTER } from '../../reducers/selection/constants';
-import { setSortDialogOpen } from './redux/actions';
+import { setSortDialogOpen, setDefaultFilter } from './redux/actions';
 import { ProjectListSortFilterDialog } from './projectListSortFilterDialog';
-import { selectJoinedMoleculeList, selectAllMoleculeList } from '../preview/molecule/redux/selectors';
+import { setFilter } from '../../reducers/selection/actions';
 
 const useStyles = makeStyles(theme => ({
   table: {
@@ -84,21 +83,13 @@ const useStyles = makeStyles(theme => ({
 
 export const Projects = memo(({}) => {
   const classes = useStyles();
+  const dispatch = useDispatch();
   const [page, setPage] = React.useState(0);
   const isLoadingListOfProjects = useSelector(state => state.projectReducers.isLoadingListOfProjects);
-  const dispatch = useDispatch();
 
   const [sortSwitch, setSortSwitch] = useState(0);
-  const [listOfProjects, setListOfProjects] = useState([]); // used for sort project list
   const [sortDialogAnchorEl, setSortDialogAnchorEl] = useState(null);
   const sortDialogOpen = useSelector(state => state.projectReducers.projectListFilterDialog);
-
-  const filter = useSelector(state => state.selectionReducers.filter);
-  const [predefinedFilter, setPredefinedFilter] = useState(filter !== undefined ? filter.predefined : DEFAULT_FILTER);
-
-  const [searchString, setSearchString] = useState(null);
-  const getJoinedMoleculeList = useSelector(state => selectJoinedMoleculeList(state));
-  const allMoleculesList = useSelector(state => selectAllMoleculeList(state));
 
   // checkbox for search
   const [checkedName, setCheckedName] = React.useState(true);
@@ -119,28 +110,52 @@ export const Projects = memo(({}) => {
   let searchedByTargetAccessString = [];
   let searchedByAuthority = [];
 
+  let priorityOrder = [];
   let tags = [];
+  let searchString = '';
 
-  const filteredListOfProjects = useSelector(state => state.projectReducers.listOfFilteredProjects);
-  const defaultListOfProjects = useSelector(state => state.projectReducers.listOfProjects);
+  let filteredListOfProjects = useSelector(state => state.projectReducers.listOfFilteredProjects);
+  const listOfAllProjectsDefault= useSelector(state => state.projectReducers.listOfProjects);
 
-  let joinedMoleculeLists = useMemo(() => {
-    if (searchString) {
-      return allMoleculesList.filter(molecule =>
-        molecule.protein_code.toLowerCase().includes(searchString.toLowerCase())
-      );
-    } else {
-      return getJoinedMoleculeList;
-    }
-  }, [getJoinedMoleculeList, allMoleculesList, searchString]);
+  const filterClean = useSelector(state => state.projectReducers.filterClean);
+  const filter = useSelector(state => state.selectionReducers.filter);
 
-  const joinedMoleculeListsCopy = useMemo(() => [...joinedMoleculeLists], [joinedMoleculeLists]);
+
+  const listOfAllProjects = [...listOfAllProjectsDefault].sort(compareCreatedAtDateDesc);
 
   useEffect(() => {
     dispatch(loadListOfAllProjects()).catch(error => {
       throw new Error(error);
-    });
-  }, [dispatch]);
+     });
+     }, [dispatch]);
+
+  useEffect(() => {
+    sortProjects();
+  }, [filter]);
+
+  useEffect(() => {
+    // remove filter data
+    if (filterClean === true) {
+      dispatch(setListOfFilteredProjects(listOfAllProjects));
+      dispatch(setDefaultFilter(false));
+      searchedByName = [];
+      searchedByTarget = [];
+      searchedByDescription = [];
+      searchedByTargetAccessString = [];
+      searchedByAuthority = [];
+      priorityOrder = [];
+      const newFilter = {...filter};
+      newFilter.priorityOrder =  ['createdAt', 'name', 'target', 'targetAccessString', 'description', 'authority'];
+      newFilter.filter.authority.order = 1;
+      newFilter.filter.description.order = 1;
+      newFilter.filter.name.order = 1;
+      newFilter.filter.target.order = 1;
+      newFilter.filter.createdAt.order = 1;
+      newFilter.filter.targetAccessString.order = 1;
+      dispatch(setFilter(newFilter));
+      searchString = '';
+    };
+  }, [filterClean]);
 
   const handleChangePage = (event, newPage) => {
     setPage(newPage);
@@ -161,142 +176,430 @@ export const Projects = memo(({}) => {
   const offsetAuthority = 60;
   const offsetCreatedAt = 70;
 
-  const handleHeaderSort = useCallback(
-    type => {
+  const sortProjects = () => {
+      if (filter !== undefined) {
+        priorityOrder = filter.priorityOrder;
+        if ( filteredListOfProjects === undefined) {
+        switch (priorityOrder[0]) {
+          case 'name':
+            if ( filter.filter.name.order === -1) {
+              dispatch(setListOfFilteredProjects([...listOfAllProjects].sort(compareNameDesc)));
+            }
+            else{
+              dispatch(setListOfFilteredProjects([...listOfAllProjects].sort(compareNameAsc)));
+            }
+            break;
+          case 'target':
+            if ( filter.filter.target.order === -1) {
+              dispatch(setListOfFilteredProjects([...listOfAllProjects].sort(compareTargetDesc)));
+            }
+            else {
+              dispatch(setListOfFilteredProjects([...listOfAllProjects].sort(compareTargetAsc)));
+            }
+            break;
+          case 'description':
+            if ( filter.filter.description.order === -1) {
+              dispatch(setListOfFilteredProjects([...listOfAllProjects].sort(compareDescriptionDesc)));
+            }
+            else {
+              dispatch(setListOfFilteredProjects([...listOfAllProjects].sort(compareDescriptionAsc)));
+            }
+            break;
+          case 'targetAccessString':
+            if ( filter.filter.targetAccessString.order === -1) {
+              dispatch(setListOfFilteredProjects([...listOfAllProjects].sort(compareTargetAccessStringDesc)));
+            }
+            else {
+              dispatch(setListOfFilteredProjects([...listOfAllProjects].sort(compareTargetAccessStringAsc)));
+            }
+            break;
+          case 'authority':
+            if ( filter.filter.targetAccessString.order === -1) {
+              dispatch(setListOfFilteredProjects([...listOfAllProjects].sort(compareAuthorityDesc)));
+            }
+            else {
+              dispatch(setListOfFilteredProjects([...listOfAllProjects].sort(compareAuthorityAsc)));
+            }
+            break;
+          case 'createdAt':
+            if ( filter.filter.targetAccessString.order === -1) {
+              dispatch(setListOfFilteredProjects([...listOfAllProjects].sort(compareCreatedAtDateDesc)));
+            }
+            else {
+              dispatch(setListOfFilteredProjects([...listOfAllProjects].sort(compareCreatedAtDateAsc)));
+            }
+            break;
+        }
+      }
+      else {
+        switch (priorityOrder[0]) {
+          case 'name':
+            if ( filter.filter.name.order === -1) {
+              for( let a = 1; a<filteredListOfProjects.length; a++) {
+                dispatch(setListOfFilteredProjects([...filteredListOfProjects].sort(compareNameDesc)));
+                  if (filteredListOfProjects[a-1].title === filteredListOfProjects[a].title) {
+                      if(priorityOrder[1] === 'createdAt') {
+                      dispatch(setListOfFilteredProjects([...filteredListOfProjects].sort(compareCreatedAtDateDesc)));
+                      }
+                  }
+              }
+              dispatch(setListOfFilteredProjects([...filteredListOfProjects].sort(compareNameDesc)));
+            }
+            else{
+              dispatch(setListOfFilteredProjects([...filteredListOfProjects].sort(compareNameAsc)));
+            }
+            break;
+          case 'target':
+            if ( filter.filter.target.order === -1) {
+              dispatch(setListOfFilteredProjects([...filteredListOfProjects].sort(compareTargetDesc)));
+            }
+            else {
+              dispatch(setListOfFilteredProjects([...filteredListOfProjects].sort(compareTargetAsc)));
+            }
+            break;
+          case 'description':
+            if ( filter.filter.description.order === -1) {
+              dispatch(setListOfFilteredProjects([...filteredListOfProjects].sort(compareDescriptionDesc)));
+            }
+            else {
+              dispatch(setListOfFilteredProjects([...filteredListOfProjects].sort(compareDescriptionAsc)));
+            }
+            break;
+          case 'targetAccessString':
+            if ( filter.filter.targetAccessString.order === -1) {
+              dispatch(setListOfFilteredProjects([...filteredListOfProjects].sort(compareTargetAccessStringDesc)));
+            }
+            else {
+              dispatch(setListOfFilteredProjects([...filteredListOfProjects].sort(compareTargetAccessStringAsc)));
+            }
+            break;
+          case 'authority':
+            if ( filter.filter.authority.order === -1) {
+              dispatch(setListOfFilteredProjects([...filteredListOfProjects].sort(compareAuthorityDesc)));
+            }
+            else {
+              dispatch(setListOfFilteredProjects([...filteredListOfProjects].sort(compareAuthorityAsc)));
+            }
+            break;
+          case 'createdAt':
+            if ( filter.filter.createdAt.order === -1) {
+              dispatch(setListOfFilteredProjects([...filteredListOfProjects].sort(compareCreatedAtDateDesc)));
+            }
+            else {
+              dispatch(setListOfFilteredProjects([...filteredListOfProjects].sort(compareCreatedAtDateAsc)));
+            }
+            break;
+        }
+      }
+    }
+  }
+
+
+  const handleHeaderSort = (type) => {
+      if ( filteredListOfProjects === undefined) {
       switch (type) {
         case 'name':
           if (sortSwitch === offsetName + 1) {
-            // change direction
-            setListOfProjects([...defaultListOfProjects].sort(compareNameAsc));
+            dispatch(setListOfFilteredProjects([...listOfAllProjects].sort(compareNameAsc)));
             setSortSwitch(sortSwitch + 1);
           } else if (sortSwitch === offsetName + 2) {
-            // reset sort
-            setListOfProjects([...defaultListOfProjects].sort(compareNameAsc));
+            dispatch(setListOfFilteredProjects([...listOfAllProjects].sort(compareNameAsc)));
             setSortSwitch(0);
           } else {
-            // start sorting
-            setListOfProjects([...defaultListOfProjects].sort(compareNameDesc));
+            dispatch(setListOfFilteredProjects([...listOfAllProjects].sort(compareNameDesc)));
             setSortSwitch(offsetName + 1);
           }
           break;
         case 'target':
           if (sortSwitch === offsetTarget + 1) {
-            // change direction
-            setListOfProjects([...defaultListOfProjects].sort(compareTargetAsc));
+            dispatch(setListOfFilteredProjects([...listOfAllProjects].sort(compareTargetAsc)));
             setSortSwitch(sortSwitch + 1);
           } else if (sortSwitch === offsetTarget + 2) {
-            // reset sort
-            setListOfProjects([...defaultListOfProjects].sort(compareTargetAsc));
+            dispatch(setListOfFilteredProjects([...listOfAllProjects].sort(compareTargetAsc)));
             setSortSwitch(0);
           } else {
-            // start sorting
-            setListOfProjects([...defaultListOfProjects].sort(compareTargetDesc));
+            dispatch(setListOfFilteredProjects([...listOfAllProjects].sort(compareTargetDesc)));
             setSortSwitch(offsetTarget + 1);
           }
           break;
         case 'description':
           if (sortSwitch === offsetDescription + 1) {
-            // change direction
-            setListOfProjects([...defaultListOfProjects].sort(compareDescriptionAsc));
+            dispatch(setListOfFilteredProjects([...listOfAllProjects].sort(compareDescriptionAsc)));
             setSortSwitch(sortSwitch + 1);
           } else if (sortSwitch === offsetDescription + 2) {
-            // reset sort
-            setListOfProjects([...defaultListOfProjects].sort(compareDescriptionAsc));
+            dispatch(setListOfFilteredProjects([...listOfAllProjects].sort(compareDescriptionAsc)));
             setSortSwitch(0);
           } else {
-            // start sorting
-            setListOfProjects([...defaultListOfProjects].sort(compareDescriptionDesc));
+            dispatch(setListOfFilteredProjects([...listOfAllProjects].sort(compareDescriptionDesc)));
             setSortSwitch(offsetDescription + 1);
           }
           break;
         case 'targetAccessString':
           if (sortSwitch === offsetTargetAccessString + 1) {
-            // change direction
-            setListOfProjects([...defaultListOfProjects].sort(compareTargetAccessStringAsc));
+            dispatch(setListOfFilteredProjects([...listOfAllProjects].sort(compareTargetAccessStringAsc)));
             setSortSwitch(sortSwitch + 1);
           } else if (sortSwitch === offsetTargetAccessString + 2) {
-            // reset sort
-            setListOfProjects([...defaultListOfProjects].sort(compareTargetAccessStringAsc));
+            dispatch(setListOfFilteredProjects([...listOfAllProjects].sort(compareTargetAccessStringAsc)));
             setSortSwitch(0);
           } else {
-            // start sorting
-            setListOfProjects([...defaultListOfProjects].sort(compareTargetAccessStringDesc));
+            dispatch(setListOfFilteredProjects([...listOfAllProjects].sort(compareTargetAccessStringDesc)));
             setSortSwitch(offsetTargetAccessString + 1);
           }
           break;
         case 'authority':
           if (sortSwitch === offsetAuthority + 1) {
-            // change direction
-            setListOfProjects([...defaultListOfProjects].sort(compareAuthorityAsc));
+            dispatch(setListOfFilteredProjects([...listOfAllProjects].sort(compareAuthorityAsc)));
             setSortSwitch(sortSwitch + 1);
           } else if (sortSwitch === offsetAuthority + 2) {
-            // reset sort
-            setListOfProjects([...defaultListOfProjects].sort(compareAuthorityAsc));
+            dispatch(setListOfFilteredProjects([...listOfAllProjects].sort(compareAuthorityAsc)));
             setSortSwitch(0);
           } else {
-            // start sorting
-            setListOfProjects([...defaultListOfProjects].sort(compareAuthorityDesc));
+            dispatch(setListOfFilteredProjects([...listOfAllProjects].sort(compareAuthorityDesc)));
             setSortSwitch(offsetAuthority + 1);
           }
           break;
         case 'createdAt':
           if (sortSwitch === offsetCreatedAt + 1) {
-            // change direction
-            setListOfProjects([...defaultListOfProjects].sort(compareCreatedAtDateAsc));
+             dispatch(setListOfFilteredProjects([...listOfAllProjects].sort(compareCreatedAtDateAsc)));
             setSortSwitch(sortSwitch + 1);
           } else if (sortSwitch === offsetCreatedAt + 2) {
-            // reset sort
-            setListOfProjects([...defaultListOfProjects].sort(compareCreatedAtDateAsc));
+            dispatch(setListOfFilteredProjects([...listOfAllProjects].sort(compareCreatedAtDateAsc)));
             setSortSwitch(0);
           } else {
-            // start sorting
-            setListOfProjects([...defaultListOfProjects].sort(compareCreatedAtDateDesc));
+            dispatch(setListOfFilteredProjects([...listOfAllProjects].sort(compareCreatedAtDateDesc)));
             setSortSwitch(offsetCreatedAt + 1);
           }
           break;
         default:
+          dispatch(setListOfFilteredProjects([...listOfAllProjects].sort(compareCreatedAtDateDesc)));
           break;
       }
-    },
-    [sortSwitch, defaultListOfProjects, listOfProjects]
-  );
+    }
+    else {
+      filteredListOfProjects = [...filteredListOfProjects].sort(compareCreatedAtDateDesc);
+      switch (type) {
+        case 'name':
+          if (filter !== undefined) {
+            const newFilter = {...filter}; 
+            newFilter.priorityOrder =  ['name', 'createdAt', 'target', 'targetAccessString', 'description', 'authority']
+            dispatch(setFilter(newFilter));
+          }
+          if (sortSwitch === offsetName + 1) {
+            if (filter !== undefined) {  // change radio button in project list filter
+              const newFilter = {...filter}; 
+              newFilter.filter.name.order = -1;
+              dispatch(setFilter(newFilter));
+            }
+            dispatch(setListOfFilteredProjects([...filteredListOfProjects].sort(compareNameAsc)));
+            setSortSwitch(sortSwitch + 1);
+          } else if (sortSwitch === offsetName + 2) {
+            if (filter !== undefined) { // change radio button in project list filter
+              const newFilter = {...filter};
+              newFilter.filter.name.order = 1; 
+              dispatch(setFilter(newFilter)); 
+            }
+            dispatch(setListOfFilteredProjects([...filteredListOfProjects].sort(compareNameAsc)));
+            setSortSwitch(0);
+          } else {
+            dispatch(setListOfFilteredProjects([...filteredListOfProjects].sort(compareNameDesc)));
+            setSortSwitch(offsetName + 1);
+          }
+          break;
+        case 'target':
+          if (filter !== undefined) {
+            const newFilter = {...filter};
+            newFilter.priorityOrder =  ['target', 'createdAt', 'name', 'targetAccessString', 'description', 'authority']
+            dispatch(setFilter(newFilter));
+          }
+          if (sortSwitch === offsetTarget + 1) {
+            if (filter !== undefined) {
+              const newFilter = {...filter}; 
+              newFilter.filter.target.order = -1;
+              dispatch(setFilter(newFilter));
+            }
+            
+            for(let a= 1 ; a<filteredListOfProjects.length;a++) {
+              if (filteredListOfProjects[a-1].target.title === filteredListOfProjects[a].target.title ) {
+                //dva riadky maju rovnaký target
+               
+              }
+            }
+            dispatch(setListOfFilteredProjects([...filteredListOfProjects].sort(compareTargetAsc)));
+            setSortSwitch(sortSwitch + 1);
+          } else if (sortSwitch === offsetTarget + 2) {
+            if (filter !== undefined) {
+              const newFilter = {...filter}; 
+              newFilter.filter.target.order = 1;
+              dispatch(setFilter(newFilter));
+            }
+
+            dispatch(setListOfFilteredProjects([...filteredListOfProjects].sort(compareTargetAsc)));
+            setSortSwitch(0);
+          } else {
+            dispatch(setListOfFilteredProjects([...filteredListOfProjects].sort(compareTargetDesc)));
+            setSortSwitch(offsetTarget + 1);
+          }
+          break;
+        case 'description':
+          if (filter !== undefined) {
+            const newFilter = {...filter};
+            newFilter.priorityOrder =  ['description', 'createdAt', 'name', 'target', 'targetAccessString', 'authority']
+            dispatch(setFilter(newFilter));
+          }
+          if (sortSwitch === offsetDescription + 1) {
+            if (filter !== undefined) {
+              const newFilter = {...filter}; 
+              newFilter.filter.description.order = -1;
+              dispatch(setFilter(newFilter));
+            }
+
+            dispatch(setListOfFilteredProjects([...filteredListOfProjects].sort(compareDescriptionAsc)));
+            setSortSwitch(sortSwitch + 1);
+          } else if (sortSwitch === offsetDescription + 2) {
+            if (filter !== undefined) {
+              const newFilter = {...filter}; 
+              newFilter.filter.description.order = 1;
+              dispatch(setFilter(newFilter));
+            }
+
+            dispatch(setListOfFilteredProjects([...filteredListOfProjects].sort(compareDescriptionAsc)));
+            setSortSwitch(0);
+          } else {
+            
+            dispatch(setListOfFilteredProjects([...filteredListOfProjects].sort(compareDescriptionDesc)));
+            setSortSwitch(offsetDescription + 1);
+          }
+          break;
+        case 'targetAccessString':
+          if (filter !== undefined) {
+            const newFilter = {...filter};
+            newFilter.priorityOrder =  ['targetAccessString', 'createdAt', 'name', 'target', 'description', 'authority']
+            dispatch(setFilter(newFilter));
+          }
+          if (sortSwitch === offsetTargetAccessString + 1) {
+            if (filter !== undefined) {
+              const newFilter = {...filter}; 
+              newFilter.filter.targetAccessString.order = -1;
+              dispatch(setFilter(newFilter));
+            }
+
+            dispatch(setListOfFilteredProjects([...filteredListOfProjects].sort(compareTargetAccessStringAsc)));
+            setSortSwitch(sortSwitch + 1);
+          } else if (sortSwitch === offsetTargetAccessString + 2) {
+            if (filter !== undefined) {
+              const newFilter = {...filter}; 
+              newFilter.filter.targetAccessString.order = 1;
+              dispatch(setFilter(newFilter));
+            }
+
+            dispatch(setListOfFilteredProjects([...filteredListOfProjects].sort(compareTargetAccessStringAsc)));
+            setSortSwitch(0);
+          } else {
+            dispatch(setListOfFilteredProjects([...filteredListOfProjects].sort(compareTargetAccessStringDesc)));
+            setSortSwitch(offsetTargetAccessString + 1);
+          }
+          break;
+        case 'authority':
+          if (filter !== undefined) {
+            const newFilter = {...filter};
+            newFilter.priorityOrder =  ['authority', 'createdAt', 'name', 'target', 'description', 'targetAccessString']
+            dispatch(setFilter(newFilter));
+          }
+          if (sortSwitch === offsetAuthority + 1) {
+            if (filter !== undefined) {
+              const newFilter = {...filter}; 
+              newFilter.filter.authority.order = -1;
+              dispatch(setFilter(newFilter));
+            }
+            dispatch(setListOfFilteredProjects([...filteredListOfProjects].sort(compareAuthorityAsc)));
+            setSortSwitch(sortSwitch + 1);
+          } else if (sortSwitch === offsetAuthority + 2) {
+            if (filter !== undefined) {
+              const newFilter = {...filter}; 
+              newFilter.filter.authority.order = 1;
+              dispatch(setFilter(newFilter));
+            }
+            dispatch(setListOfFilteredProjects([...filteredListOfProjects].sort(compareAuthorityAsc)));
+            setSortSwitch(0);
+          } else {
+            dispatch(setListOfFilteredProjects([...filteredListOfProjects].sort(compareAuthorityDesc)));
+            setSortSwitch(offsetAuthority + 1);
+          }
+          break;
+        case 'createdAt':
+          if (filter !== undefined) {
+            const newFilter = {...filter};
+            newFilter.priorityOrder =  ['createdAt', 'name', 'target', 'description', 'targetAccessString', 'authority']
+            dispatch(setFilter(newFilter));
+          }
+          if (sortSwitch === offsetCreatedAt + 1) {
+            if (filter !== undefined) {
+              const newFilter = {...filter}; 
+              newFilter.filter.createdAt.order = -1;
+              dispatch(setFilter(newFilter));
+            }
+            dispatch(setListOfFilteredProjects([...filteredListOfProjects].sort(compareCreatedAtDateAsc)));
+            setSortSwitch(sortSwitch + 1);
+          } else if (sortSwitch === offsetCreatedAt + 2) {
+            if (filter !== undefined) {
+              const newFilter = {...filter}; 
+              newFilter.filter.createdAt.order = 1;
+              dispatch(setFilter(newFilter));
+            }
+            dispatch(setListOfFilteredProjects([...filteredListOfProjects].sort(compareCreatedAtDateAsc)));
+            setSortSwitch(0);
+          } else {
+            dispatch(setListOfFilteredProjects([...filteredListOfProjects].sort(compareCreatedAtDateDesc)));
+            setSortSwitch(offsetCreatedAt + 1);
+          }
+          break;
+      }
+    }
+    
+  }
 
   // search from project list
   const handleSearch = event => {
-    const value = event.target.value;
+    searchString = event.target.value;
     if (checkedName === true) {
-      searchedByName = defaultListOfProjects.filter(item => item.title.toLowerCase().includes(value.toLowerCase()));
+      searchedByName = listOfAllProjects.filter(item => item.title.toLowerCase().includes(searchString.toLowerCase()));
     } else {
       searchedByName = [];
     }
 
     if (checkedTarget === true) {
-      searchedByTarget = defaultListOfProjects.filter(item =>
-        item.target.title.toLowerCase().includes(value.toLowerCase())
+      searchedByTarget = listOfAllProjects.filter(item =>
+        item.target.title.toLowerCase().includes(searchString.toLowerCase())
       );
     } else {
       searchedByTarget = [];
     }
 
     if (checkedDescription === true) {
-      searchedByDescription = defaultListOfProjects.filter(item =>
-        item.description.toLowerCase().includes(value.toLowerCase())
+      searchedByDescription = listOfAllProjects.filter(item =>
+        item.description.toLowerCase().includes(searchString.toLowerCase())
       );
     } else {
       searchedByDescription = [];
     }
 
     if (checkedTargetAccessString === true) {
-      searchedByTargetAccessString = defaultListOfProjects.filter(item =>
-        item.project.target_access_string.toLowerCase().includes(value.toLowerCase())
+      searchedByTargetAccessString = listOfAllProjects.filter(item =>
+        {
+        if (item.project !== null) {
+        item.project.target_access_string.toLowerCase().includes(searchString.toLowerCase())}
+        }
       );
     } else {
       searchedByTargetAccessString = [];
     }
 
     if (checkedAuthority === true) {
-      searchedByAuthority = defaultListOfProjects.filter(item =>
-        item.project.authority.toLowerCase().includes(value.toLowerCase())
+      searchedByAuthority = listOfAllProjects.filter(item => {
+        if (item.project !== null) {
+        item.project.authority.toLowerCase().includes(searchString.toLowerCase());
+        }
+      }
       );
     } else {
       searchedByAuthority = [];
@@ -336,7 +639,7 @@ export const Projects = memo(({}) => {
           />,
           <IconButton
             color="inherit"
-            onClick={() => dispatch(setProjectModalOpen(true))}
+            onClick={() => {dispatch(setAddButton(true)), dispatch(setProjectModalOpen(true))}}
             disabled={DJANGO_CONTEXT['username'] === 'NOT_LOGGED_IN'}
           >
             <Add />
@@ -352,7 +655,6 @@ export const Projects = memo(({}) => {
               }
             }}
             color={'inherit'}
-            disabled={predefinedFilter !== 'none'}
           >
             <Tooltip title="Filter/Sort">
               <FilterList />
@@ -527,9 +829,8 @@ export const Projects = memo(({}) => {
               </TableRow>
             </TableHead>
             <TableBody>
-              {listOfProjects.length === 0
-                ? filteredListOfProjects === undefined
-                  ? defaultListOfProjects.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map(
+              {filteredListOfProjects === undefined
+                  ? listOfAllProjects.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map(
                       project => (
                         (tags = JSON.parse(project.tags)),
                         (
@@ -613,7 +914,8 @@ export const Projects = memo(({}) => {
                         )
                       )
                     )
-                  : filteredListOfProjects.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map(
+                 : 
+                 filteredListOfProjects.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map(
                       project => (
                         (tags = JSON.parse(project.tags)),
                         (
@@ -633,11 +935,13 @@ export const Projects = memo(({}) => {
                             </Tooltip>
                             <TableCell align="left" style={{ height: '20px', padding: '0px' }}>
                               <Link to={`${URLS.target}${project.target}`}>
-                                <div style={{ width: '60px' }}>{project.target.title}</div>
+                                <div style={{ width: '60px' }}>
+                                  {project.target.title === undefined ? project.target : project.target.title}
+                                </div>
                               </Link>
                             </TableCell>
                             <TableCell align="left" style={{ height: '20px', padding: '0px' }}>
-                              <div style={{ width: '100px' }}>{project.description}</div>
+                              <div style={{ width: '110px' }}>{project.description}</div>
                             </TableCell>
                             <TableCell align="left" style={{ height: '20px', padding: '0px' }}>
                               <div style={{ width: '50px' }}>{project.project?.target_access_string}</div>
@@ -651,7 +955,7 @@ export const Projects = memo(({}) => {
                             </TableCell>
                             {/*<TableCell align="left">{project.author}</TableCell> */}
                             <TableCell align="left" style={{ height: '20px', padding: '0px' }}>
-                              <div style={{ width: '60px' }}>{project.project?.authority} </div>
+                              <div style={{ width: '100px' }}>{project.project?.authority} </div>
                             </TableCell>
                             <TableCell align="left" style={{ height: '20px', padding: '0px' }}>
                               <div style={{ width: '150px' }}>{moment(project.init_date).format('LLL')}</div>
@@ -695,179 +999,13 @@ export const Projects = memo(({}) => {
                         )
                       )
                     )
-                : filteredListOfProjects === undefined
-                ? listOfProjects.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map(
-                    project => (
-                      (tags = JSON.parse(project.tags)),
-                      (
-                        <TableRow hover>
-                          <Tooltip title={`${project.description}`}>
-                            <TableCell
-                              component="th"
-                              scope="row"
-                              style={{ height: '20px', padding: '0px', width: '150px !important' }}
-                            >
-                              <Link to={`${URLS.projects}${project.id}`}>
-                                <div style={{ width: '100px' }}>
-                                  {project.title === undefined ? project.title : project.title}
-                                </div>
-                              </Link>
-                            </TableCell>
-                          </Tooltip>
-                          <TableCell align="left" style={{ height: '20px', padding: '0px' }}>
-                            <Link to={`${URLS.target}${project.target}`}>
-                              <div style={{ width: '60px' }}>
-                                {project.target.title === undefined ? project.target : project.target.title}
-                              </div>
-                            </Link>
-                          </TableCell>
-                          <TableCell align="left" style={{ height: '20px', padding: '0px' }}>
-                            <div style={{ width: '110px' }}>{project.description}</div>
-                          </TableCell>
-                          <TableCell align="left" style={{ height: '20px', padding: '0px' }}>
-                            <div style={{ width: '50px' }}>{project.project?.target_access_string}</div>
-                          </TableCell>
-                          <TableCell align="left" style={{ height: '20px', padding: '0px' }}>
-                            <div style={{ width: '150px' }}>
-                              {tags.map((tag, index) => (
-                                <Chip key={index} label={tag} size="small" className={classes.chip} />
-                              ))}
-                            </div>
-                          </TableCell>
-                          {/*<TableCell align="left">{project.author}</TableCell> */}
-                          <TableCell align="left" style={{ height: '20px', padding: '0px' }}>
-                            <div style={{ width: '100px' }}>{project.project?.authority} </div>
-                          </TableCell>
-                          <TableCell align="left" style={{ height: '20px', padding: '0px' }}>
-                            <div style={{ width: '150px' }}>{moment(project.init_date).format('LLL')}</div>
-                          </TableCell>
-                          <TableCell align="right" style={{ height: '20px', padding: '0px' }}>
-                            <Tooltip title="Delete project">
-                              <IconButton
-                                disabled={DJANGO_CONTEXT['username'] === 'NOT_LOGGED_IN'}
-                                onClick={() =>
-                                  dispatch(removeProject(project.id)).catch(error => {
-                                    throw new Error(error);
-                                  })
-                                }
-                              >
-                                <Delete />
-                              </IconButton>
-                            </Tooltip>
-                            {discourseAvailable && (
-                              <Tooltip title="Go to Discourse">
-                                <IconButton
-                                  onClick={() => {
-                                    getExistingPost(project.name)
-                                      .then(response => {
-                                        if (response.data['Post url']) {
-                                          const link = response.data['Post url'];
-                                          openDiscourseLink(link);
-                                        }
-                                      })
-                                      .catch(err => {
-                                        console.log(err);
-                                        dispatch(setOpenDiscourseErrorModal(true));
-                                      });
-                                  }}
-                                >
-                                  <QuestionAnswer />
-                                </IconButton>
-                              </Tooltip>
-                            )}
-                          </TableCell>
-                        </TableRow>
-                      )
-                    )
-                  )
-                : listOfProjects.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map(
-                    project => (
-                      (tags = JSON.parse(project.tags)),
-                      (
-                        <TableRow hover>
-                          <Tooltip title={`${project.description}`}>
-                            <TableCell
-                              component="th"
-                              scope="row"
-                              style={{ height: '20px', padding: '0px', width: '150px !important' }}
-                            >
-                              <Link to={`${URLS.projects}${project.id}`}>
-                                <div style={{ width: '100px' }}>
-                                  {project.title === undefined ? project.title : project.title}
-                                </div>
-                              </Link>
-                            </TableCell>
-                          </Tooltip>
-                          <TableCell align="left" style={{ height: '20px', padding: '0px' }}>
-                            <Link to={`${URLS.target}${project.target}`}>
-                              <div style={{ width: '60px' }}>{project.target.title}</div>
-                            </Link>
-                          </TableCell>
-                          <TableCell align="left" style={{ height: '20px', padding: '0px' }}>
-                            <div style={{ width: '100px' }}>{project.description}</div>
-                          </TableCell>
-                          <TableCell align="left" style={{ height: '20px', padding: '0px' }}>
-                            <div style={{ width: '50px' }}>{project.project?.target_access_string}</div>
-                          </TableCell>
-                          <TableCell align="left" style={{ height: '20px', padding: '0px' }}>
-                            <div style={{ width: '150px' }}>
-                              {tags.map((tag, index) => (
-                                <Chip key={index} label={tag} size="small" className={classes.chip} />
-                              ))}
-                            </div>
-                          </TableCell>
-                          {/*<TableCell align="left">{project.author}</TableCell> */}
-                          <TableCell align="left" style={{ height: '20px', padding: '0px' }}>
-                            <div style={{ width: '60px' }}>{project.project?.authority} </div>
-                          </TableCell>
-                          <TableCell align="left" style={{ height: '20px', padding: '0px' }}>
-                            <div style={{ width: '150px' }}>{moment(project.init_date).format('LLL')}</div>
-                          </TableCell>
-                          <TableCell align="right" style={{ height: '20px', padding: '0px' }}>
-                            <Tooltip title="Delete project">
-                              <IconButton
-                                disabled={DJANGO_CONTEXT['username'] === 'NOT_LOGGED_IN'}
-                                onClick={() =>
-                                  dispatch(removeProject(project.id)).catch(error => {
-                                    throw new Error(error);
-                                  })
-                                }
-                              >
-                                <Delete />
-                              </IconButton>
-                            </Tooltip>
-                            {discourseAvailable && (
-                              <Tooltip title="Go to Discourse">
-                                <IconButton
-                                  onClick={() => {
-                                    getExistingPost(project.name)
-                                      .then(response => {
-                                        if (response.data['Post url']) {
-                                          const link = response.data['Post url'];
-                                          openDiscourseLink(link);
-                                        }
-                                      })
-                                      .catch(err => {
-                                        console.log(err);
-                                        dispatch(setOpenDiscourseErrorModal(true));
-                                      });
-                                  }}
-                                >
-                                  <QuestionAnswer />
-                                </IconButton>
-                              </Tooltip>
-                            )}
-                          </TableCell>
-                        </TableRow>
-                      )
-                    )
-                  )}
+                }
             </TableBody>
             <TableFooter>
               <TableRow>
                 <TablePagination
                   rowsPerPageOptions={[rowsPerPage, 20, 30, 40, 50, 100]}
-                  count={defaultListOfProjects.length}
+                  count={listOfAllProjects.length}
                   rowsPerPage={rowsPerPage}
                   page={page}
                   SelectProps={{
@@ -887,7 +1025,6 @@ export const Projects = memo(({}) => {
             anchorEl={sortDialogAnchorEl}
             filter={filter}
             setSortDialogAnchorEl={setSortDialogAnchorEl}
-            joinedMoleculeLists={joinedMoleculeListsCopy}
           />
         )}
       </Panel>

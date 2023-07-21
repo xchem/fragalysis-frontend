@@ -14,7 +14,8 @@ import {
   FormHelperText,
   FormControlLabel,
   ListItemText,
-  Checkbox
+  Checkbox,
+  NativeSelect
 } from '@material-ui/core';
 import { Title, Description, Label, Link, QuestionAnswer } from '@material-ui/icons';
 import { Autocomplete } from '@material-ui/lab';
@@ -52,10 +53,13 @@ const useStyles = makeStyles(theme => ({
     width: 400
   }
 }));
+let currantTargetId = 1;
 
 export const ProjectModal = memo(({}) => {
   const classes = useStyles();
   const [state, setState] = useState();
+  const [selectedTarget, setSelectedTarget] = useState(false);
+
   let [createDiscourse, setCreateDiscourse] = useState(true);
   let history = useHistory();
 
@@ -72,8 +76,8 @@ export const ProjectModal = memo(({}) => {
     'session_project.id'
   );
   const targetList = useSelector(state => state.apiReducers.target_id_list);
-  const currentProject = useSelector(state => state.targetReducers.currentProject);
-  const currentTarget = useSelector(state => state.apiReducers.target_on_name);
+  const currantProject = useSelector(state => state.targetReducers.currantProject);
+  const currantTarget = useSelector(state => state.apiReducers.target_on_name);
 
   const actualDate = moment().format('-YYYY-MM-DD');
 
@@ -118,14 +122,35 @@ export const ProjectModal = memo(({}) => {
     return project && `${project.title} - ${project.description}`;
   };
 
+  let selectedValue = '';
+  if (currantTarget !== undefined) {
+  selectedValue = currantTarget;
+  }
+  targetList.map(target => {
+    if (selectedValue === target.title && selectedTarget === false ) {
+      currantTargetId = target.id
+    }
+  })
+
+  const handleChangeTarget = (event) => {
+    setSelectedTarget(true);
+    selectedValue = event.target.value;
+      targetList.map(target => {
+        if (selectedValue === target.title ) {
+          currantTargetId = target.id
+        }
+      })
+}
+
+
   return (
     <ModalNewProject open={isProjectModalOpen} onClose={handleCloseModal}>
       <Formik
         initialValues={{
           type: ProjectCreationType.NEW,
-          title: currentTarget + actualDate,
-          description: 'Project created from ' + currentTarget,
-          targetId: '',
+          title: currantTarget + actualDate,
+          description: 'Project created from ' + currantTarget,
+          targetId: currantTargetId,
           parentSnapshotId: '',
           tags: ''
         }}
@@ -139,9 +164,6 @@ export const ProjectModal = memo(({}) => {
           } else if (values.description.length < 20) {
             errors.description = 'Description must be at least 20 characters long!';
           }
-          if (values.type === ProjectCreationType.NEW && values.targetId === '') {
-            errors.targetId = 'Required!';
-          }
           if (values.type === ProjectCreationType.FROM_SNAPSHOT && values.parentSnapshotId === '') {
             errors.parentSnapshotId = 'Required!';
           }
@@ -154,10 +176,10 @@ export const ProjectModal = memo(({}) => {
           const data = {
             title: values.title,
             description: values.description,
-            target: values.targetId,
+            target: currantTargetId,
             author: DJANGO_CONTEXT['pk'],
             tags: JSON.stringify(tags),
-            project: currentProject?.id
+            project: currantProject?.id
           };
 
           // Create from snapshot
@@ -261,20 +283,13 @@ export const ProjectModal = memo(({}) => {
                         <InputLabel htmlFor="selected-target" required disabled={isProjectModalLoading}>
                           Target
                         </InputLabel>
-                        <Field
-                          component={Select}
-                          disabled={isProjectModalLoading}
-                          name="targetId"
-                          inputProps={{
-                            id: 'selected-target'
-                          }}
-                        >
-                          {targetList.map(data => (
-                            <MenuItem key={data.id} value={data.id}>
-                              {data.title}
-                            </MenuItem>
-                          ))}
-                        </Field>
+                          <NativeSelect defaultValue={currantTarget} onChange={() => handleChangeTarget(event)}>
+                              {targetList.map(data => (
+                                  <option key={data.id} defaultValue={currantTarget}>
+                                    {data.title}
+                                  </option>
+                              ))}
+                          </NativeSelect>
                         <FormHelperText disabled={isProjectModalLoading}>{errors.targetId}</FormHelperText>
                       </FormControl>
                     }

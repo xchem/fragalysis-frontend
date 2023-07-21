@@ -117,6 +117,23 @@ export const ProjectHistory = memo(({ showFullHistory, graphKey, expanded, onExp
       dispatch(setSelectedSnapshotToSwitch(transitionToSnapshot.hash));
       dispatch(setIsOpenModalBeforeExit(true));
       setTryToOpen(false);
+
+      if(stage !== undefined) {
+        if (stage.mouseObserver.down.x !== 0  || stage.mouseObserver.down.y !== 0) {
+          setTryToOpen(false);
+          dispatch(setIsOpenModalBeforeExit(false));
+          dispatch(changeSnapshot(sessionProjectID, transitionToSnapshot.hash, nglViewList, stage));
+          stage.mouseObserver.down.x = 0;
+          stage.mouseObserver.down.y = 0
+          dispatch(setIsOpenModalBeforeExit(false));
+        }
+      }
+      else {
+
+      dispatch(setIsOpenModalBeforeExit(false));
+      dispatch(changeSnapshot(sessionProjectID, transitionToSnapshot.hash, nglViewList, stage));
+      }
+
     } else if (!isSnapshotDirty && tryToOpen && transitionToSnapshot) {
       dispatch(changeSnapshot(sessionProjectID, transitionToSnapshot.hash, nglViewList, stage));
       setTryToOpen(false);

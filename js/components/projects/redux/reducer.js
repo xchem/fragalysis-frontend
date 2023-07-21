@@ -157,6 +157,12 @@ export const projectReducers = (state = INITIAL_STATE, action = {}) => {
     case constants.SET_SORT_DIALOG_OPEN:
       return Object.assign({}, state, { projectListFilterDialog: action.payload });
 
+    case constants.SET_FILTER_CLEAN:
+      return Object.assign({}, state, { filterClean: action.payload });
+
+    case constants.SET_ADD_BUTTON:
+      return Object.assign({}, state, { addButton: action.payload });
+  
       default:
       return state;
   }

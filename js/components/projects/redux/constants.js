@@ -35,7 +35,10 @@ export const constants = {
   REFRESH_JOBS_DATA: prefix + 'REFRESH_JOBS_DATA',
 
   SET_JOB_LIST: prefix + 'SET_JOB_LIST',
-  SET_SORT_DIALOG_OPEN: prefix + 'SET_SORT_DIALOG_OPEN'
+  SET_SORT_DIALOG_OPEN: prefix + 'SET_SORT_DIALOG_OPEN',
+  SET_FILTER_CLEAN: prefix + 'SET_FILTER_CLEAN',
+
+  SET_ADD_BUTTON: prefix + 'SET_ADD_BUTTON'
 };
 
 export const ProjectCreationType = {

@@ -1,5 +1,5 @@
-import React, { memo, useState } from 'react';
-import { Grid, makeStyles, Typography, FormControlLabel, Checkbox } from '@material-ui/core';
+import React, { memo, useState, useEffect } from 'react';
+import { Grid, makeStyles, FormControlLabel, Checkbox } from '@material-ui/core';
 import { DJANGO_CONTEXT } from '../../../utils/djangoContext';
 import { Form, Formik, Field } from 'formik';
 import { TextField } from 'formik-material-ui';
@@ -8,10 +8,16 @@ import { Description, Label, Title, QuestionAnswer } from '@material-ui/icons';
 import { Autocomplete } from '@material-ui/lab';
 import { Button } from '../../common/Inputs/Button';
 import { useDispatch, useSelector } from 'react-redux';
-import { createProjectFromSnapshotDialog, createProjectDiscoursePost } from '../redux/dispatchActions';
-import { manageSendTrackingActions } from '../../../reducers/tracking/dispatchActions';
+import {createProjectFromSnapshotDialog, createProjectDiscoursePost, createProjectFromSnapshot, createProjectFromScratch } from '../redux/dispatchActions';
 import { isDiscourseAvailable, getExistingPost, isDiscourseUserAvailable } from '../../../utils/discourse';
 import { RegisterNotice } from '../../discourse/RegisterNotice';
+import ModalNewProject from '../../common/ModalNewProject';
+import moment from 'moment';
+import { getListOfSnapshots } from '../../snapshot/redux/dispatchActions';
+import { setProjectModalIsLoading } from '../../projects/redux/actions';
+import { manageSendTrackingActions } from '../../../reducers/tracking/dispatchActions';
+import { setOpenSnapshotSavingDialog } from '../../snapshot/redux/actions';
+
 
 const useStyles = makeStyles(theme => ({
   body: {
@@ -31,7 +37,7 @@ const useStyles = makeStyles(theme => ({
   }
 }));
 
-export const AddProjectDetail = memo(({ handleCloseModal }) => {
+export const AddProjectDetail = memo(({}) => {
   const classes = useStyles();
   const [state, setState] = useState();
   let [createDiscourse, setCreateDiscourse] = useState(true);
@@ -47,6 +53,8 @@ export const AddProjectDetail = memo(({ handleCloseModal }) => {
 
   const discourseAvailable = isDiscourseAvailable();
   const dicourseUserAvailable = isDiscourseUserAvailable();
+
+  const actualDate = moment().format('-YYYY-MM-DD');
 
   createDiscourse &= dicourseUserAvailable;
 
@@ -65,14 +73,25 @@ export const AddProjectDetail = memo(({ handleCloseModal }) => {
     return error;
   };
 
+  const handleCloseModal = () => {
+    if (isProjectModalLoading === true) {
+      dispatch(setProjectModalIsLoading(false));
+    }
+  };
+
+  useEffect(() => {
+    dispatch(getListOfSnapshots());
+  }, [dispatch]);
+
+
+
   return (
-    <>
-      <Typography variant="h3">Project Details</Typography>
+    <ModalNewProject open={isProjectModalLoading}>
       <Formik
         initialValues={{
-          title: '',
-          description: '',
-          tags: ''
+          title: targetName + actualDate,
+          description: 'Project created from ' + targetName,
+          tags: '',
         }}
         validate={values => {
           const errors = {};
@@ -107,6 +126,8 @@ export const AddProjectDetail = memo(({ handleCloseModal }) => {
             dispatch(createProjectFromSnapshotDialog(data))
               .then(() => {
                 dispatch(manageSendTrackingActions(oldProjectID, true));
+                handleCloseModal();
+                dispatch(setOpenSnapshotSavingDialog(true));
               })
               .catch(error => {
                 setState(() => {
@@ -129,7 +150,7 @@ export const AddProjectDetail = memo(({ handleCloseModal }) => {
                       name="title"
                       label="Title"
                       required
-                      disabled={isProjectModalLoading || isSubmitting}
+                      disabled={ isSubmitting}
                       validate={validateProjectName}
                     />
                   }
@@ -145,7 +166,7 @@ export const AddProjectDetail = memo(({ handleCloseModal }) => {
                       name="description"
                       label="Description"
                       required
-                      disabled={isProjectModalLoading || isSubmitting}
+                      disabled={isSubmitting}
                     />
                   }
                 />
@@ -163,7 +184,6 @@ export const AddProjectDetail = memo(({ handleCloseModal }) => {
                       onChange={(e, data) => {
                         setTags(data);
                       }}
-                      disabled={isProjectModalLoading}
                       renderInput={params => (
                         <Field
                           component={TextField}
@@ -190,7 +210,6 @@ export const AddProjectDetail = memo(({ handleCloseModal }) => {
                     <FormControlLabel
                       control={
                         <Checkbox
-                          checked={createDiscourse}
                           onChange={() => setCreateDiscourse(!createDiscourse)}
                           disabled={
                             !discourseAvailable || !dicourseUserAvailable || isProjectModalLoading || isSubmitting
@@ -211,12 +230,12 @@ export const AddProjectDetail = memo(({ handleCloseModal }) => {
             </Grid>
             <Grid container justify="flex-end" direction="row">
               <Grid item>
-                <Button color="secondary" disabled={isProjectModalLoading || isSubmitting} onClick={handleCloseModal}>
+                <Button color="secondary" onClick={handleCloseModal}>
                   Cancel
                 </Button>
               </Grid>
               <Grid item>
-                <Button color="primary" onClick={submitForm} disabled={isSubmitting} loading={isProjectModalLoading}>
+                <Button color="primary" onClick={submitForm} disabled={isSubmitting}>
                   Create
                 </Button>
               </Grid>
@@ -224,6 +243,6 @@ export const AddProjectDetail = memo(({ handleCloseModal }) => {
           </Form>
         )}
       </Formik>
-    </>
+    </ModalNewProject >
   );
 });

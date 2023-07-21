@@ -2,9 +2,23 @@ import { CircularProgress, makeStyles, Modal as MaterialModal } from '@material-
 import React, { memo } from 'react';
 import classNames from 'classnames';
 import useResizeObserver from '../../../utils/useResizeObserver';
+import { useSelector } from 'react-redux';
 
 const useStyles = makeStyles(theme => ({
   paper: {
+    position: 'absolute',
+    top: '175px',
+    transform: 'translate(-50%, -50%)',
+    backgroundColor: theme.palette.background.paper,
+    borderRadius: theme.spacing(1) / 2,
+    boxShadow: theme.shadows[0],
+    outline: 'none',
+    border: '#3f51b5',
+    borderWidth: '2px',
+    borderStyle: 'solid',
+    zIndex: '1300'
+  },
+  paper2: {
     position: 'absolute',
     top: '203px',
     transform: 'translate(-50%, -50%)',
@@ -47,7 +61,8 @@ export const ModalSaveSnapshot = memo(
     if (titleLength !== null) {
       newTitleLength = titleLength.offsetWidth;
     }
-    const absolutTitleLength = defaultTitleLength + newTitleLength; // for fix popover/modal dialog under button
+    const absoluteTitleLength = defaultTitleLength + newTitleLength; // for fix popover/modal dialog under button
+    const currentSnapshotID = useSelector(state => state.projectReducers.currentSnapshot.id);
 
     const classes = useStyles();
     const content = loading ? <CircularProgress /> : children;
@@ -64,10 +79,10 @@ export const ModalSaveSnapshot = memo(
         style={{position: 'none'}}
       >
         <div
-         style={{left: absolutTitleLength + 'px'}}
+         style={{left: absoluteTitleLength + 'px'}}
           ref={containerDiv}
           className={classNames(
-            classes.paper,
+            currentSnapshotID === null? classes.paper : classes.paper2,
             {
               [classes.resizable]: resizable
             },

@@ -5,6 +5,11 @@ export const setSortDialogOpen = isOpen => ({
   payload: isOpen
 });
 
+export const setDefaultFilter = isClean => ({
+  type: constants.SET_FILTER_CLEAN,
+  payload: isClean
+});
+
 export const setCurrentProject = ({ projectID, authorID, title, description, targetID, tags, type }) => ({
   type: constants.SET_CURRENT_PROJECT,
   payload: { projectID, authorID, title, description, targetID, tags, type }
@@ -23,6 +28,13 @@ export const setProjectModalOpen = isOpen => ({
   type: constants.SET_PROJECT_MODAL_OPEN,
   payload: isOpen
 });
+
+export const setAddButton = isOpen => ({
+  type: constants.SET_ADD_BUTTON,
+  payload: isOpen
+});
+
+setAddButton
 
 export const setProjectModalIsLoading = isLoading => ({
   type: constants.SET_PROJECT_MODAL_IS_LOADING,

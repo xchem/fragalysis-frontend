@@ -2,12 +2,12 @@ import { CircularProgress, makeStyles, Modal as MaterialModal } from '@material-
 import React, { memo } from 'react';
 import classNames from 'classnames';
 import useResizeObserver from '../../../utils/useResizeObserver';
-import { red } from '@material-ui/core/colors';
+import { useSelector } from 'react-redux';
 
 const useStyles = makeStyles(theme => ({
   paper: {
     position: 'absolute',
-    top: '238px',
+    top: '204px',
     transform: 'translate(-50%, -50%)',
     backgroundColor: theme.palette.background.paper,
     borderRadius: theme.spacing(1) / 2,
@@ -27,6 +27,8 @@ const useStyles = makeStyles(theme => ({
   }
 }));
 
+let absoluteTitleLength = 0;
+
 export const ModalNewProject = memo(
   ({
     children,
@@ -42,15 +44,23 @@ export const ModalNewProject = memo(
     ...rest
   }) => {
 
+    const addButton = useSelector(state => state.projectReducers.addButton);
+
      // counting title width for fixed position modal window for create new project
     const defaultTitleLength = 445;
     const titleLength =  document.getElementById("headerNavbarTitle");
+    const totalScreenWidth = window.innerWidth;
     let newTitleLength = 0;
-    if (titleLength !== null) {
-      newTitleLength = titleLength.offsetWidth;
-    }
-    const absolutTitleLength = defaultTitleLength + newTitleLength; 
 
+    if (addButton === true) {
+      absoluteTitleLength = totalScreenWidth - defaultTitleLength +170;
+    }
+    else {
+        if (titleLength !== null) {
+          newTitleLength = titleLength.offsetWidth;
+        }
+        absoluteTitleLength = defaultTitleLength + newTitleLength; 
+     }
     const classes = useStyles();
     const content = loading ? <CircularProgress /> : children;
 
@@ -65,7 +75,7 @@ export const ModalNewProject = memo(
       >
          <div>      
         <div
-          style={{left: absolutTitleLength + 'px'}}
+          style={addButton === true ? {left: absoluteTitleLength + 'px', top: '249px'} :{left: absoluteTitleLength + 'px'} }
           ref={containerDiv}
           className={classNames(
             classes.paper,

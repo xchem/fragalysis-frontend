@@ -72,14 +72,13 @@ export const compareTargetAccessStringDesc = (a, b) => {
   if (a.project.target_access_string > b.project.target_access_string) {
     return -1;
   }
-  if (a.project.target_access_string < b.project.project.target_access_string) {
+  if (a.project.target_access_string < b.project.target_access_string) {
     return 1;
   }
   return 0;
 };
 
 export const compareTagsAsc = (a, b) => {
-  console.log("a",a);
   if (a.tags < b.tags) {
     return -1;
   }
@@ -100,7 +99,6 @@ export const compareTagsDesc = (a, b) => {
 };
 
 export const compareAuthorityAsc = (a, b) => {
-  console.log("a",a);
   if (a.project.authority < b.project.authority) {
     return -1;
   }
