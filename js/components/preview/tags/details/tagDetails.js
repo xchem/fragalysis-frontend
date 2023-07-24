@@ -58,19 +58,17 @@ const useStyles = makeStyles(theme => ({
   },
   container: {
     display: 'grid',
-    gridTemplateColumns: '1fr 35px 75px min-content 20px min-content auto',
+    gridTemplateColumns: '220px 65px 63px min-content 20px min-content auto',
     alignItems: 'center',
     gap: 1
   },
   columnLabel: {
     display: 'flex',
-    marginLeft: theme.spacing(2)
   },
   categoryLabel: {
     justifySelf: 'flex-end'
   },
   creatorLabel: {
-    gridColumn: '5',
     justifySelf: 'flex-end'
   },
   dateLabel: {
@@ -396,7 +394,7 @@ const TagDetails = memo(() => {
       </Grid>
     </div>
       <div ref={elementRef} className={classes.containerExpanded}>
-        <div className={classes.container}>
+        <div className={classes.container} id="tagName">
           {/* tag name */}
           <div className={classes.columnLabel}>
             <Typography className={classes.columnTitle} variant="subtitle1">
