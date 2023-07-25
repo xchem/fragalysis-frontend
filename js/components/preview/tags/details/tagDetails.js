@@ -58,18 +58,12 @@ const useStyles = makeStyles(theme => ({
   },
   container: {
     display: 'grid',
-    gridTemplateColumns: '220px 65px 63px min-content 20px min-content auto',
+    gridTemplateColumns: '220px 65px 80px min-content 20px min-content auto',
     alignItems: 'center',
     gap: 1
   },
   columnLabel: {
     display: 'flex',
-  },
-  categoryLabel: {
-    justifySelf: 'flex-end'
-  },
-  creatorLabel: {
-    justifySelf: 'flex-end'
   },
   dateLabel: {
     gridColumn: '6'

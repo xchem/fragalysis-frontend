@@ -32,7 +32,7 @@ const useStyles = makeStyles(theme => ({
 
 const sideWidth = 500;
 let panelHeight = 310;
-let totalTagDetailHeight = 0;
+let totalTagDetailHeight = 150;
 const resizerSize = 20;
 let screenHeight = 0;
 
@@ -62,7 +62,7 @@ export const ResizableLayout = ({ gridRef, hideProjects, showHistory, onShowHist
   }, [sidesOpen.LHS, sidesOpen.RHS]);
 
   if (document.getElementById("tagName") !== null) {
-    totalTagDetailHeight = document.getElementById("tagName").clientHeight + 105;
+    totalTagDetailHeight = document.getElementById("tagName").clientHeight + 170;
       if (totalTagDetailHeight > 350) {
         totalTagDetailHeight = 351
       }
