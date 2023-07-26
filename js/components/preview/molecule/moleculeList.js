@@ -297,13 +297,11 @@ export const MoleculeList = memo(({ hideProjects }) => {
       return allMoleculesList.filter(molecule =>
         molecule.protein_code.toLowerCase().includes(searchString.toLowerCase())
       );
-    }
-    else if (searchedString) {
+    } else if (searchedString) {
       return getJoinedMoleculeList.filter(molecule =>
         molecule.protein_code.toLowerCase().includes(searchedString.searchStringHitNavigator.toLowerCase())
       );
-    }
-    else {
+    } else {
       return getJoinedMoleculeList;
     }
   }, [getJoinedMoleculeList, allMoleculesList, searchString]);
@@ -515,48 +513,108 @@ export const MoleculeList = memo(({ hideProjects }) => {
   );
 
   let currentMolecules = joinedMoleculeLists.slice(0, listItemOffset);
-  if (fragmentDisplayList.length === 0 && proteinList.length === 0 && complexList.length === 0 && surfaceList.length === 0 && densityList.length === 0 && vectorOnList.length === 0) {
+  if (
+    fragmentDisplayList.length === 0 &&
+    proteinList.length === 0 &&
+    complexList.length === 0 &&
+    surfaceList.length === 0 &&
+    densityList.length === 0 &&
+    vectorOnList.length === 0
+  ) {
     if (allSelectedMolecules.length === 0) {
       selectedDisplayHits = false;
     }
-  }
-  else {
+  } else {
     if (allSelectedMolecules.length === 0) {
-    selectedDisplayHits = false;
-    }
-    else {
+      selectedDisplayHits = false;
+    } else {
       if (allSelectedMolecules.length !== 0) {
-      allSelectedMolecules.map(selectedMolecules => {
-        if (fragmentDisplayList.includes(selectedMolecules.id) || proteinList.includes(selectedMolecules.id) || complexList.includes(selectedMolecules.id) || surfaceList.includes(selectedMolecules.id) || densityList.includes(selectedMolecules.id) || vectorOnList.includes(selectedMolecules.id) ) {
-          selectedDisplayHits = true;}
-        else {
-          selectedDisplayHits = false;
-          } 
-        })
+        for (let i = 0; i < allSelectedMolecules.length; i++) {
+          const selectedMolecule = allSelectedMolecules[i];
+          if (
+            fragmentDisplayList.includes(selectedMolecule.id) ||
+            proteinList.includes(selectedMolecule.id) ||
+            complexList.includes(selectedMolecule.id) ||
+            surfaceList.includes(selectedMolecule.id) ||
+            densityList.includes(selectedMolecule.id) ||
+            vectorOnList.includes(selectedMolecule.id)
+          ) {
+            selectedDisplayHits = true;
+          } else {
+            selectedDisplayHits = false;
+            break;
+          }
+        }
+        if (selectedDisplayHits) {
+          const notSelectedMols = [];
+          const danglingFrags = fragmentDisplayList.filter(
+            id => !allSelectedMolecules.filter(m => m.id === id).length > 0
+          );
+          if (danglingFrags && danglingFrags.length > 0) {
+            notSelectedMols.push(danglingFrags);
+          }
+          const danglingProteins = proteinList.filter(id => !allSelectedMolecules.filter(m => m.id === id).length > 0);
+          if (danglingProteins && danglingProteins.length > 0) {
+            notSelectedMols.push(danglingProteins);
+          }
+          const danglingComplexes = complexList.filter(id => !allSelectedMolecules.filter(m => m.id === id).length > 0);
+          if (danglingComplexes && danglingComplexes.length > 0) {
+            notSelectedMols.push(danglingComplexes);
+          }
+          const danglingSurfaces = surfaceList.filter(id => !allSelectedMolecules.filter(m => m.id === id).length > 0);
+          if (danglingSurfaces && danglingSurfaces.length > 0) {
+            notSelectedMols.push(danglingSurfaces);
+          }
+          const danglingDensities = densityList.filter(id => !allSelectedMolecules.filter(m => m.id === id).length > 0);
+          if (danglingDensities && danglingDensities.length > 0) {
+            notSelectedMols.push(danglingDensities);
+          }
+          const danglingVectors = vectorOnList.filter(id => !allSelectedMolecules.filter(m => m.id === id).length > 0);
+          if (danglingVectors && danglingVectors.length > 0) {
+            notSelectedMols.push(danglingVectors);
+          }
+          if (notSelectedMols && notSelectedMols.length > 0) {
+            selectedDisplayHits = false;
+          }
+        }
+        // allSelectedMolecules.map(selectedMolecules => {
+        //   if (
+        //     fragmentDisplayList.includes(selectedMolecules.id) ||
+        //     proteinList.includes(selectedMolecules.id) ||
+        //     complexList.includes(selectedMolecules.id) ||
+        //     surfaceList.includes(selectedMolecules.id) ||
+        //     densityList.includes(selectedMolecules.id) ||
+        //     vectorOnList.includes(selectedMolecules.id)
+        //   ) {
+        //     selectedDisplayHits = true;
+        //   } else {
+        //     selectedDisplayHits = false;
+        //   }
+        // });
       }
     }
   }
 
   joinedMoleculeListsCopy.map(data => {
     if (fragmentDisplayList.includes(data.id)) {
-      selectedMolecule.push(data)
+      selectedMolecule.push(data);
     }
     if (proteinList.includes(data.id)) {
-      selectedMolecule.push(data)
+      selectedMolecule.push(data);
     }
     if (complexList.includes(data.id)) {
-      selectedMolecule.push(data)
+      selectedMolecule.push(data);
     }
     if (surfaceList.includes(data.id)) {
-      selectedMolecule.push(data)
+      selectedMolecule.push(data);
     }
     if (densityList.includes(data.id)) {
-      selectedMolecule.push(data)
+      selectedMolecule.push(data);
     }
     if (vectorOnList.includes(data.id)) {
-      selectedMolecule.push(data)
+      selectedMolecule.push(data);
     }
-  }) 
+  });
   const uniqueSelectedMoleculeForHitNavigator = [...new Set(selectedMolecule)];
 
   const newMolsToEdit = [];
@@ -772,9 +830,9 @@ export const MoleculeList = memo(({ hideProjects }) => {
     return molecules;
   };
 
-  const openGlobalTagEditor = () => { };
+  const openGlobalTagEditor = () => {};
 
-  let filterSearchString = "";
+  let filterSearchString = '';
   const getSearchedString = () => {
     filterSearchString = currentActionList.find(action => action.type === 'SEARCH_STRING_HIT_NAVIGATOR');
   };
@@ -805,8 +863,10 @@ export const MoleculeList = memo(({ hideProjects }) => {
     <SearchField
       className={classes.search}
       id="search-hit-navigator"
-      onChange={value => {setSearchString(value); 
-        dispatch(setSearchStringOfHitNavigator(value))}}
+      onChange={value => {
+        setSearchString(value);
+        dispatch(setSearchStringOfHitNavigator(value));
+      }}
       disabled={false || (getJoinedMoleculeList && getJoinedMoleculeList.length === 0)}
       searchString={filterSearchString?.searchStringHitNavigator ?? ''}
     />,
@@ -935,118 +995,115 @@ export const MoleculeList = memo(({ hideProjects }) => {
           </>
         )}
       </div>
-      <Grid container>    
-         {allSelectedMolecules.length > 0 && (
-                    <Grid>
-                      <Tooltip title="all ligands" style={{marginLeft: '5px'}}>
-                        
-                          <Button
-                            variant="outlined"
-                            className={classNames(classes.contColButton, {
-                              [classes.contColButtonSelected]: isLigandOn === true,
-                              [classes.contColButtonHalfSelected]: isLigandOn === null
-                            })}
-                            onClick={() => onButtonToggle('ligand')}
-                            disabled={groupNglControlButtonsDisabledState.ligand}
-                          >
-                            L
-                          </Button>   
-                      </Tooltip>
-                      <Tooltip title="all sidechains" style={{marginLeft: '5px'}}>
-                          <Button
-                            variant="outlined"
-                            className={classNames(classes.contColButton, {
-                              [classes.contColButtonSelected]: isProteinOn,
-                              [classes.contColButtonHalfSelected]: isProteinOn === null
-                            })}
-                            onClick={() => onButtonToggle('protein')}
-                            disabled={groupNglControlButtonsDisabledState.protein}
-                          >
-                            P
-                          </Button>
-                      </Tooltip>
-                      <Tooltip title="all interactions" style={{marginLeft: '5px'}}>
-                          {/* C stands for contacts now */}
-                          <Button
-                            variant="outlined"
-                            className={classNames(classes.contColButton, {
-                              [classes.contColButtonSelected]: isComplexOn,
-                              [classes.contColButtonHalfSelected]: isComplexOn === null
-                            })}
-                            onClick={() => onButtonToggle('complex')}
-                            disabled={groupNglControlButtonsDisabledState.complex}
-                          >
-                            C
-                          </Button>
-                      </Tooltip>
-                    </Grid>
-                  )}
-                  {
-                    <Tooltip title={selectAllHitsPressed ? 'Unselect all hits' : 'Select all hits'}>
-                      <Grid item style={{marginLeft: allSelectedMolecules.length === 0 ? '70px' :'20px'}}>
-                        <Button
-                          variant="outlined"
-                          className={classNames(classes.contColButton, {
-                            [classes.contColButtonSelected]: selectAllHitsPressed,
-                            [classes.contColButtonHalfSelected]: false
-                          })}
-                          onClick={() => {
-                            dispatch(selectAllHits(joinedMoleculeLists, setNextXMolecules, selectAllHitsPressed));
-                            setSelectAllHitsPressed(!selectAllHitsPressed);
-                          }}
-                          disabled={false}
-                        >
-                          {selectAllHitsPressed ? 'Unselect all hits' : 'Select all hits'}
-                      </Button>
-                  </Grid>
-              </Tooltip>
-           }
-           { selectedDisplayHits === true ?
-                    <Tooltip title={'Unselect displayed hits'}>
-                      <Grid item style={{marginLeft: '20px'}}>
-                        <Button
-                          variant="outlined"
-                          className={classNames(classes.contColButton, {
-                            [classes.contColButtonSelected]: selectDisplayedHitsPressed,
-                            [classes.contColButtonHalfSelected]: false
-                          })}
-                          onClick={() => {
-                            dispatch(selectAllHits([], null, false));
-                            setSelectDisplayedHitsPressed(!selectDisplayedHitsPressed);
-                          }}
-                          disabled={false}
-                        >
-                         Unselect displayed hits
-                      </Button>
-                  </Grid>
-              </Tooltip>
-              :
-              
-              <Tooltip title={'Select displayed hits'}>
-              <Grid item style={{marginLeft: '20px'}}>
-                <Button
-                  variant="outlined"
-                  className={classNames(classes.contColButton, {
-                    [classes.contColButtonSelected]: selectDisplayedHitsPressed,
-                    [classes.contColButtonHalfSelected]: false
-                  })}
-                  onClick={() => {
-
-                    dispatch(selectAllHits(uniqueSelectedMoleculeForHitNavigator, null, false));
-                    setSelectDisplayedHitsPressed(!selectDisplayedHitsPressed);
-                  }}
-                  disabled={false}
-                >
-                 Select displayed hits
-               </Button>
-              </Grid>
-           </Tooltip>
-           }
-           <Grid>
-                    <Typography variant="caption" className={classes.noOfSelectedHits}>{`Selected: ${
-                      allSelectedMolecules ? allSelectedMolecules.length : 0
-                    }`}</Typography>
-                  </Grid>
+      <Grid container>
+        {allSelectedMolecules.length > 0 && (
+          <Grid>
+            <Tooltip title="all ligands" style={{ marginLeft: '5px' }}>
+              <Button
+                variant="outlined"
+                className={classNames(classes.contColButton, {
+                  [classes.contColButtonSelected]: isLigandOn === true,
+                  [classes.contColButtonHalfSelected]: isLigandOn === null
+                })}
+                onClick={() => onButtonToggle('ligand')}
+                disabled={groupNglControlButtonsDisabledState.ligand}
+              >
+                L
+              </Button>
+            </Tooltip>
+            <Tooltip title="all sidechains" style={{ marginLeft: '5px' }}>
+              <Button
+                variant="outlined"
+                className={classNames(classes.contColButton, {
+                  [classes.contColButtonSelected]: isProteinOn,
+                  [classes.contColButtonHalfSelected]: isProteinOn === null
+                })}
+                onClick={() => onButtonToggle('protein')}
+                disabled={groupNglControlButtonsDisabledState.protein}
+              >
+                P
+              </Button>
+            </Tooltip>
+            <Tooltip title="all interactions" style={{ marginLeft: '5px' }}>
+              {/* C stands for contacts now */}
+              <Button
+                variant="outlined"
+                className={classNames(classes.contColButton, {
+                  [classes.contColButtonSelected]: isComplexOn,
+                  [classes.contColButtonHalfSelected]: isComplexOn === null
+                })}
+                onClick={() => onButtonToggle('complex')}
+                disabled={groupNglControlButtonsDisabledState.complex}
+              >
+                C
+              </Button>
+            </Tooltip>
+          </Grid>
+        )}
+        {
+          <Tooltip title={selectAllHitsPressed ? 'Unselect all hits' : 'Select all hits'}>
+            <Grid item style={{ marginLeft: allSelectedMolecules.length === 0 ? '70px' : '20px' }}>
+              <Button
+                variant="outlined"
+                className={classNames(classes.contColButton, {
+                  [classes.contColButtonSelected]: selectAllHitsPressed,
+                  [classes.contColButtonHalfSelected]: false
+                })}
+                onClick={() => {
+                  dispatch(selectAllHits(joinedMoleculeLists, setNextXMolecules, selectAllHitsPressed));
+                  setSelectAllHitsPressed(!selectAllHitsPressed);
+                }}
+                disabled={false}
+              >
+                {selectAllHitsPressed ? 'Unselect all hits' : 'Select all hits'}
+              </Button>
+            </Grid>
+          </Tooltip>
+        }
+        {selectedDisplayHits === true ? (
+          <Tooltip title={'Unselect displayed hits'}>
+            <Grid item style={{ marginLeft: '20px' }}>
+              <Button
+                variant="outlined"
+                className={classNames(classes.contColButton, {
+                  [classes.contColButtonSelected]: selectDisplayedHitsPressed,
+                  [classes.contColButtonHalfSelected]: false
+                })}
+                onClick={() => {
+                  dispatch(selectAllHits([], null, false));
+                  setSelectDisplayedHitsPressed(!selectDisplayedHitsPressed);
+                }}
+                disabled={false}
+              >
+                Unselect displayed hits
+              </Button>
+            </Grid>
+          </Tooltip>
+        ) : (
+          <Tooltip title={'Select displayed hits'}>
+            <Grid item style={{ marginLeft: '20px' }}>
+              <Button
+                variant="outlined"
+                className={classNames(classes.contColButton, {
+                  [classes.contColButtonSelected]: selectDisplayedHitsPressed,
+                  [classes.contColButtonHalfSelected]: false
+                })}
+                onClick={() => {
+                  dispatch(selectAllHits(uniqueSelectedMoleculeForHitNavigator, null, false));
+                  setSelectDisplayedHitsPressed(!selectDisplayedHitsPressed);
+                }}
+                disabled={false}
+              >
+                Select displayed hits
+              </Button>
+            </Grid>
+          </Tooltip>
+        )}
+        <Grid>
+          <Typography variant="caption" className={classes.noOfSelectedHits}>{`Selected: ${
+            allSelectedMolecules ? allSelectedMolecules.length : 0
+          }`}</Typography>
+        </Grid>
       </Grid>
       <Grid container direction="column" justify="flex-start" className={classes.container}>
         <Grid item>
