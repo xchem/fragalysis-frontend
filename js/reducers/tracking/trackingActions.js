@@ -746,6 +746,76 @@ export const findTrackAction = (action, state) => (dispatch, getState) => {
           text: `${actionDescription.CLASS} value ${actionDescription.UPDATED}: ${action.id}:${action.value}`
         };
       }
+    } else if (action.type === customDatasetConstants.APPEND_COMPOUND_TO_SELECTED_COMPOUNDS_BY_DATASET) {
+      if (action.payload) {
+        let objectType = actionObjectType.COMPOUND;
+        let objectName = action.payload.compoundTitle;
+
+        trackAction = {
+          type: actionType.COMPOUND_LOCKED,
+          annotation: actionAnnotation.CHECK,
+          timestamp: Date.now(),
+          username: username,
+          object_type: objectType,
+          object_name: objectName,
+          object_id: action.payload.compoundID,
+          dataset_id: action.payload.datasetID,
+          text: `${objectType} ${objectName} ${actionDescription.LOCKED} of dataset: ${action.payload.datasetID}`
+        };
+      }
+    } else if (action.type === customDatasetConstants.REMOVE_COMPOUND_FROM_SELECTED_COMPOUNDS_BY_DATASET) {
+      if (action.payload) {
+        let objectType = actionObjectType.COMPOUND;
+        let objectName = action.payload.compoundTitle;
+
+        trackAction = {
+          type: actionType.COMPOUND_UNLOCKED,
+          annotation: actionAnnotation.CLEAR,
+          timestamp: Date.now(),
+          username: username,
+          object_type: objectType,
+          object_name: objectName,
+          object_id: action.payload.compoundID,
+          dataset_id: action.payload.datasetID,
+          text: `${objectType} ${objectName} ${actionDescription.UNLOCKED} of dataset: ${action.payload.datasetID}`
+        };
+      }
+    } else if (action.type === customDatasetConstants.APPEND_COMPOUND_COLOR_OF_DATASET) {
+      if (action.payload) {
+        let objectType = actionObjectType.COMPOUND;
+        let objectName = action.payload.compoundTitle;
+
+        trackAction = {
+          type: actionType.COMPOUND_ADDED_TO_COLOR_GROUP,
+          annotation: actionAnnotation.CHECK,
+          timestamp: Date.now(),
+          username: username,
+          object_type: objectType,
+          object_name: objectName,
+          object_id: action.payload.compoundID,
+          dataset_id: action.payload.datasetID,
+          color_class: action.payload.colorClass,
+          text: `${objectType} ${objectName} ${actionDescription.ADDED_TO_COLOR_GROUP} ${action.payload.colorClass} of dataset: ${action.payload.datasetID}`
+        };
+      }
+    } else if (action.type === customDatasetConstants.REMOVE_COMPOUND_COLOR_OF_DATASET) {
+      if (action.payload) {
+        let objectType = actionObjectType.COMPOUND;
+        let objectName = action.payload.compoundTitle;
+
+        trackAction = {
+          type: actionType.COMPOUND_REMOVED_FROM_COLOR_GROUP,
+          annotation: actionAnnotation.CLEAR,
+          timestamp: Date.now(),
+          username: username,
+          object_type: objectType,
+          object_name: objectName,
+          object_id: action.payload.compoundID,
+          dataset_id: action.payload.datasetID,
+          color_class: action.payload.colorClass,
+          text: `${objectType} ${objectName} ${actionDescription.REMOVED_FROM_COLOR_GROUP} ${action.payload.colorClass} of dataset: ${action.payload.datasetID}`
+        };
+      }
     } else if (action.type === customDatasetConstants.APPEND_MOLECULE_TO_COMPOUNDS_TO_BUY_OF_DATASET) {
       if (action.payload) {
         let objectType = actionObjectType.COMPOUND;

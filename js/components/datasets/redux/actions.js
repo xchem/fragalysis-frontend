@@ -325,6 +325,28 @@ export const setFilterWithInspirations = isChecked => ({
   payload: isChecked
 });
 
+export const appendCompoundToSelectedCompoundsByDataset = (
+  datasetID,
+  compoundID,
+  compoundTitle,
+  skipTracking = false
+) => ({
+  type: constants.APPEND_COMPOUND_TO_SELECTED_COMPOUNDS_BY_DATASET,
+  payload: { datasetID, compoundID, compoundTitle },
+  skipTracking: skipTracking
+});
+
+export const removeCompoundFromSelectedCompoundsByDataset = (
+  datasetID,
+  compoundID,
+  compoundTitle,
+  skipTracking = false
+) => ({
+  type: constants.REMOVE_COMPOUND_FROM_SELECTED_COMPOUNDS_BY_DATASET,
+  payload: { datasetID, compoundID, compoundTitle },
+  skipTracking: skipTracking
+});
+
 export const appendMoleculeToCompoundsOfDatasetToBuy = (
   datasetID,
   moleculeID,
@@ -345,6 +367,38 @@ export const removeMoleculeFromCompoundsOfDatasetToBuy = (
   type: constants.REMOVE_MOLECULE_FROM_COMPOUNDS_TO_BUY_OF_DATASET,
   payload: { datasetID, moleculeID, moleculeTitle },
   skipTracking: skipTracking
+});
+
+export const appendCompoundColorOfDataset = (
+  datasetID,
+  compoundID,
+  colorClass,
+  compoundTitle,
+  skipTracking = false
+) => ({
+  type: constants.APPEND_COMPOUND_COLOR_OF_DATASET,
+  payload: { datasetID, compoundID, colorClass, compoundTitle, skipTracking: skipTracking }
+});
+
+export const removeCompoundColorOfDataset = (
+  datasetID,
+  compoundID,
+  colorClass,
+  compoundTitle,
+  skipTracking = false
+) => ({
+  type: constants.REMOVE_COMPOUND_COLOR_OF_DATASET,
+  payload: { datasetID, compoundID, colorClass, compoundTitle, skipTracking: skipTracking }
+});
+
+export const appendColorToSelectedColorFilter = colorClass => ({
+  type: constants.APPEND_COLOR_TO_SELECTED_COLOR_FILTERS,
+  payload: { colorClass }
+});
+
+export const removeColorFromSelectedColorFilter = colorClass => ({
+  type: constants.REMOVE_COLOR_FROM_SELECTED_COLOR_FILTERS,
+  payload: { colorClass }
 });
 
 export const reloadDatasetsReducer = savedDatasetsReducers => {
@@ -457,3 +511,28 @@ export const removeDataset = datasetId => {
     datasetId: datasetId
   };
 };
+
+export const setIsOpenLockVisibleCompoundsDialogGlobal = isOpen => ({
+  type: constants.SET_IS_OPEN_LOCK_VISIBLE_COMPOUNDS_DIALOG_GLOBAL,
+  isOpen: isOpen
+});
+
+export const setIsOpenLockVisibleCompoundsDialogLocal = isOpen => ({
+  type: constants.SET_IS_OPEN_LOCK_VISIBLE_COMPOUNDS_DIALOG_LOCAL,
+  isOpen: isOpen
+});
+
+export const setCmpForLocalLockVisibleCompoundsDialog = cmp => ({
+  type: constants.SET_CMP_FOR_LOCAL_LOCK_VISIBLE_COMPOUNDS_DIALOG,
+  cmp: cmp
+});
+
+export const setAskLockCompoundsQuestion = askLockCompoundsQuestion => ({
+  type: constants.SET_ASK_LOCK_COMPOUNDS_QUESTION,
+  askLockCompoundsQuestion: askLockCompoundsQuestion
+});
+
+export const setEditedColorGroup = colorGroup => ({
+  type: constants.SET_EDITED_COLOR_GROUP,
+  colorGroup: colorGroup
+});

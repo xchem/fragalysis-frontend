@@ -10,17 +10,20 @@ import {
   Divider,
   Typography,
   IconButton,
-  ButtonGroup
+  ButtonGroup,
+  TextField,
+  Checkbox,
+  InputAdornment
 } from '@material-ui/core';
 import React, { useState, useEffect, memo, useRef, useContext, useCallback, useMemo } from 'react';
 import { useDispatch, useSelector, shallowEqual } from 'react-redux';
 import DatasetMoleculeView from './datasetMoleculeView';
-import { colourList } from '../preview/molecule/utils/color';
+import { colourList, getRandomColor } from '../preview/molecule/utils/color';
 import InfiniteScroll from 'react-infinite-scroller';
 import { Button } from '../common/Inputs/Button';
 import { Panel } from '../common/Surfaces/Panel';
 import { ComputeSize } from '../../utils/computeSize';
-import { VIEWS } from '../../constants/constants';
+import { ARROW_TYPE, VIEWS } from '../../constants/constants';
 import { NglContext } from '../nglView/nglProvider';
 import classNames from 'classnames';
 import {
@@ -36,11 +39,20 @@ import {
   withDisabledDatasetMoleculesNglControlButtons,
   moveDatasetMolecule,
   deleteDataset,
-  getTrackingActions
+  getTrackingActions,
+  moveDatasetMoleculeUpDown,
+  getAllVisibleButNotLockedCompounds
 } from './redux/dispatchActions';
-import { setDragDropState, setFilterDialogOpen, setSearchStringOfCompoundSet } from './redux/actions';
+import {
+  setAskLockCompoundsQuestion,
+  setCrossReferenceCompoundName,
+  setDragDropState,
+  setFilterDialogOpen,
+  setIsOpenLockVisibleCompoundsDialogGlobal,
+  setSearchStringOfCompoundSet
+} from './redux/actions';
 import { DatasetFilter } from './datasetFilter';
-import { FilterList, Link, DeleteForever } from '@material-ui/icons';
+import { FilterList, Link, DeleteForever, ArrowUpward, ArrowDownward, Edit } from '@material-ui/icons';
 import { getJoinedMoleculeLists } from './redux/selectors';
 import { InspirationDialog } from './inspirationDialog';
 import { CrossReferenceDialog } from './crossReferenceDialog';
@@ -55,6 +67,15 @@ import GroupDatasetNglControlButtonsContext from './groupDatasetNglControlButton
 import { useScrollToSelected } from './useScrollToSelected';
 import { useEffectDebugger } from '../../utils/effects';
 import { DJANGO_CONTEXT } from '../../utils/djangoContext';
+import { compoundsColors } from '../preview/compounds/redux/constants';
+import {
+  onChangeCompoundClassCheckbox,
+  onChangeCompoundClassValue,
+  onClickCompoundClass,
+  onKeyDownCompoundClass,
+  onStartEditColorClassName
+} from '../preview/compounds/redux/dispatchActions';
+import { LockVisibleCompoundsDialog } from './lockVisibleCompoundsDialog';
 
 const useStyles = makeStyles(theme => ({
   container: {
@@ -188,6 +209,58 @@ const useStyles = makeStyles(theme => ({
     ...theme.typography.button,
     color: theme.palette.primary.main,
     fontStyle: 'italic'
+  },
+  arrow: {
+    width: 12,
+    height: 15
+  },
+  invisArrow: {
+    width: 12,
+    height: 15,
+    visibility: 'hidden'
+  },
+  arrows: {
+    height: '100%',
+    border: 'solid 1px',
+    borderColor: theme.palette.background.divider,
+    borderStyle: 'solid solid solid solid'
+  },
+  [compoundsColors.blue.key]: {
+    backgroundColor: compoundsColors.blue.color
+  },
+  [compoundsColors.red.key]: {
+    backgroundColor: compoundsColors.red.color
+  },
+  [compoundsColors.green.key]: {
+    backgroundColor: compoundsColors.green.color
+  },
+  [compoundsColors.purple.key]: {
+    backgroundColor: compoundsColors.purple.color
+  },
+  [compoundsColors.apricot.key]: {
+    backgroundColor: compoundsColors.apricot.color
+  },
+  textField: {
+    // marginLeft: theme.spacing(1),
+    // marginRight: theme.spacing(1),
+    width: 70,
+    '& .MuiFormLabel-root': {
+      paddingLeft: theme.spacing(1)
+    }
+  },
+  selectedInput: {
+    border: `2px groove ${theme.palette.primary.main}`
+  },
+  classCheckbox: {
+    padding: '0px'
+  },
+  editClassNameIcon: {
+    padding: '0px',
+    color: 'inherit'
+  },
+  editClassNameIconSelected: {
+    padding: '0px',
+    color: theme.palette.primary.main
   }
 }));
 
@@ -204,6 +277,9 @@ const DatasetMoleculeList = ({ title, datasetID, url }) => {
   const sortDialogOpen = useSelector(state => state.datasetsReducers.filterDialogOpen);
   const isOpenInspirationDialog = useSelector(state => state.datasetsReducers.isOpenInspirationDialog);
   const isOpenCrossReferenceDialog = useSelector(state => state.datasetsReducers.isOpenCrossReferenceDialog);
+  const isLockVisibleCompoundsDialogOpenGlobal = useSelector(
+    state => state.datasetsReducers.isLockVisibleCompoundsDialogOpenGlobal
+  );
 
   const moleculeLists = useSelector(state => state.datasetsReducers.moleculeLists);
   const isLoadingMoleculeList = useSelector(state => state.datasetsReducers.isLoadingMoleculeList);
@@ -228,6 +304,8 @@ const DatasetMoleculeList = ({ title, datasetID, url }) => {
 
   const datasetObj = useSelector(state => state.datasetsReducers.datasets.find(d => d.id === datasetID));
 
+  const askLockCompoundsQuestion = useSelector(state => state.datasetsReducers.askLockCompoundsQuestion);
+
   // console.log('DatasetMoleculeList - update');
 
   // const disableUserInteraction = useDisableUserInteraction();
@@ -248,25 +326,62 @@ const DatasetMoleculeList = ({ title, datasetID, url }) => {
 
   const compoundsToBuyList = useSelector(state => state.datasetsReducers.compoundsToBuyDatasetMap[datasetID]);
 
-  const addMoleculeViewRef = useScrollToSelected(datasetID, moleculesPerPage, setCurrentPage);
+  const { addMoleculeViewRef, setScrollToMoleculeId } = useScrollToSelected(
+    datasetID,
+    moleculesPerPage,
+    setCurrentPage
+  );
 
   const ligandList = useSelector(state => state.datasetsReducers.ligandLists[datasetID]);
   const proteinList = useSelector(state => state.datasetsReducers.proteinLists[datasetID]);
   const complexList = useSelector(state => state.datasetsReducers.complexLists[datasetID]);
   const surfaceList = useSelector(state => state.datasetsReducers.surfaceLists[datasetID]);
 
-  const selectedMolecules = (moleculeLists[datasetID] || []).filter(mol => compoundsToBuyList?.includes(mol.id));
+  // const [selectedMolecules, setSelectedMolecules] = useState([]);
 
-  const isTypeOn = typeList => {
+  // useEffect(() => {
+  //   setSelectedMolecules((moleculeLists[datasetID] || []).filter(mol => compoundsToBuyList?.includes(mol.id)));
+  // }, [compoundsToBuyList, datasetID, moleculeLists]);
+
+  const selectedMolecules = (moleculeLists[datasetID] || []).filter(mol => compoundsToBuyList?.includes(mol.id));
+  const lockedMolecules = useSelector(state => state.datasetsReducers.selectedCompoundsByDataset[datasetID]) ?? [];
+  const editedColorGroup = useSelector(state => state.datasetsReducers.editedColorGroup);
+
+  const currentCompoundClass = useSelector(state => state.previewReducers.compounds.currentCompoundClass);
+
+  const blueInput = useSelector(state => state.previewReducers.compounds[compoundsColors.blue.key]);
+  const redInput = useSelector(state => state.previewReducers.compounds[compoundsColors.red.key]);
+  const greenInput = useSelector(state => state.previewReducers.compounds[compoundsColors.green.key]);
+  const purpleInput = useSelector(state => state.previewReducers.compounds[compoundsColors.purple.key]);
+  const apricotInput = useSelector(state => state.previewReducers.compounds[compoundsColors.apricot.key]);
+
+  const inputs = {
+    [compoundsColors.blue.key]: blueInput,
+    [compoundsColors.red.key]: redInput,
+    [compoundsColors.green.key]: greenInput,
+    [compoundsColors.purple.key]: purpleInput,
+    [compoundsColors.apricot.key]: apricotInput
+  };
+
+  const compoundColors = useSelector(state => state.datasetsReducers.compoundColorByDataset[datasetID]) ?? {};
+
+  const isSelectedTypeOn = typeList => {
     if (typeList && compoundsToBuyList) {
       return typeList.some(molId => selectedMolecules.some(mol => mol.id === molId));
     }
     return false;
   };
 
-  const isLigandOn = isTypeOn(ligandList);
-  const isProteinOn = isTypeOn(proteinList);
-  const isComplexOn = isTypeOn(complexList);
+  const isTypeOn = typeList => {
+    return typeList && typeList.length > 0;
+  };
+
+  let isLigandOn = isSelectedTypeOn(ligandList);
+  let isProteinOn = isSelectedTypeOn(proteinList);
+  let isComplexOn = isSelectedTypeOn(complexList);
+
+  let areArrowsVisible =
+    isTypeOn(ligandList) || isTypeOn(proteinList) || isTypeOn(complexList) || isTypeOn(surfaceList);
 
   const addType = {
     ligand: addDatasetLigand,
@@ -287,7 +402,8 @@ const DatasetMoleculeList = ({ title, datasetID, url }) => {
   // TODO: maybe change "currentMolecules.forEach" to "{type}List.forEach"
 
   const removeSelectedType = (type, skipTracking) => {
-    selectedMolecules.forEach(molecule => {
+    lockedMolecules.forEach(cid => {
+      let molecule = getCompoundForId(cid);
       dispatch(removeType[type](stage, molecule, colourList[molecule.id % colourList.length], datasetID, skipTracking));
     });
     selectedAll.current = false;
@@ -295,24 +411,20 @@ const DatasetMoleculeList = ({ title, datasetID, url }) => {
 
   const addNewType = (type, skipTracking) => {
     dispatch(
-      withDisabledDatasetMoleculesNglControlButtons(
-        [datasetID],
-        selectedMolecules.map(molecule => molecule.id),
-        type,
-        async () => {
-          const promises = [];
+      withDisabledDatasetMoleculesNglControlButtons([datasetID], lockedMolecules, type, async () => {
+        const promises = [];
 
-          selectedMolecules.forEach(molecule => {
-            promises.push(
-              dispatch(
-                addType[type](stage, molecule, colourList[molecule.id % colourList.length], datasetID, skipTracking)
-              )
-            );
-          });
+        lockedMolecules.forEach(cid => {
+          let molecule = getCompoundForId(cid);
+          promises.push(
+            dispatch(
+              addType[type](stage, molecule, colourList[molecule.id % colourList.length], datasetID, skipTracking)
+            )
+          );
+        });
 
-          await Promise.all(promises);
-        }
-      )
+        await Promise.all(promises);
+      })
     );
   };
 
@@ -354,24 +466,28 @@ const DatasetMoleculeList = ({ title, datasetID, url }) => {
     }
   };
 
+  const getCompoundForId = id => {
+    return joinedMoleculeLists?.find(m => m.id === id);
+  };
+
   const getMoleculesToSelect = list => {
-    let molecules = selectedMolecules.filter(m => !list.includes(m.id));
-    let data = molecules.map(m => {
-      return { datasetID, molecule: m };
+    let molecules = lockedMolecules.filter(cid => !list.includes(cid));
+    let data = molecules.map(cid => {
+      return { datasetID, molecule: getCompoundForId(cid) };
     });
     return data;
   };
 
   const getMoleculesToDeselect = list => {
-    let molecules = selectedMolecules.filter(m => list.includes(m.id));
-    let data = molecules.map(m => {
-      return { datasetID, molecule: m };
+    let molecules = lockedMolecules.filter(cid => list.includes(cid));
+    let data = molecules.map(cid => {
+      return { datasetID, molecule: getCompoundForId(cid) };
     });
     return data;
   };
 
   // getting searched string to input filed
-  let filterSearchString = "";
+  let filterSearchString = '';
   const getSearchedString = () => {
     filterSearchString = currentActionList.find(action => action.type === 'SEARCH_STRING');
   };
@@ -443,9 +559,11 @@ const DatasetMoleculeList = ({ title, datasetID, url }) => {
   const crossReferenceDialogRef = useRef();
   const inspirationDialogRef = useRef();
   const scrollBarRef = useRef();
+  const lockVisibleCompoundsDialogRef = useRef();
 
   const [isOpenAlert, setIsOpenAlert] = useState(false);
   const [isDeleteDatasetAlertOpen, setIsDeleteDatasetAlertOpen] = useState(false);
+  const [lockCompoundsDialogAnchorE1, setLockCompoundsDialogAnchorE1] = useState(null);
 
   const moveMolecule = useCallback(
     (dragIndex, hoverIndex) => {
@@ -455,7 +573,7 @@ const DatasetMoleculeList = ({ title, datasetID, url }) => {
   );
 
   const groupDatasetsNglControlButtonsDisabledState = useDisableDatasetNglControlButtons(
-    selectedMolecules.map(molecule => ({ datasetID, molecule }))
+    lockedMolecules.map(cid => ({ datasetID, molecule: getCompoundForId(cid) }))
   );
 
   // useEffectDebugger(
@@ -524,6 +642,92 @@ const DatasetMoleculeList = ({ title, datasetID, url }) => {
   //   'DatasetMoleculeList'
   // );
 
+  const getFirstItemForIterationStart = () => {
+    const firstItem = joinedMoleculeLists.find(
+      mol =>
+        (ligandList.includes(mol.id) ||
+          proteinList.includes(mol.id) ||
+          complexList.includes(mol.id) ||
+          surfaceList.includes(mol.id)) &&
+        !lockedMolecules.includes(mol.id)
+    );
+
+    return firstItem;
+  };
+
+  const getNextItemForIteration = currentItemId => {
+    const nextItem = joinedMoleculeLists.find(mol => !lockedMolecules.includes(mol.id) && mol.id > currentItemId);
+    return nextItem;
+  };
+
+  const getPrevItemForIteration = currentItemId => {
+    const reversedCompounds = [...joinedMoleculeLists].reverse();
+    const firstUnlockedCompound = reversedCompounds.find(compound => {
+      return !lockedMolecules.includes(compound.id) && compound.id < currentItemId;
+    });
+
+    return firstUnlockedCompound;
+  };
+
+  const handleClickOnDownArrow = async event => {
+    const unlockedVisibleCompounds = dispatch(getAllVisibleButNotLockedCompounds(datasetID));
+    //one unlocked compound is what we want because it designate where the iteration will start
+    if (unlockedVisibleCompounds?.length > 1 && askLockCompoundsQuestion) {
+      setLockCompoundsDialogAnchorE1(event.currentTarget);
+      dispatch(setIsOpenLockVisibleCompoundsDialogGlobal(true));
+    } else {
+      const firstItem = getFirstItemForIterationStart();
+      const nextItem = getNextItemForIteration(firstItem.id);
+
+      if (firstItem && nextItem) {
+        const moleculeTitleNext = nextItem && nextItem.name;
+        setScrollToMoleculeId(nextItem.id);
+
+        let dataValue = {
+          colourToggle: getRandomColor(firstItem),
+          isLigandOn: ligandList.includes(firstItem.id),
+          isProteinOn: proteinList.includes(firstItem.id),
+          isComplexOn: complexList.includes(firstItem.id),
+          isSurfaceOn: surfaceList.includes(firstItem.id)
+        };
+
+        dispatch(setCrossReferenceCompoundName(moleculeTitleNext));
+        dispatch(
+          moveDatasetMoleculeUpDown(stage, datasetID, firstItem, datasetID, nextItem, dataValue, ARROW_TYPE.DOWN)
+        );
+      }
+    }
+  };
+
+  const handleClickOnUpArrow = async event => {
+    const unlockedVisibleCompounds = dispatch(getAllVisibleButNotLockedCompounds(datasetID));
+    //one unlocked compound is what we want because it designate where the iteration will start
+    if (unlockedVisibleCompounds?.length > 1 && askLockCompoundsQuestion) {
+      setLockCompoundsDialogAnchorE1(event.currentTarget);
+      dispatch(setIsOpenLockVisibleCompoundsDialogGlobal(true));
+    } else {
+      const firstItem = getFirstItemForIterationStart();
+      const prevItem = getPrevItemForIteration(firstItem.id);
+
+      if (firstItem && prevItem) {
+        const moleculeTitlePrev = prevItem && prevItem.name;
+
+        setScrollToMoleculeId(prevItem.id);
+
+        let dataValue = {
+          colourToggle: getRandomColor(firstItem),
+          isLigandOn: ligandList.includes(firstItem.id),
+          isProteinOn: proteinList.includes(firstItem.id),
+          isComplexOn: complexList.includes(firstItem.id),
+          isSurfaceOn: surfaceList.includes(firstItem.id)
+        };
+
+        dispatch(setCrossReferenceCompoundName(moleculeTitlePrev));
+        dispatch(moveDatasetMoleculeUpDown(stage, datasetID, firstItem, datasetID, prevItem, dataValue, ARROW_TYPE.UP));
+      }
+    }
+  };
+
   return (
     <Panel hasHeader title={title} withTooltip headerActions={actions}>
       <AlertModal
@@ -565,6 +769,14 @@ const DatasetMoleculeList = ({ title, datasetID, url }) => {
       {isOpenInspirationDialog && (
         <InspirationDialog open anchorEl={selectedMoleculeRef} datasetID={datasetID} ref={inspirationDialogRef} />
       )}
+      {askLockCompoundsQuestion && isLockVisibleCompoundsDialogOpenGlobal && (
+        <LockVisibleCompoundsDialog
+          open
+          ref={lockVisibleCompoundsDialogRef}
+          anchorEl={lockCompoundsDialogAnchorE1}
+          datasetId={datasetID}
+        />
+      )}
       {isOpenCrossReferenceDialog && (
         <CrossReferenceDialog open anchorEl={selectedMoleculeRef} ref={crossReferenceDialogRef} />
       )}
@@ -600,7 +812,60 @@ const DatasetMoleculeList = ({ title, datasetID, url }) => {
           </>
         )}
       </div>
-      <Grid container direction="column" justify="flex-start" className={classes.container}>
+      <Grid container direction="row" justify="flex-start" className={classes.container}>
+        <Grid item>
+          {/* Selection */}
+          <Grid container direction="row" alignItems="center">
+            {Object.keys(compoundsColors).map(item => (
+              <>
+                <Grid item key={`${item}-chckbox`}>
+                  <Checkbox
+                    className={classes.classCheckbox}
+                    key={`CHCK_${item}`}
+                    value={`${item}`}
+                    onChange={e => dispatch(onChangeCompoundClassCheckbox(e))}
+                    checked={currentCompoundClass === item}
+                  ></Checkbox>
+                </Grid>
+                <Grid item key={`${item}-txtfield`}>
+                  <TextField
+                    InputProps={{
+                      readOnly: editedColorGroup !== item,
+                      startAdornment: (
+                        <InputAdornment position="start">
+                          <IconButton
+                            className={
+                              editedColorGroup !== item ? classes.editClassNameIcon : classes.editClassNameIconSelected
+                            }
+                            color={'inherit'}
+                            value={`${item}`}
+                            onClick={e => dispatch(onStartEditColorClassName(e))}
+                          >
+                            <Edit />
+                          </IconButton>
+                        </InputAdornment>
+                      )
+                    }}
+                    autoComplete="off"
+                    id={`${item}`}
+                    key={`CLASS_${item}`}
+                    variant="standard"
+                    className={classNames(
+                      classes.textField,
+                      classes[item],
+                      currentCompoundClass === item && classes.selectedInput
+                    )}
+                    label={compoundsColors[item].text}
+                    onChange={e => dispatch(onChangeCompoundClassValue(e))}
+                    onKeyDown={e => dispatch(onKeyDownCompoundClass(e))}
+                    // onClick={e => dispatch(onClickCompoundClass(e))}
+                    value={inputs[item] || ''}
+                  />
+                </Grid>
+              </>
+            ))}
+          </Grid>
+        </Grid>
         <Grid item>
           {/* Header */}
           {isLoadingMoleculeList === false && (
@@ -621,7 +886,7 @@ const DatasetMoleculeList = ({ title, datasetID, url }) => {
                       </Grid>
                     </Tooltip>
                   ))}
-                {selectedMolecules.length > 0 && (
+                {lockedMolecules && lockedMolecules.length > 0 && (
                   <Grid item>
                     <Grid
                       container
@@ -638,7 +903,10 @@ const DatasetMoleculeList = ({ title, datasetID, url }) => {
                             className={classNames(classes.contColButton, {
                               [classes.contColButtonSelected]: isLigandOn
                             })}
-                            onClick={() => onButtonToggle('ligand')}
+                            onClick={() => {
+                              dispatch(setAskLockCompoundsQuestion(true));
+                              onButtonToggle('ligand');
+                            }}
                             disabled={groupDatasetsNglControlButtonsDisabledState.ligand}
                           >
                             L
@@ -652,7 +920,10 @@ const DatasetMoleculeList = ({ title, datasetID, url }) => {
                             className={classNames(classes.contColButton, {
                               [classes.contColButtonSelected]: isProteinOn
                             })}
-                            onClick={() => onButtonToggle('protein')}
+                            onClick={() => {
+                              dispatch(setAskLockCompoundsQuestion(true));
+                              onButtonToggle('protein');
+                            }}
                             disabled={groupDatasetsNglControlButtonsDisabledState.protein}
                           >
                             P
@@ -667,7 +938,10 @@ const DatasetMoleculeList = ({ title, datasetID, url }) => {
                             className={classNames(classes.contColButton, {
                               [classes.contColButtonSelected]: isComplexOn
                             })}
-                            onClick={() => onButtonToggle('complex')}
+                            onClick={() => {
+                              dispatch(setAskLockCompoundsQuestion(true));
+                              onButtonToggle('complex');
+                            }}
                             disabled={groupDatasetsNglControlButtonsDisabledState.complex}
                           >
                             C
@@ -677,6 +951,32 @@ const DatasetMoleculeList = ({ title, datasetID, url }) => {
                     </Grid>
                   </Grid>
                 )}
+                <Grid item>
+                  <Grid container direction="row" /*className={classes.arrows}*/>
+                    <Grid item>
+                      <IconButton
+                        color="primary"
+                        size="small"
+                        // disabled={false || !previousItemData || !areArrowsVisible}
+                        disabled={false}
+                        onClick={handleClickOnUpArrow}
+                      >
+                        <ArrowUpward className={areArrowsVisible ? classes.arrow : classes.invisArrow} />
+                      </IconButton>
+                    </Grid>
+                    <Grid item>
+                      <IconButton
+                        color="primary"
+                        size="small"
+                        // disabled={false || !nextItemData || !areArrowsVisible}
+                        disabled={false}
+                        onClick={handleClickOnDownArrow}
+                      >
+                        <ArrowDownward className={areArrowsVisible ? classes.arrow : classes.invisArrow} />
+                      </IconButton>
+                    </Grid>
+                  </Grid>
+                </Grid>
               </Grid>
             </Grid>
           )}
@@ -723,7 +1023,14 @@ const DatasetMoleculeList = ({ title, datasetID, url }) => {
                   <GroupDatasetNglControlButtonsContext.Provider value={groupDatasetsNglControlButtonsDisabledState}>
                     <DndProvider backend={HTML5Backend}>
                       {currentMolecules.map((data, index, array) => {
-                        const isCheckedToBuy = selectedMolecules.some(molecule => molecule.id === data.id);
+                        const isAddedToShoppingCart = selectedMolecules.some(molecule => molecule.id === data.id);
+                        const locked = lockedMolecules?.includes(data.id);
+                        let shoppingCartColors = null;
+                        if (isAddedToShoppingCart) {
+                          if (compoundColors.hasOwnProperty(data.id)) {
+                            shoppingCartColors = compoundColors[data.id];
+                          }
+                        }
 
                         return (
                           <DatasetMoleculeView
@@ -744,10 +1051,12 @@ const DatasetMoleculeList = ({ title, datasetID, url }) => {
                             S={surfaceList?.includes(data.id)}
                             V={false}
                             moveMolecule={moveMolecule}
-                            isCheckedToBuy={isCheckedToBuy}
-                            disableL={isCheckedToBuy && groupDatasetsNglControlButtonsDisabledState.ligand}
-                            disableP={isCheckedToBuy && groupDatasetsNglControlButtonsDisabledState.protein}
-                            disableC={isCheckedToBuy && groupDatasetsNglControlButtonsDisabledState.complex}
+                            isLocked={locked}
+                            isAddedToShoppingCart={isAddedToShoppingCart}
+                            shoppingCartColors={shoppingCartColors}
+                            disableL={locked && groupDatasetsNglControlButtonsDisabledState.ligand}
+                            disableP={locked && groupDatasetsNglControlButtonsDisabledState.protein}
+                            disableC={locked && groupDatasetsNglControlButtonsDisabledState.complex}
                             dragDropEnabled
                           />
                         );
