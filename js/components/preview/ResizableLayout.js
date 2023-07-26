@@ -8,7 +8,6 @@ import { ProjectHistoryPanel } from './projectHistoryPanel';
 import { Resizer } from './resizer';
 import { RHS } from './rhs';
 import TagDetails from './tags/details/tagDetails';
-import TagSelector from './tags/tagSelector';
 import { ViewerControls } from './viewerControls';
 
 const useStyles = makeStyles(theme => ({
@@ -32,8 +31,10 @@ const useStyles = makeStyles(theme => ({
 }));
 
 const sideWidth = 500;
-const panelHeight = 160;
+let panelHeight = 310;
+let totalTagDetailHeight = 150;
 const resizerSize = 20;
+let screenHeight = 0;
 
 export const ResizableLayout = ({ gridRef, hideProjects, showHistory, onShowHistoryChange, nglPortal }) => {
   const classes = useStyles();
@@ -60,6 +61,12 @@ export const ResizableLayout = ({ gridRef, hideProjects, showHistory, onShowHist
     }
   }, [sidesOpen.LHS, sidesOpen.RHS]);
 
+  if (document.getElementById("tagName") !== null) {
+    totalTagDetailHeight = document.getElementById("tagName").clientHeight + 170;
+      if (totalTagDetailHeight > 350) {
+        totalTagDetailHeight = 351
+      }
+    }
   const onLhsResize = useCallback(
     x => {
       setLhsWidth(() => {
@@ -113,6 +120,15 @@ export const ResizableLayout = ({ gridRef, hideProjects, showHistory, onShowHist
     [gridRef, lhsWidth, sidesOpen.LHS]
   );
 
+  if (gridRef.current !== null && gridRef.current !== undefined) {
+    if (gridRef.current?.elementRef.current !== null) {
+      if (gridRef.current?.elementRef.current.firstChild !== null) {
+        const gridRect = gridRef.current?.elementRef.current.firstChild.getBoundingClientRect();
+        screenHeight = gridRect.height;
+      }
+    }
+  }
+
   const onTagDetailsResize = useCallback(
     (_, y) => {
       setTagDetailsHeight(() => {
@@ -154,15 +170,19 @@ export const ResizableLayout = ({ gridRef, hideProjects, showHistory, onShowHist
       {sidesOpen.LHS && (
         <>
           <div className={classes.lhs} style={{ width: lhsWidth }}>
-            <div style={{ height: tagDetailsHeight }}>
+            <div style={{ height: totalTagDetailHeight }}>
               <TagDetails />
             </div>
             <Resizer orientation="horizontal" onResize={onTagDetailsResize} />
+            {
+            /* hide section Hit List Filter(LHS) - task #576 
             <div style={{ height: `calc(100% - ${tagDetailsHeight + hitNavigatorHeight + 2 * resizerSize}px)` }}>
               <TagSelector />
-            </div>
-            <Resizer orientation="horizontal" onResize={onHitListResize} />
-            <div style={{ height: hitNavigatorHeight }}>
+             </div> 
+            <Resizer orientation="horizontal" onResize={onHitListResize} /> 
+            */
+           }
+            <div style={{ height: (screenHeight - totalTagDetailHeight - 20) }}>
               <HitNavigator hideProjects={hideProjects} />
             </div>
           </div>

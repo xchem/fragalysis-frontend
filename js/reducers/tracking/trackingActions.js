@@ -15,6 +15,7 @@ import { constants as viewerControlsConstants } from '../../components/preview/v
 import { DJANGO_CONTEXT } from '../../utils/djangoContext';
 import { BACKGROUND_COLOR } from '../../components/nglView/constants/index';
 import { getMoleculeForId } from '../../components/preview/tags/redux/dispatchActions';
+import { constants as moleculeConstants} from '../../components/preview/molecule/redux/constants'
 
 export const findTrackAction = (action, state) => (dispatch, getState) => {
   const username = DJANGO_CONTEXT['username'];
@@ -1197,7 +1198,36 @@ export const findTrackAction = (action, state) => (dispatch, getState) => {
           text: `Filter parameter: ${action.payload.scoreName} ${actionDescription.CHANGED} to ${valueDescription} of dataset: ${action.payload.datasetID}`
         };
       }
-    } else if (action.type === nglConstants.UPDATE_COMPONENT_REPRESENTATION_VISIBILITY) {
+    } else if (action.type === customDatasetConstants.SET_SEARCH_STRING) {
+      let searchString = action.payload.searchString;
+      let objectType = actionType.SEARCH_STRING;
+
+      trackAction = {
+        type: actionType.SEARCH_STRING,
+        annotation: actionAnnotation.CHECK,
+        timestamp: Date.now(),
+        username: username,
+        object_type: objectType,
+        dataset_id: action.payload.datasetID,
+        searchString: searchString,
+        text: `Searched string: ${searchString}`
+      };
+    } else if (action.type === moleculeConstants.SET_SEARCH_STRING_HIT_NAVIGATOR) {
+      let searchStringHitNavigator = action.payload;
+      let objectType = actionType.SET_SEARCH_STRING_HIT_NAVIGATOR;
+
+      trackAction = {
+        type: actionType.SEARCH_STRING_HIT_NAVIGATOR,
+        annotation: actionAnnotation.CHECK,
+        timestamp: Date.now(),
+        username: username,
+        object_type: objectType,
+        dataset_id: action.payload.datasetID,
+        searchStringHitNavigator: searchStringHitNavigator,
+        text: `Searched string in Hit navigator: ${searchStringHitNavigator}`
+      };
+    }
+     else if (action.type === nglConstants.UPDATE_COMPONENT_REPRESENTATION_VISIBILITY) {
       let objectType = actionObjectType.REPRESENTATION;
       let value = action.newVisibility;
       let valueDescription = value === true ? actionDescription.VISIBLE : actionDescription.HIDDEN;

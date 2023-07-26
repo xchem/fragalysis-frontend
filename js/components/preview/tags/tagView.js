@@ -57,10 +57,10 @@ const useStyles = makeStyles(theme => ({
     height: '100% !important',
     margin: '0 !important',
     padding: '0 !important',
-    borderRadius: '0 !important',
     '& .MuiChip-labelSmall': {
       textAlign: 'left !important'
-    }
+    },
+    width: '200px'
   },
   chipSelected: {
     '& .MuiChip-iconSmall': {
@@ -170,6 +170,25 @@ const TagView = memo(
                 <Check className={classes.check} style={{ color: color }} />
               </Avatar>
             )
+          };
+        }
+        else {
+          return {
+            size: 'small',
+            className: `${classes.chip} ${selected && !isSpecialTag ? classes.chipSelected : null} ${
+              classes.tagDetailsChip
+            }`,
+            label: tagData.tag,
+            clickable: true,
+            color: bgColor,
+            style: {backgroundColor: 'white',
+            border: '1px solid rgba(0, 0, 0, 0.23)'},
+            onClick: () => {
+              handleClick && handleClick(selected, tag, allTags);
+            },
+            deleteIcon: getDeleteIcon(),
+            onDelete: getDeleteAction(),
+            disabled: determineDisabled(),
           };
         }
 

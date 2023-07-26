@@ -35,7 +35,8 @@ import {
   autoHideDatasetDialogsOnScroll,
   withDisabledDatasetMoleculesNglControlButtons,
   moveDatasetMolecule,
-  deleteDataset
+  deleteDataset,
+  getTrackingActions
 } from './redux/dispatchActions';
 import { setDragDropState, setFilterDialogOpen, setSearchStringOfCompoundSet } from './redux/actions';
 import { DatasetFilter } from './datasetFilter';
@@ -213,6 +214,8 @@ const DatasetMoleculeList = ({ title, datasetID, url }) => {
   const filterProperties = filterPropertiesMap && datasetID && filterPropertiesMap[datasetID];
   const [sortDialogAnchorEl, setSortDialogAnchorEl] = useState(null);
 
+  const currentActionList = useSelector(state => state.trackingReducers.current_actions_list);
+
   const isActiveFilter = !!(filterSettings || {}).active;
   const { getNglView } = useContext(NglContext);
 
@@ -367,6 +370,13 @@ const DatasetMoleculeList = ({ title, datasetID, url }) => {
     return data;
   };
 
+  // getting searched string to input filed
+  let filterSearchString = "";
+  const getSearchedString = () => {
+    filterSearchString = currentActionList.find(action => action.type === 'SEARCH_STRING');
+  };
+  getSearchedString();
+
   const actions = useMemo(
     () => [
       <SearchField
@@ -374,10 +384,11 @@ const DatasetMoleculeList = ({ title, datasetID, url }) => {
         id="input-with-icon-textfield"
         placeholder="Search"
         onChange={value => {
-          dispatch(setSearchStringOfCompoundSet(value));
+          dispatch(setSearchStringOfCompoundSet(datasetID, value));
           dispatch(setDragDropState(datasetID, null));
         }}
         disabled={isLoadingMoleculeList}
+        searchString={filterSearchString?.searchString ?? ''}
       />,
       <IconButton className={classes.panelButton} color={'inherit'} onClick={() => window.open(url, '_blank')}>
         <Tooltip title="Link to dataset">

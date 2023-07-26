@@ -337,7 +337,7 @@ export const datasetsReducers = (state = INITIAL_STATE, action = {}) => {
       return Object.assign({}, state, { filteredScoreProperties: diminishedFilterShowedScoreProperties });
 
     case constants.SET_SEARCH_STRING:
-      return Object.assign({}, state, { searchString: action.payload });
+      return Object.assign({}, state, { searchString: action.payload.searchString });
 
     case constants.SET_IS_OPEN_INSPIRATION_DIALOG:
       return Object.assign({}, state, { isOpenInspirationDialog: action.payload });
