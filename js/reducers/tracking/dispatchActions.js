@@ -2923,9 +2923,9 @@ const handleCompoundColorAction = (action, isAdded) => (dispatch, getState) => {
     let data = getCompound(action, state);
     if (data) {
       if (isAdded) {
-        dispatch(appendCompoundColorOfDataset(action.dataset_id, data.id, data.color_class, data.name));
+        dispatch(appendCompoundColorOfDataset(action.dataset_id, data.id, action.color_class, data.name));
       } else {
-        dispatch(removeCompoundColorOfDataset(action.dataset_id, data.id, data.color_class, data.name));
+        dispatch(removeCompoundColorOfDataset(action.dataset_id, data.id, action.color_class, data.name));
       }
     }
   }

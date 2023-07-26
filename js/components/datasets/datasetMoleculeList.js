@@ -1023,14 +1023,16 @@ const DatasetMoleculeList = ({ title, datasetID, url }) => {
                   <GroupDatasetNglControlButtonsContext.Provider value={groupDatasetsNglControlButtonsDisabledState}>
                     <DndProvider backend={HTML5Backend}>
                       {currentMolecules.map((data, index, array) => {
-                        const isAddedToShoppingCart = selectedMolecules.some(molecule => molecule.id === data.id);
+                        // const isAddedToShoppingCart = selectedMolecules.some(molecule => molecule.id === data.id);
+                        let isAddedToShoppingCart = false;
                         const locked = lockedMolecules?.includes(data.id);
                         let shoppingCartColors = null;
-                        if (isAddedToShoppingCart) {
-                          if (compoundColors.hasOwnProperty(data.id)) {
-                            shoppingCartColors = compoundColors[data.id];
-                          }
+                        // if (isAddedToShoppingCart) {
+                        if (compoundColors.hasOwnProperty(data.id)) {
+                          isAddedToShoppingCart = true;
+                          shoppingCartColors = compoundColors[data.id];
                         }
+                        // }
 
                         return (
                           <DatasetMoleculeView

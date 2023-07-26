@@ -348,7 +348,8 @@ const DatasetMoleculeView = memo(
         disableL,
         disableP,
         disableC,
-        inSelectedCompoundsList = false
+        inSelectedCompoundsList = false,
+        colorButtonsEnabled = true
       },
       outsideRef
     ) => {
@@ -608,12 +609,12 @@ const DatasetMoleculeView = memo(
 
       const handleColorGroupButtonClick = event => {
         if (shoppingCartColors?.includes(event.target.id)) {
-          if (shoppingCartColors?.length === 1) {
-            dispatch(removeMoleculeFromCompoundsOfDatasetToBuy(datasetID, currentID, moleculeTitle));
-          }
+          // if (shoppingCartColors?.length === 1) {
+          //   dispatch(removeMoleculeFromCompoundsOfDatasetToBuy(datasetID, currentID, moleculeTitle));
+          // }
           dispatch(removeCompoundColorOfDataset(datasetID, currentID, event.target.id, moleculeTitle, true));
         } else {
-          dispatch(appendMoleculeToCompoundsOfDatasetToBuy(datasetID, currentID, moleculeTitle));
+          // dispatch(appendMoleculeToCompoundsOfDatasetToBuy(datasetID, currentID, moleculeTitle));
           dispatch(appendCompoundColorOfDataset(datasetID, currentID, event.target.id, moleculeTitle, true));
         }
       };
@@ -627,9 +628,9 @@ const DatasetMoleculeView = memo(
 
       const handleShoppingCartClick = () => {
         if (currentCompoundClass) {
-          if (!isAddedToShoppingCart) {
-            dispatch(appendMoleculeToCompoundsOfDatasetToBuy(datasetID, currentID, moleculeTitle));
-          }
+          // if (!isAddedToShoppingCart) {
+          //   dispatch(appendMoleculeToCompoundsOfDatasetToBuy(datasetID, currentID, moleculeTitle));
+          // }
           dispatch(appendCompoundColorOfDataset(datasetID, currentID, currentCompoundClass, moleculeTitle, true));
         }
       };
@@ -1025,6 +1026,7 @@ const DatasetMoleculeView = memo(
                             onClick={event => {
                               handleColorGroupButtonClick(event);
                             }}
+                            disabled={!colorButtonsEnabled}
                           >
                             {' '}
                           </Button>

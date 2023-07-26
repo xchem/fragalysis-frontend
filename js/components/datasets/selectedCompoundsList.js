@@ -34,6 +34,7 @@ import {
   onChangeCompoundClassValue,
   onClickFilterClass,
   onClickFilterClassCheckBox,
+  onKeyDownCompoundClass,
   onKeyDownFilterClass,
   onStartEditColorClassName
 } from '../preview/compounds/redux/dispatchActions';
@@ -46,6 +47,7 @@ import { DndProvider } from 'react-dnd';
 import { HTML5Backend } from 'react-dnd-html5-backend';
 import { compoundsColors } from '../preview/compounds/redux/constants';
 import classNames from 'classnames';
+import { fabClasses } from '@mui/material';
 
 const useStyles = makeStyles(theme => ({
   container: {
@@ -340,6 +342,8 @@ export const SelectedCompoundList = memo(() => {
               break;
             }
           }
+        } else if (isCompoundFromVectorSelector(data.molecule)) {
+          isVisible = colorFilterSettings.hasOwnProperty(data.molecule.class);
         }
 
         return isVisible;
@@ -353,12 +357,17 @@ export const SelectedCompoundList = memo(() => {
 
       let colorsTemplate = {};
       filteredCompounds.forEach(compound => {
-        const cmpColorsForDataset = compoundColors[compound.datasetID];
-        const shoppingCartColors = cmpColorsForDataset[compound.molecule.id];
+        let shoppingCartColors = [];
+        if (isCompoundFromVectorSelector(compound.molecule)) {
+          shoppingCartColors = [compound.molecule.class];
+        } else {
+          const cmpColorsForDataset = compoundColors[compound.datasetID];
+          shoppingCartColors = cmpColorsForDataset[compound.molecule.id];
+        }
         shoppingCartColors.forEach(color => {
           if (!colorsTemplate.hasOwnProperty(color)) {
             colorsTemplate[color] = '';
-            if (inputs.hasOwnProperty(color)) {
+            if (inputs.hasOwnProperty(color) && inputs[color]) {
               colorsTemplate[`${color}-text`] = inputs[color];
             }
           }
@@ -369,8 +378,13 @@ export const SelectedCompoundList = memo(() => {
         let molObj = getEmptyMolObject(props, ids);
         molObj = populateMolObject(molObj, compound, props, ids);
 
-        const cmpColorsForDataset = compoundColors[compound.datasetID];
-        const shoppingCartColors = cmpColorsForDataset[compound.molecule.id];
+        let shoppingCartColors = [];
+        if (isCompoundFromVectorSelector(compound.molecule)) {
+          shoppingCartColors = [compound.molecule.class];
+        } else {
+          const cmpColorsForDataset = compoundColors[compound.datasetID];
+          shoppingCartColors = cmpColorsForDataset[compound.molecule.id];
+        }
         // let colorTagsToDisplay = '';
         let colorsTemplateCopy = { ...colorsTemplate };
         shoppingCartColors.forEach(color => {
@@ -507,7 +521,8 @@ export const SelectedCompoundList = memo(() => {
                     )}
                     label={compoundsColors[item].text}
                     onChange={e => dispatch(onChangeCompoundClassValue(e))}
-                    onKeyDown={e => dispatch(onKeyDownFilterClass(e))}
+                    onKeyDown={e => dispatch(onKeyDownCompoundClass(e))}
+                    // onKeyDown={e => dispatch(onKeyDownFilterClass(e))}
                     // onClick={e => dispatch(onClickFilterClass(e))}
                     value={inputs[item] || ''}
                   />
@@ -545,20 +560,29 @@ export const SelectedCompoundList = memo(() => {
               <DndProvider backend={HTML5Backend}>
                 {currentMolecules.map((data, index, array) => {
                   const isFromVectorSelector = isCompoundFromVectorSelector(data.molecule);
+                  let isVisible = false;
                   let isLigandOn = false;
+                  let shoppingCartColors = null;
+                  let areColorButtonsEnabled = true;
+                  let isAddedToShoppingCart = false;
                   if (isFromVectorSelector) {
+                    isAddedToShoppingCart = true;
+                    areColorButtonsEnabled = false;
+                    isVisible = colorFilterSettings.hasOwnProperty(data.molecule.class);
+                    shoppingCartColors = [data.molecule.class];
                     if (showedCompoundList.find(item => item === data.molecule.smiles) !== undefined) {
                       isLigandOn = true;
                     }
                   } else {
                     isLigandOn = ligandList.includes(data.molecule.id);
                   }
-                  const isAddedToShoppingCart = selectedMolecules.some(molecule => molecule.id === data.molecule.id);
-                  let shoppingCartColors = null;
-                  let isVisible = false;
-                  if (isAddedToShoppingCart) {
+                  // const isAddedToShoppingCart = selectedMolecules.some(molecule => molecule.id === data.molecule.id);
+
+                  // if (isAddedToShoppingCart) {
+                  if (compoundColors && compoundColors.hasOwnProperty(data.datasetID)) {
                     const cmpColorsForDataset = compoundColors[data.datasetID];
                     if (cmpColorsForDataset && cmpColorsForDataset.hasOwnProperty(data.molecule.id)) {
+                      isAddedToShoppingCart = true;
                       shoppingCartColors = cmpColorsForDataset[data.molecule.id];
                       for (let i = 0; i < shoppingCartColors.length; i++) {
                         const color = shoppingCartColors[i];
@@ -569,6 +593,7 @@ export const SelectedCompoundList = memo(() => {
                       }
                     }
                   }
+                  // }
                   return (
                     isVisible && (
                       <DatasetMoleculeView
@@ -592,6 +617,7 @@ export const SelectedCompoundList = memo(() => {
                         shoppingCartColors={shoppingCartColors}
                         isAddedToShoppingCart={isAddedToShoppingCart}
                         inSelectedCompoundsList
+                        colorButtonsEnabled={areColorButtonsEnabled}
                       />
                     )
                   );
