@@ -1066,12 +1066,12 @@ export const MoleculeList = memo(({ hideProjects }) => {
               <Button
                 variant="outlined"
                 className={classNames(classes.contColButton, {
-                  [classes.contColButtonSelected]: selectDisplayedHitsPressed,
+                  [classes.contColButtonSelected]: selectedDisplayHits,
                   [classes.contColButtonHalfSelected]: false
                 })}
                 onClick={() => {
                   dispatch(selectAllHits([], null, false));
-                  setSelectDisplayedHitsPressed(!selectDisplayedHitsPressed);
+                  // setSelectDisplayedHitsPressed(!selectDisplayedHitsPressed);
                 }}
                 disabled={false}
               >
@@ -1085,12 +1085,12 @@ export const MoleculeList = memo(({ hideProjects }) => {
               <Button
                 variant="outlined"
                 className={classNames(classes.contColButton, {
-                  [classes.contColButtonSelected]: selectDisplayedHitsPressed,
+                  [classes.contColButtonSelected]: selectedDisplayHits,
                   [classes.contColButtonHalfSelected]: false
                 })}
                 onClick={() => {
                   dispatch(selectAllHits(uniqueSelectedMoleculeForHitNavigator, null, false));
-                  setSelectDisplayedHitsPressed(!selectDisplayedHitsPressed);
+                  // setSelectDisplayedHitsPressed(!selectDisplayedHitsPressed);
                 }}
                 disabled={false}
               >
