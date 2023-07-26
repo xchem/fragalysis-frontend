@@ -1665,14 +1665,14 @@ const restoreSearchString = moleculesAction => dispatch => {
   let filterSearchString = moleculesAction.find(action => action.type === actionType.SEARCH_STRING);
   if (filterSearchString) {
     let datasetID = filterSearchString.dataset_id;
-    dispatch(setSearchStringOfCompoundSet(datasetID, filterSearchString.searchString))
+    dispatch(setSearchStringOfCompoundSet(datasetID, filterSearchString.searchString));
   }
 };
 
 const restoreSearchStringHitNavigator = moleculesAction => (dispatch, getState) => {
   let filterSearchString = moleculesAction.find(action => action.type === actionType.SEARCH_STRING_HIT_NAVIGATOR);
-  if (filterSearchString) {   
-   dispatch(setSearchStringOfHitNavigator(filterSearchString.searchStringHitNavigator))
+  if (filterSearchString) {
+    dispatch(setSearchStringOfHitNavigator(filterSearchString.searchStringHitNavigator));
   }
 };
 
