@@ -29,12 +29,12 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - name: Checkout
-      uses: actions/checkout@v2
-    - name: Setup node
-      uses: actions/setup-node@v2
+      uses: actions/checkout@v3
+    - name: Lint Dockerfile
+      uses: hadolint/hadolint-action@v3.1.0
       with:
-        node-version: '12.22.11'
-    - name: Install
-      run: yarn
+        dockerfile: Dockerfile
     - name: Build
-      run: yarn run build
+      uses: docker/build-push-action@v4
+      with:
+        tags: ${{ steps.vars.outputs.FE_NAMESPACE }}/fragalysis-frontend:${{ env.GITHUB_REF_SLUG }}

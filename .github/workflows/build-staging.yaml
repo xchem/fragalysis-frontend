@@ -37,13 +37,13 @@ name: build staging
 on:
   push:
     branches:
-    - 'staging'
+      - "staging"
     tags-ignore:
-    # Ignore any production-grade tags (i.e. "2022.1" or "1.0.0"),
-    # they're reserved for the production branch. Here
-    # we expect a non-production tag, i.e. "2022.1-rc.1" or "1.0.0-rc.1"
-    - '[0-9]+.[0-9]+'
-    - '[0-9]+.[0-9]+.[0-9]+'
+      # Ignore any production-grade tags (i.e. "2022.1" or "1.0.0"),
+      # they're reserved for the production branch. Here
+      # we expect a non-production tag, i.e. "2022.1-rc.1" or "1.0.0-rc.1"
+      - "[0-9]+.[0-9]+"
+      - "[0-9]+.[0-9]+.[0-9]+"
 
 env:
   # The following 'defaults' are used in the 'Initialise workflow variables' step,
@@ -55,7 +55,7 @@ env:
   #   https://gist.github.com/jonico/24ffebee6d2fa2e679389fac8aef50a3
   BE_IMAGE_TAG: stable
   BE_NAMESPACE: xchem
-  FE_BRANCH: staging
+  FE_IMAGE_TAG: latest
   FE_NAMESPACE: xchem
   STACK_BRANCH: master
   STACK_GITHUB_NAMESPACE: xchem
@@ -65,85 +65,79 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-    - name: Inject slug/short variables
-      uses: rlespinasse/github-slug-action@v3.x
-    - name: Initialise workflow variables
-      id: vars
-      env:
-        TRIGGER_DOWNSTREAM: ${{ secrets.TRIGGER_DOWNSTREAM }}
-      run: |
-        # BE_IMAGE_TAG
-        BE_IMAGE_TAG="${{ env.BE_IMAGE_TAG }}"
-        if [ -n "${{ secrets.BE_IMAGE_TAG }}" ]; then BE_IMAGE_TAG="${{ secrets.BE_IMAGE_TAG }}"; fi
-        echo set-output name=BE_IMAGE_TAG::${BE_IMAGE_TAG}
-        echo ::set-output name=BE_IMAGE_TAG::${BE_IMAGE_TAG}
+      - name: Inject slug/short variables
+        uses: rlespinasse/github-slug-action@v3.x
+      - name: Initialise workflow variables
+        id: vars
+        env:
+          TRIGGER_DOWNSTREAM: ${{ secrets.TRIGGER_DOWNSTREAM }}
+        run: |
+          # BE_IMAGE_TAG
+          BE_IMAGE_TAG="${{ env.BE_IMAGE_TAG }}"
+          if [ -n "${{ secrets.BE_IMAGE_TAG }}" ]; then BE_IMAGE_TAG="${{ secrets.BE_IMAGE_TAG }}"; fi
+          echo set-output name=BE_IMAGE_TAG::${BE_IMAGE_TAG}
+          echo ::set-output name=BE_IMAGE_TAG::${BE_IMAGE_TAG}
 
-        # BE_NAMESPACE
-        BE_NAMESPACE="${{ env.BE_NAMESPACE }}"
-        if [ -n "${{ secrets.BE_NAMESPACE }}" ]; then BE_NAMESPACE="${{ secrets.BE_NAMESPACE }}"; fi
-        echo set-output name=BE_NAMESPACE::${BE_NAMESPACE}
-        echo ::set-output name=BE_NAMESPACE::${BE_NAMESPACE}
+          # BE_NAMESPACE
+          BE_NAMESPACE="${{ env.BE_NAMESPACE }}"
+          if [ -n "${{ secrets.BE_NAMESPACE }}" ]; then BE_NAMESPACE="${{ secrets.BE_NAMESPACE }}"; fi
+          echo set-output name=BE_NAMESPACE::${BE_NAMESPACE}
+          echo ::set-output name=BE_NAMESPACE::${BE_NAMESPACE}
 
-        # FE_BRANCH
-        FE_BRANCH="${{ env.FE_BRANCH }}"
-        if [ -n "${{ secrets.FE_BRANCH }}" ]; then FE_BRANCH="${{ secrets.FE_BRANCH }}"; fi
-        echo set-output name=FE_BRANCH::${FE_BRANCH}
-        echo ::set-output name=FE_BRANCH::${FE_BRANCH}
+          # FE_IMAGE_TAG
+          FE_IMAGE_TAG="${{ env.FE_IMAGE_TAG }}"
+          if [ -n "${{ secrets.FE_IMAGE_TAG }}" ]; then FE_IMAGE_TAG="${{ secrets.FE_IMAGE_TAG }}"; fi
+          echo set-output name=FE_IMAGE_TAG::${FE_IMAGE_TAG}
+          echo ::set-output name=FE_IMAGE_TAG::${FE_IMAGE_TAG}
 
-        # FE_NAMESPACE
-        FE_NAMESPACE="${{ env.FE_NAMESPACE }}"
-        if [ -n "${{ secrets.FE_NAMESPACE }}" ]; then FE_NAMESPACE="${{ secrets.FE_NAMESPACE }}"; fi
-        echo set-output name=FE_NAMESPACE::${FE_NAMESPACE}
-        echo ::set-output name=FE_NAMESPACE::${FE_NAMESPACE}
+          # FE_NAMESPACE
+          FE_NAMESPACE="${{ env.FE_NAMESPACE }}"
+          if [ -n "${{ secrets.FE_NAMESPACE }}" ]; then FE_NAMESPACE="${{ secrets.FE_NAMESPACE }}"; fi
+          echo set-output name=FE_NAMESPACE::${FE_NAMESPACE}
+          echo ::set-output name=FE_NAMESPACE::${FE_NAMESPACE}
 
-        # STACK_BRANCH
-        STACK_BRANCH="${{ env.STACK_BRANCH }}"
-        if [ -n "${{ secrets.STACK_BRANCH }}" ]; then STACK_BRANCH="${{ secrets.STACK_BRANCH }}"; fi
-        echo set-output name=STACK_BRANCH::${STACK_BRANCH}
-        echo ::set-output name=STACK_BRANCH::${STACK_BRANCH}
+          # STACK_BRANCH
+          STACK_BRANCH="${{ env.STACK_BRANCH }}"
+          if [ -n "${{ secrets.STACK_BRANCH }}" ]; then STACK_BRANCH="${{ secrets.STACK_BRANCH }}"; fi
+          echo set-output name=STACK_BRANCH::${STACK_BRANCH}
+          echo ::set-output name=STACK_BRANCH::${STACK_BRANCH}
 
-        # STACK_GITHUB_NAMESPACE
-        STACK_GITHUB_NAMESPACE="${{ env.STACK_GITHUB_NAMESPACE }}"
-        if [ -n "${{ secrets.STACK_GITHUB_NAMESPACE }}" ]; then STACK_GITHUB_NAMESPACE="${{ secrets.STACK_GITHUB_NAMESPACE }}"; fi
-        echo set-output name=STACK_GITHUB_NAMESPACE::${STACK_GITHUB_NAMESPACE}
-        echo ::set-output name=STACK_GITHUB_NAMESPACE::${STACK_GITHUB_NAMESPACE}
+          # STACK_GITHUB_NAMESPACE
+          STACK_GITHUB_NAMESPACE="${{ env.STACK_GITHUB_NAMESPACE }}"
+          if [ -n "${{ secrets.STACK_GITHUB_NAMESPACE }}" ]; then STACK_GITHUB_NAMESPACE="${{ secrets.STACK_GITHUB_NAMESPACE }}"; fi
+          echo set-output name=STACK_GITHUB_NAMESPACE::${STACK_GITHUB_NAMESPACE}
+          echo ::set-output name=STACK_GITHUB_NAMESPACE::${STACK_GITHUB_NAMESPACE}
 
-        # STACK_NAMESPACE
-        STACK_NAMESPACE="${{ env.STACK_NAMESPACE }}"
-        if [ -n "${{ secrets.STACK_NAMESPACE }}" ]; then STACK_NAMESPACE="${{ secrets.STACK_NAMESPACE }}"; fi
-        echo set-output name=STACK_NAMESPACE::${STACK_NAMESPACE}
-        echo ::set-output name=STACK_NAMESPACE::${STACK_NAMESPACE}
+          # STACK_NAMESPACE
+          STACK_NAMESPACE="${{ env.STACK_NAMESPACE }}"
+          if [ -n "${{ secrets.STACK_NAMESPACE }}" ]; then STACK_NAMESPACE="${{ secrets.STACK_NAMESPACE }}"; fi
+          echo set-output name=STACK_NAMESPACE::${STACK_NAMESPACE}
+          echo ::set-output name=STACK_NAMESPACE::${STACK_NAMESPACE}
 
-        # Do we trigger downstream, i.e. is TRIGGER_DOWNSTREAM 'yes'?
-        echo set-output name=trigger::${{ env.TRIGGER_DOWNSTREAM == 'yes' }}
-        echo ::set-output name=trigger::${{ env.TRIGGER_DOWNSTREAM == 'yes' }}
+          # Do we trigger downstream, i.e. is TRIGGER_DOWNSTREAM 'yes'?
+          echo set-output name=trigger::${{ env.TRIGGER_DOWNSTREAM == 'yes' }}
+          echo ::set-output name=trigger::${{ env.TRIGGER_DOWNSTREAM == 'yes' }}
 
-    - name: Checkout
-      uses: actions/checkout@v2
-    - name: Setup node 12
-      uses: actions/setup-node@v2
-      with:
-        node-version: '12.22.11'
-    - name: Install
-      run: yarn
-    - name: Build
-      run: yarn run build
+      - name: Checkout
+        uses: actions/checkout@v3
+      - name: Build
+        run: yarn run build
 
-    # Trigger the stack for this build,
-    # identifying the 'stable' backend (or whatever BE_IMAGE_TAG has been set)
-    - name: Trigger stack
-      if: steps.vars.outputs.trigger == 'true'
-      uses: informaticsmatters/trigger-ci-action@v1
-      with:
-        ci-owner: ${{ steps.vars.outputs.STACK_GITHUB_NAMESPACE }}
-        ci-repository: fragalysis-stack
-        ci-name: build main
-        ci-ref: refs/heads/${{ steps.vars.outputs.STACK_BRANCH }}
-        ci-inputs: >-
-          be_namespace=${{ steps.vars.outputs.BE_NAMESPACE }}
-          be_image_tag=${{ steps.vars.outputs.BE_IMAGE_TAG }}
-          fe_namespace=${{ steps.vars.outputs.FE_NAMESPACE }}
-          fe_branch=${{ steps.vars.outputs.FE_BRANCH }}
-          stack_namespace=${{ steps.vars.outputs.STACK_NAMESPACE }}
-        ci-user: ${{ secrets.STACK_USER }}
-        ci-user-token: ${{ secrets.STACK_USER_TOKEN }}
+      # Trigger the stack for this build,
+      # identifying the 'stable' backend (or whatever BE_IMAGE_TAG has been set)
+      - name: Trigger stack
+        if: steps.vars.outputs.trigger == 'true'
+        uses: informaticsmatters/trigger-ci-action@v1
+        with:
+          ci-owner: ${{ steps.vars.outputs.STACK_GITHUB_NAMESPACE }}
+          ci-repository: fragalysis-stack
+          ci-name: build main
+          ci-ref: refs/heads/${{ steps.vars.outputs.STACK_BRANCH }}
+          ci-inputs: >-
+            be_namespace=${{ steps.vars.outputs.BE_NAMESPACE }}
+            be_image_tag=${{ steps.vars.outputs.BE_IMAGE_TAG }}
+            fe_namespace=${{ steps.vars.outputs.FE_NAMESPACE }}
+            fe_image_tag=${{ steps.vars.outputs.FE_IMAGE_TAG }}
+            stack_namespace=${{ steps.vars.outputs.STACK_NAMESPACE }}
+          ci-user: ${{ secrets.STACK_USER }}
+          ci-user-token: ${{ secrets.STACK_USER_TOKEN }}
