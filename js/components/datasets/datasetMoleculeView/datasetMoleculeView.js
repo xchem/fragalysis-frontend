@@ -234,6 +234,10 @@ const useStyles = makeStyles(theme => ({
     borderColor: theme.palette.background.divider,
     borderStyle: 'solid solid solid solid'
   },
+  arrowsHighlight: {
+    borderColor: theme.palette.primary.main,
+    border: 'solid 2px'
+  },
   arrow: {
     width: 12,
     height: 15
@@ -1039,7 +1043,12 @@ const DatasetMoleculeView = memo(
             </Grid>
             {/* Up/Down arrows */}
             <Grid item>
-              <Grid container direction="column" justify="space-between" className={classes.arrows}>
+              <Grid
+                container
+                direction="column"
+                justify="space-between"
+                className={classNames(classes.arrows, areArrowsVisible && classes.arrowsHighlight)}
+              >
                 <Grid item>
                   <IconButton
                     color="primary"
