@@ -140,7 +140,7 @@ export const DownloadStructureDialog = memo(({}) => {
   const targetId = useSelector(state => state.apiReducers.target_on);
   const targetName = useSelector(state => state.apiReducers.target_on_name);
   const allMolecules = useSelector(state => state.apiReducers.all_mol_lists);
-  const ligandsTurnedOnIds = useSelector(state => state.selectionReducers.proteinList);
+  const ligandsTurnedOnIds = useSelector(state => state.selectionReducers.fragmentDisplayList);
   const selectedMoleculesIds = useSelector(state => state.selectionReducers.moleculesToEdit);
   const taggedMolecules = useSelector(state => selectJoinedMoleculeList(state));
   const downloadTags = useSelector(state => state.apiReducers.downloadTags);

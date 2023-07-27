@@ -48,7 +48,7 @@ import {
   getProteinData,
   selectAllHits
 } from '../../components/preview/molecule/redux/dispatchActions';
-import { setSortDialogOpen } from '../../components/preview/molecule/redux/actions';
+import { setSortDialogOpen, setSearchStringOfHitNavigator } from '../../components/preview/molecule/redux/actions';
 import {
   handleBuyList,
   handleBuyListAll,
@@ -86,7 +86,12 @@ import {
   updateFilterShowedScoreProperties,
   setFilterShowedScoreProperties,
   setDragDropState,
-  resetDatasetScrolledMap
+  resetDatasetScrolledMap,
+  setSearchStringOfCompoundSet,
+  appendCompoundToSelectedCompoundsByDataset,
+  removeCompoundFromSelectedCompoundsByDataset,
+  appendCompoundColorOfDataset,
+  removeCompoundColorOfDataset
 } from '../../components/datasets/redux/actions';
 import {
   removeComponentRepresentation,
@@ -210,6 +215,8 @@ const saveActionsList = (project, snapshot, actionList, nglViewList) => async (d
 
     const showedCompoundList = state.previewReducers.compounds.showedCompoundList;
     const currentDatasetBuyList = state.datasetsReducers.compoundsToBuyDatasetMap;
+    const currentLockedCompounds = state.datasetsReducers.selectedCompoundsByDataset;
+    const currentColorsOfCompounds = state.datasetsReducers.compoundColorByDataset;
     const currentobjectsInView = state.nglReducers.objectsInView;
 
     const currentTargets = (currentTargetOn && [currentTargetOn]) || [];
@@ -422,6 +429,20 @@ const saveActionsList = (project, snapshot, actionList, nglViewList) => async (d
 
     getCurrentActionList(
       orderedActionList,
+      actionType.COMPOUND_LOCKED,
+      getCollectionOfDataset(currentLockedCompounds),
+      currentActions
+    );
+
+    getCurrentActionList(
+      orderedActionList,
+      actionType.COMPOUND_ADDED_TO_COLOR_GROUP,
+      getCollectionOfDatasetColors(currentColorsOfCompounds),
+      currentActions
+    );
+
+    getCurrentActionList(
+      orderedActionList,
       actionType.REPRESENTATION_UPDATED,
       getCollectionOfDatasetOfRepresentation(currentobjectsInView),
       currentActions
@@ -455,6 +476,8 @@ const saveActionsList = (project, snapshot, actionList, nglViewList) => async (d
     getCommonLastActionByType(orderedActionList, actionType.CLIP_DIST, currentActions);
     getCommonLastActionByType(orderedActionList, actionType.FOG_NEAR, currentActions);
     getCommonLastActionByType(orderedActionList, actionType.FOG_FAR, currentActions);
+    getCommonLastActionByType(orderedActionList, actionType.SEARCH_STRING, currentActions);
+    getCommonLastActionByType(orderedActionList, actionType.SEARCH_STRING_HIT_NAVIGATOR, currentActions);
 
     // Since drag and drop state can be influenced by filter as well, determine its state by the last influential action
     const action = orderedActionList.find(action =>
@@ -572,7 +595,14 @@ const getCurrentActionList = (orderedActionList, type, collection, currentAction
 
   if (collection) {
     collection.forEach(data => {
-      let action = actionList.find(a => a.object_id === data.id && a.dataset_id === data.datasetId);
+      let action = null;
+      if (data.hasOwnProperty('color')) {
+        action = actionList.find(
+          a => a.object_id === data.id && a.dataset_id === data.datasetId && a.color_class === data.color
+        );
+      } else {
+        action = actionList.find(a => a.object_id === data.id && a.dataset_id === data.datasetId);
+      }
 
       if (action) {
         currentActions.push(Object.assign({ ...action }));
@@ -749,6 +779,23 @@ const getCollectionOfDataset = dataList => {
   return list;
 };
 
+const getCollectionOfDatasetColors = dataList => {
+  let list = [];
+  if (dataList) {
+    for (const datasetId in dataList) {
+      let values = dataList[datasetId];
+      if (values) {
+        for (const cmpId in values) {
+          const colors = values[cmpId];
+          var result = colors?.map(color => ({ id: Number(cmpId), datasetId: datasetId, color: color }));
+          list.push(...result);
+        }
+      }
+    }
+  }
+  return list;
+};
+
 const getCollectionOfShoppingCart = dataList => {
   let list = [];
   if (dataList) {
@@ -895,6 +942,8 @@ export const restoreAfterTargetActions = (stages, projectId) => async (dispatch,
     dispatch(restoreViewerControlActions(orderedActionList));
     dispatch(resetDatasetScrolledMap()); // Have a look at useScrollToSelected.js
     dispatch(setIsSnapshotDirty(false));
+    dispatch(restoreSearchString(orderedActionList));
+    dispatch(restoreSearchStringHitNavigator(orderedActionList));
   }
 };
 
@@ -1656,6 +1705,21 @@ export const restoreTabActions = moleculesAction => (dispatch, getState) => {
   }
 };
 
+const restoreSearchString = moleculesAction => dispatch => {
+  let filterSearchString = moleculesAction.find(action => action.type === actionType.SEARCH_STRING);
+  if (filterSearchString) {
+    let datasetID = filterSearchString.dataset_id;
+    dispatch(setSearchStringOfCompoundSet(datasetID, filterSearchString.searchString));
+  }
+};
+
+const restoreSearchStringHitNavigator = moleculesAction => (dispatch, getState) => {
+  let filterSearchString = moleculesAction.find(action => action.type === actionType.SEARCH_STRING_HIT_NAVIGATOR);
+  if (filterSearchString) {
+    dispatch(setSearchStringOfHitNavigator(filterSearchString.searchStringHitNavigator));
+  }
+};
+
 export const restoreViewerControlActions = moleculesAction => dispatch => {
   const turnSideActions = moleculesAction.filter(action => action.type === actionType.TURN_SIDE);
   turnSideActions.forEach(action => {
@@ -1719,12 +1783,32 @@ export const restoreCompoundsActions = (orderedActionList, stage) => (dispatch, 
     dispatch(addNewTypeCompound(compoundsAction, actionType.SURFACE_TURNED_ON, 'surface', stage, state));
   }
 
-  let compoundsSelectedAction = compoundsAction.filter(action => action.type === actionType.COMPOUND_SELECTED);
+  let compoundsSelectedAction = compoundsAction?.filter(action => action.type === actionType.COMPOUND_SELECTED);
 
   compoundsSelectedAction.forEach(action => {
     let data = getCompound(action, state);
     if (data) {
       dispatch(appendMoleculeToCompoundsOfDatasetToBuy(action.dataset_id, data.id, data.name));
+    }
+  });
+
+  let compoundsLockedAction = compoundsAction?.filter(action => action.type === actionType.COMPOUND_LOCKED);
+
+  compoundsLockedAction.forEach(action => {
+    let data = getCompound(action, state);
+    if (data) {
+      dispatch(appendCompoundToSelectedCompoundsByDataset(action.dataset_id, data.id, data.name));
+    }
+  });
+
+  let compoundsColorGroupActions = compoundsAction?.filter(
+    action => action.type === actionType.COMPOUND_ADDED_TO_COLOR_GROUP
+  );
+
+  compoundsColorGroupActions.forEach(action => {
+    let data = getCompound(action, state);
+    if (data) {
+      dispatch(appendCompoundColorOfDataset(action.dataset_id, data.id, action.color_class, data.name));
     }
   });
 
@@ -2114,6 +2198,18 @@ const handleUndoAction = (action, stages) => (dispatch, getState) => {
       case actionType.COMPOUND_DESELECTED:
         dispatch(handleCompoundAction(action, true));
         break;
+      case actionType.COMPOUND_LOCKED:
+        dispatch(handleCompoundLockAction(action, false));
+        break;
+      case actionType.COMPOUND_UNLOCKED:
+        dispatch(handleCompoundLockAction(action, true));
+        break;
+      case actionType.COMPOUND_ADDED_TO_COLOR_GROUP:
+        dispatch(handleCompoundColorAction(action, false));
+        break;
+      case actionType.COMPOUND_REMOVED_FROM_COLOR_GROUP:
+        dispatch(handleCompoundColorAction(action, true));
+        break;
       case actionType.MOLECULE_SELECTED:
         dispatch(handleSelectMoleculeAction(action, false));
         break;
@@ -2364,6 +2460,18 @@ const handleRedoAction = (action, stages) => (dispatch, getState) => {
         break;
       case actionType.COMPOUND_DESELECTED:
         dispatch(handleCompoundAction(action, false));
+        break;
+      case actionType.COMPOUND_LOCKED:
+        dispatch(handleCompoundLockAction(action, true));
+        break;
+      case actionType.COMPOUND_UNLOCKED:
+        dispatch(handleCompoundLockAction(action, false));
+        break;
+      case actionType.COMPOUND_ADDED_TO_COLOR_GROUP:
+        dispatch(handleCompoundColorAction(action, true));
+        break;
+      case actionType.COMPOUND_REMOVED_FROM_COLOR_GROUP:
+        dispatch(handleCompoundColorAction(action, false));
         break;
       case actionType.MOLECULE_SELECTED:
         dispatch(handleSelectMoleculeAction(action, true));
@@ -2790,6 +2898,34 @@ const handleCompoundAction = (action, isSelected) => (dispatch, getState) => {
         dispatch(appendMoleculeToCompoundsOfDatasetToBuy(action.dataset_id, data.id, data.name));
       } else {
         dispatch(removeMoleculeFromCompoundsOfDatasetToBuy(action.dataset_id, data.id, data.name));
+      }
+    }
+  }
+};
+
+const handleCompoundLockAction = (action, isLocked) => (dispatch, getState) => {
+  const state = getState();
+  if (action) {
+    let data = getCompound(action, state);
+    if (data) {
+      if (isLocked) {
+        dispatch(appendCompoundToSelectedCompoundsByDataset(action.dataset_id, data.id, data.name));
+      } else {
+        dispatch(removeCompoundFromSelectedCompoundsByDataset(action.dataset_id, data.id, data.name));
+      }
+    }
+  }
+};
+
+const handleCompoundColorAction = (action, isAdded) => (dispatch, getState) => {
+  const state = getState();
+  if (action) {
+    let data = getCompound(action, state);
+    if (data) {
+      if (isAdded) {
+        dispatch(appendCompoundColorOfDataset(action.dataset_id, data.id, action.color_class, data.name));
+      } else {
+        dispatch(removeCompoundColorOfDataset(action.dataset_id, data.id, action.color_class, data.name));
       }
     }
   }

@@ -1,7 +1,17 @@
 import React, { memo, useContext, useEffect, useRef, useState } from 'react';
 import { Panel } from '../common/Surfaces/Panel';
-import { CircularProgress, Grid, makeStyles, Typography, Button } from '@material-ui/core';
-import { CloudDownload } from '@material-ui/icons';
+import {
+  CircularProgress,
+  Grid,
+  makeStyles,
+  Typography,
+  Button,
+  TextField,
+  Checkbox,
+  InputAdornment,
+  IconButton
+} from '@material-ui/core';
+import { CloudDownload, Edit } from '@material-ui/icons';
 import { useDispatch, useSelector } from 'react-redux';
 import {
   getMoleculesObjectIDListOfCompoundsToBuy,
@@ -19,7 +29,15 @@ import { autoHideDatasetDialogsOnScroll, resetCrossReferenceDialog } from './red
 import { NglContext } from '../nglView/nglProvider';
 import FileSaver from 'file-saver';
 import JSZip from 'jszip';
-import { isCompoundFromVectorSelector } from '../preview/compounds/redux/dispatchActions';
+import {
+  isCompoundFromVectorSelector,
+  onChangeCompoundClassValue,
+  onClickFilterClass,
+  onClickFilterClassCheckBox,
+  onKeyDownCompoundClass,
+  onKeyDownFilterClass,
+  onStartEditColorClassName
+} from '../preview/compounds/redux/dispatchActions';
 import { saveAndShareSnapshot } from '../snapshot/redux/dispatchActions';
 import { setDontShowShareSnapshot, setSharedSnapshot } from '../snapshot/redux/actions';
 import { initSharedSnapshot } from '../snapshot/redux/reducer';
@@ -27,6 +45,9 @@ import { base_url } from '../routes/constants';
 import { api, METHOD } from '../../utils/api';
 import { DndProvider } from 'react-dnd';
 import { HTML5Backend } from 'react-dnd-html5-backend';
+import { compoundsColors } from '../preview/compounds/redux/constants';
+import classNames from 'classnames';
+import { fabClasses } from '@mui/material';
 
 const useStyles = makeStyles(theme => ({
   container: {
@@ -46,6 +67,43 @@ const useStyles = makeStyles(theme => ({
   },
   sdfButton: {
     marginRight: theme.spacing(1)
+  },
+  [compoundsColors.blue.key]: {
+    backgroundColor: compoundsColors.blue.color
+  },
+  [compoundsColors.red.key]: {
+    backgroundColor: compoundsColors.red.color
+  },
+  [compoundsColors.green.key]: {
+    backgroundColor: compoundsColors.green.color
+  },
+  [compoundsColors.purple.key]: {
+    backgroundColor: compoundsColors.purple.color
+  },
+  [compoundsColors.apricot.key]: {
+    backgroundColor: compoundsColors.apricot.color
+  },
+  textField: {
+    // marginLeft: theme.spacing(1),
+    // marginRight: theme.spacing(1),
+    width: 70,
+    '& .MuiFormLabel-root': {
+      paddingLeft: theme.spacing(1)
+    }
+  },
+  selectedInput: {
+    border: `2px groove ${theme.palette.primary.main}`
+  },
+  classCheckbox: {
+    padding: '0px'
+  },
+  editClassNameIcon: {
+    padding: '0px',
+    color: 'inherit'
+  },
+  editClassNameIconSelected: {
+    padding: '0px',
+    color: theme.palette.primary.main
   }
 }));
 
@@ -64,6 +122,7 @@ export const SelectedCompoundList = memo(() => {
   const inspirationDialogRef = useRef();
   const crossReferenceDialogRef = useRef();
   const scrollBarRef = useRef();
+  const editedColorGroup = useSelector(state => state.datasetsReducers.editedColorGroup);
 
   const { nglViewList } = useContext(NglContext);
 
@@ -82,6 +141,35 @@ export const SelectedCompoundList = memo(() => {
 
   const showedCompoundList = useSelector(state => state.previewReducers.compounds.showedCompoundList);
   const filteredScoreProperties = useSelector(state => state.datasetsReducers.filteredScoreProperties);
+
+  const moleculeLists = useSelector(state => state.datasetsReducers.moleculeLists);
+  const compoundsToBuyList = useSelector(state => state.datasetsReducers.compoundsToBuyDatasetMap);
+  let selectedMolecules = [];
+  Object.keys(compoundsToBuyList).forEach(datasetId => {
+    const datasetCmpsToBuy = compoundsToBuyList[datasetId] || [];
+    const molsOfDataset = moleculeLists[datasetId] || [];
+    selectedMolecules = [...selectedMolecules, ...molsOfDataset.filter(mol => datasetCmpsToBuy?.includes(mol.id))];
+  });
+
+  const currentCompoundClass = useSelector(state => state.previewReducers.compounds.currentCompoundClass);
+
+  const blueInput = useSelector(state => state.previewReducers.compounds[compoundsColors.blue.key]);
+  const redInput = useSelector(state => state.previewReducers.compounds[compoundsColors.red.key]);
+  const greenInput = useSelector(state => state.previewReducers.compounds[compoundsColors.green.key]);
+  const purpleInput = useSelector(state => state.previewReducers.compounds[compoundsColors.purple.key]);
+  const apricotInput = useSelector(state => state.previewReducers.compounds[compoundsColors.apricot.key]);
+
+  const inputs = {
+    [compoundsColors.blue.key]: blueInput,
+    [compoundsColors.red.key]: redInput,
+    [compoundsColors.green.key]: greenInput,
+    [compoundsColors.purple.key]: purpleInput,
+    [compoundsColors.apricot.key]: apricotInput
+  };
+
+  const compoundColors = useSelector(state => state.datasetsReducers.compoundColorByDataset);
+
+  const colorFilterSettings = useSelector(state => state.datasetsReducers.selectedColorsInFilter);
 
   useEffect(() => {
     return () => {
@@ -242,15 +330,80 @@ export const SelectedCompoundList = memo(() => {
       dispatch(setSharedSnapshot(initSharedSnapshot));
       dispatch(setDontShowShareSnapshot(false));
 
-      const usedDatasets = getUsedDatasets(moleculesObjectIDListOfCompoundsToBuy);
+      const filteredCompounds = moleculesObjectIDListOfCompoundsToBuy.filter(data => {
+        let isVisible = false;
+        const cmpColorsForDataset = compoundColors[data.datasetID];
+        if (cmpColorsForDataset && cmpColorsForDataset.hasOwnProperty(data.molecule.id)) {
+          const shoppingCartColors = cmpColorsForDataset[data.molecule.id];
+          for (let i = 0; i < shoppingCartColors.length; i++) {
+            const color = shoppingCartColors[i];
+            isVisible = colorFilterSettings.hasOwnProperty(color);
+            if (isVisible) {
+              break;
+            }
+          }
+        } else if (isCompoundFromVectorSelector(data.molecule)) {
+          isVisible = colorFilterSettings.hasOwnProperty(data.molecule.class);
+        }
+
+        return isVisible;
+      });
+
+      const usedDatasets = getUsedDatasets(filteredCompounds);
       const props = getSetOfProps(usedDatasets);
-      const ids = getCompoundIds(moleculesObjectIDListOfCompoundsToBuy);
+      const ids = getCompoundIds(filteredCompounds);
 
       const listOfMols = [];
 
-      moleculesObjectIDListOfCompoundsToBuy.forEach(compound => {
+      let colorsTemplate = {};
+      filteredCompounds.forEach(compound => {
+        let shoppingCartColors = [];
+        if (isCompoundFromVectorSelector(compound.molecule)) {
+          shoppingCartColors = [compound.molecule.class];
+        } else {
+          const cmpColorsForDataset = compoundColors[compound.datasetID];
+          shoppingCartColors = cmpColorsForDataset[compound.molecule.id];
+        }
+        shoppingCartColors.forEach(color => {
+          if (!colorsTemplate.hasOwnProperty(color)) {
+            colorsTemplate[color] = '';
+            if (inputs.hasOwnProperty(color) && inputs[color]) {
+              colorsTemplate[`${color}-text`] = inputs[color];
+            }
+          }
+        });
+      });
+
+      filteredCompounds.forEach(compound => {
         let molObj = getEmptyMolObject(props, ids);
         molObj = populateMolObject(molObj, compound, props, ids);
+
+        let shoppingCartColors = [];
+        if (isCompoundFromVectorSelector(compound.molecule)) {
+          shoppingCartColors = [compound.molecule.class];
+        } else {
+          const cmpColorsForDataset = compoundColors[compound.datasetID];
+          shoppingCartColors = cmpColorsForDataset[compound.molecule.id];
+        }
+        // let colorTagsToDisplay = '';
+        let colorsTemplateCopy = { ...colorsTemplate };
+        shoppingCartColors.forEach(color => {
+          colorsTemplateCopy[color] = true;
+          // colorTagsToDisplay = colorTagsToDisplay + `${color}: ${inputs[color] || ''}|`;
+        });
+
+        Object.keys(colorsTemplateCopy)
+          .filter(key => key.includes('-text'))
+          .forEach(key => {
+            const color = key.split('-')[0];
+            if (colorsTemplateCopy.hasOwnProperty(color) && !colorsTemplateCopy[color]) {
+              colorsTemplateCopy[key] = '';
+            }
+          });
+
+        // molObj['color_groups'] = colorTagsToDisplay;
+        molObj = { ...molObj, ...colorsTemplateCopy };
+
         listOfMols.push(molObj);
       });
 
@@ -323,7 +476,61 @@ export const SelectedCompoundList = memo(() => {
       {isOpenCrossReferenceDialog && (
         <CrossReferenceDialog open anchorEl={selectedMoleculeRef} ref={crossReferenceDialogRef} />
       )}
-      <Grid container direction="column" justify="flex-start" className={classes.container}>
+      <Grid container direction="row" justify="flex-start" className={classes.container}>
+        <Grid item>
+          {/* Selection */}
+          <Grid container direction="row" justify="space-between" alignItems="center">
+            {Object.keys(compoundsColors).map(item => (
+              <>
+                <Grid item key={`${item}-chckbox`}>
+                  <Checkbox
+                    className={classes.classCheckbox}
+                    key={`CHCK_${item}`}
+                    value={`${item}`}
+                    onChange={e => dispatch(onClickFilterClassCheckBox(e))}
+                    checked={colorFilterSettings.hasOwnProperty(item)}
+                  ></Checkbox>
+                </Grid>
+                <Grid item key={item}>
+                  <TextField
+                    InputProps={{
+                      readOnly: editedColorGroup !== item,
+                      startAdornment: (
+                        <InputAdornment position="start">
+                          <IconButton
+                            className={
+                              editedColorGroup !== item ? classes.editClassNameIcon : classes.editClassNameIconSelected
+                            }
+                            color={'inherit'}
+                            value={`${item}`}
+                            onClick={e => dispatch(onStartEditColorClassName(e))}
+                          >
+                            <Edit />
+                          </IconButton>
+                        </InputAdornment>
+                      )
+                    }}
+                    autoComplete="off"
+                    id={`${item}`}
+                    key={`CLASS_${item}`}
+                    variant="standard"
+                    className={classNames(
+                      classes.textField,
+                      classes[item],
+                      colorFilterSettings.hasOwnProperty(item) && classes.selectedInput
+                    )}
+                    label={compoundsColors[item].text}
+                    onChange={e => dispatch(onChangeCompoundClassValue(e))}
+                    onKeyDown={e => dispatch(onKeyDownCompoundClass(e))}
+                    // onKeyDown={e => dispatch(onKeyDownFilterClass(e))}
+                    // onClick={e => dispatch(onClickFilterClass(e))}
+                    value={inputs[item] || ''}
+                  />
+                </Grid>
+              </>
+            ))}
+          </Grid>
+        </Grid>
         {currentMolecules.length > 0 && (
           <Grid item className={classes.gridItemList} ref={scrollBarRef}>
             <InfiniteScroll
@@ -353,34 +560,66 @@ export const SelectedCompoundList = memo(() => {
               <DndProvider backend={HTML5Backend}>
                 {currentMolecules.map((data, index, array) => {
                   const isFromVectorSelector = isCompoundFromVectorSelector(data.molecule);
+                  let isVisible = false;
                   let isLigandOn = false;
+                  let shoppingCartColors = null;
+                  let areColorButtonsEnabled = true;
+                  let isAddedToShoppingCart = false;
                   if (isFromVectorSelector) {
+                    isAddedToShoppingCart = true;
+                    areColorButtonsEnabled = false;
+                    isVisible = colorFilterSettings.hasOwnProperty(data.molecule.class);
+                    shoppingCartColors = [data.molecule.class];
                     if (showedCompoundList.find(item => item === data.molecule.smiles) !== undefined) {
                       isLigandOn = true;
                     }
                   } else {
                     isLigandOn = ligandList.includes(data.molecule.id);
                   }
+                  // const isAddedToShoppingCart = selectedMolecules.some(molecule => molecule.id === data.molecule.id);
+
+                  // if (isAddedToShoppingCart) {
+                  if (compoundColors && compoundColors.hasOwnProperty(data.datasetID)) {
+                    const cmpColorsForDataset = compoundColors[data.datasetID];
+                    if (cmpColorsForDataset && cmpColorsForDataset.hasOwnProperty(data.molecule.id)) {
+                      isAddedToShoppingCart = true;
+                      shoppingCartColors = cmpColorsForDataset[data.molecule.id];
+                      for (let i = 0; i < shoppingCartColors.length; i++) {
+                        const color = shoppingCartColors[i];
+                        isVisible = colorFilterSettings.hasOwnProperty(color);
+                        if (isVisible) {
+                          break;
+                        }
+                      }
+                    }
+                  }
+                  // }
                   return (
-                    <DatasetMoleculeView
-                      key={index}
-                      index={index}
-                      imageHeight={imgHeight}
-                      imageWidth={imgWidth}
-                      data={data.molecule}
-                      datasetID={data.datasetID}
-                      setRef={setSelectedMoleculeRef}
-                      showCrossReferenceModal
-                      previousItemData={index > 0 && array[index - 1]}
-                      nextItemData={index < array?.length && array[index + 1]}
-                      L={isLigandOn}
-                      P={proteinList.includes(data.molecule.id)}
-                      C={complexList.includes(data.molecule.id)}
-                      S={surfaceList.includes(data.molecule.id)}
-                      V={false}
-                      arrowsHidden
-                      dragDropEnabled
-                    />
+                    isVisible && (
+                      <DatasetMoleculeView
+                        key={index}
+                        index={index}
+                        imageHeight={imgHeight}
+                        imageWidth={imgWidth}
+                        data={data.molecule}
+                        datasetID={data.datasetID}
+                        setRef={setSelectedMoleculeRef}
+                        showCrossReferenceModal
+                        previousItemData={index > 0 && array[index - 1]}
+                        nextItemData={index < array?.length && array[index + 1]}
+                        L={isLigandOn}
+                        P={proteinList.includes(data.molecule.id)}
+                        C={complexList.includes(data.molecule.id)}
+                        S={surfaceList.includes(data.molecule.id)}
+                        V={false}
+                        arrowsHidden
+                        dragDropEnabled
+                        shoppingCartColors={shoppingCartColors}
+                        isAddedToShoppingCart={isAddedToShoppingCart}
+                        inSelectedCompoundsList
+                        colorButtonsEnabled={areColorButtonsEnabled}
+                      />
+                    )
                   );
                 })}
               </DndProvider>

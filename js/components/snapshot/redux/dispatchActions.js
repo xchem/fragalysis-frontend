@@ -441,7 +441,7 @@ export const activateSnapshotDialog = (loggedInUserID = undefined, finallyShareS
     dispatch(createProjectFromSnapshotDialog(data))
       .then(() => {
         dispatch(manageSendTrackingActions(sessionProjectID, true));
-        dispatch(setOpenSnapshotSavingDialog(true));
+
       })
       .catch(error => {
         throw new Error(error);
@@ -453,10 +453,7 @@ export const activateSnapshotDialog = (loggedInUserID = undefined, finallyShareS
     currentSnapshotAuthor === null
   ) {
     dispatch(setForceCreateProject(true));
-    dispatch(setOpenSnapshotSavingDialog(true));
-  } else {
-    dispatch(setOpenSnapshotSavingDialog(true));
-  }
+  } 
 };
 
 export const createNewSnapshotWithoutStateModification = ({

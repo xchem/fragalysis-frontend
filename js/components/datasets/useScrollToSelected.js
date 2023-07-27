@@ -78,12 +78,23 @@ export const useScrollToSelected = (datasetID, moleculesPerPage, setCurrentPage)
       const node = moleculeViewRefs[scrollToMoleculeId];
       if (node) {
         setScrollToMoleculeId(null);
-        setTimeout(() => {
-          node.scrollIntoView();
-        });
+        if (!elementIsVisibleInViewport(node)) {
+          setTimeout(() => {
+            node.scrollIntoView();
+          });
+        }
       }
     }
   }, [moleculeViewRefs, scrollToMoleculeId]);
+
+  const elementIsVisibleInViewport = (el, partiallyVisible = false) => {
+    const { top, left, bottom, right } = el.getBoundingClientRect();
+    const { innerHeight, innerWidth } = window;
+    return partiallyVisible
+      ? ((top > 0 && top < innerHeight) || (bottom > 0 && bottom < innerHeight)) &&
+          ((left > 0 && left < innerWidth) || (right > 0 && right < innerWidth))
+      : top >= 0 && left >= 0 && bottom <= innerHeight && right <= innerWidth;
+  };
 
   // Used to attach the ref of DOM nodes.
   const addMoleculeViewRef = useCallback((moleculeId, node) => {
@@ -93,5 +104,5 @@ export const useScrollToSelected = (datasetID, moleculesPerPage, setCurrentPage)
     }));
   }, []);
 
-  return addMoleculeViewRef;
+  return { addMoleculeViewRef, setScrollToMoleculeId };
 };

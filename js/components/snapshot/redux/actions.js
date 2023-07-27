@@ -1,7 +1,7 @@
 import { constants } from './constants';
 import { initSharedSnapshot } from './reducer';
 
-export const setOpenSnapshotSavingDialog = (isOpen = false) => ({
+export const setOpenSnapshotSavingDialog = (isOpen) => ({
   type: constants.SET_OPEN_SAVING_DIALOG,
   payload: isOpen
 });

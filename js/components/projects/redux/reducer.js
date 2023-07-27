@@ -42,7 +42,8 @@ export const INITIAL_STATE = {
   jobLauncherDialogOpen: false,
   jobLauncherData: null,
   jobLauncherSquonkUrl: null,
-  refreshJobsData: new Date().getTime()
+  refreshJobsData: new Date().getTime(),
+  projectListFilterDialog: false
 };
 
 export const projectReducers = (state = INITIAL_STATE, action = {}) => {
@@ -86,6 +87,9 @@ export const projectReducers = (state = INITIAL_STATE, action = {}) => {
 
     case constants.SET_LIST_OF_PROJECTS:
       return Object.assign({}, state, { listOfProjects: action.payload });
+
+    case constants.SET_LIST_OF_FILTERED_PROJECTS:
+      return Object.assign({}, state, { listOfFilteredProjects: action.payload });
 
     case constants.SET_IS_LOADING_LIST_OF_PROJECTS:
       return Object.assign({}, state, { isLoadingListOfProjects: action.payload });
@@ -150,7 +154,16 @@ export const projectReducers = (state = INITIAL_STATE, action = {}) => {
     case constants.REFRESH_JOBS_DATA:
       return { ...state, refreshJobsData: new Date().getTime() };
 
-    default:
+    case constants.SET_SORT_DIALOG_OPEN:
+      return Object.assign({}, state, { projectListFilterDialog: action.payload });
+
+    case constants.SET_FILTER_CLEAN:
+      return Object.assign({}, state, { filterClean: action.payload });
+
+    case constants.SET_ADD_BUTTON:
+      return Object.assign({}, state, { addButton: action.payload });
+  
+      default:
       return state;
   }
 };

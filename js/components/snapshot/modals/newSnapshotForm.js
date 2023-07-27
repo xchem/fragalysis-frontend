@@ -69,7 +69,6 @@ export const NewSnapshotForm = memo(({ handleCloseModal }) => {
 
   return (
     <>
-      <Typography variant="h3">Snapshot details</Typography>
       <Formik
         initialValues={{
           title: moment().format('-- YYYY-MM-DD -- HH:mm:ss'),
