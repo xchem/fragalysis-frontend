@@ -236,11 +236,15 @@ const useStyles = makeStyles(theme => ({
   },
   arrowsHighlight: {
     borderColor: theme.palette.primary.main,
-    border: 'solid 2px'
+    border: 'solid 2px',
+    backgroundColor: theme.palette.primary.main
   },
   arrow: {
     width: 12,
-    height: 15
+    height: 15,
+    color: 'white',
+    stroke: 'white',
+    strokeWidth: 2
   },
   invisArrow: {
     width: 12,
