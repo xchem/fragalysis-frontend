@@ -72,7 +72,7 @@ import { extractTargetFromURLParam } from '../utils';
 const useStyles = makeStyles(theme => ({
   container: {
     minHeight: '100px',
-    height: '94%',
+    height: '99%',
     width: 'inherit',
     color: theme.palette.black
   },
