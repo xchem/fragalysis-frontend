@@ -608,6 +608,7 @@ export const Projects = memo(({}) => {
       <Panel
         hasHeader
         title="Project list"
+        bodyOverflow
         headerActions={[
           <TextField
             className={classes.search}
