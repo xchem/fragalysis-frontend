@@ -498,7 +498,7 @@ export const clearDatasetSettings = datasetID => dispatch => {
     dispatch(clearInspirationsOfDataset(datasetID));
   }
   // clear search
-  dispatch(setSearchStringOfCompoundSet(null));
+  dispatch(setSearchStringOfCompoundSet(null, null, true));
 };
 
 export const clickOnInspirations = ({ datasetID, currentID, computed_inspirations = [] }) => dispatch => {
