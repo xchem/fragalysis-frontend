@@ -100,7 +100,7 @@ export const Projects = memo(({}) => {
 
   // window height for showing rows per page
   const [windowHeight, setWindowHeight] = useState(window.innerHeight);
-  let projectListWindowHeight = windowHeight / 65;
+  let projectListWindowHeight = windowHeight / 65 - 2;
   let projectListWindowHeightFinal = projectListWindowHeight.toFixed(0);
   const [rowsPerPage, setRowsPerPage] = useState(projectListWindowHeightFinal);
 
