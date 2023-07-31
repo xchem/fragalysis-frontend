@@ -64,7 +64,7 @@ export const MOL_ATTR = {
     isFloat: true,
     color: '#72e5be',
     filter: true,
-    dateFilter: true,
+    dateFilter: true
   },
   name: {
     key: 'name',
