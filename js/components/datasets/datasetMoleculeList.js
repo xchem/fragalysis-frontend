@@ -290,6 +290,8 @@ const DatasetMoleculeList = ({ title, datasetID, url }) => {
   const filterProperties = filterPropertiesMap && datasetID && filterPropertiesMap[datasetID];
   const [sortDialogAnchorEl, setSortDialogAnchorEl] = useState(null);
 
+  const searchString = useSelector(state => state.datasetsReducers.searchString);
+
   const currentActionList = useSelector(state => state.trackingReducers.current_actions_list);
 
   const isActiveFilter = !!(filterSettings || {}).active;
@@ -487,11 +489,11 @@ const DatasetMoleculeList = ({ title, datasetID, url }) => {
   };
 
   // getting searched string to input filed
-  let filterSearchString = '';
-  const getSearchedString = () => {
-    filterSearchString = currentActionList.find(action => action.type === 'SEARCH_STRING');
-  };
-  getSearchedString();
+  // let filterSearchString = '';
+  // const getSearchedString = () => {
+  //   filterSearchString = currentActionList.find(action => action.type === 'SEARCH_STRING');
+  // };
+  // getSearchedString();
 
   const actions = useMemo(
     () => [
@@ -504,7 +506,7 @@ const DatasetMoleculeList = ({ title, datasetID, url }) => {
           dispatch(setDragDropState(datasetID, null));
         }}
         disabled={isLoadingMoleculeList}
-        searchString={filterSearchString?.searchString ?? ''}
+        searchString={searchString ?? ''}
       />,
       <IconButton className={classes.panelButton} color={'inherit'} onClick={() => window.open(url, '_blank')}>
         <Tooltip title="Link to dataset">
@@ -542,7 +544,7 @@ const DatasetMoleculeList = ({ title, datasetID, url }) => {
         </Tooltip>
       </IconButton>
     ],
-    [classes, datasetID, dispatch, filterRef, isLoadingMoleculeList, sortDialogOpen, url]
+    [classes, datasetID, dispatch, filterRef, isLoadingMoleculeList, sortDialogOpen, url, searchString]
   );
 
   // useEffectDebugger(
