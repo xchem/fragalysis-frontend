@@ -59,20 +59,20 @@ export const compareDescriptionDesc = (a, b) => {
 };
 
 export const compareTargetAccessStringAsc = (a, b) => {
-  if (a.project.target_access_string < b.project.target_access_string) {
+  if (a.project?.target_access_string < b.project?.target_access_string) {
     return -1;
   }
-  if (a.project.target_access_string > b.project.target_access_string) {
+  if (a.project?.target_access_string > b.project?.target_access_string) {
     return 1;
   }
   return 0;
 };
 
 export const compareTargetAccessStringDesc = (a, b) => {
-  if (a.project.target_access_string > b.project.target_access_string) {
+  if (a.project?.target_access_string > b.project?.target_access_string) {
     return -1;
   }
-  if (a.project.target_access_string < b.project.target_access_string) {
+  if (a.project?.target_access_string < b.project?.target_access_string) {
     return 1;
   }
   return 0;
@@ -99,20 +99,20 @@ export const compareTagsDesc = (a, b) => {
 };
 
 export const compareAuthorityAsc = (a, b) => {
-  if (a.project.authority < b.project.authority) {
+  if (a.project?.authority < b.project?.authority) {
     return -1;
   }
-  if (a.project.authority > b.project.authority) {
+  if (a.project?.authority > b.project?.authority) {
     return 1;
   }
   return 0;
 };
 
 export const compareAuthorityDesc = (a, b) => {
-  if (a.project.authority > b.project.authority) {
+  if (a.project?.authority > b.project?.authority) {
     return -1;
   }
-  if (a.project.authority < b.project.authority) {
+  if (a.project?.authority < b.project?.authority) {
     return 1;
   }
   return 0;
@@ -137,4 +137,3 @@ export const compareCreatedAtDateDesc = (a, b) => {
   }
   return 0;
 };
-
