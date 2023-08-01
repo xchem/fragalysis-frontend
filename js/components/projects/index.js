@@ -98,10 +98,16 @@ export const Projects = memo(({}) => {
   const [checkedTargetAccessString, setCheckedTargetAccessString] = React.useState(true);
   const [checkedAuthority, setCheckedAuthority] = React.useState(true);
 
+  let filteredListOfProjects = useSelector(state => state.projectReducers.listOfFilteredProjects);
+  const listOfAllProjectsDefault = useSelector(state => state.projectReducers.listOfProjects);
+
   // window height for showing rows per page
   const [windowHeight, setWindowHeight] = useState(window.innerHeight);
   let projectListWindowHeight = windowHeight / 55 - 2;
   let projectListWindowHeightFinal = projectListWindowHeight.toFixed(0);
+  if (projectListWindowHeightFinal > listOfAllProjectsDefault) {
+    projectListWindowHeightFinal = listOfAllProjectsDefault
+  }
   const [rowsPerPage, setRowsPerPage] = useState(projectListWindowHeightFinal);
   const [rowsPerPagePerPageSize, setRowsPerPagePerPageSize] = useState(projectListWindowHeightFinal);
 
@@ -114,9 +120,6 @@ export const Projects = memo(({}) => {
   let priorityOrder = [];
   let tags = [];
   let searchString = '';
-
-  let filteredListOfProjects = useSelector(state => state.projectReducers.listOfFilteredProjects);
-  const listOfAllProjectsDefault = useSelector(state => state.projectReducers.listOfProjects);
 
   const filterClean = useSelector(state => state.projectReducers.filterClean);
   const filter = useSelector(state => state.selectionReducers.filter);
