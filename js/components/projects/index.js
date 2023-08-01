@@ -99,15 +99,13 @@ export const Projects = memo(({}) => {
   const [checkedAuthority, setCheckedAuthority] = React.useState(true);
 
   let filteredListOfProjects = useSelector(state => state.projectReducers.listOfFilteredProjects);
+  let filteredListOfProjectsByDate = useSelector(state => state.projectReducers.listOfFilteredProjectsByDate);
   const listOfAllProjectsDefault = useSelector(state => state.projectReducers.listOfProjects);
 
   // window height for showing rows per page
   const [windowHeight, setWindowHeight] = useState(window.innerHeight);
   let projectListWindowHeight = windowHeight / 55 - 2;
   let projectListWindowHeightFinal = projectListWindowHeight.toFixed(0);
-  if (projectListWindowHeightFinal > listOfAllProjectsDefault) {
-    projectListWindowHeightFinal = listOfAllProjectsDefault
-  }
   const [rowsPerPage, setRowsPerPage] = useState(projectListWindowHeightFinal);
   const [rowsPerPagePerPageSize, setRowsPerPagePerPageSize] = useState(projectListWindowHeightFinal);
 
@@ -182,7 +180,7 @@ export const Projects = memo(({}) => {
   const sortProjects = () => {
     if (filter !== undefined) {
       priorityOrder = filter.priorityOrder;
-      if (filteredListOfProjects === undefined) {
+      if (filteredListOfProjects === undefined && filteredListOfProjectsByDate === undefined) {
         switch (priorityOrder[0]) {
           case 'name':
             if (filter.filter.name.order === -1) {
@@ -227,7 +225,8 @@ export const Projects = memo(({}) => {
             }
             break;
         }
-      } else {
+      } 
+    if (filteredListOfProjects !== undefined && filteredListOfProjectsByDate === undefined) {
         switch (priorityOrder[0]) {
           case 'name':
             if (filter.filter.name.order === -1) {
@@ -280,6 +279,118 @@ export const Projects = memo(({}) => {
             }
             break;
         }
+      }
+    if (filteredListOfProjects === undefined && filteredListOfProjectsByDate !== undefined) {
+        switch (priorityOrder[0]) {
+          case 'name':
+            if (filter.filter.name.order === -1) {
+              for (let a = 1; a < filteredListOfProjectsByDate.length; a++) {
+                dispatch(setListOfFilteredProjects([...filteredListOfProjectsByDate].sort(compareNameDesc)));
+                if (filteredListOfProjectsByDate[a - 1].title === filteredListOfProjectsByDate[a].title) {
+                  if (priorityOrder[1] === 'createdAt') {
+                    dispatch(setListOfFilteredProjects([...filteredListOfProjectsByDate].sort(compareCreatedAtDateDesc)));
+                  }
+                }
+              }
+              dispatch(setListOfFilteredProjects([...filteredListOfProjectsByDate].sort(compareNameDesc)));
+            } else {
+              dispatch(setListOfFilteredProjects([...filteredListOfProjectsByDate].sort(compareNameAsc)));
+            }
+            break;
+          case 'target':
+            if (filter.filter.target.order === -1) {
+              dispatch(setListOfFilteredProjects([...filteredListOfProjectsByDate].sort(compareTargetDesc)));
+            } else {
+              dispatch(setListOfFilteredProjects([...filteredListOfProjectsByDate].sort(compareTargetAsc)));
+            }
+            break;
+          case 'description':
+            if (filter.filter.description.order === -1) {
+              dispatch(setListOfFilteredProjects([...filteredListOfProjectsByDate].sort(compareDescriptionDesc)));
+            } else {
+              dispatch(setListOfFilteredProjects([...filteredListOfProjectsByDate].sort(compareDescriptionAsc)));
+            }
+            break;
+          case 'targetAccessString':
+            if (filter.filter.targetAccessString.order === -1) {
+              dispatch(setListOfFilteredProjects([...filteredListOfProjectsByDate].sort(compareTargetAccessStringDesc)));
+            } else {
+              dispatch(setListOfFilteredProjects([...filteredListOfProjectsByDate].sort(compareTargetAccessStringAsc)));
+            }
+            break;
+          case 'authority':
+            if (filter.filter.authority.order === -1) {
+              dispatch(setListOfFilteredProjects([...filteredListOfProjectsByDate].sort(compareAuthorityDesc)));
+            } else {
+              dispatch(setListOfFilteredProjects([...filteredListOfProjectsByDate].sort(compareAuthorityAsc)));
+            }
+            break;
+          case 'createdAt':
+            if (filter.filter.createdAt.order === -1) {
+              dispatch(setListOfFilteredProjects([...filteredListOfProjectsByDate].sort(compareCreatedAtDateDesc)));
+            } else {
+              dispatch(setListOfFilteredProjects([...filteredListOfProjectsByDate].sort(compareCreatedAtDateAsc)));
+            }
+            break;
+        }
+      }
+    }
+    if (filteredListOfProjects !== undefined && filteredListOfProjectsByDate !== undefined) {
+      const mergedFilteredList = filteredListOfProjects.filter(item1 =>
+        filteredListOfProjectsByDate.some(item2 => item2.id === item1.id)
+      );  
+      
+      switch (priorityOrder[0]) {
+        case 'name':
+          if (filter.filter.name.order === -1) {
+            for (let a = 1; a < mergedFilteredList.length; a++) {
+              dispatch(setListOfFilteredProjects([...mergedFilteredList].sort(compareNameDesc)));
+              if (mergedFilteredList[a - 1].title === mergedFilteredList[a].title) {
+                if (priorityOrder[1] === 'createdAt') {
+                  dispatch(setListOfFilteredProjects([...mergedFilteredList].sort(compareCreatedAtDateDesc)));
+                }
+              }
+            }
+            dispatch(setListOfFilteredProjects([...mergedFilteredList].sort(compareNameDesc)));
+          } else {
+            dispatch(setListOfFilteredProjects([...mergedFilteredList].sort(compareNameAsc)));
+          }
+          break;
+        case 'target':
+          if (filter.filter.target.order === -1) {
+            dispatch(setListOfFilteredProjects([...mergedFilteredList].sort(compareTargetDesc)));
+          } else {
+            dispatch(setListOfFilteredProjects([...mergedFilteredList].sort(compareTargetAsc)));
+          }
+          break;
+        case 'description':
+          if (filter.filter.description.order === -1) {
+            dispatch(setListOfFilteredProjects([...mergedFilteredList].sort(compareDescriptionDesc)));
+          } else {
+            dispatch(setListOfFilteredProjects([...mergedFilteredList].sort(compareDescriptionAsc)));
+          }
+          break;
+        case 'targetAccessString':
+          if (filter.filter.targetAccessString.order === -1) {
+            dispatch(setListOfFilteredProjects([...mergedFilteredList].sort(compareTargetAccessStringDesc)));
+          } else {
+            dispatch(setListOfFilteredProjects([...mergedFilteredList].sort(compareTargetAccessStringAsc)));
+          }
+          break;
+        case 'authority':
+          if (filter.filter.authority.order === -1) {
+            dispatch(setListOfFilteredProjects([...mergedFilteredList].sort(compareAuthorityDesc)));
+          } else {
+            dispatch(setListOfFilteredProjects([...mergedFilteredList].sort(compareAuthorityAsc)));
+          }
+          break;
+        case 'createdAt':
+          if (filter.filter.createdAt.order === -1) {
+            dispatch(setListOfFilteredProjects([...mergedFilteredList].sort(compareCreatedAtDateDesc)));
+          } else {
+            dispatch(setListOfFilteredProjects([...mergedFilteredList].sort(compareCreatedAtDateAsc)));
+          }
+          break;
       }
     }
   };
@@ -596,16 +707,22 @@ export const Projects = memo(({}) => {
       searchedByAuthority = [];
     }
 
-    const mergedArray = [
+    const mergedSearchList = [
       ...searchedByName,
       ...searchedByTarget,
       ...searchedByDescription,
       ...searchedByTargetAccessString,
       ...searchedByAuthority
     ];
-    const uniqueArray = Array.from(new Set(mergedArray.map(JSON.stringify))).map(JSON.parse);
+    const uniqueArray = Array.from(new Set(mergedSearchList.map(JSON.stringify))).map(JSON.parse);
     dispatch(setListOfFilteredProjects(uniqueArray));
   };
+
+  if( filteredListOfProjectsByDate !== undefined) {
+    filteredListOfProjects =  filteredListOfProjects.filter(item1 =>
+      filteredListOfProjectsByDate.some(item2 => item2.id === item1.id)
+    );
+  }
 
   return (
     <>
@@ -828,7 +945,7 @@ export const Projects = memo(({}) => {
                     project => (
                       (tags = JSON.parse(project.tags)),
                       (
-                        <TableRow hover>
+                        <TableRow hover key={project.id}>
                           <Tooltip title={`${project.description}`}>
                             <TableCell
                               component="th"
@@ -912,7 +1029,7 @@ export const Projects = memo(({}) => {
                     project => (
                       (tags = JSON.parse(project.tags)),
                       (
-                        <TableRow hover>
+                        <TableRow hover key={project.id}>
                           <Tooltip title={`${project.description}`}>
                             <TableCell
                               component="th"

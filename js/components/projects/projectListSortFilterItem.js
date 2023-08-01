@@ -12,7 +12,7 @@ import { makeStyles } from '@material-ui/styles';
 import classNames from 'classnames';
 import { useDispatch, useSelector } from 'react-redux';
 import { debounce } from 'lodash';
-import { setListOfProjects, setListOfFilteredProjects } from './redux/actions';
+import { setListOfProjects, setListOfFilteredProjects, setListOfFilteredProjectsByDate } from './redux/actions';
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import { compareCreatedAtDateDesc} from './sortProjects/sortProjects';
@@ -121,8 +121,8 @@ const ProjectListSortFilterItem = memo(props => {
 
   let listOfAllProjectsDefault = useSelector(state => state.projectReducers.listOfProjects);
   const filteredListOfProjects = useSelector(state => state.projectReducers.listOfFilteredProjects);
-  
-  const listOfAllProjects = [...listOfAllProjectsDefault].sort(compareCreatedAtDateDesc);
+
+  let listOfAllProjects = [...listOfAllProjectsDefault].sort(compareCreatedAtDateDesc);
 
   useEffect(() => {
     if (filteredProjectList.length !== 0) {
@@ -153,15 +153,14 @@ const ProjectListSortFilterItem = memo(props => {
     else {
       filteredProjectListByCreatedFrom = filteredListOfProjects.filter(date => (date.init_date > formattedStartDate));
     }
-
     if (filteredProjectListByCreatedTo.length > 0 && filteredProjectListByCreatedFrom.length > 0 ) {
-      filteredProjectListDate = filteredProjectListByCreatedTo.filter(item1 =>
-        filteredProjectListByCreatedFrom.some(item2 => item2.id === item1.id))
-        dispatch(setListOfFilteredProjects(filteredProjectListDate));
+        const filteredListOfProjectsByDate =  filteredProjectListByCreatedFrom.filter(item1 =>
+        filteredProjectListByCreatedTo.some(item2 => item2.id === item1.id))
+        dispatch(setListOfFilteredProjectsByDate(filteredListOfProjectsByDate));
     }
     else {
       filteredProjectListDate = filteredProjectListByCreatedFrom;
-      dispatch(setListOfFilteredProjects(filteredProjectListByCreatedFrom));
+      dispatch(setListOfFilteredProjectsByDate(filteredProjectListDate));
     }
   }
  
@@ -175,13 +174,13 @@ const ProjectListSortFilterItem = memo(props => {
       filteredProjectListByCreatedTo = filteredListOfProjects.filter(date => (date.init_date <= formattedEndDate +1));
     }
     if (filteredProjectListByCreatedTo.length > 0 && filteredProjectListByCreatedFrom.length > 0 ) {
-      filteredProjectListDate = filteredProjectListByCreatedTo.filter(item1 =>
-        filteredProjectListByCreatedFrom.some(item2 => item2.id === item1.id))
-        dispatch(setListOfFilteredProjects(filteredProjectListDate));
+      const filteredListOfProjectsByDate = filteredProjectListByCreatedFrom.filter(item1 =>
+        filteredProjectListByCreatedTo.some(item2 => item2.id === item1.id));
+        dispatch(setListOfFilteredProjectsByDate(filteredListOfProjectsByDate));
     }
     else {
       filteredProjectListDate = filteredProjectListByCreatedTo;
-      dispatch(setListOfFilteredProjects(filteredProjectListByCreatedTo));
+      dispatch(setListOfFilteredProjects(filteredProjectListDate));
     }
   }
 
@@ -299,11 +298,11 @@ const filterAllData = (value) => {
       dispatch(setListOfFilteredProjects(filteredData1))
   }
   if (searchAuthorityString !== "" && property ===  "Authority" && searchTargetString === "" &&  searchDescriptionString === "") {
-    const filteredData1 = listOfAllProjects.filter(item => item.project.authority.toLowerCase().includes(value.toLowerCase()));
+    const filteredData1 = listOfAllProjects.filter(item => item.project?.authority.toLowerCase().includes(value.toLowerCase()));
       dispatch(setListOfFilteredProjects(filteredData1))
   }
   if (searchNameString === "" && searchTargetString === "" && searchDescriptionString === "" && searchTargetAccessString === "" && searchAuthorityString === "") {
-    const filteredData1 = listOfAllProjects.filter(item => item.project.authority.toLowerCase().includes(value.toLowerCase()));
+    const filteredData1 = listOfAllProjects.filter(item => item.project?.authority.toLowerCase().includes(value.toLowerCase()));
       dispatch(setListOfFilteredProjects(filteredData1))
   } 
 }
@@ -313,56 +312,55 @@ const filterAllData = (value) => {
    if (property === "Name") {
        searchNameString = value;
       if (filteredProjectListDate.length > 0) { 
-          listOfAllProjects = filteredProjectListDate;
           filteredProjectListByName = listOfAllProjects.filter(item => item.title.toLowerCase().includes(value.toLowerCase()));}
         else {
           filteredProjectListByName = listOfAllProjects.filter(item => item.title.toLowerCase().includes(value.toLowerCase()));
         }
-        dispatch(setListOfFilteredProjects(filteredProjectListByName))
+        dispatch(setListOfFilteredProjects(filteredProjectListByName));
       filterAllData(value);
     }
 
     if (property === "Target") {
       searchTargetString = value;
       if (filteredProjectListDate.length > 0) { 
-        listOfAllProjects = filteredProjectListDate;
         filteredProjectListByTarget = listOfAllProjects.filter(item => item.target.title.toLowerCase().includes(value.toLowerCase()));}
        else {
         filteredProjectListByTarget = listOfAllProjects.filter(item => item.target.title.toLowerCase().includes(value.toLowerCase()));
        }
+       dispatch(setListOfFilteredProjects(filteredProjectListByTarget));
       filterAllData(value);
     }
         
     if(property ===  "Target access string") {
       searchTargetAccessString = value;
       if (filteredProjectListDate.length > 0) { 
-        listOfAllProjects = filteredProjectListDate;
         filteredProjectListByTargetAccessString = listOfAllProjects.filter(item => item.project.target_access_string.toLowerCase().includes(value.toLowerCase()));}
        else {
         filteredProjectListByTargetAccessString = listOfAllProjects.filter(item => item.project.target_access_string.toLowerCase().includes(value.toLowerCase()));
        }
+       dispatch(setListOfFilteredProjects(filteredProjectListByTargetAccessString));
       filterAllData(value);
     }
 
     if(property ===  "Description") {
       searchDescriptionString = value;
       if (filteredProjectListDate.length > 0) { 
-        listOfAllProjects = filteredProjectListDate;
         filteredProjectListByDescription = listOfAllProjects.filter(item => item.description.toLowerCase().includes(value.toLowerCase()));}
        else {
         filteredProjectListByDescription = listOfAllProjects.filter(item => item.description.toLowerCase().includes(value.toLowerCase()));
        }
+       dispatch(setListOfFilteredProjects(filteredProjectListByDescription));
       filterAllData(value);
     }
 
     if(property ===  "Authority") {
       searchAuthorityString = value;
       if (filteredProjectListDate.length > 0) { 
-        listOfAllProjects = filteredProjectListDate;
-        filteredProjectListByAuthority = listOfAllProjects.filter(item => item.project.authority.toLowerCase().includes(value.toLowerCase()));}
+        filteredProjectListByAuthority = listOfAllProjects.filter(item => item.project?.authority.toLowerCase().includes(value.toLowerCase()));}
        else {
-      filteredProjectListByAuthority = listOfAllProjects.filter(item => item.project.authority.toLowerCase().includes(value.toLowerCase()));
+      filteredProjectListByAuthority = listOfAllProjects.filter(item => item.project?.authority.toLowerCase().includes(value.toLowerCase()));
        }
+       dispatch(setListOfFilteredProjects(filteredProjectListByAuthority));
       filterAllData(value);
     }
   },1000);

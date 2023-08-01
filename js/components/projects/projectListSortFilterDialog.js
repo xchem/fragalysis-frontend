@@ -10,7 +10,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { MOL_ATTRIBUTES } from './redux/constants';
 import { setFilter } from '../../reducers/selection/actions';
 import { Panel } from '../common/Surfaces/Panel';
-import { setSortDialogOpen, setListOfFilteredProjects, setListOfProjects, setDefaultFilter } from './redux/actions';
+import { setSortDialogOpen, setListOfFilteredProjects, setListOfProjects, setDefaultFilter, setListOfFilteredProjectsByDate } from './redux/actions';
 import { debounce } from 'lodash';
 
 const useStyles = makeStyles(theme => ({
@@ -141,6 +141,7 @@ export const ProjectListSortFilterDialog = memo(
       dispatch(setDefaultFilter(true));
       dispatch(setSortDialogOpen(false));
       dispatch(setListOfFilteredProjects(defaultListOfProjects));
+      dispatch(setListOfFilteredProjectsByDate(defaultListOfProjects));
       dispatch(setListOfProjects(defaultListOfProjects));
       dispatch(setSortDialogOpen(true));
     });
