@@ -240,6 +240,30 @@ export const ProjectModal = memo(({}) => {
           <Form>
             <Grid container direction="column" className={classes.body}>
               <Grid item>
+                <FormControl
+                  className={classes.input}
+                  error={errors.type !== undefined}
+                  required
+                  disabled={isProjectModalLoading}
+                >
+                  <Form component={RadioGroup} name="type" row>
+                    <FormControlLabel
+                      value={ProjectCreationType.NEW}
+                      control={<Radio disabled={isProjectModalLoading} checked={true} />}
+                      label="New Project"
+                      disabled={isProjectModalLoading}
+                    />
+                    {/* <FormControlLabel
+                      value={ProjectCreationType.FROM_SNAPSHOT}
+                      control={<Radio disabled={isProjectModalLoading} />}
+                      label="From Snapshot"
+                      disabled={isProjectModalLoading}
+                    /> */}
+                  </Form>
+                  {errors.type && <FormHelperText disabled={isProjectModalLoading}>{errors.type}</FormHelperText>}
+                </FormControl>
+              </Grid>
+              <Grid item>
                 <InputFieldAvatar
                   icon={<Title />}
                   field={

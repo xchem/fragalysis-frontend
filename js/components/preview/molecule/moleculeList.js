@@ -228,7 +228,8 @@ export const MoleculeList = memo(({ hideProjects }) => {
   const [selectDisplayedHitsPressed, setSelectDisplayedHitsPressed] = useState(false);
   const moleculesPerPage = 5;
   const [currentPage, setCurrentPage] = useState(0);
-  const [searchString, setSearchString] = useState(null);
+  const searchString = useSelector(state => state.previewReducers.molecule.searchStringLHS);
+  // const [searchString, setSearchString] = useState(null);
   const [sortDialogAnchorEl, setSortDialogAnchorEl] = useState(null);
   const oldUrl = useRef('');
   const setOldUrl = url => {
@@ -292,15 +293,15 @@ export const MoleculeList = memo(({ hideProjects }) => {
     }, [object_selection]);*/
 
   let joinedMoleculeLists = useMemo(() => {
-    const searchedString = currentActionList.find(action => action.type === 'SEARCH_STRING_HIT_NAVIGATOR');
+    // const searchedString = currentActionList.find(action => action.type === 'SEARCH_STRING_HIT_NAVIGATOR');
     if (searchString) {
       return allMoleculesList.filter(molecule =>
         molecule.protein_code.toLowerCase().includes(searchString.toLowerCase())
       );
-    } else if (searchedString) {
-      return getJoinedMoleculeList.filter(molecule =>
-        molecule.protein_code.toLowerCase().includes(searchedString.searchStringHitNavigator.toLowerCase())
-      );
+      // } else if (searchedString) {
+      //   return getJoinedMoleculeList.filter(molecule =>
+      //     molecule.protein_code.toLowerCase().includes(searchedString.searchStringHitNavigator.toLowerCase())
+      //   );
     } else {
       return getJoinedMoleculeList;
     }
@@ -832,11 +833,17 @@ export const MoleculeList = memo(({ hideProjects }) => {
 
   const openGlobalTagEditor = () => {};
 
-  let filterSearchString = '';
-  const getSearchedString = () => {
-    filterSearchString = currentActionList.find(action => action.type === 'SEARCH_STRING_HIT_NAVIGATOR');
-  };
-  getSearchedString();
+  // let filterSearchString = '';
+  // const getSearchedString = () => {
+  //   filterSearchString = currentActionList.find(action => action.type === 'SEARCH_STRING_HIT_NAVIGATOR');
+  // };
+  // getSearchedString();
+
+  // useEffect(() => {
+  //   if (filterSearchString?.searchStringHitNavigator !== '') {
+  //     setSearchString(filterSearchString.searchStringHitNavigator);
+  //   }
+  // }, [filterSearchString]);
 
   const actions = [
     /* do not disable filter by itself if it does not have any result */
@@ -864,11 +871,12 @@ export const MoleculeList = memo(({ hideProjects }) => {
       className={classes.search}
       id="search-hit-navigator"
       onChange={value => {
-        setSearchString(value);
+        // setSearchString(value);
         dispatch(setSearchStringOfHitNavigator(value));
       }}
       disabled={false || (getJoinedMoleculeList && getJoinedMoleculeList.length === 0)}
-      searchString={filterSearchString?.searchStringHitNavigator ?? ''}
+      // searchString={filterSearchString?.searchStringHitNavigator ?? ''}
+      searchString={searchString ?? ''}
     />,
 
     <IconButton

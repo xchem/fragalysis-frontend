@@ -260,9 +260,10 @@ export const removeFromFilterShowedScoreProperties = datasetID => ({
   payload: datasetID
 });
 
-export const setSearchStringOfCompoundSet = (datasetID, searchString) => ({
+export const setSearchStringOfCompoundSet = (datasetID, searchString, skipTracking = false) => ({
   type: constants.SET_SEARCH_STRING,
-  payload: {datasetID, searchString}
+  payload: { datasetID, searchString },
+  skipTracking: skipTracking
 });
 
 export const setIsLoadingInspirationListOfMolecules = isLoading => ({

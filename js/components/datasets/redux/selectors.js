@@ -461,17 +461,17 @@ export const getJoinedMoleculeLists = (datasetID, state) => {
     }
   }
 
-  const restoredSearchString = state.trackingReducers.current_actions_list.find(
-    action => action.type === 'SEARCH_STRING'
-  );
-  if (restoredSearchString !== null && restoredSearchString !== undefined) {
-    const searchedString = restoredSearchString.searchString;
-    if (searchedString !== undefined) {
-      moleculeList = moleculeList.filter(molecule =>
-        molecule.name.toLowerCase().includes(searchedString.toLowerCase())
-      );
-    }
-  }
+  // const restoredSearchString = state.trackingReducers.current_actions_list.find(
+  //   action => action.type === 'SEARCH_STRING'
+  // );
+  // if (restoredSearchString !== null && restoredSearchString !== undefined) {
+  //   const searchedString = restoredSearchString.searchString;
+  //   if (searchedString !== undefined) {
+  //     moleculeList = moleculeList.filter(molecule =>
+  //       molecule.name.toLowerCase().includes(searchedString.toLowerCase())
+  //     );
+  //   }
+  // }
   if (searchString !== null && searchString !== undefined) {
     moleculeList = moleculeList.filter(molecule => molecule.name.toLowerCase().includes(searchString.toLowerCase()));
   }

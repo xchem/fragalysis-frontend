@@ -15,7 +15,7 @@ import { constants as viewerControlsConstants } from '../../components/preview/v
 import { DJANGO_CONTEXT } from '../../utils/djangoContext';
 import { BACKGROUND_COLOR } from '../../components/nglView/constants/index';
 import { getMoleculeForId } from '../../components/preview/tags/redux/dispatchActions';
-import { constants as moleculeConstants} from '../../components/preview/molecule/redux/constants'
+import { constants as moleculeConstants } from '../../components/preview/molecule/redux/constants';
 
 export const findTrackAction = (action, state) => (dispatch, getState) => {
   const username = DJANGO_CONTEXT['username'];
@@ -1292,12 +1292,11 @@ export const findTrackAction = (action, state) => (dispatch, getState) => {
         timestamp: Date.now(),
         username: username,
         object_type: objectType,
-        dataset_id: action.payload.datasetID,
+        // dataset_id: action.payload.datasetID,
         searchStringHitNavigator: searchStringHitNavigator,
         text: `Searched string in Hit navigator: ${searchStringHitNavigator}`
       };
-    }
-     else if (action.type === nglConstants.UPDATE_COMPONENT_REPRESENTATION_VISIBILITY) {
+    } else if (action.type === nglConstants.UPDATE_COMPONENT_REPRESENTATION_VISIBILITY) {
       let objectType = actionObjectType.REPRESENTATION;
       let value = action.newVisibility;
       let valueDescription = value === true ? actionDescription.VISIBLE : actionDescription.HIDDEN;

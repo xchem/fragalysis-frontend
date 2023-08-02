@@ -14,6 +14,7 @@ export const constants = {
   RESET_PROJECTS_REDUCER: prefix + 'RESET_PROJECTS_REDUCER',
   SET_LIST_OF_PROJECTS: prefix + 'SET_LIST_OF_PROJECTS',
   SET_LIST_OF_FILTERED_PROJECTS: prefix + 'SET_LIST_OF_FILTERED_PROJECTS',
+  SET_LIST_OF_FILTERED_PROJECTS_BY_DATE: prefix + 'SET_LIST_OF_FILTERED_PROJECTS_BY_DATE',
   SET_IS_LOADING_LIST_OF_PROJECTS: prefix + 'SET_IS_LOADING_LIST_OF_PROJECTS',
   SET_IS_LOADING_TREE: prefix + 'SET_IS_LOADING_TREE',
   SET_CURRENT_SNAPSHOT_TREE: prefix + 'SET_CURRENT_SNAPSHOT_TREE',
@@ -64,7 +65,7 @@ export const MOL_ATTR = {
     isFloat: true,
     color: '#72e5be',
     filter: true,
-    dateFilter: true,
+    dateFilter: true
   },
   name: {
     key: 'name',
