@@ -80,7 +80,7 @@ export const TargetList = memo(() => {
 
   if (target_id_list) {
     return (
-      <Panel hasHeader title="Target List" isLoading={isTargetLoading}>
+      <Panel hasHeader title="Target List" isLoading={isTargetLoading} bodyOverflow>
         <List>
           {getTargetProjectCombinations(target_id_list, projectsList).map(data =>
             render_item_method(data.target, data.project)
