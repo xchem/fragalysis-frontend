@@ -31,14 +31,15 @@ const useStyles = makeStyles(theme => ({
   }
 }));
 
-const SearchField = ({ className, id, placeholder, size, onChange, disabled }) => {
+const SearchField = ({ className, id, placeholder, size, onChange, disabled, searchString }) => {
   const classes = useStyles();
+  let value = searchString ??  '';
 
   const debounced = useMemo(
     () =>
       debounce(value => {
         onChange(value);
-      }, 350),
+      }, 1000),
     [onChange]
   );
 
@@ -51,7 +52,7 @@ const SearchField = ({ className, id, placeholder, size, onChange, disabled }) =
     <TextField
       className={classNames(classes.search, className)}
       id={id}
-      placeholder={placeholder ?? 'Search'}
+      placeholder={placeholder ?? 'Search tags'}
       size={size}
       InputProps={{
         startAdornment: (
@@ -63,6 +64,8 @@ const SearchField = ({ className, id, placeholder, size, onChange, disabled }) =
       }}
       onChange={onChangeDebounced}
       disabled={disabled}
+      defaultValue={value ?? ''}
+      key={value}
     />
   );
 };

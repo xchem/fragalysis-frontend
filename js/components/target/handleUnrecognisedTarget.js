@@ -11,8 +11,10 @@ import { ErrorReport } from '../header/errorReport';
 import { Modal } from '../common/Modal';
 import { URLS } from '../routes/constants';
 import { DJANGO_CONTEXT } from '../../utils/djangoContext';
+import { useHistory } from 'react-router-dom';
 
 const HandleUnrecognisedTarget = memo(({ targetUnrecognised, setTargetUnrecognised, target_id_list }) => {
+  let history = useHistory();
   const closeModal = () => {
     setTargetUnrecognised(undefined);
   };
@@ -46,6 +48,15 @@ const HandleUnrecognisedTarget = memo(({ targetUnrecognised, setTargetUnrecognis
           </h3>
           {request}
           <TargetList key="TARGLIST" />
+          <Button
+          color="primary"
+          onClick={() => {
+            closeModal(), history.push(URLS.landing);
+          }}
+          style={{position: 'fixed', right: '25px'}}
+        >
+          Close
+          </Button>
         </Modal>
       );
     }

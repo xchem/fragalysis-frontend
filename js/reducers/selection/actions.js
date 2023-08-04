@@ -304,6 +304,11 @@ export const setFilter = filter => ({
   payload: filter
 });
 
+export const resetFilters = filter => ({
+  type: constants.RESET_FILTER,
+  payload: filter
+});
+
 export const resetCompoundsOfVectors = () => ({
   type: constants.RESET_COMPOUNDS_OF_VECTORS
 });

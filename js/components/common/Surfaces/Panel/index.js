@@ -21,7 +21,7 @@ const useStyles = makeStyles(theme => ({
   },
   body: {
     padding: theme.spacing(1),
-    overflow: 'auto',
+    overflow: 'hidden',
     height: '100%',
     flex: 1
   },
