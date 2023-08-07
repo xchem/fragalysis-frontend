@@ -58,7 +58,8 @@ import { setFilter } from '../../reducers/selection/actions';
 
 const useStyles = makeStyles(theme => ({
   table: {
-    minWidth: 650
+    minWidth: 650,
+    tableLayout: 'auto'
   },
   search: {
     margin: theme.spacing(1),
@@ -104,7 +105,7 @@ export const Projects = memo(({}) => {
 
   // window height for showing rows per page
   const [windowHeight, setWindowHeight] = useState(window.innerHeight);
-  let projectListWindowHeight = windowHeight / 55 - 2;
+  let projectListWindowHeight = windowHeight / 46 - 2;
   let projectListWindowHeightFinal = parseInt(projectListWindowHeight.toFixed(0), 10);
   const [rowsPerPage, setRowsPerPage] = useState(projectListWindowHeightFinal);
   const [rowsPerPagePerPageSize, setRowsPerPagePerPageSize] = useState(projectListWindowHeightFinal);
@@ -729,6 +730,9 @@ export const Projects = memo(({}) => {
       filteredListOfProjectsByDate.some(item2 => item2.id === item1.id)
     );
   }
+
+  const projectsToUse = filteredListOfProjects ? filteredListOfProjects : listOfAllProjects;
+
   return (
     <>
       <Panel
@@ -947,34 +951,34 @@ export const Projects = memo(({}) => {
               </TableRow>
             </TableHead>
             <TableBody>
-              {projectItems.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map(
+              {projectsToUse.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map(
                 project => (
                   (tags = JSON.parse(project.tags)),
                   (
-                    <TableRow hover key={project.id} style={{ width: '100%' }}>
+                    <TableRow hover key={project.id}>
                       <Tooltip title={`${project.description}`}>
                         <TableCell
                           component="th"
                           scope="row"
-                          style={{ width: '10%', height: '20px', padding: '0px 10px 0px 0px' }}
+                          style={{ minWidth: '100px', padding: '0px 10px 0px 0px' }}
                         >
                           <Link to={`${URLS.projects}${project.id}`}>
                             <div>{project.title === undefined ? project.title : project.title}</div>
                           </Link>
                         </TableCell>
                       </Tooltip>
-                      <TableCell align="left" style={{ width: '7%', height: '20px', padding: '0px 10px 0px 0px' }}>
+                      <TableCell align="left" style={{ minWidth: '100px', padding: '0px 10px 0px 0px' }}>
                         <Link to={`${URLS.target}${project.target}`}>
                           <div>{project.target.title === undefined ? project.target : project.target.title}</div>
                         </Link>
                       </TableCell>
-                      <TableCell align="left" style={{ width: '30%', height: '20px', padding: '5px 10px 0px 0px' }}>
+                      <TableCell align="left" style={{ minWidth: '100px', padding: '5px 10px 0px 0px' }}>
                         <div>{project.description}</div>
                       </TableCell>
-                      <TableCell align="left" style={{ width: '12%', height: '20px', padding: '0px 10px 0px 0px' }}>
+                      <TableCell align="left" style={{ minWidth: '200px', padding: '0px 10px 0px 0px' }}>
                         <div>{project.project?.target_access_string}</div>
                       </TableCell>
-                      <TableCell align="left" style={{ width: '11%', height: '20px', padding: '0px 10px 0px 0px' }}>
+                      <TableCell align="left" style={{ padding: '0px 10px 0px 0px' }}>
                         <div>
                           {tags.map((tag, index) => (
                             <Chip key={index} label={tag} size="small" className={classes.chip} />
@@ -982,13 +986,13 @@ export const Projects = memo(({}) => {
                         </div>
                       </TableCell>
                       {/*<TableCell align="left">{project.author}</TableCell> */}
-                      <TableCell align="left" style={{ width: '10%', height: '20px', padding: '0px 10px 0px 0px' }}>
+                      <TableCell align="left" style={{ minWidth: '100px', padding: '0px 10px 0px 0px' }}>
                         <div>{project.project?.authority} </div>
                       </TableCell>
-                      <TableCell align="left" style={{ width: '10%', height: '20px', padding: '0px 10px 0px 0px' }}>
+                      <TableCell align="left" style={{ minWidth: '100px', padding: '0px 10px 0px 0px' }}>
                         <div>{moment(project.init_date).format('LLL')}</div>
                       </TableCell>
-                      <TableCell align="center" style={{ width: '5%', height: '20px', padding: '0px 10px 0px 0px' }}>
+                      <TableCell align="center" style={{ minWidth: '100px', padding: '0px 10px 0px 0px' }}>
                         <Tooltip title="Delete project">
                           <IconButton
                             style={{ padding: '0px' }}
