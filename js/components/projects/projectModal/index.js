@@ -1,5 +1,5 @@
 import React, { memo, useEffect, useState } from 'react';
-import Modal from '../../common/Modal';
+import ModalNewProject from '../../common/ModalNewProject';
 import { useDispatch, useSelector } from 'react-redux';
 import { groupBy } from 'lodash';
 import { setProjectModalOpen } from '../redux/actions';
@@ -14,7 +14,8 @@ import {
   FormHelperText,
   FormControlLabel,
   ListItemText,
-  Checkbox
+  Checkbox,
+  NativeSelect
 } from '@material-ui/core';
 import { Title, Description, Label, Link, QuestionAnswer } from '@material-ui/icons';
 import { Autocomplete } from '@material-ui/lab';
@@ -52,10 +53,13 @@ const useStyles = makeStyles(theme => ({
     width: 400
   }
 }));
+let currantTargetId = 1;
 
 export const ProjectModal = memo(({}) => {
   const classes = useStyles();
   const [state, setState] = useState();
+  const [selectedTarget, setSelectedTarget] = useState(false);
+
   let [createDiscourse, setCreateDiscourse] = useState(true);
   let history = useHistory();
 
@@ -72,7 +76,10 @@ export const ProjectModal = memo(({}) => {
     'session_project.id'
   );
   const targetList = useSelector(state => state.apiReducers.target_id_list);
-  const currentProject = useSelector(state => state.targetReducers.currentProject);
+  const currantProject = useSelector(state => state.targetReducers.currantProject);
+  const currantTarget = useSelector(state => state.apiReducers.target_on_name);
+
+  const actualDate = moment().format('-YYYY-MM-DD');
 
   const findTargetNameForId = id => {
     return targetList.find(target => target.id === id);
@@ -115,15 +122,35 @@ export const ProjectModal = memo(({}) => {
     return project && `${project.title} - ${project.description}`;
   };
 
+  let selectedValue = '';
+  if (currantTarget !== undefined) {
+  selectedValue = currantTarget;
+  }
+  targetList.map(target => {
+    if (selectedValue === target.title && selectedTarget === false ) {
+      currantTargetId = target.id
+    }
+  })
+
+  const handleChangeTarget = (event) => {
+    setSelectedTarget(true);
+    selectedValue = event.target.value;
+      targetList.map(target => {
+        if (selectedValue === target.title ) {
+          currantTargetId = target.id
+        }
+      })
+}
+
+
   return (
-    <Modal open={isProjectModalOpen} onClose={handleCloseModal}>
-      <Typography variant="h3">Create project</Typography>
+    <ModalNewProject open={isProjectModalOpen} onClose={handleCloseModal}>
       <Formik
         initialValues={{
           type: ProjectCreationType.NEW,
-          title: '',
-          description: '',
-          targetId: '',
+          title: currantTarget + actualDate,
+          description: 'Project created from ' + currantTarget,
+          targetId: currantTargetId,
           parentSnapshotId: '',
           tags: ''
         }}
@@ -137,9 +164,6 @@ export const ProjectModal = memo(({}) => {
           } else if (values.description.length < 20) {
             errors.description = 'Description must be at least 20 characters long!';
           }
-          if (values.type === ProjectCreationType.NEW && values.targetId === '') {
-            errors.targetId = 'Required!';
-          }
           if (values.type === ProjectCreationType.FROM_SNAPSHOT && values.parentSnapshotId === '') {
             errors.parentSnapshotId = 'Required!';
           }
@@ -152,10 +176,10 @@ export const ProjectModal = memo(({}) => {
           const data = {
             title: values.title,
             description: values.description,
-            target: values.targetId,
+            target: currantTargetId,
             author: DJANGO_CONTEXT['pk'],
             tags: JSON.stringify(tags),
-            project: currentProject?.id
+            project: currantProject?.id
           };
 
           // Create from snapshot
@@ -225,16 +249,16 @@ export const ProjectModal = memo(({}) => {
                   <Form component={RadioGroup} name="type" row>
                     <FormControlLabel
                       value={ProjectCreationType.NEW}
-                      control={<Radio disabled={isProjectModalLoading} />}
+                      control={<Radio disabled={isProjectModalLoading} checked={true} />}
                       label="New Project"
                       disabled={isProjectModalLoading}
                     />
-                    <FormControlLabel
+                    {/* <FormControlLabel
                       value={ProjectCreationType.FROM_SNAPSHOT}
                       control={<Radio disabled={isProjectModalLoading} />}
                       label="From Snapshot"
                       disabled={isProjectModalLoading}
-                    />
+                    /> */}
                   </Form>
                   {errors.type && <FormHelperText disabled={isProjectModalLoading}>{errors.type}</FormHelperText>}
                 </FormControl>
@@ -283,20 +307,13 @@ export const ProjectModal = memo(({}) => {
                         <InputLabel htmlFor="selected-target" required disabled={isProjectModalLoading}>
                           Target
                         </InputLabel>
-                        <Field
-                          component={Select}
-                          disabled={isProjectModalLoading}
-                          name="targetId"
-                          inputProps={{
-                            id: 'selected-target'
-                          }}
-                        >
-                          {targetList.map(data => (
-                            <MenuItem key={data.id} value={data.id}>
-                              {data.title}
-                            </MenuItem>
-                          ))}
-                        </Field>
+                          <NativeSelect defaultValue={currantTarget} onChange={() => handleChangeTarget(event)}>
+                              {targetList.map(data => (
+                                  <option key={data.id} defaultValue={currantTarget}>
+                                    {data.title}
+                                  </option>
+                              ))}
+                          </NativeSelect>
                         <FormHelperText disabled={isProjectModalLoading}>{errors.targetId}</FormHelperText>
                       </FormControl>
                     }
@@ -419,6 +436,6 @@ export const ProjectModal = memo(({}) => {
           </Form>
         )}
       </Formik>
-    </Modal>
+    </ModalNewProject>
   );
 });

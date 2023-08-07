@@ -1,16 +1,16 @@
 export const colourList = [
-  '#EFCDB8',
-  '#CC6666',
-  '#FF6E4A',
-  '#78DBE2',
-  '#1F75FE',
-  '#FAE7B5',
-  '#FDBCB4',
-  '#C5E384',
-  '#95918C',
-  '#F75394',
-  '#80DAEB',
-  '#ADADD6'
+  '#FFEBEA',
+  '#EEFFEE',
+  '#ECF6FF',
+  '#F5E9FF',
+  '#FFEFDB',
+  '#DCFFDE',
+  '#CED1FF',
+  '#FFD5EC',
+  '#E0FFB5',
+  '#B7FFE0',
+  '#9F98FF',
+  '#FFA5AB'
 ];
 
 export const getRandomColor = molecule => colourList[molecule.id % colourList.length];

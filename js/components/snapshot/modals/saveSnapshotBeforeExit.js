@@ -27,11 +27,11 @@ export const SaveSnapshotBeforeExit = memo(() => {
 
   const handleOnNo = async () => {
     const projectID = paramsProjectID && paramsProjectID != null ? paramsProjectID : currentProjectID;
-
+    dispatch(setIsOpenModalBeforeExit(false));
     await dispatch(changeSnapshot(projectID, snapshotID, nglViewList, stage));
 
     dispatch(setSelectedSnapshotToSwitch(null));
-    handleCloseModal();
+    dispatch(setIsOpenModalBeforeExit(false));
   };
 
   const handleOnYes = () => {

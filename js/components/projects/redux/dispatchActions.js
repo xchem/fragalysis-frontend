@@ -280,6 +280,7 @@ export const createProjectFromSnapshotDialog = data => dispatch => {
   return api({ url: `${base_url}/api/session-projects/`, method: METHOD.POST, data })
     .then(response => {
       const projectID = response.data.id;
+      data.projectID = projectID;
       dispatch(setCurrentProjectProperty('projectID', projectID));
       dispatch(setCurrentProjectProperty('title', response.data.title));
     })

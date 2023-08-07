@@ -13,6 +13,8 @@ export const constants = {
 
   RESET_PROJECTS_REDUCER: prefix + 'RESET_PROJECTS_REDUCER',
   SET_LIST_OF_PROJECTS: prefix + 'SET_LIST_OF_PROJECTS',
+  SET_LIST_OF_FILTERED_PROJECTS: prefix + 'SET_LIST_OF_FILTERED_PROJECTS',
+  SET_LIST_OF_FILTERED_PROJECTS_BY_DATE: prefix + 'SET_LIST_OF_FILTERED_PROJECTS_BY_DATE',
   SET_IS_LOADING_LIST_OF_PROJECTS: prefix + 'SET_IS_LOADING_LIST_OF_PROJECTS',
   SET_IS_LOADING_TREE: prefix + 'SET_IS_LOADING_TREE',
   SET_CURRENT_SNAPSHOT_TREE: prefix + 'SET_CURRENT_SNAPSHOT_TREE',
@@ -33,7 +35,11 @@ export const constants = {
   SET_JOB_LAUNCHER_SQUONK_URL: prefix + 'SET_JOB_LAUNCHER_SQUONK_URL',
   REFRESH_JOBS_DATA: prefix + 'REFRESH_JOBS_DATA',
 
-  SET_JOB_LIST: prefix + 'SET_JOB_LIST'
+  SET_JOB_LIST: prefix + 'SET_JOB_LIST',
+  SET_SORT_DIALOG_OPEN: prefix + 'SET_SORT_DIALOG_OPEN',
+  SET_FILTER_CLEAN: prefix + 'SET_FILTER_CLEAN',
+
+  SET_ADD_BUTTON: prefix + 'SET_ADD_BUTTON'
 };
 
 export const ProjectCreationType = {
@@ -51,3 +57,65 @@ export const SnapshotType = {
 export const SnapshotProjectType = {
   NOT_ASSIGNED: 'Not assigned to project'
 };
+
+export const MOL_ATTR = {
+  createdAt: {
+    key: 'createdAt',
+    name: 'Created at',
+    isFloat: true,
+    color: '#72e5be',
+    filter: true,
+    dateFilter: true
+  },
+  name: {
+    key: 'name',
+    name: 'Name',
+    isFloat: true,
+    color: '#daa520',
+    filter: true,
+    dateFilter: false
+  },
+  target: {
+    key: 'target',
+    name: 'Target',
+    isFloat: true,
+    color: '#f96587',
+    filter: true,
+    dateFilter: false
+  },
+  targetAccessString: {
+    key: 'targetAccessString',
+    name: 'Target access string',
+    isFloat: true,
+    color: '#ffe119',
+    filter: true,
+    dateFilter: false
+  },
+  description: {
+    key: 'description',
+    name: 'Description',
+    isFloat: false,
+    color: '#f58231',
+    filter: true,
+    dateFilter: false
+  },
+  authority: {
+    key: 'authority',
+    name: 'Authority',
+    isFloat: false,
+    color: '#86844a',
+    filter: true,
+    dateFilter: false
+  }
+  /*tags: {
+    key: 'tags',
+    name: 'Tags',
+    isFloat: false,
+    color: '#42d4f4',
+    filter: true,
+    dateFilter: false,
+    value: ''
+  }*/
+};
+
+export const MOL_ATTRIBUTES = Object.values(MOL_ATTR);
