@@ -171,8 +171,7 @@ const TagView = memo(
               </Avatar>
             )
           };
-        }
-        else {
+        } else {
           return {
             size: 'small',
             className: `${classes.chip} ${selected && !isSpecialTag ? classes.chipSelected : null} ${
@@ -181,14 +180,13 @@ const TagView = memo(
             label: tagData.tag,
             clickable: true,
             color: bgColor,
-            style: {backgroundColor: 'white',
-            border: '1px solid rgba(0, 0, 0, 0.23)'},
+            style: { backgroundColor: 'white', border: '1px solid rgba(0, 0, 0, 0.23)', borderColor: bgColor },
             onClick: () => {
               handleClick && handleClick(selected, tag, allTags);
             },
             deleteIcon: getDeleteIcon(),
             onDelete: getDeleteAction(),
-            disabled: determineDisabled(),
+            disabled: determineDisabled()
           };
         }
 
