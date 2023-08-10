@@ -189,25 +189,6 @@ const TagView = memo(
             disabled: determineDisabled()
           };
         }
-        else {
-          return {
-            size: 'small',
-            className: `${classes.chip} ${selected && !isSpecialTag ? classes.chipSelected : null} ${
-              classes.tagDetailsChip
-            }`,
-            label: tagData.tag,
-            clickable: true,
-            color: bgColor,
-            style: {backgroundColor: 'white',
-            border: '1px solid rgba(0, 0, 0, 0.23)'},
-            onClick: () => {
-              handleClick && handleClick(selected, tag, allTags);
-            },
-            deleteIcon: getDeleteIcon(),
-            onDelete: getDeleteAction(),
-            disabled: determineDisabled(),
-          };
-        }
 
         return {
           size: 'small',
