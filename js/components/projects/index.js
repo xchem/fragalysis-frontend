@@ -105,6 +105,7 @@ export const Projects = memo(({}) => {
 
   // window height for showing rows per page
   const [windowHeight, setWindowHeight] = useState(window.innerHeight);
+
   let projectListWindowHeight = windowHeight / 26 - 6;
   let projectListWindowHeightFinal = parseInt(projectListWindowHeight.toFixed(0), 10);
   const [rowsPerPage, setRowsPerPage] = useState(projectListWindowHeightFinal);
@@ -373,8 +374,8 @@ export const Projects = memo(({}) => {
     if (filteredListOfProjects !== undefined && filteredListOfProjectsByDate !== undefined) {
       const mergedFilteredList = filteredListOfProjects.filter(item1 =>
         filteredListOfProjectsByDate.some(item2 => item2.id === item1.id)
-      );
-
+      );  
+      
       switch (priorityOrder[0]) {
         case 'name':
           if (filter.filter.name.order === -1) {
@@ -742,7 +743,6 @@ export const Projects = memo(({}) => {
     } else {
       searchedByAuthority = [];
     }
-
     const mergedSearchList = [
       ...searchedByName,
       ...searchedByTarget,
