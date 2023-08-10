@@ -130,8 +130,8 @@ export const Projects = memo(({}) => {
   useEffect(() => {
     dispatch(loadListOfAllProjects()).catch(error => {
       throw new Error(error);
-     });
-     }, [dispatch]);
+    });
+  }, [dispatch]);
 
   useEffect(() => {
     sortProjects();
@@ -148,8 +148,8 @@ export const Projects = memo(({}) => {
       searchedByTargetAccessString = [];
       searchedByAuthority = [];
       priorityOrder = [];
-      const newFilter = {...filter};
-      newFilter.priorityOrder =  ['createdAt', 'name', 'target', 'targetAccessString', 'description', 'authority'];
+      const newFilter = { ...filter };
+      newFilter.priorityOrder = ['createdAt', 'name', 'target', 'targetAccessString', 'description', 'authority'];
       newFilter.filter.authority.order = 1;
       newFilter.filter.description.order = 1;
       newFilter.filter.name.order = 1;
@@ -158,7 +158,35 @@ export const Projects = memo(({}) => {
       newFilter.filter.targetAccessString.order = 1;
       dispatch(setFilter(newFilter));
       searchString = '';
-    };
+    }
+  }, [filterClean]);
+
+  useEffect(() => {
+    sortProjects();
+  }, [filter]);
+
+  useEffect(() => {
+    // remove filter data
+    if (filterClean === true) {
+      dispatch(setListOfFilteredProjects(listOfAllProjects));
+      dispatch(setDefaultFilter(false));
+      searchedByName = [];
+      searchedByTarget = [];
+      searchedByDescription = [];
+      searchedByTargetAccessString = [];
+      searchedByAuthority = [];
+      priorityOrder = [];
+      const newFilter = { ...filter };
+      newFilter.priorityOrder = ['createdAt', 'name', 'target', 'targetAccessString', 'description', 'authority'];
+      newFilter.filter.authority.order = 1;
+      newFilter.filter.description.order = 1;
+      newFilter.filter.name.order = 1;
+      newFilter.filter.target.order = 1;
+      newFilter.filter.createdAt.order = 1;
+      newFilter.filter.targetAccessString.order = 1;
+      dispatch(setFilter(newFilter));
+      searchString = '';
+    }
   }, [filterClean]);
 
   useEffect(() => {
@@ -606,7 +634,6 @@ export const Projects = memo(({}) => {
             dispatch(setListOfFilteredProjects([...filteredListOfProjects].sort(compareDescriptionAsc)));
             setSortSwitch(0);
           } else {
-
             dispatch(setListOfFilteredProjects([...filteredListOfProjects].sort(compareDescriptionDesc)));
             setSortSwitch(offsetDescription + 1);
           }

@@ -25,9 +25,12 @@ export const useGetJobDefinition = jobInfo => {
 
   return useMemo(() => {
     if (jobInfo) {
-      const inputs = JSON.parse(inputsJson);
-      const options = JSON.parse(optionsJson);
-      const outputs = JSON.parse(outputsJson);
+      // const inputs = JSON.parse(inputsJson);
+      // const options = JSON.parse(optionsJson);
+      // const outputs = JSON.parse(outputsJson);
+      const inputs = inputsJson;
+      const options = optionsJson;
+      const outputs = outputsJson;
 
       const jobOverrides = overrides['fragalysis-jobs'][overrideIndex];
 
