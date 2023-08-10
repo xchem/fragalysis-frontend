@@ -6,7 +6,8 @@ export const INITIAL_STATE = {
   proteinDataCache: {},
 
   // disables NGL control buttons for molecules
-  disableNglControlButtons: {} // moleculeID.nglButtonDisableState
+  disableNglControlButtons: {}, // moleculeID.nglButtonDisableState,
+  searchStringLHS: ''
 };
 
 export const molecule = (state = INITIAL_STATE, action = {}) => {
@@ -64,6 +65,13 @@ export const molecule = (state = INITIAL_STATE, action = {}) => {
       return {
         ...state,
         disableNglControlButtons
+      };
+    }
+
+    case constants.SET_SEARCH_STRING_HIT_NAVIGATOR: {
+      return {
+        ...state,
+        searchStringLHS: action.payload
       };
     }
 

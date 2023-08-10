@@ -1,3 +1,4 @@
+import { compoundsColors } from '../../preview/compounds/redux/constants';
 import { constants } from './constants';
 
 export const INITIAL_STATE = {
@@ -46,6 +47,16 @@ export const INITIAL_STATE = {
 
   // shopping cart
   compoundsToBuyDatasetMap: {}, // map of $datasetID and its list of moleculeID
+  selectedCompoundsByDataset: {}, // map of $datasetID and its list of moleculeID
+  compoundColorByDataset: {}, // map of $datasetID and its list of moleculeID
+
+  selectedColorsInFilter: {
+    [compoundsColors.blue.key]: compoundsColors.blue.key,
+    [compoundsColors.red.key]: compoundsColors.red.key,
+    [compoundsColors.green.key]: compoundsColors.green.key,
+    [compoundsColors.purple.key]: compoundsColors.purple.key,
+    [compoundsColors.apricot.key]: compoundsColors.apricot.key
+  },
 
   // drag and drop state
   dragDropMap: {},
@@ -59,7 +70,13 @@ export const INITIAL_STATE = {
   disableDatasetsNglControlButtons: {}, // datasetID.moleculeID.nglButtonDisableState
 
   // Used for initially scrolling to firstly selected molecule when loading up a project
-  datasetScrolledMap: {}
+  datasetScrolledMap: {},
+
+  isLockVisibleCompoundsDialogOpenGlobal: false,
+  isLockVisibleCompoundsDialogOpenLocal: false,
+  cmpForLocalLockVisibleCompoundsDialog: null,
+  askLockCompoundsQuestion: true,
+  editedColorGroup: null
 };
 
 /**
@@ -337,7 +354,7 @@ export const datasetsReducers = (state = INITIAL_STATE, action = {}) => {
       return Object.assign({}, state, { filteredScoreProperties: diminishedFilterShowedScoreProperties });
 
     case constants.SET_SEARCH_STRING:
-      return Object.assign({}, state, { searchString: action.payload });
+      return Object.assign({}, state, { searchString: action.payload.searchString });
 
     case constants.SET_IS_OPEN_INSPIRATION_DIALOG:
       return Object.assign({}, state, { isOpenInspirationDialog: action.payload });
@@ -406,6 +423,28 @@ export const datasetsReducers = (state = INITIAL_STATE, action = {}) => {
     case constants.SET_ALL_INSPIRATIONS:
       return { ...state, allInspirations: action.payload };
 
+    case constants.APPEND_COMPOUND_TO_SELECTED_COMPOUNDS_BY_DATASET:
+      const setOfcompounds = new Set(state.selectedCompoundsByDataset[action.payload.datasetID]);
+      setOfcompounds.add(action.payload.compoundID);
+      return {
+        ...state,
+        selectedCompoundsByDataset: {
+          ...state.selectedCompoundsByDataset,
+          [action.payload.datasetID]: [...setOfcompounds]
+        }
+      };
+
+    case constants.REMOVE_COMPOUND_FROM_SELECTED_COMPOUNDS_BY_DATASET:
+      const listOfcompounds = new Set(state.selectedCompoundsByDataset[action.payload.datasetID]);
+      listOfcompounds.delete(action.payload.compoundID);
+      return {
+        ...state,
+        selectedCompoundsByDataset: {
+          ...state.selectedCompoundsByDataset,
+          [action.payload.datasetID]: [...listOfcompounds]
+        }
+      };
+
     case constants.APPEND_MOLECULE_TO_COMPOUNDS_TO_BUY_OF_DATASET:
       const setOfMolecules = new Set(state.compoundsToBuyDatasetMap[action.payload.datasetID]);
       setOfMolecules.add(action.payload.moleculeID);
@@ -427,6 +466,65 @@ export const datasetsReducers = (state = INITIAL_STATE, action = {}) => {
           [action.payload.datasetID]: [...listOfMolecules]
         }
       };
+
+    case constants.APPEND_COMPOUND_COLOR_OF_DATASET:
+      const setOfCompoundColors = { ...state.compoundColorByDataset[action.payload.datasetID] };
+      if (setOfCompoundColors.hasOwnProperty(action.payload.compoundID)) {
+        if (!setOfCompoundColors[action.payload.compoundID].includes(action.payload.colorClass)) {
+          setOfCompoundColors[action.payload.compoundID] = [
+            ...setOfCompoundColors[action.payload.compoundID],
+            action.payload.colorClass
+          ];
+        }
+      } else {
+        setOfCompoundColors[action.payload.compoundID] = [action.payload.colorClass];
+      }
+      return {
+        ...state,
+        compoundColorByDataset: {
+          ...state.compoundColorByDataset,
+          [action.payload.datasetID]: { ...setOfCompoundColors }
+        }
+      };
+
+    case constants.REMOVE_COMPOUND_COLOR_OF_DATASET:
+      const listOfCompoundColors = { ...state.compoundColorByDataset[action.payload.datasetID] };
+      if (listOfCompoundColors.hasOwnProperty(action.payload.compoundID)) {
+        const colors = listOfCompoundColors[action.payload.compoundID].filter(c => c !== action.payload.colorClass);
+        if (colors.length > 0) {
+          listOfCompoundColors[action.payload.compoundID] = [...colors];
+        } else {
+          delete listOfCompoundColors[action.payload.compoundID];
+        }
+      }
+      return {
+        ...state,
+        compoundColorByDataset: {
+          ...state.compoundColorByDataset,
+          [action.payload.datasetID]: { ...listOfCompoundColors }
+        }
+      };
+
+    case constants.SET_EDITED_COLOR_GROUP:
+      return { ...state, editedColorGroup: action.colorGroup };
+
+    case constants.APPEND_COLOR_TO_SELECTED_COLOR_FILTERS:
+      const newColorMap = { ...state.selectedColorsInFilter };
+      if (!newColorMap.hasOwnProperty(action.payload.colorClass)) {
+        newColorMap[action.payload.colorClass] = action.payload.colorClass;
+        return { ...state, selectedColorsInFilter: newColorMap };
+      } else {
+        return state;
+      }
+
+    case constants.REMOVE_COLOR_FROM_SELECTED_COLOR_FILTERS:
+      const newColorMap2 = { ...state.selectedColorsInFilter };
+      if (newColorMap2.hasOwnProperty(action.payload.colorClass)) {
+        delete newColorMap2[action.payload.colorClass];
+        return { ...state, selectedColorsInFilter: newColorMap2 };
+      } else {
+        return state;
+      }
 
     case constants.RELOAD_DATASETS_REDUCER:
       const lists = {
@@ -529,6 +627,22 @@ export const datasetsReducers = (state = INITIAL_STATE, action = {}) => {
         ...state,
         disableDatasetsNglControlButtons
       };
+    }
+
+    case constants.SET_IS_OPEN_LOCK_VISIBLE_COMPOUNDS_DIALOG_GLOBAL: {
+      return { ...state, isLockVisibleCompoundsDialogOpenGlobal: action.isOpen };
+    }
+
+    case constants.SET_IS_OPEN_LOCK_VISIBLE_COMPOUNDS_DIALOG_LOCAL: {
+      return { ...state, isLockVisibleCompoundsDialogOpenLocal: action.isOpen };
+    }
+
+    case constants.SET_CMP_FOR_LOCAL_LOCK_VISIBLE_COMPOUNDS_DIALOG: {
+      return { ...state, cmpForLocalLockVisibleCompoundsDialog: action.cmp };
+    }
+
+    case constants.SET_ASK_LOCK_COMPOUNDS_QUESTION: {
+      return { ...state, askLockCompoundsQuestion: action.askLockCompoundsQuestion };
     }
 
     case constants.RESET_DATASETS_STATE_ON_SNAPSHOT_CHANGE: {

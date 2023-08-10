@@ -1,5 +1,5 @@
 import React, { memo } from 'react';
-import Modal from '../../common/Modal';
+import ModalSaveSnapshot from '../../common/ModalSaveSnapshot';
 import { useDispatch, useSelector } from 'react-redux';
 import { setOpenSnapshotSavingDialog } from '../redux/actions';
 import { NewSnapshotForm } from './newSnapshotForm';
@@ -18,11 +18,11 @@ export const NewSnapshotModal = memo(({}) => {
   };
 
   return (
-    <Modal open={openSavingDialog}>
+    <ModalSaveSnapshot open={openSavingDialog}>
       {(!projectID || forceCreateProject === true) && dialogCurrentStep === 0 && DJANGO_CONTEXT['pk'] && (
         <AddProjectDetail handleCloseModal={handleCloseModal} />
       )}
       {projectID && forceCreateProject === false && <NewSnapshotForm handleCloseModal={handleCloseModal} />}
-    </Modal>
+    </ModalSaveSnapshot>
   );
 });

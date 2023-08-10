@@ -68,15 +68,6 @@ export const withSnapshotManagement = WrappedComponent => {
         }
       }
       setHeaderButtons([
-        <Button
-          key="saveSnapshot"
-          color="primary"
-          onClick={() => dispatch(activateSnapshotDialog(DJANGO_CONTEXT['pk']))}
-          startIcon={<Save />}
-          disabled={!enableSaveButton || false}
-        >
-          Save
-        </Button>,
         !target && currentSnapshotID && (
           <Button
             key="restoreSnapshot"

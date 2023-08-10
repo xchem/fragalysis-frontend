@@ -1,6 +1,6 @@
 import React, { memo, useRef, useEffect, useCallback, useState, useMemo } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
-import { Typography, makeStyles, IconButton, Tooltip } from '@material-ui/core';
+import { Switch, Typography, makeStyles, IconButton, Tooltip, Grid, FormControlLabel } from '@material-ui/core';
 import { Panel } from '../../../common/Surfaces/Panel';
 import TagDetailRow from './tagDetailRow';
 import NewTagDetailRow from './newTagDetailRow';
@@ -20,6 +20,15 @@ import classNames from 'classnames';
 import SearchField from '../../../common/Components/SearchField';
 import { setPanelsExpanded } from '../../../../reducers/layout/actions';
 import { layoutItemNames } from '../../../../reducers/layout/constants';
+import { withStyles } from '@material-ui/core/styles';
+import { blue } from '@material-ui/core/colors';
+import {
+  setTagFilteringMode,
+  setDisplayAllMolecules,
+  setDisplayUntaggedMolecules
+} from '../../../../reducers/selection/actions';
+import { selectAllTags, clearAllTags } from '../redux/dispatchActions';
+import { Button } from '../../../common/Inputs/Button';
 
 export const heightOfBody = '172px';
 export const defaultHeaderPadding = 15;
@@ -29,10 +38,11 @@ const useStyles = makeStyles(theme => ({
     display: 'flex',
     flexDirection: 'column',
     overflow: 'auto',
-    height: '100%',
+    height: '90%',
     width: '100%',
     marginTop: -theme.spacing(),
-    justifyContent: 'space-between'
+    justifyContent: 'space-between',
+    paddingTop: '5px'
   },
   tagListWrapper: {
     overflowY: 'auto',
@@ -48,30 +58,75 @@ const useStyles = makeStyles(theme => ({
   },
   container: {
     display: 'grid',
-    gridTemplateColumns: '1fr 35px 75px min-content 20px min-content auto',
+    gridTemplateColumns: '220px 65px 80px min-content 20px min-content auto',
     alignItems: 'center',
     gap: 1
   },
   columnLabel: {
     display: 'flex',
-    marginLeft: theme.spacing(2)
-  },
-  categoryLabel: {
-    justifySelf: 'flex-end'
-  },
-  creatorLabel: {
-    gridColumn: '5',
-    justifySelf: 'flex-end'
   },
   dateLabel: {
     gridColumn: '6'
   },
   search: {
-    width: 140
+    width: 140,
+    paddingTop: '5px'
   },
   columnTitle: {
     fontSize: theme.typography.pxToRem(13)
-  }
+  },
+  tagModeSwitch: {
+    width: 132, // Should be adjusted if a label for the switch changes
+    // justify: 'flex-end',
+    marginRight: '110px',
+    marginLeft: '1px'
+  },
+  headerContainer: {
+    marginRight: '0px',
+    paddingLeft: '0px',
+    paddingRight: '0px',
+    justifyContent: 'flex-end',
+    minHeight: '100%',
+    alignItems: 'center',
+    flexWrap: 'nowrap'
+  },
+  contColButton: {
+    minWidth: 'fit-content',
+    paddingLeft: theme.spacing(1) / 2,
+    paddingRight: theme.spacing(1) / 2,
+    paddingBottom: 1,
+    paddingTop: 1,
+    fontWeight: 'bold',
+    fontSize: 9,
+    borderRadius: 0,
+    borderColor: theme.palette.primary.main,
+    backgroundColor: theme.palette.primary.light,
+    border: '1px solid',
+    '&:hover': {
+      backgroundColor: theme.palette.primary.light
+      // color: theme.palette.primary.contrastText
+    },
+    '&:disabled': {
+      borderRadius: 0,
+      borderColor: '#FFFFFF',
+    }
+  },
+  contColButtonSelected: {
+    minWidth: 'fit-content',
+    paddingLeft: theme.spacing(1) / 2,
+    paddingRight: theme.spacing(1) / 2,
+    paddingBottom: 1,
+    paddingTop: 1,
+    fontWeight: 'bold',
+    fontSize: 9,
+    borderRadius: 0,
+    backgroundColor: theme.palette.primary.main,
+    color: theme.palette.primary.contrastText,
+    '&:hover': {
+      backgroundColor: theme.palette.primary.main
+      // color: theme.palette.black
+    }
+  },
 }));
 
 /**
@@ -85,7 +140,12 @@ const TagDetails = memo(() => {
   const [sortSwitch, setSortSwitch] = useState(0);
 
   const preTagList = useSelector(state => state.apiReducers.tagList);
+  const tagMode = useSelector(state => state.selectionReducers.tagFilteringMode);
+  const displayAllMolecules = useSelector(state => state.selectionReducers.displayAllMolecules);
+  const displayUntaggedMolecules = useSelector(state => state.selectionReducers.displayUntaggedMolecules);
+
   const [tagList, setTagList] = useState([]);
+  const [selectAll, setSelectAll] = useState(true);
 
   const [searchString, setSearchString] = useState(null);
   const filteredTagList = useMemo(() => {
@@ -196,6 +256,50 @@ const TagDetails = memo(() => {
     [sortSwitch, tagList]
   );
 
+  const filteringModeSwitched = () => {
+    dispatch(setTagFilteringMode(!tagMode));
+  };
+
+  const TagModeSwitch = withStyles({
+    // '& .MuiFormControlLabel-root': {
+    //   marginLeft: '0px',
+    //   marginRight: '0px'
+    // },
+    switchBase: {
+      color: blue[300],
+      '&$checked': {
+        color: blue[500]
+      },
+      '&$checked + $track': {
+        backgroundColor: blue[500]
+      }
+    },
+    checked: {},
+    track: {}
+  })(Switch);
+
+  const handleAllMoleculesButton = () => {
+    dispatch(setDisplayUntaggedMolecules(false));
+    dispatch(setDisplayAllMolecules(!displayAllMolecules));
+  };
+
+  const handleShowUntaggedMoleculesButton = () => {
+    dispatch(setDisplayAllMolecules(false));
+    setSelectAll(true);
+    dispatch(clearAllTags());
+    dispatch(setDisplayUntaggedMolecules(!displayUntaggedMolecules));
+  };
+
+  const handleSelectionButton = () => {
+    dispatch(setDisplayUntaggedMolecules(false));
+    if (selectAll) {
+      dispatch(selectAllTags());
+    } else {
+      dispatch(clearAllTags());
+    }
+    setSelectAll(!selectAll);
+  };
+
   return (
     <Panel
       ref={ref}
@@ -206,10 +310,85 @@ const TagDetails = memo(() => {
       onExpandChange={useCallback(expanded => dispatch(setPanelsExpanded(layoutItemNames.TAG_DETAILS, expanded)), [
         dispatch
       ])}
-      headerActions={[<SearchField className={classes.search} id="search-tag-details" onChange={setSearchString} />]}
-    >
+      headerActions={[
+      <Grid xs={12} container className={classes.headerContainer}>
+        <Grid item xs={8}>
+          <Tooltip
+            title={
+              tagMode
+                ? 'Intersection: Only the compounds labelled with all the active tags will be selected'
+                : 'Union: Any compound labelled with any of the active tags will be selected'
+            }
+          >
+            <FormControlLabel
+              className={classes.tagModeSwitch}
+              classes={{ label: classes.tagLabel }}
+              control={
+                <TagModeSwitch
+                  checked={tagMode}
+                  onChange={filteringModeSwitched}
+                  name="tag-filtering-mode"
+                  size="small"
+                />
+              }
+              label={tagMode ? 'Intersection' : 'Union'}
+            />
+          </Tooltip>
+        </Grid>
+         <Grid item xs={4}>
+            <SearchField className={classes.search} id="search-tag-details" onChange={setSearchString} />
+          </Grid>
+          <Grid item xs={4}>
+          </Grid>
+        </Grid>
+
+      ]}
+    >  
+    <div>
+      <Grid style={{paddingLeft: '70px'}} container item rowSpacing={1} spacing={2}>
+        <Grid item>
+           <Button
+              onClick={() => handleShowUntaggedMoleculesButton()}
+              disabled={false}
+              color="inherit"
+              variant="text"
+              size="small"
+              data-id="showUntaggedHitsButton"
+              className={displayUntaggedMolecules ? classes.contColButton : classes.contColButtonSelected}
+            >
+              Show untagged hits
+            </Button>
+          </Grid>
+          <Grid item>
+            <Button
+              onClick={() => handleAllMoleculesButton()}
+              disabled={false}
+              color="inherit"
+              variant="text"
+              size="small"
+              data-id="showAllHitsButton"
+              className={displayAllMolecules ? classes.contColButton : classes.contColButtonSelected}
+            >
+              Show all hits
+           </Button>
+         </Grid>
+         <Grid item>
+           <Button
+              onClick={() => handleSelectionButton()}
+              disabled={false}
+              color="inherit"
+              variant="text"
+              size="small"
+              data-id="tagSelectionButton"
+              className={selectAll ? classes.contColButton : classes.contColButtonSelected}
+            >
+               Select all tags
+            </Button>
+         </Grid>
+      </Grid>
+    </div>
       <div ref={elementRef} className={classes.containerExpanded}>
-        <div className={classes.container}>
+        <div className={classes.container} id="tagName">
           {/* tag name */}
           <div className={classes.columnLabel}>
             <Typography className={classes.columnTitle} variant="subtitle1">

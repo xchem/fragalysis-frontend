@@ -60,10 +60,10 @@ const Landing = memo(
 
     return (
       <Grid container className={classes.root}>
-        <Grid item xs={4}>
+        <Grid item xs={3}>
           <TargetList />
         </Grid>
-        <Grid item xs={8}>
+        <Grid item xs={9}>
           <Projects />
         </Grid>
       </Grid>
