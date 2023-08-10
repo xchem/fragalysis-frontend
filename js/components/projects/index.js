@@ -58,7 +58,8 @@ import { setFilter } from '../../reducers/selection/actions';
 
 const useStyles = makeStyles(theme => ({
   table: {
-    minWidth: 650
+    minWidth: 650,
+    tableLayout: 'auto'
   },
   search: {
     margin: theme.spacing(1),
@@ -104,10 +105,13 @@ export const Projects = memo(({}) => {
 
   // window height for showing rows per page
   const [windowHeight, setWindowHeight] = useState(window.innerHeight);
-  let projectListWindowHeight = windowHeight / 55 - 2;
-  let projectListWindowHeightFinal = projectListWindowHeight.toFixed(0);
+
+  let projectListWindowHeight = windowHeight / 26 - 6;
+  let projectListWindowHeightFinal = parseInt(projectListWindowHeight.toFixed(0), 10);
   const [rowsPerPage, setRowsPerPage] = useState(projectListWindowHeightFinal);
   const [rowsPerPagePerPageSize, setRowsPerPagePerPageSize] = useState(projectListWindowHeightFinal);
+
+  const projectItems = filteredListOfProjects ?? listOfAllProjects;
 
   let searchedByName = [];
   let searchedByTarget = [];
@@ -253,8 +257,8 @@ export const Projects = memo(({}) => {
             }
             break;
         }
-      } 
-    if (filteredListOfProjects !== undefined && filteredListOfProjectsByDate === undefined) {
+      }
+      if (filteredListOfProjects !== undefined && filteredListOfProjectsByDate === undefined) {
         switch (priorityOrder[0]) {
           case 'name':
             if (filter.filter.name.order === -1) {
@@ -308,7 +312,7 @@ export const Projects = memo(({}) => {
             break;
         }
       }
-    if (filteredListOfProjects === undefined && filteredListOfProjectsByDate !== undefined) {
+      if (filteredListOfProjects === undefined && filteredListOfProjectsByDate !== undefined) {
         switch (priorityOrder[0]) {
           case 'name':
             if (filter.filter.name.order === -1) {
@@ -316,7 +320,9 @@ export const Projects = memo(({}) => {
                 dispatch(setListOfFilteredProjects([...filteredListOfProjectsByDate].sort(compareNameDesc)));
                 if (filteredListOfProjectsByDate[a - 1].title === filteredListOfProjectsByDate[a].title) {
                   if (priorityOrder[1] === 'createdAt') {
-                    dispatch(setListOfFilteredProjects([...filteredListOfProjectsByDate].sort(compareCreatedAtDateDesc)));
+                    dispatch(
+                      setListOfFilteredProjects([...filteredListOfProjectsByDate].sort(compareCreatedAtDateDesc))
+                    );
                   }
                 }
               }
@@ -341,7 +347,9 @@ export const Projects = memo(({}) => {
             break;
           case 'targetAccessString':
             if (filter.filter.targetAccessString.order === -1) {
-              dispatch(setListOfFilteredProjects([...filteredListOfProjectsByDate].sort(compareTargetAccessStringDesc)));
+              dispatch(
+                setListOfFilteredProjects([...filteredListOfProjectsByDate].sort(compareTargetAccessStringDesc))
+              );
             } else {
               dispatch(setListOfFilteredProjects([...filteredListOfProjectsByDate].sort(compareTargetAccessStringAsc)));
             }
@@ -735,7 +743,6 @@ export const Projects = memo(({}) => {
     } else {
       searchedByAuthority = [];
     }
-
     const mergedSearchList = [
       ...searchedByName,
       ...searchedByTarget,
@@ -747,11 +754,13 @@ export const Projects = memo(({}) => {
     dispatch(setListOfFilteredProjects(uniqueArray));
   };
 
-  if( filteredListOfProjectsByDate !== undefined) {
-    filteredListOfProjects =  filteredListOfProjects.filter(item1 =>
+  if (filteredListOfProjectsByDate !== undefined) {
+    filteredListOfProjects = filteredListOfProjects.filter(item1 =>
       filteredListOfProjectsByDate.some(item2 => item2.id === item1.id)
     );
   }
+
+  const projectsToUse = filteredListOfProjects ? filteredListOfProjects : listOfAllProjects;
 
   return (
     <>
@@ -891,14 +900,14 @@ export const Projects = memo(({}) => {
                 </TableCell>
                 <TableCell align="left" style={{ verticalAlign: 'middle', padding: '0px' }}>
                   <Grid container>
-                    <Typography variant="  Target access string">
+                    <Typography variant="Target access string">
                       <input
                         type="checkbox"
                         style={{ verticalAlign: 'middle', padding: '0px' }}
                         checked={checkedTargetAccessString}
                         onChange={() => setCheckedTargetAccessString(!checkedTargetAccessString)}
                       />
-                      Target access string
+                      Target access
                     </Typography>
                     <IconButton size="small" onClick={() => handleHeaderSort('targetAccessString')}>
                       <Tooltip title="Sort" className={classes.sortButton}>
@@ -965,179 +974,97 @@ export const Projects = memo(({}) => {
                     </IconButton>
                   </Grid>
                 </TableCell>
-                <TableCell align="center">Actions</TableCell>
+                <TableCell align="center" style={{ verticalAlign: 'middle', padding: '0px' }}>
+                  Actions
+                </TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
-              {filteredListOfProjects === undefined
-                ? listOfAllProjects.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map(
-                    project => (
-                      (tags = JSON.parse(project.tags)),
-                      (
-                        <TableRow hover key={project.id}>
-                          <Tooltip title={`${project.description}`}>
-                            <TableCell
-                              component="th"
-                              scope="row"
-                              style={{ height: '20px', padding: '0px', width: '150px !important' }}
-                            >
-                              <Link to={`${URLS.projects}${project.id}`}>
-                                <div style={{ width: '100px' }}>
-                                  {project.title === undefined ? project.title : project.title}
-                                </div>
-                              </Link>
-                            </TableCell>
-                          </Tooltip>
-                          <TableCell align="left" style={{ height: '20px', padding: '0px' }}>
-                            <Link to={`${URLS.target}${project.target}`}>
-                              <div style={{ width: '60px' }}>
-                                {project.target.title === undefined ? project.target : project.target.title}
-                              </div>
-                            </Link>
-                          </TableCell>
-                          <TableCell align="left" style={{ height: '20px', padding: '0px' }}>
-                            <div style={{ width: '110px' }}>{project.description}</div>
-                          </TableCell>
-                          <TableCell align="left" style={{ height: '20px', padding: '0px' }}>
-                            <div style={{ width: '50px' }}>{project.project?.target_access_string}</div>
-                          </TableCell>
-                          <TableCell align="left" style={{ height: '20px', padding: '0px' }}>
-                            <div style={{ width: '150px' }}>
-                              {tags.map((tag, index) => (
-                                <Chip key={index} label={tag} size="small" className={classes.chip} />
-                              ))}
-                            </div>
-                          </TableCell>
-                          {/*<TableCell align="left">{project.author}</TableCell> */}
-                          <TableCell align="left" style={{ height: '20px', padding: '0px' }}>
-                            <div style={{ width: '100px' }}>{project.project?.authority} </div>
-                          </TableCell>
-                          <TableCell align="left" style={{ height: '20px', padding: '0px' }}>
-                            <div style={{ width: '150px' }}>{moment(project.init_date).format('LLL')}</div>
-                          </TableCell>
-                          <TableCell align="right" style={{ height: '20px', padding: '0px' }}>
-                            <Tooltip title="Delete project">
-                              <IconButton
-                                disabled={DJANGO_CONTEXT['username'] === 'NOT_LOGGED_IN'}
-                                onClick={() =>
-                                  dispatch(removeProject(project.id)).catch(error => {
-                                    throw new Error(error);
+              {projectsToUse.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map(
+                project => (
+                  (tags = JSON.parse(project.tags)),
+                  (
+                    <TableRow hover key={project.id}>
+                      <Tooltip title={`${project.description}`}>
+                        <TableCell
+                          component="th"
+                          scope="row"
+                          style={{ minWidth: '150px', padding: '0px 10px 0px 0px', margin: '0px' }}
+                        >
+                          <Link to={`${URLS.projects}${project.id}`}>
+                            <div>{project.title === undefined ? project.title : project.title}</div>
+                          </Link>
+                        </TableCell>
+                      </Tooltip>
+                      <TableCell align="left" style={{ minWidth: '100px', padding: '0px 10px 0px 0px', margin: '0px' }}>
+                        <Link to={`${URLS.target}${project.target}`}>
+                          <div>{project.target.title === undefined ? project.target : project.target.title}</div>
+                        </Link>
+                      </TableCell>
+                      <TableCell align="left" style={{ minWidth: '100px', padding: '5px 10px 0px 0px', margin: '0px' }}>
+                        <div>{project.description}</div>
+                      </TableCell>
+                      <TableCell align="left" style={{ minWidth: '150px', padding: '0px 10px 0px 0px', margin: '0px' }}>
+                        <div>{project.project?.target_access_string}</div>
+                      </TableCell>
+                      <TableCell align="left" style={{ padding: '0px 10px 0px 0px', margin: '0px' }}>
+                        <div>
+                          {tags.map((tag, index) => (
+                            <Chip key={index} label={tag} size="small" className={classes.chip} />
+                          ))}
+                        </div>
+                      </TableCell>
+                      {/*<TableCell align="left">{project.author}</TableCell> */}
+                      <TableCell align="left" style={{ minWidth: '150px', padding: '0px 10px 0px 0px', margin: '0px' }}>
+                        <div>{project.project?.authority} </div>
+                      </TableCell>
+                      <TableCell align="left" style={{ minWidth: '150px', padding: '0px 10px 0px 0px', margin: '0px' }}>
+                        <div>{moment(project.init_date).format('LLL')}</div>
+                      </TableCell>
+                      <TableCell
+                        align="center"
+                        style={{ minWidth: '100px', padding: '0px 10px 0px 0px', margin: '0px' }}
+                      >
+                        <Tooltip title="Delete project">
+                          <IconButton
+                            style={{ padding: '0px' }}
+                            disabled={DJANGO_CONTEXT['username'] === 'NOT_LOGGED_IN'}
+                            onClick={() =>
+                              dispatch(removeProject(project.id)).catch(error => {
+                                throw new Error(error);
+                              })
+                            }
+                          >
+                            <Delete />
+                          </IconButton>
+                        </Tooltip>
+                        {discourseAvailable && (
+                          <Tooltip title="Go to Discourse">
+                            <IconButton
+                              style={{ padding: '0px' }}
+                              onClick={() => {
+                                getExistingPost(project.name)
+                                  .then(response => {
+                                    if (response.data['Post url']) {
+                                      const link = response.data['Post url'];
+                                      openDiscourseLink(link);
+                                    }
                                   })
-                                }
-                              >
-                                <Delete />
-                              </IconButton>
-                            </Tooltip>
-                            {discourseAvailable && (
-                              <Tooltip title="Go to Discourse">
-                                <IconButton
-                                  onClick={() => {
-                                    getExistingPost(project.name)
-                                      .then(response => {
-                                        if (response.data['Post url']) {
-                                          const link = response.data['Post url'];
-                                          openDiscourseLink(link);
-                                        }
-                                      })
-                                      .catch(err => {
-                                        console.log(err);
-                                        dispatch(setOpenDiscourseErrorModal(true));
-                                      });
-                                  }}
-                                >
-                                  <QuestionAnswer />
-                                </IconButton>
-                              </Tooltip>
-                            )}
-                          </TableCell>
-                        </TableRow>
-                      )
-                    )
+                                  .catch(err => {
+                                    console.log(err);
+                                    dispatch(setOpenDiscourseErrorModal(true));
+                                  });
+                              }}
+                            >
+                              <QuestionAnswer />
+                            </IconButton>
+                          </Tooltip>
+                        )}
+                      </TableCell>
+                    </TableRow>
                   )
-                : filteredListOfProjects.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map(
-                    project => (
-                      (tags = JSON.parse(project.tags)),
-                      (
-                        <TableRow hover key={project.id}>
-                          <Tooltip title={`${project.description}`}>
-                            <TableCell
-                              component="th"
-                              scope="row"
-                              style={{ height: '20px', padding: '0px', width: '150px !important' }}
-                            >
-                              <Link to={`${URLS.projects}${project.id}`}>
-                                <div style={{ width: '100px' }}>
-                                  {project.title === undefined ? project.title : project.title}
-                                </div>
-                              </Link>
-                            </TableCell>
-                          </Tooltip>
-                          <TableCell align="left" style={{ height: '20px', padding: '0px' }}>
-                            <Link to={`${URLS.target}${project.target}`}>
-                              <div style={{ width: '60px' }}>
-                                {project.target.title === undefined ? project.target : project.target.title}
-                              </div>
-                            </Link>
-                          </TableCell>
-                          <TableCell align="left" style={{ height: '20px', padding: '0px' }}>
-                            <div style={{ width: '110px' }}>{project.description}</div>
-                          </TableCell>
-                          <TableCell align="left" style={{ height: '20px', padding: '0px' }}>
-                            <div style={{ width: '50px' }}>{project.project?.target_access_string}</div>
-                          </TableCell>
-                          <TableCell align="left" style={{ height: '20px', padding: '0px' }}>
-                            <div style={{ width: '150px' }}>
-                              {tags.map((tag, index) => (
-                                <Chip key={index} label={tag} size="small" className={classes.chip} />
-                              ))}
-                            </div>
-                          </TableCell>
-                          {/*<TableCell align="left">{project.author}</TableCell> */}
-                          <TableCell align="left" style={{ height: '20px', padding: '0px' }}>
-                            <div style={{ width: '100px' }}>{project.project?.authority} </div>
-                          </TableCell>
-                          <TableCell align="left" style={{ height: '20px', padding: '0px' }}>
-                            <div style={{ width: '150px' }}>{moment(project.init_date).format('LLL')}</div>
-                          </TableCell>
-                          <TableCell align="right" style={{ height: '20px', padding: '0px' }}>
-                            <Tooltip title="Delete project">
-                              <IconButton
-                                disabled={DJANGO_CONTEXT['username'] === 'NOT_LOGGED_IN'}
-                                onClick={() =>
-                                  dispatch(removeProject(project.id)).catch(error => {
-                                    throw new Error(error);
-                                  })
-                                }
-                              >
-                                <Delete />
-                              </IconButton>
-                            </Tooltip>
-                            {discourseAvailable && (
-                              <Tooltip title="Go to Discourse">
-                                <IconButton
-                                  onClick={() => {
-                                    getExistingPost(project.name)
-                                      .then(response => {
-                                        if (response.data['Post url']) {
-                                          const link = response.data['Post url'];
-                                          openDiscourseLink(link);
-                                        }
-                                      })
-                                      .catch(err => {
-                                        console.log(err);
-                                        dispatch(setOpenDiscourseErrorModal(true));
-                                      });
-                                  }}
-                                >
-                                  <QuestionAnswer />
-                                </IconButton>
-                              </Tooltip>
-                            )}
-                          </TableCell>
-                        </TableRow>
-                      )
-                    )
-                  )}
+                )
+              )}
             </TableBody>
             <TableFooter>
               <TableRow>
