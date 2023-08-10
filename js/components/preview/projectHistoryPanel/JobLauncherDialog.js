@@ -132,13 +132,18 @@ const JobLauncherDialog = () => {
     setIsError(false);
     dispatch(setJobLauncherSquonkUrl(null));
 
-    const selectedProtein = resolveSelectedProtein(
-      event.formData.protein,
-      schema.properties.protein.enumNames,
-      schema.properties.protein.enum
-    );
+    let variables = null;
+    if (event.formData.protein && schema.properties.protein) {
+      const selectedProtein = resolveSelectedProtein(
+        event.formData.protein,
+        schema.properties.protein.enumNames,
+        schema.properties.protein.enum
+      );
 
-    const variables = recompileSchemaResult(event.formData, { selected_protein: selectedProtein });
+      variables = recompileSchemaResult(event.formData, { selected_protein: selectedProtein });
+    } else {
+      variables = recompileSchemaResult(event.formData, {});
+    }
 
     jobRequest({
       squonk_job_name: jobLauncherData.job.slug,
