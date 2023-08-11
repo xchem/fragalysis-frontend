@@ -38,7 +38,7 @@ const useStyles = makeStyles(theme => ({
     display: 'flex',
     flexDirection: 'column',
     overflow: 'auto',
-    height: '90%',
+    height: '95%',
     width: '100%',
     marginTop: -theme.spacing(),
     justifyContent: 'space-between',
