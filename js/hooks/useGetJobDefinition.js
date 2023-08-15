@@ -3,13 +3,19 @@ import { deepMerge } from '../utils/merge';
 
 // Merges job definitions with fragalysis-jobs definitions
 const getSchemaDefinition = (configDefinitions, overrideDefinitions) => {
-  const mergedDefinitions = { ...configDefinitions };
+  let mergedDefinitions = { ...configDefinitions };
 
   Object.entries(overrideDefinitions).forEach(([key, overrideDefinition]) => {
-    let mergedDefinition = mergedDefinitions[key] || {};
+    if (overrideDefinition.hasOwnProperty('ignore') && overrideDefinition['ignore'].toLowerCase() === 'true') {
+      if (mergedDefinitions.hasOwnProperty(key)) {
+        delete mergedDefinitions[key];
+      }
+    } else {
+      let mergedDefinition = mergedDefinitions[key] || {};
 
-    // mergedDefinitions[key] = { ...mergedDefinition, ...overrideDefinition };
-    mergedDefinitions[key] = deepMerge({ ...mergedDefinition }, { ...overrideDefinition });
+      // mergedDefinitions[key] = { ...mergedDefinition, ...overrideDefinition };
+      mergedDefinitions[key] = deepMerge({ ...mergedDefinition }, { ...overrideDefinition });
+    }
   });
 
   return mergedDefinitions;
