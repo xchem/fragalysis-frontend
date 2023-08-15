@@ -34,8 +34,6 @@ export const setAddButton = isOpen => ({
   payload: isOpen
 });
 
-setAddButton
-
 export const setProjectModalIsLoading = isLoading => ({
   type: constants.SET_PROJECT_MODAL_IS_LOADING,
   payload: isLoading
@@ -157,5 +155,53 @@ export const setJobList = jobList => ({
 export const refreshJobsData = () => {
   return {
     type: constants.REFRESH_JOBS_DATA
+  };
+};
+
+export const setSearchName = searchName => {
+  return {
+    type: constants.SEARCH_NAME,
+    payload: searchName
+  };
+};
+
+export const setSearchTarget = searchTarget => {
+  return {
+    type: constants.SEARCH_TARGET,
+    payload: searchTarget
+  };
+};
+
+export const setSearchTargetAccessString = searchTargetAccessString => {
+  return {
+    type: constants.SEARCH_TARGET_ACCESS_STRING,
+    payload: searchTargetAccessString
+  };
+};
+
+export const setSearchDescription = searchDescription => {
+  return {
+    type: constants.SEARCH_DESCRIPTION,
+    payload: searchDescription
+  };
+};
+
+export const setSearchAuthority = searchAuthority => {
+  return {
+    type: constants.SEARCH_AUTHORITY,
+    payload: searchAuthority
+  };
+};
+export const setSearchDateFrom = searchDateFrom => {
+  return {
+    type: constants.SEARCH_DATE_FROM,
+    payload: searchDateFrom
+  };
+};
+
+export const setSearchDateTo = searchDateTo => {
+  return {
+    type: constants.SEARCH_DATE_TO,
+    payload: searchDateTo
   };
 };
