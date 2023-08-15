@@ -7,11 +7,18 @@ import ProjectListSortFilterItem from './projectListSortFilterItem';
 import WarningIcon from '@material-ui/icons/Warning';
 import { makeStyles } from '@material-ui/styles';
 import { useDispatch, useSelector } from 'react-redux';
-import { MOL_ATTRIBUTES } from './redux/constants';
+import { PROJECTS_ATTR } from './redux/constants';
 import { setFilter } from '../../reducers/selection/actions';
 import { Panel } from '../common/Surfaces/Panel';
-import { setSortDialogOpen, setListOfFilteredProjects, setListOfProjects, setDefaultFilter, setListOfFilteredProjectsByDate } from './redux/actions';
+import {
+  setSortDialogOpen,
+  setListOfFilteredProjects,
+  setListOfProjects,
+  setDefaultFilter,
+  setListOfFilteredProjectsByDate
+} from './redux/actions';
 import { debounce } from 'lodash';
+import { compareCreatedAtDateDesc } from './sortProjects/sortProjects';
 
 const useStyles = makeStyles(theme => ({
   title: {
@@ -44,28 +51,54 @@ const useStyles = makeStyles(theme => ({
   },
   paper: {
     width: 490,
-    overflow: 'none',
+    overflow: 'none'
   }
 }));
 
 const widthPrio = 50;
 const widthOrder = 60;
 const widthProperty = 170;
-const filterData = 160
-
+const filterData = 160;
 
 export const getAttrDefinition = attr => {
-  return MOL_ATTRIBUTES.find(molAttr => molAttr.key === attr);
+  return PROJECTS_ATTR.find(molAttr => molAttr.key === attr);
+};
+
+const getNestedAttributeValue = (object, attribute, path) => {
+  if (!path) {
+    return object[attribute];
+  }
+
+  const pathAttributes = path.split('.');
+  let attributeValue = object;
+  for (const pathAttribute of pathAttributes) {
+    attributeValue = attributeValue[pathAttribute];
+    if (attributeValue === undefined) return undefined;
+  }
+  return attributeValue;
+};
+
+export const sortProjects = (projects, filter) => {
+  let sortedAttributes = filter.sortOptions.map(attr => attr);
+  return projects.sort((a, b) => {
+    for (const [attrName, path] of sortedAttributes) {
+      const order = filter.filter[attrName].order;
+      const val1 = getNestedAttributeValue(a, attrName, path);
+      const val2 = getNestedAttributeValue(b, attrName, path);
+
+      if (val1 === val2) continue;
+      if (order === -1) {
+        return val1 > val2 ? -1 : 1;
+      } else {
+        return val1 < val2 ? -1 : 1;
+      }
+    }
+    return 0;
+  });
 };
 
 export const ProjectListSortFilterDialog = memo(
-  ({
-    filter,
-    anchorEl,
-    open,
-    parentID = 'default',
-    placement = 'right-start',
-  }) => {
+  ({ filter, anchorEl, open, parentID = 'default', placement = 'right-start' }) => {
     let classes = useStyles();
     const dispatch = useDispatch();
     const initialize = useCallback(() => {
@@ -73,16 +106,17 @@ export const ProjectListSortFilterDialog = memo(
         active: false,
         predefined: 'none',
         filter: {},
-        priorityOrder: MOL_ATTRIBUTES.map(molecule => molecule.key)
+        priorityOrder: PROJECTS_ATTR.map(project => project.key),
+        sortOptions: PROJECTS_ATTR.map(project => [project.key, project.path])
       };
 
-      for (let attr of MOL_ATTRIBUTES) {
+      for (let attr of PROJECTS_ATTR) {
         const lowAttr = attr.key.toLowerCase();
 
         initObject.filter[attr.key] = {
           priority: 0,
           order: 1,
-          isFloat: attr.isFloat,
+          isFloat: attr.isFloat
         };
       }
       return initObject;
@@ -91,17 +125,18 @@ export const ProjectListSortFilterDialog = memo(
     useEffect(() => {
       const init = initialize();
       setInitState(init);
-    }, [])
+    }, []);
 
     const [initState, setInitState] = useState(initialize());
-    const defaultListOfProjects = useSelector(state => state.projectReducers.listOfProjects);
+    let defaultListOfProjectsWithoutSort = useSelector(state => state.projectReducers.listOfProjects);
+    let defaultListOfProjects = [...defaultListOfProjectsWithoutSort].sort(compareCreatedAtDateDesc);
 
     filter = filter || initState;
 
     const handleFilterChange = useCallback(
       filter => {
         const filterSet = Object.assign({}, filter);
-        for (let attr of MOL_ATTRIBUTES) {
+        for (let attr of PROJECTS_ATTR) {
           if (filterSet.filter[attr.key].priority === undefined || filterSet.filter[attr.key].priority === '') {
             filterSet.filter[attr.key].priority = 0;
           }
@@ -111,7 +146,6 @@ export const ProjectListSortFilterDialog = memo(
       [dispatch]
     );
 
-    
     const handleItemChange = key => setting => {
       console.log(`handleItemChange attr: ${key} values: ${JSON.stringify(setting)}`);
       let newFilter = Object.assign({}, filter);
@@ -121,11 +155,18 @@ export const ProjectListSortFilterDialog = memo(
       handleFilterChange(newFilter);
     };
 
+    const findIndexByKey = key => {
+      const sortIndex = filter.sortOptions.findIndex(item => item[0] === key);
+      return sortIndex;
+    };
+
     const handlePrioChange = key => inc => () => {
       const maxPrio = 5;
       const minPrio = 0;
       let priorityOrder = filter.priorityOrder;
+      let sortOptions = filter.sortOptions;
       const index = filter.priorityOrder.indexOf(key);
+      const sortIndex = findIndexByKey(key);
       if (index > -1 && index + inc >= minPrio && index <= maxPrio) {
         priorityOrder.splice(index, 1);
         priorityOrder.splice(index + inc, 0, key);
@@ -135,21 +176,31 @@ export const ProjectListSortFilterDialog = memo(
         dispatch(setFilter(newFilter));
         handleFilterChange(newFilter);
       }
+      if (sortIndex > -1 && sortIndex + inc >= minPrio && sortIndex <= maxPrio) {
+        const path = sortOptions[sortIndex][1];
+        sortOptions.splice(sortIndex, 1);
+        sortOptions.splice(sortIndex + inc, 0, [key, path]);
+        let newFilter = Object.assign({}, filter);
+        newFilter.sortOptions = sortOptions;
+        newFilter.active = true;
+        dispatch(setFilter(newFilter));
+        handleFilterChange(newFilter);
+      }
     };
 
     const handleClearFilter = debounce(() => {
       dispatch(setDefaultFilter(true));
       dispatch(setSortDialogOpen(false));
-      dispatch(setListOfFilteredProjects(defaultListOfProjects));
-      dispatch(setListOfFilteredProjectsByDate(defaultListOfProjects));
-      dispatch(setListOfProjects(defaultListOfProjects));
+      dispatch(setListOfFilteredProjects(defaultListOfProjects.sort(compareCreatedAtDateDesc)));
+      dispatch(setListOfFilteredProjectsByDate(defaultListOfProjects.sort(compareCreatedAtDateDesc)));
+      dispatch(setListOfProjects(defaultListOfProjects.sort(compareCreatedAtDateDesc)));
       dispatch(setSortDialogOpen(true));
     });
-    dispatch(setFilter(filter));
+
     // Check for multiple attributes with same sorting priority
     let prioWarning = false;
     let prioWarningTest = {};
-    for (const attr of MOL_ATTRIBUTES) {
+    for (const attr of PROJECTS_ATTR) {
       const prioKey = filter.filter[attr.key].priority;
       if (prioKey > 0) {
         prioWarningTest[prioKey] = prioWarningTest[prioKey] ? prioWarningTest[prioKey] + 1 : 1;
@@ -207,10 +258,9 @@ export const ProjectListSortFilterDialog = memo(
                 property
               </Grid>
               <Grid item className={classes.centered} style={{ width: filterData }}>
-               Filter data
+                Filter data
               </Grid>
             </Grid>
-
             {filter.priorityOrder.map(attr => {
               let attrDef = getAttrDefinition(attr);
               return (

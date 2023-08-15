@@ -34,7 +34,7 @@ import { setProjectModalOpen, setAddButton } from './redux/actions';
 import { useDispatch, useSelector } from 'react-redux';
 import { ProjectModal } from './projectModal';
 import { loadListOfAllProjects, removeProject } from './redux/dispatchActions';
-import { setListOfFilteredProjects } from './redux/actions';
+import { setListOfFilteredProjects, setListOfProjects } from './redux/actions';
 import { DJANGO_CONTEXT } from '../../utils/djangoContext';
 import { isDiscourseAvailable, getExistingPost, openDiscourseLink } from '../../utils/discourse';
 import { setOpenDiscourseErrorModal } from '../../reducers/api/actions';
@@ -52,8 +52,18 @@ import {
   compareCreatedAtDateAsc,
   compareCreatedAtDateDesc
 } from './sortProjects/sortProjects';
-import { setSortDialogOpen, setDefaultFilter } from './redux/actions';
-import { ProjectListSortFilterDialog } from './projectListSortFilterDialog';
+import {
+  setSortDialogOpen,
+  setDefaultFilter,
+  setSearchTarget,
+  setSearchName,
+  setSearchTargetAccessString,
+  setSearchDescription,
+  setSearchAuthority,
+  setSearchDateFrom,
+  setSearchDateTo
+} from './redux/actions';
+import { ProjectListSortFilterDialog, sortProjects } from './projectListSortFilterDialog';
 import { setFilter } from '../../reducers/selection/actions';
 
 const useStyles = makeStyles(theme => ({
@@ -101,7 +111,8 @@ export const Projects = memo(({}) => {
 
   let filteredListOfProjects = useSelector(state => state.projectReducers.listOfFilteredProjects);
   let filteredListOfProjectsByDate = useSelector(state => state.projectReducers.listOfFilteredProjectsByDate);
-  const listOfAllProjectsDefault = useSelector(state => state.projectReducers.listOfProjects);
+  let listOfAllProjectsDefaultWithoutSort = useSelector(state => state.projectReducers.listOfProjects);
+  let listOfAllProjectsDefault = [...listOfAllProjectsDefaultWithoutSort].sort(compareCreatedAtDateDesc);
 
   // window height for showing rows per page
   const [windowHeight, setWindowHeight] = useState(window.innerHeight);
@@ -118,14 +129,26 @@ export const Projects = memo(({}) => {
   let searchedByTargetAccessString = [];
   let searchedByAuthority = [];
 
-  let priorityOrder = [];
   let tags = [];
   let searchString = '';
 
   const filterClean = useSelector(state => state.projectReducers.filterClean);
   const filter = useSelector(state => state.selectionReducers.filter);
 
-  const listOfAllProjects = [...listOfAllProjectsDefault].sort(compareCreatedAtDateDesc);
+  const isActiveFilter = !!(filter || {}).active;
+
+  let listOfAllProjects = [...listOfAllProjectsDefault];
+
+  useEffect(() => {
+    if (isActiveFilter) {
+      listOfAllProjectsDefault = sortProjects(listOfAllProjectsDefault, filter);
+      dispatch(setListOfProjects(listOfAllProjectsDefault));
+      if (filteredListOfProjects !== undefined) {
+        filteredListOfProjects = sortProjects(filteredListOfProjects, filter);
+        dispatch(setListOfFilteredProjects(filteredListOfProjects));
+      }
+    }
+  }, [filter]);
 
   useEffect(() => {
     dispatch(loadListOfAllProjects()).catch(error => {
@@ -134,86 +157,35 @@ export const Projects = memo(({}) => {
   }, [dispatch]);
 
   useEffect(() => {
-    sortProjects();
-  }, [filter]);
-
-  useEffect(() => {
     // remove filter data
     if (filterClean === true) {
-      dispatch(setListOfFilteredProjects(listOfAllProjects));
+      dispatch(setListOfFilteredProjects(listOfAllProjectsDefault));
+      dispatch(setListOfProjects(listOfAllProjectsDefault));
       dispatch(setDefaultFilter(false));
-      searchedByName = [];
-      searchedByTarget = [];
-      searchedByDescription = [];
-      searchedByTargetAccessString = [];
-      searchedByAuthority = [];
-      priorityOrder = [];
+      dispatch(setSearchTarget(''));
+      dispatch(setSearchName(''));
+      dispatch(setSearchTargetAccessString(''));
+      dispatch(setSearchDescription(''));
+      dispatch(setSearchAuthority(''));
+      dispatch(setSearchDateFrom(''));
+      dispatch(setSearchDateTo(''));
       const newFilter = { ...filter };
-      newFilter.priorityOrder = ['createdAt', 'name', 'target', 'targetAccessString', 'description', 'authority'];
+      newFilter.priorityOrder = ['init_date', 'title', 'target', 'targetAccessString', 'description', 'authority'];
+      newFilter.sortOptions = [
+        ['init_date', undefined],
+        ['title', undefined],
+        ['target', 'target.title'],
+        ['targetAccessString', 'project.target_access_string'],
+        ['description', undefined],
+        ['authority', 'project.authority']
+      ];
       newFilter.filter.authority.order = 1;
       newFilter.filter.description.order = 1;
-      newFilter.filter.name.order = 1;
+      newFilter.filter.title.order = 1;
       newFilter.filter.target.order = 1;
-      newFilter.filter.createdAt.order = 1;
+      newFilter.filter.init_date.order = 1;
       newFilter.filter.targetAccessString.order = 1;
       dispatch(setFilter(newFilter));
-      searchString = '';
-    }
-  }, [filterClean]);
-
-  useEffect(() => {
-    sortProjects();
-  }, [filter]);
-
-  useEffect(() => {
-    // remove filter data
-    if (filterClean === true) {
-      dispatch(setListOfFilteredProjects(listOfAllProjects));
-      dispatch(setDefaultFilter(false));
-      searchedByName = [];
-      searchedByTarget = [];
-      searchedByDescription = [];
-      searchedByTargetAccessString = [];
-      searchedByAuthority = [];
-      priorityOrder = [];
-      const newFilter = { ...filter };
-      newFilter.priorityOrder = ['createdAt', 'name', 'target', 'targetAccessString', 'description', 'authority'];
-      newFilter.filter.authority.order = 1;
-      newFilter.filter.description.order = 1;
-      newFilter.filter.name.order = 1;
-      newFilter.filter.target.order = 1;
-      newFilter.filter.createdAt.order = 1;
-      newFilter.filter.targetAccessString.order = 1;
-      dispatch(setFilter(newFilter));
-      searchString = '';
-    }
-  }, [filterClean]);
-
-  useEffect(() => {
-    sortProjects();
-  }, [filter]);
-
-  useEffect(() => {
-    // remove filter data
-    if (filterClean === true) {
-      dispatch(setListOfFilteredProjects(listOfAllProjects));
-      dispatch(setDefaultFilter(false));
-      searchedByName = [];
-      searchedByTarget = [];
-      searchedByDescription = [];
-      searchedByTargetAccessString = [];
-      searchedByAuthority = [];
-      priorityOrder = [];
-      const newFilter = { ...filter };
-      newFilter.priorityOrder = ['createdAt', 'name', 'target', 'targetAccessString', 'description', 'authority'];
-      newFilter.filter.authority.order = 1;
-      newFilter.filter.description.order = 1;
-      newFilter.filter.name.order = 1;
-      newFilter.filter.target.order = 1;
-      newFilter.filter.createdAt.order = 1;
-      newFilter.filter.targetAccessString.order = 1;
-      dispatch(setFilter(newFilter));
-      searchString = '';
     }
   }, [filterClean]);
 
@@ -236,228 +208,6 @@ export const Projects = memo(({}) => {
   const offsetAuthority = 60;
   const offsetCreatedAt = 70;
 
-  const sortProjects = () => {
-    if (filter !== undefined) {
-      priorityOrder = filter.priorityOrder;
-      if (filteredListOfProjects === undefined && filteredListOfProjectsByDate === undefined) {
-        switch (priorityOrder[0]) {
-          case 'name':
-            if (filter.filter.name.order === -1) {
-              dispatch(setListOfFilteredProjects([...listOfAllProjects].sort(compareNameDesc)));
-            } else {
-              dispatch(setListOfFilteredProjects([...listOfAllProjects].sort(compareNameAsc)));
-            }
-            break;
-          case 'target':
-            if (filter.filter.target.order === -1) {
-              dispatch(setListOfFilteredProjects([...listOfAllProjects].sort(compareTargetDesc)));
-            } else {
-              dispatch(setListOfFilteredProjects([...listOfAllProjects].sort(compareTargetAsc)));
-            }
-            break;
-          case 'description':
-            if (filter.filter.description.order === -1) {
-              dispatch(setListOfFilteredProjects([...listOfAllProjects].sort(compareDescriptionDesc)));
-            } else {
-              dispatch(setListOfFilteredProjects([...listOfAllProjects].sort(compareDescriptionAsc)));
-            }
-            break;
-          case 'targetAccessString':
-            if (filter.filter.targetAccessString.order === -1) {
-              dispatch(setListOfFilteredProjects([...listOfAllProjects].sort(compareTargetAccessStringDesc)));
-            } else {
-              dispatch(setListOfFilteredProjects([...listOfAllProjects].sort(compareTargetAccessStringAsc)));
-            }
-            break;
-          case 'authority':
-            if (filter.filter.targetAccessString.order === -1) {
-              dispatch(setListOfFilteredProjects([...listOfAllProjects].sort(compareAuthorityDesc)));
-            } else {
-              dispatch(setListOfFilteredProjects([...listOfAllProjects].sort(compareAuthorityAsc)));
-            }
-            break;
-          case 'createdAt':
-            if (filter.filter.targetAccessString.order === -1) {
-              dispatch(setListOfFilteredProjects([...listOfAllProjects].sort(compareCreatedAtDateDesc)));
-            } else {
-              dispatch(setListOfFilteredProjects([...listOfAllProjects].sort(compareCreatedAtDateAsc)));
-            }
-            break;
-        }
-      }
-      if (filteredListOfProjects !== undefined && filteredListOfProjectsByDate === undefined) {
-        switch (priorityOrder[0]) {
-          case 'name':
-            if (filter.filter.name.order === -1) {
-              for (let a = 1; a < filteredListOfProjects.length; a++) {
-                dispatch(setListOfFilteredProjects([...filteredListOfProjects].sort(compareNameDesc)));
-                if (filteredListOfProjects[a - 1].title === filteredListOfProjects[a].title) {
-                  if (priorityOrder[1] === 'createdAt') {
-                    dispatch(setListOfFilteredProjects([...filteredListOfProjects].sort(compareCreatedAtDateDesc)));
-                  }
-                }
-              }
-              dispatch(setListOfFilteredProjects([...filteredListOfProjects].sort(compareNameDesc)));
-            } else {
-              dispatch(setListOfFilteredProjects([...filteredListOfProjects].sort(compareNameAsc)));
-            }
-            break;
-          case 'target':
-            if (filter.filter.target.order === -1) {
-              dispatch(setListOfFilteredProjects([...filteredListOfProjects].sort(compareTargetDesc)));
-            } else {
-              dispatch(setListOfFilteredProjects([...filteredListOfProjects].sort(compareTargetAsc)));
-            }
-            break;
-          case 'description':
-            if (filter.filter.description.order === -1) {
-              dispatch(setListOfFilteredProjects([...filteredListOfProjects].sort(compareDescriptionDesc)));
-            } else {
-              dispatch(setListOfFilteredProjects([...filteredListOfProjects].sort(compareDescriptionAsc)));
-            }
-            break;
-          case 'targetAccessString':
-            if (filter.filter.targetAccessString.order === -1) {
-              dispatch(setListOfFilteredProjects([...filteredListOfProjects].sort(compareTargetAccessStringDesc)));
-            } else {
-              dispatch(setListOfFilteredProjects([...filteredListOfProjects].sort(compareTargetAccessStringAsc)));
-            }
-            break;
-          case 'authority':
-            if (filter.filter.authority.order === -1) {
-              dispatch(setListOfFilteredProjects([...filteredListOfProjects].sort(compareAuthorityDesc)));
-            } else {
-              dispatch(setListOfFilteredProjects([...filteredListOfProjects].sort(compareAuthorityAsc)));
-            }
-            break;
-          case 'createdAt':
-            if (filter.filter.createdAt.order === -1) {
-              dispatch(setListOfFilteredProjects([...filteredListOfProjects].sort(compareCreatedAtDateDesc)));
-            } else {
-              dispatch(setListOfFilteredProjects([...filteredListOfProjects].sort(compareCreatedAtDateAsc)));
-            }
-            break;
-        }
-      }
-      if (filteredListOfProjects === undefined && filteredListOfProjectsByDate !== undefined) {
-        switch (priorityOrder[0]) {
-          case 'name':
-            if (filter.filter.name.order === -1) {
-              for (let a = 1; a < filteredListOfProjectsByDate.length; a++) {
-                dispatch(setListOfFilteredProjects([...filteredListOfProjectsByDate].sort(compareNameDesc)));
-                if (filteredListOfProjectsByDate[a - 1].title === filteredListOfProjectsByDate[a].title) {
-                  if (priorityOrder[1] === 'createdAt') {
-                    dispatch(
-                      setListOfFilteredProjects([...filteredListOfProjectsByDate].sort(compareCreatedAtDateDesc))
-                    );
-                  }
-                }
-              }
-              dispatch(setListOfFilteredProjects([...filteredListOfProjectsByDate].sort(compareNameDesc)));
-            } else {
-              dispatch(setListOfFilteredProjects([...filteredListOfProjectsByDate].sort(compareNameAsc)));
-            }
-            break;
-          case 'target':
-            if (filter.filter.target.order === -1) {
-              dispatch(setListOfFilteredProjects([...filteredListOfProjectsByDate].sort(compareTargetDesc)));
-            } else {
-              dispatch(setListOfFilteredProjects([...filteredListOfProjectsByDate].sort(compareTargetAsc)));
-            }
-            break;
-          case 'description':
-            if (filter.filter.description.order === -1) {
-              dispatch(setListOfFilteredProjects([...filteredListOfProjectsByDate].sort(compareDescriptionDesc)));
-            } else {
-              dispatch(setListOfFilteredProjects([...filteredListOfProjectsByDate].sort(compareDescriptionAsc)));
-            }
-            break;
-          case 'targetAccessString':
-            if (filter.filter.targetAccessString.order === -1) {
-              dispatch(
-                setListOfFilteredProjects([...filteredListOfProjectsByDate].sort(compareTargetAccessStringDesc))
-              );
-            } else {
-              dispatch(setListOfFilteredProjects([...filteredListOfProjectsByDate].sort(compareTargetAccessStringAsc)));
-            }
-            break;
-          case 'authority':
-            if (filter.filter.authority.order === -1) {
-              dispatch(setListOfFilteredProjects([...filteredListOfProjectsByDate].sort(compareAuthorityDesc)));
-            } else {
-              dispatch(setListOfFilteredProjects([...filteredListOfProjectsByDate].sort(compareAuthorityAsc)));
-            }
-            break;
-          case 'createdAt':
-            if (filter.filter.createdAt.order === -1) {
-              dispatch(setListOfFilteredProjects([...filteredListOfProjectsByDate].sort(compareCreatedAtDateDesc)));
-            } else {
-              dispatch(setListOfFilteredProjects([...filteredListOfProjectsByDate].sort(compareCreatedAtDateAsc)));
-            }
-            break;
-        }
-      }
-    }
-    if (filteredListOfProjects !== undefined && filteredListOfProjectsByDate !== undefined) {
-      const mergedFilteredList = filteredListOfProjects.filter(item1 =>
-        filteredListOfProjectsByDate.some(item2 => item2.id === item1.id)
-      );
-
-      switch (priorityOrder[0]) {
-        case 'name':
-          if (filter.filter.name.order === -1) {
-            for (let a = 1; a < mergedFilteredList.length; a++) {
-              dispatch(setListOfFilteredProjects([...mergedFilteredList].sort(compareNameDesc)));
-              if (mergedFilteredList[a - 1].title === mergedFilteredList[a].title) {
-                if (priorityOrder[1] === 'createdAt') {
-                  dispatch(setListOfFilteredProjects([...mergedFilteredList].sort(compareCreatedAtDateDesc)));
-                }
-              }
-            }
-            dispatch(setListOfFilteredProjects([...mergedFilteredList].sort(compareNameDesc)));
-          } else {
-            dispatch(setListOfFilteredProjects([...mergedFilteredList].sort(compareNameAsc)));
-          }
-          break;
-        case 'target':
-          if (filter.filter.target.order === -1) {
-            dispatch(setListOfFilteredProjects([...mergedFilteredList].sort(compareTargetDesc)));
-          } else {
-            dispatch(setListOfFilteredProjects([...mergedFilteredList].sort(compareTargetAsc)));
-          }
-          break;
-        case 'description':
-          if (filter.filter.description.order === -1) {
-            dispatch(setListOfFilteredProjects([...mergedFilteredList].sort(compareDescriptionDesc)));
-          } else {
-            dispatch(setListOfFilteredProjects([...mergedFilteredList].sort(compareDescriptionAsc)));
-          }
-          break;
-        case 'targetAccessString':
-          if (filter.filter.targetAccessString.order === -1) {
-            dispatch(setListOfFilteredProjects([...mergedFilteredList].sort(compareTargetAccessStringDesc)));
-          } else {
-            dispatch(setListOfFilteredProjects([...mergedFilteredList].sort(compareTargetAccessStringAsc)));
-          }
-          break;
-        case 'authority':
-          if (filter.filter.authority.order === -1) {
-            dispatch(setListOfFilteredProjects([...mergedFilteredList].sort(compareAuthorityDesc)));
-          } else {
-            dispatch(setListOfFilteredProjects([...mergedFilteredList].sort(compareAuthorityAsc)));
-          }
-          break;
-        case 'createdAt':
-          if (filter.filter.createdAt.order === -1) {
-            dispatch(setListOfFilteredProjects([...mergedFilteredList].sort(compareCreatedAtDateDesc)));
-          } else {
-            dispatch(setListOfFilteredProjects([...mergedFilteredList].sort(compareCreatedAtDateAsc)));
-          }
-          break;
-      }
-    }
-  };
-
   const changePrioOrder = (column, priorityOrder) => {
     const newPrioOrder = [...priorityOrder];
     const withoutColumn = newPrioOrder.filter(item => item !== column);
@@ -467,7 +217,7 @@ export const Projects = memo(({}) => {
   const handleHeaderSort = type => {
     if (filteredListOfProjects === undefined) {
       switch (type) {
-        case 'name':
+        case 'title':
           if (sortSwitch === offsetName + 1) {
             dispatch(setListOfFilteredProjects([...listOfAllProjects].sort(compareNameAsc)));
             setSortSwitch(sortSwitch + 1);
@@ -546,7 +296,7 @@ export const Projects = memo(({}) => {
     } else {
       filteredListOfProjects = [...filteredListOfProjects].sort(compareCreatedAtDateDesc);
       switch (type) {
-        case 'name':
+        case 'title':
           if (filter !== undefined) {
             const newFilter = { ...filter };
             newFilter.priorityOrder = changePrioOrder(type, newFilter.priorityOrder);
@@ -556,7 +306,7 @@ export const Projects = memo(({}) => {
             if (filter !== undefined) {
               // change radio button in project list filter
               const newFilter = { ...filter };
-              newFilter.filter.name.order = -1;
+              newFilter.filter.title.order = -1;
               dispatch(setFilter(newFilter));
             }
             dispatch(setListOfFilteredProjects([...filteredListOfProjects].sort(compareNameAsc)));
@@ -565,7 +315,7 @@ export const Projects = memo(({}) => {
             if (filter !== undefined) {
               // change radio button in project list filter
               const newFilter = { ...filter };
-              newFilter.filter.name.order = 1;
+              newFilter.filter.title.order = 1;
               dispatch(setFilter(newFilter));
             }
             dispatch(setListOfFilteredProjects([...filteredListOfProjects].sort(compareNameAsc)));
@@ -586,12 +336,6 @@ export const Projects = memo(({}) => {
               const newFilter = { ...filter };
               newFilter.filter.target.order = -1;
               dispatch(setFilter(newFilter));
-            }
-
-            for (let a = 1; a < filteredListOfProjects.length; a++) {
-              if (filteredListOfProjects[a - 1].target.title === filteredListOfProjects[a].target.title) {
-                //dva riadky maju rovnaký target
-              }
             }
             dispatch(setListOfFilteredProjects([...filteredListOfProjects].sort(compareTargetAsc)));
             setSortSwitch(sortSwitch + 1);
@@ -781,7 +525,11 @@ export const Projects = memo(({}) => {
     dispatch(setListOfFilteredProjects(uniqueArray));
   };
 
-  if (filteredListOfProjectsByDate !== undefined) {
+  if (filteredListOfProjects === undefined) {
+    filteredListOfProjects = [...listOfAllProjects];
+  }
+
+  if (filteredListOfProjectsByDate !== undefined && filteredListOfProjects !== undefined) {
     filteredListOfProjects = filteredListOfProjects.filter(item1 =>
       filteredListOfProjectsByDate.some(item2 => item2.id === item1.id)
     );
@@ -847,7 +595,7 @@ export const Projects = memo(({}) => {
                   <TableCell style={{ paddingLeft: '0px' }}>
                     <div>
                       <Grid container>
-                        <Typography variant="Name">
+                        <Typography variant="title">
                           <input
                             type="checkbox"
                             style={{ verticalAlign: 'middle' }}
@@ -856,7 +604,7 @@ export const Projects = memo(({}) => {
                           />
                           Name
                         </Typography>
-                        <IconButton size="small" onClick={() => handleHeaderSort('name')}>
+                        <IconButton size="small" onClick={() => handleHeaderSort('title')}>
                           <Tooltip title="Sort" className={classes.sortButton}>
                             {[1, 2].includes(sortSwitch - offsetName) ? (
                               sortSwitch % offsetName < 2 ? (
