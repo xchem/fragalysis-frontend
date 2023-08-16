@@ -97,36 +97,38 @@ export const loadObject = ({
 };
 
 export const deleteObject = (target, stage, deleteFromSelections) => dispatch => {
-  const comps = stage.getComponentsByName(target.name);
-  comps.list.forEach(component => stage.removeComponent(component));
+  if (stage && target) {
+    const comps = stage.getComponentsByName(target.name);
+    comps.list.forEach(component => stage.removeComponent(component));
 
-  if (deleteFromSelections === true && target && target.selectionType && target.moleculeId) {
-    const objectId = { id: target.moleculeId };
-    switch (target.selectionType) {
-      case SELECTION_TYPE.LIGAND:
-        dispatch(removeFromFragmentDisplayList(objectId));
-        break;
-      case SELECTION_TYPE.HIT_PROTEIN:
-        dispatch(removeFromProteinList(objectId));
-        break;
-      case SELECTION_TYPE.COMPLEX:
-        dispatch(removeFromComplexList(objectId));
-        break;
-      case SELECTION_TYPE.SURFACE:
-        dispatch(removeFromSurfaceList(objectId));
-        break;
-      case SELECTION_TYPE.DENSITY:
-        dispatch(removeFromDensityList(objectId));
-        dispatch(removeFromDensityListCustom(objectId, true));
-        dispatch(removeFromDensityListType({ id: objectId }));
-        break;
-      case SELECTION_TYPE.VECTOR:
-        dispatch(removeFromVectorOnList(objectId));
-        break;
+    if (deleteFromSelections === true && target && target.selectionType && target.moleculeId) {
+      const objectId = { id: target.moleculeId };
+      switch (target.selectionType) {
+        case SELECTION_TYPE.LIGAND:
+          dispatch(removeFromFragmentDisplayList(objectId));
+          break;
+        case SELECTION_TYPE.HIT_PROTEIN:
+          dispatch(removeFromProteinList(objectId));
+          break;
+        case SELECTION_TYPE.COMPLEX:
+          dispatch(removeFromComplexList(objectId));
+          break;
+        case SELECTION_TYPE.SURFACE:
+          dispatch(removeFromSurfaceList(objectId));
+          break;
+        case SELECTION_TYPE.DENSITY:
+          dispatch(removeFromDensityList(objectId));
+          dispatch(removeFromDensityListCustom(objectId, true));
+          dispatch(removeFromDensityListType({ id: objectId }));
+          break;
+        case SELECTION_TYPE.VECTOR:
+          dispatch(removeFromVectorOnList(objectId));
+          break;
+      }
     }
-  }
 
-  dispatch(deleteNglObject(target));
+    dispatch(deleteNglObject(target));
+  }
 };
 
 export const checkRemoveFromDensityList = (target, objectsInView) => () => {

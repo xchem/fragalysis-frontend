@@ -39,7 +39,15 @@ export const constants = {
   SET_SORT_DIALOG_OPEN: prefix + 'SET_SORT_DIALOG_OPEN',
   SET_FILTER_CLEAN: prefix + 'SET_FILTER_CLEAN',
 
-  SET_ADD_BUTTON: prefix + 'SET_ADD_BUTTON'
+  SET_ADD_BUTTON: prefix + 'SET_ADD_BUTTON',
+
+  SEARCH_NAME: prefix + 'SEARCH_NAME',
+  SEARCH_TARGET: prefix + 'SEARCH_TARGET',
+  SEARCH_DESCRIPTION: prefix + 'SEARCH_DESCRIPTION',
+  SEARCH_AUTHORITY: prefix + 'SEARCH_AUTHORITY',
+  SEARCH_TARGET_ACCESS_STRING: prefix + 'SEARCH_TARGET_ACCESS_STRING',
+  SEARCH_DATE_FROM: prefix + 'SEARCH_DATE_FROM',
+  SEARCH_DATE_TO: prefix + 'SEARCH_DATE_TO'
 };
 
 export const ProjectCreationType = {
@@ -58,22 +66,24 @@ export const SnapshotProjectType = {
   NOT_ASSIGNED: 'Not assigned to project'
 };
 
-export const MOL_ATTR = {
+export const PROJECTS_ATT = {
   createdAt: {
-    key: 'createdAt',
+    key: 'init_date',
     name: 'Created at',
     isFloat: true,
     color: '#72e5be',
     filter: true,
-    dateFilter: true
+    dateFilter: true,
+    path: undefined
   },
   name: {
-    key: 'name',
+    key: 'title',
     name: 'Name',
     isFloat: true,
     color: '#daa520',
     filter: true,
-    dateFilter: false
+    dateFilter: false,
+    path: undefined
   },
   target: {
     key: 'target',
@@ -81,7 +91,8 @@ export const MOL_ATTR = {
     isFloat: true,
     color: '#f96587',
     filter: true,
-    dateFilter: false
+    dateFilter: false,
+    path: 'target.title'
   },
   targetAccessString: {
     key: 'targetAccessString',
@@ -89,23 +100,26 @@ export const MOL_ATTR = {
     isFloat: true,
     color: '#ffe119',
     filter: true,
-    dateFilter: false
+    dateFilter: false,
+    path: 'project.target_access_string'
   },
   description: {
     key: 'description',
     name: 'Description',
-    isFloat: false,
+    isFloat: true,
     color: '#f58231',
     filter: true,
-    dateFilter: false
+    dateFilter: false,
+    path: undefined
   },
   authority: {
     key: 'authority',
     name: 'Authority',
-    isFloat: false,
+    isFloat: true,
     color: '#86844a',
     filter: true,
-    dateFilter: false
+    dateFilter: false,
+    path: 'project.authority'
   }
   /*tags: {
     key: 'tags',
@@ -118,4 +132,4 @@ export const MOL_ATTR = {
   }*/
 };
 
-export const MOL_ATTRIBUTES = Object.values(MOL_ATTR);
+export const PROJECTS_ATTR = Object.values(PROJECTS_ATT);

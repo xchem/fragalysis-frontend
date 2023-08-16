@@ -53,7 +53,7 @@ env:
   #
   #   For Jobs conditional on the presence of a secret see this Gist...
   #   https://gist.github.com/jonico/24ffebee6d2fa2e679389fac8aef50a3
-  BE_IMAGE_TAG: stable
+  BE_IMAGE_TAG: latest
   BE_NAMESPACE: xchem
   FE_BRANCH: staging
   FE_NAMESPACE: xchem
@@ -66,7 +66,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - name: Inject slug/short variables
-      uses: rlespinasse/github-slug-action@v3.x
+      uses: rlespinasse/github-slug-action@v4
     - name: Initialise workflow variables
       id: vars
       env:
@@ -121,9 +121,9 @@ jobs:
         echo ::set-output name=trigger::${{ env.TRIGGER_DOWNSTREAM == 'yes' }}
 
     - name: Checkout
-      uses: actions/checkout@v2
+      uses: actions/checkout@v3
     - name: Setup node 12
-      uses: actions/setup-node@v2
+      uses: actions/setup-node@v3
       with:
         node-version: '12.22.11'
     - name: Install
