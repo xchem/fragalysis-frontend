@@ -487,3 +487,15 @@ export const setNextXMolecules = nextXMolecules => {
     nextXMolecules: nextXMolecules
   };
 };
+
+export const setTagDetailView = tagDetailView => {
+  return {
+    type: constants.SET_TAG_DETAIL_VIEW,
+    payload: tagDetailView
+  };
+};
+
+export const setResizableLayout = projects => ({
+  type: constants.SET_RESIZABLE_LAYOUT,
+  payload: projects
+});

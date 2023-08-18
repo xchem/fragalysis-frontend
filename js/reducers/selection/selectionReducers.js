@@ -437,6 +437,12 @@ export function selectionReducers(state = INITIAL_STATE, action = {}) {
     case constants.SET_NEXT_X_MOLECULES:
       return { ...state, nextXMolecules: action.nextXMolecules };
 
+    case constants.SET_TAG_DETAIL_VIEW:
+      return { ...state, tagDetailView: action.payload };
+
+    case constants.SET_RESIZABLE_LAYOUT:
+      return Object.assign({}, state, { resizableLayout: action.payload });
+
     // Cases like: @@redux/INIT
     default:
       return state;

@@ -22,7 +22,7 @@ const useStyles = makeStyles(theme => ({
     flexDirection: 'row',
     justifyContent: 'flex-start',
     borderRadius: '7px',
-    lineHeight: '1.1',
+    //lineHeight: '0',
     textAlign: 'center',
     '& .MuiChip-labelSmall': {
       overflowWrap: 'anywhere',
@@ -60,7 +60,7 @@ const useStyles = makeStyles(theme => ({
     '& .MuiChip-labelSmall': {
       textAlign: 'left !important'
     },
-    width: '200px'
+    width: '210px'
   },
   chipSelected: {
     '& .MuiChip-iconSmall': {
