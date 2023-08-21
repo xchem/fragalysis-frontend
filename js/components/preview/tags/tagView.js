@@ -32,7 +32,8 @@ const useStyles = makeStyles(theme => ({
       paddingRight: '2px',
       fontWeight: '400',
       fontStyle: 'normal',
-      letterSpacing: '0.144px'
+      letterSpacing: '0.144px',
+      textAlign: 'left'
     },
     '& .MuiChip-deleteIcon': {
       display: 'none',

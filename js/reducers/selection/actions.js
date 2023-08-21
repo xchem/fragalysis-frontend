@@ -487,3 +487,10 @@ export const setNextXMolecules = nextXMolecules => {
     nextXMolecules: nextXMolecules
   };
 };
+
+export const setAssignTagView = assignTagView => {
+  return {
+    type: constants.SET_ASSIGN_TAGS_VIEW,
+    payload: assignTagView
+  };
+};

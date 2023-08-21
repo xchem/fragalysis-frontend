@@ -19,9 +19,6 @@ const useStyles = makeStyles(theme => ({
     paddingRight: theme.spacing(1),
     textAlign: 'left'
   },
-  headerItem: {
-    paddingLeft: theme.spacing(2)
-  },
   headerItemTitle: {
     fontSize: theme.typography.pxToRem(13)
   }
@@ -32,7 +29,7 @@ const useStyles = makeStyles(theme => ({
  *  -if is- behaves as Assign tag element and assignes tags to hits
  *  -if is NOT- behaves as Hit filter element and filters hits in Hit navigator
  */
-const TagCategoryView = memo(({ name, tags, specialTags, clickCallback, disabled = false }) => {
+const TagCategoryGridView = memo(({ name, tags, specialTags, clickCallback, disabled = false }) => {
   const classes = useStyles();
   const selectedTagList = useSelector(state => state.selectionReducers.selectedTagList);
   const dispatch = useDispatch();
@@ -82,9 +79,9 @@ const TagCategoryView = memo(({ name, tags, specialTags, clickCallback, disabled
 
   return (
     <>
-      <Grid item className={classes.categoryItem} xs={3}>
+      <Grid item className={classes.categoryItem}>
         {name && (
-          <Grid className={classes.headerItem}>
+          <Grid>
             <Typography className={classes.headerItemTitle} variant="h6" noWrap>
               {name}
             </Typography>
@@ -92,20 +89,22 @@ const TagCategoryView = memo(({ name, tags, specialTags, clickCallback, disabled
         )}
 
         {(tags || specialTags) && (
-          <Grid className={classes.divContainer}>
+          <Grid container>
             {tags &&
               tags.map((tag, idx) => {
                 let selected = selectedTagList.some(i => i.id === tag.id);
                 let tagSelected = isTagSelected(tag);
                 return (
-                  <TagView
-                    key={`tag-item-${idx}`}
-                    tag={tag}
-                    selected={clickCallback !== undefined ? tagSelected.isSelected : selected}
-                    handleClick={handleTagClick}
-                    disabled={disabled}
-                    partiallySelected={tagSelected.isPartiallySelected}
-                  ></TagView>
+                  <Grid item rowSpacing={0} spacing={0} xs={6}>
+                    <TagView
+                      key={`tag-item-${idx}`}
+                      tag={tag}
+                      selected={clickCallback !== undefined ? tagSelected.isSelected : selected}
+                      handleClick={handleTagClick}
+                      disabled={disabled}
+                      partiallySelected={tagSelected.isPartiallySelected}
+                    ></TagView>
+                  </Grid>
                 );
               })}
           </Grid>
@@ -115,4 +114,4 @@ const TagCategoryView = memo(({ name, tags, specialTags, clickCallback, disabled
   );
 });
 
-export default TagCategoryView;
+export default TagCategoryGridView;
