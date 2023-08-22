@@ -441,7 +441,7 @@ const TagDetails = memo(() => {
             </div>
             </div>
             
-            <Grid container rowSpacing={0} spacing={0}>
+            <Grid container rowSpacing={0} spacing={0} style={{marginBottom: 'auto' }}>
               {filteredTagList &&
                 filteredTagList.map((tag, idx) => {
                   return (

@@ -1,7 +1,7 @@
 import React, { memo, useState } from 'react';
 import { Grid, makeStyles, Chip, Tooltip, Avatar } from '@material-ui/core';
 import { Edit, Check } from '@material-ui/icons';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { getFontColorByBackgroundColor } from '../../../utils/colors';
 import { TagEditModal } from './modal/tagEditModal';
 import classNames from 'classnames';
@@ -99,6 +99,9 @@ const TagView = memo(
     const dispatch = useDispatch();
     const [tagEditModalOpen, setTagEditModalOpen] = useState(false);
 
+    const tagDetailView = useSelector(state => state.selectionReducers.tagDetailView);
+
+
     // console.log(`Tag: ${tagData.tag}`);
     // console.log(`tagColor: ${tagColor}`);
     const bgColor = tagData.colour || '#e0e0e0';
@@ -106,10 +109,10 @@ const TagView = memo(
     const color = getFontColorByBackgroundColor(bgColor);
     // console.log(`font color: ${color}`);
     const style = isTagEditor
-      ? { backgroundColor: bgColor, color: color }
+      ? { backgroundColor: bgColor, color: color,  width: tagDetailView === true ? '90px' : '210px' }
       : selected
-      ? { backgroundColor: bgColor, color: color }
-      : { backgroundColor: 'white', color: 'black', borderColor: bgColor };
+      ? { backgroundColor: bgColor, color: color, width: tagDetailView === true ? '90px' : '210px' }
+      : { backgroundColor: 'white', color: 'black', borderColor: bgColor,  width: tagDetailView === true ? '90px' : '210px' };
     // console.log(`style: ${style}`);
 
     // console.log('-------------------------------');
@@ -180,7 +183,7 @@ const TagView = memo(
             label: tagData.tag,
             clickable: true,
             color: bgColor,
-            style: { backgroundColor: 'white', border: '1px solid rgba(0, 0, 0, 0.23)', borderColor: bgColor },
+            style: { backgroundColor: 'white', border: '1px solid rgba(0, 0, 0, 0.23)', borderColor: bgColor,  width: tagDetailView === true ? '90px' : '210px' },
             onClick: () => {
               handleClick && handleClick(selected, tag, allTags);
             },
