@@ -48,9 +48,10 @@ import { MOL_TYPE } from '../redux/constants';
 import { DensityMapsModal } from '../modals/densityMapsModal';
 import { getRandomColor } from '../utils/color';
 import { getAllTagsForMol } from '../../tags/utils/tagUtils';
-import TagView from '../../tags/tagView';
 import MoleculeSelectCheckbox from './moleculeSelectCheckbox';
 import useClipboard from 'react-use-clipboard';
+import Popover from '@mui/material/Popover';
+import Typography from '@mui/material/Typography';
 
 const useStyles = makeStyles(theme => ({
   container: {
@@ -226,7 +227,31 @@ const useStyles = makeStyles(theme => ({
   imageActions: {
     position: 'absolute',
     top: 0,
+    left: 0
+  },
+  imageTagActions: {
+    position: 'absolute',
+    top: 0,
     right: 0
+  },
+  tagPopover: {
+    border: '0.1px black solid',
+    height: '15px',
+    width: '55px',
+    padding: '0px',
+    fontSize: '10px',
+    backgroundColor: '#e0e0e0',
+    borderRadius: '7px',
+    textAlign: 'center'
+  },
+  popover: {
+    paddingLeft: '5px',
+    fontSize: '10px',
+    borderRadius: '7px',
+    border: '0.5px black solid',
+    paddingRight: '5px',
+    minWidth: '55px',
+    textAlign: 'center'
   }
 }));
 
@@ -324,8 +349,11 @@ const MoleculeView = memo(
 
     const [densityModalOpen, setDensityModalOpen] = useState(false);
     const [moleculeTooltipOpen, setMoleculeTooltipOpen] = useState(false);
-    const [tagEditorTooltipOpen, setTagEditorTooltipOpen] = useState(false);
+    const [tagPopoverOpen, setTagPopoverOpen] = useState(null);
+
     const moleculeImgRef = useRef(null);
+
+    const open = tagPopoverOpen;
 
     let proteinData = data?.proteinData;
 
@@ -334,15 +362,115 @@ const MoleculeView = memo(
       return assignedTags;
     };
 
-    const generateTooltip = () => {
+    const handlePopoverOpen = event => {
+      setTagPopoverOpen(event.currentTarget);
+    };
+
+    const handlePopoverClose = () => {
+      setTagPopoverOpen(null);
+    };
+
+    const generateTagPopover = () => {
       const data = getDataForTagsTooltip();
-      return (
-        <Paper className={classes.tooltip}>
-          {data.map((t, idx) => (
-            /*<Typography color="inherit">{t}</Typography>*/
-            <TagView key={t.id} tag={t} selected={true}></TagView>
-          ))}
-        </Paper>
+
+      const modifiedObjects = data.map(obj => {
+        if (obj.tag.length > 8) {
+          return { ...obj, tag: obj.tag.slice(0, 8) + '...' };
+        }
+        return obj;
+      });
+
+      const firstThreeTags = modifiedObjects.slice(0, 3);
+
+      return modifiedObjects.length > 0 ? (
+        <div>
+          <Typography
+            aria-owns={open ? 'mouse-over-popover' : undefined}
+            aria-haspopup="true"
+            onMouseEnter={handlePopoverOpen}
+            onMouseLeave={handlePopoverClose}
+            style={{ fontSize: '10px' }}
+          >
+            {
+              <>
+                {firstThreeTags.length > 0 ? (
+                  <div
+                    style={{
+                      backgroundColor: firstThreeTags[0].colour,
+                      color: firstThreeTags[0].colour === null ? 'black' : 'white'
+                    }}
+                    className={classes.tagPopover}
+                  >
+                    {firstThreeTags[0].tag}
+                  </div>
+                ) : (
+                  ''
+                )}
+                {firstThreeTags.length > 1 ? (
+                  <div
+                    style={{
+                      backgroundColor: firstThreeTags[1].colour,
+                      color: firstThreeTags[1].colour === null ? 'black' : 'white'
+                    }}
+                    className={classes.tagPopover}
+                  >
+                    {firstThreeTags[1].tag}
+                  </div>
+                ) : (
+                  ''
+                )}
+                {firstThreeTags.length > 2 ? (
+                  <div
+                    style={{
+                      backgroundColor: firstThreeTags[2].colour,
+                      color: firstThreeTags[2].colour === null ? 'black' : 'white'
+                    }}
+                    className={classes.tagPopover}
+                  >
+                    {firstThreeTags[2].tag}
+                  </div>
+                ) : (
+                  ''
+                )}
+              </>
+            }
+          </Typography>
+          <Popover
+            id="mouse-over-popover"
+            sx={{
+              pointerEvents: 'none'
+            }}
+            open={open}
+            anchorEl={tagPopoverOpen}
+            anchorOrigin={{
+              vertical: 'top',
+              horizontal: 'left'
+            }}
+            transformOrigin={{
+              vertical: 'top',
+              horizontal: 'left'
+            }}
+            onMouseEnter={handlePopoverOpen}
+            onClose={handlePopoverClose}
+            disableRestoreFocus
+            style={{ paddingLeft: '10px' }}
+          >
+            {data.map(t => (
+              <div
+                onMouseEnter={handlePopoverOpen}
+                className={classes.popover}
+                style={{
+                  backgroundColor: t.colour === null ? '#e0e0e0' : t.colour,
+                  color: t.colour === null ? 'black' : 'white'
+                }}
+              >
+                {t.tag}
+              </div>
+            ))}
+          </Popover>
+        </div>
+      ) : (
+        <div></div>
       );
     };
 
@@ -863,18 +991,7 @@ const MoleculeView = memo(
             {svg_image}
             <div className={classes.imageActions}>
               {(moleculeTooltipOpen || isTagEditorInvokedByMolecule) && (
-                <Tooltip
-                  title={generateTooltip()}
-                  /* show tooltip even when this molecule prompted edit in tag editor */
-                  open={tagEditorTooltipOpen || isTagEditorInvokedByMolecule}
-                  onOpen={() => {
-                    setTagEditorTooltipOpen(true);
-                  }}
-                  onClose={() => {
-                    setTagEditorTooltipOpen(false);
-                  }}
-                  placement={'left'}
-                >
+                <Tooltip>
                   <MoleculeSelectCheckbox
                     color="primary"
                     className={classes.tagIcon}
@@ -910,6 +1027,7 @@ const MoleculeView = memo(
                 </Tooltip>
               )}
             </div>
+            <div className={classes.imageTagActions}>{generateTagPopover()}</div>
           </div>
         </Grid>
         <SvgTooltip
