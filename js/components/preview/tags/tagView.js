@@ -32,7 +32,8 @@ const useStyles = makeStyles(theme => ({
       paddingRight: '2px',
       fontWeight: '400',
       fontStyle: 'normal',
-      letterSpacing: '0.144px'
+      letterSpacing: '0.144px',
+      width: 'inherit'
     },
     '& .MuiChip-deleteIcon': {
       display: 'none',
@@ -58,9 +59,9 @@ const useStyles = makeStyles(theme => ({
     margin: '0 !important',
     padding: '0 !important',
     '& .MuiChip-labelSmall': {
-      textAlign: 'left !important'
+      //textAlign: 'left !important'
     },
-    width: '210px'
+    width: '200px'
   },
   chipSelected: {
     '& .MuiChip-iconSmall': {
@@ -94,38 +95,41 @@ const TagView = memo(
     isTagEditor = false,
     partiallySelected = false
   }) => {
-    const tagData = tag;
+    const originalTagData = tag;
     const classes = useStyles();
     const dispatch = useDispatch();
     const [tagEditModalOpen, setTagEditModalOpen] = useState(false);
 
     const tagDetailView = useSelector(state => state.selectionReducers.tagDetailView);
 
+    let tagData = [];
+    if (originalTagData.tag.length > 26) {
+      tagData = { ...originalTagData, tag: originalTagData.tag.slice(0, 26) + '...' };
+    } else {
+      tagData = originalTagData;
+    }
 
-    // console.log(`Tag: ${tagData.tag}`);
-    // console.log(`tagColor: ${tagColor}`);
     const bgColor = tagData.colour || '#e0e0e0';
-    // console.log(`bgColor: ${bgColor}`);
     const color = getFontColorByBackgroundColor(bgColor);
-    // console.log(`font color: ${color}`);
+
     const style = isTagEditor
-      ? { backgroundColor: bgColor, color: color,  width: tagDetailView === true ? '90px' : '210px' }
+      ? {
+          backgroundColor: bgColor,
+          color: color,
+          width: tagDetailView === true ? '160px' : '200px'
+        }
       : selected
-      ? { backgroundColor: bgColor, color: color, width: tagDetailView === true ? '90px' : '210px' }
-      : { backgroundColor: 'white', color: 'black', borderColor: bgColor,  width: tagDetailView === true ? '90px' : '210px' };
-    // console.log(`style: ${style}`);
-
-    // console.log('-------------------------------');
-    const isTagDisabled = false;
-
-    const determineDisabled = () => {
-      // let result = false;
-      // if (isEdit && disabled) {
-      //   result = true;
-      // }
-      // return result;
-      return disabled;
-    };
+      ? {
+          backgroundColor: bgColor,
+          color: color,
+          width: tagDetailView === true ? '160px' : '200px'
+        }
+      : {
+          backgroundColor: 'white',
+          color: 'black',
+          borderColor: bgColor,
+          width: tagDetailView === true ? '160px' : '200px'
+        };
 
     const handleDelete = () => {
       if (editable) {
@@ -158,7 +162,7 @@ const TagView = memo(
             className: `${classes.chip} ${selected && !isSpecialTag ? classes.chipSelected : null} ${
               classes.tagDetailsChip
             }`,
-            label: tagData.tag,
+            label: tagDetailView === true ? tagData.tag : originalTagData.tag,
             clickable: true,
             color: bgColor,
             style: style,
@@ -166,13 +170,7 @@ const TagView = memo(
               handleClick && handleClick(selected, tag, allTags);
             },
             deleteIcon: getDeleteIcon(),
-            onDelete: getDeleteAction(),
-            disabled: determineDisabled(),
-            icon: (
-              <Avatar style={{ backgroundColor: bgColor }}>
-                <Check className={classes.check} style={{ color: color }} />
-              </Avatar>
-            )
+            onDelete: getDeleteAction()
           };
         } else {
           return {
@@ -180,43 +178,23 @@ const TagView = memo(
             className: `${classes.chip} ${selected && !isSpecialTag ? classes.chipSelected : null} ${
               classes.tagDetailsChip
             }`,
-            label: tagData.tag,
+            label: tagDetailView === true ? tagData.tag : originalTagData.tag,
             clickable: true,
             color: bgColor,
-            style: { backgroundColor: 'white', border: '1px solid rgba(0, 0, 0, 0.23)', borderColor: bgColor,  width: tagDetailView === true ? '90px' : '210px' },
+            style: {
+              backgroundColor: 'white',
+              border: '1px solid rgba(0, 0, 0, 0.23)',
+              borderColor: bgColor,
+              width: tagDetailView === true ? '160px' : '200px'
+            },
             onClick: () => {
               handleClick && handleClick(selected, tag, allTags);
             },
             deleteIcon: getDeleteIcon(),
-            onDelete: getDeleteAction(),
-            disabled: determineDisabled()
+            onDelete: getDeleteAction()
           };
         }
-
-        return {
-          size: 'small',
-          className: `${classes.chip} ${selected && !isSpecialTag ? classes.chipSelected : null} ${
-            classes.tagDetailsChip
-          }`,
-          label: tagData.tag,
-          clickable: true,
-          color: bgColor,
-          borderColor: bgColor,
-          style: style,
-          onClick: () => {
-            handleClick && handleClick(selected, tag, allTags);
-          },
-          deleteIcon: getDeleteIcon(),
-          onDelete: getDeleteAction(),
-          disabled: determineDisabled(),
-          icon: (
-            <Avatar style={{ backgroundColor: bgColor, borderRadius: '9px' }}>
-              <Check className={classes.check} style={{ color: bgColor }} />
-            </Avatar>
-          )
-        };
       }
-
       // If in Hit List Filter
       if (selected) {
         return {
@@ -231,8 +209,7 @@ const TagView = memo(
             handleClick && handleClick(selected, tag, allTags);
           },
           deleteIcon: getDeleteIcon(),
-          onDelete: getDeleteAction(),
-          disabled: determineDisabled()
+          onDelete: getDeleteAction()
         };
       }
 
@@ -249,15 +226,14 @@ const TagView = memo(
           handleClick && handleClick(selected, tag, allTags);
         },
         deleteIcon: getDeleteIcon(),
-        onDelete: getDeleteAction(),
-        disabled: determineDisabled()
+        onDelete: getDeleteAction()
       };
     };
 
     return (
       <>
         <Grid className={classNames(classes.tagItem, { [classes.tagDetailsItem]: isTagEditor })}>
-          <Tooltip title={tagData.tag} placement="top">
+          <Tooltip title={originalTagData.tag} placement="top">
             <Chip {...generateProps()} />
           </Tooltip>
         </Grid>
