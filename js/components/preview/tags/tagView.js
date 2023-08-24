@@ -62,7 +62,7 @@ const useStyles = makeStyles(theme => ({
     '& .MuiChip-labelSmall': {
       //textAlign: 'left !important'
     },
-    width: '200px'
+    width: '160px'
   },
   chipSelected: {
     '& .MuiChip-iconSmall': {
@@ -123,13 +123,13 @@ const TagView = memo(
       ? {
           backgroundColor: bgColor,
           color: color,
-          width: tagDetailView === true ? '160px' : '200px'
+          width: '160px'
         }
       : {
           backgroundColor: 'white',
           color: 'black',
           borderColor: bgColor,
-          width: tagDetailView === true ? '160px' : '200px'
+          width: '160px'
         };
 
     const handleDelete = () => {

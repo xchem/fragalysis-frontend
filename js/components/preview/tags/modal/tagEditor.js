@@ -125,7 +125,6 @@ export const TagEditor = memo(
       moleculesToEditIds.push(molId);
     }
     const moleculesToEdit = moleculesToEditIds.map(id => dispatch(getMoleculeForId(id)));
-
     moleculeTags = moleculeTags.sort(compareTagsAsc);
 
     const assignTagView = useSelector(state => state.selectionReducers.assignTagView);
@@ -237,11 +236,11 @@ export const TagEditor = memo(
           secondaryBackground
           title="Assign tags"
           className={classes.paper}
-          style={{ width: '400px' }}
+          style={{ width:  assignTagView === true ?'350px' : '650px' }}
           headerActions={[
             <Tooltip
-              title={assignTagView ? 'Show Assign tags list with detail info' : 'Show Assign tags grid'}
-              style={{ paddingRight: '200px' }}
+              title={assignTagView ? 'Show Assign tags list' : 'Show Assign tags grid'}
+              style={{ paddingRight: assignTagView === true ? '150px' : '450px' }}
             >
               <FormControlLabel
                 className={classes.tagModeSwitch}
