@@ -499,3 +499,10 @@ export const setResizableLayout = projects => ({
   type: constants.SET_RESIZABLE_LAYOUT,
   payload: projects
 });
+
+export const setAssignTagView = assignTagView => {
+  return {
+    type: constants.SET_ASSIGN_TAGS_VIEW,
+    payload: assignTagView
+  };
+};

@@ -437,6 +437,9 @@ export function selectionReducers(state = INITIAL_STATE, action = {}) {
     case constants.SET_NEXT_X_MOLECULES:
       return { ...state, nextXMolecules: action.nextXMolecules };
 
+    case constants.SET_ASSIGN_TAGS_VIEW:
+      return { ...state, assignTagView: action.payload };
+
     case constants.SET_TAG_DETAIL_VIEW:
       return { ...state, tagDetailView: action.payload };
 

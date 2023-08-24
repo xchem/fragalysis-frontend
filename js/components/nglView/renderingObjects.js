@@ -355,7 +355,7 @@ const showArrow = ({ stage, input_dict, object_name, representations, orientatio
   let radius = input_dict.radius === undefined ? 0.3 : input_dict.radius;
   // Handle undefined start and finish
   if (input_dict.start === undefined || input_dict.end === undefined) {
-    const msgs = 'START OR END UNDEFINED FOR ARROW ' + input_dict.toString();
+    const msgs = 'START OR END UNDEFINED FOR ARROW ' + JSON.stringify(input_dict);
     return Promise.reject(msgs);
   }
   let shape = new Shape(object_name, { disableImpostor: true });

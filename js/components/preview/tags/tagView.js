@@ -33,7 +33,8 @@ const useStyles = makeStyles(theme => ({
       fontWeight: '400',
       fontStyle: 'normal',
       letterSpacing: '0.144px',
-      width: 'inherit'
+      width: 'inherit',
+      textAlign: 'left'
     },
     '& .MuiChip-deleteIcon': {
       display: 'none',

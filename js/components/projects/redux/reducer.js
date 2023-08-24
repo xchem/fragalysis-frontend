@@ -165,8 +165,43 @@ export const projectReducers = (state = INITIAL_STATE, action = {}) => {
 
     case constants.SET_ADD_BUTTON:
       return Object.assign({}, state, { addButton: action.payload });
-  
-      default:
+
+    case constants.SEARCH_NAME:
+      return Object.assign({}, state, {
+        searchName: action.payload
+      });
+
+    case constants.SEARCH_TARGET:
+      return Object.assign({}, state, {
+        searchTarget: action.payload
+      });
+
+    case constants.SEARCH_DESCRIPTION:
+      return Object.assign({}, state, {
+        searchDescription: action.payload
+      });
+
+    case constants.SEARCH_TARGET_ACCESS_STRING:
+      return Object.assign({}, state, {
+        searchTargetAccessString: action.payload
+      });
+
+    case constants.SEARCH_AUTHORITY:
+      return Object.assign({}, state, {
+        searchAuthority: action.payload
+      });
+
+    case constants.SEARCH_DATE_FROM:
+      return Object.assign({}, state, {
+        searchDateFrom: action.payload
+      });
+
+    case constants.SEARCH_DATE_TO:
+      return Object.assign({}, state, {
+        searchDateTo: action.payload
+      });
+
+    default:
       return state;
   }
 };
