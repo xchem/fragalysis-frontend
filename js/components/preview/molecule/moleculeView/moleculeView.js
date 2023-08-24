@@ -235,20 +235,20 @@ const useStyles = makeStyles(theme => ({
     right: 0
   },
   tagPopover: {
-    border: '0.1px black solid',
     height: '15px',
     width: '55px',
     padding: '0px',
     fontSize: '10px',
     backgroundColor: '#e0e0e0',
     borderRadius: '7px',
-    textAlign: 'center'
+    textAlign: 'center',
+    opacity: '0.40'
   },
   popover: {
     paddingLeft: '5px',
     fontSize: '10px',
     borderRadius: '7px',
-    border: '0.5px black solid',
+    border: '0px black solid',
     paddingRight: '5px',
     minWidth: '55px',
     textAlign: 'center'
