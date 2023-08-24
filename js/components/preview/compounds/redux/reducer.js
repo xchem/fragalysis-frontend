@@ -8,15 +8,16 @@ const defaultSelectedCmpdsClass = {
   [compoundsColors.apricot.key]: []
 };
 
-const defaultCompoundsClasses = {
-  [compoundsColors.blue.key]: undefined,
-  [compoundsColors.red.key]: undefined,
-  [compoundsColors.green.key]: undefined,
-  [compoundsColors.purple.key]: undefined,
-  [compoundsColors.apricot.key]: undefined
+const defaultCmpdsValues = {
+  [compoundsColors.blue.key]: compoundsColors.blue.key,
+  [compoundsColors.red.key]: compoundsColors.red.key,
+  [compoundsColors.green.key]: compoundsColors.green.key,
+  [compoundsColors.purple.key]: compoundsColors.purple.key,
+  [compoundsColors.apricot.key]: compoundsColors.apricot.key
 };
 
 export const INITIAL_STATE = {
+  ...defaultCmpdsValues,
   currentPage: -1,
   compoundsPerPage: 20,
   /* currentCompounds: [{
@@ -27,7 +28,7 @@ export const INITIAL_STATE = {
    }] */
   currentCompounds: [],
   currentCompoundClass: compoundsColors.blue.key,
-  ...defaultCompoundsClasses,
+  // ...defaultCompoundsClasses,
   selectedCompoundsClass: defaultSelectedCmpdsClass,
   highlightedCompoundId: null,
   showedCompoundList: [],
@@ -50,7 +51,7 @@ export const RESET_STATE = {
    }] */
   currentCompounds: [],
   currentCompoundClass: compoundsColors.blue.key,
-  ...defaultCompoundsClasses,
+  ...defaultCmpdsValues,
   selectedCompoundsClass: defaultSelectedCmpdsClass,
   highlightedCompoundId: null,
   showedCompoundList: [],
@@ -92,7 +93,7 @@ export const compounds = (state = INITIAL_STATE, action = {}) => {
       });
 
     case constants.RESET_COMPOUND_CLASSES:
-      return Object.assign({}, state, { ...defaultCompoundsClasses });
+      return Object.assign({}, state, { ...defaultCmpdsValues });
 
     case constants.SET_HIGHLIGHTED_COMPOUND_ID:
       return Object.assign({}, state, { highlightedCompoundId: action.payload });
@@ -155,9 +156,9 @@ export const compounds = (state = INITIAL_STATE, action = {}) => {
       return Object.assign({}, state, {
         selectedCompoundsClass: defaultSelectedCmpdsClass
       });
-    
-      case constants.SET_SELECTED_COMPOUNDS:
-        return {...state, allSelectedCompounds: action.payload};
+
+    case constants.SET_SELECTED_COMPOUNDS:
+      return { ...state, allSelectedCompounds: action.payload };
 
     case constants.RELOAD_REDUCER:
       return Object.assign({}, state, { ...action.payload });

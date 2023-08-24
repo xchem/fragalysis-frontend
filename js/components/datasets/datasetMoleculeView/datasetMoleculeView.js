@@ -5,7 +5,13 @@
 import React, { memo, useEffect, useState, useRef, useContext, forwardRef } from 'react';
 import { useDispatch, useSelector, shallowEqual } from 'react-redux';
 import { Grid, Button, makeStyles, Tooltip, IconButton } from '@material-ui/core';
-import { ClearOutlined, CheckOutlined, Assignment, AssignmentTurnedIn } from '@material-ui/icons';
+import {
+  ClearOutlined,
+  CheckOutlined,
+  Assignment,
+  AssignmentTurnedIn,
+  KeyboardReturnOutlined
+} from '@material-ui/icons';
 import SVGInline from 'react-svg-inline';
 import classNames from 'classnames';
 import { VIEWS, ARROW_TYPE } from '../../../constants/constants';
@@ -28,7 +34,12 @@ import {
   getFirstUnlockedCompoundBefore,
   isDatasetCompoundIterrable,
   isDatasetCompoundLocked,
-  getAllVisibleButNotLockedCompounds
+  getAllVisibleButNotLockedCompounds,
+  getAllVisibleButNotLockedSelectedCompounds,
+  isCompoundLocked,
+  getFirstUnlockedSelectedCompoundAfter,
+  moveSelectedDatasetMoleculeUpDown,
+  getFirstUnlockedSelectedCompoundBefore
 } from '../redux/dispatchActions';
 
 import { isAnyInspirationTurnedOn, getFilteredDatasetMoleculeList } from '../redux/selectors';
@@ -357,7 +368,8 @@ const DatasetMoleculeView = memo(
         disableP,
         disableC,
         inSelectedCompoundsList = false,
-        colorButtonsEnabled = true
+        colorButtonsEnabled = true,
+        getNode
       },
       outsideRef
     ) => {
@@ -382,6 +394,8 @@ const DatasetMoleculeView = memo(
 
       const currentCompoundClass = useSelector(state => state.previewReducers.compounds.currentCompoundClass);
 
+      const selectedCompounds = useSelector(state => state.datasetsReducers.selectedCompounds);
+
       const disableMoleculeNglControlButtons =
         useSelector(state => state.datasetsReducers.disableDatasetsNglControlButtons[datasetID]?.[currentID]) || {};
 
@@ -398,6 +412,9 @@ const DatasetMoleculeView = memo(
       const isSurfaceOn = S;
 
       const askLockCompoundsQuestion = useSelector(state => state.datasetsReducers.askLockCompoundsQuestion);
+      const askLockSelectedCompoundsQuestion = useSelector(
+        state => state.datasetsReducers.askLockSelectedCompoundsQuestion
+      );
 
       const isLockVisibleCompoundsDialogOpenLocal = useSelector(
         state => state.datasetsReducers.isLockVisibleCompoundsDialogOpenLocal
@@ -414,7 +431,8 @@ const DatasetMoleculeView = memo(
       const hasAllValuesOn = isLigandOn && isProteinOn && isComplexOn;
       const hasSomeValuesOn = !hasAllValuesOn && (isLigandOn || isProteinOn || isComplexOn || isSurfaceOn);
 
-      let areArrowsVisible = (isLigandOn || isProteinOn || isComplexOn || isSurfaceOn) && !isLocked;
+      let areArrowsVisible =
+        (isLigandOn || isProteinOn || isComplexOn || isSurfaceOn) && !isLocked && !isCompoundFromVectorSelector(data);
 
       if (arrowsHidden) {
         areArrowsVisible = false;
@@ -643,20 +661,29 @@ const DatasetMoleculeView = memo(
         }
       };
 
-      const handleClickOnDownArrow = async event => {
-        const unlockedVisibleCompounds = dispatch(getAllVisibleButNotLockedCompounds(datasetID, currentID));
-        if (unlockedVisibleCompounds?.length > 0 && askLockCompoundsQuestion) {
+      const moveDownSelectedCompound = anchorEl => {
+        //check if there are unlocked but visible compounds in the selected compounds list
+        const unlockedVisibleCompounds = dispatch(getAllVisibleButNotLockedSelectedCompounds(datasetID, currentID));
+        if (unlockedVisibleCompounds?.length > 0 && askLockSelectedCompoundsQuestion) {
           dispatch(setCmpForLocalLockVisibleCompoundsDialog(data));
-          setLockCompoundsDialogAnchorE1(event.currentTarget);
+          setLockCompoundsDialogAnchorE1(anchorEl);
           dispatch(setIsOpenLockVisibleCompoundsDialogLocal(true));
         } else {
-          const refNext = ref.current.nextSibling;
+          let refNext = ref.current.nextSibling;
           scrollToElement(refNext);
 
           let nextItem = (nextItemData.hasOwnProperty('molecule') && nextItemData.molecule) || nextItemData;
-          const nextDatasetID = (nextItemData.hasOwnProperty('datasetID') && nextItemData.datasetID) || datasetID;
-          if (dispatch(isDatasetCompoundLocked(nextDatasetID, nextItem.id))) {
-            nextItem = dispatch(getFirstUnlockedCompoundAfter(nextDatasetID, nextItem.id));
+          let nextDatasetID = (nextItemData.hasOwnProperty('datasetID') && nextItemData.datasetID) || datasetID;
+          if (dispatch(isCompoundLocked(nextDatasetID, nextItem)) || isCompoundFromVectorSelector(nextItem)) {
+            const unlockedCmp = dispatch(getFirstUnlockedSelectedCompoundAfter(nextDatasetID, nextItem.id));
+            if (!unlockedCmp) {
+              return;
+            }
+            nextItem = unlockedCmp.molecule;
+            nextDatasetID = unlockedCmp.datasetID;
+          }
+          if (getNode) {
+            refNext = getNode(nextItem.id);
           }
           const moleculeTitleNext = nextItem && nextItem.name;
 
@@ -668,29 +695,82 @@ const DatasetMoleculeView = memo(
           }
 
           dispatch(
-            moveDatasetMoleculeUpDown(stage, datasetID, data, nextDatasetID, nextItem, dataValue, ARROW_TYPE.DOWN)
+            moveSelectedDatasetMoleculeUpDown(
+              stage,
+              datasetID,
+              data,
+              nextDatasetID,
+              nextItem,
+              dataValue,
+              ARROW_TYPE.DOWN
+            )
           );
         }
       };
 
-      const handleClickOnUpArrow = async event => {
-        const unlockedVisibleCompounds = dispatch(getAllVisibleButNotLockedCompounds(datasetID, currentID));
-        if (unlockedVisibleCompounds?.length > 0 && askLockCompoundsQuestion) {
+      const handleClickOnDownArrow = async event => {
+        if (inSelectedCompoundsList) {
+          moveDownSelectedCompound(event.currentTarget);
+        } else {
+          const unlockedVisibleCompounds = dispatch(getAllVisibleButNotLockedCompounds(datasetID, currentID));
+          if (unlockedVisibleCompounds?.length > 0 && askLockCompoundsQuestion) {
+            dispatch(setCmpForLocalLockVisibleCompoundsDialog(data));
+            setLockCompoundsDialogAnchorE1(event.currentTarget);
+            dispatch(setIsOpenLockVisibleCompoundsDialogLocal(true));
+          } else {
+            let refNext = ref.current.nextSibling;
+            scrollToElement(refNext);
+
+            let nextItem = (nextItemData.hasOwnProperty('molecule') && nextItemData.molecule) || nextItemData;
+            const nextDatasetID = (nextItemData.hasOwnProperty('datasetID') && nextItemData.datasetID) || datasetID;
+            if (dispatch(isDatasetCompoundLocked(nextDatasetID, nextItem.id))) {
+              nextItem = dispatch(getFirstUnlockedCompoundAfter(nextDatasetID, nextItem.id));
+            }
+            if (getNode) {
+              refNext = getNode(nextItem.id);
+            }
+            const moleculeTitleNext = nextItem && nextItem.name;
+
+            let dataValue = { colourToggle, isLigandOn, isProteinOn, isComplexOn, isSurfaceOn };
+
+            dispatch(setCrossReferenceCompoundName(moleculeTitleNext));
+            if (setRef && ref.current) {
+              setRef(refNext);
+            }
+
+            dispatch(
+              moveDatasetMoleculeUpDown(stage, datasetID, data, nextDatasetID, nextItem, dataValue, ARROW_TYPE.DOWN)
+            );
+          }
+        }
+      };
+
+      const moveUpSelectedCompound = anchorEl => {
+        const unlockedVisibleCompounds = dispatch(getAllVisibleButNotLockedSelectedCompounds(datasetID, currentID));
+        if (unlockedVisibleCompounds?.length > 0 && askLockSelectedCompoundsQuestion) {
           dispatch(setCmpForLocalLockVisibleCompoundsDialog(data));
-          setLockCompoundsDialogAnchorE1(event.currentTarget);
+          setLockCompoundsDialogAnchorE1(anchorEl);
           dispatch(setIsOpenLockVisibleCompoundsDialogLocal(true));
         } else {
-          const refPrevious = ref.current.previousSibling;
+          let refPrevious = ref.current.previousSibling;
           scrollToElement(refPrevious);
 
           let previousItem =
             (previousItemData.hasOwnProperty('molecule') && previousItemData.molecule) || previousItemData;
-          const previousDatasetID =
+          let previousDatasetID =
             (previousItemData.hasOwnProperty('datasetID') && previousItemData.datasetID) || datasetID;
-          if (dispatch(isDatasetCompoundLocked(previousDatasetID, previousItem.id))) {
-            previousItem = dispatch(getFirstUnlockedCompoundBefore(previousDatasetID, previousItem.id));
+          if (dispatch(isCompoundLocked(previousDatasetID, previousItem))) {
+            const unlockedCmp = dispatch(getFirstUnlockedSelectedCompoundBefore(previousDatasetID, previousItem.id));
+            if (!unlockedCmp) {
+              return;
+            }
+            previousItem = unlockedCmp.molecule;
+            previousDatasetID = unlockedCmp.datasetID;
           }
-          const moleculeTitlePrev = previousItem && previousItem.name;
+          if (getNode) {
+            refPrevious = getNode(previousItem.id);
+          }
+          const moleculeTitlePrev = previousItem && previousDatasetID.name;
 
           let dataValue = { colourToggle, isLigandOn, isProteinOn, isComplexOn, isSurfaceOn };
 
@@ -700,8 +780,63 @@ const DatasetMoleculeView = memo(
           }
 
           dispatch(
-            moveDatasetMoleculeUpDown(stage, datasetID, data, previousDatasetID, previousItem, dataValue, ARROW_TYPE.UP)
+            moveSelectedDatasetMoleculeUpDown(
+              stage,
+              datasetID,
+              data,
+              previousDatasetID,
+              previousItem,
+              dataValue,
+              ARROW_TYPE.UP
+            )
           );
+        }
+      };
+
+      const handleClickOnUpArrow = async event => {
+        if (inSelectedCompoundsList) {
+          moveUpSelectedCompound(event.currentTarget);
+        } else {
+          const unlockedVisibleCompounds = dispatch(getAllVisibleButNotLockedCompounds(datasetID, currentID));
+          if (unlockedVisibleCompounds?.length > 0 && askLockCompoundsQuestion) {
+            dispatch(setCmpForLocalLockVisibleCompoundsDialog(data));
+            setLockCompoundsDialogAnchorE1(event.currentTarget);
+            dispatch(setIsOpenLockVisibleCompoundsDialogLocal(true));
+          } else {
+            let refPrevious = ref.current.previousSibling;
+            scrollToElement(refPrevious);
+
+            let previousItem =
+              (previousItemData.hasOwnProperty('molecule') && previousItemData.molecule) || previousItemData;
+            const previousDatasetID =
+              (previousItemData.hasOwnProperty('datasetID') && previousItemData.datasetID) || datasetID;
+            if (dispatch(isDatasetCompoundLocked(previousDatasetID, previousItem.id))) {
+              previousItem = dispatch(getFirstUnlockedCompoundBefore(previousDatasetID, previousItem.id));
+            }
+            if (getNode) {
+              refPrevious = getNode(previousItem.id);
+            }
+            const moleculeTitlePrev = previousItem && previousItem.name;
+
+            let dataValue = { colourToggle, isLigandOn, isProteinOn, isComplexOn, isSurfaceOn };
+
+            dispatch(setCrossReferenceCompoundName(moleculeTitlePrev));
+            if (setRef && ref.current) {
+              setRef(refPrevious);
+            }
+
+            dispatch(
+              moveDatasetMoleculeUpDown(
+                stage,
+                datasetID,
+                data,
+                previousDatasetID,
+                previousItem,
+                dataValue,
+                ARROW_TYPE.UP
+              )
+            );
+          }
         }
       };
 
@@ -744,26 +879,30 @@ const DatasetMoleculeView = memo(
                   anchorEl={lockCompoundsDialogAnchorE1}
                   datasetId={datasetID}
                   currentCmp={data}
+                  isSelectedCompounds={inSelectedCompoundsList}
                 />
               )}
             {/*Site number*/}
             <Grid item container justify="space-between" direction="column" className={classes.site}>
               <Grid item>
-                <DatasetMoleculeSelectCheckbox
-                  checked={isLocked}
-                  className={classes.checkbox}
-                  size="small"
-                  color="primary"
-                  onChange={e => {
-                    const result = e.target.checked;
-                    if (result) {
-                      dispatch(appendCompoundToSelectedCompoundsByDataset(datasetID, currentID, moleculeTitle));
-                    } else {
-                      dispatch(removeCompoundFromSelectedCompoundsByDataset(datasetID, currentID, moleculeTitle));
-                      dispatch(deselectVectorCompound(data));
-                    }
-                  }}
-                />
+                {!isCompoundFromVectorSelector(data) && (
+                  <DatasetMoleculeSelectCheckbox
+                    checked={isLocked}
+                    className={classes.checkbox}
+                    size="small"
+                    color="primary"
+                    // disabled={isCompoundFromVectorSelector(data)}
+                    onChange={e => {
+                      const result = e.target.checked;
+                      if (result) {
+                        dispatch(appendCompoundToSelectedCompoundsByDataset(datasetID, currentID, moleculeTitle));
+                      } else {
+                        dispatch(removeCompoundFromSelectedCompoundsByDataset(datasetID, currentID, moleculeTitle));
+                        dispatch(deselectVectorCompound(data));
+                      }
+                    }}
+                  />
+                )}
               </Grid>
               <Grid item className={classes.rank}>
                 {index + 1}.

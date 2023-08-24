@@ -1,4 +1,4 @@
-import React, { memo, useContext, useEffect, useRef, useState } from 'react';
+import React, { memo, useContext, useEffect, useMemo, useRef, useState } from 'react';
 import { Panel } from '../common/Surfaces/Panel';
 import {
   CircularProgress,
@@ -11,7 +11,7 @@ import {
   InputAdornment,
   IconButton
 } from '@material-ui/core';
-import { CloudDownload, Edit } from '@material-ui/icons';
+import { ArrowDownward, ArrowUpward, CloudDownload, Edit } from '@material-ui/icons';
 import { useDispatch, useSelector } from 'react-redux';
 import {
   getMoleculesObjectIDListOfCompoundsToBuy,
@@ -23,9 +23,22 @@ import {
 import InfiniteScroll from 'react-infinite-scroller';
 import DatasetMoleculeView from './datasetMoleculeView';
 import { InspirationDialog } from './inspirationDialog';
-import { setIsOpenInspirationDialog } from './redux/actions';
+import {
+  setCrossReferenceCompoundName,
+  setIsOpenInspirationDialog,
+  setIsOpenLockVisibleCompoundsDialogGlobal,
+  setSelectedCompoundsList
+} from './redux/actions';
 import { CrossReferenceDialog } from './crossReferenceDialog';
-import { autoHideDatasetDialogsOnScroll, resetCrossReferenceDialog } from './redux/dispatchActions';
+import {
+  autoHideDatasetDialogsOnScroll,
+  getAllVisibleButNotLockedSelectedCompounds,
+  isCompoundLocked,
+  isCompoundVisible,
+  moveDatasetMoleculeUpDown,
+  moveSelectedDatasetMoleculeUpDown,
+  resetCrossReferenceDialog
+} from './redux/dispatchActions';
 import { NglContext } from '../nglView/nglProvider';
 import FileSaver from 'file-saver';
 import JSZip from 'jszip';
@@ -48,6 +61,14 @@ import { HTML5Backend } from 'react-dnd-html5-backend';
 import { compoundsColors } from '../preview/compounds/redux/constants';
 import classNames from 'classnames';
 import { fabClasses } from '@mui/material';
+import { is } from 'date-fns/locale';
+import { LockVisibleCompoundsDialog } from './lockVisibleCompoundsDialog';
+import { BreakfastDiningOutlined } from '@mui/icons-material';
+import { getRandomColor } from '../preview/molecule/utils/color';
+import { ARROW_TYPE, VIEWS } from '../../constants/constants';
+import { useScrollToCompound } from './useScrollToCompound';
+import useDisableNglControlButtons from '../preview/molecule/useDisableNglControlButtons';
+import useDisableDatasetNglControlButtons from './useDisableDatasetNglControlButtons';
 
 const useStyles = makeStyles(theme => ({
   container: {
@@ -84,11 +105,19 @@ const useStyles = makeStyles(theme => ({
     backgroundColor: compoundsColors.apricot.color
   },
   textField: {
-    // marginLeft: theme.spacing(1),
+    marginLeft: theme.spacing(0.5),
     // marginRight: theme.spacing(1),
-    width: 70,
+    width: 90,
+    borderRadius: 10,
+
     '& .MuiFormLabel-root': {
       paddingLeft: theme.spacing(1)
+    },
+    '& .MuiInput-underline:before': {
+      borderBottom: '0px solid'
+    },
+    '& .MuiInput-underline:after': {
+      borderBottom: '0px solid'
     }
   },
   selectedInput: {
@@ -103,7 +132,34 @@ const useStyles = makeStyles(theme => ({
   },
   editClassNameIconSelected: {
     padding: '0px',
-    color: theme.palette.primary.main
+    color: 'red'
+  },
+  arrowsHighlight: {
+    borderColor: theme.palette.primary.main,
+    border: 'solid 2px',
+    backgroundColor: theme.palette.primary.main
+  },
+  arrow: {
+    width: 20,
+    height: 25,
+    color: 'white',
+    stroke: 'white',
+    strokeWidth: 2
+  },
+  iconButton: {
+    padding: 0,
+    marginTop: '2px'
+  },
+  invisArrow: {
+    width: 20,
+    height: 25,
+    visibility: 'hidden'
+  },
+  arrows: {
+    height: '100%',
+    border: 'solid 1px',
+    borderColor: theme.palette.background.divider,
+    borderStyle: 'solid solid solid solid'
   }
 }));
 
@@ -151,7 +207,25 @@ export const SelectedCompoundList = memo(() => {
     selectedMolecules = [...selectedMolecules, ...molsOfDataset.filter(mol => datasetCmpsToBuy?.includes(mol.id))];
   });
 
+  const { addMoleculeViewRef, setScrollToMoleculeId, getNode } = useScrollToCompound();
+
   const currentCompoundClass = useSelector(state => state.previewReducers.compounds.currentCompoundClass);
+
+  // const groupDatasetsNglControlButtonsDisabledState = useDisableDatasetNglControlButtons(
+  //   lockedMolecules.map(cid => ({ datasetID, molecule: getCompoundForId(cid) }))
+  // );
+
+  const askLockSelectedCompoundsQuestion = useSelector(
+    state => state.datasetsReducers.askLockSelectedCompoundsQuestion
+  );
+
+  const lockVisibleCompoundsDialogRef = useRef();
+  const isLockVisibleCompoundsDialogOpenGlobal = useSelector(
+    state => state.datasetsReducers.isLockVisibleCompoundsDialogOpenGlobal
+  );
+
+  const { getNglView } = useContext(NglContext);
+  const stage = getNglView(VIEWS.MAJOR_VIEW) && getNglView(VIEWS.MAJOR_VIEW).stage;
 
   const blueInput = useSelector(state => state.previewReducers.compounds[compoundsColors.blue.key]);
   const redInput = useSelector(state => state.previewReducers.compounds[compoundsColors.red.key]);
@@ -167,9 +241,53 @@ export const SelectedCompoundList = memo(() => {
     [compoundsColors.apricot.key]: apricotInput
   };
 
+  const inputRefs = {
+    [compoundsColors.blue.key]: useRef(),
+    [compoundsColors.red.key]: useRef(),
+    [compoundsColors.green.key]: useRef(),
+    [compoundsColors.purple.key]: useRef(),
+    [compoundsColors.apricot.key]: useRef()
+  };
+
   const compoundColors = useSelector(state => state.datasetsReducers.compoundColorByDataset);
 
   const colorFilterSettings = useSelector(state => state.datasetsReducers.selectedColorsInFilter);
+
+  const [lockCompoundsDialogAnchorE1, setLockCompoundsDialogAnchorE1] = useState(null);
+
+  //we need to add also lists to dependancy array because isCompoundVisible depends on them
+  useEffect(() => {
+    dispatch(setSelectedCompoundsList(moleculesObjectIDListOfCompoundsToBuy));
+  }, [moleculesObjectIDListOfCompoundsToBuy, dispatch]);
+
+  let areArrowsVisible = useMemo(() => {
+    let result = false;
+    if (moleculesObjectIDListOfCompoundsToBuy) {
+      for (let i = 0; i < moleculesObjectIDListOfCompoundsToBuy.length; i++) {
+        const cmp = moleculesObjectIDListOfCompoundsToBuy[i];
+        const dataset = cmp.datasetID;
+        const molecule = cmp.molecule;
+        const isVisible = dispatch(isCompoundVisible(dataset, molecule.id));
+        if (isVisible) {
+          result = true;
+          break;
+        }
+      }
+    }
+    return result;
+  }, [dispatch, moleculesObjectIDListOfCompoundsToBuy, ligandList, proteinList, complexList, surfaceList]);
+  // if (!moleculesObjectIDListOfCompoundsToBuy) {
+  //   for (let i = 0; i < moleculesObjectIDListOfCompoundsToBuy.length; i++) {
+  //     const cmp = moleculesObjectIDListOfCompoundsToBuy[i];
+  //     const dataset = cmp.datasetID;
+  //     const molecule = cmp.molecule;
+  //     const isVisible = dispatch(isCompoundVisible(dataset, molecule.id));
+  //     if (isVisible) {
+  //       areArrowsVisible = true;
+  //       break;
+  //     }
+  //   }
+  // }
 
   useEffect(() => {
     return () => {
@@ -444,6 +562,142 @@ export const SelectedCompoundList = memo(() => {
     FileSaver.saveAs(zipBlob, 'selectedCompounds.zip');
   };
 
+  const getFirstItemForIterationStart = () => {
+    let result = null;
+    for (let i = 0; i < moleculesObjectIDListOfCompoundsToBuy.length; i++) {
+      const cmp = moleculesObjectIDListOfCompoundsToBuy[i];
+      if (!dispatch(isCompoundLocked(cmp.datasetID, cmp.molecule)) && !isCompoundFromVectorSelector(cmp.molecule)) {
+        const isVisible = dispatch(isCompoundVisible(cmp.datasetID, cmp.molecule.id));
+        if (isVisible) {
+          result = cmp;
+          break;
+        }
+      }
+    }
+
+    return result;
+  };
+
+  const getNextItemForIteration = currentItem => {
+    let result = null;
+
+    const currentItemIndex = moleculesObjectIDListOfCompoundsToBuy.findIndex(
+      cmp => cmp.molecule.id === currentItem.molecule.id && cmp.datasetID === currentItem.datasetID
+    );
+    for (let i = currentItemIndex + 1; i < moleculesObjectIDListOfCompoundsToBuy.length; i++) {
+      const cmp = moleculesObjectIDListOfCompoundsToBuy[i];
+      if (!dispatch(isCompoundLocked(cmp.datasetID, cmp.molecule)) && !isCompoundFromVectorSelector(cmp.molecule)) {
+        result = cmp;
+        break;
+      }
+    }
+
+    return result;
+  };
+
+  const getPrevItemForIteration = currentItem => {
+    let result = null;
+
+    const currentItemIndex = moleculesObjectIDListOfCompoundsToBuy.findIndex(
+      cmp => cmp.molecule.id === currentItem.molecule.id && cmp.datasetID === currentItem.datasetID
+    );
+    for (let i = currentItemIndex - 1; i >= 0; i--) {
+      const cmp = moleculesObjectIDListOfCompoundsToBuy[i];
+      if (!dispatch(isCompoundLocked(cmp.datasetID, cmp.molecule)) && !isCompoundFromVectorSelector(cmp.molecule)) {
+        result = cmp;
+        break;
+      }
+    }
+
+    return result;
+  };
+
+  const handleClickOnDownArrow = async event => {
+    const unlockedVisibleCompounds = dispatch(getAllVisibleButNotLockedSelectedCompounds());
+    //one unlocked compound is what we want because it designate where the iteration will start
+    if (unlockedVisibleCompounds?.length > 1 && askLockSelectedCompoundsQuestion) {
+      setLockCompoundsDialogAnchorE1(event.currentTarget);
+      dispatch(setIsOpenLockVisibleCompoundsDialogGlobal(true));
+    } else {
+      const firstItem = getFirstItemForIterationStart();
+      const nextItem = getNextItemForIteration(firstItem);
+
+      if (firstItem && nextItem) {
+        const moleculeTitleNext = nextItem && nextItem.molecule?.name;
+        const node = getNode(nextItem.molecule?.id);
+        setScrollToMoleculeId(nextItem.molecule?.id);
+
+        let dataValue = {
+          colourToggle: getRandomColor(firstItem.molecule),
+          isLigandOn: ligandList.includes(firstItem.molecule?.id),
+          isProteinOn: proteinList.includes(firstItem.molecule?.id),
+          isComplexOn: complexList.includes(firstItem.molecule?.id),
+          isSurfaceOn: surfaceList.includes(firstItem.molecule?.id)
+        };
+
+        dispatch(setCrossReferenceCompoundName(moleculeTitleNext));
+
+        if (node) {
+          setSelectedMoleculeRef(node);
+        }
+        dispatch(
+          moveSelectedDatasetMoleculeUpDown(
+            stage,
+            firstItem.datasetID,
+            firstItem.molecule,
+            nextItem.datasetID,
+            nextItem.molecule,
+            dataValue,
+            ARROW_TYPE.DOWN
+          )
+        );
+      }
+    }
+  };
+
+  const handleClickOnUpArrow = async event => {
+    const unlockedVisibleCompounds = dispatch(getAllVisibleButNotLockedSelectedCompounds());
+    //one unlocked compound is what we want because it designate where the iteration will start
+    if (unlockedVisibleCompounds?.length > 1 && askLockSelectedCompoundsQuestion) {
+      setLockCompoundsDialogAnchorE1(event.currentTarget);
+      dispatch(setIsOpenLockVisibleCompoundsDialogGlobal(true));
+    } else {
+      const firstItem = getFirstItemForIterationStart();
+      const prevItem = getPrevItemForIteration(firstItem);
+
+      if (firstItem && prevItem) {
+        const moleculeTitleNext = prevItem && prevItem.molecule?.name;
+        const node = getNode(prevItem.molecule?.id);
+        setScrollToMoleculeId(prevItem.molecule?.id);
+
+        let dataValue = {
+          colourToggle: getRandomColor(firstItem.molecule),
+          isLigandOn: ligandList.includes(firstItem.molecule?.id),
+          isProteinOn: proteinList.includes(firstItem.molecule?.id),
+          isComplexOn: complexList.includes(firstItem.molecule?.id),
+          isSurfaceOn: surfaceList.includes(firstItem.molecule?.id)
+        };
+
+        dispatch(setCrossReferenceCompoundName(moleculeTitleNext));
+
+        if (node) {
+          setSelectedMoleculeRef(node);
+        }
+        dispatch(
+          moveSelectedDatasetMoleculeUpDown(
+            stage,
+            firstItem.datasetID,
+            firstItem.molecule,
+            prevItem.datasetID,
+            prevItem.molecule,
+            dataValue,
+            ARROW_TYPE.UP
+          )
+        );
+      }
+    }
+  };
+
   return (
     <Panel
       hasHeader
@@ -473,44 +727,59 @@ export const SelectedCompoundList = memo(() => {
           ref={inspirationDialogRef}
         />
       )}
+      {askLockSelectedCompoundsQuestion && isLockVisibleCompoundsDialogOpenGlobal && (
+        <LockVisibleCompoundsDialog
+          open
+          ref={lockVisibleCompoundsDialogRef}
+          anchorEl={lockCompoundsDialogAnchorE1}
+          isSelectedCompounds={true}
+        />
+      )}
       {isOpenCrossReferenceDialog && (
         <CrossReferenceDialog open anchorEl={selectedMoleculeRef} ref={crossReferenceDialogRef} />
       )}
       <Grid container direction="row" justify="flex-start" className={classes.container}>
-        <Grid item>
+        <Grid container direction="column">
           {/* Selection */}
           <Grid container direction="row" justify="space-between" alignItems="center">
             {Object.keys(compoundsColors).map(item => (
               <>
-                <Grid item key={`${item}-chckbox`}>
-                  <Checkbox
-                    className={classes.classCheckbox}
-                    key={`CHCK_${item}`}
-                    value={`${item}`}
-                    onChange={e => dispatch(onClickFilterClassCheckBox(e))}
-                    checked={colorFilterSettings.hasOwnProperty(item)}
-                  ></Checkbox>
-                </Grid>
                 <Grid item key={item}>
                   <TextField
                     InputProps={{
                       readOnly: editedColorGroup !== item,
-                      startAdornment: (
-                        <InputAdornment position="start">
+                      endAdornment: (
+                        <InputAdornment position="end">
                           <IconButton
                             className={
                               editedColorGroup !== item ? classes.editClassNameIcon : classes.editClassNameIconSelected
                             }
                             color={'inherit'}
                             value={`${item}`}
-                            onClick={e => dispatch(onStartEditColorClassName(e))}
+                            onClick={e => {
+                              dispatch(onStartEditColorClassName(e));
+                              inputRefs[item].current.focus();
+                              inputRefs[item].current.select();
+                            }}
                           >
                             <Edit />
                           </IconButton>
                         </InputAdornment>
+                      ),
+                      startAdornment: (
+                        <InputAdornment position="start">
+                          <Checkbox
+                            className={classes.classCheckbox}
+                            key={`CHCK_${item}`}
+                            value={`${item}`}
+                            onChange={e => dispatch(onClickFilterClassCheckBox(e))}
+                            checked={colorFilterSettings.hasOwnProperty(item)}
+                          ></Checkbox>
+                        </InputAdornment>
                       )
                     }}
                     autoComplete="off"
+                    inputRef={inputRefs[item]}
                     id={`${item}`}
                     key={`CLASS_${item}`}
                     variant="standard"
@@ -519,7 +788,6 @@ export const SelectedCompoundList = memo(() => {
                       classes[item],
                       colorFilterSettings.hasOwnProperty(item) && classes.selectedInput
                     )}
-                    label={compoundsColors[item].text}
                     onChange={e => dispatch(onChangeCompoundClassValue(e))}
                     onKeyDown={e => dispatch(onKeyDownCompoundClass(e))}
                     // onKeyDown={e => dispatch(onKeyDownFilterClass(e))}
@@ -529,6 +797,44 @@ export const SelectedCompoundList = memo(() => {
                 </Grid>
               </>
             ))}
+          </Grid>
+          <Grid item>
+            <Grid container direction="row" /*className={classes.arrows}*/>
+              <Grid item>
+                <IconButton
+                  color="primary"
+                  size="medium"
+                  // disabled={false || !previousItemData || !areArrowsVisible}
+                  disabled={false}
+                  onClick={handleClickOnUpArrow}
+                  className={classes.iconButton}
+                >
+                  <ArrowUpward
+                    className={classNames(
+                      areArrowsVisible ? classes.arrow : classes.invisArrow,
+                      areArrowsVisible && classes.arrowsHighlight
+                    )}
+                  />
+                </IconButton>
+              </Grid>
+              <Grid item>
+                <IconButton
+                  color="primary"
+                  size="medium"
+                  // disabled={false || !nextItemData || !areArrowsVisible}
+                  disabled={false}
+                  onClick={handleClickOnDownArrow}
+                  className={classes.iconButton}
+                >
+                  <ArrowDownward
+                    className={classNames(
+                      areArrowsVisible ? classes.arrow : classes.invisArrow,
+                      areArrowsVisible && classes.arrowsHighlight
+                    )}
+                  />
+                </IconButton>
+              </Grid>
+            </Grid>
           </Grid>
         </Grid>
         {currentMolecules.length > 0 && (
@@ -593,6 +899,8 @@ export const SelectedCompoundList = memo(() => {
                       }
                     }
                   }
+
+                  const isLocked = dispatch(isCompoundLocked(data.datasetID, data.molecule));
                   // }
                   return (
                     isVisible && (
@@ -603,7 +911,8 @@ export const SelectedCompoundList = memo(() => {
                         imageWidth={imgWidth}
                         data={data.molecule}
                         datasetID={data.datasetID}
-                        setRef={setSelectedMoleculeRef}
+                        // setRef={setSelectedMoleculeRef}
+                        ref={addMoleculeViewRef}
                         showCrossReferenceModal
                         previousItemData={index > 0 && array[index - 1]}
                         nextItemData={index < array?.length && array[index + 1]}
@@ -612,12 +921,15 @@ export const SelectedCompoundList = memo(() => {
                         C={complexList.includes(data.molecule.id)}
                         S={surfaceList.includes(data.molecule.id)}
                         V={false}
-                        arrowsHidden
+                        arrowsHidden={false}
                         dragDropEnabled
                         shoppingCartColors={shoppingCartColors}
                         isAddedToShoppingCart={isAddedToShoppingCart}
                         inSelectedCompoundsList
                         colorButtonsEnabled={areColorButtonsEnabled}
+                        isLocked={isLocked}
+                        setRef={setSelectedMoleculeRef}
+                        getNode={getNode}
                       />
                     )
                   );

@@ -50,6 +50,8 @@ export const INITIAL_STATE = {
   selectedCompoundsByDataset: {}, // map of $datasetID and its list of moleculeID
   compoundColorByDataset: {}, // map of $datasetID and its list of moleculeID
 
+  selectedCompounds: [], // list of selected compounds
+
   selectedColorsInFilter: {
     [compoundsColors.blue.key]: compoundsColors.blue.key,
     [compoundsColors.red.key]: compoundsColors.red.key,
@@ -76,7 +78,8 @@ export const INITIAL_STATE = {
   isLockVisibleCompoundsDialogOpenLocal: false,
   cmpForLocalLockVisibleCompoundsDialog: null,
   askLockCompoundsQuestion: true,
-  editedColorGroup: null
+  editedColorGroup: null,
+  askLockSelectedCompoundsQuestion: true
 };
 
 /**
@@ -643,6 +646,14 @@ export const datasetsReducers = (state = INITIAL_STATE, action = {}) => {
 
     case constants.SET_ASK_LOCK_COMPOUNDS_QUESTION: {
       return { ...state, askLockCompoundsQuestion: action.askLockCompoundsQuestion };
+    }
+
+    case constants.SET_ASK_LOCK_SELECTED_COMPOUNDS_QUESTION: {
+      return { ...state, askLockSelectedCompoundsQuestion: action.askLockCompoundsQuestion };
+    }
+
+    case constants.SET_SELECTED_COMPOUNDS_LIST: {
+      return { ...state, selectedCompounds: action.compoundsList };
     }
 
     case constants.RESET_DATASETS_STATE_ON_SNAPSHOT_CHANGE: {
