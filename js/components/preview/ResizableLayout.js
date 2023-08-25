@@ -1,7 +1,7 @@
 import { makeStyles } from '@material-ui/core';
 import { clamp } from 'lodash';
 import React, { useCallback, useEffect, useState } from 'react';
-import { useSelector } from 'react-redux';
+import { useSelector, useDispatch } from 'react-redux';
 import { OutPortal } from 'react-reverse-portal';
 import HitNavigator from './molecule/hitNavigator';
 import { ProjectHistoryPanel } from './projectHistoryPanel';
@@ -10,6 +10,7 @@ import { RHS } from './rhs';
 import TagDetails from './tags/details/tagDetails';
 import TagSelector from './tags/tagSelector';
 import { ViewerControls } from './viewerControls';
+import { setResizableLayout } from '../../reducers/selection/actions';
 
 const useStyles = makeStyles(theme => ({
   root: {
@@ -32,13 +33,15 @@ const useStyles = makeStyles(theme => ({
 }));
 
 const sideWidth = 500;
-let panelHeight = 200;
+let panelHeight = 0;
 let totalTagDetailHeight = 200;
 const resizerSize = 20;
 let screenHeight = 0;
+let tagDetails = 100;
 
 export const ResizableLayout = ({ gridRef, hideProjects, showHistory, onShowHistoryChange, nglPortal }) => {
   const classes = useStyles();
+  const dispatch = useDispatch();
 
   const sidesOpen = useSelector(state => state.previewReducers.viewerControls.sidesOpen);
 
@@ -48,8 +51,28 @@ export const ResizableLayout = ({ gridRef, hideProjects, showHistory, onShowHist
   const preTagList = useSelector(state => state.apiReducers.tagList);
   const [tagDetailsHeight, setTagDetailsHeight] = useState();
   const [hitNavigatorHeight, setHitNavigatorHeight] = useState(panelHeight * 2);
+  const tagDetailView = useSelector(state => state.selectionReducers.tagDetailView);
 
-  totalTagDetailHeight = (preTagList.length*15) + 40;
+  const tags = useSelector(state => state.apiReducers.tagList);
+  const tagsLength = tags.length;
+
+  if (tagDetailView) {
+    totalTagDetailHeight = (preTagList.length / 2) * 15 + 30;
+  } else {
+    if (preTagList.length < 10) {
+      totalTagDetailHeight = preTagList.length * 15 + 45;
+    } else {
+      totalTagDetailHeight = preTagList.length * 15 + 55;
+    }
+  }
+
+    if (tagsLength > 7 && tagsLength < 11) {
+      tagDetails = 110
+    } 
+    if (tagsLength > 11 && tagsLength < 15) {
+      tagDetails = 130
+    } 
+ 
 
   useEffect(() => {
     if (sidesOpen.LHS) {
@@ -129,6 +152,7 @@ export const ResizableLayout = ({ gridRef, hideProjects, showHistory, onShowHist
 
   const onTagDetailsResize = useCallback(
     (_, y) => {
+      dispatch(setResizableLayout(true))
       setTagDetailsHeight(() => {
         const gridRect = gridRef.current?.elementRef.current.firstChild.getBoundingClientRect();
 
@@ -172,15 +196,20 @@ export const ResizableLayout = ({ gridRef, hideProjects, showHistory, onShowHist
               <TagDetails />
             </div>
             <Resizer orientation="horizontal" onResize={onTagDetailsResize} />
-            {
-            /* hide section Hit List Filter(LHS) - task #576 
+            {/* hide section Hit List Filter(LHS) - task #576 
             <div style={{ height: `calc(100% - ${tagDetailsHeight + hitNavigatorHeight + 2 * resizerSize}px)` }}>
               <TagSelector />
              </div> 
             <Resizer orientation="horizontal" onResize={onHitListResize} /> 
-            */
-           }
-            <div style={{ height: (tagDetailsHeight === undefined? screenHeight - totalTagDetailHeight -100 : screenHeight - tagDetailsHeight -20) }}>
+            */}
+            <div
+              style={{
+                height:
+                  tagDetailsHeight === undefined
+                    ? screenHeight - totalTagDetailHeight - tagDetails
+                    : screenHeight - tagDetailsHeight - 20
+              }}
+            >
               <HitNavigator hideProjects={hideProjects} />
             </div>
           </div>
