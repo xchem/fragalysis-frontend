@@ -57,22 +57,25 @@ export const ResizableLayout = ({ gridRef, hideProjects, showHistory, onShowHist
   const tagsLength = tags.length;
 
   if (tagDetailView) {
-    totalTagDetailHeight = (preTagList.length / 2) * 15 + 30;
+    totalTagDetailHeight = (preTagList.length / 2) * 15 - 15;
   } else {
     if (preTagList.length < 10) {
-      totalTagDetailHeight = preTagList.length * 15 + 45;
-    } else {
+      totalTagDetailHeight = preTagList.length * 15 + 35;
+    }
+    if (preTagList.length > 10 < 20) {
       totalTagDetailHeight = preTagList.length * 15 + 55;
+    }
+    if (preTagList.length > 20 < 30) {
+      totalTagDetailHeight = preTagList.length * 15 + 75;
     }
   }
 
-    if (tagsLength > 7 && tagsLength < 11) {
-      tagDetails = 110
-    } 
-    if (tagsLength > 11 && tagsLength < 15) {
-      tagDetails = 130
-    } 
- 
+  if (tagsLength > 7 && tagsLength < 11) {
+    tagDetails = 110;
+  }
+  if (tagsLength > 11 && tagsLength < 15) {
+    tagDetails = 130;
+  }
 
   useEffect(() => {
     if (sidesOpen.LHS) {
@@ -152,7 +155,7 @@ export const ResizableLayout = ({ gridRef, hideProjects, showHistory, onShowHist
 
   const onTagDetailsResize = useCallback(
     (_, y) => {
-      dispatch(setResizableLayout(true))
+      dispatch(setResizableLayout(true));
       setTagDetailsHeight(() => {
         const gridRect = gridRef.current?.elementRef.current.firstChild.getBoundingClientRect();
 

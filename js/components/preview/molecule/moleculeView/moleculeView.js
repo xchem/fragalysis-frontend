@@ -235,22 +235,22 @@ const useStyles = makeStyles(theme => ({
     right: 0
   },
   tagPopover: {
-    height: '15px',
-    width: '55px',
+    height: '10px',
+    width: '35px',
     padding: '0px',
-    fontSize: '10px',
+    fontSize: '8px',
     backgroundColor: '#e0e0e0',
-    borderRadius: '7px',
+    borderRadius: '4px',
     textAlign: 'center',
-    opacity: '0.40'
+    verticalAlign: 'center'
   },
   popover: {
     paddingLeft: '5px',
     fontSize: '10px',
-    borderRadius: '7px',
+    borderRadius: '5px',
     border: '0px black solid',
     paddingRight: '5px',
-    minWidth: '55px',
+    minWidth: '35px',
     textAlign: 'center'
   }
 }));
@@ -350,6 +350,7 @@ const MoleculeView = memo(
     const [densityModalOpen, setDensityModalOpen] = useState(false);
     const [moleculeTooltipOpen, setMoleculeTooltipOpen] = useState(false);
     const [tagPopoverOpen, setTagPopoverOpen] = useState(null);
+    const [sortedModifiedTags, setSortModifiedTags] = useState(null);
 
     const moleculeImgRef = useRef(null);
 
@@ -371,18 +372,22 @@ const MoleculeView = memo(
     };
 
     const generateTagPopover = () => {
-      const data = getDataForTagsTooltip();
+      const allData = getDataForTagsTooltip();
+      const data = [...allData].sort((a, b) => a.tag.localeCompare(b.tag));
 
       const modifiedObjects = data.map(obj => {
-        if (obj.tag.length > 8) {
-          return { ...obj, tag: obj.tag.slice(0, 8) + '...' };
+        if (obj.tag.length > 3) {
+          return { ...obj, tag: obj.tag.slice(0, 3) };
         }
         return obj;
       });
 
-      const firstThreeTags = modifiedObjects.slice(0, 3);
+      useEffect(() => {
+        const sortByTagName = [...modifiedObjects].sort((a, b) => a.tag.localeCompare(b.tag));
+        setSortModifiedTags(sortByTagName);
+      }, []);
 
-      return modifiedObjects.length > 0 ? (
+      return sortedModifiedTags?.length > 0 ? (
         <div>
           <Typography
             aria-owns={open ? 'mouse-over-popover' : undefined}
@@ -391,49 +396,45 @@ const MoleculeView = memo(
             onMouseLeave={handlePopoverClose}
             style={{ fontSize: '10px' }}
           >
-            {
-              <>
-                {firstThreeTags.length > 0 ? (
-                  <div
+            {sortedModifiedTags.length < 2 ? (
+              <div
+                style={{
+                  backgroundColor: sortedModifiedTags[0].colour,
+                  color: sortedModifiedTags[0].colour === null ? 'black' : 'white',
+                  display: 'block',
+                  width: '20px',
+                  height: '10px',
+                  textAlign: 'center',
+                  fontSize: '8px',
+                  borderRadius: '5px'
+                }}
+              >
+                {sortedModifiedTags[0].tag}
+              </div>
+            ) : (
+              <Grid
+                className={classes.tagPopover}
+                container
+                direction="row"
+                columns={{ xs: sortedModifiedTags.length < 2 ? 6 : 12, md: 6 }}
+              >
+                {sortedModifiedTags.map((item, index) => (
+                  <Grid
                     style={{
-                      backgroundColor: firstThreeTags[0].colour,
-                      color: firstThreeTags[0].colour === null ? 'black' : 'white'
+                      backgroundColor: sortedModifiedTags[index].colour,
+                      color: sortedModifiedTags[index].colour === null ? 'black' : 'white',
+                      display: 'block'
                     }}
                     className={classes.tagPopover}
+                    item
+                    xs={sortedModifiedTags.length > 10 ? 4 : sortedModifiedTags.length < 2 ? 12 : 6}
+                    key={index}
                   >
-                    {firstThreeTags[0].tag}
-                  </div>
-                ) : (
-                  ''
-                )}
-                {firstThreeTags.length > 1 ? (
-                  <div
-                    style={{
-                      backgroundColor: firstThreeTags[1].colour,
-                      color: firstThreeTags[1].colour === null ? 'black' : 'white'
-                    }}
-                    className={classes.tagPopover}
-                  >
-                    {firstThreeTags[1].tag}
-                  </div>
-                ) : (
-                  ''
-                )}
-                {firstThreeTags.length > 2 ? (
-                  <div
-                    style={{
-                      backgroundColor: firstThreeTags[2].colour,
-                      color: firstThreeTags[2].colour === null ? 'black' : 'white'
-                    }}
-                    className={classes.tagPopover}
-                  >
-                    {firstThreeTags[2].tag}
-                  </div>
-                ) : (
-                  ''
-                )}
-              </>
-            }
+                    <div>{item.tag}</div>
+                  </Grid>
+                ))}
+              </Grid>
+            )}
           </Typography>
           <Popover
             id="mouse-over-popover"
@@ -444,11 +445,11 @@ const MoleculeView = memo(
             anchorEl={tagPopoverOpen}
             anchorOrigin={{
               vertical: 'top',
-              horizontal: 'left'
+              horizontal: 'right'
             }}
             transformOrigin={{
               vertical: 'top',
-              horizontal: 'left'
+              horizontal: 'right'
             }}
             onMouseEnter={handlePopoverOpen}
             onClose={handlePopoverClose}

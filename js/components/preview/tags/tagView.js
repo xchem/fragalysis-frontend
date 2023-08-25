@@ -104,8 +104,8 @@ const TagView = memo(
     const tagDetailView = useSelector(state => state.selectionReducers.tagDetailView);
 
     let tagData = [];
-    if (originalTagData.tag.length > 26) {
-      tagData = { ...originalTagData, tag: originalTagData.tag.slice(0, 26) + '...' };
+    if (originalTagData.tag.length > 23) {
+      tagData = { ...originalTagData, tag: originalTagData.tag.slice(0, 23) + '...' };
     } else {
       tagData = originalTagData;
     }
