@@ -57,24 +57,34 @@ export const ResizableLayout = ({ gridRef, hideProjects, showHistory, onShowHist
   const tagsLength = tags.length;
 
   if (tagDetailView) {
-    totalTagDetailHeight = (preTagList.length / 2) * 15 - 15;
+    if (preTagList.length < 7) {
+      totalTagDetailHeight = preTagList.length * 8 + 40;
+    }
+    if (preTagList.length >= 7 && preTagList.length < 15) {
+      totalTagDetailHeight = preTagList.length * 8 + 20;
+    }
+    if (preTagList.length >= 15 && preTagList.length < 20) {
+      totalTagDetailHeight = preTagList.length * 8 ;
+    }
+    if (preTagList.length >= 20) {
+      totalTagDetailHeight = preTagList.length * 8 - 40;
+    }
   } else {
-    if (preTagList.length < 10) {
-      totalTagDetailHeight = preTagList.length * 15 + 35;
+    if (tagsLength < 7) {
+      totalTagDetailHeight = 115;
     }
-    if (preTagList.length > 10 < 20) {
-      totalTagDetailHeight = preTagList.length * 15 + 55;
+    if (tagsLength >= 7 && tagsLength < 11) {
+      totalTagDetailHeight = 185;
     }
-    if (preTagList.length > 20 < 30) {
-      totalTagDetailHeight = preTagList.length * 15 + 75;
+    if (tagsLength >= 11 && tagsLength < 15) {
+      totalTagDetailHeight = 300;
     }
-  }
-
-  if (tagsLength > 7 && tagsLength < 11) {
-    tagDetails = 110;
-  }
-  if (tagsLength > 11 && tagsLength < 15) {
-    tagDetails = 130;
+    if (tagsLength >= 15 && tagsLength < 21) {
+      totalTagDetailHeight = 350;
+    }
+    if (tagsLength > 20) {
+      totalTagDetailHeight = 400;
+    }
   }
 
   useEffect(() => {

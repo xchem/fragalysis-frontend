@@ -60,7 +60,7 @@ const useStyles = makeStyles(theme => ({
   },
   container: {
     display: 'grid',
-    gridTemplateColumns: '220px 65px 80px min-content 20px min-content auto',
+    gridTemplateColumns: '210px 65px 80px min-content 20px min-content auto',
     alignItems: 'center',
     gap: 1
   },
