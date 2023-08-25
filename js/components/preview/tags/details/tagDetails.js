@@ -3,6 +3,7 @@ import { useSelector, useDispatch } from 'react-redux';
 import { Switch, Typography, makeStyles, IconButton, Tooltip, Grid, FormControlLabel } from '@material-ui/core';
 import { Panel } from '../../../common/Surfaces/Panel';
 import TagDetailRow from './tagDetailRow';
+import TagGridRows from './tagGridRows';
 import NewTagDetailRow from './newTagDetailRow';
 import {
   compareTagsAsc,
@@ -25,7 +26,8 @@ import { blue } from '@material-ui/core/colors';
 import {
   setTagFilteringMode,
   setDisplayAllMolecules,
-  setDisplayUntaggedMolecules
+  setDisplayUntaggedMolecules,
+  setTagDetailView
 } from '../../../../reducers/selection/actions';
 import { selectAllTags, clearAllTags } from '../redux/dispatchActions';
 import { Button } from '../../../common/Inputs/Button';
@@ -38,7 +40,7 @@ const useStyles = makeStyles(theme => ({
     display: 'flex',
     flexDirection: 'column',
     overflow: 'auto',
-    height: '90%',
+    height: '100%',
     width: '100%',
     marginTop: -theme.spacing(),
     justifyContent: 'space-between',
@@ -63,7 +65,7 @@ const useStyles = makeStyles(theme => ({
     gap: 1
   },
   columnLabel: {
-    display: 'flex',
+    display: 'flex'
   },
   dateLabel: {
     gridColumn: '6'
@@ -75,10 +77,14 @@ const useStyles = makeStyles(theme => ({
   columnTitle: {
     fontSize: theme.typography.pxToRem(13)
   },
+  columnTitleGrid: {
+    fontSize: theme.typography.pxToRem(13),
+    position: "center"
+  },
   tagModeSwitch: {
-    width: 132, // Should be adjusted if a label for the switch changes
+    width: 32, // Should be adjusted if a label for the switch changes
     // justify: 'flex-end',
-    marginRight: '110px',
+    marginRight: '90px',
     marginLeft: '1px'
   },
   headerContainer: {
@@ -108,7 +114,7 @@ const useStyles = makeStyles(theme => ({
     },
     '&:disabled': {
       borderRadius: 0,
-      borderColor: '#FFFFFF',
+      borderColor: '#FFFFFF'
     }
   },
   contColButtonSelected: {
@@ -126,7 +132,7 @@ const useStyles = makeStyles(theme => ({
       backgroundColor: theme.palette.primary.main
       // color: theme.palette.black
     }
-  },
+  }
 }));
 
 /**
@@ -143,6 +149,9 @@ const TagDetails = memo(() => {
   const tagMode = useSelector(state => state.selectionReducers.tagFilteringMode);
   const displayAllMolecules = useSelector(state => state.selectionReducers.displayAllMolecules);
   const displayUntaggedMolecules = useSelector(state => state.selectionReducers.displayUntaggedMolecules);
+  const tagDetailView = useSelector(state => state.selectionReducers.tagDetailView);
+  const resizableLayout = useSelector(state => state.selectionReducers.resizableLayout);
+
 
   const [tagList, setTagList] = useState([]);
   const [selectAll, setSelectAll] = useState(true);
@@ -260,6 +269,10 @@ const TagDetails = memo(() => {
     dispatch(setTagFilteringMode(!tagMode));
   };
 
+  const viewModeSwitched = () => {
+    dispatch(setTagDetailView(!tagDetailView));
+  };
+
   const TagModeSwitch = withStyles({
     // '& .MuiFormControlLabel-root': {
     //   marginLeft: '0px',
@@ -311,43 +324,58 @@ const TagDetails = memo(() => {
         dispatch
       ])}
       headerActions={[
-      <Grid xs={12} container className={classes.headerContainer}>
-        <Grid item xs={8}>
-          <Tooltip
-            title={
-              tagMode
-                ? 'Intersection: Only the compounds labelled with all the active tags will be selected'
-                : 'Union: Any compound labelled with any of the active tags will be selected'
-            }
-          >
-            <FormControlLabel
-              className={classes.tagModeSwitch}
-              classes={{ label: classes.tagLabel }}
-              control={
-                <TagModeSwitch
-                  checked={tagMode}
-                  onChange={filteringModeSwitched}
-                  name="tag-filtering-mode"
-                  size="small"
-                />
+        <Grid xs={12} container className={classes.headerContainer}>
+          <Grid item xs={4}>
+            <Tooltip
+              title={
+                tagMode
+                  ? 'Intersection: Only the compounds labelled with all the active tags will be selected'
+                  : 'Union: Any compound labelled with any of the active tags will be selected'
               }
-              label={tagMode ? 'Intersection' : 'Union'}
-            />
-          </Tooltip>
-        </Grid>
-         <Grid item xs={4}>
-            <SearchField className={classes.search} id="search-tag-details" onChange={setSearchString} />
+            >
+              <FormControlLabel
+                className={classes.tagModeSwitch}
+                classes={{ label: classes.tagLabel }}
+                control={
+                  <TagModeSwitch
+                    checked={tagMode}
+                    onChange={filteringModeSwitched}
+                    name="tag-filtering-mode"
+                    size="small"
+                  />
+                }
+                label={tagMode ? 'Intersection' : 'Union'}
+              />
+            </Tooltip>
           </Grid>
           <Grid item xs={4}>
+            <Tooltip title={tagDetailView ? 'Show Tag detail list with detail info' : 'Show Tag detail grid'}>
+              <FormControlLabel
+                className={classes.tagModeSwitch}
+                classes={{ label: classes.tagLabel }}
+                control={
+                  <TagModeSwitch
+                    checked={tagDetailView}
+                    onChange={viewModeSwitched}
+                    name="tag-filtering-mode"
+                    size="small"
+                  />
+                }
+                label={tagDetailView ? 'Grid' : 'List'}
+              />
+            </Tooltip>
           </Grid>
+          <Grid item xs={4}>
+            <SearchField className={classes.search} id="search-tag-details" onChange={setSearchString} />
+          </Grid>
+          <Grid item xs={4}></Grid>
         </Grid>
-
       ]}
-    >  
-    <div>
-      <Grid style={{paddingLeft: '70px'}} container item rowSpacing={1} spacing={2}>
-        <Grid item>
-           <Button
+    >
+      <div>
+        <Grid style={{ paddingLeft: '70px' }} container item rowSpacing={1} spacing={2}>
+          <Grid item>
+            <Button
               onClick={() => handleShowUntaggedMoleculesButton()}
               disabled={false}
               color="inherit"
@@ -370,10 +398,10 @@ const TagDetails = memo(() => {
               className={displayAllMolecules ? classes.contColButton : classes.contColButtonSelected}
             >
               Show all hits
-           </Button>
-         </Grid>
-         <Grid item>
-           <Button
+            </Button>
+          </Grid>
+          <Grid item>
+            <Button
               onClick={() => handleSelectionButton()}
               disabled={false}
               color="inherit"
@@ -382,107 +410,152 @@ const TagDetails = memo(() => {
               data-id="tagSelectionButton"
               className={selectAll ? classes.contColButton : classes.contColButtonSelected}
             >
-               Select all tags
+              Select all tags
             </Button>
-         </Grid>
-      </Grid>
-    </div>
+          </Grid>
+        </Grid>
+      </div>
       <div ref={elementRef} className={classes.containerExpanded}>
-        <div className={classes.container} id="tagName">
-          {/* tag name */}
-          <div className={classes.columnLabel}>
-            <Typography className={classes.columnTitle} variant="subtitle1">
-              Tag name
-            </Typography>
-            <IconButton size="small" onClick={() => handleHeaderSort('name')}>
-              <Tooltip title="Sort" className={classes.sortButton}>
-                {[1, 2].includes(sortSwitch - offsetName) ? (
-                  sortSwitch % offsetName < 2 ? (
-                    <KeyboardArrowDown />
+        {tagDetailView ? (
+          <>
+          <div className={classes.container} id="tagName">
+            {/* START grid view */}
+            {/* tag name */}
+            <div className={classes.columnLabel}>
+              <Typography className={classes.columnTitleGrid} variant="tagName">
+                Tag name
+              </Typography>
+              <IconButton size="small" onClick={() => handleHeaderSort('name')}>
+                <Tooltip title="Sort" className={classes.sortButton}>
+                  {[1, 2].includes(sortSwitch - offsetName) ? (
+                    sortSwitch % offsetName < 2 ? (
+                      <KeyboardArrowDown />
+                    ) : (
+                      <KeyboardArrowUp />
+                    )
                   ) : (
-                    <KeyboardArrowUp />
-                  )
-                ) : (
-                  <UnfoldMore />
-                )}
-              </Tooltip>
-            </IconButton>
-          </div>
-
-          {/* category */}
-          <div className={classNames(classes.columnLabel, classes.categoryLabel)}>
-            <Typography className={classes.columnTitle} variant="subtitle1">
-              Category
-            </Typography>
-            <IconButton size="small" onClick={() => handleHeaderSort('category')}>
-              <Tooltip title="Sort" className={classes.sortButton}>
-                {[1, 2].includes(sortSwitch - offsetCategory) ? (
-                  sortSwitch % offsetCategory < 2 ? (
-                    <KeyboardArrowDown />
+                    <UnfoldMore />
+                  )}
+                </Tooltip>
+              </IconButton>
+            </div>
+            </div>
+            
+            <Grid container rowSpacing={0} spacing={0} style={{marginBottom: 'auto' }}>
+              {filteredTagList &&
+                filteredTagList.map((tag, idx) => {
+                  return (
+                    <Grid item key={idx}>
+                      <TagGridRows
+                        tag={tag}
+                        moleculesToEditIds={moleculesToEditIds}
+                        moleculesToEdit={moleculesToEdit}
+                        key={tag.id}
+                      />
+                    </Grid>
+                  );
+                })}
+            </Grid>
+         </>
+        ) : (
+          <div className={classes.container} id="tagName">
+            {/* tag name */}
+            <div className={classes.columnLabel}>
+              <Typography className={classes.columnTitle} variant="subtitle1">
+                Tag name
+              </Typography>
+              <IconButton size="small" onClick={() => handleHeaderSort('name')}>
+                <Tooltip title="Sort" className={classes.sortButton}>
+                  {[1, 2].includes(sortSwitch - offsetName) ? (
+                    sortSwitch % offsetName < 2 ? (
+                      <KeyboardArrowDown />
+                    ) : (
+                      <KeyboardArrowUp />
+                    )
                   ) : (
-                    <KeyboardArrowUp />
-                  )
-                ) : (
-                  <UnfoldMore />
-                )}
-              </Tooltip>
-            </IconButton>
-          </div>
+                    <UnfoldMore />
+                  )}
+                </Tooltip>
+              </IconButton>
+            </div>
 
-          {/* creator */}
-          <div className={classNames(classes.columnLabel, classes.creatorLabel)}>
-            <Typography className={classes.columnTitle} variant="subtitle1">
-              Creator
-            </Typography>
-            <IconButton size="small" onClick={() => handleHeaderSort('creator')}>
-              <Tooltip title="Sort" className={classes.sortButton}>
-                {[1, 2].includes(sortSwitch - offsetCreator) ? (
-                  sortSwitch % offsetCreator < 2 ? (
-                    <KeyboardArrowDown />
+            {/* category */}
+            <div className={classNames(classes.columnLabel, classes.categoryLabel)}>
+              <Typography className={classes.columnTitle} variant="subtitle1">
+                Category
+              </Typography>
+              <IconButton size="small" onClick={() => handleHeaderSort('category')}>
+                <Tooltip title="Sort" className={classes.sortButton}>
+                  {[1, 2].includes(sortSwitch - offsetCategory) ? (
+                    sortSwitch % offsetCategory < 2 ? (
+                      <KeyboardArrowDown />
+                    ) : (
+                      <KeyboardArrowUp />
+                    )
                   ) : (
-                    <KeyboardArrowUp />
-                  )
-                ) : (
-                  <UnfoldMore />
-                )}
-              </Tooltip>
-            </IconButton>
-          </div>
+                    <UnfoldMore />
+                  )}
+                </Tooltip>
+              </IconButton>
+            </div>
 
-          {/* date */}
-          <div className={classNames(classes.columnLabel, classes.dateLabel)}>
-            <Typography className={classes.columnTitle} variant="subtitle1">
-              Date
-            </Typography>
-            <IconButton size="small" onClick={() => handleHeaderSort('date')}>
-              <Tooltip title="Sort" className={classes.sortButton}>
-                {[1, 2].includes(sortSwitch - offsetDate) ? (
-                  sortSwitch % offsetDate < 2 ? (
-                    <KeyboardArrowDown />
+            {/* creator */}
+            <div className={classNames(classes.columnLabel, classes.creatorLabel)}>
+              <Typography className={classes.columnTitle} variant="subtitle1">
+                Creator
+              </Typography>
+              <IconButton size="small" onClick={() => handleHeaderSort('creator')}>
+                <Tooltip title="Sort" className={classes.sortButton}>
+                  {[1, 2].includes(sortSwitch - offsetCreator) ? (
+                    sortSwitch % offsetCreator < 2 ? (
+                      <KeyboardArrowDown />
+                    ) : (
+                      <KeyboardArrowUp />
+                    )
                   ) : (
-                    <KeyboardArrowUp />
-                  )
-                ) : (
-                  <UnfoldMore />
-                )}
-              </Tooltip>
-            </IconButton>
-          </div>
-          <div />
+                    <UnfoldMore />
+                  )}
+                </Tooltip>
+              </IconButton>
+            </div>
 
-          {filteredTagList &&
-            filteredTagList.map((tag, idx) => {
-              return (
-                <TagDetailRow
-                  tag={tag}
-                  moleculesToEditIds={moleculesToEditIds}
-                  moleculesToEdit={moleculesToEdit}
-                  key={tag.id}
-                />
-              );
-            })}
+            {/* date */}
+            <div className={classNames(classes.columnLabel, classes.dateLabel)}>
+              <Typography className={classes.columnTitle} variant="subtitle1">
+                Date
+              </Typography>
+              <IconButton size="small" onClick={() => handleHeaderSort('date')}>
+                <Tooltip title="Sort" className={classes.sortButton}>
+                  {[1, 2].includes(sortSwitch - offsetDate) ? (
+                    sortSwitch % offsetDate < 2 ? (
+                      <KeyboardArrowDown />
+                    ) : (
+                      <KeyboardArrowUp />
+                    )
+                  ) : (
+                    <UnfoldMore />
+                  )}
+                </Tooltip>
+              </IconButton>
+            </div>
+            <div />
+
+            {filteredTagList &&
+              filteredTagList.map((tag, idx) => {
+                return (
+                  <TagDetailRow
+                    tag={tag}
+                    moleculesToEditIds={moleculesToEditIds}
+                    moleculesToEdit={moleculesToEdit}
+                    key={tag.id}
+                  />
+                );
+              })}
+          </div>
+        )}
+        <div style={{paddingBottom: resizableLayout === true ? '17px' : '0px'}}>
+        <NewTagDetailRow moleculesToEditIds={moleculesToEditIds} moleculesToEdit={moleculesToEdit}/>
         </div>
-        <NewTagDetailRow moleculesToEditIds={moleculesToEditIds} moleculesToEdit={moleculesToEdit} />
       </div>
     </Panel>
   );

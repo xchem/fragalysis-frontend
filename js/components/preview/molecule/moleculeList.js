@@ -72,7 +72,7 @@ import { extractTargetFromURLParam } from '../utils';
 const useStyles = makeStyles(theme => ({
   container: {
     minHeight: '100px',
-    height: '99%',
+    height: '100%',
     width: 'inherit',
     color: theme.palette.black
   },
@@ -93,7 +93,7 @@ const useStyles = makeStyles(theme => ({
   },
   gridItemList: {
     overflow: 'auto',
-    height: `calc(100% - ${theme.spacing(6)}px - ${theme.spacing(2)}px)`
+    height: `calc(99% - ${theme.spacing(6)}px - ${theme.spacing(2)}px)`
   },
   centered: {
     display: 'flex',
