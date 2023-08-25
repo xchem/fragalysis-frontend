@@ -1,11 +1,11 @@
 import React, { forwardRef, memo, useState } from 'react';
-import { Grid, Popper, IconButton, Tooltip, makeStyles } from '@material-ui/core';
+import { Grid, Popper, IconButton, Tooltip, makeStyles, FormControlLabel, Switch } from '@material-ui/core';
 import { Panel } from '../../../common';
 import { Close } from '@material-ui/icons';
 import { useDispatch, useSelector } from 'react-redux';
 import { updateMoleculeInMolLists, updateMoleculeTag } from '../../../../reducers/api/actions';
 import { getMoleculeForId } from '../redux/dispatchActions';
-import { setMoleculeForTagEdit, setIsTagGlobalEdit } from '../../../../reducers/selection/actions';
+import { setMoleculeForTagEdit, setIsTagGlobalEdit, setAssignTagView } from '../../../../reducers/selection/actions';
 import { updateExistingTag } from '../api/tagsApi';
 import { DJANGO_CONTEXT } from '../../../../utils/djangoContext';
 import {
@@ -16,16 +16,20 @@ import {
 } from '../utils/tagUtils';
 import TagCategory from '../tagCategory';
 import { TaggingInProgressModal } from './taggingInProgressModal';
+import { withStyles } from '@material-ui/core/styles';
+import { blue } from '@material-ui/core/colors';
 
 const useStyles = makeStyles(theme => ({
   paper: {
-    height: 343,
-    overflowY: 'hidden'
+    maxHeight: 343,
+    height: 'auto',
+    overflowY: 'auto'
   },
   content: {
     overflowY: 'auto',
     overflowX: 'hidden',
-    height: 300
+    height: 'auto',
+    maxHeight: 300
   },
   contColButton: {
     minWidth: 'fit-content',
@@ -95,6 +99,11 @@ const useStyles = makeStyles(theme => ({
     '& .MuiInput-underline:after': {
       borderBottomColor: 'inherit'
     }
+  },
+  tagModeSwitch: {
+    width: 32, // Should be adjusted if a label for the switch changes
+    marginRight: '100px',
+    marginLeft: '1px'
   }
 }));
 
@@ -116,8 +125,9 @@ export const TagEditor = memo(
       moleculesToEditIds.push(molId);
     }
     const moleculesToEdit = moleculesToEditIds.map(id => dispatch(getMoleculeForId(id)));
-
     moleculeTags = moleculeTags.sort(compareTagsAsc);
+
+    const assignTagView = useSelector(state => state.selectionReducers.assignTagView);
 
     const handleCloseModal = () => {
       if (open) {
@@ -201,6 +211,24 @@ export const TagEditor = memo(
       setTaggingInProgress(false);
     };
 
+    const viewModeSwitched = () => {
+      dispatch(setAssignTagView(!assignTagView));
+    };
+
+    const TagModeSwitch = withStyles({
+      switchBase: {
+        color: blue[300],
+        '&$checked': {
+          color: blue[500]
+        },
+        '&$checked + $track': {
+          backgroundColor: blue[500]
+        }
+      },
+      checked: {},
+      track: {}
+    })(Switch);
+
     return (
       <Popper id={id} open={open} anchorEl={anchorEl} placement="left-start" ref={ref}>
         <Panel
@@ -208,7 +236,26 @@ export const TagEditor = memo(
           secondaryBackground
           title="Assign tags"
           className={classes.paper}
+          style={{ width:  assignTagView === true ?'350px' : '650px' }}
           headerActions={[
+            <Tooltip
+              title={assignTagView ? 'Show Assign tags list' : 'Show Assign tags grid'}
+              style={{ paddingRight: assignTagView === true ? '150px' : '450px' }}
+            >
+              <FormControlLabel
+                className={classes.tagModeSwitch}
+                classes={{ label: classes.tagLabel }}
+                control={
+                  <TagModeSwitch
+                    checked={assignTagView}
+                    onChange={viewModeSwitched}
+                    name="tag-filtering-mode"
+                    size="small"
+                  />
+                }
+                label={assignTagView ? 'Grid' : 'List'}
+              />
+            </Tooltip>,
             <Tooltip title="Close editor">
               <IconButton
                 color="inherit"

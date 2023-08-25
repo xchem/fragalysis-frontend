@@ -299,7 +299,7 @@ export const prepareFakeFilterData = () => (dispatch, getState) => {
 };
 
 export const isCompoundFromVectorSelector = data => {
-  if (data['index'] !== undefined) {
+  if (data && data['index'] !== undefined) {
     return true;
   } else {
     return false;

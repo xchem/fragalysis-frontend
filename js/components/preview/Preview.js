@@ -57,7 +57,7 @@ const useStyles = makeStyles(theme => ({
     gap: theme.spacing(),
     flexWrap: 'wrap',
     height: '100%',
-    overflow: 'auto'
+    overflow: 'hidden'
   },
   controls: {
     width: '100%'

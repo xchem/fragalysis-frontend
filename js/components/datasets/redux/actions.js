@@ -537,3 +537,13 @@ export const setEditedColorGroup = colorGroup => ({
   type: constants.SET_EDITED_COLOR_GROUP,
   colorGroup: colorGroup
 });
+
+export const setSelectedCompoundsList = compoundsList => ({
+  type: constants.SET_SELECTED_COMPOUNDS_LIST,
+  compoundsList: compoundsList
+});
+
+export const setAskLockSelectedCompoundsQuestion = askLockCompoundsQuestion => ({
+  type: constants.SET_ASK_LOCK_SELECTED_COMPOUNDS_QUESTION,
+  askLockCompoundsQuestion: askLockCompoundsQuestion
+});

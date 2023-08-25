@@ -36,11 +36,19 @@ import classNames from 'classnames';
 
 const useStyles = makeStyles(theme => ({
   textField: {
-    // marginLeft: theme.spacing(1),
+    marginLeft: theme.spacing(0.5),
     // marginRight: theme.spacing(1),
-    width: 70,
+    width: 90,
+    borderRadius: 10,
+
     '& .MuiFormLabel-root': {
       paddingLeft: theme.spacing(1)
+    },
+    '& .MuiInput-underline:before': {
+      borderBottom: '0px solid'
+    },
+    '& .MuiInput-underline:after': {
+      borderBottom: '0px solid'
     }
   },
   selectedInput: {
@@ -86,7 +94,7 @@ const useStyles = makeStyles(theme => ({
   },
   editClassNameIconSelected: {
     padding: '0px',
-    color: theme.palette.primary.main
+    color: 'red'
   }
 }));
 
@@ -113,6 +121,14 @@ export const CompoundList = memo(() => {
     [compoundsColors.apricot.key]: apricotInput
   };
 
+  const inputRefs = {
+    [compoundsColors.blue.key]: useRef(),
+    [compoundsColors.red.key]: useRef(),
+    [compoundsColors.green.key]: useRef(),
+    [compoundsColors.purple.key]: useRef(),
+    [compoundsColors.apricot.key]: useRef()
+  };
+
   const currentCompoundClass = useSelector(state => state.previewReducers.compounds.currentCompoundClass);
   const canLoadMoreCompounds = useSelector(state => getCanLoadMoreCompounds(state));
   const currentVector = useSelector(state => state.selectionReducers.currentVector);
@@ -131,35 +147,42 @@ export const CompoundList = memo(() => {
           <Grid container direction="row" justify="space-between" alignItems="center">
             {Object.keys(compoundsColors).map(item => (
               <>
-                <Grid item key={`${item}-chckbox`}>
-                  <Checkbox
-                    className={classes.classCheckbox}
-                    key={`CHCK_${item}`}
-                    value={`${item}`}
-                    onChange={e => dispatch(onChangeCompoundClassCheckbox(e))}
-                    checked={currentCompoundClass === item}
-                  ></Checkbox>
-                </Grid>
                 <Grid item key={item}>
                   <TextField
                     InputProps={{
                       readOnly: editedColorGroup !== item,
-                      startAdornment: (
-                        <InputAdornment position="start">
+                      endAdornment: (
+                        <InputAdornment position="end">
                           <IconButton
                             className={
                               editedColorGroup !== item ? classes.editClassNameIcon : classes.editClassNameIconSelected
                             }
                             color={'inherit'}
                             value={`${item}`}
-                            onClick={e => dispatch(onStartEditColorClassName(e))}
+                            onClick={e => {
+                              dispatch(onStartEditColorClassName(e));
+                              inputRefs[item].current.focus();
+                              inputRefs[item].current.select();
+                            }}
                           >
                             <Edit />
                           </IconButton>
                         </InputAdornment>
+                      ),
+                      startAdornment: (
+                        <InputAdornment position="start">
+                          <Checkbox
+                            className={classes.classCheckbox}
+                            key={`CHCK_${item}`}
+                            value={`${item}`}
+                            onChange={e => dispatch(onChangeCompoundClassCheckbox(e))}
+                            checked={currentCompoundClass === item}
+                          ></Checkbox>
+                        </InputAdornment>
                       )
                     }}
                     autoComplete="off"
+                    inputRef={inputRefs[item]}
                     id={`${item}`}
                     key={`CLASS_${item}`}
                     variant="standard"
@@ -168,7 +191,6 @@ export const CompoundList = memo(() => {
                       classes[item],
                       currentCompoundClass === item && classes.selectedInput
                     )}
-                    label={compoundsColors[item].text}
                     onChange={e => dispatch(onChangeCompoundClassValue(e))}
                     onKeyDown={e => dispatch(onKeyDownCompoundClass(e))}
                     onClick={e => dispatch(onClickCompoundClass(e))}
