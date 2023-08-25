@@ -117,6 +117,7 @@ const TagView = memo(
       ? {
           backgroundColor: bgColor,
           color: color,
+          border: `1px solid ${bgColor}` ,
           width: tagDetailView === true ? '160px' : '200px'
         }
       : selected

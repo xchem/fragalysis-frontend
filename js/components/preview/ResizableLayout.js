@@ -34,10 +34,12 @@ const useStyles = makeStyles(theme => ({
 
 const sideWidth = 500;
 let panelHeight = 0;
-let totalTagDetailHeight = 200;
 const resizerSize = 20;
 let screenHeight = 0;
-let tagDetails = 100;
+const tagDetailGridLayoutHeight = 135;
+const tagDetailListLayoutHeight = 130;
+const gridTagHeight = 16;
+const listTagHeight = 19;
 
 export const ResizableLayout = ({ gridRef, hideProjects, showHistory, onShowHistoryChange, nglPortal }) => {
   const classes = useStyles();
@@ -54,38 +56,9 @@ export const ResizableLayout = ({ gridRef, hideProjects, showHistory, onShowHist
   const tagDetailView = useSelector(state => state.selectionReducers.tagDetailView);
 
   const tags = useSelector(state => state.apiReducers.tagList);
-  const tagsLength = tags.length;
 
-  if (tagDetailView) {
-    if (preTagList.length < 7) {
-      totalTagDetailHeight = preTagList.length * 8 + 40;
-    }
-    if (preTagList.length >= 7 && preTagList.length < 15) {
-      totalTagDetailHeight = preTagList.length * 8 + 20;
-    }
-    if (preTagList.length >= 15 && preTagList.length < 20) {
-      totalTagDetailHeight = preTagList.length * 8 ;
-    }
-    if (preTagList.length >= 20) {
-      totalTagDetailHeight = preTagList.length * 8 - 40;
-    }
-  } else {
-    if (tagsLength < 7) {
-      totalTagDetailHeight = 115;
-    }
-    if (tagsLength >= 7 && tagsLength < 11) {
-      totalTagDetailHeight = 185;
-    }
-    if (tagsLength >= 11 && tagsLength < 15) {
-      totalTagDetailHeight = 300;
-    }
-    if (tagsLength >= 15 && tagsLength < 21) {
-      totalTagDetailHeight = 350;
-    }
-    if (tagsLength > 20) {
-      totalTagDetailHeight = 400;
-    }
-  }
+  const tagDetailListHeight = preTagList.length * listTagHeight + tagDetailListLayoutHeight;
+  const tagDetailGridHeight = Math.ceil(preTagList.length / 3) * gridTagHeight + tagDetailGridLayoutHeight;
 
   useEffect(() => {
     if (sidesOpen.LHS) {
@@ -219,7 +192,9 @@ export const ResizableLayout = ({ gridRef, hideProjects, showHistory, onShowHist
               style={{
                 height:
                   tagDetailsHeight === undefined
-                    ? screenHeight - totalTagDetailHeight - tagDetails
+                    ? tagDetailView === true
+                      ? screenHeight - tagDetailGridHeight + 'px'
+                      : screenHeight - tagDetailListHeight + 'px'
                     : screenHeight - tagDetailsHeight - 20
               }}
             >
