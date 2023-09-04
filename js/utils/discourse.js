@@ -24,6 +24,10 @@ export const isDiscourseAvailable = () => {
   return DJANGO_CONTEXT && DJANGO_CONTEXT['authenticated'] && DJANGO_CONTEXT['discourse_available'];
 };
 
+export const isDiscourseAvailableNotSignedIn = () => {
+  return DJANGO_CONTEXT && DJANGO_CONTEXT['discourse_available'];
+};
+
 export const isDiscourseUserAvailable = () => {
   return DJANGO_CONTEXT && DJANGO_CONTEXT['user_present_on_discourse'];
 };
@@ -48,7 +52,19 @@ export const createProjectPost = (projectName, targetName, msg, tags) => {
     post_content: msg,
     post_tags: JSON.stringify(tags)
   });
-  console.log(JSON.stringify(jsonData));
+  return api({
+    url: `${base_url}/api/discourse_post/`,
+    method: METHOD.POST,
+    data: jsonData
+  });
+};
+
+export const createTagPost = (tag, targetName, msg) => {
+  let jsonData = getDiscourseRequestObject({
+    category_name: targetName,
+    post_title: tag.tag,
+    post_content: msg
+  });
   return api({
     url: `${base_url}/api/discourse_post/`,
     method: METHOD.POST,
@@ -60,7 +76,6 @@ export const getExistingPost = projectName => {
   let jsonData = getDiscourseRequestObject({
     post_title: projectName
   });
-  console.log(JSON.stringify(jsonData));
   return api({
     url: `${base_url}/api/discourse_post/`,
     method: METHOD.POST,
@@ -73,4 +88,12 @@ export const getProjectPosts = projectName => {
     url: `${base_url}/api/discourse_post/?post_title=${encodeURIComponent(projectName)}`,
     method: METHOD.GET
   });
+};
+
+export const openDiscourseLink = url => {
+  if (url.includes('http')) {
+    window.open(`${url}`, '_blank');
+  } else {
+    window.open(`${DJANGO_CONTEXT.discourse_host}${url}`, '_blank');
+  }
 };

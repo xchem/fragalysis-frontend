@@ -17,7 +17,7 @@ import {
   Box,
   ButtonGroup,
   LinearProgress,
-  Tooltip
+  Tooltip  
 } from '@material-ui/core';
 import {
   PowerSettingsNew,
@@ -30,7 +30,13 @@ import {
   Description,
   Timeline,
   QuestionAnswer,
-  Chat
+  Chat,
+  Lock,
+  LockOpen,
+  Restore,
+  Layers,
+  CreateNewFolder,
+  Save
 } from '@material-ui/icons';
 import { HeaderContext } from './headerContext';
 import { Button } from '../common';
@@ -45,11 +51,20 @@ import { FundersModal } from '../funders/fundersModal';
 import { TrackingModal } from '../tracking/trackingModal';
 // eslint-disable-next-line import/extensions
 import { version } from '../../../package.json';
-import { isDiscourseAvailable } from '../../utils/discourse';
+import { isDiscourseAvailable, openDiscourseLink } from '../../utils/discourse';
 import { useSelector, useDispatch } from 'react-redux';
 import { generateDiscourseTargetURL, getExistingPost } from '../../utils/discourse';
 import { DiscourseErrorModal } from './discourseErrorModal';
 import { setOpenDiscourseErrorModal } from '../../reducers/api/actions';
+import { lockLayout, resetCurrentLayout } from '../../reducers/layout/actions';
+import { ChangeLayoutButton } from './changeLayoutButton';
+import { setIsActionsRestoring, setProjectActionListLoaded } from '../../reducers/tracking/actions';
+import { layouts } from '../../reducers/layout/layouts';
+import { setOpenSnapshotSavingDialog } from '../snapshot/redux/actions';
+import { activateSnapshotDialog } from '../snapshot/redux/dispatchActions';
+import { setAddButton, setProjectModalIsLoading } from '../projects/redux/actions';
+import { getVersions } from '../../utils/version';
+import { AddProjectDetail } from '../projects/addProjectDetail';
 
 const useStyles = makeStyles(theme => ({
   padding: {
@@ -91,6 +106,9 @@ const useStyles = makeStyles(theme => ({
   inheritHeight: {
     height: 'inherit',
     paddingBottom: theme.spacing(1)
+  },
+  resetLayoutButton: {
+    margin: `${theme.spacing()}px 0`
   }
 }));
 
@@ -100,20 +118,39 @@ export default memo(
     let history = useHistory();
     const classes = useStyles();
     const { isLoading, headerNavbarTitle, setHeaderNavbarTitle, headerButtons } = useContext(HeaderContext);
-    // const disableUserInteraction = useDisableUserInteraction();
 
     const [openMenu, setOpenMenu] = useState(false);
     const [openFunders, setOpenFunders] = useState(false);
     const [openTrackingModal, setOpenTrackingModal] = useState(false);
+    const [versions, setVersions] = useState({});
+
+    const layoutEnabled = useSelector(state => state.layoutReducers.layoutEnabled);
+    const layoutLocked = useSelector(state => state.layoutReducers.layoutLocked);
 
     const currentProject = useSelector(state => state.projectReducers.currentProject);
     const targetName = useSelector(state => state.apiReducers.target_on_name);
 
+    const openNewProjectModal = useSelector(state => state.projectReducers.isProjectModalOpen);
+    const isProjectModalLoading = useSelector(state => state.projectReducers.isProjectModalLoading);
+    
+    const openSaveSnapshotModal = useSelector(state => state.snapshotReducers.openSavingDialog);
+
     const openDiscourseError = useSelector(state => state.apiReducers.open_discourse_error_modal);
+
+    const selectedLayoutName = useSelector(state => state.layoutReducers.selectedLayoutName);
 
     const discourseAvailable = isDiscourseAvailable();
     const targetDiscourseVisible = discourseAvailable && targetName;
     const projectDiscourseVisible = discourseAvailable && currentProject && currentProject.title;
+
+    useEffect(() => {
+      getVersions()
+        .then(response => {
+          console.log(response);
+          setVersions(response.data);
+        })
+        .catch(err => console.log(err));
+    }, []);
 
     const openXchem = () => {
       // window.location.href = 'https://www.diamond.ac.uk/Instruments/Mx/Fragment-Screening.html';
@@ -147,6 +184,7 @@ export default memo(
     let authListItem;
 
     let username = null;
+    let userId = null;
 
     if (DJANGO_CONTEXT['username'] === 'NOT_LOGGED_IN') {
       authListItem = (
@@ -178,6 +216,7 @@ export default memo(
       );
 
       username = DJANGO_CONTEXT['username'];
+      userId = DJANGO_CONTEXT['pk'];
     }
 
     const prodSite = (
@@ -226,12 +265,62 @@ export default memo(
                   Menu
                 </Button>
                 <Button>
-                  <Typography variant="h5" color="textPrimary" onClick={() => history.push(URLS.landing)}>
-                    Fragalysis: <b>{headerNavbarTitle}</b>
+                  <Typography
+                    variant="h5"
+                    color="textPrimary"
+                    onClick={() => {
+                      dispatch(setIsActionsRestoring(false, false));
+                      dispatch(setProjectActionListLoaded(false));
+                      // dispatch(setCurrentProject(null, null, null, null, null, [], null));
+                      // dispatch(setDialogCurrentStep(0));
+                      // dispatch(setForceCreateProject(false));
+                      history.push(URLS.landing);
+                      window.location.reload();
+                    }}
+                  >
+                    Fragalysis: <b id={"headerNavbarTitle"}>{headerNavbarTitle}</b>
                   </Typography>
                 </Button>
-                {headerButtons && headerButtons.map(item => item)}
-              </ButtonGroup>
+                {username !== null ? targetName !== undefined ?
+                <>
+                 {
+                 currentProject.authorID === null || currentProject.projectID === null || currentProject.authorID ===  userId ?
+                <Button
+                 onClick={() => {isProjectModalLoading === false ? (dispatch(setProjectModalIsLoading(true)), dispatch(setAddButton(false))) : dispatch(setProjectModalIsLoading(false)),
+                  openSaveSnapshotModal === true ? dispatch(setOpenSnapshotSavingDialog(false)) : ''}} 
+                 key="newProject"
+                 color="primary"
+                 startIcon={<CreateNewFolder />}
+                >
+                   New project
+                </Button> 
+                :
+                <Button
+                 onClick={() => {openNewProjectModal === false ? (dispatch(setProjectModalIsLoading(true)), dispatch(setAddButton(false))) : dispatch(setProjectModalIsLoading(false)),
+                  openSaveSnapshotModal === true ? dispatch(setOpenSnapshotSavingDialog(false)) : ''}} 
+                 key="newProject"
+                 color="primary"
+                 startIcon={<CreateNewFolder />}
+                >
+                   New project from snapshot
+                </Button>  }
+                {currentProject.projectID !== null ?
+                <Button
+                   key="saveSnapshot"
+                   color="primary"
+                   onClick={() => {dispatch(activateSnapshotDialog(DJANGO_CONTEXT['pk']),
+                   openSaveSnapshotModal === false ? dispatch(setOpenSnapshotSavingDialog(true)) : dispatch(setOpenSnapshotSavingDialog(false)),
+                   openSaveSnapshotModal === true ? dispatch(setOpenSnapshotSavingDialog(false)) : '',
+                   isProjectModalLoading === true ? dispatch(setProjectModalIsLoading(false)) : ''), dispatch(setAddButton(false))}}
+                   startIcon={<Save />}
+                >
+                  Save
+                </Button> : ''}
+                </>
+                : '' : '' }
+                {headerButtons && headerButtons.map(item => item)} 
+                <AddProjectDetail />
+             </ButtonGroup>
             </Grid>
             <Grid item>
               {discourseAvailable && (
@@ -285,6 +374,43 @@ export default memo(
             </Grid>
             <Grid item>
               <Grid container direction="row" justify="flex-start" alignItems="center" spacing={1}>
+                {layoutEnabled && (
+                  <>
+                    {!layouts[selectedLayoutName].static && (
+                      <>
+                        <Grid item>
+                          <Tooltip title={layoutLocked ? 'Unlock layout' : 'Lock layout'}>
+                            <Button
+                              onClick={() => {
+                                dispatch(lockLayout(!layoutLocked));
+                              }}
+                            >
+                              {layoutLocked ? <Lock /> : <LockOpen />}
+                            </Button>
+                          </Tooltip>
+                        </Grid>
+
+                        <Grid item>
+                          <Tooltip title="Reset layout">
+                            <Button
+                              className={classes.resetLayoutButton}
+                              onClick={() => {
+                                dispatch(resetCurrentLayout());
+                              }}
+                            >
+                              <Restore />
+                            </Button>
+                          </Tooltip>
+                        </Grid>
+                      </>
+                    )}
+                    <Grid item>
+                      <ChangeLayoutButton className={classes.resetLayoutButton}>
+                        <Layers />
+                      </ChangeLayoutButton>
+                    </Grid>
+                  </>
+                )}
                 <Grid item>
                   <Button
                     startIcon={<Timeline />}
@@ -418,7 +544,15 @@ export default memo(
               {authListItem}
             </Grid>
             <Grid item>
-              <Typography variant="body2">Fragalysis version {version}</Typography>
+              {versions &&
+                versions.hasOwnProperty('version') &&
+                Object.entries(versions['version']).map(([sw, version]) => {
+                  return (
+                    <Typography variant="body2">
+                      {sw}: {version}
+                    </Typography>
+                  );
+                })}
             </Grid>
           </Grid>
         </Drawer>

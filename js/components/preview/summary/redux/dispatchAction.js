@@ -113,7 +113,7 @@ const convert_data_to_list = input_list => (dispatch, getState) => {
   outArray.push(headerArray);
   const reg_ex = new RegExp('Xe', 'g');
 
-  // TODO compound classes need REDO?
+  // TODO: compound classes need REDO?
   input_list.forEach(item => {
     let newArray = [];
     newArray.push(item.smiles);

@@ -1,0 +1,1 @@
+export const PROJECTS_JOBS_PANEL_HEIGHT = '250px';

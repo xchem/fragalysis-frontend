@@ -2,7 +2,12 @@ import { constants } from './constants';
 
 export const INITIAL_STATE = {
   sortDialogOpen: false,
-  imageCache: {}
+  imageCache: {},
+  proteinDataCache: {},
+
+  // disables NGL control buttons for molecules
+  disableNglControlButtons: {}, // moleculeID.nglButtonDisableState,
+  searchStringLHS: ''
 };
 
 export const molecule = (state = INITIAL_STATE, action = {}) => {
@@ -16,9 +21,59 @@ export const molecule = (state = INITIAL_STATE, action = {}) => {
       return Object.assign({}, state, { ...action.payload });
 
     case constants.ADD_IMAGE_TO_CACHE:
-      return {...state, imageCache: {
-        ...state.imageCache, [action.payload.molId]: action.payload.image
-      }};
+      return {
+        ...state,
+        imageCache: {
+          ...state.imageCache,
+          [action.payload.molId]: action.payload.image
+        }
+      };
+
+    case constants.ADD_PROTEIN_DATA_TO_CACHE:
+      return {
+        ...state,
+        proteinDataCache: {
+          ...state.proteinDataCache,
+          [action.payload.molId]: action.payload.proteinData
+        }
+      };
+
+    case constants.DISABLE_NGL_CONTROL_BUTTON: {
+      const { moleculeId, type } = action.payload;
+      const disableNglControlButtons = { ...state.disableNglControlButtons };
+
+      const moleculeNglControlButtons = { ...(disableNglControlButtons[moleculeId] || {}) };
+
+      moleculeNglControlButtons[type] = true;
+      disableNglControlButtons[moleculeId] = moleculeNglControlButtons;
+
+      return {
+        ...state,
+        disableNglControlButtons
+      };
+    }
+
+    case constants.ENABLE_NGL_CONTROL_BUTTON: {
+      const { moleculeId, type } = action.payload;
+      const disableNglControlButtons = { ...state.disableNglControlButtons };
+
+      const moleculeNglControlButtons = { ...(disableNglControlButtons[moleculeId] || {}) };
+
+      moleculeNglControlButtons[type] = false;
+      disableNglControlButtons[moleculeId] = moleculeNglControlButtons;
+
+      return {
+        ...state,
+        disableNglControlButtons
+      };
+    }
+
+    case constants.SET_SEARCH_STRING_HIT_NAVIGATOR: {
+      return {
+        ...state,
+        searchStringLHS: action.payload
+      };
+    }
 
     default:
       return state;

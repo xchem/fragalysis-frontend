@@ -1,12 +1,10 @@
 ---
-name: build main
+name: build staging
 
-# Actions that take place after every commit the master/main branch.
-# Here every commit is built.
+# Actions that take place after every commit to the staging branch.
+# Here every commit is built and a new 'latest' stack build is triggered.
 #
 # Actions also run if the repository is tagged.
-#
-# Actions also run on a schedule.
 
 # ---------------
 # Control secrets
@@ -16,9 +14,9 @@ name: build main
 # have the following GitHub 'Repository Secrets' defined
 # (i.e. via 'Settings -> Secrets'): -
 #
-# BE_IMAGE_TAG            optional - default latest
+# BE_IMAGE_TAG            optional - default stable
 # BE_NAMESPACE            optional - default xchem
-# FE_BRANCH               optional - default master
+# FE_BRANCH               optional - default staging
 # FE_NAMESPACE            optional - default xchem
 # STACK_BRANCH            optional - default master
 # STACK_GITHUB_NAMESPACE  optional - default xchem
@@ -39,9 +37,13 @@ name: build main
 on:
   push:
     branches:
-    - '**'
-    tags:
-    - '**'
+    - 'staging'
+    tags-ignore:
+    # Ignore any production-grade tags (i.e. "2022.1" or "1.0.0"),
+    # they're reserved for the production branch. Here
+    # we expect a non-production tag, i.e. "2022.1-rc.1" or "1.0.0-rc.1"
+    - '[0-9]+.[0-9]+'
+    - '[0-9]+.[0-9]+.[0-9]+'
 
 env:
   # The following 'defaults' are used in the 'Initialise workflow variables' step,
@@ -53,7 +55,7 @@ env:
   #   https://gist.github.com/jonico/24ffebee6d2fa2e679389fac8aef50a3
   BE_IMAGE_TAG: latest
   BE_NAMESPACE: xchem
-  FE_BRANCH: master
+  FE_BRANCH: staging
   FE_NAMESPACE: xchem
   STACK_BRANCH: master
   STACK_GITHUB_NAMESPACE: xchem
@@ -64,7 +66,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - name: Inject slug/short variables
-      uses: rlespinasse/github-slug-action@v3.x
+      uses: rlespinasse/github-slug-action@v4
     - name: Initialise workflow variables
       id: vars
       env:
@@ -81,12 +83,6 @@ jobs:
         if [ -n "${{ secrets.BE_NAMESPACE }}" ]; then BE_NAMESPACE="${{ secrets.BE_NAMESPACE }}"; fi
         echo set-output name=BE_NAMESPACE::${BE_NAMESPACE}
         echo ::set-output name=BE_NAMESPACE::${BE_NAMESPACE}
-
-        # FE_BRANCH
-        FE_BRANCH="${{ env.FE_BRANCH }}"
-        if [ -n "${{ secrets.FE_BRANCH }}" ]; then FE_BRANCH="${{ secrets.FE_BRANCH }}"; fi
-        echo set-output name=FE_BRANCH::${FE_BRANCH}
-        echo ::set-output name=FE_BRANCH::${FE_BRANCH}
 
         # FE_NAMESPACE
         FE_NAMESPACE="${{ env.FE_NAMESPACE }}"
@@ -112,21 +108,31 @@ jobs:
         echo set-output name=STACK_NAMESPACE::${STACK_NAMESPACE}
         echo ::set-output name=STACK_NAMESPACE::${STACK_NAMESPACE}
 
+        # What branch/tag are we using?
+        # FE_BRANCH, or tag if used or a secret if no tag?
+        TAG="${{ env.FE_BRANCH }}"
+        if [[ "${{ github.ref }}" =~ ^refs/tags/ ]]; then TAG="${{ env.GITHUB_REF_SLUG }}";
+        elif [ -n "${{ secrets.FE_BRANCH }}" ]; then TAG="${{ secrets.FE_BRANCH }}"; fi
+        echo set-output name=tag::${TAG}
+        echo ::set-output name=tag::${TAG}
+
         # Do we trigger downstream, i.e. is TRIGGER_DOWNSTREAM 'yes'?
         echo set-output name=trigger::${{ env.TRIGGER_DOWNSTREAM == 'yes' }}
         echo ::set-output name=trigger::${{ env.TRIGGER_DOWNSTREAM == 'yes' }}
 
     - name: Checkout
-      uses: actions/checkout@v2
-    - name: Setup node 10
-      uses: actions/setup-node@v2
+      uses: actions/checkout@v3
+    - name: Setup node 12
+      uses: actions/setup-node@v3
       with:
-        node-version: '10'
+        node-version: '12.22.11'
     - name: Install
       run: yarn
     - name: Build
       run: yarn run build
 
+    # Trigger the stack for this build,
+    # identifying the 'stable' backend (or whatever BE_IMAGE_TAG has been set)
     - name: Trigger stack
       if: steps.vars.outputs.trigger == 'true'
       uses: informaticsmatters/trigger-ci-action@v1
@@ -139,7 +145,7 @@ jobs:
           be_namespace=${{ steps.vars.outputs.BE_NAMESPACE }}
           be_image_tag=${{ steps.vars.outputs.BE_IMAGE_TAG }}
           fe_namespace=${{ steps.vars.outputs.FE_NAMESPACE }}
-          fe_branch=${{ steps.vars.outputs.FE_BRANCH }}
+          fe_branch=${{ steps.vars.outputs.tag }}
           stack_namespace=${{ steps.vars.outputs.STACK_NAMESPACE }}
         ci-user: ${{ secrets.STACK_USER }}
         ci-user-token: ${{ secrets.STACK_USER_TOKEN }}

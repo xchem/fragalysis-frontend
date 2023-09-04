@@ -281,15 +281,18 @@ export const ReportForm = memo(({ formType }) => {
 
   return (
     <div>
-      <Button
-        startIcon={getButtonIcon()}
-        variant="text"
-        size="small"
-        className={getButtonStyle()}
-        onClick={handleOpenDialog}
-      >
-        {getTitle()}
-      </Button>
+      {false && (
+        <Button
+          startIcon={getButtonIcon()}
+          variant="text"
+          size="small"
+          className={getButtonStyle()}
+          onClick={handleOpenDialog}
+          disabled={false}
+        >
+          {getTitle()}
+        </Button>
+      )}
       <Modal open={openDialog}>
         <Grid container direction="column" className={classes.pt}>
           <Grid item>
@@ -540,7 +543,7 @@ export const ReportForm = memo(({ formType }) => {
                 {formState.imageSource ? (
                   <div
                     ref={canvasWrapper}
-                    // TODO remove width and height!
+                    // TODO: remove width and height!
                     width={wrapperWidth}
                     height={wrapperHeight}
                     className={classes.canvasDrawWrapper}

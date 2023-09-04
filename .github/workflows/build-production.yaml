@@ -1,0 +1,36 @@
+---
+name: build production
+
+# Actions that take place after every commit on the production branch.
+
+# ---------------
+# Control secrets
+# ---------------
+#
+# None
+#
+# -----------
+# Environment (GitHub Environments)
+# -----------
+#
+# (none)
+
+on:
+  push:
+    branches:
+    - 'production'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v3
+    - name: Setup node
+      uses: actions/setup-node@v3
+      with:
+        node-version: '12.22.11'
+    - name: Install
+      run: yarn
+    - name: Build
+      run: yarn run build

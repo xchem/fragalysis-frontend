@@ -1,5 +1,7 @@
 import { createSelector } from 'reselect';
-import { isString, isInteger } from 'lodash';
+import { isString, isInteger, create } from 'lodash';
+import { sortMoleculesByDragDropState } from '../helpers';
+import { AUX_VECTOR_SELECTOR_DATASET_ID } from '../../preview/compounds/redux/constants';
 
 const moleculeLists = state => state.datasetsReducers.moleculeLists;
 const scoreCompoundMap = state => state.datasetsReducers.scoreCompoundMap;
@@ -19,6 +21,24 @@ const vectorOnList = state => state.selectionReducers.vectorOnList;
 const filteredScoreProperties = state => state.datasetsReducers.filteredScoreProperties;
 
 const selectedVectorCompounds = state => state.previewReducers.compounds.allSelectedCompounds;
+
+const listOfCompoundColors = state => state.datasetsReducers.compoundColorByDataset;
+
+// const compoundsToBuyDatasetMap = createSelector(listOfCompoundColors, listOfCompoundColorsPerDataset => {
+//   const result = {};
+//   Object.keys(listOfCompoundColorsPerDataset).forEach(datasetID => {
+//     const dataset = listOfCompoundColorsPerDataset[datasetID];
+//     const listOfCompounds = [];
+//     Object.keys(dataset).forEach(c => {
+//       listOfCompounds.push(Number(c));
+//     });
+//     if (listOfCompounds && listOfCompounds.length > 0) {
+//       result[datasetID] = listOfCompounds;
+//     }
+//   });
+
+//   return result;
+// });
 
 export const getInitialDatasetFilterSettings = createSelector(
   (_, datasetID) => datasetID,
@@ -247,7 +267,7 @@ export const getFilteredDatasetMoleculeList = createSelector(
               }
               // String type
               else {
-                // TODO maybe in the future wi will filter string scores
+                // TODO: maybe in the future wi will filter string scores
               }
             }
           });
@@ -304,14 +324,33 @@ export const getFilteredDatasetMoleculeList = createSelector(
 );
 
 export const getMoleculesObjectIDListOfCompoundsToBuy = createSelector(
-  compoundsToBuyDatasetMap,
+  listOfCompoundColors,
   moleculeLists,
   selectedVectorCompounds,
-  (compoundsToBuyDatasetMap, moleculeLists, selectedVectorCompounds) => {
+  compoundsToBuyDatasetMap,
+  (listOfCompoundColorsDatasetMap, moleculeLists, selectedVectorCompounds, compoundsToBuyDatasetMap) => {
     let moleculeList = [];
-    Object.keys(compoundsToBuyDatasetMap).forEach(datasetID => {
-      compoundsToBuyDatasetMap[datasetID] &&
-        compoundsToBuyDatasetMap[datasetID].forEach(moleculeID => {
+
+    const flatenedListOfCompounds = {};
+    Object.keys(listOfCompoundColorsDatasetMap).forEach(datasetID => {
+      const dataset = listOfCompoundColorsDatasetMap[datasetID];
+      const listOfCompounds = [];
+      Object.keys(dataset).forEach(c => {
+        listOfCompounds.push(Number(c));
+      });
+      if (listOfCompounds && listOfCompounds.length > 0) {
+        flatenedListOfCompounds[datasetID] = listOfCompounds;
+      }
+    });
+
+    if (compoundsToBuyDatasetMap && compoundsToBuyDatasetMap.hasOwnProperty(AUX_VECTOR_SELECTOR_DATASET_ID)) {
+      flatenedListOfCompounds[AUX_VECTOR_SELECTOR_DATASET_ID] =
+        compoundsToBuyDatasetMap[AUX_VECTOR_SELECTOR_DATASET_ID];
+    }
+
+    Object.keys(flatenedListOfCompounds).forEach(datasetID => {
+      flatenedListOfCompounds[datasetID] &&
+        flatenedListOfCompounds[datasetID].forEach(moleculeID => {
           if (moleculeLists[datasetID]) {
             const foundedMolecule = moleculeLists[datasetID].find(molecule => molecule.id === moleculeID);
             if (foundedMolecule) {
@@ -319,7 +358,7 @@ export const getMoleculesObjectIDListOfCompoundsToBuy = createSelector(
             }
           } else if (selectedVectorCompounds[moleculeID]) {
             const cmp = selectedVectorCompounds[moleculeID];
-            moleculeList.push({ molecule: {...cmp, name: cmp.smiles}, datasetID });
+            moleculeList.push({ molecule: { ...cmp, name: cmp.smiles }, datasetID });
           }
         });
     });
@@ -395,4 +434,47 @@ export const getListOfSelectedSurfaceOfAllDatasets = state => {
   });
 
   return [...resultSet];
+};
+
+export const getJoinedMoleculeLists = (datasetID, state) => {
+  const { moleculeLists, dragDropMap, filterDatasetMap, searchString } = state.datasetsReducers;
+  const filteredDatasetMolecules = getFilteredDatasetMoleculeList(state, datasetID);
+  const filterSettings = filterDatasetMap && datasetID && filterDatasetMap[datasetID];
+
+  const isActiveFilter = !!(filterSettings || {}).active;
+
+  let moleculeList = moleculeLists[datasetID] || [];
+  const dragDropState = dragDropMap[datasetID];
+
+  if (isActiveFilter) {
+    if (dragDropState) {
+      moleculeList = sortMoleculesByDragDropState(filteredDatasetMolecules, dragDropState);
+    } else {
+      moleculeList = filteredDatasetMolecules;
+    }
+  } else {
+    if (dragDropState) {
+      moleculeList = sortMoleculesByDragDropState(moleculeList, dragDropState);
+    } else {
+      // default sort is by site
+      moleculeList.sort((a, b) => a.site - b.site);
+    }
+  }
+
+  // const restoredSearchString = state.trackingReducers.current_actions_list.find(
+  //   action => action.type === 'SEARCH_STRING'
+  // );
+  // if (restoredSearchString !== null && restoredSearchString !== undefined) {
+  //   const searchedString = restoredSearchString.searchString;
+  //   if (searchedString !== undefined) {
+  //     moleculeList = moleculeList.filter(molecule =>
+  //       molecule.name.toLowerCase().includes(searchedString.toLowerCase())
+  //     );
+  //   }
+  // }
+  if (searchString !== null && searchString !== undefined) {
+    moleculeList = moleculeList.filter(molecule => molecule.name.toLowerCase().includes(searchString.toLowerCase()));
+  }
+
+  return moleculeList;
 };

@@ -1,13 +1,23 @@
-import { actionType, actionObjectType, actionDescription, actionAnnotation } from './constants';
+import {
+  actionType,
+  actionObjectType,
+  actionDescription,
+  actionAnnotation,
+  mapTypesStrings,
+  viewerControlsSides
+} from './constants';
 import { constants as apiConstants } from '../api/constants';
 import { CONSTANTS as nglConstants } from '../ngl/constants';
 import { constants as previewCompoundConstants } from '../../components/preview/compounds/redux/constants';
 import { constants as selectionConstants } from '../selection/constants';
 import { constants as customDatasetConstants } from '../../components/datasets/redux/constants';
+import { constants as viewerControlsConstants } from '../../components/preview/viewerControls/redux/constants';
 import { DJANGO_CONTEXT } from '../../utils/djangoContext';
 import { BACKGROUND_COLOR } from '../../components/nglView/constants/index';
+import { getMoleculeForId } from '../../components/preview/tags/redux/dispatchActions';
+import { constants as moleculeConstants } from '../../components/preview/molecule/redux/constants';
 
-export const findTrackAction = (action, state) => {
+export const findTrackAction = (action, state) => (dispatch, getState) => {
   const username = DJANGO_CONTEXT['username'];
   const target_on_name = state.apiReducers.target_on_name;
   const isActionRestoring = state.trackingReducers.isActionRestoring;
@@ -26,6 +36,32 @@ export const findTrackAction = (action, state) => {
           object_name: targetName,
           object_id: action.target_on,
           text: `${actionDescription.TARGET} ${targetName} ${actionDescription.LOADED}`
+        };
+      }
+    } else if (action.type === selectionConstants.APPEND_SELECTED_TAG_LIST) {
+      if (action.item) {
+        trackAction = {
+          type: actionType.TAG_SELECTED,
+          annotation: actionAnnotation.CHECK,
+          timestamp: Date.now(),
+          username: username,
+          object_type: actionObjectType.TAG,
+          object_name: action.item.tag,
+          object_id: action.item.id,
+          text: `${actionDescription.TAG} ${action.item.tag} ${actionDescription.TURNED_ON}`
+        };
+      }
+    } else if (action.type === selectionConstants.REMOVE_FROM_SELECTED_TAG_LIST) {
+      if (action.item) {
+        trackAction = {
+          type: actionType.TAG_UNSELECTED,
+          annotation: actionAnnotation.CHECK,
+          timestamp: Date.now(),
+          username: username,
+          object_type: actionObjectType.TAG,
+          object_name: action.item.tag,
+          object_id: action.item.id,
+          text: `${actionDescription.TAG} ${action.item.tag} ${actionDescription.TURNED_OFF}`
         };
       }
     } else if (action.type === apiConstants.SET_MOL_GROUP_ON) {
@@ -134,21 +170,21 @@ export const findTrackAction = (action, state) => {
           )}`
         };
       }
-    } else if (action.type === selectionConstants.SET_SELECTED_ALL_BY_TYPE) {
+    } else if (action.type === selectionConstants.SET_SELECTED_BY_TYPE) {
       if (action.payload) {
         let payload = action.payload;
         let objectType = payload.isInspiration === true ? actionObjectType.INSPIRATION : actionObjectType.MOLECULE;
         let paylodTypeDescription = getTypeDescriptionOfSelectedAllAction(payload.type);
 
         trackAction = {
-          type: actionType.ALL_TURNED_ON_BY_TYPE,
+          type: actionType.SELECTED_TURNED_ON_BY_TYPE,
           annotation: actionAnnotation.CHECK,
           timestamp: Date.now(),
           username: username,
           object_type: objectType,
           control_type: payload.type,
           items: payload.items,
-          text: `${actionDescription.ALL} ${paylodTypeDescription} ${actionDescription.TURNED_ON} ${objectType}`
+          text: `${actionDescription.SELECTED_TYPE} ${paylodTypeDescription} ${actionDescription.TURNED_ON} ${objectType}`
         };
       }
     } else if (action.type === selectionConstants.SET_DESELECTED_ALL_BY_TYPE) {
@@ -166,6 +202,34 @@ export const findTrackAction = (action, state) => {
           control_type: payload.type,
           items: payload.items,
           text: `${actionDescription.ALL} ${paylodTypeDescription} ${actionDescription.TURNED_OFF} ${objectType}`
+        };
+      }
+    } else if (action.type === selectionConstants.SET_SELECT_ALL_MOLECULES) {
+      if (action && action.items) {
+        let objectType = actionObjectType.MOLECULE;
+
+        trackAction = {
+          type: actionType.ALL_MOLECULES_SELECTED,
+          annotation: actionAnnotation.CHECK,
+          timestamp: Date.now(),
+          username: username,
+          object_type: objectType,
+          items: action.items,
+          text: `All hits were selected`
+        };
+      }
+    } else if (action.type === selectionConstants.SET_UNSELECT_ALL_MOLECULES) {
+      if (action && action.items) {
+        let objectType = actionObjectType.MOLECULE;
+
+        trackAction = {
+          type: actionType.ALL_MOLECULES_UNSELECTED,
+          annotation: actionAnnotation.CHECK,
+          timestamp: Date.now(),
+          username: username,
+          object_type: objectType,
+          items: action.items,
+          text: `All hits were unselected`
         };
       }
     } else if (action.type === selectionConstants.APPEND_FRAGMENT_DISPLAY_LIST) {
@@ -244,6 +308,118 @@ export const findTrackAction = (action, state) => {
           )}`
         };
       }
+    } else if (action.type === selectionConstants.APPEND_DENSITY_TYPE) {
+      let objectType = action.item.isInspiration === true ? actionObjectType.INSPIRATION : actionObjectType.MOLECULE;
+      let objectName = action.item.name || getMoleculeName(action.item.id, state);
+
+      trackAction = {
+        type: actionType.DENSITY_TYPE_ON,
+        annotation: actionAnnotation.CHECK,
+        timestamp: Date.now(),
+        username: username,
+        object_type: objectType,
+        object_name: objectName,
+        object_id: action.item.id,
+        render_event: action.item.render_event,
+        render_sigmaa: action.item.render_sigmaa,
+        render_diff: action.item.render_diff,
+        render_quality: action.item.render_quality,
+        text: `${actionDescription.DENSITY} ${actionDescription.TURNED_ON} ${objectType} ${getMoleculeTitle(
+          objectName,
+          target_on_name
+        )}`
+      };
+    } else if (action.type === selectionConstants.REMOVE_DENSITY_TYPE) {
+      let objectType = action.item.isInspiration === true ? actionObjectType.INSPIRATION : actionObjectType.MOLECULE;
+      let objectName = action.item.name || getMoleculeName(action.item.id, state);
+
+      trackAction = {
+        type: actionType.DENSITY_TYPE_OFF,
+        annotation: actionAnnotation.CLEAR,
+        timestamp: Date.now(),
+        username: username,
+        object_type: objectType,
+        object_name: objectName,
+        object_id: action.item.id,
+        text: `${actionDescription.DENSITY} ${actionDescription.TURNED_OFF} ${objectType} ${getMoleculeTitle(
+          objectName,
+          target_on_name
+        )}`
+      };
+    } else if (action.type === selectionConstants.APPEND_DENSITY_LIST) {
+      if (action.item) {
+        let objectType = action.item.isInspiration === true ? actionObjectType.INSPIRATION : actionObjectType.MOLECULE;
+        let objectName = action.item.name || getMoleculeName(action.item.id, state);
+
+        trackAction = {
+          type: actionType.DENSITY_TURNED_ON,
+          annotation: actionAnnotation.CHECK,
+          timestamp: Date.now(),
+          username: username,
+          object_type: objectType,
+          object_name: objectName,
+          object_id: action.item.id,
+          text: `${actionDescription.DENSITY} ${actionDescription.TURNED_ON} ${objectType} ${getMoleculeTitle(
+            objectName,
+            target_on_name
+          )}`
+        };
+      }
+    } else if (action.type === selectionConstants.REMOVE_FROM_DENSITY_LIST) {
+      if (action.item) {
+        let objectType = action.item.isInspiration === true ? actionObjectType.INSPIRATION : actionObjectType.MOLECULE;
+        let objectName = action.item.name || getMoleculeName(action.item.id, state);
+
+        trackAction = {
+          type: actionType.DENSITY_TURNED_OFF,
+          annotation: actionAnnotation.CLEAR,
+          timestamp: Date.now(),
+          username: username,
+          object_type: objectType,
+          object_name: objectName,
+          object_id: action.item.id,
+          text: `${actionDescription.DENSITY} ${actionDescription.TURNED_OFF} ${objectType} ${getMoleculeTitle(
+            objectName,
+            target_on_name
+          )}`
+        };
+      }
+    } else if (action.type === selectionConstants.APPEND_DENSITY_LIST_CUSTOM) {
+      if (action.item) {
+        let objectType = action.item.isInspiration === true ? actionObjectType.INSPIRATION : actionObjectType.MOLECULE;
+        let objectName = action.item.name || getMoleculeName(action.item.id, state);
+
+        trackAction = {
+          type: actionType.DENSITY_CUSTOM_TURNED_ON,
+          annotation: actionAnnotation.CHECK,
+          timestamp: Date.now(),
+          username: username,
+          object_type: objectType,
+          object_name: objectName,
+          object_id: action.item.id,
+          text: `${actionDescription.DENSITY} ${actionDescription.CUSTOM_VIEW} ${
+            actionDescription.TURNED_ON
+          } ${objectType} ${getMoleculeTitle(objectName, target_on_name)}`
+        };
+      }
+    } else if (action.type === selectionConstants.REMOVE_FROM_DENSITY_LIST_CUSTOM) {
+      if (action.item) {
+        let objectType = action.item.isInspiration === true ? actionObjectType.INSPIRATION : actionObjectType.MOLECULE;
+        let objectName = action.item.name || getMoleculeName(action.item.id, state);
+
+        trackAction = {
+          type: actionType.DENSITY_CUSTOM_TURNED_OFF,
+          annotation: actionAnnotation.CLEAR,
+          timestamp: Date.now(),
+          username: username,
+          object_type: objectType,
+          object_name: objectName,
+          object_id: action.item.id,
+          text: `${actionDescription.DENSITY} ${actionDescription.CUSTOM_VIEW} ${
+            actionDescription.TURNED_OFF
+          } ${objectType} ${getMoleculeTitle(objectName, target_on_name)}`
+        };
+      }
     } else if (action.type === selectionConstants.APPEND_COMPLEX_LIST) {
       if (action.item) {
         let objectType = action.item.isInspiration === true ? actionObjectType.INSPIRATION : actionObjectType.MOLECULE;
@@ -315,6 +491,44 @@ export const findTrackAction = (action, state) => {
           object_name: objectName,
           object_id: action.item.id,
           text: `${actionDescription.SURFACE} ${actionDescription.TURNED_OFF} ${objectType} ${getMoleculeTitle(
+            objectName,
+            target_on_name
+          )}`
+        };
+      }
+    } else if (action.type === selectionConstants.APPEND_QUALITY_LIST) {
+      if (action.item) {
+        let objectType = action.item.isInspiration === true ? actionObjectType.INSPIRATION : actionObjectType.MOLECULE;
+        let objectName = action.item.name || getMoleculeName(action.item.id, state);
+
+        trackAction = {
+          type: actionType.QUALITY_TURNED_ON,
+          annotation: actionAnnotation.CHECK,
+          timestamp: Date.now(),
+          username: username,
+          object_type: objectType,
+          object_name: objectName,
+          object_id: action.item.id,
+          text: `${actionDescription.QUALITY} ${actionDescription.TURNED_ON} ${objectType} ${getMoleculeTitle(
+            objectName,
+            target_on_name
+          )}`
+        };
+      }
+    } else if (action.type === selectionConstants.REMOVE_FROM_QUALITY_LIST) {
+      if (action.item) {
+        let objectType = action.item.isInspiration === true ? actionObjectType.INSPIRATION : actionObjectType.MOLECULE;
+        let objectName = action.item.name || getMoleculeName(action.item.id, state);
+
+        trackAction = {
+          type: actionType.QUALITY_TURNED_OFF,
+          annotation: actionAnnotation.CLEAR,
+          timestamp: Date.now(),
+          username: username,
+          object_type: objectType,
+          object_name: objectName,
+          object_id: action.item.id,
+          text: `${actionDescription.QUALITY} ${actionDescription.TURNED_OFF} ${objectType} ${getMoleculeTitle(
             objectName,
             target_on_name
           )}`
@@ -532,6 +746,76 @@ export const findTrackAction = (action, state) => {
           text: `${actionDescription.CLASS} value ${actionDescription.UPDATED}: ${action.id}:${action.value}`
         };
       }
+    } else if (action.type === customDatasetConstants.APPEND_COMPOUND_TO_SELECTED_COMPOUNDS_BY_DATASET) {
+      if (action.payload) {
+        let objectType = actionObjectType.COMPOUND;
+        let objectName = action.payload.compoundTitle;
+
+        trackAction = {
+          type: actionType.COMPOUND_LOCKED,
+          annotation: actionAnnotation.CHECK,
+          timestamp: Date.now(),
+          username: username,
+          object_type: objectType,
+          object_name: objectName,
+          object_id: action.payload.compoundID,
+          dataset_id: action.payload.datasetID,
+          text: `${objectType} ${objectName} ${actionDescription.LOCKED} of dataset: ${action.payload.datasetID}`
+        };
+      }
+    } else if (action.type === customDatasetConstants.REMOVE_COMPOUND_FROM_SELECTED_COMPOUNDS_BY_DATASET) {
+      if (action.payload) {
+        let objectType = actionObjectType.COMPOUND;
+        let objectName = action.payload.compoundTitle;
+
+        trackAction = {
+          type: actionType.COMPOUND_UNLOCKED,
+          annotation: actionAnnotation.CLEAR,
+          timestamp: Date.now(),
+          username: username,
+          object_type: objectType,
+          object_name: objectName,
+          object_id: action.payload.compoundID,
+          dataset_id: action.payload.datasetID,
+          text: `${objectType} ${objectName} ${actionDescription.UNLOCKED} of dataset: ${action.payload.datasetID}`
+        };
+      }
+    } else if (action.type === customDatasetConstants.APPEND_COMPOUND_COLOR_OF_DATASET) {
+      if (action.payload) {
+        let objectType = actionObjectType.COMPOUND;
+        let objectName = action.payload.compoundTitle;
+
+        trackAction = {
+          type: actionType.COMPOUND_ADDED_TO_COLOR_GROUP,
+          annotation: actionAnnotation.CHECK,
+          timestamp: Date.now(),
+          username: username,
+          object_type: objectType,
+          object_name: objectName,
+          object_id: action.payload.compoundID,
+          dataset_id: action.payload.datasetID,
+          color_class: action.payload.colorClass,
+          text: `${objectType} ${objectName} ${actionDescription.ADDED_TO_COLOR_GROUP} ${action.payload.colorClass} of dataset: ${action.payload.datasetID}`
+        };
+      }
+    } else if (action.type === customDatasetConstants.REMOVE_COMPOUND_COLOR_OF_DATASET) {
+      if (action.payload) {
+        let objectType = actionObjectType.COMPOUND;
+        let objectName = action.payload.compoundTitle;
+
+        trackAction = {
+          type: actionType.COMPOUND_REMOVED_FROM_COLOR_GROUP,
+          annotation: actionAnnotation.CLEAR,
+          timestamp: Date.now(),
+          username: username,
+          object_type: objectType,
+          object_name: objectName,
+          object_id: action.payload.compoundID,
+          dataset_id: action.payload.datasetID,
+          color_class: action.payload.colorClass,
+          text: `${objectType} ${objectName} ${actionDescription.REMOVED_FROM_COLOR_GROUP} ${action.payload.colorClass} of dataset: ${action.payload.datasetID}`
+        };
+      }
     } else if (action.type === customDatasetConstants.APPEND_MOLECULE_TO_COMPOUNDS_TO_BUY_OF_DATASET) {
       if (action.payload) {
         let objectType = actionObjectType.COMPOUND;
@@ -564,6 +848,42 @@ export const findTrackAction = (action, state) => {
           object_id: action.payload.moleculeID,
           dataset_id: action.payload.datasetID,
           text: `${objectType} ${objectName} ${actionDescription.DESELECTED} of dataset: ${action.payload.datasetID}`
+        };
+      }
+    } else if (action.type === selectionConstants.APPEND_TO_MOL_LIST_TO_EDIT) {
+      if (action.molId) {
+        let objectType = actionObjectType.MOLECULE;
+        let molId = action.molId;
+        let mol = dispatch(getMoleculeForId(molId));
+        let objectName = mol.protein_code;
+
+        trackAction = {
+          type: actionType.MOLECULE_SELECTED,
+          annotation: actionAnnotation.CHECK,
+          timestamp: Date.now(),
+          username: username,
+          object_type: objectType,
+          object_name: objectName,
+          object_id: molId,
+          text: `${objectType} ${objectName} ${actionDescription.SELECTED}`
+        };
+      }
+    } else if (action.type === selectionConstants.REMOVE_FROM_MOL_LIST_TO_EDIT) {
+      if (action.molId) {
+        let objectType = actionObjectType.MOLECULE;
+        let molId = action.molId;
+        let mol = dispatch(getMoleculeForId(molId));
+        let objectName = mol.protein_code;
+
+        trackAction = {
+          type: actionType.MOLECULE_UNSELECTED,
+          annotation: actionAnnotation.CLEAR,
+          timestamp: Date.now(),
+          username: username,
+          object_type: objectType,
+          object_name: objectName,
+          object_id: molId,
+          text: `${objectType} ${objectName} ${actionDescription.DESELECTED}`
         };
       }
     } else if (action.type === customDatasetConstants.SET_SELECTED_ALL) {
@@ -610,7 +930,7 @@ export const findTrackAction = (action, state) => {
           text: `${actionDescription.ALL} ${actionDescription.TURNED_OFF} ${objectType} ${objectName} of dataset: ${action.payload.datasetID}`
         };
       }
-    } else if (action.type === customDatasetConstants.SET_SELECTED_ALL_BY_TYPE) {
+    } else if (action.type === customDatasetConstants.SET_SELECTED_BY_TYPE) {
       if (action.payload) {
         let payload = action.payload;
         let objectType =
@@ -619,14 +939,14 @@ export const findTrackAction = (action, state) => {
         let datasetDescription = payload.datasetID ? `of dataset: ${payload.datasetID}` : '';
 
         trackAction = {
-          type: actionType.ALL_TURNED_ON_BY_TYPE,
+          type: actionType.SELECTED_TURNED_ON_BY_TYPE,
           annotation: actionAnnotation.CHECK,
           timestamp: Date.now(),
           username: username,
           object_type: objectType,
           control_type: payload.type,
           items: payload.items,
-          text: `${actionDescription.ALL} ${paylodTypeDescription} ${actionDescription.TURNED_ON} ${objectType} ${datasetDescription}`
+          text: `${actionDescription.SELECTED_TYPE} ${paylodTypeDescription} ${actionDescription.TURNED_ON} ${objectType} ${datasetDescription}`
         };
       }
     } else if (action.type === customDatasetConstants.SET_DESELECTED_ALL_BY_TYPE) {
@@ -877,16 +1197,18 @@ export const findTrackAction = (action, state) => {
       }
     } else if (action.type === customDatasetConstants.SET_DATASET_FILTER) {
       if (action.payload) {
-        const filterProperties = state.datasetsReducers.filterPropertiesDatasetMap;
-        const filterSettings = state.datasetsReducers.filterDatasetMap;
+        const {
+          filterPropertiesDatasetMap: filterProperties,
+          filterDatasetMap: filterSettings,
+          dragDropMap
+        } = state.datasetsReducers;
+        const { datasetID, key, properties, settings, dragDropState } = action.payload;
 
-        let filterPropertiesOfDataset = filterProperties[action.payload.datasetID];
-        let filterSettingsOfDataset = filterSettings[action.payload.datasetID];
-        let newProperties = action.payload.properties;
+        const filterPropertiesOfDataset = (filterProperties[datasetID] = {});
+        const filterSettingsOfDataset = (filterSettings[datasetID] = {});
 
-        let objectType = actionObjectType.COMPOUND;
-        let key = action.payload.key;
-        let descriptionProperties = getFilterKeyChange(filterPropertiesOfDataset[key], newProperties[key]);
+        const objectType = actionObjectType.COMPOUND;
+        const descriptionProperties = getFilterKeyChange(filterPropertiesOfDataset[key], properties[key]);
 
         trackAction = {
           type: actionType.DATASET_FILTER,
@@ -896,16 +1218,37 @@ export const findTrackAction = (action, state) => {
           object_type: objectType,
           oldProperties: filterPropertiesOfDataset,
           oldSettings: filterSettingsOfDataset,
-          newProperties: newProperties,
-          newSettings: action.payload.settings,
-          dataset_id: action.payload.datasetID,
+          newProperties: properties,
+          newSettings: settings,
+          datasetID: datasetID,
           key: key,
+          oldDragDropState: dragDropMap[datasetID],
+          newDragDropState: dragDropState,
           text:
             key === 'clear'
-              ? `Filter ${actionDescription.CHANGED} to default values of dataset: ${action.payload.datasetID}`
-              : `Filter parameter: ${key} ${actionDescription.CHANGED} ${descriptionProperties} of dataset: ${action.payload.datasetID}`
+              ? `Filter ${actionDescription.CHANGED} to default values of dataset: ${datasetID}`
+              : `Filter parameter: ${key} ${actionDescription.CHANGED} ${descriptionProperties} of dataset: ${datasetID}`
         };
       }
+    } else if (action.type === customDatasetConstants.DRAG_DROP_FINISHED) {
+      const { datasetID, molecule, index } = action.payload;
+      const {
+        dragDropMap,
+        dragDropStatus: { startingDragDropState, startingIndex }
+      } = state.datasetsReducers;
+
+      trackAction = {
+        type: actionType.DRAG_DROP_FINISHED,
+        annotation: actionAnnotation.CHECK,
+        timestamp: Date.now(),
+        username: username,
+        object_type: actionObjectType.COMPOUND,
+        oldDragDropState: startingDragDropState,
+        newDragDropState: dragDropMap[datasetID],
+        datasetID,
+        text: `Position for molecule ${molecule.name} from dataset ${datasetID} changed from ${startingIndex +
+          1} to ${index + 1}`
+      };
     } else if (action.type === customDatasetConstants.SET_FILTER_SHOWED_SCORE_PROPERTIES) {
       if (action.payload) {
         let objectType = actionObjectType.COMPOUND;
@@ -925,6 +1268,34 @@ export const findTrackAction = (action, state) => {
           text: `Filter parameter: ${action.payload.scoreName} ${actionDescription.CHANGED} to ${valueDescription} of dataset: ${action.payload.datasetID}`
         };
       }
+    } else if (action.type === customDatasetConstants.SET_SEARCH_STRING) {
+      let searchString = action.payload.searchString;
+      let objectType = actionType.SEARCH_STRING;
+
+      trackAction = {
+        type: actionType.SEARCH_STRING,
+        annotation: actionAnnotation.CHECK,
+        timestamp: Date.now(),
+        username: username,
+        object_type: objectType,
+        dataset_id: action.payload.datasetID,
+        searchString: searchString,
+        text: `Searched string: ${searchString}`
+      };
+    } else if (action.type === moleculeConstants.SET_SEARCH_STRING_HIT_NAVIGATOR) {
+      let searchStringHitNavigator = action.payload;
+      let objectType = actionType.SET_SEARCH_STRING_HIT_NAVIGATOR;
+
+      trackAction = {
+        type: actionType.SEARCH_STRING_HIT_NAVIGATOR,
+        annotation: actionAnnotation.CHECK,
+        timestamp: Date.now(),
+        username: username,
+        object_type: objectType,
+        // dataset_id: action.payload.datasetID,
+        searchStringHitNavigator: searchStringHitNavigator,
+        text: `Searched string in Hit navigator: ${searchStringHitNavigator}`
+      };
     } else if (action.type === nglConstants.UPDATE_COMPONENT_REPRESENTATION_VISIBILITY) {
       let objectType = actionObjectType.REPRESENTATION;
       let value = action.newVisibility;
@@ -1174,6 +1545,271 @@ export const findTrackAction = (action, state) => {
         },
         text: `Fog far of NGL ${actionDescription.CHANGED} to value: ${newSetting}`
       };
+    } else if (
+      action.type === nglConstants.SET_ISO_LEVEL_DENSITY ||
+      action.type === nglConstants.SET_ISO_LEVEL_DENSITY_MAP_diff ||
+      action.type === nglConstants.SET_ISO_LEVEL_DENSITY_MAP_sigmaa
+    ) {
+      let objectName = null;
+      let actionTypeMap = null;
+      if (action.type === nglConstants.SET_ISO_LEVEL_DENSITY) {
+        objectName = mapTypesStrings.EVENT;
+        actionTypeMap = actionType.ISO_LEVEL_EVENT;
+      } else if (action.type === nglConstants.SET_ISO_LEVEL_DENSITY_MAP_diff) {
+        objectName = mapTypesStrings.DIFF;
+        actionTypeMap = actionType.ISO_LEVEL_DIFF;
+      } else if (action.type === nglConstants.SET_ISO_LEVEL_DENSITY_MAP_sigmaa) {
+        objectName = mapTypesStrings.SIGMAA;
+        actionTypeMap = actionType.ISO_LEVEL_SIGMAA;
+      }
+
+      let oldSetting = action.payload.oldValue;
+      let newSetting = action.payload.newValue;
+
+      trackAction = {
+        type: actionTypeMap,
+        merge: true,
+        annotation: actionAnnotation.CHECK,
+        timestamp: Date.now(),
+        username: username,
+        object_type: 'NGL',
+        object_name: objectName,
+        oldSetting: oldSetting,
+        newSetting: newSetting,
+        getText: function() {
+          return (
+            'ISO of ' +
+            objectName +
+            ' ' +
+            actionDescription.CHANGED +
+            ' from value: ' +
+            this.oldSetting +
+            ' to value: ' +
+            this.newSetting
+          );
+        },
+        text: `ISO of ${objectName} ${actionDescription.CHANGED} to value: ${newSetting}`
+      };
+    } else if (
+      action.type === nglConstants.SET_BOX_SIZE_DENSITY ||
+      action.type === nglConstants.SET_BOX_SIZE_DENSITY_MAP_diff ||
+      action.type === nglConstants.SET_BOX_SIZE_DENSITY_MAP_sigmaa
+    ) {
+      let objectName = null;
+      let actionTypeMap = null;
+      if (action.type === nglConstants.SET_BOX_SIZE_DENSITY) {
+        objectName = mapTypesStrings.EVENT;
+        actionTypeMap = actionType.BOX_SIZE_EVENT;
+      } else if (action.type === nglConstants.SET_BOX_SIZE_DENSITY_MAP_diff) {
+        objectName = mapTypesStrings.DIFF;
+        actionTypeMap = actionType.BOX_SIZE_DIFF;
+      } else if (action.type === nglConstants.SET_BOX_SIZE_DENSITY_MAP_sigmaa) {
+        objectName = mapTypesStrings.SIGMAA;
+        actionTypeMap = actionType.BOX_SIZE_SIGMAA;
+      }
+
+      let oldSetting = action.payload.oldValue;
+      let newSetting = action.payload.newValue;
+
+      trackAction = {
+        type: actionTypeMap,
+        merge: true,
+        annotation: actionAnnotation.CHECK,
+        timestamp: Date.now(),
+        username: username,
+        object_type: 'NGL',
+        object_name: objectName,
+        oldSetting: oldSetting,
+        newSetting: newSetting,
+        getText: function() {
+          return (
+            'Box size of ' +
+            objectName +
+            ' ' +
+            actionDescription.CHANGED +
+            ' from value: ' +
+            this.oldSetting +
+            ' to value: ' +
+            this.newSetting
+          );
+        },
+        text: `Boz size of ${objectName} ${actionDescription.CHANGED} to value: ${newSetting}`
+      };
+    } else if (
+      action.type === nglConstants.SET_OPACITY_DENSITY ||
+      action.type === nglConstants.SET_OPACITY_DENSITY_MAP_diff ||
+      action.type === nglConstants.SET_OPACITY_DENSITY_MAP_sigmaa
+    ) {
+      let objectName = null;
+      let actionTypeMap = null;
+      if (action.type === nglConstants.SET_OPACITY_DENSITY) {
+        objectName = mapTypesStrings.EVENT;
+        actionTypeMap = actionType.OPACITY_EVENT;
+      } else if (action.type === nglConstants.SET_OPACITY_DENSITY_MAP_diff) {
+        objectName = mapTypesStrings.DIFF;
+        actionTypeMap = actionType.OPACITY_DIFF;
+      } else if (action.type === nglConstants.SET_OPACITY_DENSITY_MAP_sigmaa) {
+        objectName = mapTypesStrings.SIGMAA;
+        actionTypeMap = actionType.OPACITY_SIGMAA;
+      }
+
+      let oldSetting = action.payload.oldValue;
+      let newSetting = action.payload.newValue;
+
+      trackAction = {
+        type: actionTypeMap,
+        merge: true,
+        annotation: actionAnnotation.CHECK,
+        timestamp: Date.now(),
+        username: username,
+        object_type: 'NGL',
+        object_name: objectName,
+        oldSetting: oldSetting,
+        newSetting: newSetting,
+        getText: function() {
+          return (
+            'Opacity of ' +
+            objectName +
+            ' ' +
+            actionDescription.CHANGED +
+            ' from value: ' +
+            this.oldSetting +
+            ' to value: ' +
+            this.newSetting
+          );
+        },
+        text: `Opacity of NGL ${actionDescription.CHANGED} to value: ${newSetting}`
+      };
+    } else if (
+      action.type === nglConstants.SET_CONTOUR_DENSITY ||
+      action.type === nglConstants.SET_CONTOUR_DENSITY_MAP_diff ||
+      action.type === nglConstants.SET_CONTOUR_DENSITY_MAP_sigmaa
+    ) {
+      let objectName = null;
+      let actionTypeMap = null;
+      if (action.type === nglConstants.SET_CONTOUR_DENSITY) {
+        objectName = mapTypesStrings.EVENT;
+        actionTypeMap = actionType.CONTOUR_EVENT;
+      } else if (action.type === nglConstants.SET_CONTOUR_DENSITY_MAP_diff) {
+        objectName = mapTypesStrings.DIFF;
+        actionTypeMap = actionType.CONTOUR_DIFF;
+      } else if (action.type === nglConstants.SET_CONTOUR_DENSITY_MAP_sigmaa) {
+        objectName = mapTypesStrings.SIGMAA;
+        actionTypeMap = actionType.CONTOUR_SIGMAA;
+      }
+
+      let oldSetting = action.payload.oldValue;
+      let newSetting = action.payload.newValue;
+
+      let oldSettingDescription = getContourChangeDescription(oldSetting);
+      let newSettingDescription = getContourChangeDescription(newSetting);
+
+      trackAction = {
+        type: actionTypeMap,
+        merge: false,
+        annotation: actionAnnotation.CHECK,
+        timestamp: Date.now(),
+        username: username,
+        object_type: 'NGL',
+        object_name: objectName,
+        oldSetting: oldSetting,
+        newSetting: newSetting,
+        getText: function() {
+          return (
+            'Surface/wireframe of ' +
+            objectName +
+            ' ' +
+            actionDescription.CHANGED +
+            ' from value: ' +
+            oldSettingDescription +
+            ' to value: ' +
+            newSettingDescription
+          );
+        },
+        text: `Surface/wireframe of ${objectName} ${actionDescription.CHANGED} to value: ${newSettingDescription}`
+      };
+    } else if (
+      action.type === nglConstants.SET_ELECTRON_COLOR_DENSITY ||
+      action.type === nglConstants.SET_ELECTRON_COLOR_DENSITY_MAP_sigmaa ||
+      action.type === nglConstants.SET_ELECTRON_COLOR__DENSITY_MAP_diff
+    ) {
+      let objectName = null;
+      let actionTypeMap = null;
+      if (action.type === nglConstants.SET_ELECTRON_COLOR_DENSITY) {
+        objectName = mapTypesStrings.EVENT;
+        actionTypeMap = actionType.COLOR_EVENT;
+      } else if (action.type === nglConstants.SET_ELECTRON_COLOR_DENSITY_MAP_sigmaa) {
+        objectName = mapTypesStrings.DIFF;
+        actionTypeMap = actionType.COLOR_SIGMAA;
+      } else if (action.type === nglConstants.SET_ELECTRON_COLOR__DENSITY_MAP_diff) {
+        objectName = mapTypesStrings.SIGMAA;
+        actionTypeMap = actionType.COLOR_DIFF;
+      }
+
+      let oldSetting = action.payload.oldValue;
+      let newSetting = action.payload.newValue;
+
+      trackAction = {
+        type: actionTypeMap,
+        merge: false,
+        annotation: actionAnnotation.CHECK,
+        timestamp: Date.now(),
+        username: username,
+        object_type: 'NGL',
+        object_name: objectName,
+        oldSetting: oldSetting,
+        newSetting: newSetting,
+        getText: function() {
+          return (
+            'Color of  ' +
+            objectName +
+            ' ' +
+            actionDescription.CHANGED +
+            ' from color: ' +
+            this.oldSetting +
+            ' to color: ' +
+            this.newSetting
+          );
+        },
+        text: `Color of ${objectName} ${actionDescription.CHANGED} to value: ${newSetting}`
+      };
+    } else if (action.type === nglConstants.SET_WARNING_ICON) {
+      let oldSetting = action.payload.oldValue;
+      let newSetting = action.payload.newValue;
+
+      trackAction = {
+        type: actionType.WARNING_ICON,
+        merge: true,
+        annotation: actionAnnotation.CHECK,
+        timestamp: Date.now(),
+        username: username,
+        object_type: 'NGL',
+        object_name: 'NGL',
+        oldSetting: oldSetting,
+        newSetting: newSetting,
+        getText: function() {
+          return (
+            'Warning icon showing ' + (newSetting === true ? actionDescription.TURNED_ON : actionDescription.TURNED_OFF)
+          );
+        },
+        text: `Warning icon showing ${newSetting === true ? actionDescription.TURNED_ON : actionDescription.TURNED_OFF}`
+      };
+    } else if (action.type === viewerControlsConstants.TURN_SIDE) {
+      if (action.payload) {
+        const { side, open } = action.payload;
+
+        const openDescription = open ? actionDescription.TURNED_ON : actionDescription.TURNED_OFF;
+
+        trackAction = {
+          type: actionType.TURN_SIDE,
+          annotation: actionAnnotation.CHECK,
+          timestamp: Date.now(),
+          username,
+          side,
+          open,
+          text: `${viewerControlsSides[side]} ${openDescription}`
+        };
+      }
     }
   }
   return trackAction;
@@ -1199,21 +1835,9 @@ const getTargetName = (targetId, state) => {
 };
 
 const getMoleculeName = (moleculeId, state) => {
-  let moleculeList = state.apiReducers.all_mol_lists;
-  let moleculeName = '';
-
-  if (moleculeList) {
-    for (const group in moleculeList) {
-      let molecules = moleculeList[group];
-
-      let molecule = molecules.find(molecule => molecule.id === moleculeId);
-      if (molecule && molecule != null) {
-        moleculeName = molecule.protein_code;
-        break;
-      }
-    }
-  }
-  return moleculeName;
+  const moleculeList = state.apiReducers.all_mol_lists;
+  const molecule = moleculeList.find(molecule => molecule.id === moleculeId);
+  return molecule?.protein_code ?? '';
 };
 
 const getTypeDescriptionOfSelectedAllAction = type => {
@@ -1320,6 +1944,16 @@ const getBooleanDescription = value => {
     return 'true';
   }
   return description;
+};
+
+const getContourChangeDescription = value => {
+  if (value === true) {
+    return 'wireframe';
+  } else if (value === false) {
+    return 'surface';
+  } else {
+    return '';
+  }
 };
 
 export const createInitAction = target_on => (dispatch, getState) => {

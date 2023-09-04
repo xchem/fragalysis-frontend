@@ -1,3 +1,4 @@
+import { compoundsColors } from '../../preview/compounds/redux/constants';
 import { constants } from './constants';
 
 export const INITIAL_STATE = {
@@ -45,7 +46,40 @@ export const INITIAL_STATE = {
   crossReferenceCompoundsDataList: [],
 
   // shopping cart
-  compoundsToBuyDatasetMap: {} // map of $datasetID and its list of moleculeID
+  compoundsToBuyDatasetMap: {}, // map of $datasetID and its list of moleculeID
+  selectedCompoundsByDataset: {}, // map of $datasetID and its list of moleculeID
+  compoundColorByDataset: {}, // map of $datasetID and its list of moleculeID
+
+  selectedCompounds: [], // list of selected compounds
+
+  selectedColorsInFilter: {
+    [compoundsColors.blue.key]: compoundsColors.blue.key,
+    [compoundsColors.red.key]: compoundsColors.red.key,
+    [compoundsColors.green.key]: compoundsColors.green.key,
+    [compoundsColors.purple.key]: compoundsColors.purple.key,
+    [compoundsColors.apricot.key]: compoundsColors.apricot.key
+  },
+
+  // drag and drop state
+  dragDropMap: {},
+  dragDropStatus: {
+    inProgress: false,
+    startingDragDropState: {},
+    startingIndex: -1
+  },
+
+  // disables NGL control buttons for molecules
+  disableDatasetsNglControlButtons: {}, // datasetID.moleculeID.nglButtonDisableState
+
+  // Used for initially scrolling to firstly selected molecule when loading up a project
+  datasetScrolledMap: {},
+
+  isLockVisibleCompoundsDialogOpenGlobal: false,
+  isLockVisibleCompoundsDialogOpenLocal: false,
+  cmpForLocalLockVisibleCompoundsDialog: null,
+  askLockCompoundsQuestion: true,
+  editedColorGroup: null,
+  askLockSelectedCompoundsQuestion: true
 };
 
 /**
@@ -127,6 +161,24 @@ const initializeContainerLists = (state, datasetID) => {
   state.inspirationLists[datasetID] = state.inspirationLists[datasetID] || [];
   state.moleculeAllSelection[datasetID] = state.moleculeAllSelection[datasetID] || [];
   return state;
+};
+
+/**
+ *  Helper function which takes the datasetReducers and removes any mention of the given dataset
+ */
+const removeDatasetFromState = (state, datasetId) => {
+  console.log('removeDatasetFromState - start');
+  const newState = { ...state };
+  Object.keys(state).forEach(key => {
+    if (typeof state[key] === 'object') {
+      if (newState[key] && newState[key].hasOwnProperty(datasetId)) {
+        delete newState[key][datasetId];
+      }
+    }
+  });
+
+  console.log('removeDatasetFromState - end');
+  return newState;
 };
 
 export const datasetsReducers = (state = INITIAL_STATE, action = {}) => {
@@ -275,17 +327,29 @@ export const datasetsReducers = (state = INITIAL_STATE, action = {}) => {
       return Object.assign({}, state, { scoreCompoundMap: {} });
 
     case constants.UPDATE_FILTER_SHOWED_SCORE_PROPERTIES:
-      if (state.filteredScoreProperties[action.payload.datasetID]) {
-        return {...state};
-      } else {
-        return {
-          ...state,
-          filteredScoreProperties: {
-            ...state.filteredScoreProperties,
-            [action.payload.datasetID]: action.payload.scoreList
-          }
-        };
+      //why is this implemeted like this? I think it should be implemented like my uncommented implementation
+      // if (state.filteredScoreProperties[action.payload.datasetID]) {
+      //   return { ...state };
+      // } else {
+      //   return {
+      //     ...state,
+      //     filteredScoreProperties: {
+      //       ...state.filteredScoreProperties,
+      //       [action.payload.datasetID]: action.payload.scoreList
+      //     }
+      //   };
+      // }
+      // if (state.filteredScoreProperties[action.payload.datasetID]) {
+      return {
+        ...state,
+        filteredScoreProperties: {
+          ...state.filteredScoreProperties,
+          [action.payload.datasetID]: action.payload.scoreList
+        }
       };
+    // } else {
+    //   return { ...state };
+    // }
 
     case constants.REMOVE_FROM_FILTER_SHOWED_SCORE_PROPERTIES:
       const diminishedFilterShowedScoreProperties = JSON.parse(JSON.stringify(state.filteredScoreProperties));
@@ -293,7 +357,7 @@ export const datasetsReducers = (state = INITIAL_STATE, action = {}) => {
       return Object.assign({}, state, { filteredScoreProperties: diminishedFilterShowedScoreProperties });
 
     case constants.SET_SEARCH_STRING:
-      return Object.assign({}, state, { searchString: action.payload });
+      return Object.assign({}, state, { searchString: action.payload.searchString });
 
     case constants.SET_IS_OPEN_INSPIRATION_DIALOG:
       return Object.assign({}, state, { isOpenInspirationDialog: action.payload });
@@ -362,6 +426,28 @@ export const datasetsReducers = (state = INITIAL_STATE, action = {}) => {
     case constants.SET_ALL_INSPIRATIONS:
       return { ...state, allInspirations: action.payload };
 
+    case constants.APPEND_COMPOUND_TO_SELECTED_COMPOUNDS_BY_DATASET:
+      const setOfcompounds = new Set(state.selectedCompoundsByDataset[action.payload.datasetID]);
+      setOfcompounds.add(action.payload.compoundID);
+      return {
+        ...state,
+        selectedCompoundsByDataset: {
+          ...state.selectedCompoundsByDataset,
+          [action.payload.datasetID]: [...setOfcompounds]
+        }
+      };
+
+    case constants.REMOVE_COMPOUND_FROM_SELECTED_COMPOUNDS_BY_DATASET:
+      const listOfcompounds = new Set(state.selectedCompoundsByDataset[action.payload.datasetID]);
+      listOfcompounds.delete(action.payload.compoundID);
+      return {
+        ...state,
+        selectedCompoundsByDataset: {
+          ...state.selectedCompoundsByDataset,
+          [action.payload.datasetID]: [...listOfcompounds]
+        }
+      };
+
     case constants.APPEND_MOLECULE_TO_COMPOUNDS_TO_BUY_OF_DATASET:
       const setOfMolecules = new Set(state.compoundsToBuyDatasetMap[action.payload.datasetID]);
       setOfMolecules.add(action.payload.moleculeID);
@@ -383,6 +469,65 @@ export const datasetsReducers = (state = INITIAL_STATE, action = {}) => {
           [action.payload.datasetID]: [...listOfMolecules]
         }
       };
+
+    case constants.APPEND_COMPOUND_COLOR_OF_DATASET:
+      const setOfCompoundColors = { ...state.compoundColorByDataset[action.payload.datasetID] };
+      if (setOfCompoundColors.hasOwnProperty(action.payload.compoundID)) {
+        if (!setOfCompoundColors[action.payload.compoundID].includes(action.payload.colorClass)) {
+          setOfCompoundColors[action.payload.compoundID] = [
+            ...setOfCompoundColors[action.payload.compoundID],
+            action.payload.colorClass
+          ];
+        }
+      } else {
+        setOfCompoundColors[action.payload.compoundID] = [action.payload.colorClass];
+      }
+      return {
+        ...state,
+        compoundColorByDataset: {
+          ...state.compoundColorByDataset,
+          [action.payload.datasetID]: { ...setOfCompoundColors }
+        }
+      };
+
+    case constants.REMOVE_COMPOUND_COLOR_OF_DATASET:
+      const listOfCompoundColors = { ...state.compoundColorByDataset[action.payload.datasetID] };
+      if (listOfCompoundColors.hasOwnProperty(action.payload.compoundID)) {
+        const colors = listOfCompoundColors[action.payload.compoundID].filter(c => c !== action.payload.colorClass);
+        if (colors.length > 0) {
+          listOfCompoundColors[action.payload.compoundID] = [...colors];
+        } else {
+          delete listOfCompoundColors[action.payload.compoundID];
+        }
+      }
+      return {
+        ...state,
+        compoundColorByDataset: {
+          ...state.compoundColorByDataset,
+          [action.payload.datasetID]: { ...listOfCompoundColors }
+        }
+      };
+
+    case constants.SET_EDITED_COLOR_GROUP:
+      return { ...state, editedColorGroup: action.colorGroup };
+
+    case constants.APPEND_COLOR_TO_SELECTED_COLOR_FILTERS:
+      const newColorMap = { ...state.selectedColorsInFilter };
+      if (!newColorMap.hasOwnProperty(action.payload.colorClass)) {
+        newColorMap[action.payload.colorClass] = action.payload.colorClass;
+        return { ...state, selectedColorsInFilter: newColorMap };
+      } else {
+        return state;
+      }
+
+    case constants.REMOVE_COLOR_FROM_SELECTED_COLOR_FILTERS:
+      const newColorMap2 = { ...state.selectedColorsInFilter };
+      if (newColorMap2.hasOwnProperty(action.payload.colorClass)) {
+        delete newColorMap2[action.payload.colorClass];
+        return { ...state, selectedColorsInFilter: newColorMap2 };
+      } else {
+        return state;
+      }
 
     case constants.RELOAD_DATASETS_REDUCER:
       const lists = {
@@ -414,7 +559,7 @@ export const datasetsReducers = (state = INITIAL_STATE, action = {}) => {
     case constants.SET_DESELECTED_ALL:
       return removeFromList(state, 'moleculeAllSelection', action.payload.datasetID, action.payload.item.id);
 
-    case constants.SET_SELECTED_ALL_BY_TYPE:
+    case constants.SET_SELECTED_BY_TYPE:
       return Object.assign({}, state, {
         moleculeAllTypeSelection: action.payload.type
       });
@@ -423,6 +568,143 @@ export const datasetsReducers = (state = INITIAL_STATE, action = {}) => {
       return Object.assign({}, state, {
         moleculeAllTypeSelection: action.payload.type
       });
+
+    case constants.SET_DRAG_DROP_STATE: {
+      const { datasetID, dragDropState } = action.payload;
+      const dragDropMap = { ...state.dragDropMap, [datasetID]: dragDropState };
+      return { ...state, dragDropMap };
+    }
+
+    case constants.DRAG_DROP_STARTED: {
+      const { datasetID, startIndex } = action.payload;
+      const { dragDropMap } = state;
+      const dragDropStatus = {
+        inProgress: true,
+        startingDragDropState: dragDropMap[datasetID],
+        startingIndex: startIndex
+      };
+      return { ...state, dragDropStatus };
+    }
+
+    case constants.DRAG_DROP_FINISHED: {
+      const dragDropStatus = {
+        inProgress: false
+      };
+      return { ...state, dragDropStatus };
+    }
+
+    case constants.DELETE_DATASET: {
+      const newState = { ...state, datasets: state.datasets.filter(dataset => dataset.id !== action.datasetId) };
+      return removeDatasetFromState(newState, action.datasetId);
+    }
+
+    case constants.DISABLE_DATASET_NGL_CONTROL_BUTTON: {
+      const { datasetId, moleculeId, type } = action.payload;
+
+      const disableDatasetsNglControlButtons = { ...state.disableDatasetsNglControlButtons };
+      const disableDatasetNglControlButtons = { ...(disableDatasetsNglControlButtons[datasetId] || {}) };
+      const moleculeNglControlButtons = { ...(disableDatasetNglControlButtons[moleculeId] || {}) };
+
+      moleculeNglControlButtons[type] = true;
+      disableDatasetNglControlButtons[moleculeId] = moleculeNglControlButtons;
+      disableDatasetsNglControlButtons[datasetId] = disableDatasetNglControlButtons;
+
+      return {
+        ...state,
+        disableDatasetsNglControlButtons
+      };
+    }
+
+    case constants.ENABLE_DATASET_NGL_CONTROL_BUTTON: {
+      const { datasetId, moleculeId, type } = action.payload;
+
+      const disableDatasetsNglControlButtons = { ...state.disableDatasetsNglControlButtons };
+      const disableDatasetNglControlButtons = { ...(disableDatasetsNglControlButtons[datasetId] || {}) };
+      const moleculeNglControlButtons = { ...(disableDatasetNglControlButtons[moleculeId] || {}) };
+
+      moleculeNglControlButtons[type] = false;
+      disableDatasetNglControlButtons[moleculeId] = moleculeNglControlButtons;
+      disableDatasetsNglControlButtons[datasetId] = disableDatasetNglControlButtons;
+
+      return {
+        ...state,
+        disableDatasetsNglControlButtons
+      };
+    }
+
+    case constants.SET_IS_OPEN_LOCK_VISIBLE_COMPOUNDS_DIALOG_GLOBAL: {
+      return { ...state, isLockVisibleCompoundsDialogOpenGlobal: action.isOpen };
+    }
+
+    case constants.SET_IS_OPEN_LOCK_VISIBLE_COMPOUNDS_DIALOG_LOCAL: {
+      return { ...state, isLockVisibleCompoundsDialogOpenLocal: action.isOpen };
+    }
+
+    case constants.SET_CMP_FOR_LOCAL_LOCK_VISIBLE_COMPOUNDS_DIALOG: {
+      return { ...state, cmpForLocalLockVisibleCompoundsDialog: action.cmp };
+    }
+
+    case constants.SET_ASK_LOCK_COMPOUNDS_QUESTION: {
+      return { ...state, askLockCompoundsQuestion: action.askLockCompoundsQuestion };
+    }
+
+    case constants.SET_ASK_LOCK_SELECTED_COMPOUNDS_QUESTION: {
+      return { ...state, askLockSelectedCompoundsQuestion: action.askLockCompoundsQuestion };
+    }
+
+    case constants.SET_SELECTED_COMPOUNDS_LIST: {
+      return { ...state, selectedCompounds: action.compoundsList };
+    }
+
+    case constants.RESET_DATASETS_STATE_ON_SNAPSHOT_CHANGE: {
+      const {
+        datasets,
+        moleculeLists,
+        scoreDatasetMap,
+        scoreCompoundMap,
+        allInspirations,
+        filteredScoreProperties,
+        selectedDatasetIndex,
+        tabValue,
+        ligandLists,
+        proteinLists,
+        complexLists,
+        surfaceLists
+      } = state;
+
+      const newState = {
+        ...INITIAL_STATE,
+        datasets,
+        moleculeLists,
+        scoreDatasetMap,
+        scoreCompoundMap,
+        allInspirations,
+        filteredScoreProperties,
+        selectedDatasetIndex,
+        tabValue,
+        inspirationLists: {},
+        moleculeAllSelection: {},
+        ligandLists,
+        proteinLists,
+        complexLists,
+        surfaceLists
+      };
+
+      Object.keys(moleculeLists).forEach(datasetID => initializeContainerLists(newState, datasetID));
+
+      return newState;
+    }
+
+    case constants.SET_DATASET_SCROLLED: {
+      const datasetId = action.payload;
+
+      return { ...state, datasetScrolledMap: { ...state.datasetScrolledMap, [datasetId]: true } };
+    }
+
+    case constants.RESET_DATASET_SCROLLED_MAP: {
+      return { ...state, datasetScrolledMap: {} };
+    }
+
     default:
       return state;
   }

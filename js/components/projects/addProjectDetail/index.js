@@ -1,5 +1,5 @@
-import React, { memo, useState } from 'react';
-import { Grid, makeStyles, Typography, FormControlLabel, Checkbox } from '@material-ui/core';
+import React, { memo, useState, useEffect, useContext } from 'react';
+import { Grid, makeStyles, FormControlLabel, Checkbox } from '@material-ui/core';
 import { DJANGO_CONTEXT } from '../../../utils/djangoContext';
 import { Form, Formik, Field } from 'formik';
 import { TextField } from 'formik-material-ui';
@@ -8,10 +8,23 @@ import { Description, Label, Title, QuestionAnswer } from '@material-ui/icons';
 import { Autocomplete } from '@material-ui/lab';
 import { Button } from '../../common/Inputs/Button';
 import { useDispatch, useSelector } from 'react-redux';
-import { createProjectFromSnapshotDialog, createProjectDiscoursePost } from '../redux/dispatchActions';
-import { manageSendTrackingActions } from '../../../reducers/tracking/dispatchActions';
+import {
+  createProjectFromSnapshotDialog,
+  createProjectDiscoursePost,
+  createProjectFromSnapshot,
+  createProjectFromScratch
+} from '../redux/dispatchActions';
 import { isDiscourseAvailable, getExistingPost, isDiscourseUserAvailable } from '../../../utils/discourse';
 import { RegisterNotice } from '../../discourse/RegisterNotice';
+import ModalNewProject from '../../common/ModalNewProject';
+import moment from 'moment';
+import { createNewSnapshot, getListOfSnapshots } from '../../snapshot/redux/dispatchActions';
+import { setProjectModalIsLoading } from '../../projects/redux/actions';
+import { manageSendTrackingActions } from '../../../reducers/tracking/dispatchActions';
+import { setOpenSnapshotSavingDialog } from '../../snapshot/redux/actions';
+import { SnapshotType } from '../redux/constants';
+import { NglContext } from '../../nglView/nglProvider';
+import { VIEWS } from '../../../constants/constants';
 
 const useStyles = makeStyles(theme => ({
   body: {
@@ -31,7 +44,7 @@ const useStyles = makeStyles(theme => ({
   }
 }));
 
-export const AddProjectDetail = memo(({ handleCloseModal }) => {
+export const AddProjectDetail = memo(({}) => {
   const classes = useStyles();
   const [state, setState] = useState();
   let [createDiscourse, setCreateDiscourse] = useState(true);
@@ -39,25 +52,32 @@ export const AddProjectDetail = memo(({ handleCloseModal }) => {
   const dispatch = useDispatch();
   const targetId = useSelector(state => state.apiReducers.target_on);
   const targetName = useSelector(state => state.apiReducers.target_on_name);
-  const projectID = useSelector(state => state.projectReducers.currentProject.projectID);
+  const sessionProjectID = useSelector(state => state.projectReducers.currentProject.projectID);
   const isProjectModalLoading = useSelector(state => state.projectReducers.isProjectModalLoading);
+  const currentProject = useSelector(state => state.targetReducers.currentProject);
+  const isForceProjectCreated = useSelector(state => state.projectReducers.isForceProjectCreated);
+
+  const currentSnapshot = useSelector(state => state.projectReducers.currentSnapshot);
+
+  const { nglViewList, getNglView } = useContext(NglContext);
+  const stage = getNglView(VIEWS.MAJOR_VIEW) && getNglView(VIEWS.MAJOR_VIEW).stage;
 
   const [tags, setTags] = React.useState([]);
 
   const discourseAvailable = isDiscourseAvailable();
   const dicourseUserAvailable = isDiscourseUserAvailable();
 
+  const actualDate = moment().format('-YYYY-MM-DD');
+
   createDiscourse &= dicourseUserAvailable;
 
   const validateProjectName = async value => {
     let error;
-    // console.log(`Project title validating and value is: ${value}`);
 
     if (!value) {
       error = 'Required!';
     } else if (createDiscourse) {
       const response = await getExistingPost(value);
-      // console.log(response);
       if (response.data['Post url']) {
         error = 'Already exists!';
       }
@@ -66,13 +86,22 @@ export const AddProjectDetail = memo(({ handleCloseModal }) => {
     return error;
   };
 
+  const handleCloseModal = () => {
+    if (isProjectModalLoading === true) {
+      dispatch(setProjectModalIsLoading(false));
+    }
+  };
+
+  useEffect(() => {
+    dispatch(getListOfSnapshots());
+  }, [dispatch]);
+
   return (
-    <>
-      <Typography variant="h3">Project Details</Typography>
+    <ModalNewProject open={isProjectModalLoading}>
       <Formik
         initialValues={{
-          title: '',
-          description: '',
+          title: targetName + actualDate,
+          description: 'Project created from ' + targetName,
           tags: ''
         }}
         validate={values => {
@@ -85,19 +114,42 @@ export const AddProjectDetail = memo(({ handleCloseModal }) => {
           return errors;
         }}
         onSubmit={values => {
-          const data = {
+          let data = {
             title: values.title,
             description: values.description,
             target: targetId,
             author: DJANGO_CONTEXT['pk'] || null,
-            tags: JSON.stringify(tags)
+            tags: JSON.stringify(tags),
+            project: currentProject?.id,
+            projectID: currentProject?.projectID
           };
 
-          const oldProjectID = projectID;
+          const snapshotData = {
+            title: moment().format('-- YYYY-MM-DD -- HH:mm:ss'),
+            description:
+              DJANGO_CONTEXT['pk'] === undefined
+                ? 'Snapshot generated by anonymous user'
+                : `snapshot generated by ${DJANGO_CONTEXT['username']}`,
+            tags: '',
+            type: SnapshotType.MANUAL,
+            author: DJANGO_CONTEXT['pk'] || null,
+            parent: isForceProjectCreated === false ? currentSnapshot.id : null,
+            session_project: currentProject.projectID,
+            nglViewList: nglViewList,
+            stage: stage,
+            overwriteSnapshot: false,
+            createDiscourse: false
+          };
+
+          const oldProjectID = sessionProjectID;
           if (createDiscourse) {
             dispatch(createProjectDiscoursePost(values.title, targetName, values.description, tags))
               .then(() => dispatch(createProjectFromSnapshotDialog(data)))
               .then(() => dispatch(manageSendTrackingActions(oldProjectID, true)))
+              .then(() =>
+                dispatch(createNewSnapshot({ ...snapshotData, createDiscourse: true, session_project: data.projectID }))
+              )
+              .then(() => handleCloseModal())
               .catch(error => {
                 setState(() => {
                   throw error;
@@ -107,7 +159,11 @@ export const AddProjectDetail = memo(({ handleCloseModal }) => {
             dispatch(createProjectFromSnapshotDialog(data))
               .then(() => {
                 dispatch(manageSendTrackingActions(oldProjectID, true));
+                // handleCloseModal();
+                // dispatch(setOpenSnapshotSavingDialog(true));
               })
+              .then(() => dispatch(createNewSnapshot({ ...snapshotData, session_project: data.projectID })))
+              .then(() => handleCloseModal())
               .catch(error => {
                 setState(() => {
                   throw error;
@@ -129,7 +185,7 @@ export const AddProjectDetail = memo(({ handleCloseModal }) => {
                       name="title"
                       label="Title"
                       required
-                      disabled={isProjectModalLoading || isSubmitting}
+                      disabled={isSubmitting}
                       validate={validateProjectName}
                     />
                   }
@@ -145,7 +201,7 @@ export const AddProjectDetail = memo(({ handleCloseModal }) => {
                       name="description"
                       label="Description"
                       required
-                      disabled={isProjectModalLoading || isSubmitting}
+                      disabled={isSubmitting}
                     />
                   }
                 />
@@ -163,7 +219,6 @@ export const AddProjectDetail = memo(({ handleCloseModal }) => {
                       onChange={(e, data) => {
                         setTags(data);
                       }}
-                      disabled={isProjectModalLoading}
                       renderInput={params => (
                         <Field
                           component={TextField}
@@ -190,7 +245,6 @@ export const AddProjectDetail = memo(({ handleCloseModal }) => {
                     <FormControlLabel
                       control={
                         <Checkbox
-                          checked={createDiscourse}
                           onChange={() => setCreateDiscourse(!createDiscourse)}
                           disabled={
                             !discourseAvailable || !dicourseUserAvailable || isProjectModalLoading || isSubmitting
@@ -211,12 +265,12 @@ export const AddProjectDetail = memo(({ handleCloseModal }) => {
             </Grid>
             <Grid container justify="flex-end" direction="row">
               <Grid item>
-                <Button color="secondary" disabled={isProjectModalLoading || isSubmitting} onClick={handleCloseModal}>
+                <Button color="secondary" onClick={handleCloseModal}>
                   Cancel
                 </Button>
               </Grid>
               <Grid item>
-                <Button color="primary" onClick={submitForm} disabled={isSubmitting} loading={isProjectModalLoading}>
+                <Button color="primary" onClick={submitForm} disabled={isSubmitting}>
                   Create
                 </Button>
               </Grid>
@@ -224,6 +278,6 @@ export const AddProjectDetail = memo(({ handleCloseModal }) => {
           </Form>
         )}
       </Formik>
-    </>
+    </ModalNewProject>
   );
 });

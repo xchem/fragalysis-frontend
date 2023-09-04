@@ -2,23 +2,28 @@ import {
   setCurrentActionsList,
   setIsTrackingMoleculesRestoring,
   setIsTrackingCompoundsRestoring,
-  setIsUndoRedoAction
+  setIsUndoRedoAction,
+  setProjectActionListLoaded,
+  setIsSnapshotDirty
 } from './actions';
 import { createInitAction } from './trackingActions';
-import { actionType, actionObjectType, NUM_OF_SECONDS_TO_IGNORE_MERGE } from './constants';
+import { actionType, actionObjectType, NUM_OF_SECONDS_TO_IGNORE_MERGE, mapTypesStrings } from './constants';
 import { VIEWS } from '../../../js/constants/constants';
-import { setHideAll, setArrowUpDown } from '../selection/actions';
+import {
+  setHideAll,
+  setArrowUpDown,
+  appendToMolListToEdit,
+  removeFromMolListToEdit,
+  setNextXMolecules
+} from '../selection/actions';
 import {
   resetReducersForRestoringActions,
   shouldLoadProtein,
   loadProteinOfRestoringActions
 } from '../../components/preview/redux/dispatchActions';
 import { setCurrentProject } from '../../components/projects/redux/actions';
-import {
-  selectMoleculeGroup,
-  onDeselectMoleculeGroup,
-  loadMoleculeGroupsOfTarget
-} from '../../components/preview/moleculeGroups/redux/dispatchActions';
+import { setCurrentProject as setProject } from '../../components/target/redux/actions';
+import { loadMoleculeGroupsOfTarget } from '../../components/preview/moleculeGroups/redux/dispatchActions';
 import { loadTargetList } from '../../components/target/redux/dispatchActions';
 import { resetTargetState, setTargetOn } from '../api/actions';
 import {
@@ -26,24 +31,31 @@ import {
   addLigand,
   addHitProtein,
   addSurface,
+  addQuality,
   addVector,
   removeComplex,
   removeLigand,
   removeHitProtein,
   removeSurface,
+  removeQuality,
   removeVector,
   moveSelectedMolSettings,
-  removeAllSelectedMolTypes,
-  hideAllSelectedMolecules
+  removeSelectedMolTypes,
+  hideAllSelectedMolecules,
+  addDensity,
+  addDensityCustomView,
+  removeDensity,
+  getProteinData,
+  selectAllHits
 } from '../../components/preview/molecule/redux/dispatchActions';
-import { setSortDialogOpen } from '../../components/preview/molecule/redux/actions';
+import { setSortDialogOpen, setSearchStringOfHitNavigator } from '../../components/preview/molecule/redux/actions';
 import {
   handleBuyList,
   handleBuyListAll,
   handleShowVectorCompound
 } from '../../components/preview/compounds/redux/dispatchActions';
 import { setCurrentCompoundClass, setCompoundClasses } from '../../components/preview/compounds/redux/actions';
-import { colourList } from '../../components/preview/molecule/moleculeView';
+import { colourList } from '../../components/preview/molecule/utils/color';
 import {
   addDatasetComplex,
   addDatasetLigand,
@@ -55,7 +67,7 @@ import {
   removeDatasetSurface,
   loadDataSets,
   loadDatasetCompoundsWithScores,
-  removeAllSelectedDatasetMolecules,
+  removeSelectedDatasetMolecules,
   moveSelectedMoleculeSettings,
   moveSelectedInspirations,
   moveMoleculeInspirationsSettings,
@@ -72,10 +84,15 @@ import {
   setFilterProperties,
   setFilterSettings,
   updateFilterShowedScoreProperties,
-  setFilterShowedScoreProperties
+  setFilterShowedScoreProperties,
+  setDragDropState,
+  resetDatasetScrolledMap,
+  setSearchStringOfCompoundSet,
+  appendCompoundToSelectedCompoundsByDataset,
+  removeCompoundFromSelectedCompoundsByDataset,
+  appendCompoundColorOfDataset,
+  removeCompoundColorOfDataset
 } from '../../components/datasets/redux/actions';
-import { setAllMolLists } from '../api/actions';
-import { getUrl, loadAllMolsFromMolGroup } from '../../../js/utils/genericList';
 import {
   removeComponentRepresentation,
   addComponentRepresentation,
@@ -84,8 +101,7 @@ import {
   updateComponentRepresentationVisibilityAll,
   changeComponentRepresentation
 } from '../../../js/reducers/ngl/actions';
-import { NGL_PARAMS, NGL_VIEW_DEFAULT_VALUES } from '../../components/nglView/constants';
-import * as listType from '../../constants/listTypes';
+import { NGL_PARAMS, NGL_VIEW_DEFAULT_VALUES, COMMON_PARAMS } from '../../components/nglView/constants';
 import { assignRepresentationToComp } from '../../components/nglView/generatingObjects';
 import {
   deleteObject,
@@ -95,7 +111,13 @@ import {
   setNglClipFar,
   setNglClipDist,
   setNglFogNear,
-  setNglFogFar
+  setNglFogFar,
+  setIsoLevel,
+  setBoxSize,
+  setOpacity,
+  setContour,
+  setWarningIcon,
+  setElectronDesityMapColor
 } from '../../../js/reducers/ngl/dispatchActions';
 import {
   setSendActionsList,
@@ -134,6 +156,15 @@ import {
 } from '../../components/datasets/redux/actions';
 import { selectVectorAndResetCompounds } from '../../../js/reducers/selection/dispatchActions';
 import { ActionCreators as UndoActionCreators } from '../../undoredo/actions';
+import { hideShapeRepresentations } from '../../components/nglView/redux/dispatchActions';
+import { MAP_TYPE } from '../ngl/constants';
+import {
+  removeSelectedTag,
+  addSelectedTag,
+  loadMoleculesAndTags
+} from '../../components/preview/tags/redux/dispatchActions';
+import { turnSide } from '../../components/preview/viewerControls/redux/actions';
+import { getQualityOffActions } from './utils';
 
 export const addCurrentActionsListToSnapshot = (snapshot, project, nglViewList) => async (dispatch, getState) => {
   let projectID = project && project.projectID;
@@ -160,14 +191,21 @@ const saveActionsList = (project, snapshot, actionList, nglViewList) => async (d
   if (snapshotID) {
     const currentTargetOn = state.apiReducers.target_on;
     const currentSites = state.selectionReducers.mol_group_selection;
+    const currentTags =
+      state.selectionReducers.selectedTagList && state.selectionReducers.selectedTagList.map(value => value.id);
     const currentLigands = state.selectionReducers.fragmentDisplayList;
     const currentProteins = state.selectionReducers.proteinList;
     const currentComplexes = state.selectionReducers.complexList;
     const currentSurfaces = state.selectionReducers.surfaceList;
+    const currentQualities = state.selectionReducers.qualityList;
+    const currentDensities = state.selectionReducers.densityList;
+    const currentDensitiesCustom = state.selectionReducers.densityListCustom;
+    const currentDensitiesType = state.selectionReducers.densityListType;
     const currentVectors = state.selectionReducers.vectorOnList;
     const currentBuyList = state.selectionReducers.to_buy_list;
     const currentVector = state.selectionReducers.currentVector;
     const currentSelectionAll = state.selectionReducers.moleculeAllSelection;
+    const selectedMolecules = state.selectionReducers.moleculesToEdit;
 
     const currentDatasetLigands = state.datasetsReducers.ligandLists;
     const currentDatasetProteins = state.datasetsReducers.proteinLists;
@@ -177,6 +215,8 @@ const saveActionsList = (project, snapshot, actionList, nglViewList) => async (d
 
     const showedCompoundList = state.previewReducers.compounds.showedCompoundList;
     const currentDatasetBuyList = state.datasetsReducers.compoundsToBuyDatasetMap;
+    const currentLockedCompounds = state.datasetsReducers.selectedCompoundsByDataset;
+    const currentColorsOfCompounds = state.datasetsReducers.compoundColorByDataset;
     const currentobjectsInView = state.nglReducers.objectsInView;
 
     const currentTargets = (currentTargetOn && [currentTargetOn]) || [];
@@ -188,6 +228,7 @@ const saveActionsList = (project, snapshot, actionList, nglViewList) => async (d
 
     getCurrentActionList(orderedActionList, actionType.TARGET_LOADED, getCollection(currentTargets), currentActions);
     getCurrentActionList(orderedActionList, actionType.SITE_TURNED_ON, getCollection(currentSites), currentActions);
+    getCurrentActionList(orderedActionList, actionType.TAG_SELECTED, getCollection(currentTags), currentActions);
     getCurrentActionList(orderedActionList, actionType.LIGAND_TURNED_ON, getCollection(currentLigands), currentActions);
 
     getCurrentActionListOfAllSelection(
@@ -202,7 +243,7 @@ const saveActionsList = (project, snapshot, actionList, nglViewList) => async (d
 
     getCurrentActionListOfAllSelectionByType(
       orderedActionList,
-      actionType.ALL_TURNED_ON_BY_TYPE,
+      actionType.SELECTED_TURNED_ON_BY_TYPE,
       'ligand',
       getCollection(currentLigands),
       currentActions
@@ -210,7 +251,7 @@ const saveActionsList = (project, snapshot, actionList, nglViewList) => async (d
 
     getCurrentActionListOfAllSelectionByType(
       orderedActionList,
-      actionType.ALL_TURNED_ON_BY_TYPE,
+      actionType.SELECTED_TURNED_ON_BY_TYPE,
       'protein',
       getCollection(currentProteins),
       currentActions
@@ -218,7 +259,7 @@ const saveActionsList = (project, snapshot, actionList, nglViewList) => async (d
 
     getCurrentActionListOfAllSelectionByType(
       orderedActionList,
-      actionType.ALL_TURNED_ON_BY_TYPE,
+      actionType.SELECTED_TURNED_ON_BY_TYPE,
       'complex',
       getCollection(currentComplexes),
       currentActions
@@ -226,7 +267,7 @@ const saveActionsList = (project, snapshot, actionList, nglViewList) => async (d
 
     getCurrentActionListOfAllSelectionByTypeOfDataset(
       orderedActionList,
-      actionType.ALL_TURNED_ON_BY_TYPE,
+      actionType.SELECTED_TURNED_ON_BY_TYPE,
       'ligand',
       getCollectionOfDataset(currentDatasetLigands),
       currentActions
@@ -234,7 +275,7 @@ const saveActionsList = (project, snapshot, actionList, nglViewList) => async (d
 
     getCurrentActionListOfAllSelectionByTypeOfDataset(
       orderedActionList,
-      actionType.ALL_TURNED_ON_BY_TYPE,
+      actionType.SELECTED_TURNED_ON_BY_TYPE,
       'protein',
       getCollectionOfDataset(currentDatasetProteins),
       currentActions
@@ -242,7 +283,7 @@ const saveActionsList = (project, snapshot, actionList, nglViewList) => async (d
 
     getCurrentActionListOfAllSelectionByTypeOfDataset(
       orderedActionList,
-      actionType.ALL_TURNED_ON_BY_TYPE,
+      actionType.SELECTED_TURNED_ON_BY_TYPE,
       'complex',
       getCollectionOfDataset(currentDatasetComplexes),
       currentActions
@@ -256,6 +297,13 @@ const saveActionsList = (project, snapshot, actionList, nglViewList) => async (d
       getCollectionOfDataset(currentDatasetLigands),
       getCollectionOfDataset(currentDatasetProteins),
       getCollectionOfDataset(currentDatasetComplexes)
+    );
+
+    getCurrentActionListOfSelectAllMolecules(
+      orderedActionList,
+      actionType.ALL_MOLECULES_SELECTED,
+      getCollection(selectedMolecules),
+      currentActions
     );
 
     getCurrentActionList(
@@ -275,6 +323,32 @@ const saveActionsList = (project, snapshot, actionList, nglViewList) => async (d
       orderedActionList,
       actionType.SURFACE_TURNED_ON,
       getCollection(currentSurfaces),
+      currentActions
+    );
+    dispatch(getQualityOffActions(orderedActionList, currentActions));
+    // getCurrentActionList(
+    //   orderedActionList,
+    //   actionType.QUALITY_TURNED_OFF,
+    //   getCollection(currentQualities),
+    //   currentActions
+    // );
+    getCurrentActionList(
+      orderedActionList,
+      actionType.DENSITY_TURNED_ON,
+      getCollection(currentDensities),
+      currentActions
+    );
+    getCurrentActionList(
+      orderedActionList,
+      actionType.MOLECULE_SELECTED,
+      getCollection(selectedMolecules),
+      currentActions
+    );
+    getCurrentActionList(orderedActionList, actionType.DENSITY_TYPE_ON, currentDensitiesType, currentActions);
+    getCurrentActionList(
+      orderedActionList,
+      actionType.DENSITY_CUSTOM_TURNED_ON,
+      getCollection(currentDensitiesCustom),
       currentActions
     );
     getCurrentActionList(
@@ -355,6 +429,20 @@ const saveActionsList = (project, snapshot, actionList, nglViewList) => async (d
 
     getCurrentActionList(
       orderedActionList,
+      actionType.COMPOUND_LOCKED,
+      getCollectionOfDataset(currentLockedCompounds),
+      currentActions
+    );
+
+    getCurrentActionList(
+      orderedActionList,
+      actionType.COMPOUND_ADDED_TO_COLOR_GROUP,
+      getCollectionOfDatasetColors(currentColorsOfCompounds),
+      currentActions
+    );
+
+    getCurrentActionList(
+      orderedActionList,
       actionType.REPRESENTATION_UPDATED,
       getCollectionOfDatasetOfRepresentation(currentobjectsInView),
       currentActions
@@ -366,6 +454,42 @@ const saveActionsList = (project, snapshot, actionList, nglViewList) => async (d
     getCommonLastActionByType(orderedActionList, actionType.DATASET_FILTER_SCORE, currentActions);
     getCommonLastActionByType(orderedActionList, actionType.CLASS_SELECTED, currentActions);
     getCommonLastActionByType(orderedActionList, actionType.CLASS_UPDATED, currentActions);
+    getCommonLastActionByType(orderedActionList, actionType.ISO_LEVEL_EVENT, currentActions);
+    getCommonLastActionByType(orderedActionList, actionType.BOX_SIZE_EVENT, currentActions);
+    getCommonLastActionByType(orderedActionList, actionType.OPACITY_EVENT, currentActions);
+    getCommonLastActionByType(orderedActionList, actionType.CONTOUR_EVENT, currentActions);
+    getCommonLastActionByType(orderedActionList, actionType.COLOR_EVENT, currentActions);
+    getCommonLastActionByType(orderedActionList, actionType.ISO_LEVEL_SIGMAA, currentActions);
+    getCommonLastActionByType(orderedActionList, actionType.BOX_SIZE_SIGMAA, currentActions);
+    getCommonLastActionByType(orderedActionList, actionType.OPACITY_SIGMAA, currentActions);
+    getCommonLastActionByType(orderedActionList, actionType.CONTOUR_SIGMAA, currentActions);
+    getCommonLastActionByType(orderedActionList, actionType.COLOR_SIGMAA, currentActions);
+    getCommonLastActionByType(orderedActionList, actionType.ISO_LEVEL_DIFF, currentActions);
+    getCommonLastActionByType(orderedActionList, actionType.BOX_SIZE_DIFF, currentActions);
+    getCommonLastActionByType(orderedActionList, actionType.OPACITY_DIFF, currentActions);
+    getCommonLastActionByType(orderedActionList, actionType.CONTOUR_DIFF, currentActions);
+    getCommonLastActionByType(orderedActionList, actionType.COLOR_DIFF, currentActions);
+    getCommonLastActionByType(orderedActionList, actionType.WARNING_ICON, currentActions);
+    getCommonLastActionByType(orderedActionList, actionType.BACKGROUND_COLOR_CHANGED, currentActions);
+    getCommonLastActionByType(orderedActionList, actionType.CLIP_NEAR, currentActions);
+    getCommonLastActionByType(orderedActionList, actionType.CLIP_FAR, currentActions);
+    getCommonLastActionByType(orderedActionList, actionType.CLIP_DIST, currentActions);
+    getCommonLastActionByType(orderedActionList, actionType.FOG_NEAR, currentActions);
+    getCommonLastActionByType(orderedActionList, actionType.FOG_FAR, currentActions);
+    getCommonLastActionByType(orderedActionList, actionType.SEARCH_STRING, currentActions);
+    getCommonLastActionByType(orderedActionList, actionType.SEARCH_STRING_HIT_NAVIGATOR, currentActions);
+
+    // Since drag and drop state can be influenced by filter as well, determine its state by the last influential action
+    const action = orderedActionList.find(action =>
+      [actionType.DRAG_DROP_FINISHED, actionType.DATASET_FILTER].includes(action.type)
+    );
+    if (action) {
+      currentActions.push({ ...action, type: actionType.DRAG_DROP_FINISHED });
+    }
+
+    // Sides
+    getLastActionByCriteria(orderedActionList, actionType.TURN_SIDE, action => action.side === 'LHS', currentActions);
+    getLastActionByCriteria(orderedActionList, actionType.TURN_SIDE, action => action.side === 'RHS', currentActions);
 
     if (nglViewList) {
       let nglStateList = nglViewList.map(nglView => {
@@ -462,12 +586,23 @@ export const saveTrackingActions = (currentActions, snapshotID) => async (dispat
   }
 };
 
+// const getCurrentActionListForTags = (orderedActionList, type, collection, currentActions) => {
+//   let actionList = orderedActionList.filter(action => action.type === type);
+// };
+
 const getCurrentActionList = (orderedActionList, type, collection, currentActions) => {
   let actionList = orderedActionList.filter(action => action.type === type);
 
   if (collection) {
     collection.forEach(data => {
-      let action = actionList.find(a => a.object_id === data.id && a.dataset_id === data.datasetId);
+      let action = null;
+      if (data.hasOwnProperty('color')) {
+        action = actionList.find(
+          a => a.object_id === data.id && a.dataset_id === data.datasetId && a.color_class === data.color
+        );
+      } else {
+        action = actionList.find(a => a.object_id === data.id && a.dataset_id === data.datasetId);
+      }
 
       if (action) {
         currentActions.push(Object.assign({ ...action }));
@@ -480,6 +615,13 @@ const getCommonLastActionByType = (orderedActionList, type, currentActions) => {
   let action = orderedActionList.find(action => action.type === type);
   if (action) {
     currentActions.push(Object.assign({ ...action }));
+  }
+};
+
+const getLastActionByCriteria = (orderedActionList, type, criteriaFunction, currentActions) => {
+  const action = orderedActionList.find(action => action.type === type && criteriaFunction(action));
+  if (action) {
+    currentActions.push({ ...action });
   }
 };
 
@@ -568,6 +710,22 @@ const getCurrentActionListOfAllSelectionByTypeOfDataset = (
   }
 };
 
+const getCurrentActionListOfSelectAllMolecules = (orderedActionList, type, collection, currentActions) => {
+  let action = orderedActionList.find(action => action.type === type);
+  if (action && collection) {
+    let actionItems = action.items;
+    let items = [];
+    collection.forEach(data => {
+      let item = actionItems.find(ai => ai.id === data.id);
+      if (item) {
+        items.push(item);
+      }
+    });
+
+    currentActions.push(Object.assign({ ...action, items: items }));
+  }
+};
+
 const getCurrentActionListOfShoppingCart = (orderedActionList, type, collection, currentActions) => {
   let actionList = orderedActionList.filter(action => action.type === type);
 
@@ -615,6 +773,23 @@ const getCollectionOfDataset = dataList => {
       if (values) {
         var result = values.map(value => ({ id: value, datasetId: datasetId }));
         list.push(...result);
+      }
+    }
+  }
+  return list;
+};
+
+const getCollectionOfDatasetColors = dataList => {
+  let list = [];
+  if (dataList) {
+    for (const datasetId in dataList) {
+      let values = dataList[datasetId];
+      if (values) {
+        for (const cmpId in values) {
+          const colors = values[cmpId];
+          var result = colors?.map(color => ({ id: Number(cmpId), datasetId: datasetId, color: color }));
+          list.push(...result);
+        }
       }
     }
   }
@@ -695,7 +870,7 @@ const restoreTrackingActions = snapshotID => async (dispatch, getState) => {
   }
 };
 
-const restoreStateBySavedActionList = () => (dispatch, getState) => {
+export const restoreStateBySavedActionList = () => (dispatch, getState) => {
   const state = getState();
 
   const currentActionList = state.trackingReducers.current_actions_list;
@@ -703,7 +878,10 @@ const restoreStateBySavedActionList = () => (dispatch, getState) => {
 
   let onCancel = () => {};
   dispatch(loadTargetList(onCancel))
-    .then(() => dispatch(restoreTargetActions(orderedActionList)))
+    .then(() => {
+      dispatch(restoreTargetActions(orderedActionList));
+      dispatch(setIsSnapshotDirty(false));
+    })
     .catch(error => {
       throw new Error(error);
     });
@@ -733,13 +911,11 @@ export const restoreAfterTargetActions = (stages, projectId) => async (dispatch,
 
   if (targetId && stages && stages.length > 0) {
     const majorView = stages.find(view => view.id === VIEWS.MAJOR_VIEW);
-    const summaryView = stages.find(view => view.id === VIEWS.SUMMARY_VIEW);
 
     await dispatch(loadProteinOfRestoringActions({ nglViewList: stages }));
 
     await dispatch(
       loadMoleculeGroupsOfTarget({
-        summaryView: summaryView.stage,
         isStateLoaded: false,
         setOldUrl: url => {},
         target_on: targetId
@@ -750,95 +926,407 @@ export const restoreAfterTargetActions = (stages, projectId) => async (dispatch,
       })
       .finally(() => {});
 
-    await dispatch(restoreSitesActions(orderedActionList, summaryView));
+    await dispatch(restoreSitesActions(orderedActionList));
     await dispatch(loadData(orderedActionList, targetId, majorView));
+    await dispatch(restoreTagActions(orderedActionList));
     await dispatch(restoreMoleculesActions(orderedActionList, majorView.stage));
     await dispatch(restoreRepresentationActions(orderedActionList, stages));
     await dispatch(restoreProject(projectId));
+    dispatch(restoreMoleculeSelectionActions(orderedActionList));
     dispatch(restoreTabActions(orderedActionList));
     await dispatch(restoreCartActions(orderedActionList, majorView.stage));
-
     dispatch(restoreSnapshotImageActions(projectId));
     dispatch(restoreNglStateAction(orderedActionList, stages));
+    dispatch(restoreNglSettingsAction(orderedActionList, majorView.stage));
     dispatch(setIsActionsRestoring(false, true));
+    dispatch(restoreViewerControlActions(orderedActionList));
+    dispatch(resetDatasetScrolledMap()); // Have a look at useScrollToSelected.js
+    dispatch(setIsSnapshotDirty(false));
+    dispatch(restoreSearchString(orderedActionList));
+    dispatch(restoreSearchStringHitNavigator(orderedActionList));
+  }
+};
+
+export const restoreMoleculeSelectionActions = orderedActionList => (dispatch, getState) => {
+  const state = getState();
+  let actions = orderedActionList.filter(action => action.type === actionType.MOLECULE_SELECTED);
+  if (actions) {
+    actions.forEach(a => {
+      const mol = getMolecule(a.object_name, state);
+      dispatch(appendToMolListToEdit(mol.id));
+    });
   }
 };
 
 export const restoreNglViewSettings = stages => (dispatch, getState) => {
+  const majorViewStage = stages.find(view => view.id === VIEWS.MAJOR_VIEW).stage;
+
+  dispatch(restoreNglSettingsAction([], majorViewStage));
+};
+
+export const restoreNglSettingsAction = (orderedActionList, majorViewStage) => (dispatch, getState) => {
   const state = getState();
-  const majorView = stages.find(view => view.id === VIEWS.MAJOR_VIEW).stage;
-  const summaryView = stages.find(view => view.id === VIEWS.SUMMARY_VIEW).stage;
-
   const viewParams = state.nglReducers.viewParams;
-
-  const currentActionList = state.trackingReducers.track_actions_list;
-  const orderedActionList = currentActionList.reverse((a, b) => a.timestamp - b.timestamp);
 
   let backgroundAction = orderedActionList.find(action => action.type === actionType.BACKGROUND_COLOR_CHANGED);
   if (backgroundAction && backgroundAction.newSetting !== undefined) {
     let value = backgroundAction.newSetting;
-    dispatch(setNglBckGrndColor(value, majorView, summaryView));
+    dispatch(setNglBckGrndColor(value, majorViewStage));
   } else {
-    dispatch(setNglBckGrndColor(NGL_VIEW_DEFAULT_VALUES[NGL_PARAMS.backgroundColor], majorView, summaryView));
+    dispatch(setNglBckGrndColor(NGL_VIEW_DEFAULT_VALUES[NGL_PARAMS.backgroundColor], majorViewStage));
   }
 
   let clipNearAction = orderedActionList.find(action => action.type === actionType.CLIP_NEAR);
   if (clipNearAction && clipNearAction.newSetting !== undefined) {
     let value = clipNearAction.newSetting;
-    dispatch(setNglClipNear(value, viewParams[NGL_PARAMS.clipNear], majorView));
+    dispatch(setNglClipNear(value, viewParams[NGL_PARAMS.clipNear], majorViewStage));
   } else {
-    dispatch(setNglClipNear(NGL_VIEW_DEFAULT_VALUES[NGL_PARAMS.clipNear], viewParams[NGL_PARAMS.clipNear], majorView));
+    dispatch(
+      setNglClipNear(NGL_VIEW_DEFAULT_VALUES[NGL_PARAMS.clipNear], viewParams[NGL_PARAMS.clipNear], majorViewStage)
+    );
   }
 
   let clipFarAction = orderedActionList.find(action => action.type === actionType.CLIP_FAR);
   if (clipFarAction && clipFarAction.newSetting !== undefined) {
     let value = clipFarAction.newSetting;
-    dispatch(setNglClipFar(value, viewParams[NGL_PARAMS.clipFar], majorView));
+    dispatch(setNglClipFar(value, viewParams[NGL_PARAMS.clipFar], majorViewStage));
   } else {
-    dispatch(setNglClipFar(NGL_VIEW_DEFAULT_VALUES[NGL_PARAMS.clipFar], viewParams[NGL_PARAMS.clipFar], majorView));
+    dispatch(
+      setNglClipFar(NGL_VIEW_DEFAULT_VALUES[NGL_PARAMS.clipFar], viewParams[NGL_PARAMS.clipFar], majorViewStage)
+    );
   }
 
   let clipDistAction = orderedActionList.find(action => action.type === actionType.CLIP_DIST);
   if (clipDistAction && clipDistAction.newSetting !== undefined) {
     let value = clipDistAction.newSetting;
-    dispatch(setNglClipDist(value, viewParams[NGL_PARAMS.clipDist], majorView));
+    dispatch(setNglClipDist(value, viewParams[NGL_PARAMS.clipDist], majorViewStage));
   } else {
-    dispatch(setNglClipDist(NGL_VIEW_DEFAULT_VALUES[NGL_PARAMS.clipDist], viewParams[NGL_PARAMS.clipDist], majorView));
+    dispatch(
+      setNglClipDist(NGL_VIEW_DEFAULT_VALUES[NGL_PARAMS.clipDist], viewParams[NGL_PARAMS.clipDist], majorViewStage)
+    );
   }
 
   let fogNearAction = orderedActionList.find(action => action.type === actionType.FOG_NEAR);
   if (fogNearAction && fogNearAction.newSetting !== undefined) {
     let value = fogNearAction.newSetting;
-    dispatch(setNglFogNear(value, viewParams[NGL_PARAMS.fogNear], majorView));
+    dispatch(setNglFogNear(value, viewParams[NGL_PARAMS.fogNear], majorViewStage));
   } else {
-    dispatch(setNglFogNear(NGL_VIEW_DEFAULT_VALUES[NGL_PARAMS.fogNear], viewParams[NGL_PARAMS.fogNear], majorView));
+    dispatch(
+      setNglFogNear(NGL_VIEW_DEFAULT_VALUES[NGL_PARAMS.fogNear], viewParams[NGL_PARAMS.fogNear], majorViewStage)
+    );
   }
 
   let fogFarAction = orderedActionList.find(action => action.type === actionType.FOG_FAR);
   if (fogFarAction && fogFarAction.newSetting !== undefined) {
     let value = fogFarAction.newSetting;
-    dispatch(setNglFogFar(value, viewParams[NGL_PARAMS.fogFar], majorView));
+    dispatch(setNglFogFar(value, viewParams[NGL_PARAMS.fogFar], majorViewStage));
   } else {
-    dispatch(setNglFogFar(NGL_VIEW_DEFAULT_VALUES[NGL_PARAMS.fogFar], viewParams[NGL_PARAMS.fogFar], majorView));
+    dispatch(setNglFogFar(NGL_VIEW_DEFAULT_VALUES[NGL_PARAMS.fogFar], viewParams[NGL_PARAMS.fogFar], majorViewStage));
+  }
+
+  let isoLevelActions = orderedActionList.filter(action => action.type.startsWith('ISO_LEVEL'));
+  isoLevelActions &&
+    isoLevelActions.forEach(isoLevelAction => {
+      if (isoLevelAction && isoLevelAction.newSetting !== undefined) {
+        let value = isoLevelAction.newSetting;
+        if (isoLevelAction.object_name === mapTypesStrings.EVENT) {
+          dispatch(setIsoLevel(MAP_TYPE.event, value, viewParams[NGL_PARAMS.isolevel_DENSITY], majorViewStage));
+        } else if (isoLevelAction.object_name === mapTypesStrings.DIFF) {
+          dispatch(setIsoLevel(MAP_TYPE.diff, value, viewParams[NGL_PARAMS.isolevel_DENSITY_MAP_diff], majorViewStage));
+        } else if (isoLevelAction.object_name === mapTypesStrings.SIGMAA) {
+          dispatch(
+            setIsoLevel(MAP_TYPE.sigmaa, value, viewParams[NGL_PARAMS.isolevel_DENSITY_MAP_sigmaa], majorViewStage)
+          );
+        }
+      } else {
+        if (isoLevelAction && isoLevelAction.object_name === mapTypesStrings.EVENT) {
+          dispatch(
+            setIsoLevel(
+              MAP_TYPE.event,
+              NGL_VIEW_DEFAULT_VALUES[NGL_PARAMS.isolevel_DENSITY],
+              viewParams[NGL_PARAMS.isolevel_DENSITY],
+              majorViewStage
+            )
+          );
+        } else if (isoLevelAction && isoLevelAction.object_name === mapTypesStrings.DIFF) {
+          dispatch(
+            setIsoLevel(
+              MAP_TYPE.diff,
+              NGL_VIEW_DEFAULT_VALUES[NGL_PARAMS.isolevel_DENSITY_MAP_diff],
+              viewParams[NGL_PARAMS.isolevel_DENSITY_MAP_diff],
+              majorViewStage
+            )
+          );
+        } else if (isoLevelAction && isoLevelAction.object_name === mapTypesStrings.SIGMAA) {
+          dispatch(
+            setIsoLevel(
+              MAP_TYPE.sigmaa,
+              NGL_VIEW_DEFAULT_VALUES[NGL_PARAMS.isolevel_DENSITY_MAP_sigmaa],
+              viewParams[NGL_PARAMS.isolevel_DENSITY_MAP_sigmaa],
+              majorViewStage
+            )
+          );
+        }
+      }
+    });
+
+  let boxSizeActions = orderedActionList.filter(action => action.type.startsWith('BOX_SIZE'));
+  boxSizeActions &&
+    boxSizeActions.forEach(boxSizeAction => {
+      if (boxSizeAction && boxSizeAction.newSetting !== undefined) {
+        let value = boxSizeAction.newSetting;
+        if (boxSizeAction.object_name === mapTypesStrings.EVENT) {
+          dispatch(setBoxSize(MAP_TYPE.event, value, viewParams[NGL_PARAMS.boxSize_DENSITY], majorViewStage));
+        } else if (boxSizeAction.object_name === mapTypesStrings.DIFF) {
+          dispatch(setBoxSize(MAP_TYPE.diff, value, viewParams[NGL_PARAMS.boxSize_DENSITY_MAP_diff], majorViewStage));
+        } else if (boxSizeAction.object_name === mapTypesStrings.SIGMAA) {
+          dispatch(
+            setBoxSize(MAP_TYPE.sigmaa, value, viewParams[NGL_PARAMS.boxSize_DENSITY_MAP_sigmaa], majorViewStage)
+          );
+        }
+      } else {
+        if (boxSizeAction && boxSizeAction.object_name === mapTypesStrings.EVENT) {
+          dispatch(
+            setBoxSize(
+              MAP_TYPE.event,
+              NGL_VIEW_DEFAULT_VALUES[NGL_PARAMS.boxSize_DENSITY],
+              viewParams[NGL_PARAMS.boxSize_DENSITY],
+              majorViewStage
+            )
+          );
+        } else if (boxSizeAction && boxSizeAction.object_name === mapTypesStrings.DIFF) {
+          dispatch(
+            setBoxSize(
+              MAP_TYPE.diff,
+              NGL_VIEW_DEFAULT_VALUES[NGL_PARAMS.boxSize_DENSITY_MAP_diff],
+              viewParams[NGL_PARAMS.boxSize_DENSITY_MAP_diff],
+              majorViewStage
+            )
+          );
+        } else if (boxSizeAction && boxSizeAction.object_name === mapTypesStrings.SIGMAA) {
+          dispatch(
+            setBoxSize(
+              MAP_TYPE.sigmaa,
+              NGL_VIEW_DEFAULT_VALUES[NGL_PARAMS.boxSize_DENSITY_MAP_sigmaa],
+              viewParams[NGL_PARAMS.boxSize_DENSITY_MAP_sigmaa],
+              majorViewStage
+            )
+          );
+        }
+      }
+    });
+
+  let opacityActions = orderedActionList.filter(action => action.type.startsWith('OPACITY'));
+  opacityActions &&
+    opacityActions.forEach(opacityAction => {
+      if (opacityAction && opacityAction.newSetting !== undefined) {
+        let value = opacityAction.newSetting;
+        if (opacityAction.object_name === mapTypesStrings.EVENT) {
+          dispatch(setOpacity(MAP_TYPE.event, value, viewParams[NGL_PARAMS.opacity_DENSITY], majorViewStage));
+        } else if (opacityAction.object_name === mapTypesStrings.DIFF) {
+          dispatch(setOpacity(MAP_TYPE.diff, value, viewParams[NGL_PARAMS.opacity_DENSITY_MAP_diff], majorViewStage));
+        } else if (opacityAction.object_name === mapTypesStrings.SIGMAA) {
+          dispatch(
+            setOpacity(MAP_TYPE.sigmaa, value, viewParams[NGL_PARAMS.opacity_DENSITY_MAP_sigmaa], majorViewStage)
+          );
+        }
+      } else {
+        if (opacityAction && opacityAction.object_name === mapTypesStrings.EVENT) {
+          dispatch(
+            setOpacity(
+              MAP_TYPE.event,
+              NGL_VIEW_DEFAULT_VALUES[NGL_PARAMS.opacity_DENSITY],
+              viewParams[NGL_PARAMS.opacity_DENSITY],
+              majorViewStage
+            )
+          );
+        } else if (opacityAction && opacityAction.object_name === mapTypesStrings.DIFF) {
+          dispatch(
+            setOpacity(
+              MAP_TYPE.diff,
+              NGL_VIEW_DEFAULT_VALUES[NGL_PARAMS.opacity_DENSITY_MAP_diff],
+              viewParams[NGL_PARAMS.opacity_DENSITY_MAP_diff],
+              majorViewStage
+            )
+          );
+        } else if (opacityAction && opacityAction.object_name === mapTypesStrings.SIGMAA) {
+          dispatch(
+            setOpacity(
+              MAP_TYPE.sigmaa,
+              NGL_VIEW_DEFAULT_VALUES[NGL_PARAMS.opacity_DENSITY_MAP_sigmaa],
+              viewParams[NGL_PARAMS.opacity_DENSITY_MAP_sigmaa],
+              majorViewStage
+            )
+          );
+        }
+      }
+    });
+
+  let contourActions = orderedActionList.filter(action => action.type.startsWith('CONTOUR'));
+  contourActions &&
+    contourActions.forEach(contourAction => {
+      if (contourAction && contourAction.newSetting !== undefined) {
+        let value = contourAction.newSetting;
+        if (contourAction.object_name === mapTypesStrings.EVENT) {
+          dispatch(setContour(MAP_TYPE.event, value, viewParams[NGL_PARAMS.contour_DENSITY], majorViewStage));
+        } else if (contourAction.object_name === mapTypesStrings.DIFF) {
+          dispatch(setContour(MAP_TYPE.diff, value, viewParams[NGL_PARAMS.contour_DENSITY_MAP_diff], majorViewStage));
+        } else if (contourAction.object_name === mapTypesStrings.SIGMAA) {
+          dispatch(
+            setContour(MAP_TYPE.sigmaa, value, viewParams[NGL_PARAMS.contour_DENSITY_MAP_sigmaa], majorViewStage)
+          );
+        }
+      } else {
+        if (contourAction && contourAction.object_name === mapTypesStrings.EVENT) {
+          dispatch(
+            setContour(
+              MAP_TYPE.event,
+              NGL_VIEW_DEFAULT_VALUES[NGL_PARAMS.contour_DENSITY],
+              viewParams[NGL_PARAMS.contour_DENSITY],
+              majorViewStage
+            )
+          );
+        } else if (contourAction && contourAction.object_name === mapTypesStrings.DIFF) {
+          dispatch(
+            setContour(
+              MAP_TYPE.diff,
+              NGL_VIEW_DEFAULT_VALUES[NGL_PARAMS.contour_DENSITY_MAP_diff],
+              viewParams[NGL_PARAMS.contour_DENSITY_MAP_sigmaa],
+              majorViewStage
+            )
+          );
+        } else if (contourAction && contourAction.object_name === mapTypesStrings.SIGMAA) {
+          dispatch(
+            setContour(
+              MAP_TYPE.sigmaa,
+              NGL_VIEW_DEFAULT_VALUES[NGL_PARAMS.contour_DENSITY_MAP_sigmaa],
+              viewParams[NGL_PARAMS.contour_DENSITY_MAP_sigmaa],
+              majorViewStage
+            )
+          );
+        }
+      }
+    });
+
+  let colorActions = orderedActionList.filter(action => action.type.startsWith('COLOR'));
+  colorActions &&
+    colorActions.forEach(colorAction => {
+      if (colorAction && colorAction.newSetting !== undefined) {
+        let value = colorAction.newSetting;
+        if (colorAction.object_name === mapTypesStrings.EVENT) {
+          dispatch(
+            setElectronDesityMapColor(MAP_TYPE.event, value, viewParams[NGL_PARAMS.color_DENSITY], majorViewStage)
+          );
+        } else if (colorAction.object_name === mapTypesStrings.DIFF) {
+          dispatch(
+            setElectronDesityMapColor(
+              MAP_TYPE.diff,
+              value,
+              viewParams[NGL_PARAMS.color_DENSITY_MAP_diff],
+              majorViewStage
+            )
+          );
+        } else if (colorAction.object_name === mapTypesStrings.SIGMAA) {
+          dispatch(
+            setElectronDesityMapColor(
+              MAP_TYPE.sigmaa,
+              value,
+              viewParams[NGL_PARAMS.color_DENSITY_MAP_sigmaa],
+              majorViewStage
+            )
+          );
+        }
+      } else {
+        if (colorAction && colorAction.object_name === mapTypesStrings.EVENT) {
+          dispatch(
+            setElectronDesityMapColor(
+              MAP_TYPE.event,
+              NGL_VIEW_DEFAULT_VALUES[NGL_PARAMS.color_DENSITY],
+              viewParams[NGL_PARAMS.color_DENSITY],
+              majorViewStage
+            )
+          );
+        } else if (colorAction && colorAction.object_name === mapTypesStrings.DIFF) {
+          dispatch(
+            setElectronDesityMapColor(
+              MAP_TYPE.diff,
+              NGL_VIEW_DEFAULT_VALUES[NGL_PARAMS.color_DENSITY_MAP_diff],
+              viewParams[NGL_PARAMS.color_DENSITY_MAP_sigmaa],
+              majorViewStage
+            )
+          );
+        } else if (colorAction && colorAction.object_name === mapTypesStrings.SIGMAA) {
+          dispatch(
+            setElectronDesityMapColor(
+              MAP_TYPE.sigmaa,
+              NGL_VIEW_DEFAULT_VALUES[NGL_PARAMS.color_DENSITY_MAP_sigmaa],
+              viewParams[NGL_PARAMS.color_DENSITY_MAP_sigmaa],
+              majorViewStage
+            )
+          );
+        }
+      }
+    });
+
+  let warningIconAction = orderedActionList.find(action => action.type === actionType.WARNING_ICON);
+  if (warningIconAction && warningIconAction.newSetting !== undefined) {
+    let value = warningIconAction.newSetting;
+    dispatch(setWarningIcon(value, viewParams[COMMON_PARAMS.warningIcon], true));
+  } else {
+    dispatch(
+      setWarningIcon(NGL_VIEW_DEFAULT_VALUES[COMMON_PARAMS.warningIcon], viewParams[COMMON_PARAMS.warningIcon], true)
+    );
   }
 };
 
-const restoreNglStateAction = (orderedActionList, stages) => (dispatch, getState) => {
-  let actions = orderedActionList.filter(action => action.type === actionType.NGL_STATE);
-  let action = [...actions].pop();
-  if (action && action.nglStateList) {
-    action.nglStateList.forEach(nglView => {
+export const restoreNglStateAction = (orderedActionList, stages, animate = false) => async (dispatch, getState) => {
+  const state = getState();
+  const skipOrientation = state.trackingReducers.skipOrientationChange;
+
+  if (!skipOrientation) {
+    let actions = orderedActionList.filter(action => action.type === actionType.NGL_STATE);
+    let action = [...actions].pop();
+    if (action && action.nglStateList) {
+      action.nglStateList.forEach(nglView => {
+        dispatch(setOrientation(nglView.id, nglView.orientation));
+        let viewStage = stages.find(s => s.id === nglView.id);
+        if (viewStage) {
+          console.count(`Before restoring orientation - restoreNglStateAction - tracking`);
+          if (!animate) {
+            viewStage.stage.viewerControls.orient(nglView.orientation.elements);
+          } else {
+            viewStage.stage.animationControls.orient(nglView.orientation.elements, 2000);
+          }
+          console.count(`After restoring orientation - restoreNglStateAction - tracking`);
+        }
+      });
+    }
+  }
+};
+
+export const restoreNglOrientationAnim = (orderedActionList, stages) => async (dispatch, getState) => {
+  const state = getState();
+  const skipOrientation = state.trackingReducers.skipOrientationChange;
+
+  if (!skipOrientation) {
+    let actions = orderedActionList.filter(action => action.type === actionType.NGL_STATE);
+    let action = [...actions].pop();
+    if (action && action.nglStateList) {
+      const nglView = action.nglStateList[0];
       dispatch(setOrientation(nglView.id, nglView.orientation));
       let viewStage = stages.find(s => s.id === nglView.id);
       if (viewStage) {
-        viewStage.stage.viewerControls.orient(nglView.orientation.elements);
+        console.count(`Before restoring orientation - restoreNglStateAction - tracking`);
+
+        console.count(`After restoring orientation - restoreNglStateAction - tracking`);
+        return viewStage.stage.animationControls.orient(nglView.orientation.elements, 2000);
       }
-    });
+    }
   }
 };
 
 const loadData = (orderedActionList, targetId, majorView) => async (dispatch, getState) => {
-  await dispatch(loadAllMolecules(orderedActionList, targetId, majorView.stage));
+  await dispatch(loadAllMolecules(targetId));
   await dispatch(loadAllDatasets(orderedActionList, targetId, majorView.stage));
 };
 
@@ -852,50 +1340,41 @@ const loadAllDatasets = (orderedActionList, target_on, stage) => async (dispatch
   dispatch(restoreCompoundsActions(orderedActionList, stage));
 };
 
-const loadAllMolecules = (orderedActionList, target_on, stage) => async (dispatch, getState) => {
-  const state = getState();
-  const list_type = listType.MOLECULE;
-
-  let molGroupList = state.apiReducers.mol_group_list;
-
-  let promises = [];
-  molGroupList.forEach(molGroup => {
-    let id = molGroup.id;
-    let url = getUrl({ list_type, target_on, mol_group_on: id });
-    promises.push(
-      loadAllMolsFromMolGroup({
-        url,
-        mol_group: id
-      })
-    );
-  });
-  try {
-    const results = await Promise.all(promises);
-    let listToSet = {};
-    results.forEach(molResult => {
-      listToSet[molResult.mol_group] = molResult.molecules;
-    });
-    dispatch(setAllMolLists(listToSet));
-  } catch (error) {
-    throw new Error(error);
-  }
+const loadAllMolecules = target_on => async (dispatch, getState) => {
+  await dispatch(loadMoleculesAndTags(target_on));
 };
 
-const restoreSitesActions = (orderedActionList, summaryView) => (dispatch, getState) => {
+export const restoreSitesActions = orderedActionList => (dispatch, getState) => {
   const state = getState();
 
   let sitesAction = orderedActionList.filter(action => action.type === actionType.SITE_TURNED_ON);
   if (sitesAction) {
     sitesAction.forEach(action => {
-      let molGroup = getMolGroup(action.object_name, state);
-      if (molGroup) {
-        dispatch(selectMoleculeGroup(molGroup, summaryView.stage));
+      //when restoring tags we need to actually use object_id and not object_name because it can be changed by the user in the UI pretty much anytime
+      const tag = getTag(action.object_id, state);
+      if (tag) {
+        dispatch(addSelectedTag(tag));
       }
     });
   }
 };
 
-const restoreMoleculesActions = (orderedActionList, stage) => async (dispatch, getState) => {
+export const restoreTagActions = orderedActionList => (dispatch, getState) => {
+  const state = getState();
+
+  let tagActions = orderedActionList.filter(action => action.type === actionType.TAG_SELECTED);
+  if (tagActions) {
+    tagActions.forEach(action => {
+      //when restoring tags we need to actually use object_id and not object_name because it can be changed by the user in the UI pretty much anytime
+      const tag = getTag(action.object_id, state);
+      if (tag) {
+        dispatch(addSelectedTag(tag));
+      }
+    });
+  }
+};
+
+export const restoreMoleculesActions = (orderedActionList, stage) => async (dispatch, getState) => {
   const state = getState();
   let moleculesAction = orderedActionList.filter(
     action => action.object_type === actionObjectType.MOLECULE || action.object_type === actionObjectType.INSPIRATION
@@ -906,7 +1385,12 @@ const restoreMoleculesActions = (orderedActionList, stage) => async (dispatch, g
     await dispatch(addNewType(moleculesAction, actionType.SIDECHAINS_TURNED_ON, 'protein', stage, state));
     await dispatch(addNewType(moleculesAction, actionType.INTERACTIONS_TURNED_ON, 'complex', stage, state));
     await dispatch(addNewType(moleculesAction, actionType.SURFACE_TURNED_ON, 'surface', stage, state));
+    await dispatch(addNewType(moleculesAction, actionType.QUALITY_TURNED_OFF, 'quality', stage, state));
     await dispatch(addNewType(moleculesAction, actionType.VECTORS_TURNED_ON, 'vector', stage, state));
+    await dispatch(addNewType(moleculesAction, actionType.DENSITY_TURNED_ON, 'density', stage, state));
+    await dispatch(addNewType(moleculesAction, actionType.DENSITY_TYPE_ON, 'density', stage, state));
+    await dispatch(addNewType(moleculesAction, actionType.DENSITY_CUSTOM_TURNED_ON, 'densityCustom', stage, state));
+    await dispatch(restoreSelectAllMolecules(moleculesAction));
   }
 
   dispatch(restoreAllSelectionActions(orderedActionList, stage, true));
@@ -914,7 +1398,7 @@ const restoreMoleculesActions = (orderedActionList, stage) => async (dispatch, g
   dispatch(setIsTrackingMoleculesRestoring(false));
 };
 
-const restoreCartActions = (orderedActionList, majorViewStage) => async (dispatch, getState) => {
+export const restoreCartActions = (orderedActionList, majorViewStage) => async (dispatch, getState) => {
   let vectorAction = orderedActionList.find(action => action.type === actionType.VECTOR_SELECTED);
   if (vectorAction) {
     await dispatch(selectVectorAndResetCompounds(vectorAction.object_name));
@@ -998,11 +1482,23 @@ const restoreAllSelectionActions = (moleculesAction, stage, isSelection) => (dis
     actions.forEach(action => {
       if (action) {
         if (isSelection) {
-          dispatch(setSelectedAll(action.item, action.isLigand, action.isProtein, action.isComplex));
+          const mol = getMolecule(action.object_name, state);
+          if (mol) {
+            dispatch(setSelectedAll(mol, action.isLigand, action.isProtein, action.isComplex));
+          }
         } else {
-          dispatch(
-            setSelectedAllOfDataset(action.dataset_id, action.item, action.isLigand, action.isProtein, action.isComplex)
-          );
+          const compound = getCompound(action, state);
+          if (compound) {
+            dispatch(
+              setSelectedAllOfDataset(
+                action.dataset_id,
+                action.item,
+                action.isLigand,
+                action.isProtein,
+                action.isComplex
+              )
+            );
+          }
         }
 
         if (action.isLigand) {
@@ -1021,17 +1517,30 @@ const restoreAllSelectionActions = (moleculesAction, stage, isSelection) => (dis
   }
 };
 
+const restoreSelectAllMolecules = moleculesAction => (dispatch, getState) => {
+  let action = moleculesAction.find(ma => ma.type === actionType.ALL_MOLECULES_SELECTED);
+  if (action && action.items) {
+    const state = getState();
+    const allMolecules = state.apiReducers.all_mol_lists;
+    dispatch(setNextXMolecules(allMolecules.length));
+    action.items.forEach(m => {
+      dispatch(handleSelectMoleculeByName(m.protein_code, true));
+    });
+  }
+};
+
 const restoreAllSelectionByTypeActions = (moleculesAction, stage, isSelection) => (dispatch, getState) => {
+  const state = getState();
   let actions =
     isSelection === true
       ? moleculesAction.filter(
           action =>
-            action.type === actionType.ALL_TURNED_ON_BY_TYPE &&
+            action.type === actionType.SELECTED_TURNED_ON_BY_TYPE &&
             (action.object_type === actionObjectType.INSPIRATION || action.object_type === actionObjectType.MOLECULE)
         )
       : moleculesAction.filter(
           action =>
-            action.type === actionType.ALL_TURNED_ON_BY_TYPE &&
+            action.type === actionType.SELECTED_TURNED_ON_BY_TYPE &&
             (action.object_type === actionObjectType.CROSS_REFERENCE ||
               action.object_type === actionObjectType.COMPOUND)
         );
@@ -1039,7 +1548,23 @@ const restoreAllSelectionByTypeActions = (moleculesAction, stage, isSelection) =
   if (actions) {
     actions.forEach(action => {
       if (action) {
-        let actionItems = action.items;
+        // let actionItems = action.items;
+        let actionItems = [];
+        if (isSelection) {
+          action.items.forEach(item => {
+            const mol = getMolecule(item.protein_code, state);
+            if (mol) {
+              actionItems.push(mol);
+            }
+          });
+        } else {
+          action.items.forEach(item => {
+            const mol = getCompoundByName(item.protein_code, action.dataset_id, state);
+            if (mol) {
+              actionItems.push(mol);
+            }
+          });
+        }
         let type = action.control_type;
 
         if (isSelection) {
@@ -1048,9 +1573,11 @@ const restoreAllSelectionByTypeActions = (moleculesAction, stage, isSelection) =
           actionItems.forEach(data => {
             if (data) {
               if (type === 'ligand') {
-                dispatch(addType[type](stage, data, colourList[data.id % colourList.length], true, true));
+                dispatch(addType[type](stage, data, colourList[data.id % colourList.length], true, true, true));
               } else if (type === 'vector') {
                 dispatch(addType[type](stage, data, true));
+              } else if (type === 'density' || type === 'densityCustom') {
+                dispatch(addType[type](stage, data, colourList[data.id % colourList.length], false, true));
               } else {
                 dispatch(addType[type](stage, data, colourList[data.id % colourList.length], true));
               }
@@ -1085,12 +1612,13 @@ const restoreAllSelectionByTypeActions = (moleculesAction, stage, isSelection) =
   }
 };
 
-const restoreRepresentationActions = (moleculesAction, stages) => (dispatch, getState) => {
+export const restoreRepresentationActions = (moleculesAction, stages) => (dispatch, getState) => {
   const nglView = stages.find(view => view.id === VIEWS.MAJOR_VIEW);
 
   let representationsActions = moleculesAction.filter(action => action.type === actionType.REPRESENTATION_ADDED);
   if (representationsActions) {
     representationsActions.forEach(action => {
+      //here the object id is actually protein_code_object_type and is identifier in NGL view so it's ok to use object_id in here
       dispatch(addRepresentation(action.object_id, action.representation, nglView));
     });
   }
@@ -1100,18 +1628,21 @@ const restoreRepresentationActions = (moleculesAction, stages) => (dispatch, get
   );
   if (representationsChangesActions) {
     representationsChangesActions.forEach(action => {
+      //here the object id is actually protein_code_object_type and is identifier in NGL view so it's ok to use object_id in here
       dispatch(updateRepresentation(true, action.change, action.object_id, action.representation, nglView));
     });
   }
 };
 
-const restoreTabActions = moleculesAction => (dispatch, getState) => {
+export const restoreTabActions = moleculesAction => (dispatch, getState) => {
   const state = getState();
   const customDatasets = state.datasetsReducers.datasets;
   let firstCustomDatasetTitle = (customDatasets && customDatasets[0] && customDatasets[0].title) || '';
 
   let action = moleculesAction.find(action => action.type === actionType.TAB);
   if (action) {
+    //in here the object id is the tab index on the right hand side so it should be ok. BUT what if the given dataset
+    //was deleted? Is it even possible?
     dispatch(setTabValue(action.oldObjectId, action.object_id, action.object_name, action.oldObjectName));
   }
 
@@ -1136,12 +1667,18 @@ const restoreTabActions = moleculesAction => (dispatch, getState) => {
     }
   }
 
+  const dragDropFinishedAction = moleculesAction.find(action => action.type === actionType.DRAG_DROP_FINISHED);
+  if (dragDropFinishedAction) {
+    const { datasetID, newDragDropState } = dragDropFinishedAction;
+    dispatch(setDragDropState(datasetID, newDragDropState));
+  }
+
   let filterAction = moleculesAction.find(action => action.type === actionType.DATASET_FILTER);
   if (filterAction) {
-    let datasetID = filterAction.dataset_id;
+    let datasetID = filterAction.datasetID;
     let newFilterProperties = filterAction.newProperties;
     let newFilterSettings = filterAction.newSettings;
-    dispatch(setDatasetFilter(datasetID, newFilterProperties, newFilterSettings, filterAction.key));
+    dispatch(setDatasetFilter(datasetID, newFilterProperties, newFilterSettings, filterAction.key, null));
     dispatch(setFilterProperties(datasetID, newFilterProperties));
     dispatch(setFilterSettings(datasetID, newFilterSettings));
   }
@@ -1168,17 +1705,43 @@ const restoreTabActions = moleculesAction => (dispatch, getState) => {
   }
 };
 
-const restoreSnapshotImageActions = projectID => async (dispatch, getState) => {
-  let actionList = await dispatch(getTrackingActions(projectID));
+const restoreSearchString = moleculesAction => dispatch => {
+  let filterSearchString = moleculesAction.find(action => action.type === actionType.SEARCH_STRING);
+  if (filterSearchString) {
+    let datasetID = filterSearchString.dataset_id;
+    dispatch(setSearchStringOfCompoundSet(datasetID, filterSearchString.searchString));
+  }
+};
 
-  let snapshotActions = actionList.filter(action => action.type === actionType.SNAPSHOT);
-  if (snapshotActions) {
-    let actions = snapshotActions.map(s => {
-      return { id: s.object_id, image: s.image, title: s.object_name, timestamp: s.timestamp };
-    });
-    const key = 'object_id';
-    const arrayUniqueByKey = [...new Map(actions.map(item => [item[key], item])).values()];
-    dispatch(setSnapshotImageActionList(arrayUniqueByKey));
+const restoreSearchStringHitNavigator = moleculesAction => (dispatch, getState) => {
+  let filterSearchString = moleculesAction.find(action => action.type === actionType.SEARCH_STRING_HIT_NAVIGATOR);
+  if (filterSearchString) {
+    dispatch(setSearchStringOfHitNavigator(filterSearchString.searchStringHitNavigator));
+  }
+};
+
+export const restoreViewerControlActions = moleculesAction => dispatch => {
+  const turnSideActions = moleculesAction.filter(action => action.type === actionType.TURN_SIDE);
+  turnSideActions.forEach(action => {
+    const { side, open } = action;
+    dispatch(turnSide(side, open, true));
+  });
+};
+
+export const restoreSnapshotImageActions = projectID => async (dispatch, getState) => {
+  const state = getState();
+  const isProjectActionListLoaded = state.trackingReducers.isProjectActionListLoaded;
+  if (!isProjectActionListLoaded) {
+    let actionList = await dispatch(getTrackingActions(projectID));
+    let snapshotActions = actionList.filter(action => action.type === actionType.SNAPSHOT);
+    if (snapshotActions) {
+      let actions = snapshotActions.map(s => {
+        return { id: s.object_id, image: s.image, title: s.object_name, timestamp: s.timestamp };
+      });
+      const key = 'object_id';
+      const arrayUniqueByKey = [...new Map(actions.map(item => [item[key], item])).values()];
+      dispatch(setSnapshotImageActionList(arrayUniqueByKey));
+    }
   }
 };
 
@@ -1190,7 +1753,7 @@ const restoreProject = projectId => (dispatch, getState) => {
         dispatch(
           setCurrentProject({
             projectID: response.data.id,
-            authorID: (response.data.author && response.data.author.id) || null,
+            authorID: response.data.author || null,
             title: response.data.title,
             description: response.data.description,
             targetID: response.data.target.id,
@@ -1198,12 +1761,14 @@ const restoreProject = projectId => (dispatch, getState) => {
           })
         )
       );
+      promises.push(dispatch(setProject(response.data.project)));
+
       return Promise.all(promises);
     });
   }
 };
 
-const restoreCompoundsActions = (orderedActionList, stage) => (dispatch, getState) => {
+export const restoreCompoundsActions = (orderedActionList, stage) => (dispatch, getState) => {
   const state = getState();
 
   let compoundsAction = orderedActionList.filter(
@@ -1218,12 +1783,32 @@ const restoreCompoundsActions = (orderedActionList, stage) => (dispatch, getStat
     dispatch(addNewTypeCompound(compoundsAction, actionType.SURFACE_TURNED_ON, 'surface', stage, state));
   }
 
-  let compoundsSelectedAction = compoundsAction.filter(action => action.type === actionType.COMPOUND_SELECTED);
+  let compoundsSelectedAction = compoundsAction?.filter(action => action.type === actionType.COMPOUND_SELECTED);
 
   compoundsSelectedAction.forEach(action => {
     let data = getCompound(action, state);
     if (data) {
       dispatch(appendMoleculeToCompoundsOfDatasetToBuy(action.dataset_id, data.id, data.name));
+    }
+  });
+
+  let compoundsLockedAction = compoundsAction?.filter(action => action.type === actionType.COMPOUND_LOCKED);
+
+  compoundsLockedAction.forEach(action => {
+    let data = getCompound(action, state);
+    if (data) {
+      dispatch(appendCompoundToSelectedCompoundsByDataset(action.dataset_id, data.id, data.name));
+    }
+  });
+
+  let compoundsColorGroupActions = compoundsAction?.filter(
+    action => action.type === actionType.COMPOUND_ADDED_TO_COLOR_GROUP
+  );
+
+  compoundsColorGroupActions.forEach(action => {
+    let data = getCompound(action, state);
+    if (data) {
+      dispatch(appendCompoundColorOfDataset(action.dataset_id, data.id, action.color_class, data.name));
     }
   });
 
@@ -1237,7 +1822,10 @@ const addType = {
   protein: addHitProtein,
   complex: addComplex,
   surface: addSurface,
-  vector: addVector
+  quality: addQuality,
+  vector: addVector,
+  density: addDensity,
+  densityCustom: addDensityCustomView
 };
 
 const addTypeCompound = {
@@ -1247,6 +1835,23 @@ const addTypeCompound = {
   surface: addDatasetSurface
 };
 
+const removeType = {
+  ligand: removeLigand,
+  protein: removeHitProtein,
+  complex: removeComplex,
+  surface: removeSurface,
+  density: removeDensity,
+  quality: removeQuality,
+  vector: removeVector
+};
+
+const removeTypeCompound = {
+  ligand: removeDatasetLigand,
+  protein: removeDatasetHitProtein,
+  complex: removeDatasetComplex,
+  surface: removeDatasetSurface
+};
+
 const addNewType = (moleculesAction, actionType, type, stage, state, skipTracking = false) => async dispatch => {
   let actions = moleculesAction.filter(action => action.type === actionType);
   if (actions) {
@@ -1254,11 +1859,35 @@ const addNewType = (moleculesAction, actionType, type, stage, state, skipTrackin
       let data = getMolecule(action.object_name, state);
       if (data) {
         if (type === 'ligand') {
-          dispatch(addType[type](stage, data, colourList[data.id % colourList.length], true, skipTracking));
+          await dispatch(addType[type](stage, data, colourList[data.id % colourList.length], true, true, skipTracking));
+        } else if (type === 'protein') {
+          await dispatch(addType[type](stage, data, colourList[data.id % colourList.length], true, skipTracking));
         } else if (type === 'vector') {
           await dispatch(addType[type](stage, data, true));
+        } else if (type === 'density' || type === 'densityCustom') {
+          if (!data.proteinData) {
+            await dispatch(getProteinData(data)).then(i => {
+              if (i && i.length > 0) {
+                const proteinData = i[0];
+                data.proteinData = proteinData;
+                data.proteinData.render_event = !!action.render_event;
+                data.proteinData.render_diff = !!action.render_diff;
+                data.proteinData.render_sigmaa = !!action.render_sigmaa;
+                data.proteinData.render_quality = !!action.render_quality;
+              }
+            });
+            await dispatch(addType[type](stage, data, colourList[data.id % colourList.length], true, skipTracking));
+          } else {
+            data.proteinData.render_event = !!action.render_event;
+            data.proteinData.render_diff = !!action.render_diff;
+            data.proteinData.render_sigmaa = !!action.render_sigmaa;
+            data.proteinData.render_quality = !!action.render_quality;
+            await dispatch(addType[type](stage, data, colourList[data.id % colourList.length], true, skipTracking));
+          }
+        } else if (type === 'quality') {
+          await dispatch(removeType[type](stage, data, colourList[data.id % colourList.length], skipTracking));
         } else {
-          dispatch(addType[type](stage, data, colourList[data.id % colourList.length], skipTracking));
+          await dispatch(addType[type](stage, data, colourList[data.id % colourList.length], skipTracking));
         }
       }
     }
@@ -1270,9 +1899,11 @@ const addNewTypeOfAction = (action, type, stage, state, skipTracking = false) =>
     let data = getMolecule(action.object_name, state);
     if (data) {
       if (type === 'ligand') {
-        dispatch(addType[type](stage, data, colourList[data.id % colourList.length], true, skipTracking));
+        dispatch(addType[type](stage, data, colourList[data.id % colourList.length], true, true, skipTracking));
       } else if (type === 'vector') {
         dispatch(addType[type](stage, data, true));
+      } else if (type === 'density' || type === 'densityCustom') {
+        dispatch(addType[type](stage, data, colourList[data.id % colourList.length], true, skipTracking));
       } else {
         dispatch(addType[type](stage, data, colourList[data.id % colourList.length], skipTracking));
       }
@@ -1311,34 +1942,40 @@ const getTarget = (targetName, state) => {
   return target;
 };
 
-const getMolGroup = (molGroupName, state) => {
-  let molGroupList = state.apiReducers.mol_group_list;
-  let molGroup = molGroupList.find(group => group.description === molGroupName);
-  return molGroup;
+const getTag = (tagId, state) => {
+  const tagList = state.apiReducers.tagList;
+  const tag = tagList.find(t => t.id === tagId);
+  return tag;
 };
 
-const getMolecule = (moleculeName, state) => {
+export const getMolecule = (moleculeName, state) => {
   let moleculeList = state.apiReducers.all_mol_lists;
   let molecule = null;
 
-  if (moleculeList) {
-    for (const group in moleculeList) {
-      let molecules = moleculeList[group];
-      molecule = molecules.find(m => m.protein_code === moleculeName);
-      if (molecule && molecule != null) {
-        break;
-      }
-    }
-  }
+  molecule = moleculeList.find(m => m.protein_code === moleculeName);
+
   return molecule;
 };
 
-const getCompound = (action, state) => {
+export const getCompound = (action, state) => {
   let moleculeList = state.datasetsReducers.moleculeLists;
   let molecule = null;
 
   let name = action.object_name;
   let datasetID = action.dataset_id;
+
+  if (moleculeList) {
+    let moleculeListOfDataset = moleculeList[datasetID];
+    if (moleculeListOfDataset) {
+      molecule = moleculeListOfDataset.find(m => m.name === name);
+    }
+  }
+  return molecule;
+};
+
+export const getCompoundByName = (name, datasetID, state) => {
+  let moleculeList = state.datasetsReducers.moleculeLists;
+  let molecule = null;
 
   if (moleculeList) {
     let moleculeListOfDataset = moleculeList[datasetID];
@@ -1435,8 +2072,8 @@ const handleUndoAction = (action, stages) => (dispatch, getState) => {
 
   if (action) {
     const majorView = stages.find(view => view.id === VIEWS.MAJOR_VIEW);
-    const summaryView = stages.find(view => view.id === VIEWS.SUMMARY_VIEW);
-    const stageSummaryView = summaryView.stage;
+    // const summaryView = stages.find(view => view.id === VIEWS.SUMMARY_VIEW);
+    // const stageSummaryView = summaryView.stage;
     const majorViewStage = majorView.stage;
 
     const type = action.type;
@@ -1450,7 +2087,7 @@ const handleUndoAction = (action, stages) => (dispatch, getState) => {
       case actionType.ALL_TURNED_OFF:
         dispatch(handleAllAction(action, true, majorViewStage, state));
         break;
-      case actionType.ALL_TURNED_ON_BY_TYPE:
+      case actionType.SELECTED_TURNED_ON_BY_TYPE:
         dispatch(handleAllActionByType(action, false, majorViewStage));
         break;
       case actionType.ALL_TURNED_OFF_BY_TYPE:
@@ -1468,6 +2105,18 @@ const handleUndoAction = (action, stages) => (dispatch, getState) => {
       case actionType.SURFACE_TURNED_ON:
         dispatch(handleMoleculeAction(action, 'surface', false, majorViewStage, state));
         break;
+      case actionType.QUALITY_TURNED_ON:
+        dispatch(handleMoleculeAction(action, 'quality', false, majorViewStage, state));
+        break;
+      case actionType.DENSITY_TURNED_ON:
+        dispatch(handleDensityMoleculeAction(action, 'density', false, majorViewStage, state));
+        break;
+      case actionType.DENSITY_TYPE_ON:
+        dispatch(handleDensityMoleculeAction(action, 'density', false, majorViewStage, state));
+        break;
+      case actionType.DENSITY_CUSTOM_TURNED_ON:
+        dispatch(handleDensityMoleculeAction(action, 'densityCustom', false, majorViewStage, state));
+        break;
       case actionType.VECTORS_TURNED_ON:
         dispatch(handleMoleculeAction(action, 'vector', false, majorViewStage, state));
         break;
@@ -1482,6 +2131,15 @@ const handleUndoAction = (action, stages) => (dispatch, getState) => {
         break;
       case actionType.SURFACE_TURNED_OFF:
         dispatch(handleMoleculeAction(action, 'surface', true, majorViewStage, state));
+        break;
+      case actionType.QUALITY_TURNED_OFF:
+        dispatch(handleMoleculeAction(action, 'quality', true, majorViewStage, state));
+        break;
+      case actionType.DENSITY_TURNED_OFF:
+        dispatch(handleDensityMoleculeAction(action, 'density', true, majorViewStage, state));
+        break;
+      case actionType.DENSITY_TYPE_OFF:
+        dispatch(handleDensityMoleculeAction(action, 'density', true, majorViewStage, state));
         break;
       case actionType.VECTORS_TURNED_OFF:
         dispatch(handleMoleculeAction(action, 'vector', true, majorViewStage, state));
@@ -1511,10 +2169,16 @@ const handleUndoAction = (action, stages) => (dispatch, getState) => {
         dispatch(handleTargetAction(action, false));
         break;
       case actionType.SITE_TURNED_ON:
-        dispatch(handleMoleculeGroupAction(action, false, stageSummaryView, majorViewStage));
+        dispatch(handleMoleculeGroupAction(action, false));
         break;
       case actionType.SITE_TURNED_OFF:
-        dispatch(handleMoleculeGroupAction(action, true, stageSummaryView, majorViewStage));
+        dispatch(handleMoleculeGroupAction(action, true));
+        break;
+      case actionType.TAG_SELECTED:
+        dispatch(handleTagAction(action, false));
+        break;
+      case actionType.TAG_UNSELECTED:
+        dispatch(handleTagAction(action, true));
         break;
       case actionType.MOLECULE_ADDED_TO_SHOPPING_CART:
         dispatch(handleShoppingCartAction(action, false));
@@ -1534,6 +2198,30 @@ const handleUndoAction = (action, stages) => (dispatch, getState) => {
       case actionType.COMPOUND_DESELECTED:
         dispatch(handleCompoundAction(action, true));
         break;
+      case actionType.COMPOUND_LOCKED:
+        dispatch(handleCompoundLockAction(action, false));
+        break;
+      case actionType.COMPOUND_UNLOCKED:
+        dispatch(handleCompoundLockAction(action, true));
+        break;
+      case actionType.COMPOUND_ADDED_TO_COLOR_GROUP:
+        dispatch(handleCompoundColorAction(action, false));
+        break;
+      case actionType.COMPOUND_REMOVED_FROM_COLOR_GROUP:
+        dispatch(handleCompoundColorAction(action, true));
+        break;
+      case actionType.MOLECULE_SELECTED:
+        dispatch(handleSelectMoleculeAction(action, false));
+        break;
+      case actionType.MOLECULE_UNSELECTED:
+        dispatch(handleSelectMoleculeAction(action, true));
+        break;
+      case actionType.ALL_MOLECULES_SELECTED:
+        dispatch(handleSelectAllMolecules(action, false));
+        break;
+      case actionType.ALL_MOLECULES_UNSELECTED:
+        dispatch(handleSelectAllMolecules(action, true));
+        break;
       case actionType.TAB:
         dispatch(handleTabAction(action, false));
         break;
@@ -1545,6 +2233,9 @@ const handleUndoAction = (action, stages) => (dispatch, getState) => {
         break;
       case actionType.DATASET_FILTER_SCORE:
         dispatch(handleFilterScoreAction(action, false));
+        break;
+      case actionType.DRAG_DROP_FINISHED:
+        dispatch(handleDragDropFinished(action, false));
         break;
       case actionType.REPRESENTATION_VISIBILITY_UPDATED:
         dispatch(handleUpdateRepresentationVisibilityAction(action, false, majorView));
@@ -1565,7 +2256,7 @@ const handleUndoAction = (action, stages) => (dispatch, getState) => {
         dispatch(handleChangeRepresentationAction(action, false, majorView));
         break;
       case actionType.BACKGROUND_COLOR_CHANGED:
-        dispatch(setNglBckGrndColor(action.oldSetting, majorViewStage, stageSummaryView));
+        dispatch(setNglBckGrndColor(action.oldSetting, majorViewStage));
         break;
       case actionType.CLIP_NEAR:
         dispatch(setNglClipNear(action.oldSetting, action.newSetting, majorViewStage));
@@ -1582,6 +2273,57 @@ const handleUndoAction = (action, stages) => (dispatch, getState) => {
       case actionType.FOG_FAR:
         dispatch(setNglFogFar(action.oldSetting, action.newSetting, majorViewStage));
         break;
+      case actionType.ISO_LEVEL_EVENT:
+        dispatch(setIsoLevel(MAP_TYPE.event, action.oldSetting, action.newSetting, majorViewStage));
+        break;
+      case actionType.BOX_SIZE_EVENT:
+        dispatch(setBoxSize(MAP_TYPE.event, action.oldSetting, action.newSetting, majorViewStage));
+        break;
+      case actionType.OPACITY_EVENT:
+        dispatch(setOpacity(MAP_TYPE.event, action.oldSetting, action.newSetting, majorViewStage));
+        break;
+      case actionType.CONTOUR_EVENT:
+        dispatch(setContour(MAP_TYPE.event, action.oldSetting, action.newSetting, majorViewStage));
+        break;
+      case actionType.COLOR_EVENT:
+        dispatch(setElectronDesityMapColor(MAP_TYPE.event, action.oldSetting, action.newSetting, majorViewStage));
+        break;
+      case actionType.ISO_LEVEL_SIGMAA:
+        dispatch(setIsoLevel(MAP_TYPE.sigmaa, action.oldSetting, action.newSetting, majorViewStage));
+        break;
+      case actionType.BOX_SIZE_SIGMAA:
+        dispatch(setBoxSize(MAP_TYPE.sigmaa, action.oldSetting, action.newSetting, majorViewStage));
+        break;
+      case actionType.OPACITY_SIGMAA:
+        dispatch(setOpacity(MAP_TYPE.sigmaa, action.oldSetting, action.newSetting, majorViewStage));
+        break;
+      case actionType.CONTOUR_SIGMAA:
+        dispatch(setContour(MAP_TYPE.sigmaa, action.oldSetting, action.newSetting, majorViewStage));
+        break;
+      case actionType.COLOR_SIGMAA:
+        dispatch(setElectronDesityMapColor(MAP_TYPE.sigmaa, action.oldSetting, action.newSetting, majorViewStage));
+        break;
+      case actionType.ISO_LEVEL_DIFF:
+        dispatch(setIsoLevel(MAP_TYPE.diff, action.oldSetting, action.newSetting, majorViewStage));
+        break;
+      case actionType.BOX_SIZE_DIFF:
+        dispatch(setBoxSize(MAP_TYPE.diff, action.oldSetting, action.newSetting, majorViewStage));
+        break;
+      case actionType.OPACITY_DIFF:
+        dispatch(setOpacity(MAP_TYPE.diff, action.oldSetting, action.newSetting, majorViewStage));
+        break;
+      case actionType.CONTOUR_DIFF:
+        dispatch(setContour(MAP_TYPE.diff, action.oldSetting, action.newSetting, majorViewStage));
+        break;
+      case actionType.COLOR_DIFF:
+        dispatch(setElectronDesityMapColor(MAP_TYPE.diff, action.oldSetting, action.newSetting, majorViewStage));
+        break;
+      case actionType.WARNING_ICON:
+        dispatch(setWarningIcon(action.oldSetting, action.newSetting));
+        break;
+      case actionType.TURN_SIDE:
+        dispatch(handleTurnSideAction(action, false));
+        break;
       default:
         break;
     }
@@ -1593,8 +2335,8 @@ const handleRedoAction = (action, stages) => (dispatch, getState) => {
 
   if (action) {
     const majorView = stages.find(view => view.id === VIEWS.MAJOR_VIEW);
-    const summaryView = stages.find(view => view.id === VIEWS.SUMMARY_VIEW);
-    const stageSummaryView = summaryView.stage;
+    // const summaryView = stages.find(view => view.id === VIEWS.SUMMARY_VIEW);
+    // const stageSummaryView = summaryView.stage;
     const majorViewStage = majorView.stage;
 
     const type = action.type;
@@ -1608,7 +2350,7 @@ const handleRedoAction = (action, stages) => (dispatch, getState) => {
       case actionType.ALL_TURNED_OFF:
         dispatch(handleAllAction(action, false, majorViewStage, state));
         break;
-      case actionType.ALL_TURNED_ON_BY_TYPE:
+      case actionType.SELECTED_TURNED_ON_BY_TYPE:
         dispatch(handleAllActionByType(action, true, majorViewStage));
         break;
       case actionType.ALL_TURNED_OFF_BY_TYPE:
@@ -1626,6 +2368,18 @@ const handleRedoAction = (action, stages) => (dispatch, getState) => {
       case actionType.SURFACE_TURNED_ON:
         dispatch(handleMoleculeAction(action, 'surface', true, majorViewStage, state));
         break;
+      case actionType.QUALITY_TURNED_ON:
+        dispatch(handleMoleculeAction(action, 'quality', true, majorViewStage, state));
+        break;
+      case actionType.DENSITY_TURNED_ON:
+        dispatch(handleDensityMoleculeAction(action, 'density', true, majorViewStage, state));
+        break;
+      case actionType.DENSITY_TYPE_ON:
+        dispatch(handleDensityMoleculeAction(action, 'density', true, majorViewStage, state));
+        break;
+      case actionType.DENSITY_CUSTOM_TURNED_ON:
+        dispatch(handleDensityMoleculeAction(action, 'densityCustom', true, majorViewStage, state));
+        break;
       case actionType.VECTORS_TURNED_ON:
         dispatch(handleMoleculeAction(action, 'vector', true, majorViewStage, state));
         break;
@@ -1640,6 +2394,15 @@ const handleRedoAction = (action, stages) => (dispatch, getState) => {
         break;
       case actionType.SURFACE_TURNED_OFF:
         dispatch(handleMoleculeAction(action, 'surface', false, majorViewStage, state));
+        break;
+      case actionType.QUALITY_TURNED_OFF:
+        dispatch(handleMoleculeAction(action, 'quality', false, majorViewStage, state));
+        break;
+      case actionType.DENSITY_TURNED_OFF:
+        dispatch(handleDensityMoleculeAction(action, 'density', false, majorViewStage, state));
+        break;
+      case actionType.DENSITY_TYPE_OFF:
+        dispatch(handleDensityMoleculeAction(action, 'density', false, majorViewStage, state));
         break;
       case actionType.VECTORS_TURNED_OFF:
         dispatch(handleMoleculeAction(action, 'vector', false, majorViewStage, state));
@@ -1669,10 +2432,16 @@ const handleRedoAction = (action, stages) => (dispatch, getState) => {
         dispatch(handleTargetAction(action, true));
         break;
       case actionType.SITE_TURNED_ON:
-        dispatch(handleMoleculeGroupAction(action, true, stageSummaryView, majorViewStage));
+        dispatch(handleMoleculeGroupAction(action, true));
         break;
       case actionType.SITE_TURNED_OFF:
-        dispatch(handleMoleculeGroupAction(action, false, stageSummaryView, majorViewStage));
+        dispatch(handleMoleculeGroupAction(action, false));
+        break;
+      case actionType.TAG_SELECTED:
+        dispatch(handleTagAction(action, true));
+        break;
+      case actionType.TAG_UNSELECTED:
+        dispatch(handleTagAction(action, false));
         break;
       case actionType.MOLECULE_ADDED_TO_SHOPPING_CART:
         dispatch(handleShoppingCartAction(action, true));
@@ -1692,6 +2461,30 @@ const handleRedoAction = (action, stages) => (dispatch, getState) => {
       case actionType.COMPOUND_DESELECTED:
         dispatch(handleCompoundAction(action, false));
         break;
+      case actionType.COMPOUND_LOCKED:
+        dispatch(handleCompoundLockAction(action, true));
+        break;
+      case actionType.COMPOUND_UNLOCKED:
+        dispatch(handleCompoundLockAction(action, false));
+        break;
+      case actionType.COMPOUND_ADDED_TO_COLOR_GROUP:
+        dispatch(handleCompoundColorAction(action, true));
+        break;
+      case actionType.COMPOUND_REMOVED_FROM_COLOR_GROUP:
+        dispatch(handleCompoundColorAction(action, false));
+        break;
+      case actionType.MOLECULE_SELECTED:
+        dispatch(handleSelectMoleculeAction(action, true));
+        break;
+      case actionType.MOLECULE_UNSELECTED:
+        dispatch(handleSelectMoleculeAction(action, false));
+        break;
+      case actionType.ALL_MOLECULES_SELECTED:
+        dispatch(handleSelectAllMolecules(action, true));
+        break;
+      case actionType.ALL_MOLECULES_UNSELECTED:
+        dispatch(handleSelectAllMolecules(action, false));
+        break;
       case actionType.TAB:
         dispatch(handleTabAction(action, true));
         break;
@@ -1703,6 +2496,9 @@ const handleRedoAction = (action, stages) => (dispatch, getState) => {
         break;
       case actionType.DATASET_FILTER_SCORE:
         dispatch(handleFilterScoreAction(action, true));
+        break;
+      case actionType.DRAG_DROP_FINISHED:
+        dispatch(handleDragDropFinished(action, true));
         break;
       case actionType.REPRESENTATION_VISIBILITY_UPDATED:
         dispatch(handleUpdateRepresentationVisibilityAction(action, true, majorView));
@@ -1723,7 +2519,7 @@ const handleRedoAction = (action, stages) => (dispatch, getState) => {
         dispatch(handleChangeRepresentationAction(action, true, majorView));
         break;
       case actionType.BACKGROUND_COLOR_CHANGED:
-        dispatch(setNglBckGrndColor(action.newSetting, majorViewStage, stageSummaryView));
+        dispatch(setNglBckGrndColor(action.newSetting, majorViewStage));
         break;
       case actionType.CLIP_NEAR:
         dispatch(setNglClipNear(action.newSetting, action.oldSetting, majorViewStage));
@@ -1739,6 +2535,57 @@ const handleRedoAction = (action, stages) => (dispatch, getState) => {
         break;
       case actionType.FOG_FAR:
         dispatch(setNglFogFar(action.newSetting, action.oldSetting, majorViewStage));
+        break;
+      case actionType.ISO_LEVEL_EVENT:
+        dispatch(setIsoLevel(MAP_TYPE.event, action.newSetting, action.oldSetting, majorViewStage));
+        break;
+      case actionType.BOX_SIZE_EVENT:
+        dispatch(setBoxSize(MAP_TYPE.event, action.newSetting, action.oldSetting, majorViewStage));
+        break;
+      case actionType.OPACITY_EVENT:
+        dispatch(setOpacity(MAP_TYPE.event, action.newSetting, action.oldSetting, majorViewStage));
+        break;
+      case actionType.CONTOUR_EVENT:
+        dispatch(setContour(MAP_TYPE.event, action.newSetting, action.oldSetting, majorViewStage));
+        break;
+      case actionType.COLOR_EVENT:
+        dispatch(setElectronDesityMapColor(MAP_TYPE.event, action.newSetting, action.oldSetting, majorViewStage));
+        break;
+      case actionType.ISO_LEVEL_SIGMAA:
+        dispatch(setIsoLevel(MAP_TYPE.sigmaa, action.newSetting, action.oldSetting, majorViewStage));
+        break;
+      case actionType.BOX_SIZE_SIGMAA:
+        dispatch(setBoxSize(MAP_TYPE.sigmaa, action.newSetting, action.oldSetting, majorViewStage));
+        break;
+      case actionType.OPACITY_SIGMAA:
+        dispatch(setOpacity(MAP_TYPE.sigmaa, action.newSetting, action.oldSetting, majorViewStage));
+        break;
+      case actionType.CONTOUR_SIGMAA:
+        dispatch(setContour(MAP_TYPE.sigmaa, action.newSetting, action.oldSetting, majorViewStage));
+        break;
+      case actionType.COLOR_SIGMAA:
+        dispatch(setElectronDesityMapColor(MAP_TYPE.sigmaa, action.newSetting, action.oldSetting, majorViewStage));
+        break;
+      case actionType.ISO_LEVEL_DIFF:
+        dispatch(setIsoLevel(MAP_TYPE.diff, action.newSetting, action.oldSetting, majorViewStage));
+        break;
+      case actionType.BOX_SIZE_DIFF:
+        dispatch(setBoxSize(MAP_TYPE.diff, action.newSetting, action.oldSetting, majorViewStage));
+        break;
+      case actionType.OPACITY_DIFF:
+        dispatch(setOpacity(MAP_TYPE.diff, action.newSetting, action.oldSetting, majorViewStage));
+        break;
+      case actionType.CONTOUR_DIFF:
+        dispatch(setContour(MAP_TYPE.diff, action.newSetting, action.oldSetting, majorViewStage));
+        break;
+      case actionType.COLOR_DIFF:
+        dispatch(setElectronDesityMapColor(MAP_TYPE.diff, action.newSetting, action.oldSetting, majorViewStage));
+        break;
+      case actionType.WARNING_ICON:
+        dispatch(setWarningIcon(action.newSetting, action.oldSetting));
+        break;
+      case actionType.TURN_SIDE:
+        dispatch(handleTurnSideAction(action, true));
         break;
       default:
         break;
@@ -1756,9 +2603,11 @@ const handleAllActionByType = (action, isAdd, stage) => (dispatch, getState) => 
       actionItems.forEach(data => {
         if (data) {
           if (type === 'ligand') {
-            dispatch(addType[type](stage, data, colourList[data.id % colourList.length], true, true));
+            dispatch(addType[type](stage, data, colourList[data.id % colourList.length], true, true, true));
           } else if (type === 'vector') {
             dispatch(addType[type](stage, data, true));
+          } else if (type === 'density' || type === 'densityCustom') {
+            dispatch(addType[type](stage, data, colourList[data.id % colourList.length], false, true));
           } else {
             dispatch(addType[type](stage, data, colourList[data.id % colourList.length], true));
           }
@@ -1844,7 +2693,7 @@ const handleAllHideAction = (action, isAdd, stage) => (dispatch, getState) => {
   if (isAdd) {
     ligandDataList.forEach(data => {
       if (data) {
-        dispatch(addType['ligand'](stage, data, colourList[data.id % colourList.length], true, true));
+        dispatch(addType['ligand'](stage, data, colourList[data.id % colourList.length], true, true, true));
       }
     });
 
@@ -2004,12 +2853,23 @@ const handleTabAction = (action, isSelected) => (dispatch, getState) => {
 
 const handleFilterAction = (action, isSelected) => (dispatch, getState) => {
   if (action) {
-    let datasetID = action.dataset_id;
-    let newFilterProperties = isSelected === true ? action.newProperties : action.oldProperties;
-    let newFilterSettings = isSelected === true ? action.newSettings : action.oldSettings;
-    dispatch(setDatasetFilter(datasetID, newFilterProperties, newFilterSettings, action.key));
+    const {
+      datasetID,
+      key,
+      newProperties,
+      oldProperties,
+      newSettings,
+      oldSettings,
+      oldDragDropState,
+      newDragDropState
+    } = action;
+    const newFilterProperties = isSelected ? newProperties : oldProperties;
+    const newFilterSettings = isSelected ? newSettings : oldSettings;
+    const newFilterDragDropState = isSelected ? newDragDropState : oldDragDropState;
+    dispatch(setDatasetFilter(datasetID, newFilterProperties, newFilterSettings, key, newFilterDragDropState));
     dispatch(setFilterProperties(datasetID, newFilterProperties));
     dispatch(setFilterSettings(datasetID, newFilterSettings));
+    dispatch(setDragDropState(datasetID, newFilterDragDropState));
   }
 };
 
@@ -2019,6 +2879,13 @@ const handleFilterScoreAction = (action, isSelected) => (dispatch, getState) => 
     let isChecked = isSelected === true ? action.isChecked : !action.isChecked;
     let scoreName = action.object_name;
     dispatch(selectScoreProperty({ isChecked, datasetID, scoreName }));
+  }
+};
+
+const handleDragDropFinished = (action, isSelected) => dispatch => {
+  if (action) {
+    const { oldDragDropState, newDragDropState, datasetID } = action;
+    dispatch(setDragDropState(datasetID, isSelected ? newDragDropState : oldDragDropState));
   }
 };
 
@@ -2033,6 +2900,60 @@ const handleCompoundAction = (action, isSelected) => (dispatch, getState) => {
         dispatch(removeMoleculeFromCompoundsOfDatasetToBuy(action.dataset_id, data.id, data.name));
       }
     }
+  }
+};
+
+const handleCompoundLockAction = (action, isLocked) => (dispatch, getState) => {
+  const state = getState();
+  if (action) {
+    let data = getCompound(action, state);
+    if (data) {
+      if (isLocked) {
+        dispatch(appendCompoundToSelectedCompoundsByDataset(action.dataset_id, data.id, data.name));
+      } else {
+        dispatch(removeCompoundFromSelectedCompoundsByDataset(action.dataset_id, data.id, data.name));
+      }
+    }
+  }
+};
+
+const handleCompoundColorAction = (action, isAdded) => (dispatch, getState) => {
+  const state = getState();
+  if (action) {
+    let data = getCompound(action, state);
+    if (data) {
+      if (isAdded) {
+        dispatch(appendCompoundColorOfDataset(action.dataset_id, data.id, action.color_class, data.name));
+      } else {
+        dispatch(removeCompoundColorOfDataset(action.dataset_id, data.id, action.color_class, data.name));
+      }
+    }
+  }
+};
+
+const handleSelectMoleculeAction = (action, isSelected) => (dispatch, getState) => {
+  if (action) {
+    dispatch(handleSelectMoleculeByName(action.object_name));
+  }
+};
+
+const handleSelectMoleculeByName = (molName, isSelected) => (dispatch, getState) => {
+  const state = getState();
+  if (molName) {
+    let mol = getMolecule(molName, state);
+    if (mol) {
+      if (isSelected) {
+        dispatch(appendToMolListToEdit(mol.id));
+      } else {
+        dispatch(removeFromMolListToEdit(mol.id));
+      }
+    }
+  }
+};
+
+const handleSelectAllMolecules = (action, isSelected) => (dispatch, getState) => {
+  if (action && action.items) {
+    dispatch(selectAllHits(action.items, setNextXMolecules, !isSelected));
   }
 };
 
@@ -2058,6 +2979,13 @@ const handleRepresentationAction = (action, isAdd, nglView) => (dispatch, getSta
     } else {
       dispatch(removeRepresentation(action, action.object_id, action.representation, nglView));
     }
+  }
+};
+
+const handleTurnSideAction = (action, restore) => dispatch => {
+  if (action) {
+    const { side, open } = action;
+    dispatch(turnSide(side, restore ? open : !open, true));
   }
 };
 
@@ -2105,6 +3033,7 @@ const removeRepresentation = (action, parentKey, representation, nglView, skipTr
     if (comp.reprList.length === 0) {
       dispatch(deleteObject(nglView, nglView.stage, true));
     } else {
+      hideShapeRepresentations(foundedRepresentation, nglView, parentKey);
       dispatch(removeComponentRepresentation(parentKey, foundedRepresentation, skipTracking));
     }
   } else {
@@ -2116,10 +3045,12 @@ const handleUpdateRepresentationVisibilityAction = (action, isAdd, nglView) => (
   if (action) {
     let parentKey = action.object_id;
     let representation = action.representation;
+    let representationElement = null;
 
     const comp = nglView.stage.getComponentsByName(parentKey).first;
     comp.eachRepresentation(r => {
       if (r.uuid === representation.uuid || r.uuid === representation.lastKnownID) {
+        representationElement = r;
         const newVisibility = isAdd ? action.value : !action.value;
         // update in redux
         representation.params.visible = newVisibility;
@@ -2131,6 +3062,8 @@ const handleUpdateRepresentationVisibilityAction = (action, isAdd, nglView) => (
         r.setVisibility(newVisibility);
       }
     });
+
+    hideShapeRepresentations(representationElement, nglView, parentKey);
   }
 };
 
@@ -2146,8 +3079,10 @@ const handleUpdateRepresentationVisibilityAllAction = (action, isAdd, nglView) =
 
     if (representations) {
       representations.forEach((representation, index) => {
+        let representationElement = null;
         comp.eachRepresentation(r => {
           if (r.uuid === representation.uuid || r.uuid === representation.lastKnownID) {
+            representationElement = r;
             representation.params.visible = newVisibility;
             // update in nglView
             r.setVisibility(newVisibility);
@@ -2155,6 +3090,7 @@ const handleUpdateRepresentationVisibilityAllAction = (action, isAdd, nglView) =
             dispatch(updateComponentRepresentation(parentKey, representation.uuid, representation, '', true));
           }
         });
+        hideShapeRepresentations(representationElement, nglView, parentKey);
       });
 
       dispatch(updateComponentRepresentationVisibilityAll(parentKey, newVisibility));
@@ -2232,12 +3168,13 @@ const handleArrowNavigationAction = (action, isSelected, majorViewStage) => (dis
 const handleArrowNavigationActionOfMolecule = (action, isSelected, majorViewStage) => (dispatch, getState) => {
   const state = getState();
   if (action) {
-    let molecules = state.apiReducers.allMolecules;
+    let molecules = state.apiReducers.all_mol_lists;
     let item = isSelected === true ? action.item : action.newItem;
     let newItem = isSelected === true ? action.newItem : action.item;
+    let isInspiration = newItem && newItem.isInspiration;
     let data = action.data;
 
-    dispatch(removeAllSelectedMolTypes(majorViewStage, molecules, true));
+    dispatch(removeSelectedMolTypes(majorViewStage, molecules, true, isInspiration));
     dispatch(moveSelectedMolSettings(majorViewStage, item, newItem, data, true));
     dispatch(setArrowUpDown(item, newItem, action.arrowType, data));
   }
@@ -2246,7 +3183,7 @@ const handleArrowNavigationActionOfMolecule = (action, isSelected, majorViewStag
 const handleArrowNavigationActionOfCompound = (action, isSelected, majorViewStage) => (dispatch, getState) => {
   const state = getState();
   if (action) {
-    const molecules = state.apiReducers.allMolecules;
+    const molecules = state.apiReducers.all_mol_lists;
     const allInspirations = state.datasetsReducers.allInspirations;
 
     let data = action.data;
@@ -2258,11 +3195,13 @@ const handleArrowNavigationActionOfCompound = (action, isSelected, majorViewStag
     const complexListMolecule = data.complexList;
     const fragmentDisplayListMolecule = data.fragmentDisplayList;
     const surfaceListMolecule = data.surfaceList;
-    const densityListMolecule = data.surfaceList;
+    const densityListMolecule = data.densityList;
+    const densityListCustomMolecule = data.densityListCustom;
     const vectorOnListMolecule = data.vectorOnList;
+    const qualityListMolecule = data.qualityList;
 
     dispatch(hideAllSelectedMolecules(majorViewStage, molecules, false, true));
-    dispatch(removeAllSelectedDatasetMolecules(majorViewStage, true));
+    dispatch(removeSelectedDatasetMolecules(majorViewStage, true));
 
     const newDatasetID = (newItem.hasOwnProperty('datasetID') && newItem.datasetID) || datasetID;
     const moleculeTitlePrev = newItem && newItem.name;
@@ -2283,7 +3222,9 @@ const handleArrowNavigationActionOfCompound = (action, isSelected, majorViewStag
           complexListMolecule,
           surfaceListMolecule,
           densityListMolecule,
+          densityListCustomMolecule,
           vectorOnListMolecule,
+          qualityListMolecule,
           true
         )
       );
@@ -2296,7 +3237,10 @@ const handleArrowNavigationActionOfCompound = (action, isSelected, majorViewStag
           proteinListMolecule,
           complexListMolecule,
           surfaceListMolecule,
+          densityListMolecule,
+          densityListCustomMolecule,
           vectorOnListMolecule,
+          qualityListMolecule,
           true
         )
       );
@@ -2310,13 +3254,41 @@ const handleArrowNavigationActionOfCompound = (action, isSelected, majorViewStag
 const handleMoleculeGroupAction = (action, isSelected, stageSummaryView, majorViewStage) => (dispatch, getState) => {
   const state = getState();
   if (action) {
-    const { object_name } = action;
-    let moleculeGroup = getMolGroup(object_name, state);
-    if (moleculeGroup) {
+    const tag = getTag(action.object_id, state);
+    if (tag) {
       if (isSelected === true) {
-        dispatch(selectMoleculeGroup(moleculeGroup, stageSummaryView));
+        dispatch(addSelectedTag(tag));
       } else {
-        dispatch(onDeselectMoleculeGroup({ moleculeGroup, stageSummaryView, majorViewStage }));
+        dispatch(removeSelectedTag(tag));
+      }
+    }
+  }
+};
+
+const handleTagAction = (action, isSelected) => (dispatch, getState) => {
+  const state = getState();
+  if (action) {
+    const tag = getTag(action.object_id, state);
+    if (tag) {
+      if (isSelected === true) {
+        dispatch(addSelectedTag(tag));
+      } else {
+        dispatch(removeSelectedTag(tag));
+      }
+    }
+  }
+};
+
+const handleDensityMoleculeAction = (action, type, isAdd, stage, state, skipTracking) => (dispatch, getState) => {
+  if (action.object_type === actionObjectType.MOLECULE || action.object_type === actionObjectType.INSPIRATION) {
+    if (isAdd) {
+      dispatch(addNewTypeOfAction(action, type, stage, state, skipTracking));
+    } else {
+      if (type === 'densityCustom') {
+        dispatch(removeNewType(action, 'density', stage, state, skipTracking));
+        dispatch(addNewTypeOfAction(action, 'density', stage, state, skipTracking));
+      } else {
+        dispatch(removeNewType(action, type, stage, state, skipTracking));
       }
     }
   }
@@ -2339,21 +3311,6 @@ const handleMoleculeAction = (action, type, isAdd, stage, state, skipTracking) =
       dispatch(removeNewTypeCompound(action, type, stage, state, skipTracking));
     }
   }
-};
-
-const removeType = {
-  ligand: removeLigand,
-  protein: removeHitProtein,
-  complex: removeComplex,
-  surface: removeSurface,
-  vector: removeVector
-};
-
-const removeTypeCompound = {
-  ligand: removeDatasetLigand,
-  protein: removeDatasetHitProtein,
-  complex: removeDatasetComplex,
-  surface: removeDatasetSurface
 };
 
 const removeNewType = (action, type, stage, state, skipTracking) => dispatch => {
@@ -2521,10 +3478,13 @@ const sendTrackingActions = (sendActions, project, clear = false) => async (disp
 
 export const setProjectTrackingActions = () => (dispatch, getState) => {
   const state = getState();
-  const currentProject = state.projectReducers.currentProject;
-  const projectID = currentProject && currentProject.projectID;
-  dispatch(setProjectActionList([]));
-  dispatch(getTrackingActions(projectID, true));
+  const isProjectActionListLoaded = state.trackingReducers.isProjectActionListLoaded;
+  if (!isProjectActionListLoaded) {
+    const currentProject = state.projectReducers.currentProject;
+    const projectID = currentProject && currentProject.projectID;
+    dispatch(setProjectActionList([]));
+    dispatch(getTrackingActions(projectID, true));
+  }
 };
 
 const getTrackingActions = (projectID, withTreeSeparation) => (dispatch, getState) => {
@@ -2562,6 +3522,7 @@ const getTrackingActions = (projectID, withTreeSeparation) => (dispatch, getStat
 
         let projectActions = currentProjectID && currentProjectID != null ? [...listToSet, ...sendActions] : listToSet;
         dispatch(setProjectActionList(projectActions));
+        dispatch(setProjectActionListLoaded(true));
         return Promise.resolve(projectActions);
       })
       .catch(error => {

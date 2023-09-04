@@ -126,3 +126,21 @@ export const handleNglViewPick = (stage, pickingProxy, getNglView) => (dispatch,
     }
   }
 };
+
+export const hideShapeRepresentations = (representationElement, nglView, parentKey) => {
+  if (
+    representationElement &&
+    representationElement !== null &&
+    representationElement.parameters.withQuality === true
+  ) {
+    const compList = nglView.stage.getComponentsByName(parentKey).list;
+    compList.forEach(c => {
+      c.eachRepresentation(r => {
+        if (r.parameters.isShape === true) {
+          const newVisibility = !r.getVisibility();
+          r.setVisibility(newVisibility);
+        }
+      });
+    });
+  }
+};

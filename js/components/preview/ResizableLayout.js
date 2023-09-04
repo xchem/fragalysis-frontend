@@ -1,0 +1,248 @@
+import { makeStyles } from '@material-ui/core';
+import { clamp } from 'lodash';
+import React, { useCallback, useEffect, useState } from 'react';
+import { useSelector, useDispatch } from 'react-redux';
+import { OutPortal } from 'react-reverse-portal';
+import HitNavigator from './molecule/hitNavigator';
+import { ProjectHistoryPanel } from './projectHistoryPanel';
+import { Resizer } from './resizer';
+import { RHS } from './rhs';
+import TagDetails from './tags/details/tagDetails';
+import TagSelector from './tags/tagSelector';
+import { ViewerControls } from './viewerControls';
+import { setResizableLayout } from '../../reducers/selection/actions';
+
+const useStyles = makeStyles(theme => ({
+  root: {
+    display: 'flex',
+    height: '100%'
+  },
+  lhs: {
+    height: '100%'
+  },
+  nglColumn: {
+    display: 'flex',
+    flexDirection: 'column',
+    gap: theme.spacing(),
+    height: '100%'
+  },
+  ngl: {
+    flex: 1,
+    minHeight: 0
+  }
+}));
+
+const sideWidth = 500;
+let panelHeight = 0;
+let totalTagDetailHeight = 200;
+const resizerSize = 20;
+let screenHeight = 0;
+let tagDetails = 100;
+
+export const ResizableLayout = ({ gridRef, hideProjects, showHistory, onShowHistoryChange, nglPortal }) => {
+  const classes = useStyles();
+  const dispatch = useDispatch();
+
+  const sidesOpen = useSelector(state => state.previewReducers.viewerControls.sidesOpen);
+
+  const [lhsWidth, setLhsWidth] = useState(sidesOpen.LHS ? sideWidth : 0);
+  const [rhsWidth, setRhsWidth] = useState(sidesOpen.RHS ? sideWidth : 0);
+
+  const preTagList = useSelector(state => state.apiReducers.tagList);
+  const [tagDetailsHeight, setTagDetailsHeight] = useState();
+  const [hitNavigatorHeight, setHitNavigatorHeight] = useState(panelHeight * 2);
+  const tagDetailView = useSelector(state => state.selectionReducers.tagDetailView);
+
+  const tags = useSelector(state => state.apiReducers.tagList);
+  const tagsLength = tags.length;
+
+  if (tagDetailView) {
+    totalTagDetailHeight = (preTagList.length / 2) * 15 + 30;
+  } else {
+    if (preTagList.length < 10) {
+      totalTagDetailHeight = preTagList.length * 15 + 45;
+    } else {
+      totalTagDetailHeight = preTagList.length * 15 + 55;
+    }
+  }
+
+    if (tagsLength > 7 && tagsLength < 11) {
+      tagDetails = 110
+    } 
+    if (tagsLength > 11 && tagsLength < 15) {
+      tagDetails = 130
+    } 
+ 
+
+  useEffect(() => {
+    if (sidesOpen.LHS) {
+      setLhsWidth(sideWidth);
+    } else {
+      setLhsWidth(0);
+    }
+
+    if (sidesOpen.RHS) {
+      setRhsWidth(sideWidth);
+    } else {
+      setRhsWidth(0);
+    }
+  }, [sidesOpen.LHS, sidesOpen.RHS]);
+
+  const onLhsResize = useCallback(
+    x => {
+      setLhsWidth(() => {
+        const gridRect = gridRef.current?.elementRef.current.firstChild.getBoundingClientRect();
+
+        if (gridRect) {
+          if (sidesOpen.RHS) {
+            // This basically normalizes the X coord to begin in the container taking into
+            // consideration half the size of the resizer
+            const adjustedX = x - gridRect.x - resizerSize / 2;
+            // Available container width
+            const containerWidth = gridRect.width - rhsWidth - resizerSize * 2;
+
+            return clamp(adjustedX, 0, containerWidth);
+          } else {
+            const adjustedX = x - gridRect.x - resizerSize / 2;
+            const containerWidth = gridRect.width - resizerSize;
+
+            return clamp(adjustedX, 0, containerWidth);
+          }
+        } else {
+          return 0;
+        }
+      });
+    },
+    [gridRef, rhsWidth, sidesOpen.RHS]
+  );
+
+  const onRhsResize = useCallback(
+    x => {
+      setRhsWidth(() => {
+        const gridRect = gridRef.current?.elementRef.current.firstChild.getBoundingClientRect();
+
+        if (gridRect) {
+          if (sidesOpen.LHS) {
+            const adjustedX = x - gridRect.x - (lhsWidth + resizerSize) - resizerSize / 2;
+            const containerWidth = gridRect.width - lhsWidth - resizerSize * 2;
+
+            return containerWidth - clamp(adjustedX, 0, containerWidth);
+          } else {
+            const adjustedX = x - gridRect.x - resizerSize / 2;
+            const containerWidth = gridRect.width - resizerSize;
+
+            return containerWidth - clamp(adjustedX, 0, containerWidth);
+          }
+        } else {
+          return 0;
+        }
+      });
+    },
+    [gridRef, lhsWidth, sidesOpen.LHS]
+  );
+
+  if (gridRef.current !== null && gridRef.current !== undefined) {
+    if (gridRef.current?.elementRef.current !== null) {
+      if (gridRef.current?.elementRef.current.firstChild !== null) {
+        const gridRect = gridRef.current?.elementRef.current.firstChild.getBoundingClientRect();
+        screenHeight = gridRect.height;
+      }
+    }
+  }
+
+  const onTagDetailsResize = useCallback(
+    (_, y) => {
+      dispatch(setResizableLayout(true))
+      setTagDetailsHeight(() => {
+        const gridRect = gridRef.current?.elementRef.current.firstChild.getBoundingClientRect();
+
+        if (gridRect) {
+          const adjustedY = y - gridRect.y - resizerSize / 2;
+          const containerHeight = gridRect.height - hitNavigatorHeight - resizerSize * 2;
+
+          return clamp(adjustedY, 0, containerHeight);
+        } else {
+          return 0;
+        }
+      });
+    },
+    [gridRef, hitNavigatorHeight]
+  );
+
+  const onHitListResize = useCallback(
+    (_, y) => {
+      setHitNavigatorHeight(() => {
+        const gridRect = gridRef.current?.elementRef.current.firstChild.getBoundingClientRect();
+
+        if (gridRect) {
+          const adjustedY = y - gridRect.y - (tagDetailsHeight + resizerSize) - resizerSize / 2;
+          const containerHeight = gridRect.height - tagDetailsHeight - resizerSize * 2;
+
+          return containerHeight - clamp(adjustedY, 0, containerHeight);
+        } else {
+          return 0;
+        }
+      });
+    },
+    [gridRef, tagDetailsHeight]
+  );
+
+  return (
+    <div className={classes.root}>
+      {sidesOpen.LHS && (
+        <>
+          <div className={classes.lhs} style={{ width: lhsWidth }}>
+            <div style={{ height: tagDetailsHeight }}>
+              <TagDetails />
+            </div>
+            <Resizer orientation="horizontal" onResize={onTagDetailsResize} />
+            {/* hide section Hit List Filter(LHS) - task #576 
+            <div style={{ height: `calc(100% - ${tagDetailsHeight + hitNavigatorHeight + 2 * resizerSize}px)` }}>
+              <TagSelector />
+             </div> 
+            <Resizer orientation="horizontal" onResize={onHitListResize} /> 
+            */}
+            <div
+              style={{
+                height:
+                  tagDetailsHeight === undefined
+                    ? screenHeight - totalTagDetailHeight - tagDetails
+                    : screenHeight - tagDetailsHeight - 20
+              }}
+            >
+              <HitNavigator hideProjects={hideProjects} />
+            </div>
+          </div>
+          <Resizer onResize={onLhsResize} />
+        </>
+      )}
+      <div
+        className={classes.nglColumn}
+        style={{
+          width: `calc(100% - ${lhsWidth}px - ${rhsWidth}px - ${sidesOpen.LHS * resizerSize}px - ${sidesOpen.RHS *
+            resizerSize}px)`
+        }}
+      >
+        <div className={classes.ngl}>
+          <OutPortal node={nglPortal} />
+        </div>
+        <div>
+          <ViewerControls />
+        </div>
+        {!hideProjects && (
+          <div>
+            <ProjectHistoryPanel showFullHistory={onShowHistoryChange} />
+          </div>
+        )}
+      </div>
+      {sidesOpen.RHS && (
+        <>
+          <Resizer onResize={onRhsResize} />
+          <div style={{ width: rhsWidth }}>
+            <RHS hideProjects={hideProjects} />
+          </div>
+        </>
+      )}
+    </div>
+  );
+};

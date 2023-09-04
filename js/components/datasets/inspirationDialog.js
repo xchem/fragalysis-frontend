@@ -1,15 +1,6 @@
-import React, { forwardRef, memo, useContext, useEffect, useRef, useState } from 'react';
-import {
-  CircularProgress,
-  Grid,
-  Popper,
-  IconButton,
-  Typography,
-  InputAdornment,
-  TextField,
-  Tooltip
-} from '@material-ui/core';
-import { Close, Search } from '@material-ui/icons';
+import React, { forwardRef, memo, useCallback, useContext, useMemo, useRef, useState } from 'react';
+import { CircularProgress, Grid, Popper, IconButton, Typography, Tooltip } from '@material-ui/core';
+import { Close } from '@material-ui/icons';
 import { makeStyles } from '@material-ui/styles';
 import { useDispatch, useSelector } from 'react-redux';
 import {
@@ -21,22 +12,23 @@ import {
   removeLigand,
   removeHitProtein,
   removeSurface,
-  removeDensity,
-  removeVector
+  removeSelectedMolTypes,
+  withDisabledMoleculesNglControlButtons
 } from '../preview/molecule/redux/dispatchActions';
 import MoleculeView from '../preview/molecule/moleculeView';
 import { moleculeProperty } from '../preview/molecule/helperConstants';
-import { debounce } from 'lodash';
 import { setIsOpenInspirationDialog } from './redux/actions';
 import { Button } from '../common/Inputs/Button';
 import classNames from 'classnames';
-// import { useDisableUserInteraction } from '../helpers/useEnableUserInteracion';
-import { colourList } from './datasetMoleculeView';
+import { colourList } from '../preview/molecule/utils/color';
 import { NglContext } from '../nglView/nglProvider';
 import { VIEWS } from '../../constants/constants';
 import { Panel } from '../common/Surfaces/Panel';
 import { changeButtonClassname } from './helpers';
 import { setSelectedAllByType, setDeselectedAllByType } from '../../reducers/selection/actions';
+import SearchField from '../common/Components/SearchField';
+import useDisableNglControlButtons from '../preview/molecule/useDisableNglControlButtons';
+import GroupNglControlButtonsContext from '../preview/molecule/groupNglControlButtonsContext';
 
 const useStyles = makeStyles(theme => ({
   paper: {
@@ -72,17 +64,7 @@ const useStyles = makeStyles(theme => ({
     height: 214
   },
   search: {
-    margin: theme.spacing(1),
-    width: 140,
-    '& .MuiInputBase-root': {
-      color: theme.palette.white
-    },
-    '& .MuiInput-underline:before': {
-      borderBottomColor: theme.palette.white
-    },
-    '& .MuiInput-underline:after': {
-      borderBottomColor: theme.palette.white
-    }
+    width: 140
   },
   notFound: {
     paddingTop: theme.spacing(2)
@@ -104,8 +86,8 @@ const useStyles = makeStyles(theme => ({
     borderColor: theme.palette.primary.main,
     backgroundColor: theme.palette.primary.light,
     '&:hover': {
-      backgroundColor: theme.palette.primary.main,
-      color: theme.palette.primary.contrastText
+      backgroundColor: theme.palette.primary.light
+      //color: theme.palette.primary.contrastText
     },
     '&:disabled': {
       borderRadius: 0,
@@ -116,24 +98,25 @@ const useStyles = makeStyles(theme => ({
     backgroundColor: theme.palette.primary.main,
     color: theme.palette.primary.contrastText,
     '&:hover': {
-      backgroundColor: theme.palette.primary.light,
-      color: theme.palette.black
+      backgroundColor: theme.palette.primary.main
+      //color: theme.palette.black
     }
   },
   contColButtonHalfSelected: {
     backgroundColor: theme.palette.primary.semidark,
     color: theme.palette.primary.contrastText,
     '&:hover': {
-      backgroundColor: theme.palette.primary.light,
-      color: theme.palette.black
+      backgroundColor: theme.palette.primary.semidark
+      //color: theme.palette.black
     }
   }
 }));
 
 export const InspirationDialog = memo(
   forwardRef(({ open = false, anchorEl, datasetID }, ref) => {
+    // console.log('InspirationDialog refresh');
     const id = open ? 'simple-popover-compound-inspirations' : undefined;
-    const imgHeight = 34;
+    const imgHeight = 49;
     const imgWidth = 150;
     const classes = useStyles();
     const [searchString, setSearchString] = useState(null);
@@ -152,44 +135,42 @@ export const InspirationDialog = memo(
     const complexList = useSelector(state => state.selectionReducers.complexList);
     const surfaceList = useSelector(state => state.selectionReducers.surfaceList);
     const densityList = useSelector(state => state.selectionReducers.densityList);
+    const densityListCustom = useSelector(state => state.selectionReducers.densityListCustom);
+    const qualityList = useSelector(state => state.selectionReducers.qualityList);
     const vectorOnList = useSelector(state => state.selectionReducers.vectorOnList);
+    const informationList = useSelector(state => state.selectionReducers.informationList);
+    const molForTagEditId = useSelector(state => state.selectionReducers.molForTagEdit);
+    const moleculesToEditIds = useSelector(state => state.selectionReducers.moleculesToEdit);
 
     const dispatch = useDispatch();
-    // const disableUserInteraction = useDisableUserInteraction();
 
-    let debouncedFn;
+    const [tagEditorAnchorEl, setTagEditorAnchorEl] = useState(null);
 
-    const handleSearch = event => {
-      /* signal to React not to nullify the event object */
-      event.persist();
-      if (!debouncedFn) {
-        debouncedFn = debounce(() => {
-          setSearchString(event.target.value !== '' ? event.target.value : null);
-        }, 350);
+    const moleculeList = useMemo(() => {
+      if (searchString !== null) {
+        return inspirationMoleculeDataList.filter(molecule =>
+          molecule.protein_code.toLowerCase().includes(searchString.toLowerCase())
+        );
       }
-      debouncedFn();
-    };
+      return inspirationMoleculeDataList;
+    }, [inspirationMoleculeDataList, searchString]);
 
-    let moleculeList = [];
-    if (searchString !== null) {
-      moleculeList = inspirationMoleculeDataList.filter(molecule =>
-        molecule.protein_code.toLowerCase().includes(searchString.toLowerCase())
-      );
-    } else {
-      moleculeList = inspirationMoleculeDataList;
-    }
-    // TODO refactor from this line (duplicity in datasetMoleculeList.js)
+    const allSelectedMolecules = inspirationMoleculeDataList.filter(
+      molecule => moleculesToEditIds.includes(molecule.id) || molecule.id === molForTagEditId
+    );
+
+    // TODO: refactor from this line (duplicity in datasetMoleculeList.js)
     const isLigandOn = changeButtonClassname(
-      ligandList.filter(moleculeID => moleculeList.find(molecule => molecule.id === moleculeID) !== undefined),
-      moleculeList
+      ligandList.filter(moleculeID => allSelectedMolecules.find(molecule => molecule.id === moleculeID) !== undefined),
+      allSelectedMolecules
     );
     const isProteinOn = changeButtonClassname(
-      proteinList.filter(moleculeID => moleculeList.find(molecule => molecule.id === moleculeID) !== undefined),
-      moleculeList
+      proteinList.filter(moleculeID => allSelectedMolecules.find(molecule => molecule.id === moleculeID) !== undefined),
+      allSelectedMolecules
     );
     const isComplexOn = changeButtonClassname(
-      complexList.filter(moleculeID => moleculeList.find(molecule => molecule.id === moleculeID) !== undefined),
-      moleculeList
+      complexList.filter(moleculeID => allSelectedMolecules.find(molecule => molecule.id === moleculeID) !== undefined),
+      allSelectedMolecules
     );
 
     const addType = {
@@ -206,57 +187,21 @@ export const InspirationDialog = memo(
       surface: removeSurface
     };
 
-    const selectMoleculeSite = moleculeGroupSite => {};
-
-    const removeOfAllSelectedTypes = (skipTracking = false) => {
-      proteinList?.forEach(moleculeID => {
-        let foundedMolecule = moleculeList?.find(mol => mol.id === moleculeID);
-        foundedMolecule = foundedMolecule && Object.assign({ isInspiration: true }, foundedMolecule);
-
-        dispatch(
-          removeHitProtein(stage, foundedMolecule, colourList[foundedMolecule.id % colourList.length], skipTracking)
-        );
-      });
-      complexList?.forEach(moleculeID => {
-        let foundedMolecule = moleculeList?.find(mol => mol.id === moleculeID);
-        foundedMolecule = foundedMolecule && Object.assign({ isInspiration: true }, foundedMolecule);
-        dispatch(
-          removeComplex(stage, foundedMolecule, colourList[foundedMolecule.id % colourList.length], skipTracking)
-        );
-      });
-      ligandList?.forEach(moleculeID => {
-        let foundedMolecule = moleculeList?.find(mol => mol.id === moleculeID);
-        foundedMolecule = foundedMolecule && Object.assign({ isInspiration: true }, foundedMolecule);
-        dispatch(removeLigand(stage, foundedMolecule, skipTracking));
-      });
-      surfaceList?.forEach(moleculeID => {
-        let foundedMolecule = moleculeList?.find(mol => mol.id === moleculeID);
-        foundedMolecule = foundedMolecule && Object.assign({ isInspiration: true }, foundedMolecule);
-        dispatch(
-          removeSurface(stage, foundedMolecule, colourList[foundedMolecule.id % colourList.length], skipTracking)
-        );
-      });
-      densityList?.forEach(moleculeID => {
-        let foundedMolecule = moleculeList?.find(mol => mol.id === moleculeID);
-        foundedMolecule = foundedMolecule && Object.assign({ isInspiration: true }, foundedMolecule);
-        dispatch(
-          removeDensity(stage, foundedMolecule, colourList[foundedMolecule.id % colourList.length], skipTracking)
-        );
-      });
-      vectorOnList?.forEach(moleculeID => {
-        let foundedMolecule = moleculeList?.find(mol => mol.id === moleculeID);
-        foundedMolecule = foundedMolecule && Object.assign({ isInspiration: true }, foundedMolecule);
-        dispatch(removeVector(stage, foundedMolecule, skipTracking));
-      });
-    };
+    const removeSelectedTypes = useCallback(
+      (skipMolecules = [], skipTracking = false) => {
+        const molecules = [...moleculeList].filter(molecule => !skipMolecules.some(mol => molecule.id === mol.id));
+        dispatch(removeSelectedMolTypes(stage, molecules, skipTracking, true));
+      },
+      [dispatch, moleculeList, stage]
+    );
 
     const removeSelectedType = (type, skipTracking = false) => {
       if (type === 'ligand') {
-        moleculeList.forEach(molecule => {
+        allSelectedMolecules.forEach(molecule => {
           dispatch(removeType[type](stage, molecule, skipTracking));
         });
       } else {
-        moleculeList.forEach(molecule => {
+        allSelectedMolecules.forEach(molecule => {
           dispatch(removeType[type](stage, molecule, colourList[molecule.id % colourList.length], skipTracking));
         });
       }
@@ -265,15 +210,40 @@ export const InspirationDialog = memo(
     };
 
     const addNewType = (type, skipTracking = false) => {
-      if (type === 'ligand') {
-        moleculeList.forEach(molecule => {
-          dispatch(addType[type](stage, molecule, colourList[molecule.id % colourList.length], false, skipTracking));
-        });
-      } else {
-        moleculeList.forEach(molecule => {
-          dispatch(addType[type](stage, molecule, colourList[molecule.id % colourList.length], skipTracking));
-        });
-      }
+      dispatch(
+        withDisabledMoleculesNglControlButtons(
+          allSelectedMolecules.map(molecule => molecule.id),
+          type,
+          async () => {
+            const promises = [];
+
+            if (type === 'ligand') {
+              allSelectedMolecules.forEach(molecule => {
+                promises.push(
+                  dispatch(
+                    addType[type](
+                      stage,
+                      molecule,
+                      colourList[molecule.id % colourList.length],
+                      false,
+                      true,
+                      skipTracking
+                    )
+                  )
+                );
+              });
+            } else {
+              allSelectedMolecules.forEach(molecule => {
+                promises.push(
+                  dispatch(addType[type](stage, molecule, colourList[molecule.id % colourList.length], skipTracking))
+                );
+              });
+            }
+
+            await Promise.all(promises);
+          }
+        )
+      );
     };
 
     const ucfirst = string => {
@@ -315,14 +285,16 @@ export const InspirationDialog = memo(
     };
 
     const getMoleculesToSelect = list => {
-      let molecules = moleculeList.filter(m => !list.includes(m.id));
+      let molecules = allSelectedMolecules.filter(m => !list.includes(m.id));
       return molecules;
     };
 
     const getMoleculesToDeselect = list => {
-      let molecules = moleculeList.filter(m => list.includes(m.id));
+      let molecules = allSelectedMolecules.filter(m => list.includes(m.id));
       return molecules;
     };
+
+    const groupNglControlButtonsDisabledState = useDisableNglControlButtons(allSelectedMolecules);
 
     //  TODO refactor to this line
 
@@ -334,19 +306,12 @@ export const InspirationDialog = memo(
           title="Inspirations"
           className={classes.paper}
           headerActions={[
-            <TextField
+            <SearchField
               className={classes.search}
               id="search-inspiration-dialog"
               placeholder="Search"
               size="small"
-              InputProps={{
-                startAdornment: (
-                  <InputAdornment position="start">
-                    <Search color="inherit" />
-                  </InputAdornment>
-                )
-              }}
-              onChange={handleSearch}
+              onChange={setSearchString}
               disabled={!(isLoadingInspirationListOfMolecules === false && moleculeList)}
             />,
             <Tooltip title="Close inspirations">
@@ -369,7 +334,7 @@ export const InspirationDialog = memo(
                       {moleculeProperty[key]}
                     </Grid>
                   ))}
-                  {moleculeList.length > 0 && (
+                  {allSelectedMolecules.length > 0 && (
                     <Grid item>
                       <Grid
                         container
@@ -388,7 +353,7 @@ export const InspirationDialog = memo(
                                 [classes.contColButtonHalfSelected]: isLigandOn === null
                               })}
                               onClick={() => onButtonToggle('ligand')}
-                              disabled={false}
+                              disabled={groupNglControlButtonsDisabledState.ligand}
                             >
                               L
                             </Button>
@@ -403,7 +368,7 @@ export const InspirationDialog = memo(
                                 [classes.contColButtonHalfSelected]: isProteinOn === null
                               })}
                               onClick={() => onButtonToggle('protein')}
-                              disabled={false}
+                              disabled={groupNglControlButtonsDisabledState.protein}
                             >
                               P
                             </Button>
@@ -419,7 +384,7 @@ export const InspirationDialog = memo(
                                 [classes.contColButtonHalfSelected]: isComplexOn === null
                               })}
                               onClick={() => onButtonToggle('complex')}
-                              disabled={false}
+                              disabled={groupNglControlButtonsDisabledState.complex}
                             >
                               C
                             </Button>
@@ -433,28 +398,41 @@ export const InspirationDialog = memo(
               <div className={classes.content}>
                 {moleculeList.length > 0 &&
                   moleculeList.map((molecule, index, array) => {
-                    let data = Object.assign({ isInspiration: true }, molecule);
+                    let data = molecule;
+                    data.isInspiration = true;
                     let previousData = index > 0 && Object.assign({ isInspiration: true }, array[index - 1]);
                     let nextData = index < array?.length && Object.assign({ isInspiration: true }, array[index + 1]);
+                    const selected = allSelectedMolecules.some(molecule => molecule.id === data.id);
 
                     return (
-                      <MoleculeView
-                        key={index}
-                        index={index}
-                        imageHeight={imgHeight}
-                        imageWidth={imgWidth}
-                        data={data}
-                        searchMoleculeGroup
-                        previousItemData={previousData}
-                        nextItemData={nextData}
-                        removeOfAllSelectedTypes={removeOfAllSelectedTypes}
-                        selectMoleculeSite={selectMoleculeSite}
-                        L={ligandList.includes(molecule.id)}
-                        P={proteinList.includes(molecule.id)}
-                        C={complexList.includes(molecule.id)}
-                        S={surfaceList.includes(molecule.id)}
-                        V={vectorOnList.includes(molecule.id)}
-                      />
+                      <GroupNglControlButtonsContext.Provider value={groupNglControlButtonsDisabledState}>
+                        <MoleculeView
+                          key={index}
+                          index={index}
+                          imageHeight={imgHeight}
+                          imageWidth={imgWidth}
+                          data={data}
+                          searchMoleculeGroup
+                          previousItemData={previousData}
+                          nextItemData={nextData}
+                          removeSelectedTypes={removeSelectedTypes}
+                          L={ligandList.includes(molecule.id)}
+                          P={proteinList.includes(molecule.id)}
+                          C={complexList.includes(molecule.id)}
+                          S={surfaceList.includes(molecule.id)}
+                          D={densityList.includes(molecule.id)}
+                          D_C={densityListCustom.includes(data.id)}
+                          Q={qualityList.includes(molecule.id)}
+                          V={vectorOnList.includes(molecule.id)}
+                          I={informationList.includes(data.id)}
+                          selected={selected}
+                          isTagEditorInvokedByMolecule={data.id === molForTagEditId}
+                          disableL={selected && groupNglControlButtonsDisabledState.ligand}
+                          disableP={selected && groupNglControlButtonsDisabledState.protein}
+                          disableC={selected && groupNglControlButtonsDisabledState.complex}
+                          setRef={setTagEditorAnchorEl}
+                        />
+                      </GroupNglControlButtonsContext.Provider>
                     );
                   })}
                 {!(moleculeList.length > 0) && (

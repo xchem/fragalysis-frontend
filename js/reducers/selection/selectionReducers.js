@@ -11,13 +11,22 @@ export const INITIAL_STATE = {
   complexList: [],
   surfaceList: [],
   densityList: [],
+  densityListCustom: [],
+  densityListType: [],
+  qualityList: [],
+  informationList: [],
   vectorOnList: [],
-  countOfPendingVectorLoadRequests: 0,
   mol_group_selection: [],
   object_selection: undefined,
   filter: undefined,
   moleculeAllSelection: [],
   moleculeAllTypeSelection: [],
+  tagEditorOpened: false,
+  molForTagEdit: null,
+  tagFilteringMode: false,
+
+  selectedTagList: [],
+  isGlobalEdit: false,
 
   compoundsOfVectors: null, // list of all vector's compounds to pick
   // compoundsOfVectors: {
@@ -27,7 +36,15 @@ export const INITIAL_STATE = {
   // bondColorMapOfVectors: {
   //   [vectorID] :{}  // based on currentVector  (smile)
   // }
-  currentVector: null // selected vector smile (ID) of compoundsOfVectors
+  currentVector: null, // selected vector smile (ID) of compoundsOfVectors
+  moleculesToEdit: [],
+
+  // tags
+  tagToEdit: null,
+  //display all molecules in hit navigator regardless of the tag selection
+  displayAllMolecules: false,
+  displayUntaggedMolecules: false,
+  nextXMolecules: 0
 };
 
 export function selectionReducers(state = INITIAL_STATE, action = {}) {
@@ -148,6 +165,13 @@ export function selectionReducers(state = INITIAL_STATE, action = {}) {
       diminishedSurfaceList.delete(action.item.id);
       return Object.assign({}, state, { surfaceList: [...diminishedSurfaceList] });
 
+    case constants.APPEND_DENSITY_TYPE:
+      return { ...state, densityListType: [...state.densityListType, action.item] };
+
+    case constants.REMOVE_DENSITY_TYPE:
+      let filteredList = state.densityListType.filter(d => d.id !== action.item.id);
+      return { ...state, densityListType: [...filteredList] };
+
     case constants.SET_DENSITY_LIST:
       let newDensityList = new Set();
       action.densityList.forEach(f => {
@@ -162,6 +186,55 @@ export function selectionReducers(state = INITIAL_STATE, action = {}) {
       let diminishedDensityList = new Set(state.densityList);
       diminishedDensityList.delete(action.item.id);
       return Object.assign({}, state, { densityList: [...diminishedDensityList] });
+
+    case constants.SET_DENSITY_LIST_CUSTOM:
+      let newDensityListCustom = new Set();
+      action.densityListCustom.forEach(f => {
+        newDensityListCustom.add(f);
+      });
+      return Object.assign({}, state, { densityListCustom: [...newDensityListCustom] });
+
+    case constants.APPEND_DENSITY_LIST_CUSTOM:
+      return Object.assign({}, state, {
+        densityListCustom: [...new Set([...state.densityListCustom, action.item.id])]
+      });
+
+    case constants.REMOVE_FROM_DENSITY_LIST_CUSTOM:
+      let diminishedDensityListCustom = new Set(state.densityListCustom);
+      diminishedDensityListCustom.delete(action.item.id);
+      return Object.assign({}, state, { densityListCustom: [...diminishedDensityListCustom] });
+
+    case constants.SET_QUALITY_LIST:
+      let newQualityList = new Set();
+      action.qualityList.forEach(f => {
+        newQualityList.add(f);
+      });
+      return Object.assign({}, state, { qualityList: [...newQualityList] });
+
+    case constants.APPEND_QUALITY_LIST:
+      return Object.assign({}, state, { qualityList: [...new Set([...state.qualityList, action.item.id])] });
+
+    case constants.REMOVE_FROM_QUALITY_LIST:
+      let diminishedQualityList = new Set(state.qualityList);
+      diminishedQualityList.delete(action.item.id);
+      return Object.assign({}, state, { qualityList: [...diminishedQualityList] });
+
+    case constants.APPEND_INFORMATION_LIST:
+      return Object.assign({}, state, { informationList: [...new Set([...state.informationList, action.item.id])] });
+
+    case constants.REMOVE_FROM_INFORMATION_LIST:
+      let diminishedInformationList = new Set(state.informationList);
+      diminishedInformationList.delete(action.item.id);
+      return Object.assign({}, state, { informationList: [...diminishedInformationList] });
+
+    case constants.SET_TAG_EDITOR_OPEN:
+      return { ...state, tagEditorOpened: action.isOpen };
+
+    case constants.SET_MOLECULE_FOR_TAG_EDIT:
+      return { ...state, molForTagEdit: action.molId };
+
+    case constants.SWITCH_TAG_FILTERING_MODE:
+      return { ...state, tagFilteringMode: action.mode };
 
     case constants.SET_VECTOR_ON_LIST:
       let newVectorOnList = new Set();
@@ -219,18 +292,34 @@ export function selectionReducers(state = INITIAL_STATE, action = {}) {
       });
 
     case constants.RESET_SELECTION_STATE:
-      return INITIAL_STATE;
-
-    case constants.INCREMENT_COUNT_OF_PENDING_VECTOR_LOAD_REQUESTS: {
-      return Object.assign({}, state, {
-        countOfPendingVectorLoadRequests: state.countOfPendingVectorLoadRequests + 1
-      });
-    }
-    case constants.DECREMENT_COUNT_OF_PENDING_VECTOR_LOAD_REQUESTS: {
-      return Object.assign({}, state, {
-        countOfPendingVectorLoadRequests: state.countOfPendingVectorLoadRequests - 1
-      });
-    }
+      const {
+        vector_list,
+        fragmentDisplayList,
+        proteinList,
+        complexList,
+        surfaceList,
+        densityList,
+        densityListType,
+        densityListCustom,
+        qualityList,
+        vectorOnList,
+        informationList
+      } = state;
+      const newState = {
+        ...INITIAL_STATE,
+        vector_list,
+        fragmentDisplayList,
+        proteinList,
+        complexList,
+        surfaceList,
+        densityList,
+        densityListType,
+        densityListCustom,
+        qualityList,
+        vectorOnList,
+        informationList
+      };
+      return newState;
 
     case constants.SET_MOL_GROUP_SELECTION:
       return Object.assign({}, state, {
@@ -290,7 +379,7 @@ export function selectionReducers(state = INITIAL_STATE, action = {}) {
         moleculeAllSelection: [...selectedMolecules]
       });
 
-    case constants.SET_SELECTED_ALL_BY_TYPE:
+    case constants.SET_SELECTED_BY_TYPE:
       return Object.assign({}, state, {
         moleculeAllTypeSelection: action.payload.type
       });
@@ -302,6 +391,60 @@ export function selectionReducers(state = INITIAL_STATE, action = {}) {
 
     case constants.SET_HIDE_ALL:
       return state;
+
+    case constants.SET_SELECTED_TAG_LIST:
+      let newSelectedTagList = new Set();
+      action.selectedTagList.forEach(f => {
+        newSelectedTagList.add(f);
+      });
+      return Object.assign({}, state, { selectedTagList: [...newSelectedTagList] });
+
+    case constants.APPEND_SELECTED_TAG_LIST:
+      return Object.assign({}, state, { selectedTagList: [...new Set([...state.selectedTagList, action.item])] });
+
+    case constants.REMOVE_FROM_SELECTED_TAG_LIST:
+      let diminishedSelectedTagList = new Set(state.selectedTagList);
+      diminishedSelectedTagList.delete(action.item);
+      return Object.assign({}, state, { selectedTagList: [...diminishedSelectedTagList] });
+
+    case constants.SET_IS_TAG_GLOBAL_EDIT:
+      return { ...state, isGlobalEdit: action.isGlobalEdit };
+
+    case constants.SET_MOL_LIST_TO_EDIT:
+      return { ...state, moleculesToEdit: [...action.list] };
+
+    case constants.APPEND_TO_MOL_LIST_TO_EDIT:
+      return { ...state, moleculesToEdit: [...state.moleculesToEdit, action.molId] };
+
+    case constants.REMOVE_FROM_MOL_LIST_TO_EDIT:
+      let reducedMolListToEdit = state.moleculesToEdit.filter(mid => mid !== action.molId);
+      return { ...state, moleculesToEdit: [...reducedMolListToEdit] };
+
+    case constants.SET_TAG_TO_EDIT: {
+      return Object.assign({}, state, {
+        tagToEdit: action.tagToEdit
+      });
+    }
+
+    case constants.SET_DISPLAY_ALL_MOLECULES: {
+      return { ...state, displayAllMolecules: action.displayAllMolecules };
+    }
+
+    case constants.SET_DISPLAY_UNTAGGED_MOLECULES: {
+      return { ...state, displayUntaggedMolecules: action.displayUntaggedMolecules };
+    }
+
+    case constants.SET_NEXT_X_MOLECULES:
+      return { ...state, nextXMolecules: action.nextXMolecules };
+
+    case constants.SET_ASSIGN_TAGS_VIEW:
+      return { ...state, assignTagView: action.payload };
+
+    case constants.SET_TAG_DETAIL_VIEW:
+      return { ...state, tagDetailView: action.payload };
+
+    case constants.SET_RESIZABLE_LAYOUT:
+      return Object.assign({}, state, { resizableLayout: action.payload });
 
     // Cases like: @@redux/INIT
     default:

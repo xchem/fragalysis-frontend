@@ -13,17 +13,41 @@ export const constants = {
 
   RESET_PROJECTS_REDUCER: prefix + 'RESET_PROJECTS_REDUCER',
   SET_LIST_OF_PROJECTS: prefix + 'SET_LIST_OF_PROJECTS',
+  SET_LIST_OF_FILTERED_PROJECTS: prefix + 'SET_LIST_OF_FILTERED_PROJECTS',
+  SET_LIST_OF_FILTERED_PROJECTS_BY_DATE: prefix + 'SET_LIST_OF_FILTERED_PROJECTS_BY_DATE',
   SET_IS_LOADING_LIST_OF_PROJECTS: prefix + 'SET_IS_LOADING_LIST_OF_PROJECTS',
   SET_IS_LOADING_TREE: prefix + 'SET_IS_LOADING_TREE',
   SET_CURRENT_SNAPSHOT_TREE: prefix + 'SET_CURRENT_SNAPSHOT_TREE',
   SET_CURRENT_SNAPSHOT_LIST: prefix + 'SET_CURRENT_SNAPSHOT_LIST',
+  SET_CURRENT_SNAPSHOT_JOBLIST: prefix + 'SET_CURRENT_SNAPSHOT_JOBLIST',
 
   RESET_LOADED_SNAPSHOTS: prefix + 'RESET_LOADED_SNAPSHOTS',
 
   SET_FORCE_CREATE_PROJECT: prefix + 'SET_FORCE_CREATE_PROJECT',
   SET_FORCE_PROJECT_CREATED: prefix + 'SET_FORCE_PROJECT_CREATED',
   SET_PROJECT_DISCOURSE_LINKS: prefix + 'SET_PROJECT_DISCOURSE_LINKS',
-  SET_CURRENT_PROJECT_DISCOURSE_LINK: prefix + 'SET_CURRENT_PROJECT_DISCOURSE_LINK'
+  SET_CURRENT_PROJECT_DISCOURSE_LINK: prefix + 'SET_CURRENT_PROJECT_DISCOURSE_LINK',
+
+  SET_JOB_POP_UP_ANCHOR_EL: prefix + 'SET_JOB_POP_UP_ANCHOR_EL',
+  SET_JOB_CONFIGURATION_DIALOG_OPEN: prefix + 'SET_JOB_CONFIGURATION_DIALOG_OPEN',
+  SET_JOB_LAUNCHER_DIALOG_OPEN: prefix + 'SET_JOB_LAUNCHER_DIALOG_OPEN',
+  SET_JOB_LAUNCHER_DATA: prefix + 'SET_JOB_LAUNCHER_DATA',
+  SET_JOB_LAUNCHER_SQUONK_URL: prefix + 'SET_JOB_LAUNCHER_SQUONK_URL',
+  REFRESH_JOBS_DATA: prefix + 'REFRESH_JOBS_DATA',
+
+  SET_JOB_LIST: prefix + 'SET_JOB_LIST',
+  SET_SORT_DIALOG_OPEN: prefix + 'SET_SORT_DIALOG_OPEN',
+  SET_FILTER_CLEAN: prefix + 'SET_FILTER_CLEAN',
+
+  SET_ADD_BUTTON: prefix + 'SET_ADD_BUTTON',
+
+  SEARCH_NAME: prefix + 'SEARCH_NAME',
+  SEARCH_TARGET: prefix + 'SEARCH_TARGET',
+  SEARCH_DESCRIPTION: prefix + 'SEARCH_DESCRIPTION',
+  SEARCH_AUTHORITY: prefix + 'SEARCH_AUTHORITY',
+  SEARCH_TARGET_ACCESS_STRING: prefix + 'SEARCH_TARGET_ACCESS_STRING',
+  SEARCH_DATE_FROM: prefix + 'SEARCH_DATE_FROM',
+  SEARCH_DATE_TO: prefix + 'SEARCH_DATE_TO'
 };
 
 export const ProjectCreationType = {
@@ -41,3 +65,71 @@ export const SnapshotType = {
 export const SnapshotProjectType = {
   NOT_ASSIGNED: 'Not assigned to project'
 };
+
+export const PROJECTS_ATT = {
+  createdAt: {
+    key: 'init_date',
+    name: 'Created at',
+    isFloat: true,
+    color: '#72e5be',
+    filter: true,
+    dateFilter: true,
+    path: undefined
+  },
+  name: {
+    key: 'title',
+    name: 'Name',
+    isFloat: true,
+    color: '#daa520',
+    filter: true,
+    dateFilter: false,
+    path: undefined
+  },
+  target: {
+    key: 'target',
+    name: 'Target',
+    isFloat: true,
+    color: '#f96587',
+    filter: true,
+    dateFilter: false,
+    path: 'target.title'
+  },
+  targetAccessString: {
+    key: 'targetAccessString',
+    name: 'Target access string',
+    isFloat: true,
+    color: '#ffe119',
+    filter: true,
+    dateFilter: false,
+    path: 'project.target_access_string'
+  },
+  description: {
+    key: 'description',
+    name: 'Description',
+    isFloat: true,
+    color: '#f58231',
+    filter: true,
+    dateFilter: false,
+    path: undefined
+  },
+  authority: {
+    key: 'authority',
+    name: 'Authority',
+    isFloat: true,
+    color: '#86844a',
+    filter: true,
+    dateFilter: false,
+    path: 'project.authority'
+  }
+  /*tags: {
+    key: 'tags',
+    name: 'Tags',
+    isFloat: false,
+    color: '#42d4f4',
+    filter: true,
+    dateFilter: false,
+    value: ''
+  }*/
+};
+
+export const PROJECTS_ATTR = Object.values(PROJECTS_ATT);

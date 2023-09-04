@@ -1,4 +1,5 @@
 import { OBJECT_TYPE } from '../../nglView/constants';
+import { base_url } from '../../routes/constants';
 
 export const generateMolecule = (protein_code, sdf_info) => {
   return {
@@ -8,8 +9,6 @@ export const generateMolecule = (protein_code, sdf_info) => {
     sdf_info: sdf_info
   };
 };
-
-const base_url = window.location.protocol + '//' + window.location.host;
 
 export const complexObjectTypes = {
   contacts: OBJECT_TYPE.COMPLEX,

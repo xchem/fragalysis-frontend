@@ -98,10 +98,52 @@ export const setAllMolLists = all_mol_lists => {
   };
 };
 
-export const setAllMolecules = molecules => {
+export const setMoleculeTags = moleculeTags => {
   return {
-    type: constants.SET_ALL_MOLECULES,
-    allMolecules: molecules
+    type: constants.SET_MOLECULE_TAGS,
+    moleculeTags: moleculeTags
+  };
+};
+
+export const setNoTagsReceived = noTagsReceived => {
+  return {
+    type: constants.SET_NO_TAGS_RECEIVED,
+    noTagsReceived: noTagsReceived
+  };
+};
+
+export const setDownloadTags = downloadTags => {
+  return {
+    type: constants.SET_DOWNLOAD_TAGS,
+    downloadTags: downloadTags
+  };
+};
+
+export const appendToDownloadTags = tag => {
+  return {
+    type: constants.APPEND_TO_DOWNLOAD_TAGS,
+    tag: tag
+  };
+};
+
+export const appendMoleculeTag = moleculeTag => {
+  return {
+    type: constants.APPEND_MOLECULE_TAG,
+    moleculeTag: moleculeTag
+  };
+};
+
+export const updateMoleculeTag = tag => {
+  return {
+    type: constants.UPDATE_MOLECULE_TAG,
+    tag: tag
+  };
+};
+
+export const updateMoleculeInMolLists = mol => {
+  return {
+    type: constants.UPDATE_MOL_IN_ALL_MOL_LISTS,
+    mol: mol
   };
 };
 
@@ -189,6 +231,34 @@ export const setDirectAccessProcessed = directAccessProcessedParams => {
   };
 };
 
+export const setDirectDownloadInProgress = directDownloadInProgress => {
+  return {
+    type: constants.SET_DIRECT_DOWNLOAD_IN_PROGRESS,
+    directDownloadInProgress: directDownloadInProgress
+  };
+};
+
+export const setSnapshotDownloadUrl = snapshotDownloadUrl => {
+  return {
+    type: constants.SET_SNAPSHOT_DOWNLOAD_URL,
+    snapshotDownloadUrl: snapshotDownloadUrl
+  };
+};
+
+export const setTargetDataLoadingInProgress = targetDataLoadingInProgress => {
+  return {
+    type: constants.SET_TARGET_DATA_LOADING_IN_PROGRESS,
+    targetDataLoadingInProgress: targetDataLoadingInProgress
+  };
+};
+
+export const setAllDataLoaded = allDataLoaded => {
+  return {
+    type: constants.SET_ALL_DATA_LOADED,
+    allDataLoaded: allDataLoaded
+  };
+};
+
 export const reloadApiState = function(apiReducers) {
   const cachedMolList = apiReducers.cached_mol_lists;
   let fixedCachedMolList = {};
@@ -232,3 +302,43 @@ export const reloadApiState = function(apiReducers) {
 };
 
 export const resetTargetState = () => ({ type: constants.RESET_TARGET_STATE });
+
+export const updateTag = (item, skipTracking = false) => {
+  return {
+    type: constants.UPDATE_TAG,
+    item: item,
+    skipTracking
+  };
+};
+
+export const setTagList = function(tagList, skipTracking = false) {
+  return {
+    type: constants.SET_TAG_LIST,
+    tagList: tagList,
+    skipTracking
+  };
+};
+
+export const appendTagList = function(item, skipTracking = false) {
+  return {
+    type: constants.APPEND_TAG_LIST,
+    item: item,
+    skipTracking
+  };
+};
+
+export const removeFromTagList = function(item, skipTracking = false) {
+  return {
+    type: constants.REMOVE_FROM_TAG_LIST,
+    item: item,
+    skipTracking
+  };
+};
+
+export const setCategoryList = function(categoryList, skipTracking = false) {
+  return {
+    type: constants.SET_CATEGORY_LIST,
+    categoryList: categoryList,
+    skipTracking
+  };
+};

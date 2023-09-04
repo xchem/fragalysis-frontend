@@ -12,7 +12,8 @@ const useStyles = makeStyles(theme => ({
     backgroundColor: theme.palette.background.paper,
     borderRadius: theme.spacing(1) / 2,
     boxShadow: theme.shadows[0],
-    outline: 'none'
+    outline: 'none',
+    paddingBottom: '20px'
   },
   withPadding: {
     padding: theme.spacing(2, 4, 3)

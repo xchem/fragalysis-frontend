@@ -13,6 +13,10 @@ import { restoreAfterTargetActions } from '../../../reducers/tracking/dispatchAc
 import { resetTrackingState } from '../../../reducers/tracking/actions';
 import { setTargetOn } from '../../../reducers/api/actions';
 import { resetNglTrackingState } from '../../../reducers/nglTracking/dispatchActions';
+import { resetViewerControlsState } from '../viewerControls/redux/actions';
+// eslint-disable-next-line import/extensions
+import { default_squonk_project } from '../../../../package.json';
+import { getProjectsForTarget } from '../utils';
 
 const loadProtein = nglView => (dispatch, getState) => {
   const state = getState();
@@ -130,11 +134,14 @@ export const unmountPreviewComponent = (stages = []) => dispatch => {
 
   dispatch(resetSelectionState());
   dispatch(resetDatasetsState());
+
+  dispatch(resetViewerControlsState());
 };
 
 export const resetReducersForRestoringActions = () => dispatch => {
   dispatch(resetSelectionState());
   dispatch(resetDatasetsState());
+  dispatch(resetViewerControlsState());
 };
 
 export const resetReducersBetweenSnapshots = (stages = []) => dispatch => {
@@ -150,6 +157,7 @@ export const resetReducersBetweenSnapshots = (stages = []) => dispatch => {
   dispatch(resetTrackingState());
   dispatch(resetNglTrackingState());
   dispatch(setTargetOn(undefined));
+  dispatch(resetViewerControlsState());
 };
 
 export const switchBetweenSnapshots = ({ nglViewList, projectID, snapshotID, history }) => (dispatch, getState) => {
@@ -159,4 +167,49 @@ export const switchBetweenSnapshots = ({ nglViewList, projectID, snapshotID, his
   } else {
     throw new Error('ProjectID or SnapshotID is missing!');
   }
+};
+
+export const getSquonkProject = () => (dispatch, getState) => {
+  let squonkProject = null;
+
+  const state = getState();
+  const allTargets = state.apiReducers.target_id_list;
+  const currentTargetId = state.apiReducers.target_on;
+  const currentTarget = allTargets?.find(t => t.id === currentTargetId);
+
+  squonkProject = currentTarget?.default_squonk_project;
+
+  if (!squonkProject) {
+    squonkProject = default_squonk_project;
+  }
+
+  return squonkProject;
+};
+
+export const getProjectsForSelectedTarget = () => (dispatch, getState) => {
+  const state = getState();
+
+  const targetOn = state.apiReducers.target_on;
+  const allTargets = state.apiReducers.target_id_list;
+  const currentTarget = allTargets?.find(t => t.id === targetOn);
+  const projects = state.targetReducers.projects;
+
+  return getProjectsForTarget(currentTarget, projects);
+};
+
+export const getProjectsForTargetDisp = targetName => (dispatch, getState) => {
+  const state = getState();
+  const projects = state.targetReducers.projects;
+  const targets = state.apiReducers.target_id_list;
+  const target = targets?.find(t => t.title === targetName);
+
+  return getProjectsForTarget(target, projects);
+};
+
+export const getProjectForProjectName = projectName => (dispatch, getState) => {
+  const state = getState();
+
+  const projects = state.targetReducers.projects;
+
+  return projects?.find(p => p.target_access_string === projectName);
 };

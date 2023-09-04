@@ -38,6 +38,7 @@ import {
   sendTrackingActionsByProjectId,
   manageSendTrackingActions
 } from '../../../reducers/tracking/dispatchActions';
+import { changeSnapshot } from '../../../reducers/tracking/dispatchActionsSwitchSnapshot';
 import { captureScreenOfSnapshot } from '../../userFeedback/browserApi';
 import { setCurrentProject } from '../../projects/redux/actions';
 import { createProjectPost } from '../../../utils/discourse';
@@ -192,6 +193,38 @@ export const createInitSnapshotFromCopy = ({
   return Promise.reject('ProjectID is missing');
 };
 
+const getAdditionalInfo = state => {
+  const allMolecules = state.apiReducers.all_mol_lists;
+  const { moleculesToEdit, fragmentDisplayList } = state.selectionReducers;
+  const currentSnapshotSelectedCompounds = allMolecules
+    .filter(molecule => moleculesToEdit.includes(molecule.id))
+    .map(molecule => molecule.protein_code);
+  const currentSnapshotVisibleCompounds = allMolecules
+    .filter(molecule => fragmentDisplayList.includes(molecule.id))
+    .map(molecule => molecule.protein_code);
+
+  const { moleculeLists, ligandLists, compoundsToBuyDatasetMap } = state.datasetsReducers;
+  const currentSnapshotVisibleDatasetsCompounds = Object.fromEntries(
+    Object.entries(moleculeLists).map(([datasetID, mols]) => [
+      datasetID,
+      mols.filter(mol => ligandLists[datasetID]?.includes(mol.id)).map(mol => mol.name)
+    ])
+  );
+  const currentSnapshotSelectedDatasetsCompounds = Object.fromEntries(
+    Object.entries(moleculeLists).map(([datasetID, mols]) => [
+      datasetID,
+      mols.filter(mol => compoundsToBuyDatasetMap[datasetID]?.includes(mol.id)).map(mol => mol.name)
+    ])
+  );
+
+  return {
+    currentSnapshotSelectedCompounds,
+    currentSnapshotVisibleCompounds,
+    currentSnapshotSelectedDatasetsCompounds,
+    currentSnapshotVisibleDatasetsCompounds
+  };
+};
+
 export const createNewSnapshot = ({
   title,
   description,
@@ -200,9 +233,10 @@ export const createNewSnapshot = ({
   parent,
   session_project,
   nglViewList,
+  stage,
   overwriteSnapshot,
   createDiscourse = false
-}) => (dispatch, getState) => {
+}) => async (dispatch, getState) => {
   const state = getState();
   const selectedSnapshotToSwitch = state.snapshotReducers.selectedSnapshotToSwitch;
   const disableRedirect = state.snapshotReducers.disableRedirect;
@@ -216,6 +250,22 @@ export const createNewSnapshot = ({
   if (overwriteSnapshot === true && currentSnapshotId) {
     dispatch(setIsLoadingSnapshotDialog(true));
     let project = { projectID: session_project, authorID: author };
+
+    await api({
+      url: `${base_url}/api/snapshots/${currentSnapshotId}`,
+      data: {
+        title,
+        description,
+        type: type,
+        author,
+        parent,
+        session_project,
+        children: currentSnapshot.children,
+        data: '[]',
+        additional_info: getAdditionalInfo(state)
+      },
+      method: METHOD.PUT
+    });
 
     return Promise.resolve(dispatch(addCurrentActionsListToSnapshot(currentSnapshot, project, nglViewList))).then(
       () => {
@@ -249,7 +299,8 @@ export const createNewSnapshot = ({
             parent,
             session_project,
             data: '[]',
-            children: []
+            children: [],
+            additional_info: getAdditionalInfo(state)
           },
           method: METHOD.POST
         }).then(res => {
@@ -259,13 +310,16 @@ export const createNewSnapshot = ({
             let project = { projectID: session_project, authorID: author };
             console.log('created snapshot id: ' + res.data.id);
 
-            Promise.resolve(dispatch(saveCurrentActionsList(snapshot, project, nglViewList))).then(() => {
+            return Promise.resolve(dispatch(saveCurrentActionsList(snapshot, project, nglViewList))).then(async () => {
               if (disableRedirect === false) {
                 if (selectedSnapshotToSwitch != null) {
                   if (createDiscourse) {
                     dispatch(createSnapshotDiscoursePost(res.data.id));
                   }
-                  window.location.replace(`${URLS.projects}${session_project}/${selectedSnapshotToSwitch}`);
+                  //window.location.replace(`${URLS.projects}${session_project}/${selectedSnapshotToSwitch}`);
+                  await dispatch(changeSnapshot(session_project, selectedSnapshotToSwitch, nglViewList, stage));
+                  dispatch(setOpenSnapshotSavingDialog(false));
+                  dispatch(setIsLoadingSnapshotDialog(false));
                 } else {
                   // A hacky way of changing the URL without triggering react-router
                   window.history.replaceState(
@@ -308,7 +362,7 @@ export const createNewSnapshot = ({
                           await dispatch(
                             setCurrentProject({
                               projectID: projectResponse.data.id,
-                              authorID: (projectResponse.data.author && projectResponse.data.author.id) || null,
+                              authorID: projectResponse.data.author || null,
                               title: projectResponse.data.title,
                               description: projectResponse.data.description,
                               targetID: projectResponse.data.target.id,
@@ -341,6 +395,7 @@ export const createNewSnapshot = ({
                     url: `${base_url}${URLS.projects}${session_project}/${res.data.id}`
                   })
                 );
+                return res.data.id;
               }
             });
           }
@@ -366,8 +421,9 @@ export const activateSnapshotDialog = (loggedInUserID = undefined, finallyShareS
 ) => {
   const state = getState();
   const targetId = state.apiReducers.target_on;
-  const projectID = state.projectReducers.currentProject.projectID;
+  const sessionProjectID = state.projectReducers.currentProject.projectID;
   const currentSnapshotAuthor = state.projectReducers.currentSnapshot.author;
+  const currentProject = state.targetReducers.currentProject;
 
   dispatch(captureScreenOfSnapshot());
   dispatch(manageSendTrackingActions());
@@ -379,22 +435,25 @@ export const activateSnapshotDialog = (loggedInUserID = undefined, finallyShareS
       description: ProjectCreationType.READ_ONLY,
       target: targetId,
       author: null,
-      tags: '[]'
+      tags: '[]',
+      project: currentProject.id
     };
     dispatch(createProjectFromSnapshotDialog(data))
       .then(() => {
-        dispatch(manageSendTrackingActions(projectID, true));
-        dispatch(setOpenSnapshotSavingDialog(true));
+        dispatch(manageSendTrackingActions(sessionProjectID, true));
+
       })
       .catch(error => {
         throw new Error(error);
       });
-  } else if (finallyShareSnapshot === true && loggedInUserID && projectID !== null && currentSnapshotAuthor === null) {
+  } else if (
+    finallyShareSnapshot === true &&
+    loggedInUserID &&
+    sessionProjectID !== null &&
+    currentSnapshotAuthor === null
+  ) {
     dispatch(setForceCreateProject(true));
-    dispatch(setOpenSnapshotSavingDialog(true));
-  } else {
-    dispatch(setOpenSnapshotSavingDialog(true));
-  }
+  } 
 };
 
 export const createNewSnapshotWithoutStateModification = ({
@@ -404,7 +463,9 @@ export const createNewSnapshotWithoutStateModification = ({
   author,
   parent,
   session_project,
-  nglViewList
+  nglViewList,
+  axuData = {},
+  additional_info
 }) => (dispatch, getState) => {
   if (!session_project) {
     return Promise.reject('Project ID is missing!');
@@ -417,18 +478,22 @@ export const createNewSnapshotWithoutStateModification = ({
       newType = SnapshotType.INIT;
     }
 
+    const dataToSend = {
+      title,
+      description,
+      type: newType,
+      author,
+      parent,
+      session_project,
+      data: JSON.stringify(axuData),
+      children: [],
+      additional_info
+    };
+    const dataString = JSON.stringify(dataToSend);
+
     return api({
       url: `${base_url}/api/snapshots/`,
-      data: {
-        title,
-        description,
-        type: newType,
-        author,
-        parent,
-        session_project,
-        data: '[]',
-        children: []
-      },
+      data: dataString,
       method: METHOD.POST
     }).then(res => {
       if (res.data.id && session_project) {
@@ -437,6 +502,7 @@ export const createNewSnapshotWithoutStateModification = ({
             title,
             description,
             url: `${base_url}${URLS.projects}${session_project}/${res.data.id}`,
+            relativeUrl: `${URLS.projects}${session_project}/${res.data.id}`,
             disableRedirect: true
           })
         );
@@ -449,59 +515,83 @@ export const createNewSnapshotWithoutStateModification = ({
   });
 };
 
-export const saveAndShareSnapshot = (nglViewList, showDialog = true) => async (dispatch, getState) => {
+export const saveAndShareSnapshot = (nglViewList, showDialog = true, axuData = {}) => async (dispatch, getState) => {
   const state = getState();
   const targetId = state.apiReducers.target_on;
   const loggedInUserID = DJANGO_CONTEXT['pk'];
+  const currentProject = state.targetReducers.currentProject;
+  const currentSessionProject = state.projectReducers.currentProject;
 
   dispatch(setDisableRedirect(true));
 
   if (targetId) {
-    dispatch(captureScreenOfSnapshot());
-    if (showDialog) {
-      dispatch(setIsLoadingSnapshotDialog(true));
-    }
-    const data = {
-      title: ProjectCreationType.READ_ONLY,
-      description: ProjectCreationType.READ_ONLY,
-      target: targetId,
-      author: loggedInUserID || null,
-      tags: '[]'
-    };
+    if (loggedInUserID && currentSessionProject && currentSessionProject.projectID) {
+      //if user is logged in and is working on a project the current snapshot is shared
+      const currentSnapshot = state.projectReducers.currentSnapshot;
 
-    try {
-      let projectID = await dispatch(createProjectWithoutStateModification(data));
-      const username = DJANGO_CONTEXT['username'];
-      const title = moment().format('-- YYYY-MM-DD -- HH:mm:ss');
-      const description =
-        loggedInUserID === undefined ? 'Snapshot generated by anonymous user' : `snapshot generated by ${username}`;
-      const type = SnapshotType.MANUAL;
-      const author = loggedInUserID || null;
-      const parent = null;
-      const session_project = projectID;
-
-      await dispatch(sendTrackingActionsByProjectId(projectID, author));
-
-      await dispatch(
-        createNewSnapshotWithoutStateModification({
-          title,
-          description,
-          type,
-          author,
-          parent,
-          session_project,
-          nglViewList
+      dispatch(
+        setSharedSnapshot({
+          title: currentSnapshot.title,
+          description: currentSnapshot.description,
+          url: `${base_url}${URLS.projects}${currentSessionProject.projectID}/${currentSnapshot.id}`,
+          disableRedirect: true
         })
       );
+    } else {
+      //user is not logged in and/or is not working on a project so a new snapshot is created and shared
+      dispatch(captureScreenOfSnapshot());
+      if (showDialog) {
+        dispatch(setIsLoadingSnapshotDialog(true));
+      }
 
-      if (showDialog) {
-        dispatch(setIsLoadingSnapshotDialog(false));
+      const additional_info = getAdditionalInfo(state);
+
+      const data = {
+        title: ProjectCreationType.READ_ONLY,
+        description: ProjectCreationType.READ_ONLY,
+        target: targetId,
+        author: loggedInUserID || null,
+        tags: '[]',
+        additional_info,
+        project: currentProject?.id
+      };
+
+      try {
+        let projectID = await dispatch(createProjectWithoutStateModification(data));
+        const username = DJANGO_CONTEXT['username'];
+        const title = moment().format('-- YYYY-MM-DD -- HH:mm:ss');
+        const description =
+          loggedInUserID === undefined ? 'Snapshot generated by anonymous user' : `snapshot generated by ${username}`;
+        const type = SnapshotType.MANUAL;
+        const author = loggedInUserID || null;
+        const parent = null;
+        const session_project = projectID;
+
+        await dispatch(sendTrackingActionsByProjectId(projectID, author));
+
+        await dispatch(
+          createNewSnapshotWithoutStateModification({
+            title,
+            description,
+            type,
+            author,
+            parent,
+            session_project,
+            nglViewList,
+            axuData,
+            additional_info
+          })
+        );
+
+        if (showDialog) {
+          dispatch(setIsLoadingSnapshotDialog(false));
+        }
+      } catch (error) {
+        if (showDialog) {
+          dispatch(setIsLoadingSnapshotDialog(false));
+        }
+        throw new Error(error);
       }
-    } catch (error) {
-      if (showDialog) {
-        dispatch(setIsLoadingSnapshotDialog(false));
-      }
-      throw new Error(error);
     }
   }
 };

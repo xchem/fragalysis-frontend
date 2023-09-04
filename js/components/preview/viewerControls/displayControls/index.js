@@ -14,11 +14,12 @@ import {
   updateComponentRepresentationVisibilityAll,
   changeComponentRepresentation
 } from '../../../../reducers/ngl/actions';
-import { deleteObject } from '../../../../reducers/ngl/dispatchActions';
+import { deleteObject, checkRemoveFromDensityList } from '../../../../reducers/ngl/dispatchActions';
 import { MOL_REPRESENTATION, OBJECT_TYPE, SELECTION_TYPE } from '../../../nglView/constants';
 import { VIEWS } from '../../../../constants/constants';
 import { assignRepresentationToComp } from '../../../nglView/generatingObjects';
 import { EditRepresentationMenu } from './editRepresentationMenu';
+import { hideShapeRepresentations } from '../../../nglView/redux/dispatchActions';
 
 const useStyles = makeStyles(theme => ({
   root: {
@@ -49,8 +50,11 @@ export default memo(({ open, onClose }) => {
   const changeVisibility = (representation, parentKey) => {
     const nglView = getNglView(objectsInView[parentKey].display_div);
     const comp = nglView.stage.getComponentsByName(parentKey).first;
+    let representationElement = null;
+
     comp.eachRepresentation(r => {
       if (r.uuid === representation.uuid || r.uuid === representation.lastKnownID) {
+        representationElement = r;
         const newVisibility = !r.getVisibility();
         // update in redux
         representation.params.visible = newVisibility;
@@ -62,6 +66,8 @@ export default memo(({ open, onClose }) => {
         r.setVisibility(newVisibility);
       }
     });
+
+    hideShapeRepresentations(representationElement, nglView, parentKey);
   };
   const changeMolecularRepresentation = (representation, parentKey, e) => {
     const newRepresentationType = e.target.value;
@@ -115,6 +121,7 @@ export default memo(({ open, onClose }) => {
         // remove from nglReducer and selectionReducer
         dispatch(deleteObject(targetObject, nglView.stage, true));
       } else {
+        hideShapeRepresentations(foundedRepresentation, nglView, parentKey);
         dispatch(removeComponentRepresentation(parentKey, representation, skipTracking));
       }
     }
@@ -128,8 +135,12 @@ export default memo(({ open, onClose }) => {
     const comp = nglView.stage.getComponentsByName(parentKey).first;
     comp.eachRepresentation(representation => dispatch(removeComponentRepresentation(parentKey, representation, true)));
 
+    let deleteFromSelections =
+      targetObject.selectionType !== SELECTION_TYPE.DENSITY ||
+      dispatch(checkRemoveFromDensityList(targetObject, objectsInView));
+
     // remove from nglReducer and selectionReducer
-    dispatch(deleteObject(targetObject, nglView.stage, true));
+    dispatch(deleteObject(targetObject, nglView.stage, deleteFromSelections));
   };
 
   // ChangeVisibility with cascade
@@ -143,8 +154,11 @@ export default memo(({ open, onClose }) => {
       if (index === 0) {
         newVisibility = !representation.params.visible;
       }
+
+      let representationElement = null;
       comp.eachRepresentation(r => {
         if (r.uuid === representation.uuid || r.uuid === representation.lastKnownID) {
+          representationElement = r;
           representation.params.visible = newVisibility;
           // update in nglView
           r.setVisibility(newVisibility);
@@ -152,6 +166,8 @@ export default memo(({ open, onClose }) => {
           dispatch(updateComponentRepresentation(parentKey, representation.uuid, representation, '', true));
         }
       });
+
+      hideShapeRepresentations(representationElement, nglView, parentKey);
     });
 
     dispatch(updateComponentRepresentationVisibilityAll(parentKey, newVisibility));
@@ -162,7 +178,7 @@ export default memo(({ open, onClose }) => {
     let countOfNonVisibled = 0;
 
     representations.forEach(r => {
-      if (r.params.visible === false) {
+      if (r.params && r.params.visible === false) {
         countOfNonVisibled++;
       }
     });

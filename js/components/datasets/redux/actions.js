@@ -2,7 +2,7 @@ import { constants } from './constants';
 
 export const addDataset = dataset => ({ type: constants.ADD_DATASET, payload: dataset });
 
-// datasetList has to contain follow structure
+// datasetList has to contain following structure
 //[{ id: 0, title: 'First dataset' },...]
 export const setDataset = datasetList => ({
   type: constants.SET_DATASET,
@@ -52,9 +52,9 @@ export const setFilterProperties = (datasetID, properties) => ({
   payload: { datasetID, properties }
 });
 
-export const setDatasetFilter = (datasetID, properties, settings, key) => ({
+export const setDatasetFilter = (datasetID, properties, settings, key, dragDropState) => ({
   type: constants.SET_DATASET_FILTER,
-  payload: { datasetID, properties, settings, key }
+  payload: { datasetID, properties, settings, key, dragDropState }
 });
 
 export const setFilterDialogOpen = filterDialogOpen => ({
@@ -260,9 +260,10 @@ export const removeFromFilterShowedScoreProperties = datasetID => ({
   payload: datasetID
 });
 
-export const setSearchStringOfCompoundSet = searchString => ({
+export const setSearchStringOfCompoundSet = (datasetID, searchString, skipTracking = false) => ({
   type: constants.SET_SEARCH_STRING,
-  payload: searchString
+  payload: { datasetID, searchString },
+  skipTracking: skipTracking
 });
 
 export const setIsLoadingInspirationListOfMolecules = isLoading => ({
@@ -325,6 +326,28 @@ export const setFilterWithInspirations = isChecked => ({
   payload: isChecked
 });
 
+export const appendCompoundToSelectedCompoundsByDataset = (
+  datasetID,
+  compoundID,
+  compoundTitle,
+  skipTracking = false
+) => ({
+  type: constants.APPEND_COMPOUND_TO_SELECTED_COMPOUNDS_BY_DATASET,
+  payload: { datasetID, compoundID, compoundTitle },
+  skipTracking: skipTracking
+});
+
+export const removeCompoundFromSelectedCompoundsByDataset = (
+  datasetID,
+  compoundID,
+  compoundTitle,
+  skipTracking = false
+) => ({
+  type: constants.REMOVE_COMPOUND_FROM_SELECTED_COMPOUNDS_BY_DATASET,
+  payload: { datasetID, compoundID, compoundTitle },
+  skipTracking: skipTracking
+});
+
 export const appendMoleculeToCompoundsOfDatasetToBuy = (
   datasetID,
   moleculeID,
@@ -345,6 +368,38 @@ export const removeMoleculeFromCompoundsOfDatasetToBuy = (
   type: constants.REMOVE_MOLECULE_FROM_COMPOUNDS_TO_BUY_OF_DATASET,
   payload: { datasetID, moleculeID, moleculeTitle },
   skipTracking: skipTracking
+});
+
+export const appendCompoundColorOfDataset = (
+  datasetID,
+  compoundID,
+  colorClass,
+  compoundTitle,
+  skipTracking = false
+) => ({
+  type: constants.APPEND_COMPOUND_COLOR_OF_DATASET,
+  payload: { datasetID, compoundID, colorClass, compoundTitle, skipTracking: skipTracking }
+});
+
+export const removeCompoundColorOfDataset = (
+  datasetID,
+  compoundID,
+  colorClass,
+  compoundTitle,
+  skipTracking = false
+) => ({
+  type: constants.REMOVE_COMPOUND_COLOR_OF_DATASET,
+  payload: { datasetID, compoundID, colorClass, compoundTitle, skipTracking: skipTracking }
+});
+
+export const appendColorToSelectedColorFilter = colorClass => ({
+  type: constants.APPEND_COLOR_TO_SELECTED_COLOR_FILTERS,
+  payload: { colorClass }
+});
+
+export const removeColorFromSelectedColorFilter = colorClass => ({
+  type: constants.REMOVE_COLOR_FROM_SELECTED_COLOR_FILTERS,
+  payload: { colorClass }
 });
 
 export const reloadDatasetsReducer = savedDatasetsReducers => {
@@ -383,7 +438,7 @@ export const setDeselectedAll = (datsetID, item, isLigand, isProtein, isComplex)
 });
 
 export const setSelectedAllByType = (type, datsetID, items, isCrossReference) => ({
-  type: constants.SET_SELECTED_ALL_BY_TYPE,
+  type: constants.SET_SELECTED_BY_TYPE,
   payload: {
     type: type,
     datasetID: datsetID,
@@ -411,4 +466,84 @@ export const setArrowUpDown = (datasetID, item, newItem, arrowType, data) => ({
     arrowType: arrowType,
     data
   }
+});
+
+export const setDragDropState = (datasetID, dragDropState) => ({
+  type: constants.SET_DRAG_DROP_STATE,
+  payload: { datasetID, dragDropState }
+});
+
+export const dragDropStarted = (datasetID, startIndex) => ({
+  type: constants.DRAG_DROP_STARTED,
+  payload: { datasetID, startIndex }
+});
+
+export const dragDropFinished = (datasetID, molecule, index) => ({
+  type: constants.DRAG_DROP_FINISHED,
+  payload: { datasetID, molecule, index }
+});
+
+export const disableDatasetMoleculeNglControlButton = (datasetId, moleculeId, type) => ({
+  type: constants.DISABLE_DATASET_NGL_CONTROL_BUTTON,
+  payload: { datasetId, moleculeId, type }
+});
+
+export const enableDatasetMoleculeNglControlButton = (datasetId, moleculeId, type) => ({
+  type: constants.ENABLE_DATASET_NGL_CONTROL_BUTTON,
+  payload: { datasetId, moleculeId, type }
+});
+
+export const resetDatasetsStateOnSnapshotChange = () => ({
+  type: constants.RESET_DATASETS_STATE_ON_SNAPSHOT_CHANGE
+});
+
+export const setDatasetScrolled = datasetId => ({
+  type: constants.SET_DATASET_SCROLLED,
+  payload: datasetId
+});
+
+export const resetDatasetScrolledMap = () => ({
+  type: constants.RESET_DATASET_SCROLLED_MAP
+});
+
+export const removeDataset = datasetId => {
+  return {
+    type: constants.DELETE_DATASET,
+    datasetId: datasetId
+  };
+};
+
+export const setIsOpenLockVisibleCompoundsDialogGlobal = isOpen => ({
+  type: constants.SET_IS_OPEN_LOCK_VISIBLE_COMPOUNDS_DIALOG_GLOBAL,
+  isOpen: isOpen
+});
+
+export const setIsOpenLockVisibleCompoundsDialogLocal = isOpen => ({
+  type: constants.SET_IS_OPEN_LOCK_VISIBLE_COMPOUNDS_DIALOG_LOCAL,
+  isOpen: isOpen
+});
+
+export const setCmpForLocalLockVisibleCompoundsDialog = cmp => ({
+  type: constants.SET_CMP_FOR_LOCAL_LOCK_VISIBLE_COMPOUNDS_DIALOG,
+  cmp: cmp
+});
+
+export const setAskLockCompoundsQuestion = askLockCompoundsQuestion => ({
+  type: constants.SET_ASK_LOCK_COMPOUNDS_QUESTION,
+  askLockCompoundsQuestion: askLockCompoundsQuestion
+});
+
+export const setEditedColorGroup = colorGroup => ({
+  type: constants.SET_EDITED_COLOR_GROUP,
+  colorGroup: colorGroup
+});
+
+export const setSelectedCompoundsList = compoundsList => ({
+  type: constants.SET_SELECTED_COMPOUNDS_LIST,
+  compoundsList: compoundsList
+});
+
+export const setAskLockSelectedCompoundsQuestion = askLockCompoundsQuestion => ({
+  type: constants.SET_ASK_LOCK_SELECTED_COMPOUNDS_QUESTION,
+  askLockCompoundsQuestion: askLockCompoundsQuestion
 });

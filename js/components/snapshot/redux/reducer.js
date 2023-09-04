@@ -23,7 +23,8 @@ export const INITIAL_STATE = {
   selectedSnapshotToSwitch: null,
   disableRedirect: false,
   snapshotJustSaved: false,
-  dontShowShareSnapshot: false
+  dontShowShareSnapshot: false,
+  downloadStructuresDialogOpen: false
 };
 
 export const snapshotReducers = (state = INITIAL_STATE, action = {}) => {
@@ -32,6 +33,9 @@ export const snapshotReducers = (state = INITIAL_STATE, action = {}) => {
       return Object.assign({}, state, {
         saveType: action.payload
       });
+
+    case constants.SET_DOWNLOAD_STRUCTURES_DIALOG_OPEN:
+      return { ...state, downloadStructuresDialogOpen: action.payload };
 
     case constants.SET_NEXT_UUID:
       return Object.assign({}, state, {
@@ -89,7 +93,7 @@ export const snapshotReducers = (state = INITIAL_STATE, action = {}) => {
       return Object.assign({}, state, {
         disableRedirect: action.payload
       });
-    
+
     case constants.SET_DONT_SHOW_SHARE_SNAPSHOT:
       return Object.assign({}, state, {
         dontShowShareSnapshot: action.payload

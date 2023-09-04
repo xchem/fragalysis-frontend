@@ -152,6 +152,22 @@ export const removeFromSurfaceList = function(item, skipTracking = false) {
   };
 };
 
+export const appendToDensityListType = (item, skipTracking = false) => {
+  return {
+    type: constants.APPEND_DENSITY_TYPE,
+    item: item,
+    skipTracking
+  };
+};
+
+export const removeFromDensityListType = (item, skipTracking = false) => {
+  return {
+    type: constants.REMOVE_DENSITY_TYPE,
+    item: item,
+    skipTracking
+  };
+};
+
 export const setDensityList = function(densityList) {
   return {
     type: constants.SET_DENSITY_LIST,
@@ -159,17 +175,80 @@ export const setDensityList = function(densityList) {
   };
 };
 
-export const appendDensityList = function(item) {
+export const appendDensityList = function(item, skipTracking = false) {
   return {
     type: constants.APPEND_DENSITY_LIST,
+    item: item,
+    skipTracking
+  };
+};
+
+export const removeFromDensityList = function(item, skipTracking = false) {
+  return {
+    type: constants.REMOVE_FROM_DENSITY_LIST,
+    item: item,
+    skipTracking
+  };
+};
+
+export const setDensityListCustom = function(densityListCustom) {
+  return {
+    type: constants.SET_DENSITY_LIST_CUSTOM,
+    densityListCustom: densityListCustom
+  };
+};
+
+export const appendDensityListCustom = function(item, skipTracking = false) {
+  return {
+    type: constants.APPEND_DENSITY_LIST_CUSTOM,
+    item: item,
+    skipTracking
+  };
+};
+
+export const removeFromDensityListCustom = function(item, skipTracking = false) {
+  return {
+    type: constants.REMOVE_FROM_DENSITY_LIST_CUSTOM,
+    item: item,
+    skipTracking
+  };
+};
+
+export const setQualityList = function(qualityList, skipTracking = false) {
+  return {
+    type: constants.SET_QUALITY_LIST,
+    qualityList: qualityList,
+    skipTracking
+  };
+};
+
+export const appendInformationList = function(item) {
+  return {
+    type: constants.APPEND_INFORMATION_LIST,
     item: item
   };
 };
 
-export const removeFromDensityList = function(item) {
+export const removeFromInformationList = function(item) {
   return {
-    type: constants.REMOVE_FROM_DENSITY_LIST,
+    type: constants.REMOVE_FROM_INFORMATION_LIST,
     item: item
+  };
+};
+
+export const appendQualityList = function(item, skipTracking = false) {
+  return {
+    type: constants.APPEND_QUALITY_LIST,
+    item: item,
+    skipTracking: skipTracking
+  };
+};
+
+export const removeFromQualityList = function(item, skipTracking = false) {
+  return {
+    type: constants.REMOVE_FROM_QUALITY_LIST,
+    item: item,
+    skipTracking: skipTracking
   };
 };
 
@@ -209,17 +288,6 @@ export const resetSelectionState = function() {
     type: constants.RESET_SELECTION_STATE
   };
 };
-export const incrementCountOfPendingVectorLoadRequests = () => {
-  return {
-    type: constants.INCREMENT_COUNT_OF_PENDING_VECTOR_LOAD_REQUESTS
-  };
-};
-
-export const decrementCountOfPendingVectorLoadRequests = () => {
-  return {
-    type: constants.DECREMENT_COUNT_OF_PENDING_VECTOR_LOAD_REQUESTS
-  };
-};
 
 export const setMolGroupSelection = mol_group_selection => ({
   type: constants.SET_MOL_GROUP_SELECTION,
@@ -233,6 +301,11 @@ export const setObjectSelection = object_selection => ({
 
 export const setFilter = filter => ({
   type: constants.SET_FILTER,
+  payload: filter
+});
+
+export const resetFilters = filter => ({
+  type: constants.RESET_FILTER,
   payload: filter
 });
 
@@ -271,7 +344,7 @@ export const setDeselectedAll = (item, isLigand, isProtein, isComplex) => ({
 });
 
 export const setSelectedAllByType = (type, items, isInspiration) => ({
-  type: constants.SET_SELECTED_ALL_BY_TYPE,
+  type: constants.SET_SELECTED_BY_TYPE,
   payload: { type, items, isInspiration }
 });
 
@@ -295,3 +368,141 @@ export const setArrowUpDown = (item, newItem, arrowType, data) => ({
     data
   }
 });
+
+export const setSelectedTagList = function(selectedTagList, skipTracking = false) {
+  return {
+    type: constants.SET_SELECTED_TAG_LIST,
+    selectedTagList: selectedTagList,
+    skipTracking
+  };
+};
+
+export const appendSelectedTagList = function(item, skipTracking = false) {
+  return {
+    type: constants.APPEND_SELECTED_TAG_LIST,
+    item: item,
+    skipTracking: skipTracking
+  };
+};
+
+export const removeFromSelectedTagList = function(item, skipTracking = false) {
+  return {
+    type: constants.REMOVE_FROM_SELECTED_TAG_LIST,
+    item: item,
+    skipTracking: skipTracking
+  };
+};
+
+export const setTagEditorOpen = isOpen => {
+  return {
+    type: constants.SET_TAG_EDITOR_OPEN,
+    isOpen: isOpen
+  };
+};
+
+export const setMoleculeForTagEdit = molId => {
+  return {
+    type: constants.SET_MOLECULE_FOR_TAG_EDIT,
+    molId: molId
+  };
+};
+
+export const setTagFilteringMode = isExclusive => {
+  return {
+    type: constants.SWITCH_TAG_FILTERING_MODE,
+    mode: isExclusive
+  };
+};
+
+export const setIsTagGlobalEdit = isGlobalEdit => {
+  return {
+    type: constants.SET_IS_TAG_GLOBAL_EDIT,
+    isGlobalEdit: isGlobalEdit
+  };
+};
+
+export const setMolListToEdit = list => {
+  return {
+    type: constants.SET_MOL_LIST_TO_EDIT,
+    list: list
+  };
+};
+
+export const appendToMolListToEdit = molId => {
+  return {
+    type: constants.APPEND_TO_MOL_LIST_TO_EDIT,
+    molId: molId
+  };
+};
+
+export const removeFromMolListToEdit = molId => {
+  return {
+    type: constants.REMOVE_FROM_MOL_LIST_TO_EDIT,
+    molId: molId
+  };
+};
+
+export const setTagToEdit = tag => {
+  return {
+    type: constants.SET_TAG_TO_EDIT,
+    tagToEdit: tag
+  };
+};
+
+export const setDisplayAllMolecules = displayAllMolecules => {
+  return {
+    type: constants.SET_DISPLAY_ALL_MOLECULES,
+    displayAllMolecules: displayAllMolecules
+  };
+};
+
+export const setDisplayUntaggedMolecules = displayUntaggedMolecules => {
+  return {
+    type: constants.SET_DISPLAY_UNTAGGED_MOLECULES,
+    displayUntaggedMolecules: displayUntaggedMolecules
+  };
+};
+
+//this is dummy action because we just need to record given action by tracking reducer
+//so we can undo, redo it and also restore from snapshot
+export const setSelectAllMolecules = listOfNames => {
+  return {
+    type: constants.SET_SELECT_ALL_MOLECULES,
+    items: listOfNames
+  };
+};
+
+//this is dummy action because we just need to record given action by tracking reducer
+//so we can undo, redo it and also restore from snapshot
+export const setUnselectAllMolecules = listOfNames => {
+  return {
+    type: constants.SET_UNSELECT_ALL_MOLECULES,
+    items: listOfNames
+  };
+};
+
+export const setNextXMolecules = nextXMolecules => {
+  return {
+    type: constants.SET_NEXT_X_MOLECULES,
+    nextXMolecules: nextXMolecules
+  };
+};
+
+export const setTagDetailView = tagDetailView => {
+  return {
+    type: constants.SET_TAG_DETAIL_VIEW,
+    payload: tagDetailView
+  };
+};
+
+export const setResizableLayout = projects => ({
+  type: constants.SET_RESIZABLE_LAYOUT,
+  payload: projects
+});
+
+export const setAssignTagView = assignTagView => {
+  return {
+    type: constants.SET_ASSIGN_TAGS_VIEW,
+    payload: assignTagView
+  };
+};

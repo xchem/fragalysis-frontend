@@ -3,7 +3,11 @@ const prefix = 'PREVIEW_MOLECULE_';
 export const constants = {
   SET_SORT_DIALOG_OPEN: prefix + 'SET_SORT_DIALOG_OPEN',
   RELOAD_REDUCER: prefix + 'RELOAD_REDUCER',
-  ADD_IMAGE_TO_CACHE: prefix + 'ADD_IMAGE_TO_CACHE'
+  ADD_IMAGE_TO_CACHE: prefix + 'ADD_IMAGE_TO_CACHE',
+  ADD_PROTEIN_DATA_TO_CACHE: prefix + 'ADD_PROTEIN_DATA_TO_CACHE',
+  DISABLE_NGL_CONTROL_BUTTON: prefix + 'DISABLE_NGL_CONTROL_BUTTON',
+  ENABLE_NGL_CONTROL_BUTTON: prefix + 'ENABLE_NGL_CONTROL_BUTTON',
+  SET_SEARCH_STRING_HIT_NAVIGATOR: prefix + 'SET_SEARCH_STRING_HIT_NAVIGATOR'
 };
 
 export const MOL_ATTR = {
@@ -78,14 +82,14 @@ export const MOL_ATTR = {
     isFloat: false,
     color: '#bfef45',
     filter: true
-  },
+  } /*,
   NCPD: {
     key: '#cpd',
     name: '# available follow-up cmpds. (#cpd)',
     isFloat: false,
     color: '#fabebe',
     filter: true
-  }
+  }*/
 };
 
 export const MOL_ATTRIBUTES = Object.values(MOL_ATTR);

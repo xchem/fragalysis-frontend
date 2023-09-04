@@ -3,6 +3,7 @@ import { api } from './api';
 import { DJANGO_CONTEXT } from './djangoContext';
 import { OBJECT_TYPE } from '../components/nglView/constants';
 import { CONSTANTS } from '../constants/constants';
+import { base_url as base_url_const } from '../components/routes/constants';
 
 // START of functions from GenericList
 export const getUrl = ({
@@ -16,7 +17,7 @@ export const getUrl = ({
 }) => {
   let userId = null;
   // This should be defined by type
-  let base_url = window.location.protocol + '//' + window.location.host;
+  let base_url = base_url_const;
 
   if (DJANGO_CONTEXT['pk'] !== undefined) {
     userId = DJANGO_CONTEXT['pk'].toString();
@@ -145,6 +146,9 @@ export const loadFromServer = ({
       })
       .finally(() => {
         setOldUrl(url.toString());
+      })
+      .catch(err => {
+        console.log(err);
       });
   }
   setOldUrl(url.toString());
@@ -167,9 +171,9 @@ export const loadAllMolsFromMolGroup = ({ url, mol_group }) => {
     let list = [];
     response.data.results.forEach(r => {
       let result = getNumberFromCode(r.protein_code);
-      list.push({...r, number: result.number });
+      list.push({ ...r, number: result.number });
     });
-    return {mol_group: mol_group, molecules: list};
+    return { mol_group: mol_group, molecules: list };
   });
 };
 
@@ -186,7 +190,7 @@ export const loadAllMolsFromMolGroup = ({ url, mol_group }) => {
 //       });
 //     });
 //   }
-// };  
+// };
 
 export function getNumberFromCode(inputCode) {
   let number = 0;

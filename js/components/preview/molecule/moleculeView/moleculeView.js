@@ -4,12 +4,13 @@
 
 import React, { memo, useEffect, useState, useRef, useContext, useCallback } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { Grid, Button, makeStyles, Typography, Tooltip, IconButton } from '@material-ui/core';
-import { MyLocation, ArrowDownward, ArrowUpward } from '@material-ui/icons';
+import { Grid, Button, makeStyles, Tooltip, IconButton, Paper } from '@material-ui/core';
+import { MyLocation, Warning, Assignment, AssignmentTurnedIn } from '@material-ui/icons';
 import SVGInline from 'react-svg-inline';
 import classNames from 'classnames';
-import { VIEWS, ARROW_TYPE } from '../../../constants/constants';
-import { NglContext } from '../../nglView/nglProvider';
+import { VIEWS } from '../../../../constants/constants';
+import { NGL_PARAMS, COMMON_PARAMS } from '../../../nglView/constants';
+import { NglContext } from '../../../nglView/nglProvider';
 import {
   addVector,
   removeVector,
@@ -20,19 +21,37 @@ import {
   addSurface,
   removeSurface,
   addDensity,
+  addDensityCustomView,
   removeDensity,
   addLigand,
   removeLigand,
-  searchMoleculeGroupByMoleculeID,
   getMolImage,
-  moveSelectedMolSettings
-} from './redux/dispatchActions';
-import { setSelectedAll, setDeselectedAll, setArrowUpDown } from '../../../reducers/selection/actions';
-import { base_url } from '../../routes/constants';
-import { moleculeProperty } from './helperConstants';
-import { centerOnLigandByMoleculeID } from '../../../reducers/ngl/dispatchActions';
-import { SvgTooltip } from '../../common';
-import { MOL_TYPE } from './redux/constants';
+  removeQuality,
+  addQuality,
+  getQualityInformation,
+  getDensityMapData,
+  getProteinData,
+  withDisabledMoleculeNglControlButton
+} from '../redux/dispatchActions';
+import {
+  setSelectedAll,
+  setDeselectedAll,
+  setMoleculeForTagEdit,
+  setTagEditorOpen,
+  appendToMolListToEdit,
+  removeFromMolListToEdit
+} from '../../../../reducers/selection/actions';
+import { moleculeProperty } from '../helperConstants';
+import { centerOnLigandByMoleculeID } from '../../../../reducers/ngl/dispatchActions';
+import { SvgTooltip } from '../../../common';
+import { MOL_TYPE } from '../redux/constants';
+import { DensityMapsModal } from '../modals/densityMapsModal';
+import { getRandomColor } from '../utils/color';
+import { getAllTagsForMol } from '../../tags/utils/tagUtils';
+import MoleculeSelectCheckbox from './moleculeSelectCheckbox';
+import useClipboard from 'react-use-clipboard';
+import Popover from '@mui/material/Popover';
+import Typography from '@mui/material/Typography';
 
 const useStyles = makeStyles(theme => ({
   container: {
@@ -41,7 +60,8 @@ const useStyles = makeStyles(theme => ({
     height: 54
   },
   contButtonsMargin: {
-    margin: theme.spacing(1) / 2
+    margin: theme.spacing(1) / 2,
+    width: 'inherit'
   },
   contColButton: {
     minWidth: 'fit-content',
@@ -55,8 +75,8 @@ const useStyles = makeStyles(theme => ({
     borderColor: theme.palette.primary.main,
     backgroundColor: theme.palette.primary.light,
     '&:hover': {
-      backgroundColor: theme.palette.primary.main,
-      color: theme.palette.primary.contrastText
+      backgroundColor: theme.palette.primary.light
+      // color: theme.palette.primary.contrastText
     },
     '&:disabled': {
       borderRadius: 0,
@@ -67,27 +87,29 @@ const useStyles = makeStyles(theme => ({
     backgroundColor: theme.palette.primary.main,
     color: theme.palette.primary.contrastText,
     '&:hover': {
-      backgroundColor: theme.palette.primary.light,
-      color: theme.palette.black
+      backgroundColor: theme.palette.primary.main
+      // color: theme.palette.black
     }
   },
   contColButtonHalfSelected: {
     backgroundColor: theme.palette.primary.semidark,
     color: theme.palette.primary.contrastText,
     '&:hover': {
-      backgroundColor: theme.palette.primary.light,
-      color: theme.palette.black
+      backgroundColor: theme.palette.primary.semidark
+      // color: theme.palette.black
     }
   },
   detailsCol: {
     border: 'solid 1px',
     borderColor: theme.palette.background.divider,
-    borderStyle: 'solid none solid solid'
+    borderStyle: 'solid none solid solid',
+    width: 'inherit'
   },
   image: {
     border: 'solid 1px',
     borderColor: theme.palette.background.divider,
-    borderStyle: 'solid solid solid none'
+    borderStyle: 'solid solid solid none',
+    position: 'relative'
   },
   imageMargin: {
     marginTop: theme.spacing(1),
@@ -135,6 +157,9 @@ const useStyles = makeStyles(theme => ({
     whiteSpace: 'nowrap',
     textOverflow: 'ellipsis'
   },
+  checkbox: {
+    padding: 0
+  },
   rank: {
     fontStyle: 'italic',
     fontSize: 7
@@ -174,23 +199,61 @@ const useStyles = makeStyles(theme => ({
     width: 12,
     height: 15,
     visibility: 'hidden'
+  },
+  warningIcon: {
+    padding: 0,
+    color: theme.palette.warning.darkLight,
+    '&:hover': {
+      color: theme.palette.warning.dark
+    }
+  },
+  tagIcon: {
+    padding: 0,
+    color: theme.palette.primary.main,
+    '&:hover': {
+      color: theme.palette.primary.dark
+    }
+  },
+  copyIcon: {
+    padding: 0,
+    color: theme.palette.success.main,
+    '&:hover': {
+      color: theme.palette.success.dark
+    }
+  },
+  tooltip: {
+    backgroundColor: theme.palette.white
+  },
+  imageActions: {
+    position: 'absolute',
+    top: 0,
+    left: 0
+  },
+  imageTagActions: {
+    position: 'absolute',
+    top: 0,
+    right: 0
+  },
+  tagPopover: {
+    height: '15px',
+    width: '55px',
+    padding: '0px',
+    fontSize: '10px',
+    backgroundColor: '#e0e0e0',
+    borderRadius: '7px',
+    textAlign: 'center',
+    opacity: '0.40'
+  },
+  popover: {
+    paddingLeft: '5px',
+    fontSize: '10px',
+    borderRadius: '7px',
+    border: '0px black solid',
+    paddingRight: '5px',
+    minWidth: '55px',
+    textAlign: 'center'
   }
 }));
-
-export const colourList = [
-  '#EFCDB8',
-  '#CC6666',
-  '#FF6E4A',
-  '#78DBE2',
-  '#1F75FE',
-  '#FAE7B5',
-  '#FDBCB4',
-  '#C5E384',
-  '#95918C',
-  '#F75394',
-  '#80DAEB',
-  '#ADADD6'
-];
 
 export const img_data_init = `<svg xmlns="http://www.w3.org/2000/svg" version="1.1" width="25px" height="25px"><g>
   <circle cx="50" cy="50" fill="none" stroke="#3f51b5" stroke-width="4" r="26" stroke-dasharray="150.79644737231007 52.26548245743669" transform="rotate(238.988 50 50)">
@@ -206,13 +269,23 @@ const MoleculeView = memo(
     index,
     previousItemData,
     nextItemData,
-    removeOfAllSelectedTypes,
+    setRef,
+    removeSelectedTypes,
     L,
     P,
     C,
     S,
+    D,
+    D_C,
+    Q,
     V,
-    selectMoleculeSite
+    I,
+    isTagEditorInvokedByMolecule,
+    isTagEditorOpen,
+    selected,
+    disableL,
+    disableP,
+    disableC
   }) => {
     // const [countOfVectors, setCountOfVectors] = useState('-');
     // const [cmpds, setCmpds] = useState('-');
@@ -220,16 +293,14 @@ const MoleculeView = memo(
     const ref = useRef(null);
     const currentID = (data && data.id) || undefined;
     const classes = useStyles();
-    const key = 'mol_image';
-    const [moleculeGroupID, setMoleculeGroupID] = useState();
 
     const dispatch = useDispatch();
     const target_on_name = useSelector(state => state.apiReducers.target_on_name);
     const filter = useSelector(state => state.selectionReducers.filter);
-    const url = new URL(base_url + '/api/molimg/' + data.id + '/');
     const [img_data, setImg_data] = useState(img_data_init);
 
-    const objectsInView = useSelector(state => state.nglReducers.objectsInView) || {};
+    const viewParams = useSelector(state => state.nglReducers.viewParams);
+    const tagList = useSelector(state => state.apiReducers.tagList);
 
     const { getNglView } = useContext(NglContext);
     const stage = getNglView(VIEWS.MAJOR_VIEW) && getNglView(VIEWS.MAJOR_VIEW).stage;
@@ -238,23 +309,26 @@ const MoleculeView = memo(
     const isProteinOn = P;
     const isComplexOn = C;
     const isSurfaceOn = S;
-    // const isDensityOn = false;
+    const isDensityOn = D;
+    const isDensityCustomOn = D_C;
+    const isQualityOn = Q;
     const isVectorOn = V;
+    const hasAdditionalInformation = I;
+
+    const [isCopied, setCopied] = useClipboard(data.smiles, { successDuration: 5000 });
+
+    const [hasMap, setHasMap] = useState();
 
     const hasAllValuesOn = isLigandOn && isProteinOn && isComplexOn;
     const hasSomeValuesOn = !hasAllValuesOn && (isLigandOn || isProteinOn || isComplexOn);
 
-    const areArrowsVisible = isLigandOn || isProteinOn || isComplexOn || isSurfaceOn || isVectorOn;
+    let warningIconVisible = viewParams[COMMON_PARAMS.warningIcon] === true && hasAdditionalInformation === true;
+    let isWireframeStyle = viewParams[NGL_PARAMS.contour_DENSITY];
 
-    // const disableUserInteraction = useDisableUserInteraction();
+    const disableMoleculeNglControlButtons =
+      useSelector(state => state.previewReducers.molecule.disableNglControlButtons[currentID]) || {};
 
-    const oldUrl = useRef('');
-    const setOldUrl = url => {
-      oldUrl.current = url;
-    };
-    const refOnCancel = useRef();
-    const getRandomColor = () => colourList[data.id % colourList.length];
-    const colourToggle = getRandomColor();
+    const colourToggle = getRandomColor(data);
 
     const getCalculatedProps = useCallback(
       () => [
@@ -273,39 +347,164 @@ const MoleculeView = memo(
       [data.ha, data.hacc, data.hdon, data.logp, data.mw, data.rings, data.rots, data.tpsa, data.velec]
     );
 
+    const [densityModalOpen, setDensityModalOpen] = useState(false);
     const [moleculeTooltipOpen, setMoleculeTooltipOpen] = useState(false);
+    const [tagPopoverOpen, setTagPopoverOpen] = useState(null);
+
     const moleculeImgRef = useRef(null);
-    const openMoleculeTooltip = () => {
-      setMoleculeTooltipOpen(true);
+
+    const open = tagPopoverOpen;
+
+    let proteinData = data?.proteinData;
+
+    const getDataForTagsTooltip = () => {
+      const assignedTags = getAllTagsForMol(data, tagList);
+      return assignedTags;
     };
-    const closeMoleculeTooltip = () => {
-      setMoleculeTooltipOpen(false);
+
+    const handlePopoverOpen = event => {
+      setTagPopoverOpen(event.currentTarget);
     };
+
+    const handlePopoverClose = () => {
+      setTagPopoverOpen(null);
+    };
+
+    const generateTagPopover = () => {
+      const data = getDataForTagsTooltip();
+
+      const modifiedObjects = data.map(obj => {
+        if (obj.tag.length > 8) {
+          return { ...obj, tag: obj.tag.slice(0, 8) + '...' };
+        }
+        return obj;
+      });
+
+      const firstThreeTags = modifiedObjects.slice(0, 3);
+
+      return modifiedObjects.length > 0 ? (
+        <div>
+          <Typography
+            aria-owns={open ? 'mouse-over-popover' : undefined}
+            aria-haspopup="true"
+            onMouseEnter={handlePopoverOpen}
+            onMouseLeave={handlePopoverClose}
+            style={{ fontSize: '10px' }}
+          >
+            {
+              <>
+                {firstThreeTags.length > 0 ? (
+                  <div
+                    style={{
+                      backgroundColor: firstThreeTags[0].colour,
+                      color: firstThreeTags[0].colour === null ? 'black' : 'white'
+                    }}
+                    className={classes.tagPopover}
+                  >
+                    {firstThreeTags[0].tag}
+                  </div>
+                ) : (
+                  ''
+                )}
+                {firstThreeTags.length > 1 ? (
+                  <div
+                    style={{
+                      backgroundColor: firstThreeTags[1].colour,
+                      color: firstThreeTags[1].colour === null ? 'black' : 'white'
+                    }}
+                    className={classes.tagPopover}
+                  >
+                    {firstThreeTags[1].tag}
+                  </div>
+                ) : (
+                  ''
+                )}
+                {firstThreeTags.length > 2 ? (
+                  <div
+                    style={{
+                      backgroundColor: firstThreeTags[2].colour,
+                      color: firstThreeTags[2].colour === null ? 'black' : 'white'
+                    }}
+                    className={classes.tagPopover}
+                  >
+                    {firstThreeTags[2].tag}
+                  </div>
+                ) : (
+                  ''
+                )}
+              </>
+            }
+          </Typography>
+          <Popover
+            id="mouse-over-popover"
+            sx={{
+              pointerEvents: 'none'
+            }}
+            open={open}
+            anchorEl={tagPopoverOpen}
+            anchorOrigin={{
+              vertical: 'top',
+              horizontal: 'left'
+            }}
+            transformOrigin={{
+              vertical: 'top',
+              horizontal: 'left'
+            }}
+            onMouseEnter={handlePopoverOpen}
+            onClose={handlePopoverClose}
+            disableRestoreFocus
+            style={{ paddingLeft: '10px' }}
+          >
+            {data.map(t => (
+              <div
+                onMouseEnter={handlePopoverOpen}
+                className={classes.popover}
+                style={{
+                  backgroundColor: t.colour === null ? '#e0e0e0' : t.colour,
+                  color: t.colour === null ? 'black' : 'white'
+                }}
+              >
+                {t.tag}
+              </div>
+            ))}
+          </Popover>
+        </div>
+      ) : (
+        <div></div>
+      );
+    };
+
+    useEffect(() => {
+      if (!proteinData) {
+        dispatch(getProteinData(data)).then(i => {
+          if (i && i.length > 0) {
+            const proteinData = i[0];
+            data.proteinData = proteinData;
+            const result =
+              data.proteinData &&
+              (data.proteinData.diff_info || data.proteinData.event_info || data.proteinData.sigmaa_info);
+            setHasMap(result);
+          }
+        });
+      }
+    }, [data, dispatch, proteinData]);
 
     // componentDidMount
     useEffect(() => {
-      dispatch(getMolImage(data.id, MOL_TYPE.HIT, imageHeight, imageWidth)).then(i => {
+      dispatch(getMolImage(data.id, MOL_TYPE.HIT, imageWidth, imageHeight)).then(i => {
         setImg_data(i);
       });
-    }, [data.id, data.smiles, imageHeight, url, imageWidth, dispatch]);
+    }, [data.id, data.smiles, imageHeight, imageWidth, dispatch]);
 
     useEffect(() => {
-      if (searchMoleculeGroup) {
-        dispatch(searchMoleculeGroupByMoleculeID(currentID))
-          .then(molGroupID => {
-            setMoleculeGroupID(molGroupID);
-          })
-          .catch(error => {
-            throw new Error(error);
-          });
-      }
-    }, [currentID, dispatch, searchMoleculeGroup]);
+      dispatch(getQualityInformation(data));
+    }, [data, dispatch]);
 
     const svg_image = (
       <SVGInline
         component="div"
         svg={img_data}
-        className={classes.imageMargin}
+        // className={classes.imageMargin}
         style={{
           height: `${imageHeight}px`,
           width: `${imageWidth}px`
@@ -319,13 +518,19 @@ const MoleculeView = memo(
     };
     const not_selected_style = {};
     const current_style =
-      isLigandOn || isProteinOn || isComplexOn || isSurfaceOn || isVectorOn ? selected_style : not_selected_style;
+      isLigandOn || isProteinOn || isComplexOn || isSurfaceOn || isDensityOn || isVectorOn
+        ? selected_style
+        : not_selected_style;
 
     const addNewLigand = (skipTracking = false) => {
-      if (selectMoleculeSite) {
-        selectMoleculeSite(data.site);
-      }
-      dispatch(addLigand(stage, data, colourToggle, false, skipTracking));
+      // if (selectMoleculeSite) {
+      //   selectMoleculeSite(data.site);
+      // }
+      dispatch(
+        withDisabledMoleculeNglControlButton(currentID, 'ligand', async () => {
+          await dispatch(addLigand(stage, data, colourToggle, false, true, skipTracking));
+        })
+      );
     };
 
     const removeSelectedLigand = (skipTracking = false) => {
@@ -355,10 +560,14 @@ const MoleculeView = memo(
     };
 
     const addNewProtein = (skipTracking = false) => {
-      if (selectMoleculeSite) {
-        selectMoleculeSite(data.site);
-      }
-      dispatch(addHitProtein(stage, data, colourToggle, skipTracking));
+      // if (selectMoleculeSite) {
+      //   selectMoleculeSite(data.site);
+      // }
+      dispatch(
+        withDisabledMoleculeNglControlButton(currentID, 'protein', async () => {
+          await dispatch(addHitProtein(stage, data, colourToggle, true, skipTracking));
+        })
+      );
     };
 
     const onProtein = calledFromSelectAll => {
@@ -383,10 +592,11 @@ const MoleculeView = memo(
     };
 
     const addNewComplex = (skipTracking = false) => {
-      if (selectMoleculeSite) {
-        selectMoleculeSite(data.site);
-      }
-      dispatch(addComplex(stage, data, colourToggle, skipTracking));
+      dispatch(
+        withDisabledMoleculeNglControlButton(currentID, 'complex', async () => {
+          await dispatch(addComplex(stage, data, colourToggle, skipTracking));
+        })
+      );
     };
 
     const onComplex = calledFromSelectAll => {
@@ -410,10 +620,14 @@ const MoleculeView = memo(
     };
 
     const addNewSurface = () => {
-      if (selectMoleculeSite) {
-        selectMoleculeSite(data.site);
-      }
-      dispatch(addSurface(stage, data, colourToggle));
+      // if (selectMoleculeSite) {
+      //   selectMoleculeSite(data.site);
+      // }
+      dispatch(
+        withDisabledMoleculeNglControlButton(currentID, 'surface', async () => {
+          await dispatch(addSurface(stage, data, colourToggle));
+        })
+      );
     };
 
     const onSurface = () => {
@@ -425,35 +639,78 @@ const MoleculeView = memo(
     };
 
     const removeSelectedDensity = () => {
-      dispatch(removeDensity(stage, data, colourToggle));
+      dispatch(removeDensity(stage, data, colourToggle, false));
     };
 
-    const addNewDensity = () => {
-      if (selectMoleculeSite) {
-        selectMoleculeSite(data.site);
+    const addNewDensityCustom = async () => {
+      dispatch(
+        withDisabledMoleculeNglControlButton(currentID, 'density', async () => {
+          await dispatch(addDensityCustomView(stage, data, colourToggle, isWireframeStyle));
+        })
+      );
+    };
+
+    const addNewDensity = async () => {
+      dispatch(
+        withDisabledMoleculeNglControlButton(currentID, 'ligand', async () => {
+          await dispatch(
+            withDisabledMoleculeNglControlButton(currentID, 'density', async () => {
+              await dispatch(addDensity(stage, data, colourToggle, isWireframeStyle));
+            })
+          );
+        })
+      );
+    };
+
+    const onDensity = () => {
+      if (isDensityOn === false && isDensityCustomOn === false) {
+        dispatch(getDensityMapData(data)).then(r => {
+          if (r) {
+            dispatch(setDensityModalOpen(true));
+          } else {
+            addNewDensity();
+          }
+        });
+      } else if (isDensityCustomOn === false) {
+        addNewDensityCustom();
+      } else {
+        removeSelectedDensity();
       }
-      dispatch(addDensity(stage, data, colourToggle));
     };
 
-    // const onDensity = () => {
-    //   if (isDensityOn === false) {
-    //     addNewDensity();
-    //   } else {
-    //     removeSelectedDensity();
-    //   }
-    // };
+    const removeSelectedQuality = () => {
+      dispatch(removeQuality(stage, data, colourToggle));
+    };
+
+    const addNewQuality = () => {
+      dispatch(
+        withDisabledMoleculeNglControlButton(currentID, 'ligand', async () => {
+          await dispatch(addQuality(stage, data, colourToggle));
+        })
+      );
+    };
+
+    const onQuality = () => {
+      if (isQualityOn === false) {
+        addNewQuality();
+      } else {
+        removeSelectedQuality();
+      }
+    };
 
     const removeSelectedVector = () => {
       dispatch(removeVector(stage, data));
     };
 
     const addNewVector = () => {
-      if (selectMoleculeSite) {
-        selectMoleculeSite(data.site);
-      }
-      dispatch(addVector(stage, data)).catch(error => {
-        throw new Error(error);
-      });
+      // if (selectMoleculeSite) {
+      //   selectMoleculeSite(data.site);
+      // }
+      dispatch(
+        withDisabledMoleculeNglControlButton(currentID, 'vector', async () => {
+          await dispatch(addVector(stage, data));
+        })
+      );
     };
 
     const onVector = () => {
@@ -507,43 +764,13 @@ const MoleculeView = memo(
       });
     };
 
-    const handleClickOnDownArrow = () => {
-      const refNext = ref.current.nextSibling;
-      scrollToElement(refNext);
-
-      let dataValue = {
-        isLigandOn: isLigandOn,
-        isProteinOn: isProteinOn,
-        isComplexOn: isComplexOn,
-        isSurfaceOn: isSurfaceOn,
-        isVectorOn: isVectorOn,
-        objectsInView: objectsInView,
-        colourToggle: colourToggle
-      };
-      removeOfAllSelectedTypes(true);
-      dispatch(moveSelectedMolSettings(stage, data, nextItemData, dataValue, true));
-      dispatch(setArrowUpDown(data, nextItemData, ARROW_TYPE.DOWN, dataValue));
-    };
-
-    const handleClickOnUpArrow = () => {
-      const refPrevious = ref.current.previousSibling;
-      scrollToElement(refPrevious);
-
-      let dataValue = {
-        isLigandOn: isLigandOn,
-        isProteinOn: isProteinOn,
-        isComplexOn: isComplexOn,
-        isSurfaceOn: isSurfaceOn,
-        isVectorOn: isVectorOn,
-        objectsInView: objectsInView,
-        colourToggle: colourToggle
-      };
-      removeOfAllSelectedTypes(true);
-      dispatch(moveSelectedMolSettings(stage, data, previousItemData, dataValue, true));
-      dispatch(setArrowUpDown(data, previousItemData, ARROW_TYPE.UP, dataValue));
-    };
-
     let moleculeTitle = data?.protein_code.replace(new RegExp(`${target_on_name}-`, 'i'), '');
+
+    const moleculeLPCControlButtonDisabled = ['ligand', 'protein', 'complex'].some(
+      type => disableMoleculeNglControlButtons[type]
+    );
+
+    const groupMoleculeLPCControlButtonDisabled = disableL || disableP || disableC;
 
     return (
       <>
@@ -551,7 +778,21 @@ const MoleculeView = memo(
           {/* Site number */}
           <Grid item container justify="space-between" direction="column" className={classes.site}>
             <Grid item>
-              <Typography variant="subtitle2">{data.site || moleculeGroupID}</Typography>
+              <MoleculeSelectCheckbox
+                moleculeID={currentID}
+                checked={selected}
+                className={classes.checkbox}
+                size="small"
+                color="primary"
+                onChange={e => {
+                  const result = e.target.checked;
+                  if (result) {
+                    dispatch(appendToMolListToEdit(currentID));
+                  } else {
+                    dispatch(removeFromMolListToEdit(currentID));
+                  }
+                }}
+              />
             </Grid>
             <Grid item className={classes.rank}>
               {index + 1}.
@@ -559,17 +800,17 @@ const MoleculeView = memo(
           </Grid>
           <Grid item container className={classes.detailsCol} justify="space-between" direction="row">
             {/* Title label */}
-            <Grid item xs={7}>
+            <Grid item xs={6}>
               <Tooltip title={moleculeTitle} placement="bottom-start">
                 <div className={classes.moleculeTitleLabel}>{moleculeTitle}</div>
               </Tooltip>
             </Grid>
             {/* Control Buttons A, L, C, V */}
-            <Grid item xs={5}>
+            <Grid item xs={6}>
               <Grid
                 container
                 direction="row"
-                justify="flex-start"
+                justify="flex-end"
                 alignItems="center"
                 wrap="nowrap"
                 className={classes.contButtonsMargin}
@@ -610,7 +851,7 @@ const MoleculeView = memo(
                         onProtein(true);
                         onComplex(true);
                       }}
-                      disabled={false}
+                      disabled={groupMoleculeLPCControlButtonDisabled || moleculeLPCControlButtonDisabled}
                     >
                       A
                     </Button>
@@ -624,7 +865,7 @@ const MoleculeView = memo(
                         [classes.contColButtonSelected]: isLigandOn
                       })}
                       onClick={() => onLigand()}
-                      disabled={false}
+                      disabled={disableL || disableMoleculeNglControlButtons.ligand}
                     >
                       L
                     </Button>
@@ -638,7 +879,7 @@ const MoleculeView = memo(
                         [classes.contColButtonSelected]: isProteinOn
                       })}
                       onClick={() => onProtein()}
-                      disabled={false}
+                      disabled={disableP || disableMoleculeNglControlButtons.protein}
                     >
                       P
                     </Button>
@@ -653,7 +894,7 @@ const MoleculeView = memo(
                         [classes.contColButtonSelected]: isComplexOn
                       })}
                       onClick={() => onComplex()}
-                      disabled={false}
+                      disabled={disableC || disableMoleculeNglControlButtons.complex}
                     >
                       C
                     </Button>
@@ -667,7 +908,7 @@ const MoleculeView = memo(
                         [classes.contColButtonSelected]: isSurfaceOn
                       })}
                       onClick={() => onSurface()}
-                      disabled={false}
+                      disabled={disableMoleculeNglControlButtons.surface}
                     >
                       S
                     </Button>
@@ -675,14 +916,19 @@ const MoleculeView = memo(
                 </Tooltip>
                 <Tooltip title="electron density">
                   <Grid item>
-                    {/* TODO waiting for backend data */}
                     <Button
                       variant="outlined"
-                      className={classNames(classes.contColButton, {
-                        [classes.contColButtonSelected]: false
-                      })}
-                      // onClick={() => onDensity()}
-                      disabled={true || false}
+                      className={classNames(
+                        classes.contColButton,
+                        {
+                          [classes.contColButtonHalfSelected]: isDensityOn && !isDensityCustomOn
+                        },
+                        {
+                          [classes.contColButtonSelected]: isDensityCustomOn
+                        }
+                      )}
+                      onClick={() => onDensity()}
+                      disabled={!hasMap || disableMoleculeNglControlButtons.density}
                     >
                       D
                     </Button>
@@ -696,7 +942,7 @@ const MoleculeView = memo(
                         [classes.contColButtonSelected]: isVectorOn
                       })}
                       onClick={() => onVector()}
-                      disabled={false}
+                      disabled={disableMoleculeNglControlButtons.vector}
                     >
                       V
                     </Button>
@@ -731,47 +977,58 @@ const MoleculeView = memo(
               </Grid>
             </Grid>
           </Grid>
-          {/* Up/Down arrows */}
-          <Grid item>
-            <Grid container direction="column" justify="space-between" className={classes.arrows}>
-              <Grid item>
-                <IconButton
-                  color="primary"
-                  size="small"
-                  disabled={false || !previousItemData || !areArrowsVisible}
-                  onClick={handleClickOnUpArrow}
-                >
-                  <ArrowUpward className={areArrowsVisible ? classes.arrow : classes.invisArrow} />
-                </IconButton>
-              </Grid>
-              <Grid item>
-                <IconButton
-                  color="primary"
-                  size="small"
-                  disabled={false || !nextItemData || !areArrowsVisible}
-                  onClick={handleClickOnDownArrow}
-                >
-                  <ArrowDownward className={areArrowsVisible ? classes.arrow : classes.invisArrow} />
-                </IconButton>
-              </Grid>
-            </Grid>
-          </Grid>
           {/* Image */}
-          <Grid
-            item
+          <div
             style={{
               ...current_style,
               width: imageWidth
             }}
-            container
-            justify="center"
             className={classes.image}
-            onMouseEnter={openMoleculeTooltip}
-            onMouseLeave={closeMoleculeTooltip}
+            onMouseEnter={() => setMoleculeTooltipOpen(true)}
+            onMouseLeave={() => setMoleculeTooltipOpen(false)}
             ref={moleculeImgRef}
           >
-            <Grid item>{svg_image}</Grid>
-          </Grid>
+            {svg_image}
+            <div className={classes.imageActions}>
+              {(moleculeTooltipOpen || isTagEditorInvokedByMolecule) && (
+                <Tooltip>
+                  <MoleculeSelectCheckbox
+                    color="primary"
+                    className={classes.tagIcon}
+                    onClick={() => {
+                      // setTagAddModalOpen(!tagAddModalOpen);
+                      if (isTagEditorInvokedByMolecule) {
+                        dispatch(setTagEditorOpen(!isTagEditorOpen));
+                        dispatch(setMoleculeForTagEdit(null));
+                        dispatch(setTagEditorOpen(false));
+                      } else {
+                        dispatch(setMoleculeForTagEdit(data.id));
+                        dispatch(setTagEditorOpen(true));
+                        if (setRef) {
+                          setRef(ref.current);
+                        }
+                      }
+                    }}
+                  />
+                </Tooltip>
+              )}
+              {moleculeTooltipOpen && (
+                <Tooltip title={!isCopied ? 'Copy smiles' : 'Copied'}>
+                  <IconButton className={classes.copyIcon} onClick={setCopied}>
+                    {!isCopied ? <Assignment /> : <AssignmentTurnedIn />}
+                  </IconButton>
+                </Tooltip>
+              )}
+              {warningIconVisible && (
+                <Tooltip title="Warning">
+                  <IconButton className={classes.warningIcon} onClick={() => onQuality()}>
+                    <Warning />
+                  </IconButton>
+                </Tooltip>
+              )}
+            </div>
+            <div className={classes.imageTagActions}>{generateTagPopover()}</div>
+          </div>
         </Grid>
         <SvgTooltip
           open={moleculeTooltipOpen}
@@ -779,6 +1036,13 @@ const MoleculeView = memo(
           imgData={img_data}
           width={imageWidth}
           height={imageHeight}
+        />
+        <DensityMapsModal
+          openDialog={densityModalOpen}
+          setOpenDialog={setDensityModalOpen}
+          data={data}
+          setDensity={addNewDensity}
+          isQualityOn={isQualityOn}
         />
       </>
     );

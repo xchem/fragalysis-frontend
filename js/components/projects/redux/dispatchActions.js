@@ -12,7 +12,9 @@ import {
   setForceCreateProject,
   setForceProjectCreated,
   setIsLoadingListOfProjects,
-  setCurrentProjectDiscourseLink
+  setCurrentProjectDiscourseLink,
+  setJobLauncherSquonkUrl,
+  setJobList
 } from './actions';
 import { api, METHOD } from '../../../utils/api';
 import { base_url, URLS } from '../../routes/constants';
@@ -21,12 +23,13 @@ import { createInitSnapshotFromCopy, getListOfSnapshots } from '../../snapshot/r
 import { SnapshotType } from './constants';
 import { DJANGO_CONTEXT } from '../../../utils/djangoContext';
 import { sendInitTrackingActionByProjectId } from '../../../reducers/tracking/dispatchActions';
-import { resetTrackingState } from '../../../reducers/tracking/actions';
+import { resetTrackingState, setIsSnapshotDirty } from '../../../reducers/tracking/actions';
 import { createProjectPost } from '../../../utils/discourse';
 import { setOpenDiscourseErrorModal } from '../../../reducers/api/actions';
 
 import moment from 'moment';
 import { resetNglTrackingState } from '../../../reducers/nglTracking/dispatchActions';
+import _ from 'lodash';
 
 export const assignSnapshotToProject = ({ projectID, snapshotID, ...rest }) => (dispatch, getState) => {
   dispatch(resetCurrentSnapshot());
@@ -145,6 +148,7 @@ export const loadSnapshotByProjectID = projectID => (dispatch, getState) => {
           dispatch(resetCurrentSnapshot());
           return Promise.resolve(null);
         } else if (response.data.results[0] !== undefined) {
+          console.log(`Snapshot from server: ${JSON.stringify(response.data.results[0])}`);
           dispatch(
             setCurrentSnapshot({
               id: response.data.results[0].id,
@@ -155,7 +159,7 @@ export const loadSnapshotByProjectID = projectID => (dispatch, getState) => {
               created: response.data.results[0].created,
               children: response.data.results[0].children,
               parent: response.data.results[0].parent,
-              data: '[]'
+              data: response.data.results[0].data
             })
           );
           return Promise.resolve(response.data.results[0].id);
@@ -192,7 +196,7 @@ export const loadCurrentSnapshotByID = snapshotID => (dispatch, getState) => {
               created: response.data.created,
               children: response.data.children,
               parent: response.data.parent,
-              data: '[]'
+              data: response.data.data
             })
           );
           return Promise.resolve(response.data);
@@ -215,7 +219,8 @@ const parseSnapshotAttributes = data => ({
   author: data.author,
   description: data.description,
   created: data.created,
-  children: data.children
+  children: data.children,
+  additional_info: data.additional_info
 });
 
 export const getSnapshotAttributesByID = snapshotID => (dispatch, getState) => {
@@ -225,13 +230,14 @@ export const getSnapshotAttributesByID = snapshotID => (dispatch, getState) => {
       if (currentSnapshotList === null) {
         currentSnapshotList = {};
       }
-      currentSnapshotList[snapshotID] = parseSnapshotAttributes(response.data);
+      const snapshot = parseSnapshotAttributes(response.data);
+      currentSnapshotList[snapshotID] = snapshot;
       dispatch(setCurrentSnapshotList(currentSnapshotList));
 
       if (response.data.children && response.data.children.length > 0) {
         return dispatch(populateChildren(response.data.children));
       } else {
-        return Promise.resolve();
+        return Promise.resolve(snapshot);
       }
     }
   });
@@ -253,14 +259,12 @@ export const loadSnapshotTree = projectID => (dispatch, getState) => {
       } else if (response.data.count === 1) {
         const tree = parseSnapshotAttributes(response.data.results[0]);
         dispatch(setCurrentSnapshotTree(tree));
-        if (tree.children && tree.children.length === 0) {
-          return dispatch(populateChildren([tree.id]));
-        }
-        return dispatch(populateChildren(tree.children));
+        return dispatch(populateChildren([tree.id]));
       }
     })
     .finally(() => {
       dispatch(setIsLoadingTree(false));
+      dispatch(setIsSnapshotDirty(false));
     });
 };
 
@@ -269,6 +273,7 @@ export const createProjectFromSnapshotDialog = data => dispatch => {
   return api({ url: `${base_url}/api/session-projects/`, method: METHOD.POST, data })
     .then(response => {
       const projectID = response.data.id;
+      data.projectID = projectID;
       dispatch(setCurrentProjectProperty('projectID', projectID));
       dispatch(setCurrentProjectProperty('title', response.data.title));
     })
@@ -290,12 +295,12 @@ export const createProjectDiscoursePost = (projectName, targetName, msg, tags) =
     });
 };
 
-export const createProject = ({ title, description, target, author, tags }) => dispatch => {
+export const createProject = ({ title, description, target, author, tags, project }) => dispatch => {
   dispatch(setProjectModalIsLoading(true));
   return api({
     url: `${base_url}/api/session-projects/`,
     method: METHOD.POST,
-    data: { title, description, target, author, tags }
+    data: { title, description, target, author, tags, project }
   }).then(response => {
     const projectID = response.data.id;
     const title = response.data.title;
@@ -334,6 +339,7 @@ export const createProjectFromSnapshot = ({ title, description, author, tags, hi
   getState
 ) => {
   const listOfSnapshots = getState().snapshotReducers.listOfSnapshots;
+  const currentProject = getState().targetReducers.currentProject;
   const selectedSnapshot = listOfSnapshots.find(item => item.id === parentSnapshotId);
   const snapshotData = JSON.parse(selectedSnapshot && selectedSnapshot.data);
 
@@ -346,7 +352,8 @@ export const createProjectFromSnapshot = ({ title, description, author, tags, hi
       description,
       target: (snapshotData && snapshotData.apiReducers && snapshotData.apiReducers.target_on) || null,
       author,
-      tags
+      tags,
+      project: currentProject?.id
     })
   ).then(() => {
     const { projectID } = getState().projectReducers.currentProject;
@@ -380,7 +387,7 @@ export const createProjectFromSnapshot = ({ title, description, author, tags, hi
   });
 };
 
-export const createProjectFromScratch = ({ title, description, target, author, tags, history }) => (
+export const createProjectFromScratch = ({ title, description, target, author, tags, history, project }) => (
   dispatch,
   getState
 ) => {
@@ -390,7 +397,7 @@ export const createProjectFromScratch = ({ title, description, target, author, t
   return api({
     url: `${base_url}/api/session-projects/`,
     method: METHOD.POST,
-    data: { title, description, target, author, tags }
+    data: { title, description, target, author, tags, project }
   })
     .then(response => {
       const projectID = response.data.id;
@@ -462,4 +469,88 @@ export const createInitSnapshotToProjectWitActions = (session_project, author, p
       });
     })
   ]);
+};
+
+export const jobFileTransfer = data => {
+  return api({
+    url: `${base_url}/api/job_file_transfer/`,
+    method: METHOD.POST,
+    data
+  });
+};
+
+export const jobRequest = data => {
+  return api({
+    url: `${base_url}/api/job_request/`,
+    method: METHOD.POST,
+    data
+  });
+};
+
+export const getJobConfigurationsFromServer = () => async (dispatch, getState) => {
+  const result = [];
+
+  const overrides = await getJobOverrides();
+  if (!overrides) {
+    return result;
+  }
+
+  const availableJobs = overrides['fragalysis-jobs'].map((job, index) => {
+    return { job_collection: job.job_collection, job_name: job.job_name, job_version: job.job_version, index: index };
+  });
+  if (!availableJobs) {
+    return result;
+  }
+
+  for (let i = 0; i < availableJobs.length; i++) {
+    const job = availableJobs[i];
+    let jobConfig = await getJobConfigFromServer(job.job_collection, job.job_name, job.job_version);
+    jobConfig = preprocessJobConfig(jobConfig);
+    // console.log(JSON.stringify(filteredJobConfig));
+    const jobOject = {
+      id: jobConfig.id,
+      name: jobConfig.collection,
+      description: jobConfig.description,
+      slug: jobConfig.job,
+      spec: jobConfig,
+      overrides: overrides,
+      overrideIndex: job.index
+    };
+    result.push(jobOject);
+  }
+
+  return result;
+};
+
+const preprocessJobConfig = jobConfig => {
+  const result = { ...jobConfig };
+  removePropDeep(result, 'pattern');
+  return result;
+};
+
+const removePropDeep = (obj, propName) => {
+  const keys = Object.keys(obj);
+  for (let i = 0; i < keys.length; i++) {
+    const key = keys[i];
+    if (key === propName) {
+      delete obj[key];
+    } else if (_.isPlainObject(obj[key])) {
+      removePropDeep(obj[key], propName);
+    }
+  }
+};
+
+const getJobConfigFromServer = async (job_collection, job_name, job_version) => {
+  const resultCall = await api({
+    url: `${base_url}/api/job_config/?job_name=${job_name.trim()}&job_version=${job_version.trim()}&job_collection=${job_collection.trim()}`
+  });
+
+  return resultCall.data;
+};
+
+const getJobOverrides = async () => {
+  const resultCall = await api({
+    url: `${base_url}/api/job_override/`
+  });
+  return resultCall.data.results[0].override;
 };

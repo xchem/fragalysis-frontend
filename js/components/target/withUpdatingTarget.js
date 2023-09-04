@@ -1,20 +1,24 @@
 import React, { memo, useContext, useEffect, useState } from 'react';
-import { connect } from 'react-redux';
+import { connect, useSelector } from 'react-redux';
 import { HeaderContext } from '../header/headerContext';
 import HandleUnrecognisedTarget from './handleUnrecognisedTarget';
 import { updateTarget, setTargetUUIDs, resetTargetAndSelection } from './redux/dispatchActions';
 import { useRouteMatch } from 'react-router-dom';
+import { extractTargetFromURLParam } from '../preview/utils';
 
 export const withUpdatingTarget = WrappedContainer => {
   const UpdateTarget = memo(
     ({ target_on, resetSelection, updateTarget, setTargetUUIDs, resetTargetAndSelection, targetIdList, ...rest }) => {
       let match = useRouteMatch();
 
-      const target = match && match.params && match.params.target;
+      // const target = match && match.params && match.params.target;
+      let target = match && match.params && extractTargetFromURLParam(match.params[0]);
       const uuid = match && match.params && match.params.uuid;
       const snapshotUuid = match && match.params && match.params.snapshotUuid;
       const snapshotId = match && match.params && match.params.snapshotId;
       const projectId = match && match.params && match.params.projectId;
+
+      // const isActionRestoring = useSelector(state => state.trackingReducers.isActionRestoring);
 
       const { isLoading, setIsLoading } = useContext(HeaderContext);
       const [state, setState] = useState();
@@ -33,7 +37,7 @@ export const withUpdatingTarget = WrappedContainer => {
             throw error;
           });
         });
-      }, [setIsLoading, target, updateTarget, targetIdList, projectId, snapshotId]);
+      }, [setIsLoading, target, updateTarget, targetIdList, projectId, snapshotId /*, isActionRestoring*/]);
 
       if (isLoading === true) {
         return null;

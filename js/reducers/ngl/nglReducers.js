@@ -40,7 +40,11 @@ export const INITIAL_STATE = {
     [VIEWS.SUMMARY_VIEW]: 0
   },
   moleculeOrientations: {},
-  pdbCache: {}
+  pdbCache: {},
+  qualityCache: {},
+  electronDensityColor_event: 'blue',
+  electronDensityColor_sigmaa: 'blue',
+  electronDensityColor_diff: 'blue'
 };
 
 export default function nglReducers(state = INITIAL_STATE, action = {}) {
@@ -186,10 +190,38 @@ export default function nglReducers(state = INITIAL_STATE, action = {}) {
       return Object.assign({}, state, { moleculeOrientations: diminishedMoleculeOrientations });
 
     case CONSTANTS.ADD_TO_PDB_CACHE:
-      return {...state, pdbCache: {
-        ...state.pdbCache, [action.payload.name]: action.payload.cacheItem
-      }};
+      return {
+        ...state,
+        pdbCache: {
+          ...state.pdbCache,
+          [action.payload.name]: action.payload.cacheItem
+        }
+      };
 
+    case CONSTANTS.SET_ELECTRON_DENSITY_COLOR_EVENT:
+      return {
+        ...state,
+        electronDensityColor_event: action.payload
+      };
+    case CONSTANTS.SET_ELECTRON_DENSITY_COLOR_SIGMAA:
+      return {
+        ...state,
+        electronDensityColor_sigmaa: action.payload
+      };
+    case CONSTANTS.SET_ELECTRON_DENSITY_COLOR_DIFF:
+      return {
+        ...state,
+        electronDensityColor_diff: action.payload
+      };
+
+    case CONSTANTS.ADD_TO_QUALITY_CACHE:
+      return {
+        ...state,
+        qualityCache: {
+          ...state.qualityCache,
+          [action.payload.name]: action.payload.cacheItem
+        }
+      };
     default:
       return state;
   }

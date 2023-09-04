@@ -32,12 +32,17 @@ import {
   getMoleculeOfCurrentVector
 } from '../../../../reducers/selection/selectors';
 import {
+  appendColorToSelectedColorFilter,
   appendMoleculeToCompoundsOfDatasetToBuy,
+  removeColorFromSelectedColorFilter,
   removeMoleculeFromCompoundsOfDatasetToBuy,
+  setEditedColorGroup,
   updateFilterShowedScoreProperties
 } from '../../../datasets/redux/actions';
+import { isRemoteDebugging } from '../../../routes/constants';
 
 export const selectAllCompounds = () => (dispatch, getState) => {
+  //this one is for the vector compounds
   const state = getState();
   const currentVectorCompoundsFiltered = getCurrentVectorCompoundsFiltered(state);
 
@@ -98,12 +103,67 @@ export const onChangeCompoundClassValue = event => (dispatch, getState) => {
 };
 
 export const onKeyDownCompoundClass = event => (dispatch, getState) => {
-  const state = getState();
-
   // on Enter
-  if (event.keyCode === 13) {
+  if (event.keyCode === 13 && event.target.id && event.target.id !== '') {
+    // const state = getState();
+    // let oldCompoundClass = state.previewReducers.compounds.currentCompoundClass;
+    // dispatch(setCurrentCompoundClass(event.target.id, oldCompoundClass));
+    dispatch(setEditedColorGroup(null));
+  }
+};
+
+export const onStartEditColorClassName = event => (dispatch, getState) => {
+  const state = getState();
+  const currentColorGroup = state.datasetsReducers.editedColorGroup;
+  const colorGroup = event.currentTarget.value;
+  if (colorGroup !== currentColorGroup) {
+    dispatch(setEditedColorGroup(colorGroup));
+  } else {
+    dispatch(setEditedColorGroup(null));
+  }
+};
+
+export const onChangeCompoundClassCheckbox = event => (dispatch, getState) => {
+  if (event.target.value && event.target.value !== '') {
+    const state = getState();
+    let oldCompoundClass = state.previewReducers.compounds.currentCompoundClass;
+    if (oldCompoundClass !== event.target.value) {
+      dispatch(setCurrentCompoundClass(event.target.value, oldCompoundClass));
+    } else {
+      dispatch(setCurrentCompoundClass(null, oldCompoundClass));
+    }
+  }
+};
+
+export const onClickCompoundClass = event => (dispatch, getState) => {
+  if (event.target.id && event.target.id !== '') {
+    const state = getState();
     let oldCompoundClass = state.previewReducers.compounds.currentCompoundClass;
     dispatch(setCurrentCompoundClass(event.target.id, oldCompoundClass));
+  }
+};
+
+const handleColorOfFilter = color => (dispatch, getState) => {
+  const state = getState();
+  const currentColorFilterSettings = state.datasetsReducers.selectedColorsInFilter;
+  if (currentColorFilterSettings.hasOwnProperty(color)) {
+    dispatch(removeColorFromSelectedColorFilter(color));
+  } else {
+    dispatch(appendColorToSelectedColorFilter(color));
+  }
+};
+
+export const onClickFilterClassCheckBox = event => (dispatch, getState) => {
+  dispatch(handleColorOfFilter(event.target.value));
+};
+
+export const onClickFilterClass = event => (dispatch, getState) => {
+  dispatch(handleColorOfFilter(event.target.id));
+};
+
+export const onKeyDownFilterClass = event => (dispatch, getState) => {
+  if (event.keyCode === 13) {
+    dispatch(handleColorOfFilter(event.target.id));
   }
 };
 
@@ -137,15 +197,27 @@ const showCompoundNglView = ({ majorViewStage, data, index }) => (dispatch, getS
       INPUT_MOL_BLOCK: sdf_info
     };
 
-    api({
-      url: base_url + '/scoring/gen_conf_from_vect/',
-      method: METHOD.POST,
-      headers: {
+    let headersObj = {};
+    if (isRemoteDebugging) {
+      headersObj = {
+        accept: 'application/json',
+        'content-type': 'application/json',
+        'X-Requested-With': 'XMLHttpRequest'
+        //'X-CSRFToken': getCsrfToken()
+      };
+    } else {
+      headersObj = {
         accept: 'application/json',
         'content-type': 'application/json',
         'X-Requested-With': 'XMLHttpRequest',
         'X-CSRFToken': getCsrfToken()
-      },
+      };
+    }
+
+    api({
+      url: base_url + '/scoring/gen_conf_from_vect/',
+      method: METHOD.POST,
+      headers: headersObj,
       data: JSON.stringify(post_data)
     })
       .then(response => {
@@ -227,7 +299,7 @@ export const prepareFakeFilterData = () => (dispatch, getState) => {
 };
 
 export const isCompoundFromVectorSelector = data => {
-  if (data['index'] !== undefined) {
+  if (data && data['index'] !== undefined) {
     return true;
   } else {
     return false;
@@ -263,6 +335,7 @@ export const showHideLigand = (data, majorViewStage) => async (dispatch, getStat
 };
 
 export const handleClickOnCompound = ({ event, data, majorViewStage, index }) => async (dispatch, getState) => {
+  // This is for the vector compounds
   const state = getState();
   const currentCompoundClass = state.previewReducers.compounds.currentCompoundClass;
   const selectedCompoundsClass = state.previewReducers.compounds.selectedCompoundsClass;
@@ -303,6 +376,7 @@ export const handleClickOnCompound = ({ event, data, majorViewStage, index }) =>
 };
 
 export const handleBuyList = ({ isSelected, data, skipTracking }) => (dispatch, getState) => {
+  // this is for vector compounds - used in saved state actions
   const state = getState();
   const selectedCompounds = state.previewReducers.compounds.allSelectedCompounds;
 

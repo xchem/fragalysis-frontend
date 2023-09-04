@@ -6,13 +6,25 @@ import { useDispatch, useSelector } from 'react-redux';
 import { CompoundView } from './compoundView';
 import { Panel } from '../../common/Surfaces/Panel';
 import { Button } from '../../common/Inputs/Button';
-import { Grid, Box, makeStyles, TextField, CircularProgress } from '@material-ui/core';
-import { SelectAll, Delete } from '@material-ui/icons';
+import {
+  Grid,
+  Box,
+  makeStyles,
+  TextField,
+  CircularProgress,
+  Checkbox,
+  InputAdornment,
+  IconButton
+} from '@material-ui/core';
+import { SelectAll, Delete, Edit } from '@material-ui/icons';
 import {
   clearAllSelectedCompounds,
   loadNextPageOfCompounds,
+  onChangeCompoundClassCheckbox,
   onChangeCompoundClassValue,
+  onClickCompoundClass,
   onKeyDownCompoundClass,
+  onStartEditColorClassName,
   selectAllCompounds
 } from './redux/dispatchActions';
 import { compoundsColors } from './redux/constants';
@@ -24,11 +36,19 @@ import classNames from 'classnames';
 
 const useStyles = makeStyles(theme => ({
   textField: {
-    marginLeft: theme.spacing(1),
-    marginRight: theme.spacing(1),
-    width: 76,
+    marginLeft: theme.spacing(0.5),
+    // marginRight: theme.spacing(1),
+    width: 90,
+    borderRadius: 10,
+
     '& .MuiFormLabel-root': {
       paddingLeft: theme.spacing(1)
+    },
+    '& .MuiInput-underline:before': {
+      borderBottom: '0px solid'
+    },
+    '& .MuiInput-underline:after': {
+      borderBottom: '0px solid'
     }
   },
   selectedInput: {
@@ -64,10 +84,21 @@ const useStyles = makeStyles(theme => ({
   compoundList: {
     display: 'flex',
     flexWrap: 'wrap'
+  },
+  classCheckbox: {
+    padding: '0px'
+  },
+  editClassNameIcon: {
+    padding: '0px',
+    color: 'inherit'
+  },
+  editClassNameIconSelected: {
+    padding: '0px',
+    color: 'red'
   }
 }));
 
-export const CompoundList = memo(({ height }) => {
+export const CompoundList = memo(() => {
   const classes = useStyles();
   const panelRef = useRef(null);
   const dispatch = useDispatch();
@@ -80,12 +111,22 @@ export const CompoundList = memo(({ height }) => {
   const purpleInput = useSelector(state => state.previewReducers.compounds[compoundsColors.purple.key]);
   const apricotInput = useSelector(state => state.previewReducers.compounds[compoundsColors.apricot.key]);
 
+  const editedColorGroup = useSelector(state => state.datasetsReducers.editedColorGroup);
+
   const inputs = {
     [compoundsColors.blue.key]: blueInput,
     [compoundsColors.red.key]: redInput,
     [compoundsColors.green.key]: greenInput,
     [compoundsColors.purple.key]: purpleInput,
     [compoundsColors.apricot.key]: apricotInput
+  };
+
+  const inputRefs = {
+    [compoundsColors.blue.key]: useRef(),
+    [compoundsColors.red.key]: useRef(),
+    [compoundsColors.green.key]: useRef(),
+    [compoundsColors.purple.key]: useRef(),
+    [compoundsColors.apricot.key]: useRef()
   };
 
   const currentCompoundClass = useSelector(state => state.previewReducers.compounds.currentCompoundClass);
@@ -102,29 +143,65 @@ export const CompoundList = memo(({ height }) => {
   return (
     <Panel hasHeader title={headerMessage} ref={panelRef}>
       {currentCompounds && (
-        <Box height={height} width="100%">
+        <Box width="100%">
           <Grid container direction="row" justify="space-between" alignItems="center">
             {Object.keys(compoundsColors).map(item => (
-              <Grid item key={item}>
-                <TextField
-                  id={`${item}`}
-                  key={`CLASS_${item}`}
-                  variant="standard"
-                  className={classNames(
-                    classes.textField,
-                    classes[item],
-                    currentCompoundClass === item && classes.selectedInput
-                  )}
-                  label={compoundsColors[item].text}
-                  onChange={e => dispatch(onChangeCompoundClassValue(e))}
-                  onKeyDown={e => dispatch(onKeyDownCompoundClass(e))}
-                  value={inputs[item] || ''}
-                />
-              </Grid>
+              <>
+                <Grid item key={item}>
+                  <TextField
+                    InputProps={{
+                      readOnly: editedColorGroup !== item,
+                      endAdornment: (
+                        <InputAdornment position="end">
+                          <IconButton
+                            className={
+                              editedColorGroup !== item ? classes.editClassNameIcon : classes.editClassNameIconSelected
+                            }
+                            color={'inherit'}
+                            value={`${item}`}
+                            onClick={e => {
+                              dispatch(onStartEditColorClassName(e));
+                              inputRefs[item].current.focus();
+                              inputRefs[item].current.select();
+                            }}
+                          >
+                            <Edit />
+                          </IconButton>
+                        </InputAdornment>
+                      ),
+                      startAdornment: (
+                        <InputAdornment position="start">
+                          <Checkbox
+                            className={classes.classCheckbox}
+                            key={`CHCK_${item}`}
+                            value={`${item}`}
+                            onChange={e => dispatch(onChangeCompoundClassCheckbox(e))}
+                            checked={currentCompoundClass === item}
+                          ></Checkbox>
+                        </InputAdornment>
+                      )
+                    }}
+                    autoComplete="off"
+                    inputRef={inputRefs[item]}
+                    id={`${item}`}
+                    key={`CLASS_${item}`}
+                    variant="standard"
+                    className={classNames(
+                      classes.textField,
+                      classes[item],
+                      currentCompoundClass === item && classes.selectedInput
+                    )}
+                    onChange={e => dispatch(onChangeCompoundClassValue(e))}
+                    onKeyDown={e => dispatch(onKeyDownCompoundClass(e))}
+                    onClick={e => dispatch(onClickCompoundClass(e))}
+                    value={inputs[item] || ''}
+                  />
+                </Grid>
+              </>
             ))}
           </Grid>
           <Grid container justify="space-between" className={classes.infinityContainer}>
-            <Box width="inherit" style={{ height: `calc(${height} - 114px)` }} overflow="auto">
+            <Box width="inherit" overflow="auto">
               <InfiniteScroll
                 pageStart={0}
                 loadMore={() => dispatch(loadNextPageOfCompounds())}

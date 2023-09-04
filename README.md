@@ -12,15 +12,13 @@
 
 # XCHEM FRAGALYSIS Frontend Dev environment setup
 
-
 ## Background
 
 The stack consists of three services, running as containers: -
 
-- a MySQL database
+- a PostgreSQL database
 - a neo4j graph database
 - the fraglaysis stack
-- a transient data loader container
 
 The stack is formed from code resident in a number of repositories.
 Begin by forking repositories you anticipate editing (although you really want
@@ -33,13 +31,12 @@ The repositories are:
 - [xchem/fragalysis-frontend](https://github.com/xchem/fragalysis-frontend)
 - [xchem/fragalysis-backend](https://github.com/xchem/fragalysis-backend)
 - [xchem/fragalysis-stack](https://github.com/xchem/fragalysis-stack)
-- [xchem/fragalysis-loader](https://github.com/xchem/fragalysis-loader)
 
 ## Prerequisites
 
 - Docker
 - Git
-- NodeJS (v12)
+- NodeJS (v16)
 - Yarn
 - Some target data
 
@@ -56,8 +53,7 @@ Clone repositories
 _Note: You might want to work on `frontend` fork._
 
 ```
-# git clone https://github.com/xchem/fragalysis-frontend.git
-git clone https://github.com/pavol-brunclik-m2ms/fragalysis-frontend.git
+git clone https://github.com/xchem/fragalysis-frontend.git
 ```
 
 _Note: Fork if any work is expected._
@@ -66,49 +62,7 @@ _Note: Fork if any work is expected._
 
 ```
 git clone https://github.com/xchem/fragalysis-backend.git
-git clone https://github.com/xchem/fragalysis-loader.git
 git clone https://github.com/xchem/fragalysis-stack.git
-```
-
-### Mandatory
-
-```
-# git clone https://github.com/xchem/dls-fragalysis-stack-openshift.git (Did not contain 'loader' image)
-git clone https://github.com/InformaticsMatters/dls-fragalysis-stack-openshift.git
-```
-
-## Build the images locally
-
-### Optional
-
-```
-pushd fragalysis-backend || exit
-docker build . -t xchem/fragalysis-backend:latest
-popd || exit
-
-pushd fragalysis-loader || exit
-docker build . -t xchem/fragalysis-loader:latest
-popd || exit
-
-pushd fragalysis-stack || exit
-docker build . -t xchem/fragalysis-stack:latest
-popd || exit
-```
-
-### Mandatory
-
-```
-pushd dls-fragalysis-stack-openshift/images/loader || exit
-docker build . -f Dockerfile-local -t loader:latest
-popd || exit
-```
-
-### Optional
-
-```
-pushd dls-fragalysis-stack-openshift/images/graph || exit
-docker build . -t xchem/graph:latest
-popd || exit
 ```
 
 ## Create some key data directories
@@ -125,7 +79,7 @@ mkdir -p data/media/compound_sets
 mkdir -p data/postgre/data
 ```
 
-### Modify `fragalysis-frontend/docker-compose.dev.yml` file to look at right loader
+### Modify `fragalysis-frontend/docker-compose.dev.vector.yml` file to look at right data folders
 
 - `../data` folders
 - `DATA_ORIGIN: EXAMPLE` -> will look for `EXAMPLE` folder in ../data/input/django_data/EXAMPLE
@@ -144,7 +98,7 @@ yarn start
 Start fragalysis stack
 
 ```
-docker-compose -f docker-compose.dev.yml up -d
+docker-compose -f docker-compose.dev.vector.yml up -d
 ```
 
 `Please wait, it takes a minute until all containers are fully started.`
@@ -170,7 +124,9 @@ docker exec -it web_dock /bin/bash
 ```
 
 # IDEs
+
 ### WebStorm, PhpStorm
+
 Please install following extension Prettier
 
 ```
@@ -182,6 +138,7 @@ Prettier reccomended settings: Files to watch - Scope - All changed files
 During the commit in this IDE, check `Run Git hooks`
 
 ### Visual Studio Code
+
 Please install following extensions
 
 Prettier - Code formatter https://marketplace.visualstudio.com/items?itemName=esbenp.prettier-vscode
@@ -189,6 +146,7 @@ Prettier - Code formatter https://marketplace.visualstudio.com/items?itemName=es
 ES-lint https://marketplace.visualstudio.com/items?itemName=dbaeumer.vscode-eslint
 
 # Environments
+
 to activate GitHub api create `.env` file and following environment variable
 
 ```
@@ -202,6 +160,7 @@ echo "GITHUB_API_TOKEN=myGitHubToken" > .env
 ```
 
 # When backend and/or loader are updated
+
 Update backend repo from xchem/fragalysis-backend master branch
 
 Get rid of old docker images. You may prune all (BEWARE) images from docker by using command.
@@ -210,12 +169,53 @@ Get rid of old docker images. You may prune all (BEWARE) images from docker by u
 docker system prune -a
 ```
 
-Rebuild loader image:
+if you are running out of space then you can run
 
 ```
-pushd dls-fragalysis-stack-openshift/images/loader || exit
-docker build . -f Dockerfile-local -t loader:latest
-popd || exit
+docker system prune --volumes
 ```
+
+which will physically purge containers
 
 And then run docker-compose as usual.
+
+# How to debug remote stack
+
+Navigate to /js/components/routes/constants.js and change value of
+
+```js
+isRemoteDebugging;
+```
+
+to true.
+
+Then pick the stack from the list
+
+```js
+export const base_url = window.location.protocol + '//' + window.location.host; //url for local developement
+// export const base_url = 'https://fragalysis-tibor-default.xchem-dev.diamond.ac.uk'; //url for debugging on main dev pod
+//export const base_url = 'https://fragalysis-boris-default.xchem-dev.diamond.ac.uk'; //url for debugging on secondary dev pod
+//export const base_url = 'https://fragalysis.xchem.diamond.ac.uk'; //url for debugging staging
+// export const base_url = 'https://fragalysis.diamond.ac.uk'; //url for debugging production
+```
+
+Uncomment that line and comment out the line
+
+```js
+export const base_url = window.location.protocol + '//' + window.location.host; //url for local developement
+```
+
+which is used to for local development.
+
+To return back to debug local stack just revert above mentioned changes.
+
+## To debug jobs
+
+Currently it's not possible to fully debug the job execution but it's possible to debug parts of the process.
+You can debug file transfer and initial job request locally but the upload of the result file and job status
+doesn't work your IP address is not public so Squonk can't make the callback. This (refresh feature) has to be debugged remotely.
+
+Deploy given stack to one of the dev stacks execute job there, connect you local dev env to given remote stack,
+like described above, and you can debug refresh and initial download of the result file.
+
+But remember, you need to make it to the job table or project history (where refresh button is located) **before** the job is finished in squonk otherwise the result file will be downloaded during the intial load of the preview component, so you would not be able to debug refresh feature.

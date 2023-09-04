@@ -14,18 +14,26 @@ import {
   setNglClipDistAction,
   setNglFogNearAction,
   setNglFogFarAction,
-  setNglOrientationByInteraction
+  setIsoLevelAction,
+  setBoxSizeAction,
+  setOpacityAction,
+  setContourAction,
+  setWarningIconAction,
+  setNglOrientationByInteraction,
+  setColorAction
 } from './actions';
 import { isEmpty, isEqual } from 'lodash';
 import { createRepresentationsArray } from '../../components/nglView/generatingObjects';
-import { OBJECT_TYPE, SELECTION_TYPE } from '../../components/nglView/constants';
+import { COMMON_PARAMS, DENSITY_MAPS, OBJECT_TYPE, SELECTION_TYPE } from '../../components/nglView/constants';
 import {
   removeFromComplexList,
   removeFromFragmentDisplayList,
   removeFromVectorOnList,
   removeFromProteinList,
   removeFromSurfaceList,
-  removeFromDensityList
+  removeFromDensityList,
+  removeFromDensityListCustom,
+  removeFromDensityListType
 } from '../selection/actions';
 import { nglObjectDictionary } from '../../components/nglView/renderingObjects';
 import { createInitialSnapshot } from '../../components/snapshot/redux/dispatchActions';
@@ -37,9 +45,12 @@ export const loadObject = ({
   stage,
   previousRepresentations,
   orientationMatrix,
-  markAsRightSideLigand
-}) => dispatch => {
+  markAsRightSideLigand,
+  loadQuality,
+  quality
+}) => async (dispatch, getState) => {
   if (stage) {
+    const state = getState();
     dispatch(incrementCountOfPendingNglObjects(target.display_div));
 
     const versionFixedTarget = JSON.parse(JSON.stringify(target));
@@ -47,6 +58,7 @@ export const loadObject = ({
       versionFixedTarget.OBJECT_TYPE = OBJECT_TYPE.HIT_PROTEIN;
     }
 
+    console.count(`Before object is loaded`);
     return nglObjectDictionary[versionFixedTarget.OBJECT_TYPE]({
       stage,
       input_dict: versionFixedTarget,
@@ -54,11 +66,28 @@ export const loadObject = ({
       representations: previousRepresentations,
       orientationMatrix,
       markAsRightSideLigand,
-      dispatch
+      loadQuality,
+      quality,
+      dispatch,
+      state
     })
       .then(representations => {
-         dispatch(loadNglObject(versionFixedTarget, representations))
-        })
+        console.count(`Object loaded`);
+        if (representations && representations.length > 0) {
+          if (versionFixedTarget.OBJECT_TYPE === OBJECT_TYPE.DENSITY) {
+            representations.forEach(repr => {
+              let newTarget = Object.assign({
+                ...versionFixedTarget,
+                name: repr.name,
+                defaultName: versionFixedTarget.name
+              });
+              dispatch(loadNglObject(newTarget, repr.repr));
+            });
+          } else {
+            dispatch(loadNglObject(versionFixedTarget, representations));
+          }
+        }
+      })
       .catch(error => {
         console.error(error);
       })
@@ -68,34 +97,54 @@ export const loadObject = ({
 };
 
 export const deleteObject = (target, stage, deleteFromSelections) => dispatch => {
-  const comps = stage.getComponentsByName(target.name);
-  comps.list.forEach(component => stage.removeComponent(component));
+  if (stage && target) {
+    const comps = stage.getComponentsByName(target.name);
+    comps.list.forEach(component => stage.removeComponent(component));
 
-  if (deleteFromSelections === true && target && target.selectionType && target.moleculeId) {
-    const objectId = { id: target.moleculeId };
-    switch (target.selectionType) {
-      case SELECTION_TYPE.LIGAND:
-        dispatch(removeFromFragmentDisplayList(objectId));
-        break;
-      case SELECTION_TYPE.HIT_PROTEIN:
-        dispatch(removeFromProteinList(objectId));
-        break;
-      case SELECTION_TYPE.COMPLEX:
-        dispatch(removeFromComplexList(objectId));
-        break;
-      case SELECTION_TYPE.SURFACE:
-        dispatch(removeFromSurfaceList(objectId));
-        break;
-      case SELECTION_TYPE.DENSITY:
-        dispatch(removeFromDensityList(objectId));
-        break;
-      case SELECTION_TYPE.VECTOR:
-        dispatch(removeFromVectorOnList(objectId));
-        break;
+    if (deleteFromSelections === true && target && target.selectionType && target.moleculeId) {
+      const objectId = { id: target.moleculeId };
+      switch (target.selectionType) {
+        case SELECTION_TYPE.LIGAND:
+          dispatch(removeFromFragmentDisplayList(objectId));
+          break;
+        case SELECTION_TYPE.HIT_PROTEIN:
+          dispatch(removeFromProteinList(objectId));
+          break;
+        case SELECTION_TYPE.COMPLEX:
+          dispatch(removeFromComplexList(objectId));
+          break;
+        case SELECTION_TYPE.SURFACE:
+          dispatch(removeFromSurfaceList(objectId));
+          break;
+        case SELECTION_TYPE.DENSITY:
+          dispatch(removeFromDensityList(objectId));
+          dispatch(removeFromDensityListCustom(objectId, true));
+          dispatch(removeFromDensityListType({ id: objectId }));
+          break;
+        case SELECTION_TYPE.VECTOR:
+          dispatch(removeFromVectorOnList(objectId));
+          break;
+      }
     }
-  }
 
-  dispatch(deleteNglObject(target));
+    dispatch(deleteNglObject(target));
+  }
+};
+
+export const checkRemoveFromDensityList = (target, objectsInView) => () => {
+  let name = target.defaultName;
+  let targetName = target.name;
+
+  let targetNameDiff = name + DENSITY_MAPS.DIFF;
+  let targetNameSigma = name + DENSITY_MAPS.SIGMAA;
+
+  let existOtherMap =
+    (targetName !== targetNameDiff && objectsInView[targetNameDiff] !== undefined) ||
+    (targetName !== targetNameSigma && objectsInView[targetNameSigma] !== undefined) ||
+    (targetName !== name && objectsInView[name] !== undefined);
+
+  let canRemove = !existOtherMap;
+  return canRemove;
 };
 
 export const decrementCountOfRemainingMoleculeGroupsWithSavingDefaultState = (projectId, summaryView) => (
@@ -140,8 +189,13 @@ export const setOrientationByInteraction = (div_id, orientation) => (dispatch, g
 export const centerOnLigandByMoleculeID = (stage, moleculeID) => (dispatch, getState) => {
   if (moleculeID && stage) {
     const state = getState();
-    const storedOrientation = state.nglReducers.moleculeOrientations[moleculeID];
-    stage.viewerControls.orient(storedOrientation);
+    const skipOrientation = state.trackingReducers.skipOrientationChange;
+    if (!skipOrientation) {
+      const storedOrientation = state.nglReducers.moleculeOrientations[moleculeID];
+      console.count(`Before applying orientation centerOnLigandByMoleculeID`);
+      stage.viewerControls.orient(storedOrientation);
+      console.count(`After applying orientation centerOnLigandByMoleculeID`);
+    }
   }
 };
 
@@ -181,28 +235,34 @@ export const reloadNglViewFromSnapshot = (stage, display_div, snapshot) => (disp
         dispatch(setNglViewParams(param, snapshot.viewParams[param], stage, VIEWS.MAJOR_VIEW));
       });
 
+      const state = getState();
+      const skipOrientation = state.trackingReducers.skipOrientationChange;
       // nglOrientations
-      const newOrientation = snapshot.nglOrientations[display_div];
-      if (newOrientation) {
-        stage.viewerControls.orient(newOrientation.elements);
-      }
+      if (!skipOrientation) {
+        const newOrientation = snapshot.nglOrientations[display_div];
+        console.count(`Orientation retrieved reloadNglViewFromSnapshot`);
+        if (newOrientation) {
+          console.count(`Before applying orientation reloadNglViewFromSnapshot`);
+          stage.viewerControls.orient(newOrientation.elements);
+          console.count(`After applying orientation reloadNglViewFromSnapshot`);
+        }
 
-      // set molecule orientations
-      if (snapshot.moleculeOrientations) {
-        dispatch(setMoleculeOrientations(snapshot.moleculeOrientations));
+        // set molecule orientations
+        if (snapshot.moleculeOrientations) {
+          dispatch(setMoleculeOrientations(snapshot.moleculeOrientations));
+        }
       }
     }
   });
 };
 
-export const setNglBckGrndColor = (color, major, summary) => (dispatch, getState) => {
+export const setNglBckGrndColor = (color, major) => (dispatch, getState) => {
   dispatch(setNglViewParams(NGL_PARAMS.backgroundColor, color, major, VIEWS.MAJOR_VIEW));
-  dispatch(setNglViewParams(NGL_PARAMS.backgroundColor, color, summary, VIEWS.SUMMARY_VIEW));
   dispatch(setBackgroundColor(color));
 };
 
 export const setNglClipNear = (newValue, oldValue, major) => (dispatch, getState) => {
-  dispatch(setNglViewParams(NGL_PARAMS.clipNear, newValue, major, VIEWS.MAJOR_VIEW));  
+  dispatch(setNglViewParams(NGL_PARAMS.clipNear, newValue, major, VIEWS.MAJOR_VIEW));
   dispatch(setNglClipNearAction(newValue, oldValue));
 };
 
@@ -226,8 +286,74 @@ export const setNglFogFar = (newValue, oldValue, major) => (dispatch, getState) 
   dispatch(setNglFogFarAction(newValue, oldValue));
 };
 
+export const setIsoLevel = (mapType, newValue, oldValue, major) => (dispatch, getState) => {
+  dispatch(updateDensityMapByType(mapType, major, 'isolevel', newValue));
+  dispatch(setNglViewParams(NGL_PARAMS[`isolevel${mapType}`], newValue, major, VIEWS.MAJOR_VIEW));
+  dispatch(setIsoLevelAction(mapType, newValue, oldValue));
+};
+
+export const setBoxSize = (mapType, newValue, oldValue, major) => (dispatch, getState) => {
+  dispatch(updateDensityMapByType(mapType, major, 'boxSize', newValue));
+  dispatch(setNglViewParams(NGL_PARAMS[`boxSize${mapType}`], newValue, major, VIEWS.MAJOR_VIEW));
+  dispatch(setBoxSizeAction(mapType, newValue, oldValue));
+};
+
+export const setOpacity = (mapType, newValue, oldValue, major) => (dispatch, getState) => {
+  dispatch(updateDensityMapByType(mapType, major, 'opacity', newValue));
+  dispatch(setNglViewParams(NGL_PARAMS[`opacity${mapType}`], newValue, major, VIEWS.MAJOR_VIEW));
+  dispatch(setOpacityAction(mapType, newValue, oldValue));
+};
+
+export const setContour = (mapType, newValue, oldValue, major) => (dispatch, getState) => {
+  dispatch(updateDensityMapByType(mapType, major, 'contour', newValue));
+  dispatch(setNglViewParams(NGL_PARAMS[`contour${mapType}`], newValue, major, VIEWS.MAJOR_VIEW));
+  dispatch(setContourAction(mapType, newValue, oldValue));
+};
+
+export const setElectronDesityMapColor = (mapType, newValue, oldValue, major) => (dispatch, getState) => {
+  dispatch(updateDensityMapByType(mapType, major, 'color', newValue));
+  dispatch(setNglViewParams(NGL_PARAMS[`color${mapType}`], newValue, major, VIEWS.MAJOR_VIEW));
+  dispatch(setColorAction(mapType, newValue, oldValue));
+};
+
+export const setWarningIcon = (newValue, oldValue, skipTracking) => (dispatch, getState) => {
+  dispatch(setNglViewParams(COMMON_PARAMS.warningIcon, newValue));
+  dispatch(setWarningIconAction(newValue, oldValue, skipTracking));
+};
+
+const updateDensityMapByType = (type, stage, key, newValue) => (dispatch, getState) => {
+  if (stage) {
+    let filteredComps = stage.compList.filter(a => a.name.endsWith(type));
+    let reprList = filteredComps.flatMap(a => a.reprList.filter(a => a.repr.type === 'surface'));
+    reprList.forEach(r => {
+      r.setParameters({ [key]: newValue });
+    });
+  }
+};
+
+export const isDensityMapVisible = (type, stage) => {
+  let result = false;
+  if (stage) {
+    const filteredComps = stage.compList.filter(a => a.name.endsWith(type));
+    if (filteredComps && filteredComps.length > 0) {
+      const reprList = filteredComps.flatMap(a => a.reprList.filter(a => a.repr.type === 'surface'));
+      if (reprList && reprList.length > 0) {
+        result = true;
+      }
+    }
+  }
+  return result;
+};
+
 export const restoreNglOrientation = (orientation, oldOrientation, div_id, stages) => (dispatch, getState) => {
-  const view = stages.find(view => view.id === div_id);
-  view.stage.viewerControls.orient(orientation);
-  dispatch(setNglOrientationByInteraction(orientation, oldOrientation, div_id));
-}
+  const state = getState();
+  const skipOrientation = state.trackingReducers.skipOrientationChange;
+
+  if (!skipOrientation) {
+    const view = stages.find(view => view.id === div_id);
+    console.count(`Before restoring orientation - restoreNglOrientation`);
+    view.stage.viewerControls.orient(orientation);
+    console.count(`After restoring orientation - restoreNglOrientation`);
+    dispatch(setNglOrientationByInteraction(orientation, oldOrientation, div_id));
+  }
+};

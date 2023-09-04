@@ -3,6 +3,7 @@
  */
 import { constants } from './constants';
 import { savingStateConst } from '../../components/snapshot/constants';
+import { tags } from '../../components/preview/tags/redux/tempData';
 
 export const INITIAL_STATE = {
   project_id: undefined,
@@ -11,8 +12,9 @@ export const INITIAL_STATE = {
   mol_group_list: [],
   molecule_list: [],
   cached_mol_lists: {},
-  all_mol_lists: {},
+  all_mol_lists: [],
   allMolecules: [],
+  moleculeTags: [],
   duck_yank_data: {},
   pandda_event_on: undefined,
   pandda_site_on: undefined,
@@ -39,14 +41,22 @@ export const INITIAL_STATE = {
   user_id: undefined,
   direct_access: {},
   direct_access_processed: false,
-  open_discourse_error_modal: false
+  open_discourse_error_modal: false,
+  noTagsReceived: true,
+  downloadTags: [],
+  directDownloadInProgress: false,
+  snapshotDownloadUrl: null,
+  tagList: [],
+  categoryList: [],
+  target_data_loading_in_progress: false,
+  all_data_loaded: false
 };
 
 export const RESET_TARGET_STATE = {
   mol_group_list: [],
   molecule_list: [],
   cached_mol_lists: {},
-  all_mol_lists: {},
+  all_mol_lists: [],
   duck_yank_data: {},
   pandda_event_on: undefined,
   pandda_site_on: undefined,
@@ -72,8 +82,14 @@ export const RESET_TARGET_STATE = {
   sessionTitle: undefined,
   user_id: undefined,
   direct_access: {},
-  open_discourse_error_modal: false
+  open_discourse_error_modal: false,
   // direct_access_processed: false
+  downloadTags: [],
+  directDownloadInProgress: false,
+  snapshotDownloadUrl: null,
+  tagList: [],
+  target_data_loading_in_progress: false,
+  all_data_loaded: false
 };
 
 export default function apiReducers(state = INITIAL_STATE, action = {}) {
@@ -118,11 +134,41 @@ export default function apiReducers(state = INITIAL_STATE, action = {}) {
         cached_mol_lists: action.cached_mol_lists
       });
 
+    case constants.SET_TARGET_DATA_LOADING_IN_PROGRESS:
+      return { ...state, target_data_loading_in_progress: action.targetDataLoadingInProgress };
+
+    case constants.SET_ALL_DATA_LOADED:
+      return { ...state, all_data_loaded: action.allDataLoaded };
+
+    case constants.SET_MOLECULE_TAGS:
+      return { ...state, moleculeTags: [...action.moleculeTags] };
+
+    case constants.APPEND_MOLECULE_TAG:
+      state.moleculeTags.push(action.moleculeTag);
+      return { ...state };
+
+    case constants.UPDATE_MOLECULE_TAG:
+      let newMolTagsList = [...state.moleculeTags];
+      const indexOfTag = newMolTagsList.findIndex(t => t.id === action.tag.id);
+      if (indexOfTag >= 0) {
+        newMolTagsList[indexOfTag] = { ...action.tag };
+        return { ...state, moleculeTags: newMolTagsList };
+      } else {
+        return state;
+      }
+
     case constants.SET_ALL_MOL_LISTS:
       return { ...state, all_mol_lists: action.all_mol_lists };
 
-    case constants.SET_ALL_MOLECULES:
-      return { ...state, allMolecules: action.allMolecules };
+    case constants.UPDATE_MOL_IN_ALL_MOL_LISTS:
+      let newList = [...state.all_mol_lists];
+      const indexOfMol = newList.findIndex(m => m.id === action.mol.id);
+      if (indexOfMol >= 0) {
+        newList[indexOfMol] = { ...action.mol };
+        return { ...state, all_mol_lists: newList };
+      } else {
+        return state;
+      }
 
     case constants.SET_PANNDA_EVENT_LIST:
       return Object.assign({}, state, {
@@ -169,6 +215,9 @@ export default function apiReducers(state = INITIAL_STATE, action = {}) {
         latestSession: action.latestSession
       });
 
+    case constants.SET_NO_TAGS_RECEIVED:
+      return { ...state, noTagsReceived: action.noTagsReceived };
+
     case constants.SET_SESSION_TITLE:
       return Object.assign({}, state, {
         sessionTitle: action.sessionTitle
@@ -184,6 +233,16 @@ export default function apiReducers(state = INITIAL_STATE, action = {}) {
 
     case constants.SET_DIRECT_ACCESS_PROCESSED:
       return { ...state, direct_access_processed: action.direct_access_processed };
+
+    case constants.SET_DOWNLOAD_TAGS:
+      return { ...state, downloadTags: [...action.downloadTags] };
+
+    case constants.APPEND_TO_DOWNLOAD_TAGS:
+      if (!state.downloadTags.find(dt => action.tag.tag)) {
+        return { ...state, downloadTags: [...state.downloadTags, action.tag] };
+      } else {
+        return state;
+      }
 
     case constants.SET_SESSION_ID_LIST:
       let sessionSummaryNew = [];
@@ -230,6 +289,12 @@ export default function apiReducers(state = INITIAL_STATE, action = {}) {
         uuid: action.uuid
       });
 
+    case constants.SET_DIRECT_DOWNLOAD_IN_PROGRESS:
+      return { ...state, directDownloadInProgress: action.directDownloadInProgress };
+
+    case constants.SET_SNAPSHOT_DOWNLOAD_URL:
+      return { ...state, snapshotDownloadUrl: action.snapshotDownloadUrl };
+
     case constants.RELOAD_API_STATE:
       return Object.assign({}, state, {
         project_id: action.project_id,
@@ -254,6 +319,43 @@ export default function apiReducers(state = INITIAL_STATE, action = {}) {
         direct_access: action.direct_access
         // direct_access_processed: action.direct_access_processed
       });
+
+    case constants.SET_TAG_LIST:
+      let newTagList = new Set();
+      action.tagList.forEach(f => {
+        newTagList.add(f);
+      });
+      return Object.assign({}, state, { tagList: [...newTagList] });
+
+    case constants.UPDATE_TAG:
+      let listWithUpdatedTag = [...state.tagList];
+      let foundTags = listWithUpdatedTag.filter(t => t.id === action.item.id);
+      if (foundTags && foundTags.length > 0) {
+        let foundTag = foundTags[0];
+        foundTag.tag = action.item.tag;
+        foundTag.colour = action.item.colour;
+        foundTag.category_id = action.item.category_id;
+        foundTag.discourse_url = action.item.discourse_url;
+
+        return { ...state, tagList: [...listWithUpdatedTag] };
+      } else {
+        return state;
+      }
+
+    case constants.APPEND_TAG_LIST:
+      return Object.assign({}, state, { tagList: [...new Set([...state.tagList, action.item])] });
+
+    case constants.REMOVE_FROM_TAG_LIST:
+      let diminishedTagList = new Set(state.tagList);
+      diminishedTagList.delete(action.item);
+      return Object.assign({}, state, { tagList: [...diminishedTagList] });
+
+    case constants.SET_CATEGORY_LIST:
+      let newCategoryList = new Set();
+      action.categoryList.forEach(f => {
+        newCategoryList.add(f);
+      });
+      return Object.assign({}, state, { categoryList: [...newCategoryList] });
 
     case constants.RESET_TARGET_STATE:
       return Object.assign({}, state, RESET_TARGET_STATE);

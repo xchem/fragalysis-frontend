@@ -32,7 +32,8 @@ const useStyles = makeStyles(theme => ({
     marginTop: 49
   },
   headerTitle: {
-    padding: theme.spacing(1)
+    padding: theme.spacing(1),
+    minWidth: 0
   }
 }));
 

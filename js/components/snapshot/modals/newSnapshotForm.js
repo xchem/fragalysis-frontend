@@ -14,6 +14,7 @@ import { isDiscourseAvailable, isDiscourseUserAvailable } from '../../../utils/d
 import { RegisterNotice } from '../../discourse/RegisterNotice';
 
 import moment from 'moment';
+import { VIEWS } from '../../../constants/constants';
 
 const useStyles = makeStyles(theme => ({
   body: {
@@ -40,7 +41,8 @@ export const NewSnapshotForm = memo(({ handleCloseModal }) => {
   const classes = useStyles();
   const [state, setState] = useState();
   const dispatch = useDispatch();
-  const { nglViewList } = useContext(NglContext);
+  const { nglViewList, getNglView } = useContext(NglContext);
+  const stage = getNglView(VIEWS.MAJOR_VIEW) && getNglView(VIEWS.MAJOR_VIEW).stage;
   const [overwriteSnapshot, setoverwriteSnapshot] = useState(false);
   let [createDiscourse, setCreateDiscourse] = useState(true);
 
@@ -67,7 +69,6 @@ export const NewSnapshotForm = memo(({ handleCloseModal }) => {
 
   return (
     <>
-      <Typography variant="h3">Snapshot details</Typography>
       <Formik
         initialValues={{
           title: moment().format('-- YYYY-MM-DD -- HH:mm:ss'),
@@ -102,6 +103,7 @@ export const NewSnapshotForm = memo(({ handleCloseModal }) => {
               parent,
               session_project,
               nglViewList,
+              stage,
               overwriteSnapshot,
               createDiscourse
             })

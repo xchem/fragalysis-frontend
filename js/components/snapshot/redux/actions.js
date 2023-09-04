@@ -1,7 +1,7 @@
 import { constants } from './constants';
 import { initSharedSnapshot } from './reducer';
 
-export const setOpenSnapshotSavingDialog = (isOpen = false) => ({
+export const setOpenSnapshotSavingDialog = (isOpen) => ({
   type: constants.SET_OPEN_SAVING_DIALOG,
   payload: isOpen
 });
@@ -46,12 +46,17 @@ export const setDisableRedirect = (disable = false) => ({
   payload: disable
 });
 
-export const setSnapshotJustSaved = (saved) => ({
+export const setSnapshotJustSaved = saved => ({
   type: constants.SET_SNAPSHOT_JUST_SAVED,
   payload: saved
 });
 
-export const setDontShowShareSnapshot = (dontShow) => ({
+export const setDontShowShareSnapshot = dontShow => ({
   type: constants.SET_DONT_SHOW_SHARE_SNAPSHOT,
   payload: dontShow
+});
+
+export const setDownloadStructuresDialogOpen = show => ({
+  type: constants.SET_DOWNLOAD_STRUCTURES_DIALOG_OPEN,
+  payload: show
 });

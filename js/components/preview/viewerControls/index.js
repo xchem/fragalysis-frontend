@@ -5,7 +5,7 @@
 import React, { memo, useState, useContext, useEffect, useCallback } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { Button } from '../../common/Inputs/Button';
-import { Settings, Mouse, PersonalVideo, Undo, Redo, Restore } from '@material-ui/icons';
+import { Settings, Mouse, PersonalVideo, Undo, Redo, Restore, Lock, LockOpen } from '@material-ui/icons';
 import { ButtonGroup, Grid, makeStyles, Tooltip } from '@material-ui/core';
 import { SettingControls } from './settingsControls';
 import DisplayControls from './displayControls/';
@@ -28,6 +28,7 @@ import {
 } from '../../../../js/reducers/nglTracking/dispatchActions';
 import { NglContext } from '../../nglView/nglProvider';
 import { nglTrackingRedo, nglTrackingUndo } from '../../../reducers/nglTracking/actions';
+import { turnSide } from './redux/actions';
 
 const drawers = {
   settings: 'settings',
@@ -38,16 +39,27 @@ const drawers = {
 const initDrawers = { [drawers.settings]: false, [drawers.display]: false, [drawers.mouse]: false };
 
 const useStyles = makeStyles(theme => ({
-  button: {
-    padding: theme.spacing(1)
+  root: {
+    display: 'flex',
+    justifyContent: 'space-between',
+    alignItems: 'flex-start',
+    gap: theme.spacing(),
+    overflow: 'hidden'
   },
-  buttonMargin: {
-    padding: theme.spacing(1),
-    marginLeft: theme.spacing(1)
+  button: {
+    padding: theme.spacing()
+  },
+  nglButtons: {
+    flexBasis: 0,
+    display: 'flex',
+    justifyContent: 'center',
+    flexWrap: 'nowrap',
+    gap: theme.spacing(),
+    position: 'relative'
   }
 }));
 
-export const ViewerControls = memo(({}) => {
+export const ViewerControls = memo(() => {
   const [drawerSettings, setDrawerSettings] = useState(JSON.parse(JSON.stringify(initDrawers)));
   const classes = useStyles();
   const dispatch = useDispatch();
@@ -58,12 +70,15 @@ export const ViewerControls = memo(({}) => {
   const [canRedo, setCanRedo] = useState(false);
   const [nglUndoTooltip, nglSetUndoTooltip] = useState('Undo');
   const [nglRedoTooltip, nglSetRedoTooltip] = useState('Redo');
+  const [nglLocked, setNglLocked] = useState(true);
   const isActionTracking = useSelector(state => state.trackingReducers.isActionTracking);
 
   const nglUndoLength = useSelector(state => state.undoableNglTrackingReducers.past).length;
   const nglRedoLength = useSelector(state => state.undoableNglTrackingReducers.future).length;
   const nglCanUndo = nglUndoLength > 0;
   const nglCanRedo = nglRedoLength > 0;
+
+  const sidesOpen = useSelector(state => state.previewReducers.viewerControls.sidesOpen);
 
   useEffect(() => {
     nglSetUndoTooltip(dispatch(nglGetUndoActionText()));
@@ -136,8 +151,20 @@ export const ViewerControls = memo(({}) => {
 
   return (
     <>
-      <Grid container justify="center">
-        <Grid item>
+      <div className={classes.root}>
+        <Tooltip title={sidesOpen.LHS ? 'Close left hand side' : 'Open left hand side'}>
+          <Button
+            variant={sidesOpen.LHS ? 'contained' : 'outlined'}
+            size="small"
+            color="primary"
+            onClick={() => dispatch(turnSide('LHS', !sidesOpen.LHS))}
+            className={classes.button}
+          >
+            LHS
+          </Button>
+        </Tooltip>
+
+        <div className={classes.nglButtons}>
           <ButtonGroup variant="contained" color="primary">
             <Tooltip title={nglUndoTooltip}>
               <Button
@@ -217,19 +244,30 @@ export const ViewerControls = memo(({}) => {
               </Button>
             </Tooltip>
           </ButtonGroup>
-        </Grid>
 
-        <Tooltip title="Restore ngl view settings">
+          <Tooltip title="Restore NGL view settings">
+            <Button
+              color="primary"
+              onClick={() => dispatch(restoreNglViewSettings(nglViewList))}
+              className={classes.button}
+            >
+              <Restore />
+            </Button>
+          </Tooltip>
+        </div>
+
+        <Tooltip title={sidesOpen.RHS ? 'Close right hand side' : 'Open right hand side'}>
           <Button
+            variant={sidesOpen.RHS ? 'contained' : 'outlined'}
+            size="small"
             color="primary"
-            onClick={() => dispatch(restoreNglViewSettings(nglViewList))}
-            startIcon={<Restore />}
-            className={classes.buttonMargin}
+            onClick={() => dispatch(turnSide('RHS', !sidesOpen.RHS))}
+            className={classes.button}
           >
-            Restore clip/slab/centre
+            RHS
           </Button>
         </Tooltip>
-      </Grid>
+      </div>
       <SettingControls open={drawerSettings[drawers.settings]} onClose={closeAllDrawers} />
       <DisplayControls open={drawerSettings[drawers.display]} onClose={closeAllDrawers} />
       <MouseControls open={drawerSettings[drawers.mouse]} onClose={closeAllDrawers} />

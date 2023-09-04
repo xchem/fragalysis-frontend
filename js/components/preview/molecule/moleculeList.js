@@ -9,17 +9,13 @@ import {
   CircularProgress,
   Divider,
   Typography,
-  FormControl,
-  Select,
-  MenuItem,
-  TextField,
-  InputAdornment,
   IconButton,
   ButtonGroup
 } from '@material-ui/core';
 import React, { useState, useEffect, useCallback, memo, useRef, useContext, useMemo } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import MoleculeView, { colourList } from './moleculeView';
+import MoleculeView from './moleculeView';
+import { colourList } from './utils/color';
 import { MoleculeListSortFilterDialog, filterMolecules, getAttrDefinition } from './moleculeListSortFilterDialog';
 import InfiniteScroll from 'react-infinite-scroller';
 import { Button } from '../../common/Inputs/Button';
@@ -28,7 +24,6 @@ import { ComputeSize } from '../../../utils/computeSize';
 import { moleculeProperty } from './helperConstants';
 import { VIEWS } from '../../../constants/constants';
 import { NglContext } from '../../nglView/nglProvider';
-// import { useDisableUserInteraction } from '../../helpers/useEnableUserInteracion';
 import classNames from 'classnames';
 import {
   addVector,
@@ -43,32 +38,46 @@ import {
   removeDensity,
   addLigand,
   removeLigand,
-  hideAllSelectedMolecules,
   initializeMolecules,
   applyDirectSelection,
-  removeAllSelectedMolTypes
+  addQuality,
+  removeQuality,
+  withDisabledMoleculesNglControlButtons,
+  removeSelectedTypesInHitNavigator,
+  selectAllHits
 } from './redux/dispatchActions';
 import { DEFAULT_FILTER, PREDEFINED_FILTERS } from '../../../reducers/selection/constants';
-import { DeleteSweep, FilterList, Search } from '@material-ui/icons';
+import { Edit, FilterList } from '@material-ui/icons';
 import { selectAllMoleculeList, selectJoinedMoleculeList } from './redux/selectors';
-import { debounce } from 'lodash';
 import { MOL_ATTRIBUTES } from './redux/constants';
-import { setFilter } from '../../../reducers/selection/actions';
+import { setFilter, setMolListToEdit, setNextXMolecules } from '../../../reducers/selection/actions';
 import { initializeFilter } from '../../../reducers/selection/dispatchActions';
-import { getUrl, loadAllMolsFromMolGroup } from '../../../utils/genericList';
 import * as listType from '../../../constants/listTypes';
 import { useRouteMatch } from 'react-router-dom';
-import { setSortDialogOpen } from './redux/actions';
-import { setMoleculeList, setAllMolLists, setAllMolecules } from '../../../reducers/api/actions';
+import { setSortDialogOpen, setSearchStringOfHitNavigator } from './redux/actions';
 import { AlertModal } from '../../common/Modal/AlertModal';
-import { onSelectMoleculeGroup } from '../moleculeGroups/redux/dispatchActions';
-import { setSelectedAllByType, setDeselectedAllByType } from '../../../reducers/selection/actions';
+import {
+  setSelectedAllByType,
+  setDeselectedAllByType,
+  setTagEditorOpen,
+  setIsTagGlobalEdit
+} from '../../../reducers/selection/actions';
+import { TagEditor } from '../tags/modal/tagEditor';
+import { getMoleculeForId, selectTag } from '../tags/redux/dispatchActions';
+import SearchField from '../../common/Components/SearchField';
+import useDisableNglControlButtons from './useDisableNglControlButtons';
+import GroupNglControlButtonsContext from './groupNglControlButtonsContext';
+import { extractTargetFromURLParam } from '../utils';
 
 const useStyles = makeStyles(theme => ({
   container: {
+    minHeight: '100px',
     height: '100%',
     width: 'inherit',
     color: theme.palette.black
+  },
+  noOfSelectedHits: {
+    marginLeft: '5px'
   },
   gridItemHeader: {
     height: '32px',
@@ -84,7 +93,7 @@ const useStyles = makeStyles(theme => ({
   },
   gridItemList: {
     overflow: 'auto',
-    height: `calc(100% - ${theme.spacing(6)}px - ${theme.spacing(2)}px)`
+    height: `calc(99% - ${theme.spacing(6)}px - ${theme.spacing(2)}px)`
   },
   centered: {
     display: 'flex',
@@ -150,8 +159,8 @@ const useStyles = makeStyles(theme => ({
     borderColor: theme.palette.primary.main,
     backgroundColor: theme.palette.primary.light,
     '&:hover': {
-      backgroundColor: theme.palette.primary.main,
-      color: theme.palette.primary.contrastText
+      backgroundColor: theme.palette.primary.light
+      // color: theme.palette.primary.contrastText
     },
     '&:disabled': {
       borderRadius: 0,
@@ -162,16 +171,16 @@ const useStyles = makeStyles(theme => ({
     backgroundColor: theme.palette.primary.main,
     color: theme.palette.primary.contrastText,
     '&:hover': {
-      backgroundColor: theme.palette.primary.light,
-      color: theme.palette.black
+      backgroundColor: theme.palette.primary.main
+      // color: theme.palette.black
     }
   },
   contColButtonHalfSelected: {
     backgroundColor: theme.palette.primary.semidark,
     color: theme.palette.primary.contrastText,
     '&:hover': {
-      backgroundColor: theme.palette.primary.light,
-      color: theme.palette.black
+      backgroundColor: theme.palette.primary.semidark
+      //color: theme.palette.black
     }
   },
   formControl: {
@@ -197,17 +206,7 @@ const useStyles = makeStyles(theme => ({
     fill: 'inherit'
   },
   search: {
-    margin: theme.spacing(1),
-    width: 116,
-    '& .MuiInputBase-root': {
-      color: 'inherit'
-    },
-    '& .MuiInput-underline:before': {
-      borderBottomColor: 'inherit'
-    },
-    '& .MuiInput-underline:after': {
-      borderBottomColor: 'inherit'
-    }
+    width: 116
   },
   total: {
     ...theme.typography.button,
@@ -215,29 +214,35 @@ const useStyles = makeStyles(theme => ({
     fontStyle: 'italic'
   }
 }));
+let selectedDisplayHits = false;
 
-export const MoleculeList = memo(({ height, setFilterItemsHeight, filterItemsHeight, hideProjects }) => {
+export const MoleculeList = memo(({ hideProjects }) => {
   const classes = useStyles();
   const dispatch = useDispatch();
   let match = useRouteMatch();
-  let target = match && match.params && match.params.target;
+  // let target = match && match.params && match.params.target;
+  let target = match && match.params && extractTargetFromURLParam(match.params[0]);
 
-  const [nextXMolecules, setNextXMolecules] = useState(0);
+  const nextXMolecules = useSelector(state => state.selectionReducers.nextXMolecules);
+  const [selectAllHitsPressed, setSelectAllHitsPressed] = useState(false);
+  const [selectDisplayedHitsPressed, setSelectDisplayedHitsPressed] = useState(false);
   const moleculesPerPage = 5;
   const [currentPage, setCurrentPage] = useState(0);
-  const [searchString, setSearchString] = useState(null);
+  const searchString = useSelector(state => state.previewReducers.molecule.searchStringLHS);
+  // const [searchString, setSearchString] = useState(null);
   const [sortDialogAnchorEl, setSortDialogAnchorEl] = useState(null);
   const oldUrl = useRef('');
   const setOldUrl = url => {
     oldUrl.current = url;
   };
   const list_type = listType.MOLECULE;
-  const imgHeight = 34;
+  const imgHeight = 49;
   const imgWidth = 150;
   const sortDialogOpen = useSelector(state => state.previewReducers.molecule.sortDialogOpen);
   const filter = useSelector(state => state.selectionReducers.filter);
   const getJoinedMoleculeList = useSelector(state => selectJoinedMoleculeList(state));
-  const getAllMoleculeList = useSelector(state => selectAllMoleculeList(state));
+  const allMoleculesList = useSelector(state => selectAllMoleculeList(state));
+
   const selectedAll = useRef(false);
 
   const proteinList = useSelector(state => state.selectionReducers.proteinList);
@@ -245,22 +250,26 @@ export const MoleculeList = memo(({ height, setFilterItemsHeight, filterItemsHei
   const fragmentDisplayList = useSelector(state => state.selectionReducers.fragmentDisplayList);
   const surfaceList = useSelector(state => state.selectionReducers.surfaceList);
   const densityList = useSelector(state => state.selectionReducers.densityList);
+  const densityListCustom = useSelector(state => state.selectionReducers.densityListCustom);
+  const qualityList = useSelector(state => state.selectionReducers.qualityList);
   const vectorOnList = useSelector(state => state.selectionReducers.vectorOnList);
+  const informationList = useSelector(state => state.selectionReducers.informationList);
+  const isTagEditorOpen = useSelector(state => state.selectionReducers.tagEditorOpened);
+  const molForTagEditId = useSelector(state => state.selectionReducers.molForTagEdit);
+  const moleculesToEditIds = useSelector(state => state.selectionReducers.moleculesToEdit);
+  const isGlobalEdit = useSelector(state => state.selectionReducers.isGlobalEdit);
 
   const object_selection = useSelector(state => state.selectionReducers.mol_group_selection);
-  const firstLoad = useSelector(state => state.selectionReducers.firstLoad);
-  const target_on = useSelector(state => state.apiReducers.target_on);
-  const mol_group_on = useSelector(state => state.apiReducers.mol_group_on);
 
-  const allInspirationMoleculeDataList = useSelector(state => state.datasetsReducers.allInspirationMoleculeDataList);
-
-  const mol_group_list = useSelector(state => state.apiReducers.mol_group_list);
   const all_mol_lists = useSelector(state => state.apiReducers.all_mol_lists);
   const directDisplay = useSelector(state => state.apiReducers.direct_access);
   const directAccessProcessed = useSelector(state => state.apiReducers.direct_access_processed);
-  const isTrackingRestoring = useSelector(state => state.trackingReducers.isTrackingMoleculesRestoring);
+  const tags = useSelector(state => state.apiReducers.tagList);
+  const noTagsReceived = useSelector(state => state.apiReducers.noTagsReceived);
+  const categories = useSelector(state => state.apiReducers.categoryList);
 
   const proteinsHasLoaded = useSelector(state => state.nglReducers.proteinsHasLoaded);
+  const currentActionList = useSelector(state => state.trackingReducers.current_actions_list);
 
   const [predefinedFilter, setPredefinedFilter] = useState(filter !== undefined ? filter.predefined : DEFAULT_FILTER);
 
@@ -268,83 +277,119 @@ export const MoleculeList = memo(({ height, setFilterItemsHeight, filterItemsHei
 
   const { getNglView } = useContext(NglContext);
   const majorViewStage = getNglView(VIEWS.MAJOR_VIEW) && getNglView(VIEWS.MAJOR_VIEW).stage;
-  const stageSummaryView = getNglView(VIEWS.SUMMARY_VIEW) && getNglView(VIEWS.SUMMARY_VIEW).stage;
 
   const filterRef = useRef();
-
-  // const disableUserInteraction = useDisableUserInteraction();
+  const tagEditorRef = useRef();
+  const [tagEditorAnchorEl, setTagEditorAnchorEl] = useState(null);
 
   if (directDisplay && directDisplay.target) {
     target = directDisplay.target;
   }
 
-  // TODO Reset Infinity scroll
+  let selectedMolecule = [];
+  // TODO: Reset Infinity scroll
   /*useEffect(() => {
       // setCurrentPage(0);
     }, [object_selection]);*/
 
   let joinedMoleculeLists = useMemo(() => {
+    // const searchedString = currentActionList.find(action => action.type === 'SEARCH_STRING_HIT_NAVIGATOR');
     if (searchString) {
-      return getAllMoleculeList.filter(molecule =>
+      return allMoleculesList.filter(molecule =>
         molecule.protein_code.toLowerCase().includes(searchString.toLowerCase())
       );
+      // } else if (searchedString) {
+      //   return getJoinedMoleculeList.filter(molecule =>
+      //     molecule.protein_code.toLowerCase().includes(searchedString.searchStringHitNavigator.toLowerCase())
+      //   );
     } else {
       return getJoinedMoleculeList;
     }
-  }, [getJoinedMoleculeList, getAllMoleculeList, searchString]);
+  }, [getJoinedMoleculeList, allMoleculesList, searchString]);
 
   const addSelectedMoleculesFromUnselectedSites = useCallback(
     (joinedMoleculeLists, list) => {
-      const result = [...joinedMoleculeLists];
+      const addedMols = [...joinedMoleculeLists];
+      const onlyAlreadySelected = [];
       list?.forEach(moleculeID => {
-        const foundJoinedMolecule = result.find(mol => mol.id === moleculeID);
+        const foundJoinedMolecule = addedMols.find(mol => mol.id === moleculeID);
         if (!foundJoinedMolecule) {
-          const molecule = getAllMoleculeList.find(mol => mol.id === moleculeID);
+          const molecule = allMoleculesList.find(mol => mol.id === moleculeID);
           if (molecule) {
-            result.push(molecule);
+            addedMols.push(molecule);
+            onlyAlreadySelected.push(molecule);
           }
         }
       });
 
+      const result = [...onlyAlreadySelected, ...joinedMoleculeLists];
       return result;
     },
-    [getAllMoleculeList]
+    [allMoleculesList]
   );
 
+  //the dependencies which are marked by compiler as unnecessary are actually necessary because without them the memo returns
+  //old joinedMoleculeLists in situation where we want to preserve molecule in view which shouldn't be there
+  //but want to remove it after the tag editor dialog is closed
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   joinedMoleculeLists = useMemo(() => addSelectedMoleculesFromUnselectedSites(joinedMoleculeLists, proteinList), [
     addSelectedMoleculesFromUnselectedSites,
     joinedMoleculeLists,
-    proteinList
+    proteinList,
+    molForTagEditId,
+    isTagEditorOpen,
+    moleculesToEditIds
   ]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   joinedMoleculeLists = useMemo(() => addSelectedMoleculesFromUnselectedSites(joinedMoleculeLists, complexList), [
     addSelectedMoleculesFromUnselectedSites,
     joinedMoleculeLists,
-    complexList
+    complexList,
+    molForTagEditId,
+    isTagEditorOpen,
+    moleculesToEditIds
   ]);
   joinedMoleculeLists = useMemo(
     () => addSelectedMoleculesFromUnselectedSites(joinedMoleculeLists, fragmentDisplayList),
-    [addSelectedMoleculesFromUnselectedSites, joinedMoleculeLists, fragmentDisplayList]
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [
+      addSelectedMoleculesFromUnselectedSites,
+      joinedMoleculeLists,
+      fragmentDisplayList,
+      molForTagEditId,
+      isTagEditorOpen,
+      moleculesToEditIds
+    ]
   );
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   joinedMoleculeLists = useMemo(() => addSelectedMoleculesFromUnselectedSites(joinedMoleculeLists, surfaceList), [
     addSelectedMoleculesFromUnselectedSites,
     joinedMoleculeLists,
-    surfaceList
+    surfaceList,
+    molForTagEditId,
+    isTagEditorOpen,
+    moleculesToEditIds
   ]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   joinedMoleculeLists = useMemo(() => addSelectedMoleculesFromUnselectedSites(joinedMoleculeLists, densityList), [
     addSelectedMoleculesFromUnselectedSites,
     joinedMoleculeLists,
-    densityList
+    densityList,
+    molForTagEditId,
+    isTagEditorOpen,
+    moleculesToEditIds
   ]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   joinedMoleculeLists = useMemo(() => addSelectedMoleculesFromUnselectedSites(joinedMoleculeLists, vectorOnList), [
     addSelectedMoleculesFromUnselectedSites,
     joinedMoleculeLists,
-    vectorOnList
+    vectorOnList,
+    molForTagEditId,
+    isTagEditorOpen,
+    moleculesToEditIds
   ]);
 
-  if (!isActiveFilter) {
-    // default sort is by site
-    joinedMoleculeLists.sort((a, b) => a.site - b.site || a.number - b.number);
-  } else {
+  if (isActiveFilter) {
     joinedMoleculeLists = filterMolecules(joinedMoleculeLists, filter);
   }
 
@@ -352,122 +397,105 @@ export const MoleculeList = memo(({ height, setFilterItemsHeight, filterItemsHei
     setCurrentPage(currentPage + 1);
   };
 
+  if (molForTagEditId && !joinedMoleculeLists.some(m => m.id === molForTagEditId)) {
+    const tagEditMol = dispatch(getMoleculeForId(molForTagEditId));
+    if (tagEditMol) {
+      // joinedMoleculeLists = [tagEditMol, ...joinedMoleculeLists];
+      joinedMoleculeLists.push(tagEditMol);
+      joinedMoleculeLists.sort((a, b) => {
+        if (a.protein_code < b.protein_code) {
+          return -1;
+        }
+        if (a.protein_code > b.protein_code) {
+          return 1;
+        }
+        return 0;
+      });
+    }
+  }
+
+  if (moleculesToEditIds && moleculesToEditIds.length > 0 && isGlobalEdit) {
+    moleculesToEditIds.forEach(mid => {
+      if (!joinedMoleculeLists.some(m => m.id === mid)) {
+        const tagEditMol = dispatch(getMoleculeForId(mid));
+        if (tagEditMol) {
+          joinedMoleculeLists.push(tagEditMol);
+        }
+      }
+    });
+    joinedMoleculeLists.sort((a, b) => {
+      if (a.protein_code < b.protein_code) {
+        return -1;
+      }
+      if (a.protein_code > b.protein_code) {
+        return 1;
+      }
+      return 0;
+    });
+  }
+
   const listItemOffset = (currentPage + 1) * moleculesPerPage + nextXMolecules;
-  const currentMolecules = joinedMoleculeLists.slice(0, listItemOffset);
   const canLoadMore = listItemOffset < joinedMoleculeLists.length;
 
   const wereMoleculesInitialized = useRef(false);
-  const firstInitializationMolecule = useRef(null);
-
-  let first = joinedMoleculeLists && joinedMoleculeLists[0];
-  if (wereMoleculesInitialized.current === false && first) {
-    firstInitializationMolecule.current = first;
-  }
-
-  const loadAllMolecules = useCallback(() => {
-    if (
-      (proteinsHasLoaded === true || proteinsHasLoaded === null) &&
-      target_on &&
-      mol_group_list &&
-      mol_group_list.length > 0 &&
-      Object.keys(all_mol_lists).length <= 0 &&
-      isTrackingRestoring === false
-    ) {
-      let promises = [];
-      mol_group_list.forEach(molGroup => {
-        let id = molGroup.id;
-        let url = getUrl({ list_type, target_on, mol_group_on: id });
-        promises.push(
-          loadAllMolsFromMolGroup({
-            url,
-            mol_group: id
-          })
-        );
-      });
-      Promise.all(promises)
-        .then(results => {
-          let listToSet = {};
-          let allMolecules = [];
-          results.forEach(molResult => {
-            listToSet[molResult.mol_group] = molResult.molecules;
-            allMolecules.push(...molResult.molecules);
-          });
-          dispatch(setAllMolLists(listToSet));
-          dispatch(setAllMolecules(allMolecules));
-        })
-        .catch(err => console.log(err));
-    }
-  }, [proteinsHasLoaded, mol_group_list, list_type, target_on, dispatch, all_mol_lists, isTrackingRestoring]);
 
   useEffect(() => {
-    loadAllMolecules();
-  }, [proteinsHasLoaded, target_on, mol_group_list, loadAllMolecules]);
-
-  const getMolGroupNameToId = useCallback(() => {
-    const molGroupMap = {};
-    if (mol_group_list && mol_group_list.length > 0) {
-      mol_group_list.forEach(mg => {
-        molGroupMap[mg.description] = mg.id;
-      });
-      return molGroupMap;
-    }
-  }, [mol_group_list]);
-
-  useEffect(() => {
-    const allMolsGroupsCount = Object.keys(all_mol_lists || {}).length;
-    if ((proteinsHasLoaded === true || proteinsHasLoaded === null) && allMolsGroupsCount > 0) {
-      dispatch(setMoleculeList({ ...(all_mol_lists[mol_group_on] || []) }));
+    if ((proteinsHasLoaded === true || proteinsHasLoaded === null) && all_mol_lists.length > 0) {
       if (!directAccessProcessed && directDisplay && directDisplay.molecules && directDisplay.molecules.length > 0) {
-        dispatch(applyDirectSelection(majorViewStage, stageSummaryView));
+        dispatch(applyDirectSelection(majorViewStage));
         wereMoleculesInitialized.current = true;
       }
       if (
         majorViewStage &&
         all_mol_lists &&
-        all_mol_lists[mol_group_on] &&
         hideProjects &&
         target !== undefined &&
-        wereMoleculesInitialized.current === false
+        wereMoleculesInitialized.current === false &&
+        tags &&
+        tags.length > 0 &&
+        categories &&
+        categories.length > 0
       ) {
         dispatch(initializeFilter(object_selection, joinedMoleculeLists));
-        let moleculeList = all_mol_lists[mol_group_on];
-        dispatch(initializeMolecules(majorViewStage, moleculeList, firstInitializationMolecule.current));
+        dispatch(initializeMolecules(majorViewStage));
+        wereMoleculesInitialized.current = true;
+      }
+      if (
+        majorViewStage &&
+        all_mol_lists &&
+        target !== undefined &&
+        wereMoleculesInitialized.current === false &&
+        noTagsReceived
+      ) {
+        dispatch(initializeFilter(object_selection, joinedMoleculeLists));
+        dispatch(initializeMolecules(majorViewStage));
         wereMoleculesInitialized.current = true;
       }
     }
   }, [
     list_type,
-    mol_group_on,
     majorViewStage,
-    firstLoad,
-    target_on,
     dispatch,
     hideProjects,
     target,
     proteinsHasLoaded,
     joinedMoleculeLists,
     all_mol_lists,
-    loadAllMolecules,
-    getMolGroupNameToId,
     directDisplay,
     directAccessProcessed,
-    stageSummaryView,
-    object_selection
+    object_selection,
+    tags,
+    categories,
+    noTagsReceived
   ]);
-
-  useEffect(() => {
-    if (isActiveFilter === false) {
-      setFilterItemsHeight(0);
-    }
-  }, [isActiveFilter, setFilterItemsHeight]);
 
   const joinedMoleculeListsCopy = useMemo(() => [...joinedMoleculeLists], [joinedMoleculeLists]);
 
-  useEffect(() => {
-    if (!joinedMoleculeListsCopy.length) {
-      dispatch(setSortDialogOpen(false));
-    }
-  }, [dispatch, joinedMoleculeListsCopy.length]);
+  // useEffect(() => {
+  //   if (!joinedMoleculeListsCopy.length) {
+  //     dispatch(setSortDialogOpen(false));
+  //   }
+  // }, [dispatch, joinedMoleculeListsCopy.length]);
 
   const handleFilterChange = filter => {
     const filterSet = Object.assign({}, filter);
@@ -478,6 +506,127 @@ export const MoleculeList = memo(({ height, setFilterItemsHeight, filterItemsHei
     }
     dispatch(setFilter(filterSet));
   };
+
+  const allSelectedMolecules = useMemo(
+    () =>
+      allMoleculesList.filter(molecule => moleculesToEditIds.includes(molecule.id) || molecule.id === molForTagEditId),
+    [allMoleculesList, moleculesToEditIds, molForTagEditId]
+  );
+
+  let currentMolecules = joinedMoleculeLists.slice(0, listItemOffset);
+  if (
+    fragmentDisplayList.length === 0 &&
+    proteinList.length === 0 &&
+    complexList.length === 0 &&
+    surfaceList.length === 0 &&
+    densityList.length === 0 &&
+    vectorOnList.length === 0
+  ) {
+    if (allSelectedMolecules.length === 0) {
+      selectedDisplayHits = false;
+    }
+  } else {
+    if (allSelectedMolecules.length === 0) {
+      selectedDisplayHits = false;
+    } else {
+      if (allSelectedMolecules.length !== 0) {
+        for (let i = 0; i < allSelectedMolecules.length; i++) {
+          const selectedMolecule = allSelectedMolecules[i];
+          if (
+            fragmentDisplayList.includes(selectedMolecule.id) ||
+            proteinList.includes(selectedMolecule.id) ||
+            complexList.includes(selectedMolecule.id) ||
+            surfaceList.includes(selectedMolecule.id) ||
+            densityList.includes(selectedMolecule.id) ||
+            vectorOnList.includes(selectedMolecule.id)
+          ) {
+            selectedDisplayHits = true;
+          } else {
+            selectedDisplayHits = false;
+            break;
+          }
+        }
+        if (selectedDisplayHits) {
+          const notSelectedMols = [];
+          const danglingFrags = fragmentDisplayList.filter(
+            id => !allSelectedMolecules.filter(m => m.id === id).length > 0
+          );
+          if (danglingFrags && danglingFrags.length > 0) {
+            notSelectedMols.push(danglingFrags);
+          }
+          const danglingProteins = proteinList.filter(id => !allSelectedMolecules.filter(m => m.id === id).length > 0);
+          if (danglingProteins && danglingProteins.length > 0) {
+            notSelectedMols.push(danglingProteins);
+          }
+          const danglingComplexes = complexList.filter(id => !allSelectedMolecules.filter(m => m.id === id).length > 0);
+          if (danglingComplexes && danglingComplexes.length > 0) {
+            notSelectedMols.push(danglingComplexes);
+          }
+          const danglingSurfaces = surfaceList.filter(id => !allSelectedMolecules.filter(m => m.id === id).length > 0);
+          if (danglingSurfaces && danglingSurfaces.length > 0) {
+            notSelectedMols.push(danglingSurfaces);
+          }
+          const danglingDensities = densityList.filter(id => !allSelectedMolecules.filter(m => m.id === id).length > 0);
+          if (danglingDensities && danglingDensities.length > 0) {
+            notSelectedMols.push(danglingDensities);
+          }
+          const danglingVectors = vectorOnList.filter(id => !allSelectedMolecules.filter(m => m.id === id).length > 0);
+          if (danglingVectors && danglingVectors.length > 0) {
+            notSelectedMols.push(danglingVectors);
+          }
+          if (notSelectedMols && notSelectedMols.length > 0) {
+            selectedDisplayHits = false;
+          }
+        }
+        // allSelectedMolecules.map(selectedMolecules => {
+        //   if (
+        //     fragmentDisplayList.includes(selectedMolecules.id) ||
+        //     proteinList.includes(selectedMolecules.id) ||
+        //     complexList.includes(selectedMolecules.id) ||
+        //     surfaceList.includes(selectedMolecules.id) ||
+        //     densityList.includes(selectedMolecules.id) ||
+        //     vectorOnList.includes(selectedMolecules.id)
+        //   ) {
+        //     selectedDisplayHits = true;
+        //   } else {
+        //     selectedDisplayHits = false;
+        //   }
+        // });
+      }
+    }
+  }
+
+  joinedMoleculeListsCopy.map(data => {
+    if (fragmentDisplayList.includes(data.id)) {
+      selectedMolecule.push(data);
+    }
+    if (proteinList.includes(data.id)) {
+      selectedMolecule.push(data);
+    }
+    if (complexList.includes(data.id)) {
+      selectedMolecule.push(data);
+    }
+    if (surfaceList.includes(data.id)) {
+      selectedMolecule.push(data);
+    }
+    if (densityList.includes(data.id)) {
+      selectedMolecule.push(data);
+    }
+    if (vectorOnList.includes(data.id)) {
+      selectedMolecule.push(data);
+    }
+  });
+  const uniqueSelectedMoleculeForHitNavigator = [...new Set(selectedMolecule)];
+
+  const newMolsToEdit = [];
+  currentMolecules.forEach(cm => {
+    if (moleculesToEditIds.includes(cm.id)) {
+      newMolsToEdit.push(cm.id);
+    }
+  });
+  if (newMolsToEdit.length !== moleculesToEditIds.length) {
+    dispatch(setMolListToEdit(newMolsToEdit));
+  }
 
   const changePredefinedFilter = event => {
     let newFilter = Object.assign({}, filter);
@@ -509,10 +658,10 @@ export const MoleculeList = memo(({ height, setFilterItemsHeight, filterItemsHei
 
   const joinedGivenMatch = useCallback(
     givenList => {
-      return givenList.filter(element => joinedMoleculeLists.filter(element2 => element2.id === element).length > 0)
+      return givenList.filter(element => allSelectedMolecules.filter(element2 => element2.id === element).length > 0)
         .length;
     },
-    [joinedMoleculeLists]
+    [allSelectedMolecules]
   );
 
   const joinedLigandMatchLength = useMemo(() => joinedGivenMatch(fragmentDisplayList), [
@@ -523,12 +672,12 @@ export const MoleculeList = memo(({ height, setFilterItemsHeight, filterItemsHei
   const joinedComplexMatchLength = useMemo(() => joinedGivenMatch(complexList), [complexList, joinedGivenMatch]);
 
   const changeButtonClassname = (givenList = [], matchListLength) => {
-    if (joinedMoleculeLists.length === matchListLength) {
+    if (!matchListLength) {
+      return false;
+    } else if (allSelectedMolecules.length === matchListLength) {
       return true;
-    } else if (givenList.length > 0 && matchListLength > 0) {
-      return null;
     }
-    return false;
+    return null;
   };
 
   const isLigandOn = changeButtonClassname(fragmentDisplayList, joinedLigandMatchLength);
@@ -540,6 +689,7 @@ export const MoleculeList = memo(({ height, setFilterItemsHeight, filterItemsHei
     protein: addHitProtein,
     complex: addComplex,
     surface: addSurface,
+    quality: addQuality,
     density: addDensity,
     vector: addVector
   };
@@ -549,21 +699,22 @@ export const MoleculeList = memo(({ height, setFilterItemsHeight, filterItemsHei
     protein: removeHitProtein,
     complex: removeComplex,
     surface: removeSurface,
+    quality: removeQuality,
     density: removeDensity,
     vector: removeVector
   };
 
-  // TODO "currentMolecules" do not need to correspondent to selections in {type}List
-  // TODO so this could lead to inconsistend behaviour while scrolling
-  // TODO maybe change "currentMolecules.forEach" to "{type}List.forEach"
+  // TODO: "currentMolecules" do not need to correspondent to selections in {type}List
+  // TODO: so this could lead to inconsistend behaviour while scrolling
+  // TODO: maybe change "currentMolecules.forEach" to "{type}List.forEach"
 
   const removeSelectedType = (type, skipTracking = false) => {
     if (type === 'ligand') {
-      joinedMoleculeLists.forEach(molecule => {
+      allSelectedMolecules.forEach(molecule => {
         dispatch(removeType[type](majorViewStage, molecule, skipTracking));
       });
     } else {
-      joinedMoleculeLists.forEach(molecule => {
+      allSelectedMolecules.forEach(molecule => {
         dispatch(removeType[type](majorViewStage, molecule, colourList[molecule.id % colourList.length], skipTracking));
       });
     }
@@ -571,30 +722,60 @@ export const MoleculeList = memo(({ height, setFilterItemsHeight, filterItemsHei
     selectedAll.current = false;
   };
 
-  const removeOfAllSelectedTypes = (skipTracking = false) => {
-    let molecules = [...getJoinedMoleculeList, ...allInspirationMoleculeDataList];
-    dispatch(removeAllSelectedMolTypes(majorViewStage, molecules, skipTracking));
-  };
+  const removeSelectedTypes = useCallback(
+    (skipMolecules = [], skipTracking = false) => {
+      dispatch(removeSelectedTypesInHitNavigator(skipMolecules, majorViewStage, skipTracking));
+    },
+    [dispatch, majorViewStage]
+  );
 
-  const selectMoleculeSite = moleculeGroupSite => {
-    const moleculeGroup = mol_group_list[moleculeGroupSite - 1];
-    dispatch(onSelectMoleculeGroup({ moleculeGroup, stageSummaryView, majorViewStage, selectGroup: true }));
+  const selectMoleculeTags = moleculeTagsSet => {
+    const moleculeTags = tags.filter(tag => moleculeTagsSet.includes(tag.id));
+    moleculeTags.forEach(tag => {
+      dispatch(selectTag(tag));
+    });
   };
 
   const addNewType = (type, skipTracking = false) => {
-    if (type === 'ligand') {
-      joinedMoleculeLists.forEach(molecule => {
-        selectMoleculeSite(molecule.site);
-        dispatch(
-          addType[type](majorViewStage, molecule, colourList[molecule.id % colourList.length], false, skipTracking)
-        );
-      });
-    } else {
-      joinedMoleculeLists.forEach(molecule => {
-        selectMoleculeSite(molecule.site);
-        dispatch(addType[type](majorViewStage, molecule, colourList[molecule.id % colourList.length], skipTracking));
-      });
-    }
+    dispatch(
+      withDisabledMoleculesNglControlButtons(
+        allSelectedMolecules.map(molecule => molecule.id),
+        type,
+        async () => {
+          const promises = [];
+
+          if (type === 'ligand') {
+            allSelectedMolecules.forEach(molecule => {
+              //selectMoleculeTags(molecule.tags_set);
+
+              promises.push(
+                dispatch(
+                  addType[type](
+                    majorViewStage,
+                    molecule,
+                    colourList[molecule.id % colourList.length],
+                    false,
+                    true,
+                    skipTracking
+                  )
+                )
+              );
+            });
+          } else {
+            allSelectedMolecules.forEach(molecule => {
+              //selectMoleculeTags(molecule.tags_set);
+              promises.push(
+                dispatch(
+                  addType[type](majorViewStage, molecule, colourList[molecule.id % colourList.length], skipTracking)
+                )
+              );
+            });
+          }
+
+          await Promise.all(promises);
+        }
+      )
+    );
   };
 
   const ucfirst = string => {
@@ -602,6 +783,7 @@ export const MoleculeList = memo(({ height, setFilterItemsHeight, filterItemsHei
   };
 
   const onButtonToggle = (type, calledFromSelectAll = false) => {
+    setLastProcessedLPCType(type);
     if (calledFromSelectAll === true && selectedAll.current === true) {
       // REDO
       if (eval('is' + ucfirst(type) + 'On') === false) {
@@ -612,8 +794,12 @@ export const MoleculeList = memo(({ height, setFilterItemsHeight, filterItemsHei
     } else if (!calledFromSelectAll) {
       if (eval('is' + ucfirst(type) + 'On') === false) {
         let molecules = getSelectedMoleculesByType(type, true);
-        dispatch(setSelectedAllByType(type, molecules));
-        addNewType(type, true);
+        if (molecules && molecules.length > 100) {
+          setIsOpenLPCAlert(true);
+        } else {
+          dispatch(setSelectedAllByType(type, molecules));
+          addNewType(type, true);
+        }
       } else {
         let molecules = getSelectedMoleculesByType(type, false);
         dispatch(setDeselectedAllByType(type, molecules));
@@ -636,30 +822,32 @@ export const MoleculeList = memo(({ height, setFilterItemsHeight, filterItemsHei
   };
 
   const getMoleculesToSelect = list => {
-    let molecules = joinedMoleculeLists.filter(m => !list.includes(m.id));
+    let molecules = allSelectedMolecules.filter(m => !list.includes(m.id));
     return molecules;
   };
 
   const getMoleculesToDeselect = list => {
-    let molecules = joinedMoleculeLists.filter(m => list.includes(m.id));
+    let molecules = allSelectedMolecules.filter(m => list.includes(m.id));
     return molecules;
   };
 
-  let debouncedFn;
+  const openGlobalTagEditor = () => {};
 
-  const handleSearch = event => {
-    /* signal to React not to nullify the event object */
-    event.persist();
-    if (!debouncedFn) {
-      debouncedFn = debounce(() => {
-        setSearchString(event.target.value !== '' ? event.target.value : null);
-      }, 350);
-    }
-    debouncedFn();
-  };
+  // let filterSearchString = '';
+  // const getSearchedString = () => {
+  //   filterSearchString = currentActionList.find(action => action.type === 'SEARCH_STRING_HIT_NAVIGATOR');
+  // };
+  // getSearchedString();
+
+  // useEffect(() => {
+  //   if (filterSearchString?.searchStringHitNavigator !== '') {
+  //     setSearchString(filterSearchString.searchStringHitNavigator);
+  //   }
+  // }, [filterSearchString]);
 
   const actions = [
-    <FormControl className={classes.formControl} disabled={!joinedMoleculeListsCopy.length || sortDialogOpen}>
+    /* do not disable filter by itself if it does not have any result */
+    /*<FormControl className={classes.formControl} disabled={({predefinedFilter} === 'none' && !joinedMoleculeListsCopy.length) || sortDialogOpen}>
       <Select
         className={classes.select}
         value={predefinedFilter}
@@ -678,29 +866,36 @@ export const MoleculeList = memo(({ height, setFilterItemsHeight, filterItemsHei
           </MenuItem>
         ))}
       </Select>
-    </FormControl>,
-    <TextField
+    </FormControl>,*/
+    <SearchField
       className={classes.search}
       id="search-hit-navigator"
-      placeholder="Search"
-      InputProps={{
-        startAdornment: (
-          <InputAdornment position="start">
-            <Search color="inherit" />
-          </InputAdornment>
-        )
+      onChange={value => {
+        // setSearchString(value);
+        dispatch(setSearchStringOfHitNavigator(value));
       }}
-      onChange={handleSearch}
       disabled={false || (getJoinedMoleculeList && getJoinedMoleculeList.length === 0)}
+      // searchString={filterSearchString?.searchStringHitNavigator ?? ''}
+      searchString={searchString ?? ''}
     />,
 
     <IconButton
       color={'inherit'}
-      disabled={!joinedMoleculeListsCopy.length}
-      onClick={() => dispatch(hideAllSelectedMolecules(majorViewStage, joinedMoleculeLists, true, true))}
+      disabled={!joinedMoleculeListsCopy.length || noTagsReceived || !tags.length}
+      onClick={event => {
+        if (isTagEditorOpen === false) {
+          setTagEditorAnchorEl(event.currentTarget);
+          dispatch(setIsTagGlobalEdit(true));
+          dispatch(setTagEditorOpen(true));
+        } else {
+          setTagEditorAnchorEl(null);
+          dispatch(setIsTagGlobalEdit(false));
+          dispatch(setTagEditorOpen(false));
+        }
+      }}
     >
-      <Tooltip title="Hide all">
-        <DeleteSweep />
+      <Tooltip title="Edit tags">
+        <Edit />
       </Tooltip>
     </IconButton>,
     <IconButton
@@ -714,7 +909,7 @@ export const MoleculeList = memo(({ height, setFilterItemsHeight, filterItemsHei
         }
       }}
       color={'inherit'}
-      disabled={!joinedMoleculeListsCopy.length || predefinedFilter !== 'none'}
+      disabled={/*!joinedMoleculeListsCopy.length || */ predefinedFilter !== 'none'}
     >
       <Tooltip title="Filter/Sort">
         <FilterList />
@@ -723,237 +918,315 @@ export const MoleculeList = memo(({ height, setFilterItemsHeight, filterItemsHei
   ];
 
   const [isOpenAlert, setIsOpenAlert] = useState(false);
+  const [isOpenLPCAlert, setIsOpenLPCAlert] = useState(false);
+  const [lastProcessedLPCType, setLastProcessedLPCType] = useState(null);
+
+  const groupNglControlButtonsDisabledState = useDisableNglControlButtons(allSelectedMolecules);
+
+  const anyControlButtonDisabled = Object.values(groupNglControlButtonsDisabledState).some(buttonState => buttonState);
 
   return (
-    <ComputeSize
-      componentRef={filterRef.current}
-      setHeight={setFilterItemsHeight}
-      height={filterItemsHeight}
-      forceCompute={isActiveFilter}
-    >
-      <Panel hasHeader title="Hit navigator" headerActions={actions}>
-        <AlertModal
-          title="Are you sure?"
-          description={`Loading of ${joinedMoleculeLists?.length} may take a long time`}
-          open={isOpenAlert}
-          handleOnOk={() => {
-            setNextXMolecules(joinedMoleculeLists?.length || 0);
-            setIsOpenAlert(false);
-          }}
-          handleOnCancel={() => {
-            setIsOpenAlert(false);
-          }}
+    <Panel hasHeader title="Hit navigator" headerActions={actions}>
+      <AlertModal
+        title="Are you sure?"
+        description={`Loading of ${joinedMoleculeLists?.length} may take a long time`}
+        open={isOpenAlert}
+        handleOnOk={() => {
+          dispatch(setNextXMolecules(joinedMoleculeLists?.length || 0));
+          setIsOpenAlert(false);
+        }}
+        handleOnCancel={() => {
+          setIsOpenAlert(false);
+        }}
+      />
+      <AlertModal
+        title="Are you sure?"
+        description={`Displaying of ${allSelectedMolecules?.length} may take a long time`}
+        open={isOpenLPCAlert}
+        handleOnOk={() => {
+          let molecules = getSelectedMoleculesByType(lastProcessedLPCType, true);
+          dispatch(setSelectedAllByType(lastProcessedLPCType, molecules));
+          addNewType(lastProcessedLPCType, true);
+          setIsOpenLPCAlert(false);
+        }}
+        handleOnCancel={() => {
+          setIsOpenLPCAlert(false);
+        }}
+      />
+      {isTagEditorOpen && (
+        <TagEditor
+          open={isTagEditorOpen}
+          closeDisabled={anyControlButtonDisabled}
+          setOpenDialog={setTagEditorOpen}
+          anchorEl={tagEditorAnchorEl}
+          ref={tagEditorRef}
         />
-        {sortDialogOpen && (
-          <MoleculeListSortFilterDialog
-            open={sortDialogOpen}
-            anchorEl={sortDialogAnchorEl}
-            filter={filter}
-            setSortDialogAnchorEl={setSortDialogAnchorEl}
-            joinedMoleculeLists={joinedMoleculeListsCopy}
-          />
-        )}
-        <div ref={filterRef}>
-          {isActiveFilter && (
-            <>
-              <div className={classes.filterSection}>
-                <Grid container spacing={1}>
-                  <Grid item xs={1} container alignItems="center">
-                    <Typography variant="subtitle2" className={classes.filterTitle}>
-                      Filters
-                    </Typography>
-                  </Grid>
-                  <Grid item xs={11}>
-                    <Grid container direction="row" justify="flex-start" spacing={1}>
-                      {filter.priorityOrder.map(attr => (
-                        <Grid item key={`Mol-Tooltip-${attr}`}>
-                          <Tooltip
-                            title={`${filter.filter[attr].minValue}-${filter.filter[attr].maxValue} ${
-                              filter.filter[attr].order === 1 ? '\u2191' : '\u2193'
-                            }`}
-                            placement="top"
-                          >
-                            <Chip
-                              size="small"
-                              label={attr}
-                              style={{ backgroundColor: getAttrDefinition(attr).color }}
-                            />
-                          </Tooltip>
-                        </Grid>
-                      ))}
-                    </Grid>
+      )}
+      {sortDialogOpen && (
+        <MoleculeListSortFilterDialog
+          open={sortDialogOpen}
+          anchorEl={sortDialogAnchorEl}
+          filter={filter}
+          setSortDialogAnchorEl={setSortDialogAnchorEl}
+          joinedMoleculeLists={joinedMoleculeListsCopy}
+        />
+      )}
+      <div ref={filterRef}>
+        {isActiveFilter && (
+          <>
+            <div className={classes.filterSection}>
+              <Grid container spacing={1}>
+                <Grid item xs={1} container alignItems="center">
+                  <Typography variant="subtitle2" className={classes.filterTitle}>
+                    Filters
+                  </Typography>
+                </Grid>
+                <Grid item xs={11}>
+                  <Grid container direction="row" justify="flex-start" spacing={1}>
+                    {filter.priorityOrder.map(attr => (
+                      <Grid item key={`Mol-Tooltip-${attr}`}>
+                        <Tooltip
+                          title={`${filter.filter[attr].minValue}-${filter.filter[attr].maxValue} ${
+                            filter.filter[attr].order === 1 ? '\u2191' : '\u2193'
+                          }`}
+                          placement="top"
+                        >
+                          <Chip size="small" label={attr} style={{ backgroundColor: getAttrDefinition(attr).color }} />
+                        </Tooltip>
+                      </Grid>
+                    ))}
                   </Grid>
                 </Grid>
-              </div>
-              <Divider />
-            </>
-          )}
-        </div>
-        <Grid
-          container
-          direction="column"
-          justify="flex-start"
-          className={classes.container}
-          style={{ height: height }}
-        >
-          <Grid item>
-            {/* Header */}
-            <Grid container justify="flex-start" direction="row" className={classes.molHeader} wrap="nowrap">
-              <Grid item container justify="flex-start" direction="row">
-                {Object.keys(moleculeProperty).map(key => (
-                  <Grid item key={key} className={classes.rightBorder}>
-                    {moleculeProperty[key]}
-                  </Grid>
-                ))}
-                {currentMolecules.length > 0 && (
-                  <Grid item>
+              </Grid>
+            </div>
+            <Divider />
+          </>
+        )}
+      </div>
+      <Grid container>
+        {allSelectedMolecules.length > 0 && (
+          <Grid>
+            <Tooltip title="all ligands" style={{ marginLeft: '5px' }}>
+              <Button
+                variant="outlined"
+                className={classNames(classes.contColButton, {
+                  [classes.contColButtonSelected]: isLigandOn === true,
+                  [classes.contColButtonHalfSelected]: isLigandOn === null
+                })}
+                onClick={() => onButtonToggle('ligand')}
+                disabled={groupNglControlButtonsDisabledState.ligand}
+              >
+                L
+              </Button>
+            </Tooltip>
+            <Tooltip title="all sidechains" style={{ marginLeft: '5px' }}>
+              <Button
+                variant="outlined"
+                className={classNames(classes.contColButton, {
+                  [classes.contColButtonSelected]: isProteinOn,
+                  [classes.contColButtonHalfSelected]: isProteinOn === null
+                })}
+                onClick={() => onButtonToggle('protein')}
+                disabled={groupNglControlButtonsDisabledState.protein}
+              >
+                P
+              </Button>
+            </Tooltip>
+            <Tooltip title="all interactions" style={{ marginLeft: '5px' }}>
+              {/* C stands for contacts now */}
+              <Button
+                variant="outlined"
+                className={classNames(classes.contColButton, {
+                  [classes.contColButtonSelected]: isComplexOn,
+                  [classes.contColButtonHalfSelected]: isComplexOn === null
+                })}
+                onClick={() => onButtonToggle('complex')}
+                disabled={groupNglControlButtonsDisabledState.complex}
+              >
+                C
+              </Button>
+            </Tooltip>
+          </Grid>
+        )}
+        {
+          <Tooltip title={selectAllHitsPressed ? 'Unselect all hits' : 'Select all hits'}>
+            <Grid item style={{ marginLeft: allSelectedMolecules.length === 0 ? '70px' : '20px' }}>
+              <Button
+                variant="outlined"
+                className={classNames(classes.contColButton, {
+                  [classes.contColButtonSelected]: selectAllHitsPressed,
+                  [classes.contColButtonHalfSelected]: false
+                })}
+                onClick={() => {
+                  dispatch(selectAllHits(joinedMoleculeLists, setNextXMolecules, selectAllHitsPressed));
+                  setSelectAllHitsPressed(!selectAllHitsPressed);
+                }}
+                disabled={false}
+              >
+                {selectAllHitsPressed ? 'Unselect all hits' : 'Select all hits'}
+              </Button>
+            </Grid>
+          </Tooltip>
+        }
+        {selectedDisplayHits === true ? (
+          <Tooltip title={'Unselect displayed hits'}>
+            <Grid item style={{ marginLeft: '20px' }}>
+              <Button
+                variant="outlined"
+                className={classNames(classes.contColButton, {
+                  [classes.contColButtonSelected]: selectedDisplayHits,
+                  [classes.contColButtonHalfSelected]: false
+                })}
+                onClick={() => {
+                  dispatch(selectAllHits([], null, false));
+                  // setSelectDisplayedHitsPressed(!selectDisplayedHitsPressed);
+                }}
+                disabled={false}
+              >
+                Unselect displayed hits
+              </Button>
+            </Grid>
+          </Tooltip>
+        ) : (
+          <Tooltip title={'Select displayed hits'}>
+            <Grid item style={{ marginLeft: '20px' }}>
+              <Button
+                variant="outlined"
+                className={classNames(classes.contColButton, {
+                  [classes.contColButtonSelected]: selectedDisplayHits,
+                  [classes.contColButtonHalfSelected]: false
+                })}
+                onClick={() => {
+                  dispatch(selectAllHits(uniqueSelectedMoleculeForHitNavigator, null, false));
+                  // setSelectDisplayedHitsPressed(!selectDisplayedHitsPressed);
+                }}
+                disabled={false}
+              >
+                Select displayed hits
+              </Button>
+            </Grid>
+          </Tooltip>
+        )}
+        <Grid>
+          <Typography variant="caption" className={classes.noOfSelectedHits}>{`Selected: ${
+            allSelectedMolecules ? allSelectedMolecules.length : 0
+          }`}</Typography>
+        </Grid>
+      </Grid>
+      <Grid container direction="column" justify="flex-start" className={classes.container}>
+        <Grid item>
+          {/* Header */}
+          <Grid container justify="flex-start" direction="row" className={classes.molHeader} wrap="nowrap">
+            <Grid item container justify="flex-start" direction="row">
+              {Object.keys(moleculeProperty).map(key => (
+                <Grid item key={key} className={classes.rightBorder}>
+                  {moleculeProperty[key]}
+                </Grid>
+              ))}
+            </Grid>
+          </Grid>
+        </Grid>
+        {currentMolecules.length > 0 && (
+          <>
+            <Grid item className={classes.gridItemList}>
+              <InfiniteScroll
+                pageStart={0}
+                loadMore={loadNextMolecules}
+                hasMore={canLoadMore}
+                loader={
+                  <div className="loader" key={0}>
                     <Grid
                       container
                       direction="row"
-                      justify="flex-start"
+                      justify="center"
                       alignItems="center"
-                      wrap="nowrap"
-                      className={classes.contButtonsMargin}
+                      className={classes.paddingProgress}
                     >
-                      <Tooltip title="all ligands">
-                        <Grid item>
-                          <Button
-                            variant="outlined"
-                            className={classNames(classes.contColButton, {
-                              [classes.contColButtonSelected]: isLigandOn === true,
-                              [classes.contColButtonHalfSelected]: isLigandOn === null
-                            })}
-                            onClick={() => onButtonToggle('ligand')}
-                            disabled={false}
-                          >
-                            L
-                          </Button>
-                        </Grid>
-                      </Tooltip>
-                      <Tooltip title="all sidechains">
-                        <Grid item>
-                          <Button
-                            variant="outlined"
-                            className={classNames(classes.contColButton, {
-                              [classes.contColButtonSelected]: isProteinOn,
-                              [classes.contColButtonHalfSelected]: isProteinOn === null
-                            })}
-                            onClick={() => onButtonToggle('protein')}
-                            disabled={false}
-                          >
-                            P
-                          </Button>
-                        </Grid>
-                      </Tooltip>
-                      <Tooltip title="all interactions">
-                        <Grid item>
-                          {/* C stands for contacts now */}
-                          <Button
-                            variant="outlined"
-                            className={classNames(classes.contColButton, {
-                              [classes.contColButtonSelected]: isComplexOn,
-                              [classes.contColButtonHalfSelected]: isComplexOn === null
-                            })}
-                            onClick={() => onButtonToggle('complex')}
-                            disabled={false}
-                          >
-                            C
-                          </Button>
-                        </Grid>
-                      </Tooltip>
+                      <CircularProgress />
                     </Grid>
-                  </Grid>
-                )}
-              </Grid>
+                  </div>
+                }
+                useWindow={false}
+              >
+                <GroupNglControlButtonsContext.Provider value={groupNglControlButtonsDisabledState}>
+                  {currentMolecules.map((data, index, array) => {
+                    const selected = allSelectedMolecules.some(molecule => molecule.id === data.id);
+                    const isTagEditorInvokedByMolecule = data.id === molForTagEditId;
+
+                    return (
+                      <MoleculeView
+                        key={data.id}
+                        index={index}
+                        imageHeight={imgHeight}
+                        imageWidth={imgWidth}
+                        data={data}
+                        previousItemData={index > 0 && array[index - 1]}
+                        nextItemData={index < array?.length && array[index + 1]}
+                        setRef={setTagEditorAnchorEl}
+                        removeSelectedTypes={removeSelectedTypes}
+                        L={fragmentDisplayList.includes(data.id)}
+                        P={proteinList.includes(data.id)}
+                        C={complexList.includes(data.id)}
+                        S={surfaceList.includes(data.id)}
+                        D={densityList.includes(data.id)}
+                        D_C={densityListCustom.includes(data.id)}
+                        Q={qualityList.includes(data.id)}
+                        V={vectorOnList.includes(data.id)}
+                        I={informationList.includes(data.id)}
+                        eventInfo={data?.proteinData?.event_info || null}
+                        sigmaaInfo={data?.proteinData?.sigmaa_info || null}
+                        diffInfo={data?.proteinData?.diff_info || null}
+                        isTagEditorInvokedByMolecule={isTagEditorInvokedByMolecule}
+                        isTagEditorOpen={isTagEditorInvokedByMolecule && isTagEditorOpen}
+                        selected={selected}
+                        disableL={selected && groupNglControlButtonsDisabledState.ligand}
+                        disableP={selected && groupNglControlButtonsDisabledState.protein}
+                        disableC={selected && groupNglControlButtonsDisabledState.complex}
+                      />
+                    );
+                  })}
+                </GroupNglControlButtonsContext.Provider>
+              </InfiniteScroll>
             </Grid>
-          </Grid>
-          {currentMolecules.length > 0 && (
-            <>
-              <Grid item className={classes.gridItemList}>
-                <InfiniteScroll
-                  pageStart={0}
-                  loadMore={loadNextMolecules}
-                  hasMore={canLoadMore}
-                  loader={
-                    <div className="loader" key={0}>
-                      <Grid
-                        container
-                        direction="row"
-                        justify="center"
-                        alignItems="center"
-                        className={classes.paddingProgress}
-                      >
-                        <CircularProgress />
-                      </Grid>
-                    </div>
-                  }
-                  useWindow={false}
-                >
-                  {currentMolecules.map((data, index, array) => (
-                    <MoleculeView
-                      key={data.id}
-                      index={index}
-                      imageHeight={imgHeight}
-                      imageWidth={imgWidth}
-                      data={data}
-                      previousItemData={index > 0 && array[index - 1]}
-                      nextItemData={index < array?.length && array[index + 1]}
-                      removeOfAllSelectedTypes={removeOfAllSelectedTypes}
-                      L={fragmentDisplayList.includes(data.id)}
-                      P={proteinList.includes(data.id)}
-                      C={complexList.includes(data.id)}
-                      S={surfaceList.includes(data.id)}
-                      V={vectorOnList.includes(data.id)}
-                      selectMoleculeSite={selectMoleculeSite}
-                    />
-                  ))}
-                </InfiniteScroll>
-              </Grid>
-              <Grid item>
-                <Grid container justify="space-between" alignItems="center" direction="row">
-                  <Grid item>
-                    <span className={classes.total}>{`Total ${joinedMoleculeLists?.length}`}</span>
-                  </Grid>
-                  <Grid item>
-                    <ButtonGroup
-                      variant="text"
-                      size="medium"
-                      color="primary"
-                      aria-label="contained primary button group"
+            <Grid item>
+              <Grid container justify="space-between" alignItems="center" direction="row">
+                <Grid item>
+                  <span className={classes.total}>{`Total ${joinedMoleculeLists?.length}`}</span>
+                </Grid>
+                <Grid item>
+                  <ButtonGroup variant="text" size="medium" color="primary" aria-label="contained primary button group">
+                    <Button
+                      onClick={() => {
+                        dispatch(setNextXMolecules(30));
+                      }}
                     >
-                      <Button
-                        onClick={() => {
-                          setNextXMolecules(30);
-                        }}
-                      >
-                        Load next 30
-                      </Button>
-                      <Button
-                        onClick={() => {
-                          setNextXMolecules(100);
-                        }}
-                      >
-                        Load next 100
-                      </Button>
-                      <Button
-                        onClick={() => {
-                          if (joinedMoleculeLists?.length > 300) {
-                            setIsOpenAlert(true);
-                          } else {
-                            setNextXMolecules(joinedMoleculeLists?.length || 0);
-                          }
-                        }}
-                      >
-                        Load full list
-                      </Button>
-                    </ButtonGroup>
-                  </Grid>
+                      Load next 30
+                    </Button>
+                    <Button
+                      onClick={() => {
+                        dispatch(setNextXMolecules(100));
+                      }}
+                    >
+                      Load next 100
+                    </Button>
+                    <Button
+                      onClick={() => {
+                        if (joinedMoleculeLists?.length > 300) {
+                          setIsOpenAlert(true);
+                        } else {
+                          dispatch(setNextXMolecules(joinedMoleculeLists?.length || 0));
+                        }
+                      }}
+                    >
+                      Load full list
+                    </Button>
+                  </ButtonGroup>
                 </Grid>
               </Grid>
-            </>
-          )}
-        </Grid>
-      </Panel>
-    </ComputeSize>
+            </Grid>
+          </>
+        )}
+      </Grid>
+    </Panel>
   );
 });
