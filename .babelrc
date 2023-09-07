@@ -11,7 +11,7 @@
       },
       "@babel/plugin-proposal-optional-chaining"
     ],
-    "react-hot-loader/babel",
+    "react-refresh/babel",
     "@babel/plugin-syntax-dynamic-import",
     "@babel/plugin-syntax-import-meta",
     "@babel/plugin-proposal-class-properties",
