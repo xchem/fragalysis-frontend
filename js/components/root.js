@@ -1,7 +1,6 @@
 /**
  * Created by abradley on 07/03/2018.
  */
-import { hot, setConfig } from 'react-hot-loader';
 import React, { memo } from 'react';
 import 'typeface-roboto';
 import Routes from './routes/Routes';
@@ -12,10 +11,6 @@ import { getTheme } from '../theme';
 import { HeaderProvider } from './header/headerContext';
 import { NglProvider } from './nglView/nglProvider';
 import { ErrorBoundary } from './errorHandling/errorBoundary';
-
-setConfig({
-  reloadHooks: false
-});
 
 const Root = memo(() => {
   return (
@@ -35,4 +30,4 @@ const Root = memo(() => {
   );
 });
 
-export default hot(module)(Root);
+export default Root;
