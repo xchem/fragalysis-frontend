@@ -1,5 +1,6 @@
 const path = require('path');
 const webpack = require('webpack');
+const ReactRefreshWebpackPlugin = require('@pmmmwh/react-refresh-webpack-plugin');
 const BundleTracker = require('webpack-bundle-tracker');
 const ErrorOverlayPlugin = require('error-overlay-webpack-plugin');
 const Dotenv = require('dotenv-webpack');
@@ -8,9 +9,12 @@ module.exports = {
   mode: 'development',
   context: __dirname,
 
+  devServer: {
+    hot: true
+  },
+
   entry: [
     'babel-polyfill',
-    'react-hot-loader/patch',
     'webpack-hot-middleware/client?reload=true&path=http://localhost:3030/__webpack_hmr',
     './js/index'
   ],
@@ -38,7 +42,8 @@ module.exports = {
     new webpack.NamedModulesPlugin(),
     new webpack.HotModuleReplacementPlugin(),
     new webpack.NoEmitOnErrorsPlugin(), // don't reload if there is an error
-    new Dotenv()
+    new Dotenv(),
+    new ReactRefreshWebpackPlugin()
   ],
 
   module: {
@@ -47,7 +52,12 @@ module.exports = {
         test: /\.(js|jsx)$/,
         enforce: 'pre',
         exclude: /node_modules/,
-        loader: 'babel-loader'
+        use: {
+          loader: require.resolve('babel-loader'),
+          options: {
+            plugins: [require.resolve('react-refresh/babel')].filter(Boolean)
+          }
+        }
       },
       { test: /\.css$/, loader: 'style-loader!css-loader' },
       {
@@ -58,9 +68,6 @@ module.exports = {
   },
   resolve: {
     modules: ['node_modules'],
-    extensions: ['.js', '.jsx'],
-    alias: {
-      'react-dom': '@hot-loader/react-dom'
-    }
+    extensions: ['.js', '.jsx']
   }
 };

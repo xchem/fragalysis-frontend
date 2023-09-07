@@ -1,5 +1,5 @@
 import React from 'react';
-import { render } from 'react-dom';
+import { createRoot } from 'react-dom/client';
 import Root from './components/root';
 import { DJANGO_CONTEXT } from './utils/djangoContext';
 // Sentry logging
@@ -13,8 +13,6 @@ import thunkMiddleware from 'redux-thunk';
 import trackingMiddleware from './reducers/tracking/trackingMiddleware';
 import nglTrackingMiddleware from './reducers/nglTracking/nglTrackingMiddleware';
 import { composeWithDevTools } from 'redux-devtools-extension';
-
-require('react-hot-loader/patch');
 
 const middlewareEnhancer = applyMiddleware(
   //loggerMiddleware,
@@ -34,9 +32,11 @@ doc.body.style.margin = '0px';
 
 doc.head.querySelector('link').remove();
 
-render(
+const container = doc.getElementById('app');
+const root = createRoot(container);
+
+root.render(
   <Provider store={store}>
     <Root />
-  </Provider>,
-  doc.getElementById('app')
+  </Provider>
 );
