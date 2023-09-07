@@ -12,6 +12,23 @@ services:
       PGDATA: /var/lib/postgresql/data/pgdata
     ports:
       - '5432:5432'
+    healthcheck:
+      test: pg_isready -U fragalysis -d frag
+      interval: 10s
+      timeout: 2s
+      retries: 5
+      start_period: 10s
+  redis:
+    image: redis:7.0.12-alpine3.18
+    container_name: redis
+    ports:
+    - "6379:6379"
+    healthcheck:
+      test: redis-cli ping
+      interval: 10s
+      timeout: 2s
+      retries: 5
+      start_period: 10s
   graph:
     container_name: neo4j
     image: informaticsmatters/fragnet-test:3.5.25-xchem-combi-sample-2021-02
@@ -27,10 +44,17 @@ services:
       GRAPH_PASSWORD: test123
       CYPHER_PRE_NEO4J_SLEEP: 0
       NEO4J_dbms_memory_pagecache_size: 4G
+    healthcheck:
+      test: wget http://localhost:7474 || exit 1
+      interval: 10s
+      timeout: 10s
+      retries: 20
+      start_period: 10s
   web:
     container_name: web_dock
-    image: xchem/fragalysis-stack:latest
+    # image: xchem/fragalysis-stack:latest
     # image: alanbchristie/fragalysis-backend:1069.4
+    image: kaliif/fragalysis-backend:latest
     command: /bin/bash /code/launch-stack.sh
     volumes:
       - ../data/logs:/code/logs/
@@ -73,6 +97,12 @@ services:
       SSH_USER: ${SSH_USER}
       SSH_PASSWORD: ${SSH_PASSWORD}
       LOGGING_FRAMEWORK_ROOT_LEVEL: DEBUG
+      AUTHENTICATE_UPLOAD: 'False'
+      CELERY_TASK_ALWAYS_EAGER: 'True'
     depends_on:
-      - database
-      - graph
+      database:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      graph:
+        condition: service_healthy
