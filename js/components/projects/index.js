@@ -92,7 +92,7 @@ const useStyles = makeStyles(theme => ({
   }
 }));
 
-export const Projects = memo(({}) => {
+export const Projects = memo(({ }) => {
   const classes = useStyles();
   const dispatch = useDispatch();
   const [page, setPage] = React.useState(0);
@@ -595,7 +595,7 @@ export const Projects = memo(({}) => {
                   <TableCell style={{ paddingLeft: '0px' }}>
                     <div>
                       <Grid container>
-                        <Typography variant="title">
+                        <Typography variant="inherit">
                           <input
                             type="checkbox"
                             style={{ verticalAlign: 'middle' }}
@@ -623,7 +623,7 @@ export const Projects = memo(({}) => {
                 </div>
                 <TableCell align="left" style={{ verticalAlign: 'middle', padding: '0px' }}>
                   <Grid container>
-                    <Typography variant="Target">
+                    <Typography variant="inherit">
                       <input
                         type="checkbox"
                         style={{ verticalAlign: 'middle' }}
@@ -649,7 +649,7 @@ export const Projects = memo(({}) => {
                 </TableCell>
                 <TableCell align="left" style={{ verticalAlign: 'middle', padding: '0px' }}>
                   <Grid container>
-                    <Typography variant="Description">
+                    <Typography variant="inherit">
                       <input
                         type="checkbox"
                         style={{ verticalAlign: 'middle' }}
@@ -675,7 +675,7 @@ export const Projects = memo(({}) => {
                 </TableCell>
                 <TableCell align="left" style={{ verticalAlign: 'middle', padding: '0px' }}>
                   <Grid container>
-                    <Typography variant="Target access string">
+                    <Typography variant="inherit">
                       <input
                         type="checkbox"
                         style={{ verticalAlign: 'middle', padding: '0px' }}
@@ -701,13 +701,13 @@ export const Projects = memo(({}) => {
                 </TableCell>
                 <TableCell align="left" style={{ verticalAlign: 'middle', padding: '0px' }}>
                   <Grid container>
-                    <Typography variant="Tags">Tags</Typography>
+                    <Typography variant="inherit">Tags</Typography>
                   </Grid>
                 </TableCell>
                 {/* <TableCell align="left">Author</TableCell> */}
                 <TableCell align="left" style={{ verticalAlign: 'middle', padding: '0px' }}>
                   <Grid container>
-                    <Typography variant="Authority">
+                    <Typography variant="inherit">
                       <input
                         type="checkbox"
                         style={{ verticalAlign: 'middle' }}
@@ -733,7 +733,7 @@ export const Projects = memo(({}) => {
                 </TableCell>
                 <TableCell align="left" style={{ verticalAlign: 'middle', padding: '0px' }}>
                   <Grid container>
-                    <Typography variant=" Created at">Created at</Typography>
+                    <Typography variant="inherit">Created at</Typography>
                     <IconButton size="small" onClick={() => handleHeaderSort('createdAt')}>
                       <Tooltip title="Sort" className={classes.sortButton}>
                         {[1, 2].includes(sortSwitch - offsetCreatedAt) ? (
