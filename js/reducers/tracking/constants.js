@@ -114,7 +114,8 @@ export const actionType = {
   COMPOUND_LOCKED: 'COMPOUND_LOCKED',
   COMPOUND_UNLOCKED: 'COMPOUND_UNLOCKED',
   COMPOUND_ADDED_TO_COLOR_GROUP: 'COMPOUND_ADDED_TO_COLOR_GROUP',
-  COMPOUND_REMOVED_FROM_COLOR_GROUP: 'COMPOUND_REMOVED_FROM_COLOR_GROUP'
+  COMPOUND_REMOVED_FROM_COLOR_GROUP: 'COMPOUND_REMOVED_FROM_COLOR_GROUP',
+  TAG_DETAIL_VIEW: 'TAG_DETAIL_VIEW'
 };
 
 export const snapshotSwitchManualActions = [
@@ -172,7 +173,9 @@ export const actionDescription = {
   TAB: 'Tab',
   DATASET: 'Dataset',
   CUSTOM_VIEW: 'custom view',
-  TAG: 'Tag'
+  TAG: 'Tag',
+  LIST_VIEW: 'list view',
+  GRID_VIEW: 'grid view'
 };
 
 export const actionObjectType = {

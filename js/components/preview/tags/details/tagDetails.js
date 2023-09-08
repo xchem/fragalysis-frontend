@@ -60,7 +60,7 @@ const useStyles = makeStyles(theme => ({
   },
   container: {
     display: 'grid',
-    gridTemplateColumns: '220px 65px 80px min-content 20px min-content auto',
+    gridTemplateColumns: '210px 65px 80px min-content 20px min-content auto',
     alignItems: 'center',
     gap: 1
   },
@@ -149,14 +149,15 @@ const TagDetails = memo(() => {
   const tagMode = useSelector(state => state.selectionReducers.tagFilteringMode);
   const displayAllMolecules = useSelector(state => state.selectionReducers.displayAllMolecules);
   const displayUntaggedMolecules = useSelector(state => state.selectionReducers.displayUntaggedMolecules);
-  const tagDetailView = useSelector(state => state.selectionReducers.tagDetailView);
+  let tagDetailView = useSelector(state => state.selectionReducers.tagDetailView);
   const resizableLayout = useSelector(state => state.selectionReducers.resizableLayout);
-
 
   const [tagList, setTagList] = useState([]);
   const [selectAll, setSelectAll] = useState(true);
-
   const [searchString, setSearchString] = useState(null);
+
+  tagDetailView = tagDetailView?.tagDetailView === undefined ? tagDetailView : tagDetailView.tagDetailView;
+
   const filteredTagList = useMemo(() => {
     if (searchString) {
       return tagList.filter(tag => tag.tag.toLowerCase().includes(searchString.toLowerCase()));
@@ -418,34 +419,45 @@ const TagDetails = memo(() => {
       <div ref={elementRef} className={classes.containerExpanded}>
         {tagDetailView ? (
           <>
-          <div className={classes.container} id="tagName">
-            {/* START grid view */}
-            {/* tag name */}
-            <div className={classes.columnLabel}>
-              <Typography className={classes.columnTitleGrid} variant="tagName">
-                Tag name
-              </Typography>
-              <IconButton size="small" onClick={() => handleHeaderSort('name')}>
-                <Tooltip title="Sort" className={classes.sortButton}>
-                  {[1, 2].includes(sortSwitch - offsetName) ? (
-                    sortSwitch % offsetName < 2 ? (
-                      <KeyboardArrowDown />
+            <div className={classes.container} id="tagName">
+              {/* START grid view */}
+              {/* tag name */}
+              <div className={classes.columnLabel}>
+                <Typography className={classes.columnTitleGrid} variant="tagName">
+                  Tag name
+                </Typography>
+                <IconButton size="small" onClick={() => handleHeaderSort('name')}>
+                  <Tooltip title="Sort" className={classes.sortButton}>
+                    {[1, 2].includes(sortSwitch - offsetName) ? (
+                      sortSwitch % offsetName < 2 ? (
+                        <KeyboardArrowDown />
+                      ) : (
+                        <KeyboardArrowUp />
+                      )
                     ) : (
-                      <KeyboardArrowUp />
-                    )
-                  ) : (
-                    <UnfoldMore />
-                  )}
-                </Tooltip>
-              </IconButton>
+                      <UnfoldMore />
+                    )}
+                  </Tooltip>
+                </IconButton>
+              </div>
             </div>
-            </div>
-            
-            <Grid container rowSpacing={0} spacing={0} style={{marginBottom: 'auto' }}>
+
+            <Grid container rowSpacing={0} spacing={0} style={{ marginBottom: 'auto' }}>
               {filteredTagList &&
                 filteredTagList.map((tag, idx) => {
                   return (
-                    <Grid item key={idx}>
+                    <Grid
+                      item
+                      key={idx}
+                      rowSpacing={5}
+                      style={{
+                        verticalAlign: 'bottom',
+                        display: 'contents',
+                        justifyContent: 'center',
+                        height: '100%',
+                        alignItems: 'center'
+                      }}
+                    >
                       <TagGridRows
                         tag={tag}
                         moleculesToEditIds={moleculesToEditIds}
@@ -456,7 +468,7 @@ const TagDetails = memo(() => {
                   );
                 })}
             </Grid>
-         </>
+          </>
         ) : (
           <div className={classes.container} id="tagName">
             {/* tag name */}

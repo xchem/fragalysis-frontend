@@ -1,4 +1,4 @@
-import React, { forwardRef, memo, useState } from 'react';
+import React, { forwardRef, memo, useEffect, useState } from 'react';
 import { Grid, Popper, IconButton, Tooltip, makeStyles, FormControlLabel, Switch } from '@material-ui/core';
 import { Panel } from '../../../common';
 import { Close } from '@material-ui/icons';
@@ -131,6 +131,7 @@ export const TagEditor = memo(
 
     const handleCloseModal = () => {
       if (open) {
+        dispatch(setAssignTagView(false));
         dispatch(setOpenDialog(false));
         dispatch(setMoleculeForTagEdit(null));
         dispatch(setIsTagGlobalEdit(false));
@@ -236,11 +237,11 @@ export const TagEditor = memo(
           secondaryBackground
           title="Assign tags"
           className={classes.paper}
-          style={{ width:  assignTagView === true ?'350px' : '650px' }}
+          style={{ width: assignTagView ? '240px' : '310px' }}
           headerActions={[
             <Tooltip
-              title={assignTagView ? 'Show Assign tags list' : 'Show Assign tags grid'}
-              style={{ paddingRight: assignTagView === true ? '150px' : '450px' }}
+              title={assignTagView ? 'Show Assign tags grid' : 'Show Assign tags list'}
+              style={{ paddingRight: assignTagView ? '40px' : '110px' }}
             >
               <FormControlLabel
                 className={classes.tagModeSwitch}
@@ -253,7 +254,7 @@ export const TagEditor = memo(
                     size="small"
                   />
                 }
-                label={assignTagView ? 'Grid' : 'List'}
+                label={assignTagView ? 'List' : 'Grid'}
               />
             </Tooltip>,
             <Tooltip title="Close editor">

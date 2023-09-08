@@ -152,7 +152,7 @@ const useStyles = makeStyles(theme => ({
     fontSize: 11,
     paddingLeft: theme.spacing(1) / 2,
     paddingRight: theme.spacing(1) / 2,
-    paddingBottom: theme.spacing(1) / 4,
+    //paddingBottom: theme.spacing(1) / 4,
     width: 32,
     textAlign: 'center',
     '&:last-child': {
