@@ -1,10 +1,11 @@
-import React, { memo, useState } from 'react';
+import React, { memo, useState, useEffect } from 'react';
 import { Grid, makeStyles, Chip, Tooltip, Avatar } from '@material-ui/core';
 import { Edit, Check } from '@material-ui/icons';
 import { useDispatch, useSelector } from 'react-redux';
 import { getFontColorByBackgroundColor } from '../../../utils/colors';
 import { TagEditModal } from './modal/tagEditModal';
 import classNames from 'classnames';
+import { setAssignTagView } from '../../../reducers/selection/actions';
 
 const useStyles = makeStyles(theme => ({
   tagItem: {
@@ -34,7 +35,8 @@ const useStyles = makeStyles(theme => ({
       fontStyle: 'normal',
       letterSpacing: '0.144px',
       width: 'inherit',
-      textAlign: 'left'
+      textAlign: 'left',
+      textAlign: 'center'
     },
     '& .MuiChip-deleteIcon': {
       display: 'none',
@@ -56,13 +58,13 @@ const useStyles = makeStyles(theme => ({
     }
   },
   tagDetailsChip: {
-    height: '100% !important',
+    //height: '100% !important',
     margin: '0 !important',
     padding: '0 !important',
     '& .MuiChip-labelSmall': {
       //textAlign: 'left !important'
     },
-    width: '160px'
+    width: '96px'
   },
   chipSelected: {
     '& .MuiChip-iconSmall': {
@@ -85,6 +87,7 @@ const useStyles = makeStyles(theme => ({
 
 const TagView = memo(
   ({
+    tags,
     tag,
     selected,
     allTags,
@@ -101,36 +104,55 @@ const TagView = memo(
     const dispatch = useDispatch();
     const [tagEditModalOpen, setTagEditModalOpen] = useState(false);
 
-    const tagDetailView = useSelector(state => state.selectionReducers.tagDetailView);
+    let tagDetailView = useSelector(state => state.selectionReducers.tagDetailView);
+    const assignTagView = useSelector(state => state.selectionReducers.assignTagView);
+
+    useEffect(() => {
+      if (assignTagView === undefined) {
+        dispatch(setAssignTagView(false));
+      }
+    }, []);
 
     let tagData = [];
-    if (originalTagData.tag.length > 23) {
-      tagData = { ...originalTagData, tag: originalTagData.tag.slice(0, 23) + '...' };
+    const maxTagNameLength = 30;
+    if (originalTagData.tag.length > maxTagNameLength) {
+      tagData = { ...originalTagData, tag: originalTagData.tag.slice(0, maxTagNameLength) + '...' };
     } else {
       tagData = originalTagData;
     }
 
     const bgColor = tagData.colour || '#e0e0e0';
     const color = getFontColorByBackgroundColor(bgColor);
+    tagDetailView = tagDetailView?.tagDetailView === undefined ? tagDetailView : tagDetailView.tagDetailView;
+
+    let maxLengthTagDetail = 0;
+    for(let tagNumber =0; tagNumber <tags?.length; tagNumber++ ) {
+      maxLengthTagDetail=  tags[tagNumber].tag.length > maxLengthTagDetail ? tags[tagNumber].tag.length : maxLengthTagDetail;
+    }
+
+    const absoluteMaxTagLength = maxLengthTagDetail > 15 ? maxLengthTagDetail > 30 ? 48 : 30 : 19;
 
     const style = isTagEditor
       ? {
           backgroundColor: bgColor,
           color: color,
-          border: `1px solid ${bgColor}` ,
-          width: tagDetailView === true ? '160px' : '200px'
+          width: tagDetailView === true ? '96px' : '200px',
+          height: tagDetailView === true ? absoluteMaxTagLength +'px' : '19px',
+          border: `solid 0.05px ${tagData.colour === null ? 'gray' : tagData.colour}`
         }
       : selected
       ? {
           backgroundColor: bgColor,
           color: color,
-          width: '160px'
+          width: assignTagView === false ? '96px' : '200px',
+          border: `solid 0.05px ${tagData.colour === null ? 'gray' : tagData.colour}`
         }
       : {
           backgroundColor: 'white',
           color: 'black',
           borderColor: bgColor,
-          width: '160px'
+          width: assignTagView === false ? '96px' : '200px',
+          border: `solid 0.05px ${tagData.colour === null ? 'gray' : tagData.colour}`
         };
 
     const handleDelete = () => {
@@ -164,7 +186,12 @@ const TagView = memo(
             className: `${classes.chip} ${selected && !isSpecialTag ? classes.chipSelected : null} ${
               classes.tagDetailsChip
             }`,
-            label: tagDetailView === true ? tagData.tag : originalTagData.tag,
+            label:
+              assignTagView === false
+                ? tagDetailView === false
+                  ? tagData.tag
+                  : originalTagData.tag
+                : originalTagData.tag,
             clickable: true,
             color: bgColor,
             style: style,
@@ -180,14 +207,15 @@ const TagView = memo(
             className: `${classes.chip} ${selected && !isSpecialTag ? classes.chipSelected : null} ${
               classes.tagDetailsChip
             }`,
-            label: tagDetailView === true ? tagData.tag : originalTagData.tag,
+            label: assignTagView === false ? (tagDetailView === false ? tagData.tag : tagData.tag) : tagData.tag,
             clickable: true,
             color: bgColor,
             style: {
               backgroundColor: 'white',
               border: '1px solid rgba(0, 0, 0, 0.23)',
               borderColor: bgColor,
-              width: tagDetailView === true ? '160px' : '200px'
+              height: tagDetailView === true ? absoluteMaxTagLength +'px' : '19px',
+              width: tagDetailView === true ? '96px' : '200px'
             },
             onClick: () => {
               handleClick && handleClick(selected, tag, allTags);
@@ -202,7 +230,7 @@ const TagView = memo(
         return {
           size: 'small',
           className: `${classes.chip} ${selected && !isSpecialTag ? classes.chipSelected : null}`,
-          label: partiallySelected ? `${tagData.tag}*` : tagData.tag,
+          label: partiallySelected ? `${tagData.tag}*` : originalTagData.tag,
           clickable: true,
           color: bgColor,
           borderColor: bgColor,
@@ -218,7 +246,7 @@ const TagView = memo(
       return {
         size: 'small',
         className: `${classes.chip} ${selected && !isSpecialTag ? classes.chipSelected : null}`,
-        label: tagData.tag,
+        label: tagDetailView === true && assignTagView === true ? tagData.tag : originalTagData.tag,
         clickable: true,
         color: bgColor,
         borderColor: bgColor,

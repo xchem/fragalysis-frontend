@@ -35,14 +35,8 @@ const TagCategory = memo(({ tagClickCallback, disabled = false }) => {
 
   return (
     <>
-      {assignTagView === false || assignTagView === undefined ? (
+      {assignTagView === true ? (
         <>
-          <Grid className={classes.category}>
-            <TagCategoryView name={CATEGORY_TYPE.SITE} disabled={disabled} />
-            <TagCategoryView name={CATEGORY_TYPE.SERIES} disabled={disabled} />
-            <TagCategoryView name={CATEGORY_TYPE.FORUM} disabled={disabled} />
-            <TagCategoryView name={CATEGORY_TYPE.OTHER} disabled={disabled} />
-          </Grid>
           <Grid>
             <TagCategoryView tags={siteTags} clickCallback={tagClickCallback} disabled={disabled} />
             <TagCategoryView tags={seriesTags} clickCallback={tagClickCallback} disabled={disabled} />
@@ -52,9 +46,6 @@ const TagCategory = memo(({ tagClickCallback, disabled = false }) => {
         </>
       ) : (
         <>
-          <Grid className={classes.category}>
-            <TagCategoryGridView name={CATEGORY_TYPE.SITE} disabled={disabled} />
-          </Grid>
           <Grid>
             <TagCategoryGridView tags={siteTags} clickCallback={tagClickCallback} disabled={disabled} />
           </Grid>

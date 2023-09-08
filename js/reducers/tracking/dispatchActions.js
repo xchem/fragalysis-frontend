@@ -14,7 +14,8 @@ import {
   setArrowUpDown,
   appendToMolListToEdit,
   removeFromMolListToEdit,
-  setNextXMolecules
+  setNextXMolecules,
+  setTagDetailView
 } from '../selection/actions';
 import {
   resetReducersForRestoringActions,
@@ -478,6 +479,7 @@ const saveActionsList = (project, snapshot, actionList, nglViewList) => async (d
     getCommonLastActionByType(orderedActionList, actionType.FOG_FAR, currentActions);
     getCommonLastActionByType(orderedActionList, actionType.SEARCH_STRING, currentActions);
     getCommonLastActionByType(orderedActionList, actionType.SEARCH_STRING_HIT_NAVIGATOR, currentActions);
+    getCommonLastActionByType(orderedActionList, actionType.TAG_DETAIL_VIEW, currentActions);
 
     // Since drag and drop state can be influenced by filter as well, determine its state by the last influential action
     const action = orderedActionList.find(action =>
@@ -944,6 +946,7 @@ export const restoreAfterTargetActions = (stages, projectId) => async (dispatch,
     dispatch(setIsSnapshotDirty(false));
     dispatch(restoreSearchString(orderedActionList));
     dispatch(restoreSearchStringHitNavigator(orderedActionList));
+    dispatch(restoreTagDetailGrid(orderedActionList));
   }
 };
 
@@ -1717,6 +1720,13 @@ const restoreSearchStringHitNavigator = moleculesAction => (dispatch, getState) 
   let filterSearchString = moleculesAction.find(action => action.type === actionType.SEARCH_STRING_HIT_NAVIGATOR);
   if (filterSearchString) {
     dispatch(setSearchStringOfHitNavigator(filterSearchString.searchStringHitNavigator));
+  }
+};
+
+const restoreTagDetailGrid = moleculesAction => (dispatch, getState) => {
+  let tagDetailView = moleculesAction.find(action => action.type === actionType.TAG_DETAIL_VIEW);
+  if (tagDetailView) {
+    dispatch(setTagDetailView(tagDetailView));
   }
 };
 

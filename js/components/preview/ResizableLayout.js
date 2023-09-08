@@ -37,8 +37,7 @@ let panelHeight = 0;
 const resizerSize = 20;
 let screenHeight = 0;
 const tagDetailGridLayoutHeight = 135;
-const tagDetailListLayoutHeight = 130;
-const gridTagHeight = 16;
+const tagDetailListLayoutHeight = 145;
 const listTagHeight = 19;
 
 export const ResizableLayout = ({ gridRef, hideProjects, showHistory, onShowHistoryChange, nglPortal }) => {
@@ -57,8 +56,29 @@ export const ResizableLayout = ({ gridRef, hideProjects, showHistory, onShowHist
 
   const tags = useSelector(state => state.apiReducers.tagList);
 
+  let maxLengthTagDetail = 0;
+  for (let tagNumber = 0; tagNumber < tags.length; tagNumber++) {
+    maxLengthTagDetail =
+      tags[tagNumber].tag.length > maxLengthTagDetail ? tags[tagNumber].tag.length : maxLengthTagDetail;
+  }
+
+  const oneRowHeight = 19;
+  const twoRowHeight = 30;
+  const threeRowHeight = 48;
+  const oneRowTagLength = 15;
+  const moreRowTagLength = 30;
+  const defaultTagDetailColumnNumber = 5;
+
+  const absoluteMaxTagLength =
+    maxLengthTagDetail > oneRowTagLength
+      ? maxLengthTagDetail > moreRowTagLength
+        ? threeRowHeight
+        : twoRowHeight
+      : oneRowHeight;
+
   const tagDetailListHeight = preTagList.length * listTagHeight + tagDetailListLayoutHeight;
-  const tagDetailGridHeight = Math.ceil(preTagList.length / 3) * gridTagHeight + tagDetailGridLayoutHeight;
+  const tagDetailGridHeight =
+    Math.ceil(preTagList.length / defaultTagDetailColumnNumber) * absoluteMaxTagLength + tagDetailGridLayoutHeight;
 
   useEffect(() => {
     if (sidesOpen.LHS) {
@@ -172,7 +192,6 @@ export const ResizableLayout = ({ gridRef, hideProjects, showHistory, onShowHist
     },
     [gridRef, tagDetailsHeight]
   );
-
   return (
     <div className={classes.root}>
       {sidesOpen.LHS && (
@@ -192,10 +211,10 @@ export const ResizableLayout = ({ gridRef, hideProjects, showHistory, onShowHist
               style={{
                 height:
                   tagDetailsHeight === undefined
-                    ? tagDetailView === true
+                    ? tagDetailView?.tagDetailView === true || tagDetailView === true
                       ? screenHeight - tagDetailGridHeight + 'px'
                       : screenHeight - tagDetailListHeight + 'px'
-                    : screenHeight - tagDetailsHeight - 20
+                    : screenHeight - tagDetailsHeight - 20 + 'px'
               }}
             >
               <HitNavigator hideProjects={hideProjects} />

@@ -9,6 +9,7 @@ import { removeSelectedTag, addSelectedTag } from '../redux/dispatchActions';
 const TagGridRows = memo(({ tag }) => {
   const dispatch = useDispatch();
   const selectedTagList = useSelector(state => state.selectionReducers.selectedTagList);
+  const tagList = useSelector(state => state.apiReducers.tagList);
 
   const handleTagClick = (selected, tag) => {
     if (selected) {
@@ -22,6 +23,7 @@ const TagGridRows = memo(({ tag }) => {
     <>
       {/* TagView Chip */}
       <TagView
+        tags={tagList}
         key={`tag-item-editor${tag.id}`}
         tag={tag}
         selected={selectedTagList.some(i => i.id === tag.id)}
