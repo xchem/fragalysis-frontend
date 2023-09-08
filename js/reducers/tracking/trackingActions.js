@@ -1296,6 +1296,21 @@ export const findTrackAction = (action, state) => (dispatch, getState) => {
         searchStringHitNavigator: searchStringHitNavigator,
         text: `Searched string in Hit navigator: ${searchStringHitNavigator}`
       };
+    } else if (action.type === selectionConstants.SET_TAG_DETAIL_VIEW) {
+      let tagDetailView = action.payload;
+      let objectType = actionType.TAG_DETAIL_VIEW;
+      let setGridListView = action.payload === true ? actionDescription.GRID_VIEW : actionDescription.LIST_VIEW;
+
+      trackAction = {
+        type: actionType.TAG_DETAIL_VIEW,
+        annotation: actionAnnotation.CHECK,
+        timestamp: Date.now(),
+        username: username,
+        object_type: objectType,
+        dataset_id: action.payload,
+        tagDetailView: tagDetailView,
+        text: `Selected ${setGridListView} for Tag Detail`
+      };
     } else if (action.type === nglConstants.UPDATE_COMPONENT_REPRESENTATION_VISIBILITY) {
       let objectType = actionObjectType.REPRESENTATION;
       let value = action.newVisibility;

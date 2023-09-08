@@ -52,6 +52,7 @@ import MoleculeSelectCheckbox from './moleculeSelectCheckbox';
 import useClipboard from 'react-use-clipboard';
 import Popover from '@mui/material/Popover';
 import Typography from '@mui/material/Typography';
+import { Edit } from '@material-ui/icons';
 
 const useStyles = makeStyles(theme => ({
   container: {
@@ -155,7 +156,8 @@ const useStyles = makeStyles(theme => ({
     ...theme.typography.button,
     overflow: 'hidden',
     whiteSpace: 'nowrap',
-    textOverflow: 'ellipsis'
+    textOverflow: 'ellipsis',
+    lineHeight: '1.45'
   },
   checkbox: {
     padding: 0
@@ -235,23 +237,44 @@ const useStyles = makeStyles(theme => ({
     right: 0
   },
   tagPopover: {
-    height: '15px',
-    width: '55px',
+    height: '10px',
+    width: '190px',
     padding: '0px',
-    fontSize: '10px',
-    backgroundColor: '#e0e0e0',
+    fontSize: '9px',
     borderRadius: '7px',
     textAlign: 'center',
-    opacity: '0.40'
+    verticalAlign: 'center',
+    paddingBottom: '14px',
+    paddingLeft: '2px',
+    paddingRight: '3px'
+  },
+  tagPopoverSingle: {
+    height: '10px',
+    width: '16px',
+    padding: '0px',
+    fontSize: '9px',
+    borderRadius: '7px',
+    verticalAlign: 'center',
+    paddingBottom: '14px',
+    paddingLeft: '2px',
+    paddingRight: '3px'
   },
   popover: {
     paddingLeft: '5px',
     fontSize: '10px',
-    borderRadius: '7px',
+    borderRadius: '5px',
     border: '0px black solid',
     paddingRight: '5px',
-    minWidth: '55px',
+    minWidth: '35px',
     textAlign: 'center'
+  },
+  editButtonIcon: {
+    width: '0.6em',
+    height: '0.6em',
+    padding: '0px'
+  },
+  gridTagsPopover: {
+    width: '300px'
   }
 }));
 
@@ -302,6 +325,8 @@ const MoleculeView = memo(
     const viewParams = useSelector(state => state.nglReducers.viewParams);
     const tagList = useSelector(state => state.apiReducers.tagList);
 
+    const [tagEditModalOpenNew, setTagEditModalOpenNew] = useState(false);
+
     const { getNglView } = useContext(NglContext);
     const stage = getNglView(VIEWS.MAJOR_VIEW) && getNglView(VIEWS.MAJOR_VIEW).stage;
 
@@ -350,6 +375,7 @@ const MoleculeView = memo(
     const [densityModalOpen, setDensityModalOpen] = useState(false);
     const [moleculeTooltipOpen, setMoleculeTooltipOpen] = useState(false);
     const [tagPopoverOpen, setTagPopoverOpen] = useState(null);
+    const [sortedModifiedTags, setSortModifiedTags] = useState(null);
 
     const moleculeImgRef = useRef(null);
 
@@ -371,18 +397,23 @@ const MoleculeView = memo(
     };
 
     const generateTagPopover = () => {
-      const data = getDataForTagsTooltip();
+      const allData = getDataForTagsTooltip();
+      const sortedData = [...allData].sort((a, b) => a.tag.localeCompare(b.tag));
 
-      const modifiedObjects = data.map(obj => {
-        if (obj.tag.length > 8) {
-          return { ...obj, tag: obj.tag.slice(0, 8) + '...' };
+      const modifiedObjects = sortedData.map(obj => {
+        const tagNameShortLength = 2;
+        if (obj.tag.length > tagNameShortLength) {
+          return { ...obj, tag: obj.tag.slice(0, tagNameShortLength) };
         }
         return obj;
       });
 
-      const firstThreeTags = modifiedObjects.slice(0, 3);
+      useEffect(() => {
+        const sortByTagName = [...modifiedObjects].sort((a, b) => a.tag.localeCompare(b.tag));
+        setSortModifiedTags(sortByTagName);
+      }, []);
 
-      return modifiedObjects.length > 0 ? (
+      return sortedModifiedTags?.length > 0 ? (
         <div>
           <Typography
             aria-owns={open ? 'mouse-over-popover' : undefined}
@@ -391,49 +422,91 @@ const MoleculeView = memo(
             onMouseLeave={handlePopoverClose}
             style={{ fontSize: '10px' }}
           >
-            {
-              <>
-                {firstThreeTags.length > 0 ? (
-                  <div
+            {sortedModifiedTags.length < 2 ? (
+              <div style={{ display: 'flex' }}>
+                <div
+                  className={classes.tagPopoverSingle}
+                  style={{
+                    backgroundColor: sortedModifiedTags[0].colour !== null ? sortedModifiedTags[0].colour : '#e0e0e0',
+                    color: sortedModifiedTags[0].colour === null ? 'black' : 'white',
+                    display: 'block'
+                  }}
+                >
+                  {sortedModifiedTags[0].tag}
+                </div>
+                <div>
+                  <IconButton
+                    color={'inherit'}
+                    disabled={!sortedModifiedTags}
+                    onClick={() => {
+                      // setTagAddModalOpen(!tagAddModalOpen);
+
+                      if (tagEditModalOpenNew) {
+                        setTagEditModalOpenNew(false);
+                        dispatch(setTagEditorOpen(!tagEditModalOpenNew));
+                        dispatch(setMoleculeForTagEdit(null));
+                      } else {
+                        setTagEditModalOpenNew(true);
+                        dispatch(setMoleculeForTagEdit(data.id));
+                        dispatch(setTagEditorOpen(true));
+                        if (setRef) {
+                          setRef(ref.current);
+                        }
+                      }
+                    }}
+                    style={{ padding: '0px', paddingBottom: '3px' }}
+                  >
+                    <Tooltip title="Edit tags" className={classes.editButtonIcon}>
+                      <Edit />
+                    </Tooltip>
+                  </IconButton>
+                </div>
+              </div>
+            ) : (
+              <Grid className={classes.tagPopover} container direction="row">
+                {sortedModifiedTags.map((item, index) => (
+                  <Grid
                     style={{
-                      backgroundColor: firstThreeTags[0].colour,
-                      color: firstThreeTags[0].colour === null ? 'black' : 'white'
+                      backgroundColor:
+                        sortedModifiedTags[index].colour !== null ? sortedModifiedTags[index].colour : '#e0e0e0',
+                      color: sortedModifiedTags[index].colour === null ? 'black' : 'white',
+                      display: 'block'
                     }}
                     className={classes.tagPopover}
+                    item
+                    xs={1}
+                    key={index}
                   >
-                    {firstThreeTags[0].tag}
-                  </div>
-                ) : (
-                  ''
-                )}
-                {firstThreeTags.length > 1 ? (
-                  <div
-                    style={{
-                      backgroundColor: firstThreeTags[1].colour,
-                      color: firstThreeTags[1].colour === null ? 'black' : 'white'
-                    }}
-                    className={classes.tagPopover}
-                  >
-                    {firstThreeTags[1].tag}
-                  </div>
-                ) : (
-                  ''
-                )}
-                {firstThreeTags.length > 2 ? (
-                  <div
-                    style={{
-                      backgroundColor: firstThreeTags[2].colour,
-                      color: firstThreeTags[2].colour === null ? 'black' : 'white'
-                    }}
-                    className={classes.tagPopover}
-                  >
-                    {firstThreeTags[2].tag}
-                  </div>
-                ) : (
-                  ''
-                )}
-              </>
-            }
+                    <div>{item.tag}</div>
+                  </Grid>
+                ))}
+                <IconButton
+                  color={'inherit'}
+                  disabled={!sortedModifiedTags}
+                  onClick={() => {
+                    // setTagAddModalOpen(!tagAddModalOpen);
+
+                    if (tagEditModalOpenNew) {
+                      setTagEditModalOpenNew(false);
+                      dispatch(setTagEditorOpen(!tagEditModalOpenNew));
+                      dispatch(setMoleculeForTagEdit(null));
+                    } else {
+                      setTagEditModalOpenNew(true);
+                      dispatch(setMoleculeForTagEdit(data.id));
+                      dispatch(setTagEditorOpen(true));
+                      if (setRef) {
+                        setRef(ref.current);
+                      }
+                    }
+                  }}
+                  style={{ padding: '0px' }}
+                >
+                  <Tooltip title="Edit tags" className={classes.editButtonIcon}>
+                    <Edit />
+                  </Tooltip>
+                </IconButton>
+              </Grid>
+            )}
           </Typography>
           <Popover
             id="mouse-over-popover"
@@ -443,30 +516,45 @@ const MoleculeView = memo(
             open={open}
             anchorEl={tagPopoverOpen}
             anchorOrigin={{
-              vertical: 'top',
-              horizontal: 'left'
+              vertical: 'bottom',
+              horizontal: 'right'
             }}
             transformOrigin={{
               vertical: 'top',
-              horizontal: 'left'
+              horizontal: 'right'
             }}
             onMouseEnter={handlePopoverOpen}
             onClose={handlePopoverClose}
             disableRestoreFocus
             style={{ paddingLeft: '10px' }}
           >
-            {data.map(t => (
-              <div
-                onMouseEnter={handlePopoverOpen}
-                className={classes.popover}
-                style={{
-                  backgroundColor: t.colour === null ? '#e0e0e0' : t.colour,
-                  color: t.colour === null ? 'black' : 'white'
-                }}
-              >
-                {t.tag}
-              </div>
-            ))}
+            <Grid container direction="row" style={{ width: sortedData.length === 1 ? '150px' : '300px' }}>
+              {sortedData.map(t => (
+                <Grid
+                  item
+                  xs={sortedData.length === 1 ? 12 : 6}
+                  onMouseEnter={handlePopoverOpen}
+                  className={classes.popover}
+                  style={{
+                    backgroundColor: t.colour === null ? '#e0e0e0' : t.colour,
+                    color: t.colour === null ? 'black' : 'white',
+                    border: 'solid 0.02rem gray'
+                  }}
+                >
+                  <div
+                    style={{
+                      verticalAlign: 'bottom',
+                      display: 'flex',
+                      justifyContent: 'center',
+                      height: '100%',
+                      alignItems: 'center'
+                    }}
+                  >
+                    {t.tag}
+                  </div>
+                </Grid>
+              ))}
+            </Grid>
           </Popover>
         </div>
       ) : (
@@ -804,6 +892,7 @@ const MoleculeView = memo(
               <Tooltip title={moleculeTitle} placement="bottom-start">
                 <div className={classes.moleculeTitleLabel}>{moleculeTitle}</div>
               </Tooltip>
+              {generateTagPopover()}
             </Grid>
             {/* Control Buttons A, L, C, V */}
             <Grid item xs={6}>
@@ -990,28 +1079,6 @@ const MoleculeView = memo(
           >
             {svg_image}
             <div className={classes.imageActions}>
-              {(moleculeTooltipOpen || isTagEditorInvokedByMolecule) && (
-                <Tooltip>
-                  <MoleculeSelectCheckbox
-                    color="primary"
-                    className={classes.tagIcon}
-                    onClick={() => {
-                      // setTagAddModalOpen(!tagAddModalOpen);
-                      if (isTagEditorInvokedByMolecule) {
-                        dispatch(setTagEditorOpen(!isTagEditorOpen));
-                        dispatch(setMoleculeForTagEdit(null));
-                        dispatch(setTagEditorOpen(false));
-                      } else {
-                        dispatch(setMoleculeForTagEdit(data.id));
-                        dispatch(setTagEditorOpen(true));
-                        if (setRef) {
-                          setRef(ref.current);
-                        }
-                      }
-                    }}
-                  />
-                </Tooltip>
-              )}
               {moleculeTooltipOpen && (
                 <Tooltip title={!isCopied ? 'Copy smiles' : 'Copied'}>
                   <IconButton className={classes.copyIcon} onClick={setCopied}>
@@ -1027,7 +1094,6 @@ const MoleculeView = memo(
                 </Tooltip>
               )}
             </div>
-            <div className={classes.imageTagActions}>{generateTagPopover()}</div>
           </div>
         </Grid>
         <SvgTooltip
