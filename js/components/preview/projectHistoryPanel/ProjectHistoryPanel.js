@@ -7,6 +7,7 @@ import { base_url } from '../../routes/constants';
 import { ProjectHistory } from './ProjectHistory';
 import { JobTable } from '../jobTable';
 import { loadNewDatasetsAndCompounds } from '../../datasets/redux/dispatchActions';
+import { setTagEditorOpen } from '../../../reducers/selection/actions';
 
 export const ProjectHistoryPanel = ({ showFullHistory }) => {
   const dispatch = useDispatch();
@@ -17,6 +18,7 @@ export const ProjectHistoryPanel = ({ showFullHistory }) => {
   const currentSnapshotList = useSelector(state => state.projectReducers.currentSnapshotList);
   const currentSnapshotTree = useSelector(state => state.projectReducers.currentSnapshotTree);
   const isLoadingTree = useSelector(state => state.projectReducers.isLoadingTree);
+  const assignTagEditorOpen = useSelector(state => state.selectionReducers.tagEditorOpened);
 
   const refreshData = useSelector(state => state.projectReducers.refreshJobsData);
 
@@ -56,13 +58,15 @@ export const ProjectHistoryPanel = ({ showFullHistory }) => {
 
   if (currentTab === 'projectHistory') {
     return (
-      <ProjectHistory
-        showFullHistory={showFullHistory}
-        graphKey={graphKey}
-        expanded={expanded}
-        onExpanded={expanded => setExpanded(expanded)}
-        onTabChange={tab => setCurrentTab(tab)}
-      />
+      <div onClick={() => (assignTagEditorOpen === true ? dispatch(setTagEditorOpen(false)) : '')}>
+        <ProjectHistory
+          showFullHistory={showFullHistory}
+          graphKey={graphKey}
+          expanded={expanded}
+          onExpanded={expanded => setExpanded(expanded)}
+          onTabChange={tab => setCurrentTab(tab)}
+        />
+      </div>
     );
   }
 
