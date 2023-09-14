@@ -34,9 +34,7 @@ const useStyles = makeStyles(theme => ({
       fontWeight: '400',
       fontStyle: 'normal',
       letterSpacing: '0.144px',
-      width: 'inherit',
-      textAlign: 'left',
-      textAlign: 'center'
+      width: 'inherit'
     },
     '& .MuiChip-deleteIcon': {
       display: 'none',
@@ -63,6 +61,15 @@ const useStyles = makeStyles(theme => ({
     padding: '0 !important',
     '& .MuiChip-labelSmall': {
       //textAlign: 'left !important'
+    },
+    width: '96px'
+  },
+  tagDetailsChipList: {
+    height: '100% !important',
+    margin: '0 !important',
+    padding: '0 !important',
+    '& .MuiChip-labelSmall': {
+      textAlign: 'left !important'
     },
     width: '96px'
   },
@@ -114,7 +121,7 @@ const TagView = memo(
     }, []);
 
     let tagData = [];
-    const maxTagNameLength = 30;
+    const maxTagNameLength = 34;
     if (originalTagData.tag.length > maxTagNameLength) {
       tagData = { ...originalTagData, tag: originalTagData.tag.slice(0, maxTagNameLength) + '...' };
     } else {
@@ -184,7 +191,7 @@ const TagView = memo(
           return {
             size: 'small',
             className: `${classes.chip} ${selected && !isSpecialTag ? classes.chipSelected : null} ${
-              classes.tagDetailsChip
+              tagDetailView === true ? classes.tagDetailsChip : classes.tagDetailsChipList
             }`,
             label:
               assignTagView === false
@@ -205,7 +212,7 @@ const TagView = memo(
           return {
             size: 'small',
             className: `${classes.chip} ${selected && !isSpecialTag ? classes.chipSelected : null} ${
-              classes.tagDetailsChip
+              tagDetailView === true ? classes.tagDetailsChip : classes.tagDetailsChipList
             }`,
             label: assignTagView === false ? (tagDetailView === false ? tagData.tag : tagData.tag) : tagData.tag,
             clickable: true,

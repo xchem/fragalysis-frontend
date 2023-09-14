@@ -48,6 +48,7 @@ import { getProjectsForSelectedTarget } from './redux/dispatchActions';
 import { withLoadingProjects } from '../target/withLoadingProjects';
 import { setProjectModalOpen } from '../projects/redux/actions';
 import { setOpenSnapshotSavingDialog } from '../snapshot/redux/actions';
+import { setTagEditorOpen } from '../../reducers/selection/actions';
 
 const ReactGridLayout = WidthProvider(ResponsiveGridLayout);
 
@@ -118,6 +119,7 @@ const Preview = memo(({ isStateLoaded, hideProjects, isSnapshot = false }) => {
 
   const openNewProjectModal = useSelector(state => state.projectReducers.isProjectModalOpen);
   const openSaveSnapshotModal = useSelector(state => state.snapshotReducers.openSavingDialog);
+  const assignTagEditorOpen = useSelector(state => state.selectionReducers.tagEditorOpened);
 
   const nglPortal = useMemo(() => createHtmlPortalNode({ attributes: { style: 'height: 100%' } }), []);
 
@@ -281,8 +283,14 @@ const Preview = memo(({ isStateLoaded, hideProjects, isSnapshot = false }) => {
 
   return (
     <>
-      <div ref={ref} className={classes.root}  onClick={() => (openNewProjectModal === true ? dispatch(setProjectModalOpen(false)) : '',
-       openSaveSnapshotModal === true ? dispatch(setOpenSnapshotSavingDialog(false)) : '' )}>
+      <div
+        ref={ref}
+        className={classes.root}
+        onClick={() => (
+          openNewProjectModal === true ? dispatch(setProjectModalOpen(false)) : '',
+          openSaveSnapshotModal === true ? dispatch(setOpenSnapshotSavingDialog(false)) : ''
+        )}
+      >
         <ReactGridLayout
           // cols={4}
           ref={gridRef}
@@ -299,9 +307,11 @@ const Preview = memo(({ isStateLoaded, hideProjects, isSnapshot = false }) => {
           {currentLayout?.lg?.map(item => renderItem(item.i))}
         </ReactGridLayout>
       </div>
-      <InPortal node={nglPortal}>
-        <NGLView div_id={VIEWS.MAJOR_VIEW} />
-      </InPortal>
+      <div onClick={() => (assignTagEditorOpen === true ? dispatch(setTagEditorOpen(false)) : '')}>
+        <InPortal node={nglPortal}>
+          <NGLView div_id={VIEWS.MAJOR_VIEW} />
+        </InPortal>
+      </div>
       <NewSnapshotModal />
       <ModalShareSnapshot />
       <SaveSnapshotBeforeExit />
