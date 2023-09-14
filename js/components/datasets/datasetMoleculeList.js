@@ -767,6 +767,10 @@ const DatasetMoleculeList = ({ title, datasetID, url }) => {
     }
   };
 
+  const selectAllDatasetMolecule = () => {
+    // there set dispatch for select all dataset molecule
+  }
+
   return (
     <Panel hasHeader title={title} withTooltip headerActions={actions}>
       <AlertModal
@@ -1033,6 +1037,27 @@ const DatasetMoleculeList = ({ title, datasetID, url }) => {
                       </IconButton>
                     </Grid>
                   </Grid>
+                </Grid>
+                <Grid item>
+                  {
+                    <Tooltip title={'Select all'}>
+                      <Grid item style={{ margin: '4px', marginLeft: '5px' }}>
+                        <Button
+                          variant="outlined"
+                          className={classNames(classes.contColButton, {
+                           
+                            [classes.contColButtonHalfSelected]: false
+                          })}
+                          onClick={                            selectAllDatasetMolecule()
+                            //setSelectAllHitsPressed(!selectAllHitsPressed);
+                          }
+                          disabled={false}
+                        >
+                          {'Select all'}
+                        </Button>
+                      </Grid>
+                    </Tooltip>
+                  }
                 </Grid>
               </Grid>
             </Grid>
