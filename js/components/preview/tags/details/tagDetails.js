@@ -28,7 +28,8 @@ import {
   setDisplayAllMolecules,
   setDisplayUntaggedMolecules,
   setTagDetailView,
-  setTagEditorOpen
+  setTagEditorOpen,
+  setMoleculeForTagEdit
 } from '../../../../reducers/selection/actions';
 import { selectAllTags, clearAllTags } from '../redux/dispatchActions';
 import { Button } from '../../../common/Inputs/Button';
@@ -317,7 +318,11 @@ const TagDetails = memo(() => {
   };
 
   return (
-    <div onClick={() => (assignTagEditorOpen === true ? dispatch(setTagEditorOpen(false)) : '')}>
+    <div
+      onClick={() =>
+        assignTagEditorOpen === true ? (dispatch(setTagEditorOpen(false)), dispatch(setMoleculeForTagEdit(null))) : ''
+      }
+    >
       <Panel
         ref={ref}
         hasHeader

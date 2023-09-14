@@ -50,7 +50,12 @@ import { DEFAULT_FILTER, PREDEFINED_FILTERS } from '../../../reducers/selection/
 import { Edit, FilterList } from '@material-ui/icons';
 import { selectAllMoleculeList, selectJoinedMoleculeList } from './redux/selectors';
 import { MOL_ATTRIBUTES } from './redux/constants';
-import { setFilter, setMolListToEdit, setNextXMolecules } from '../../../reducers/selection/actions';
+import {
+  setFilter,
+  setMolListToEdit,
+  setNextXMolecules,
+  setMoleculeForTagEdit
+} from '../../../reducers/selection/actions';
 import { initializeFilter } from '../../../reducers/selection/dispatchActions';
 import * as listType from '../../../constants/listTypes';
 import { useRouteMatch } from 'react-router-dom';
@@ -270,6 +275,7 @@ export const MoleculeList = memo(({ hideProjects }) => {
 
   const proteinsHasLoaded = useSelector(state => state.nglReducers.proteinsHasLoaded);
   const currentActionList = useSelector(state => state.trackingReducers.current_actions_list);
+  const assignTagEditorOpen = useSelector(state => state.selectionReducers.tagEditorOpened);
 
   const [predefinedFilter, setPredefinedFilter] = useState(filter !== undefined ? filter.predefined : DEFAULT_FILTER);
 
@@ -1154,35 +1160,43 @@ export const MoleculeList = memo(({ hideProjects }) => {
                     const isTagEditorInvokedByMolecule = data.id === molForTagEditId;
 
                     return (
-                      <MoleculeView
-                        key={data.id}
-                        index={index}
-                        imageHeight={imgHeight}
-                        imageWidth={imgWidth}
-                        data={data}
-                        previousItemData={index > 0 && array[index - 1]}
-                        nextItemData={index < array?.length && array[index + 1]}
-                        setRef={setTagEditorAnchorEl}
-                        removeSelectedTypes={removeSelectedTypes}
-                        L={fragmentDisplayList.includes(data.id)}
-                        P={proteinList.includes(data.id)}
-                        C={complexList.includes(data.id)}
-                        S={surfaceList.includes(data.id)}
-                        D={densityList.includes(data.id)}
-                        D_C={densityListCustom.includes(data.id)}
-                        Q={qualityList.includes(data.id)}
-                        V={vectorOnList.includes(data.id)}
-                        I={informationList.includes(data.id)}
-                        eventInfo={data?.proteinData?.event_info || null}
-                        sigmaaInfo={data?.proteinData?.sigmaa_info || null}
-                        diffInfo={data?.proteinData?.diff_info || null}
-                        isTagEditorInvokedByMolecule={isTagEditorInvokedByMolecule}
-                        isTagEditorOpen={isTagEditorInvokedByMolecule && isTagEditorOpen}
-                        selected={selected}
-                        disableL={selected && groupNglControlButtonsDisabledState.ligand}
-                        disableP={selected && groupNglControlButtonsDisabledState.protein}
-                        disableC={selected && groupNglControlButtonsDisabledState.complex}
-                      />
+                      <div
+                        onClick={() =>
+                          assignTagEditorOpen === true
+                            ? (dispatch(setTagEditorOpen(false)), dispatch(setMoleculeForTagEdit(null)))
+                            : ''
+                        }
+                      >
+                        <MoleculeView
+                          key={data.id}
+                          index={index}
+                          imageHeight={imgHeight}
+                          imageWidth={imgWidth}
+                          data={data}
+                          previousItemData={index > 0 && array[index - 1]}
+                          nextItemData={index < array?.length && array[index + 1]}
+                          setRef={setTagEditorAnchorEl}
+                          removeSelectedTypes={removeSelectedTypes}
+                          L={fragmentDisplayList.includes(data.id)}
+                          P={proteinList.includes(data.id)}
+                          C={complexList.includes(data.id)}
+                          S={surfaceList.includes(data.id)}
+                          D={densityList.includes(data.id)}
+                          D_C={densityListCustom.includes(data.id)}
+                          Q={qualityList.includes(data.id)}
+                          V={vectorOnList.includes(data.id)}
+                          I={informationList.includes(data.id)}
+                          eventInfo={data?.proteinData?.event_info || null}
+                          sigmaaInfo={data?.proteinData?.sigmaa_info || null}
+                          diffInfo={data?.proteinData?.diff_info || null}
+                          isTagEditorInvokedByMolecule={isTagEditorInvokedByMolecule}
+                          isTagEditorOpen={isTagEditorInvokedByMolecule && isTagEditorOpen}
+                          selected={selected}
+                          disableL={selected && groupNglControlButtonsDisabledState.ligand}
+                          disableP={selected && groupNglControlButtonsDisabledState.protein}
+                          disableC={selected && groupNglControlButtonsDisabledState.complex}
+                        />
+                      </div>
                     );
                   })}
                 </GroupNglControlButtonsContext.Provider>
