@@ -1,3 +1,4 @@
+---
 version: '3'
 
 services:
@@ -48,18 +49,3 @@ services:
     depends_on:
       - database
       - graph
-  loader:
-    container_name: loader
-    image: loader:latest
-    volumes:
-      - ../data/input:/fragalysis
-      - ../data/media:/code/media
-    environment:
-      POSTGRESQL_DATABASE: frag
-      POSTGRESQL_USER: fragalysis
-      POSTGRESQL_PASSWORD: fragalysis
-      POSTGRESQL_HOST: database
-      POSTGRESQL_PORT: 5432
-      DATA_ORIGIN: EXAMPLE
-    depends_on:
-      - database

@@ -120,8 +120,14 @@ jobs:
 
       - name: Checkout
         uses: actions/checkout@v3
+      - name: Lint Dockerfile
+        uses: hadolint/hadolint-action@v3.1.0
+        with:
+          dockerfile: Dockerfile
       - name: Build
-        run: yarn run build
+        uses: docker/build-push-action@v4
+        with:
+          tags: ${{ steps.vars.outputs.FE_NAMESPACE }}/fragalysis2-frontend:${{ steps.vars.outputs.FE_IMAGE_TAG }}
 
       # Trigger the stack for this build,
       # identifying the 'stable' backend (or whatever BE_IMAGE_TAG has been set)

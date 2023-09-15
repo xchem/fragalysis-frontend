@@ -1,3 +1,4 @@
+---
 version: '3'
 
 services:
@@ -29,8 +30,7 @@ services:
       NEO4J_dbms_memory_pagecache_size: 4G
   web:
     container_name: web_dock
-    # image: xchem/fragalysis-stack:latest
-    image: alanbchristie/fragalysis-backend:1041.2
+    image: xchem/fragalysis-stack:latest
     command: /bin/bash /code/launch-stack.sh
     volumes:
       - ../data/logs:/code/logs/
