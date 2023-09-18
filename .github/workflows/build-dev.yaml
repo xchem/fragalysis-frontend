@@ -24,10 +24,30 @@ on:
     tags-ignore:
     - '**'
 
+env:
+  # The following 'defaults' are used in the 'Initialise workflow variables' step,
+  # which creates 'outputs' for use in steps and jobs that follow it.
+  # The values set here are used unless a matching secret is found.
+  # Secrets are the way users dynamically control the behaviour of this Action.
+  #
+  #   For Jobs conditional on the presence of a secret see this Gist...
+  #   https://gist.github.com/jonico/24ffebee6d2fa2e679389fac8aef50a3
+  FE_NAMESPACE: xchem
+
 jobs:
   build:
     runs-on: ubuntu-latest
     steps:
+    - name: Inject slug/short variables
+      uses: rlespinasse/github-slug-action@v3.x
+    - name: Initialise workflow variables
+      id: vars
+      run: |
+        # FE_NAMESPACE
+        FE_NAMESPACE="${{ env.FE_NAMESPACE }}"
+        if [ -n "${{ secrets.FE_NAMESPACE }}" ]; then FE_NAMESPACE="${{ secrets.FE_NAMESPACE }}"; fi
+        echo FE_NAMESPACE=${FE_NAMESPACE}
+        echo "FE_NAMESPACE=${FE_NAMESPACE}" >> $GITHUB_OUTPUT
     - name: Checkout
       uses: actions/checkout@v3
     - name: Build
