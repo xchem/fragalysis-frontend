@@ -64,7 +64,8 @@ const useStyles = makeStyles(theme => ({
   },
   contButtonsMargin: {
     margin: theme.spacing(1) / 2,
-    width: 'inherit'
+    width: 'inherit',
+    marginTop: 0
   },
   contColButton: {
     minWidth: 'fit-content',
@@ -250,7 +251,7 @@ const useStyles = makeStyles(theme => ({
   },
   tagPopoverSingle: {
     height: '10px',
-    width: '20px',
+    width: '18px',
     padding: '0px',
     fontSize: '9px',
     borderRadius: '7px',
@@ -274,19 +275,20 @@ const useStyles = makeStyles(theme => ({
     width: '0.7em',
     height: '0.7em',
     padding: '0px',
-    marginLeft: '11px'
+    marginLeft: '11px',
+    border: 'solid 1px black',
+    borderRadius: '5px'
   },
   gridTagsPopover: {
     width: '400px'
   },
   paper: {
-    width: 'auto',
     maxHeight: 343,
     height: 'auto',
     overflowY: 'auto',
     top: '50%',
     left: '50%',
-    transform: 'translate(86%, -10%)'
+    //transform: 'translate(86%, 0%)'
   }
 }));
 
@@ -419,7 +421,7 @@ const MoleculeView = memo(
 
       const mergedArray = [...sortedData, ...tagList.filter(item => !sortedData.includes(item))];
 
-      const modifiedObjects = mergedArray.map(obj => {
+      const modifiedObjects = sortedData.map(obj => {
         const tagNameShortLength = 2;
         if (obj.tag.length > tagNameShortLength) {
           return { ...obj, tag: obj.tag.slice(0, tagNameShortLength) };
@@ -433,6 +435,7 @@ const MoleculeView = memo(
       }, []);
 
       const allTagsLength = allData.length > 9 ? 9 : allData.length;
+      const popperPadding = 480 - allTagsLength *24;
 
       return sortedModifiedTags?.length > 0 ? (
         <div>
@@ -441,79 +444,37 @@ const MoleculeView = memo(
             aria-haspopup="true"
             style={{ fontSize: '10px' }}
           >
-            <Grid className={classes.tagPopover} container direction="row">
-              <div style={{ display: 'flex' }}>
-                <div
-                  style={{ display: 'flex', margin: 0, padding: 0 }}
-                  onMouseEnter={handlePopoverOpen}
-                  onMouseLeave={handlePopoverClose}
-                >
-                  {modifiedObjects.map((item, index) =>
-                    index < allTagsLength ? (
-                      <Grid
-                        direction="row"
-                        style={{
-                          backgroundColor:
-                            modifiedObjects[index].colour !== null ? modifiedObjects[index].colour : '#e0e0e0',
-                          color: modifiedObjects[index].colour === null ? 'black' : 'white',
-                          width: '20px'
-                        }}
-                        className={classes.tagPopover}
-                        item
-                        xs={6}
-                        key={index}
-                      >
-                        <div>{item.tag}</div>
-                      </Grid>
-                    ) : index < 9 ? (
-                      <Grid
-                        style={{
-                          backgroundColor:
-                            index < allTagsLength
-                              ? modifiedObjects[index].colour !== null
-                                ? modifiedObjects[index].colour
-                                : 'white'
-                              : '',
-                          color:
-                            index < allTagsLength
-                              ? modifiedObjects[index].colour === null
-                                ? 'black'
-                                : 'white'
-                              : 'black',
-                          border:
-                            index < allTagsLength
-                              ? modifiedObjects[index].colour !== null
-                                ? `${modifiedObjects[index].colour} solid 1px`
-                                : '#e0e0e0 solid 1px'
-                              : modifiedObjects[index].colour !== null
-                              ? `${modifiedObjects[index].colour} solid 1px`
-                              : `#e0e0e0 solid 0.05rem`,
-                          width: '20px',
-                          zIndex: '5'
-                        }}
-                        className={classes.tagPopover}
-                        item
-                        xs={6}
-                        key={index}
-                      >
-                        <div>{item.tag}</div>
-                      </Grid>
-                    ) : (
-                      <></>
-                    )
-                  )}
-                </div>
-                {DJANGO_CONTEXT['username'] === 'NOT_LOGGED_IN' ? (
-                  <div></div>
-                ) : (
-                  <div style={{ display: 'flex' }}>
+            {sortedModifiedTags.length < 2 ? (
+              <Grid className={classes.tagPopover} container direction="row" style={{ width: '50px' }}>
+                {sortedModifiedTags.map((item, index) =>
+                  index < allTagsLength ? (
+                    <Grid
+                      onMouseEnter={handlePopoverOpen}
+                      onMouseLeave={handlePopoverClose}
+                      style={{
+                        backgroundColor:
+                          sortedModifiedTags[index].colour !== null ? sortedModifiedTags[index].colour : '#e0e0e0',
+                        color: sortedModifiedTags[index].colour === null ? 'black' : 'white',
+                        display: 'block',
+                        maxWidth: '20px'
+                      }}
+                      className={classes.tagPopover}
+                      item
+                      xs={9}
+                      key={index}
+                    >
+                      <div>{item.tag} </div>
+                    </Grid>
+                  ) : (
+                    <div></div>
+                  )
+                )}
+                <div style={{ width: '10px' }}>
+                  <Grid item xs={1}>
                     <IconButton
                       color={'inherit'}
                       disabled={!sortedModifiedTags}
-                      onMouseEnter={null}
                       onClick={() => {
-                        // setTagAddModalOpen(!tagAddModalOpen);
-
                         if (tagEditModalOpenNew) {
                           setTagEditModalOpenNew(false);
                           dispatch(setTagEditorOpen(!tagEditModalOpenNew));
@@ -527,67 +488,123 @@ const MoleculeView = memo(
                           }
                         }
                       }}
-                      style={{ padding: '0px' }}
+                      style={{ padding: '0px', paddingBottom: '3px', marginRight: '5px', position: 'right' }}
                     >
                       <Tooltip title="Edit tags" className={classes.editButtonIcon}>
                         <Edit />
                       </Tooltip>
                     </IconButton>
+                  </Grid>
+                </div>
+              </Grid>
+            ) : (
+              <Grid className={classes.tagPopover} container direction="row">
+                <div style={{ display: 'flex' }}>
+                  <div style={{ display: 'flex', width: `${20*allTagsLength}` +'px'}} onMouseEnter={handlePopoverOpen}
+                      onMouseLeave={handlePopoverClose}>
+                    {sortedModifiedTags.map((item, index) =>
+                      index < allTagsLength ? (
+                        <Grid
+                          style={{
+                            backgroundColor:
+                              sortedModifiedTags[index].colour !== null ? sortedModifiedTags[index].colour : '#e0e0e0',
+                            color: sortedModifiedTags[index].colour === null ? 'black' : 'white',
+                            display: 'flex',
+                            width: '20px',
+                            paddingLeft: '3px'
+                          }}
+                          className={classes.tagPopover}
+                          item
+                          xs={12}
+                          key={index}
+                        >
+                          <div>{item.tag} </div>
+                        </Grid>
+                      ) : (
+                        <div></div>
+                      )
+                    )}
                   </div>
-                )}
-              </div>
-            </Grid>
-          </Typography>
-          <Typography
-            aria-owns={open ? 'mouse-over-popper' : undefined}
-            aria-haspopup="true"
-            style={{ fontSize: '10px', display: 'flex' }}
-          >
-            <Popper open={open} placement="right-start" anchorEl={tagPopoverOpen} style={{ display: 'flex' }}>
-              <Panel
-                secondaryBackground
-                className={classes.paper}
-                style={{ background: '', width: '310px', display: 'flex' }}
-              >
-                <Grid alignItems="inherit" direction="row" container>
-                  {mergedArray.map((item, index) => (
-                    <Grid
-                      style={{
-                        backgroundColor:
-                          index < allData.length
-                            ? mergedArray[index].colour !== null
-                              ? mergedArray[index].colour
-                              : '#e0e0e0'
-                            : 'white',
-                        color:
-                          index < allTagsLength
-                            ? modifiedObjects[index].colour === null
-                              ? 'black'
-                              : 'white'
-                            : 'black',
-                        border:
-                          index < allTagsLength
-                            ? mergedArray[index].colour !== null
-                              ? `${mergedArray[index].colour} solid 1px`
-                              : 'black solid 1px'
-                            : mergedArray[index].colour !== null
-                            ? `${mergedArray[index].colour} solid 1px`
-                            : `#e0e0e0 solid 0.05rem`,
-                        display: 'grid',
-                        placeItems: 'center'
+                  <div >
+                    <IconButton
+                      color={'inherit'}
+                      disabled={!sortedModifiedTags}
+                      onClick={() => {
+                        if (tagEditModalOpenNew) {
+                          setTagEditModalOpenNew(false);
+                          dispatch(setTagEditorOpen(!tagEditModalOpenNew));
+                          dispatch(setMoleculeForTagEdit(null));
+                        } else {
+                          setTagEditModalOpenNew(true);
+                          dispatch(setMoleculeForTagEdit(data.id));
+                          dispatch(setTagEditorOpen(true));
+                          if (setRef) {
+                            setRef(ref.current);
+                          }
+                        }
                       }}
-                      className={classes.popover}
-                      item
-                      xs={4}
-                      key={index}
+                      style={{ padding: '0px', paddingBottom: '3px', cursor: 'pointer' }}
                     >
-                      <div>{item.tag}</div>
-                    </Grid>
-                  ))}
-                </Grid>
-              </Panel>
-            </Popper>
+                      <Tooltip title="Edit tag" className={classes.editButtonIcon}>
+                        <Edit />
+                      </Tooltip>
+                    </IconButton>
+                  </div>
+                </div>
+              </Grid>
+            )}
           </Typography>
+          {tagEditorOpen === false ? (
+            <Typography
+              aria-owns={open ? 'mouse-over-popper' : undefined}
+              aria-haspopup="true"
+              style={{ fontSize: '10px', display: 'flex' }}
+            >
+              <Popper open={open} placement="right-start" anchorEl={tagPopoverOpen} style={{ display: 'flex' }}>
+                <Panel
+                  secondaryBackground
+                  className={classes.paper}
+                  style={{ background: '', width: '320px', display: 'flex',
+                  transform: 'translate(' + popperPadding +'px, -10%)'   }}
+                >
+                  <Grid alignItems="inherit" direction="row" container>
+                    {sortedData.map((item, index) => (
+                      <Grid
+                        style={{
+                          backgroundColor:
+                            index < allData.length
+                              ? sortedData[index].colour !== null
+                                ? sortedData[index].colour
+                                : '#e0e0e0'
+                              : 'white',
+                          color:
+                            index < allTagsLength ? (sortedData[index].colour === null ? 'black' : 'white') : 'black',
+                          border:
+                            index < allTagsLength
+                              ? sortedData[index].colour !== null
+                                ? `${sortedData[index].colour} solid 1px`
+                                : 'black solid 1px'
+                              : sortedData[index].colour !== null
+                              ? `${sortedData[index].colour} solid 1px`
+                              : `#e0e0e0 solid 0.05rem`,
+                          display: 'grid',
+                          placeItems: 'center'
+                        }}
+                        className={classes.popover}
+                        item
+                        xs={sortedData.length === 1 ? 12 : sortedData.length === 2 ? 6 : 4}
+                        key={index}
+                      >
+                        <div>{item.tag}</div>
+                      </Grid>
+                    ))}
+                  </Grid>
+                </Panel>
+              </Popper>
+            </Typography>
+          ) : (
+            <div> </div>
+          )}
         </div>
       ) : (
         <div></div>
@@ -920,14 +937,14 @@ const MoleculeView = memo(
           </Grid>
           <Grid item container className={classes.detailsCol} justify="space-between" direction="row">
             {/* Title label */}
-            <Grid item xs={6}>
+            <Grid item xs={7}>
               <Tooltip title={moleculeTitle} placement="bottom-start">
                 <div className={classes.moleculeTitleLabel}>{moleculeTitle}</div>
               </Tooltip>
               {generateTagPopover()}
             </Grid>
             {/* Control Buttons A, L, C, V */}
-            <Grid item xs={6}>
+            <Grid item xs={4}>
               <Grid
                 container
                 direction="row"

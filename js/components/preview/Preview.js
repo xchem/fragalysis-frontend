@@ -48,7 +48,7 @@ import { getProjectsForSelectedTarget } from './redux/dispatchActions';
 import { withLoadingProjects } from '../target/withLoadingProjects';
 import { setProjectModalOpen } from '../projects/redux/actions';
 import { setOpenSnapshotSavingDialog } from '../snapshot/redux/actions';
-import { setTagEditorOpen } from '../../reducers/selection/actions';
+import { setTagEditorOpen, setMoleculeForTagEdit } from '../../reducers/selection/actions';
 
 const ReactGridLayout = WidthProvider(ResponsiveGridLayout);
 
@@ -307,7 +307,11 @@ const Preview = memo(({ isStateLoaded, hideProjects, isSnapshot = false }) => {
           {currentLayout?.lg?.map(item => renderItem(item.i))}
         </ReactGridLayout>
       </div>
-      <div onClick={() => (assignTagEditorOpen === true ? dispatch(setTagEditorOpen(false)) : '')}>
+      <div
+        onClick={() =>
+          assignTagEditorOpen === true ? (dispatch(setTagEditorOpen(false)), dispatch(setMoleculeForTagEdit(null))) : ''
+        }
+      >
         <InPortal node={nglPortal}>
           <NGLView div_id={VIEWS.MAJOR_VIEW} />
         </InPortal>

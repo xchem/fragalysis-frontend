@@ -7,7 +7,7 @@ import { base_url } from '../../routes/constants';
 import { ProjectHistory } from './ProjectHistory';
 import { JobTable } from '../jobTable';
 import { loadNewDatasetsAndCompounds } from '../../datasets/redux/dispatchActions';
-import { setTagEditorOpen } from '../../../reducers/selection/actions';
+import { setTagEditorOpen, setMoleculeForTagEdit } from '../../../reducers/selection/actions';
 
 export const ProjectHistoryPanel = ({ showFullHistory }) => {
   const dispatch = useDispatch();
@@ -58,7 +58,11 @@ export const ProjectHistoryPanel = ({ showFullHistory }) => {
 
   if (currentTab === 'projectHistory') {
     return (
-      <div onClick={() => (assignTagEditorOpen === true ? dispatch(setTagEditorOpen(false)) : '')}>
+      <div
+        onClick={() =>
+          assignTagEditorOpen === true ? (dispatch(setTagEditorOpen(false)), dispatch(setMoleculeForTagEdit(null))) : ''
+        }
+      >
         <ProjectHistory
           showFullHistory={showFullHistory}
           graphKey={graphKey}
