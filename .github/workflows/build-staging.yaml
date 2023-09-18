@@ -16,7 +16,7 @@ name: build staging
 #
 # BE_IMAGE_TAG            optional - default stable
 # BE_NAMESPACE            optional - default xchem
-# FE_BRANCH               optional - default staging
+# FE_IMAGE_TAG            optional - default latest
 # FE_NAMESPACE            optional - default xchem
 # STACK_BRANCH            optional - default master
 # STACK_GITHUB_NAMESPACE  optional - default xchem
