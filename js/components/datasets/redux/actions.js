@@ -547,3 +547,8 @@ export const setAskLockSelectedCompoundsQuestion = askLockCompoundsQuestion => (
   type: constants.SET_ASK_LOCK_SELECTED_COMPOUNDS_QUESTION,
   askLockCompoundsQuestion: askLockCompoundsQuestion
 });
+
+export const setSelectAllDatasetCompounds = selectedAllDatasetCompounds => ({
+  type: constants.SET_SELECTED_ALL_DATASET_COMPOUNDS,
+  payload: selectedAllDatasetCompounds
+});

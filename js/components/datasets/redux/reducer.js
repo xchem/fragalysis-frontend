@@ -235,6 +235,9 @@ export const datasetsReducers = (state = INITIAL_STATE, action = {}) => {
         }
       };
 
+    case constants.SET_SELECTED_ALL_DATASET_COMPOUNDS:
+      return Object.assign({}, state, { selectedAllDatasetCompounds: action.payload });
+
     case constants.SET_FILTER_DIALOG_OPEN:
       return Object.assign({}, state, { filterDialogOpen: action.payload });
 

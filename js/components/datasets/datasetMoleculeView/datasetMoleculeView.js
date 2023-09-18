@@ -56,7 +56,8 @@ import {
   removeCompoundColorOfDataset,
   setIsOpenLockVisibleCompoundsDialogLocal,
   setCmpForLocalLockVisibleCompoundsDialog,
-  setAskLockCompoundsQuestion
+  setAskLockCompoundsQuestion,
+  setSelectAllDatasetCompounds
 } from '../redux/actions';
 import { centerOnLigandByMoleculeID } from '../../../reducers/ngl/dispatchActions';
 import { ArrowDownward, ArrowUpward, MyLocation } from '@material-ui/icons';
@@ -410,6 +411,8 @@ const DatasetMoleculeView = memo(
       const isProteinOn = P;
       const isComplexOn = C;
       const isSurfaceOn = S;
+
+      const selectedAllDatasetCompounds = useSelector(state => state.datasetsReducers.selectedAllDatasetCompounds);
 
       const askLockCompoundsQuestion = useSelector(state => state.datasetsReducers.askLockCompoundsQuestion);
       const askLockSelectedCompoundsQuestion = useSelector(
@@ -887,7 +890,7 @@ const DatasetMoleculeView = memo(
               <Grid item>
                 {!isCompoundFromVectorSelector(data) && (
                   <DatasetMoleculeSelectCheckbox
-                    checked={isLocked}
+                    checked={selectedAllDatasetCompounds === undefined ? false : selectedAllDatasetCompounds}
                     className={classes.checkbox}
                     size="small"
                     color="primary"
@@ -896,9 +899,11 @@ const DatasetMoleculeView = memo(
                       const result = e.target.checked;
                       if (result) {
                         dispatch(appendCompoundToSelectedCompoundsByDataset(datasetID, currentID, moleculeTitle));
+                        dispatch(setSelectAllDatasetCompounds(true));
                       } else {
                         dispatch(removeCompoundFromSelectedCompoundsByDataset(datasetID, currentID, moleculeTitle));
                         dispatch(deselectVectorCompound(data));
+                        dispatch(setSelectAllDatasetCompounds(false));
                       }
                     }}
                   />
