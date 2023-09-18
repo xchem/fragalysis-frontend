@@ -86,7 +86,7 @@ const useStyles = makeStyles(theme => ({
     width: 32, // Should be adjusted if a label for the switch changes
     // justify: 'flex-end',
     marginRight: '90px',
-    marginLeft: '1px'
+    marginLeft: '-10px'
   },
   headerContainer: {
     marginRight: '0px',

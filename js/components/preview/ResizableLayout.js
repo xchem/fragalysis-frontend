@@ -197,7 +197,7 @@ export const ResizableLayout = ({ gridRef, hideProjects, showHistory, onShowHist
       {sidesOpen.LHS && (
         <>
           <div className={classes.lhs} style={{ width: lhsWidth }}>
-            <div style={{ height: tagDetailsHeight }}>
+            <div style={{ height: tagDetailsHeight, overflow: 'auto' }}>
               <TagDetails />
             </div>
             <Resizer orientation="horizontal" onResize={onTagDetailsResize} />

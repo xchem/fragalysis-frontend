@@ -143,7 +143,7 @@ const TagView = memo(
       ? {
           backgroundColor: bgColor,
           color: color,
-          width: tagDetailView === true ? '96px' : '200px',
+          width: tagDetailView === true ? '93px' : '200px',
           height: tagDetailView === true ? absoluteMaxTagLength +'px' : '19px',
           border: `solid 0.05px ${tagData.colour === null ? 'gray' : tagData.colour}`
         }
@@ -151,14 +151,14 @@ const TagView = memo(
       ? {
           backgroundColor: bgColor,
           color: color,
-          width: assignTagView === false ? '96px' : '200px',
+          width: assignTagView === false ? '93px' : '200px',
           border: `solid 0.05px ${tagData.colour === null ? 'gray' : tagData.colour}`
         }
       : {
           backgroundColor: 'white',
           color: 'black',
           borderColor: bgColor,
-          width: assignTagView === false ? '96px' : '200px',
+          width: assignTagView === false ? '93px' : '200px',
           border: `solid 0.05px ${tagData.colour === null ? 'gray' : tagData.colour}`
         };
 
@@ -222,7 +222,7 @@ const TagView = memo(
               border: '1px solid rgba(0, 0, 0, 0.23)',
               borderColor: bgColor,
               height: tagDetailView === true ? absoluteMaxTagLength +'px' : '19px',
-              width: tagDetailView === true ? '96px' : '200px'
+              width: tagDetailView === true ? '93px' : '200px'
             },
             onClick: () => {
               handleClick && handleClick(selected, tag, allTags);
