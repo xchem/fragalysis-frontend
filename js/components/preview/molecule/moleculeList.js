@@ -1009,7 +1009,7 @@ export const MoleculeList = memo(({ hideProjects }) => {
           </>
         )}
       </div>
-      <Grid container>
+      <Grid container onClick={() => (assignTagEditorOpen === true ? dispatch(setTagEditorOpen(false)) : '')}>
         {allSelectedMolecules.length > 0 && (
           <Grid>
             <Tooltip title="all ligands" style={{ marginLeft: '5px' }}>
@@ -1119,7 +1119,13 @@ export const MoleculeList = memo(({ hideProjects }) => {
           }`}</Typography>
         </Grid>
       </Grid>
-      <Grid container direction="column" justify="flex-start" className={classes.container}>
+      <Grid
+        container
+        direction="column"
+        justify="flex-start"
+        className={classes.container}
+        onClick={() => (assignTagEditorOpen === true ? dispatch(setTagEditorOpen(false)) : '')}
+      >
         <Grid item>
           {/* Header */}
           <Grid container justify="flex-start" direction="row" className={classes.molHeader} wrap="nowrap">
@@ -1160,49 +1166,41 @@ export const MoleculeList = memo(({ hideProjects }) => {
                     const isTagEditorInvokedByMolecule = data.id === molForTagEditId;
 
                     return (
-                      <div
-                        onClick={() =>
-                          assignTagEditorOpen === true
-                            ? (dispatch(setTagEditorOpen(false)), dispatch(setMoleculeForTagEdit(null)))
-                            : ''
-                        }
-                      >
-                        <MoleculeView
-                          key={data.id}
-                          index={index}
-                          imageHeight={imgHeight}
-                          imageWidth={imgWidth}
-                          data={data}
-                          previousItemData={index > 0 && array[index - 1]}
-                          nextItemData={index < array?.length && array[index + 1]}
-                          setRef={setTagEditorAnchorEl}
-                          removeSelectedTypes={removeSelectedTypes}
-                          L={fragmentDisplayList.includes(data.id)}
-                          P={proteinList.includes(data.id)}
-                          C={complexList.includes(data.id)}
-                          S={surfaceList.includes(data.id)}
-                          D={densityList.includes(data.id)}
-                          D_C={densityListCustom.includes(data.id)}
-                          Q={qualityList.includes(data.id)}
-                          V={vectorOnList.includes(data.id)}
-                          I={informationList.includes(data.id)}
-                          eventInfo={data?.proteinData?.event_info || null}
-                          sigmaaInfo={data?.proteinData?.sigmaa_info || null}
-                          diffInfo={data?.proteinData?.diff_info || null}
-                          isTagEditorInvokedByMolecule={isTagEditorInvokedByMolecule}
-                          isTagEditorOpen={isTagEditorInvokedByMolecule && isTagEditorOpen}
-                          selected={selected}
-                          disableL={selected && groupNglControlButtonsDisabledState.ligand}
-                          disableP={selected && groupNglControlButtonsDisabledState.protein}
-                          disableC={selected && groupNglControlButtonsDisabledState.complex}
-                        />
-                      </div>
+                      <MoleculeView
+                        key={data.id}
+                        index={index}
+                        imageHeight={imgHeight}
+                        imageWidth={imgWidth}
+                        data={data}
+                        previousItemData={index > 0 && array[index - 1]}
+                        nextItemData={index < array?.length && array[index + 1]}
+                        setRef={setTagEditorAnchorEl}
+                        removeSelectedTypes={removeSelectedTypes}
+                        L={fragmentDisplayList.includes(data.id)}
+                        P={proteinList.includes(data.id)}
+                        C={complexList.includes(data.id)}
+                        S={surfaceList.includes(data.id)}
+                        D={densityList.includes(data.id)}
+                        D_C={densityListCustom.includes(data.id)}
+                        Q={qualityList.includes(data.id)}
+                        V={vectorOnList.includes(data.id)}
+                        I={informationList.includes(data.id)}
+                        eventInfo={data?.proteinData?.event_info || null}
+                        sigmaaInfo={data?.proteinData?.sigmaa_info || null}
+                        diffInfo={data?.proteinData?.diff_info || null}
+                        isTagEditorInvokedByMolecule={isTagEditorInvokedByMolecule}
+                        isTagEditorOpen={isTagEditorInvokedByMolecule && isTagEditorOpen}
+                        selected={selected}
+                        disableL={selected && groupNglControlButtonsDisabledState.ligand}
+                        disableP={selected && groupNglControlButtonsDisabledState.protein}
+                        disableC={selected && groupNglControlButtonsDisabledState.complex}
+                      />
                     );
                   })}
                 </GroupNglControlButtonsContext.Provider>
               </InfiniteScroll>
             </Grid>
-            <Grid item>
+            <Grid item onClick={() => (assignTagEditorOpen === true ? dispatch(setTagEditorOpen(false)) : '')}>
               <Grid container justify="space-between" alignItems="center" direction="row">
                 <Grid item>
                   <span className={classes.total}>{`Total ${joinedMoleculeLists?.length}`}</span>
