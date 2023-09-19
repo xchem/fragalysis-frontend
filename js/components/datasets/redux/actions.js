@@ -326,6 +326,11 @@ export const setFilterWithInspirations = isChecked => ({
   payload: isChecked
 });
 
+export const setCompoundToSelectedCompoundsByDataset = (datasetID, compoundList = []) => ({
+  type: constants.SET_COMPOUND_TO_SELECTED_COMPOUNDS_BY_DATASET,
+  payload: { datasetID, selectedCompounds: compoundList }
+});
+
 export const appendCompoundToSelectedCompoundsByDataset = (
   datasetID,
   compoundID,
@@ -546,9 +551,4 @@ export const setSelectedCompoundsList = compoundsList => ({
 export const setAskLockSelectedCompoundsQuestion = askLockCompoundsQuestion => ({
   type: constants.SET_ASK_LOCK_SELECTED_COMPOUNDS_QUESTION,
   askLockCompoundsQuestion: askLockCompoundsQuestion
-});
-
-export const setSelectAllDatasetCompounds = selectedAllDatasetCompounds => ({
-  type: constants.SET_SELECTED_ALL_DATASET_COMPOUNDS,
-  payload: selectedAllDatasetCompounds
 });

@@ -39,7 +39,8 @@ import {
   isCompoundLocked,
   getFirstUnlockedSelectedCompoundAfter,
   moveSelectedDatasetMoleculeUpDown,
-  getFirstUnlockedSelectedCompoundBefore
+  getFirstUnlockedSelectedCompoundBefore,
+  setCompoundToSelectedCompoundsByDataset
 } from '../redux/dispatchActions';
 
 import { isAnyInspirationTurnedOn, getFilteredDatasetMoleculeList } from '../redux/selectors';
@@ -56,8 +57,7 @@ import {
   removeCompoundColorOfDataset,
   setIsOpenLockVisibleCompoundsDialogLocal,
   setCmpForLocalLockVisibleCompoundsDialog,
-  setAskLockCompoundsQuestion,
-  setSelectAllDatasetCompounds
+  setAskLockCompoundsQuestion
 } from '../redux/actions';
 import { centerOnLigandByMoleculeID } from '../../../reducers/ngl/dispatchActions';
 import { ArrowDownward, ArrowUpward, MyLocation } from '@material-ui/icons';
@@ -411,8 +411,6 @@ const DatasetMoleculeView = memo(
       const isProteinOn = P;
       const isComplexOn = C;
       const isSurfaceOn = S;
-
-      const selectedAllDatasetCompounds = useSelector(state => state.datasetsReducers.selectedAllDatasetCompounds);
 
       const askLockCompoundsQuestion = useSelector(state => state.datasetsReducers.askLockCompoundsQuestion);
       const askLockSelectedCompoundsQuestion = useSelector(
@@ -890,20 +888,18 @@ const DatasetMoleculeView = memo(
               <Grid item>
                 {!isCompoundFromVectorSelector(data) && (
                   <DatasetMoleculeSelectCheckbox
-                    checked={selectedAllDatasetCompounds === undefined ? false : selectedAllDatasetCompounds}
+                    checked={isLocked}
                     className={classes.checkbox}
                     size="small"
                     color="primary"
-                    // disabled={isCompoundFromVectorSelector(data)}
                     onChange={e => {
                       const result = e.target.checked;
                       if (result) {
                         dispatch(appendCompoundToSelectedCompoundsByDataset(datasetID, currentID, moleculeTitle));
-                        dispatch(setSelectAllDatasetCompounds(true));
+                        dispatch(setCompoundToSelectedCompoundsByDataset(currentID));
                       } else {
                         dispatch(removeCompoundFromSelectedCompoundsByDataset(datasetID, currentID, moleculeTitle));
                         dispatch(deselectVectorCompound(data));
-                        dispatch(setSelectAllDatasetCompounds(false));
                       }
                     }}
                   />

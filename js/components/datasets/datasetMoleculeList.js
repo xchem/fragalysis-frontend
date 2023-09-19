@@ -50,7 +50,8 @@ import {
   setDragDropState,
   setFilterDialogOpen,
   setIsOpenLockVisibleCompoundsDialogGlobal,
-  setSearchStringOfCompoundSet
+  setSearchStringOfCompoundSet,
+  setCompoundToSelectedCompoundsByDataset
 } from './redux/actions';
 import { DatasetFilter } from './datasetFilter';
 import { FilterList, Link, DeleteForever, ArrowUpward, ArrowDownward, Edit } from '@material-ui/icons';
@@ -58,7 +59,7 @@ import { getJoinedMoleculeLists } from './redux/selectors';
 import { InspirationDialog } from './inspirationDialog';
 import { CrossReferenceDialog } from './crossReferenceDialog';
 import { AlertModal } from '../common/Modal/AlertModal';
-import { setSelectedAllByType, setDeselectedAllByType, setSelectAllDatasetCompounds } from './redux/actions';
+import { setSelectedAllByType, setDeselectedAllByType } from './redux/actions';
 
 import { DndProvider } from 'react-dnd';
 import { HTML5Backend } from 'react-dnd-html5-backend';
@@ -330,8 +331,6 @@ const DatasetMoleculeList = ({ title, datasetID, url }) => {
   const askLockCompoundsQuestion = useSelector(state => state.datasetsReducers.askLockCompoundsQuestion);
 
   const [selectAllPressed, setSelectAllPressed] = useState(false);
-
-  const selectedAllDatasetCompounds = useSelector(state => state.datasetsReducers.selectedAllDatasetCompounds);
 
   // console.log('DatasetMoleculeList - update');
 
@@ -771,14 +770,19 @@ const DatasetMoleculeList = ({ title, datasetID, url }) => {
     }
   };
 
-  const selectAllDatasetMolecule = () => {
+  const selectAllDatasetMolecule = selectAll => {
     selectedAll.current = true;
 
-    selectAllPressed
-      ? joinedMoleculeLists.map(molecule => {
-          !lockedMolecules.includes(molecule.id) ? lockedMolecules.push(molecule.id) : '';
-        })
-      : (lockedMolecules = []);
+    lockedMolecules = [];
+
+    if (selectAll === true) {
+      joinedMoleculeLists.map(molecule => {
+        lockedMolecules.push(molecule.id);
+      });
+      dispatch(setCompoundToSelectedCompoundsByDataset(datasetID, lockedMolecules));
+    } else {
+      dispatch(setCompoundToSelectedCompoundsByDataset(datasetID, []));
+    }
   };
 
   return (
@@ -1050,7 +1054,7 @@ const DatasetMoleculeList = ({ title, datasetID, url }) => {
                 </Grid>
                 <Grid item>
                   {
-                    <Tooltip title={selectedAllDatasetCompounds ? 'Unselect all' : 'Select all'}>
+                    <Tooltip title={selectAllPressed ? 'Unselect all' : 'Select all'}>
                       <Grid item style={{ margin: '4px', marginLeft: '5px' }}>
                         <Button
                           variant="outlined"
@@ -1058,13 +1062,12 @@ const DatasetMoleculeList = ({ title, datasetID, url }) => {
                             [classes.contColButtonHalfSelected]: false
                           })}
                           onClick={() => {
-                            selectAllDatasetMolecule();
+                            selectAllDatasetMolecule(!selectAllPressed);
                             setSelectAllPressed(!selectAllPressed);
-                            dispatch(setSelectAllDatasetCompounds(!selectedAllDatasetCompounds))
                           }}
                           disabled={false}
                         >
-                          {selectedAllDatasetCompounds ? 'Unselect all' : 'Select all'}
+                          {selectAllPressed ? 'Unselect all' : 'Select all'}
                         </Button>
                       </Grid>
                     </Tooltip>

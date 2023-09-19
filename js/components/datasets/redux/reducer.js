@@ -235,9 +235,6 @@ export const datasetsReducers = (state = INITIAL_STATE, action = {}) => {
         }
       };
 
-    case constants.SET_SELECTED_ALL_DATASET_COMPOUNDS:
-      return Object.assign({}, state, { selectedAllDatasetCompounds: action.payload });
-
     case constants.SET_FILTER_DIALOG_OPEN:
       return Object.assign({}, state, { filterDialogOpen: action.payload });
 
@@ -382,6 +379,9 @@ export const datasetsReducers = (state = INITIAL_STATE, action = {}) => {
 
     case constants.SET_ALL_INSPIRATION_MOLECULE_DATA_LIST:
       return Object.assign({}, state, { allInspirationMoleculeDataList: action.payload });
+
+    case constants.SET_COMPOUND_TO_SELECTED_COMPOUNDS_BY_DATASET:
+      return setList(state, 'selectedCompoundsByDataset', action.payload.datasetID, action.payload.selectedCompounds);
 
     case constants.APPEND_TO_INSPIRATION_MOLECULE_DATA_LIST:
       const extendedInspirationMoleculeDataList = new Set(state.inspirationMoleculeDataList);
