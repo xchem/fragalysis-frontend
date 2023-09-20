@@ -1741,7 +1741,7 @@ const restoreSelectAllButtonForDataset = moleculesAction => (dispatch, getState)
     action => action.type === actionType.SELECTED_SELECT_ALL_BUTTON_FOR_DATASET
   );
   if (selectAllButton) {
-    dispatch(setSelectAllButtonForDataset(selectAllButton));
+    dispatch(setSelectAllButtonForDataset(selectAllButton.dataset_id));
   }
 };
 

@@ -1308,22 +1308,24 @@ export const findTrackAction = (action, state) => (dispatch, getState) => {
         object_type: objectType,
         dataset_id: action.payload,
         selectAllButton: selectAllButton,
-        text: `Pressed "Select All" button`
+        text: `Pressed button ${selectAllButton === true ? 'Select' : 'Unselect'} all`
       };
     } else if (action.type === customDatasetConstants.SET_COMPOUND_TO_SELECTED_COMPOUNDS_BY_DATASET) {
-      let selectedAllDatasetCompounds = action.payload;
-      let objectType = actionType.SELECT_ALL_DATASET_COMPOUNDS;
+      if (action.payload) {
+        let selectedAllDatasetCompounds = action.payload;
+        let objectType = actionType.SELECT_ALL_DATASET_COMPOUNDS;
 
-      trackAction = {
-        type: actionType.SELECT_ALL_DATASET_COMPOUNDS,
-        annotation: actionAnnotation.CHECK,
-        timestamp: Date.now(),
-        username: username,
-        object_type: objectType,
-        dataset_id: action.payload,
-        selectedAllDatasetCompounds: selectedAllDatasetCompounds,
-        text: `Selected all Dataset compounds`
-      };
+        trackAction = {
+          type: actionType.SELECT_ALL_DATASET_COMPOUNDS,
+          annotation: actionAnnotation.CHECK,
+          timestamp: Date.now(),
+          username: username,
+          object_type: objectType,
+          dataset_id: action.payload,
+          selectedAllDatasetCompounds: selectedAllDatasetCompounds,
+          text: `Selected all Dataset compounds`
+        };
+      }
     } else if (action.type === selectionConstants.SET_TAG_DETAIL_VIEW) {
       let tagDetailView = action.payload;
       let objectType = actionType.TAG_DETAIL_VIEW;
