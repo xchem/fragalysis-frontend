@@ -392,7 +392,6 @@ const MoleculeView = memo(
     const [densityModalOpen, setDensityModalOpen] = useState(false);
     const [moleculeTooltipOpen, setMoleculeTooltipOpen] = useState(false);
     const [tagPopoverOpen, setTagPopoverOpen] = useState(null);
-    const [sortedModifiedTags, setSortModifiedTags] = useState(null);
 
     const moleculeImgRef = useRef(null);
 
@@ -431,32 +430,32 @@ const MoleculeView = memo(
         return obj;
       });
 
-      useEffect(() => {
-        const sortByTagName = [...modifiedObjects].sort((a, b) => a.tag.localeCompare(b.tag));
-        setSortModifiedTags(sortByTagName);
-      }, []);
-
       const allTagsLength = allData.length > 9 ? 9 : allData.length;
-      const popperPadding = 480 - allTagsLength * 24;
+      const popperPadding = allTagsLength > 1 ? 250 : 420;
 
-      return sortedModifiedTags?.length > 0 ? (
+      return modifiedObjects?.length > 0 ? (
         <div>
           <Typography
             aria-owns={open ? 'mouse-over-popover' : undefined}
             aria-haspopup="true"
             style={{ fontSize: '10px' }}
           >
-            {sortedModifiedTags.length < 2 ? (
-              <Grid className={classes.tagPopover} container direction="row" style={{ width: '50px' }}>
-                {sortedModifiedTags.map((item, index) =>
+            {modifiedObjects.length < 2 ? (
+              <Grid
+                className={classes.tagPopover}
+                container
+                direction="row"
+                style={{ width: '50px' }}
+                onMouseEnter={handlePopoverOpen}
+                onMouseLeave={handlePopoverClose}
+              >
+                {modifiedObjects.map((item, index) =>
                   index < allTagsLength ? (
                     <Grid
-                      onMouseEnter={handlePopoverOpen}
-                      onMouseLeave={handlePopoverClose}
                       style={{
                         backgroundColor:
-                          sortedModifiedTags[index].colour !== null ? sortedModifiedTags[index].colour : '#e0e0e0',
-                        color: sortedModifiedTags[index].colour === null ? 'black' : 'white',
+                          modifiedObjects[index].colour !== null ? modifiedObjects[index].colour : '#e0e0e0',
+                        color: modifiedObjects[index].colour === null ? 'black' : 'white',
                         display: 'block',
                         maxWidth: '20px'
                       }}
@@ -478,7 +477,7 @@ const MoleculeView = memo(
                     <Grid item xs={1}>
                       <IconButton
                         color={'inherit'}
-                        disabled={!sortedModifiedTags}
+                        disabled={!modifiedObjects}
                         onClick={() => {
                           if (tagEditModalOpenNew) {
                             setTagEditModalOpenNew(false);
@@ -504,65 +503,65 @@ const MoleculeView = memo(
                 )}
               </Grid>
             ) : (
-              <Grid className={classes.tagPopover} container direction="row">
-                <div style={{ display: 'flex' }}>
-                  <div
-                    style={{ display: 'flex', width: `${20 * allTagsLength}` + 'px' }}
-                    onMouseEnter={handlePopoverOpen}
-                    onMouseLeave={handlePopoverClose}
-                  >
-                    {sortedModifiedTags.map((item, index) =>
-                      index < allTagsLength ? (
-                        <Grid
-                          style={{
-                            backgroundColor:
-                              sortedModifiedTags[index].colour !== null ? sortedModifiedTags[index].colour : '#e0e0e0',
-                            color: sortedModifiedTags[index].colour === null ? 'black' : 'white',
-                            display: 'flex',
-                            width: '20px',
-                            paddingLeft: '3px'
-                          }}
-                          className={classes.tagPopover}
-                          item
-                          xs={12}
-                          key={index}
-                        >
-                          <div>{item.tag} </div>
-                        </Grid>
-                      ) : (
-                        <div></div>
-                      )
-                    )}
-                  </div>
-                  <div>
-                    {DJANGO_CONTEXT['username'] === 'NOT_LOGGED_IN' ? (
-                      <div></div>
-                    ) : (
-                      <IconButton
-                        color={'inherit'}
-                        disabled={!sortedModifiedTags}
-                        onClick={() => {
-                          if (tagEditModalOpenNew) {
-                            setTagEditModalOpenNew(false);
-                            dispatch(setTagEditorOpen(!tagEditModalOpenNew));
-                            dispatch(setMoleculeForTagEdit(null));
-                          } else {
-                            setTagEditModalOpenNew(true);
-                            dispatch(setMoleculeForTagEdit(data.id));
-                            dispatch(setTagEditorOpen(true));
-                            if (setRef) {
-                              setRef(ref.current);
-                            }
-                          }
+              <Grid
+                className={classes.tagPopover}
+                container
+                direction="row"
+                onMouseEnter={handlePopoverOpen}
+                onMouseLeave={handlePopoverClose}
+              >
+                <div style={{ display: 'flex', width: `${20 * allTagsLength}` + 'px' }}>
+                  {modifiedObjects.map((item, index) =>
+                    index < allTagsLength ? (
+                      <Grid
+                        style={{
+                          backgroundColor:
+                            modifiedObjects[index].colour !== null ? modifiedObjects[index].colour : '#e0e0e0',
+                          color: modifiedObjects[index].colour === null ? 'black' : 'white',
+                          display: 'flex',
+                          width: '20px',
+                          paddingLeft: '3px'
                         }}
-                        style={{ padding: '0px', paddingBottom: '3px', cursor: 'pointer' }}
+                        className={classes.tagPopover}
+                        item
+                        xs={12}
+                        key={index}
                       >
-                        <Tooltip title="Edit tags" className={classes.editButtonIcon}>
-                          <Edit />
-                        </Tooltip>
-                      </IconButton>
-                    )}
-                  </div>
+                        <div>{item.tag} </div>
+                      </Grid>
+                    ) : (
+                      <div></div>
+                    )
+                  )}
+                </div>
+                <div>
+                  {DJANGO_CONTEXT['username'] === 'NOT_LOGGED_IN' ? (
+                    <div></div>
+                  ) : (
+                    <IconButton
+                      color={'inherit'}
+                      disabled={!modifiedObjects}
+                      onClick={() => {
+                        if (tagEditModalOpenNew) {
+                          setTagEditModalOpenNew(false);
+                          dispatch(setTagEditorOpen(!tagEditModalOpenNew));
+                          dispatch(setMoleculeForTagEdit(null));
+                        } else {
+                          setTagEditModalOpenNew(true);
+                          dispatch(setMoleculeForTagEdit(data.id));
+                          dispatch(setTagEditorOpen(true));
+                          if (setRef) {
+                            setRef(ref.current);
+                          }
+                        }
+                      }}
+                      style={{ padding: '0px', paddingBottom: '3px', cursor: 'pointer' }}
+                    >
+                      <Tooltip title="Edit tags" className={classes.editButtonIcon}>
+                        <Edit />
+                      </Tooltip>
+                    </IconButton>
+                  )}
                 </div>
               </Grid>
             )}
@@ -582,7 +581,7 @@ const MoleculeView = memo(
                     background: '',
                     width: '320px',
                     display: 'flex',
-                    transform: 'translate(' + popperPadding + 'px, -10%)'
+                    transform: 'translate(' +  popperPadding + 'px, -10%)'
                   }}
                 >
                   <Grid alignItems="inherit" direction="row" container>
@@ -624,8 +623,32 @@ const MoleculeView = memo(
             <div> </div>
           )}
         </div>
-      ) : (
+      ) : DJANGO_CONTEXT['username'] === 'NOT_LOGGED_IN' ? (
         <div></div>
+      ) : (
+        <IconButton
+          color={'inherit'}
+          disabled={!modifiedObjects}
+          onClick={() => {
+            if (tagEditModalOpenNew) {
+              setTagEditModalOpenNew(false);
+              dispatch(setTagEditorOpen(!tagEditModalOpenNew));
+              dispatch(setMoleculeForTagEdit(null));
+            } else {
+              setTagEditModalOpenNew(true);
+              dispatch(setMoleculeForTagEdit(data.id));
+              dispatch(setTagEditorOpen(true));
+              if (setRef) {
+                setRef(ref.current);
+              }
+            }
+          }}
+          style={{ padding: '0px', paddingBottom: '3px', cursor: 'pointer' }}
+        >
+          <Tooltip title="Edit tags" className={classes.editButtonIcon}>
+            <Edit />
+          </Tooltip>
+        </IconButton>
       );
     };
 
