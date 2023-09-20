@@ -1323,7 +1323,7 @@ export const findTrackAction = (action, state) => (dispatch, getState) => {
           object_type: objectType,
           dataset_id: action.payload,
           selectedAllDatasetCompounds: selectedAllDatasetCompounds,
-          text: `Selected all Dataset compounds`
+          text: `${selectedAllDatasetCompounds === true ? 'Selected' : 'Unselected'} all dataset compounds`
         };
       }
     } else if (action.type === selectionConstants.SET_TAG_DETAIL_VIEW) {

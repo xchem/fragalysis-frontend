@@ -1063,8 +1063,8 @@ const DatasetMoleculeList = ({ title, datasetID, url }) => {
                             [classes.contColButtonHalfSelected]: false
                           })}
                           onClick={() => {
-                            selectAllDatasetMolecule(!selectAllPressed);
                             dispatch(setSelectAllButtonForDataset(!selectAllPressed));
+                            selectAllDatasetMolecule(!selectAllPressed);
                           }}
                           disabled={false}
                         >
