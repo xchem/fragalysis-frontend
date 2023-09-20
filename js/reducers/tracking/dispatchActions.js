@@ -92,7 +92,9 @@ import {
   appendCompoundToSelectedCompoundsByDataset,
   removeCompoundFromSelectedCompoundsByDataset,
   appendCompoundColorOfDataset,
-  removeCompoundColorOfDataset
+  removeCompoundColorOfDataset,
+  setCompoundToSelectedCompoundsByDataset,
+  setSelectAllButtonForDataset
 } from '../../components/datasets/redux/actions';
 import {
   removeComponentRepresentation,
@@ -480,6 +482,8 @@ const saveActionsList = (project, snapshot, actionList, nglViewList) => async (d
     getCommonLastActionByType(orderedActionList, actionType.SEARCH_STRING, currentActions);
     getCommonLastActionByType(orderedActionList, actionType.SEARCH_STRING_HIT_NAVIGATOR, currentActions);
     getCommonLastActionByType(orderedActionList, actionType.TAG_DETAIL_VIEW, currentActions);
+    getCommonLastActionByType(orderedActionList, actionType.SELECTED_SELECT_ALL_BUTTON_FOR_DATASET, currentActions);
+    getCommonLastActionByType(orderedActionList, actionType.SELECT_ALL_DATASET_COMPOUNDS, currentActions);
 
     // Since drag and drop state can be influenced by filter as well, determine its state by the last influential action
     const action = orderedActionList.find(action =>
@@ -947,6 +951,8 @@ export const restoreAfterTargetActions = (stages, projectId) => async (dispatch,
     dispatch(restoreSearchString(orderedActionList));
     dispatch(restoreSearchStringHitNavigator(orderedActionList));
     dispatch(restoreTagDetailGrid(orderedActionList));
+    dispatch(restoreSelectAllButtonForDataset(orderedActionList));
+    dispatch(restoreSelectAllDatasetCompounds(orderedActionList));
   }
 };
 
@@ -1727,6 +1733,29 @@ const restoreTagDetailGrid = moleculesAction => (dispatch, getState) => {
   let tagDetailView = moleculesAction.find(action => action.type === actionType.TAG_DETAIL_VIEW);
   if (tagDetailView) {
     dispatch(setTagDetailView(tagDetailView));
+  }
+};
+
+const restoreSelectAllButtonForDataset = moleculesAction => (dispatch, getState) => {
+  let selectAllButton = moleculesAction.find(
+    action => action.type === actionType.SELECTED_SELECT_ALL_BUTTON_FOR_DATASET
+  );
+  if (selectAllButton) {
+    dispatch(setSelectAllButtonForDataset(selectAllButton));
+  }
+};
+
+const restoreSelectAllDatasetCompounds = moleculesAction => (dispatch, getState) => {
+  let selectedAllDatasetCompounds = moleculesAction.find(
+    action => action.type === actionType.SELECT_ALL_DATASET_COMPOUNDS
+  );
+  if (selectedAllDatasetCompounds) {
+    dispatch(
+      setCompoundToSelectedCompoundsByDataset(
+        selectedAllDatasetCompounds.selectedAllDatasetCompounds.datasetID,
+        selectedAllDatasetCompounds.selectedAllDatasetCompounds.selectedCompounds
+      )
+    );
   }
 };
 

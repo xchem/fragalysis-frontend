@@ -51,7 +51,8 @@ import {
   setFilterDialogOpen,
   setIsOpenLockVisibleCompoundsDialogGlobal,
   setSearchStringOfCompoundSet,
-  setCompoundToSelectedCompoundsByDataset
+  setCompoundToSelectedCompoundsByDataset,
+  setSelectAllButtonForDataset
 } from './redux/actions';
 import { DatasetFilter } from './datasetFilter';
 import { FilterList, Link, DeleteForever, ArrowUpward, ArrowDownward, Edit } from '@material-ui/icons';
@@ -330,7 +331,7 @@ const DatasetMoleculeList = ({ title, datasetID, url }) => {
 
   const askLockCompoundsQuestion = useSelector(state => state.datasetsReducers.askLockCompoundsQuestion);
 
-  const [selectAllPressed, setSelectAllPressed] = useState(false);
+  const selectAllPressed = useSelector(state => state.datasetsReducers.isSelectedSelectAllButtonForDataset);
 
   // console.log('DatasetMoleculeList - update');
 
@@ -1063,7 +1064,7 @@ const DatasetMoleculeList = ({ title, datasetID, url }) => {
                           })}
                           onClick={() => {
                             selectAllDatasetMolecule(!selectAllPressed);
-                            setSelectAllPressed(!selectAllPressed);
+                            dispatch(setSelectAllButtonForDataset(!selectAllPressed));
                           }}
                           disabled={false}
                         >

@@ -331,6 +331,11 @@ export const setCompoundToSelectedCompoundsByDataset = (datasetID, compoundList 
   payload: { datasetID, selectedCompounds: compoundList }
 });
 
+export const setSelectAllButtonForDataset = isSelected => ({
+  type: constants.SET_SELECT_ALL_BUTTON_FOR_DATASET,
+  payload: isSelected
+});
+
 export const appendCompoundToSelectedCompoundsByDataset = (
   datasetID,
   compoundID,
