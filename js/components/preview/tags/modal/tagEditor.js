@@ -113,7 +113,7 @@ const useStyles = makeStyles(theme => ({
 }));
 
 export const TagEditor = memo(
-  forwardRef(({ open = false, anchorEl, setOpenDialog, closeDisabled }, ref) => {
+  forwardRef(({ open = false, anchorEl, setOpenDialog, closeDisabled }, tagEditorRef) => {
     const id = open ? 'simple-popover-mols-tag-editor' : undefined;
     const classes = useStyles();
     const dispatch = useDispatch();
@@ -253,6 +253,7 @@ export const TagEditor = memo(
     return (
       <Popper id={id} open={open} anchorEl={anchorEl} placement="left-start" ref={refForOutsideClick}>
         <Panel
+          ref={tagEditorRef}
           hasHeader
           secondaryBackground
           title="Assign tags"

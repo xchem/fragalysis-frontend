@@ -44,7 +44,8 @@ import {
   removeQuality,
   withDisabledMoleculesNglControlButtons,
   removeSelectedTypesInHitNavigator,
-  selectAllHits
+  selectAllHits,
+  autoHideTagEditorDialogsOnScroll
 } from './redux/dispatchActions';
 import { DEFAULT_FILTER, PREDEFINED_FILTERS } from '../../../reducers/selection/constants';
 import { Edit, FilterList } from '@material-ui/icons';
@@ -286,6 +287,7 @@ export const MoleculeList = memo(({ hideProjects }) => {
 
   const filterRef = useRef();
   const tagEditorRef = useRef();
+  const scrollBarRef = useRef();
   const [tagEditorAnchorEl, setTagEditorAnchorEl] = useState(null);
 
   if (directDisplay && directDisplay.target) {
@@ -1134,8 +1136,16 @@ export const MoleculeList = memo(({ hideProjects }) => {
         </Grid>
         {currentMolecules.length > 0 && (
           <>
-            <Grid item className={classes.gridItemList}>
+            <Grid item className={classes.gridItemList} ref={scrollBarRef}>
               <InfiniteScroll
+                getScrollParent={() =>
+                  dispatch(
+                    autoHideTagEditorDialogsOnScroll({
+                      tagEditorRef,
+                      scrollBarRef
+                    })
+                  )
+                }
                 pageStart={0}
                 loadMore={loadNextMolecules}
                 hasMore={canLoadMore}
