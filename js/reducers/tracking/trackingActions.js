@@ -1296,6 +1296,36 @@ export const findTrackAction = (action, state) => (dispatch, getState) => {
         searchStringHitNavigator: searchStringHitNavigator,
         text: `Searched string in Hit navigator: ${searchStringHitNavigator}`
       };
+    } else if (action.type === customDatasetConstants.SET_SELECT_ALL_BUTTON_FOR_DATASET) {
+      let selectAllButton = action.payload;
+      let objectType = actionType.SELECTED_SELECT_ALL_BUTTON_FOR_DATASET;
+
+      trackAction = {
+        type: actionType.SELECTED_SELECT_ALL_BUTTON_FOR_DATASET,
+        annotation: actionAnnotation.CHECK,
+        timestamp: Date.now(),
+        username: username,
+        object_type: objectType,
+        dataset_id: action.payload,
+        selectAllButton: selectAllButton,
+        text: `Pressed button ${selectAllButton === true ? 'Select' : 'Unselect'} all`
+      };
+    } else if (action.type === customDatasetConstants.SET_COMPOUND_TO_SELECTED_COMPOUNDS_BY_DATASET) {
+      if (action.payload) {
+        let selectedAllDatasetCompounds = action.payload;
+        let objectType = actionType.SELECT_ALL_DATASET_COMPOUNDS;
+
+        trackAction = {
+          type: actionType.SELECT_ALL_DATASET_COMPOUNDS,
+          annotation: actionAnnotation.CHECK,
+          timestamp: Date.now(),
+          username: username,
+          object_type: objectType,
+          dataset_id: action.payload,
+          selectedAllDatasetCompounds: selectedAllDatasetCompounds,
+          text: `${selectedAllDatasetCompounds === true ? 'Selected' : 'Unselected'} all dataset compounds`
+        };
+      }
     } else if (action.type === selectionConstants.SET_TAG_DETAIL_VIEW) {
       let tagDetailView = action.payload;
       let objectType = actionType.TAG_DETAIL_VIEW;

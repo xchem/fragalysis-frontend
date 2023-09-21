@@ -92,7 +92,9 @@ import {
   appendCompoundToSelectedCompoundsByDataset,
   removeCompoundFromSelectedCompoundsByDataset,
   appendCompoundColorOfDataset,
-  removeCompoundColorOfDataset
+  removeCompoundColorOfDataset,
+  setCompoundToSelectedCompoundsByDataset,
+  setSelectAllButtonForDataset
 } from '../../components/datasets/redux/actions';
 import {
   removeComponentRepresentation,
@@ -480,6 +482,8 @@ const saveActionsList = (project, snapshot, actionList, nglViewList) => async (d
     getCommonLastActionByType(orderedActionList, actionType.SEARCH_STRING, currentActions);
     getCommonLastActionByType(orderedActionList, actionType.SEARCH_STRING_HIT_NAVIGATOR, currentActions);
     getCommonLastActionByType(orderedActionList, actionType.TAG_DETAIL_VIEW, currentActions);
+    getCommonLastActionByType(orderedActionList, actionType.SELECTED_SELECT_ALL_BUTTON_FOR_DATASET, currentActions);
+    getCommonLastActionByType(orderedActionList, actionType.SELECT_ALL_DATASET_COMPOUNDS, currentActions);
 
     // Since drag and drop state can be influenced by filter as well, determine its state by the last influential action
     const action = orderedActionList.find(action =>
@@ -947,6 +951,8 @@ export const restoreAfterTargetActions = (stages, projectId) => async (dispatch,
     dispatch(restoreSearchString(orderedActionList));
     dispatch(restoreSearchStringHitNavigator(orderedActionList));
     dispatch(restoreTagDetailGrid(orderedActionList));
+    dispatch(restoreSelectAllButtonForDataset(orderedActionList));
+    dispatch(restoreSelectAllDatasetCompounds(orderedActionList));
   }
 };
 
@@ -1730,6 +1736,29 @@ const restoreTagDetailGrid = moleculesAction => (dispatch, getState) => {
   }
 };
 
+const restoreSelectAllButtonForDataset = moleculesAction => (dispatch, getState) => {
+  let selectAllButton = moleculesAction.find(
+    action => action.type === actionType.SELECTED_SELECT_ALL_BUTTON_FOR_DATASET
+  );
+  if (selectAllButton) {
+    dispatch(setSelectAllButtonForDataset(selectAllButton.dataset_id));
+  }
+};
+
+const restoreSelectAllDatasetCompounds = moleculesAction => (dispatch, getState) => {
+  let selectedAllDatasetCompounds = moleculesAction.find(
+    action => action.type === actionType.SELECT_ALL_DATASET_COMPOUNDS
+  );
+  if (selectedAllDatasetCompounds) {
+    dispatch(
+      setCompoundToSelectedCompoundsByDataset(
+        selectedAllDatasetCompounds.selectedAllDatasetCompounds.datasetID,
+        selectedAllDatasetCompounds.selectedAllDatasetCompounds.selectedCompounds
+      )
+    );
+  }
+};
+
 export const restoreViewerControlActions = moleculesAction => dispatch => {
   const turnSideActions = moleculesAction.filter(action => action.type === actionType.TURN_SIDE);
   turnSideActions.forEach(action => {
@@ -2334,6 +2363,12 @@ const handleUndoAction = (action, stages) => (dispatch, getState) => {
       case actionType.TURN_SIDE:
         dispatch(handleTurnSideAction(action, false));
         break;
+      case actionType.SELECTED_SELECT_ALL_BUTTON_FOR_DATASET:
+        dispatch(handleSelectAllDatasetCompounds(action, false));
+        break;
+      case actionType.SELECT_ALL_DATASET_COMPOUNDS:
+        dispatch(handleUnselectedAllCompounds(action));
+        break;
       default:
         break;
     }
@@ -2596,6 +2631,12 @@ const handleRedoAction = (action, stages) => (dispatch, getState) => {
         break;
       case actionType.TURN_SIDE:
         dispatch(handleTurnSideAction(action, true));
+        break;
+      case actionType.SELECTED_SELECT_ALL_BUTTON_FOR_DATASET:
+        dispatch(handleSelectAllDatasetCompounds(action, true));
+        break;
+      case actionType.SELECT_ALL_DATASET_COMPOUNDS:
+        dispatch(handleSelectedAllCompounds(action));
         break;
       default:
         break;
@@ -2964,6 +3005,24 @@ const handleSelectMoleculeByName = (molName, isSelected) => (dispatch, getState)
 const handleSelectAllMolecules = (action, isSelected) => (dispatch, getState) => {
   if (action && action.items) {
     dispatch(selectAllHits(action.items, setNextXMolecules, !isSelected));
+  }
+};
+
+const handleSelectAllDatasetCompounds = (action, isSelected) => (dispatch, getState) => {
+  if (action.selectAllButton) {
+    dispatch(setSelectAllButtonForDataset(isSelected));
+  }
+};
+
+const handleSelectedAllCompounds = action => (dispatch, getState) => {
+  if (action) {
+    dispatch(setCompoundToSelectedCompoundsByDataset(action.dataset_id.datasetID, action.dataset_id.selectedCompounds));
+  }
+};
+
+const handleUnselectedAllCompounds = action => (dispatch, getState) => {
+  if (action) {
+    dispatch(setCompoundToSelectedCompoundsByDataset(action.dataset_id.datasetID, []));
   }
 };
 
