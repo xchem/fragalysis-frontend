@@ -1066,7 +1066,7 @@ export const MoleculeList = memo(({ hideProjects }) => {
                   [classes.contColButtonHalfSelected]: false
                 })}
                 onClick={() => {
-                  dispatch(selectAllHits(joinedMoleculeLists, selectAllHitsPressed));
+                  dispatch(selectAllHits(joinedMoleculeLists, setNextXMolecules, selectAllHitsPressed));
                   setSelectAllHitsPressed(!selectAllHitsPressed);
                 }}
                 disabled={false}
