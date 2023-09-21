@@ -1009,7 +1009,7 @@ export const MoleculeList = memo(({ hideProjects }) => {
           </>
         )}
       </div>
-      <Grid container onClick={() => (assignTagEditorOpen === true ? dispatch(setTagEditorOpen(false)) : '')}>
+      <Grid container>
         {allSelectedMolecules.length > 0 && (
           <Grid>
             <Tooltip title="all ligands" style={{ marginLeft: '5px' }}>
@@ -1119,13 +1119,7 @@ export const MoleculeList = memo(({ hideProjects }) => {
           }`}</Typography>
         </Grid>
       </Grid>
-      <Grid
-        container
-        direction="column"
-        justify="flex-start"
-        className={classes.container}
-        onClick={() => (assignTagEditorOpen === true ? dispatch(setTagEditorOpen(false)) : '')}
-      >
+      <Grid container direction="column" justify="flex-start" className={classes.container}>
         <Grid item>
           {/* Header */}
           <Grid container justify="flex-start" direction="row" className={classes.molHeader} wrap="nowrap">
@@ -1200,7 +1194,7 @@ export const MoleculeList = memo(({ hideProjects }) => {
                 </GroupNglControlButtonsContext.Provider>
               </InfiniteScroll>
             </Grid>
-            <Grid item onClick={() => (assignTagEditorOpen === true ? dispatch(setTagEditorOpen(false)) : '')}>
+            <Grid item>
               <Grid container justify="space-between" alignItems="center" direction="row">
                 <Grid item>
                   <span className={classes.total}>{`Total ${joinedMoleculeLists?.length}`}</span>

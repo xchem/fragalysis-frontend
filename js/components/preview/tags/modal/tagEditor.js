@@ -1,11 +1,16 @@
-import React, { forwardRef, memo, useEffect, useState } from 'react';
+import React, { forwardRef, memo, useEffect, useState, useRef } from 'react';
 import { Grid, Popper, IconButton, Tooltip, makeStyles, FormControlLabel, Switch } from '@material-ui/core';
 import { Panel } from '../../../common';
 import { Close } from '@material-ui/icons';
 import { useDispatch, useSelector } from 'react-redux';
 import { updateMoleculeInMolLists, updateMoleculeTag } from '../../../../reducers/api/actions';
 import { getMoleculeForId } from '../redux/dispatchActions';
-import { setMoleculeForTagEdit, setIsTagGlobalEdit, setAssignTagView } from '../../../../reducers/selection/actions';
+import {
+  setMoleculeForTagEdit,
+  setIsTagGlobalEdit,
+  setAssignTagView,
+  setTagEditorOpen
+} from '../../../../reducers/selection/actions';
 import { updateExistingTag } from '../api/tagsApi';
 import { DJANGO_CONTEXT } from '../../../../utils/djangoContext';
 import {
@@ -112,6 +117,7 @@ export const TagEditor = memo(
     const id = open ? 'simple-popover-mols-tag-editor' : undefined;
     const classes = useStyles();
     const dispatch = useDispatch();
+    const refForOutsideClick = useRef(null);
     let moleculeTags = useSelector(state => state.apiReducers.moleculeTags);
     const isTagGlobalEdit = useSelector(state => state.selectionReducers.isGlobalEdit);
     const molId = useSelector(state => state.selectionReducers.molForTagEdit);
@@ -126,8 +132,22 @@ export const TagEditor = memo(
     }
     const moleculesToEdit = moleculesToEditIds.map(id => dispatch(getMoleculeForId(id)));
     moleculeTags = moleculeTags.sort(compareTagsAsc);
+    const assignTagEditorOpen = useSelector(state => state.selectionReducers.tagEditorOpened);
 
     const assignTagView = useSelector(state => state.selectionReducers.assignTagView);
+
+    useEffect(() => {
+      document.addEventListener('mousedown', handleOutsideClick);
+      return () => {
+        document.removeEventListener('mousedown', handleOutsideClick);
+      };
+    });
+
+    const handleOutsideClick = e => {
+      if (refForOutsideClick.current && !refForOutsideClick.current.contains(e.target)) {
+        assignTagEditorOpen === true ? dispatch(setTagEditorOpen(false)) : '';
+      }
+    };
 
     const handleCloseModal = () => {
       if (open) {
@@ -231,7 +251,7 @@ export const TagEditor = memo(
     })(Switch);
 
     return (
-      <Popper id={id} open={open} anchorEl={anchorEl} placement="left-start" ref={ref}>
+      <Popper id={id} open={open} anchorEl={anchorEl} placement="left-start" ref={refForOutsideClick}>
         <Panel
           hasHeader
           secondaryBackground

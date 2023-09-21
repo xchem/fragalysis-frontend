@@ -307,15 +307,9 @@ const Preview = memo(({ isStateLoaded, hideProjects, isSnapshot = false }) => {
           {currentLayout?.lg?.map(item => renderItem(item.i))}
         </ReactGridLayout>
       </div>
-      <div
-        onClick={() =>
-          assignTagEditorOpen === true ? (dispatch(setTagEditorOpen(false)), dispatch(setMoleculeForTagEdit(null))) : ''
-        }
-      >
-        <InPortal node={nglPortal}>
-          <NGLView div_id={VIEWS.MAJOR_VIEW} />
-        </InPortal>
-      </div>
+      <InPortal node={nglPortal}>
+        <NGLView div_id={VIEWS.MAJOR_VIEW} />
+      </InPortal>
       <NewSnapshotModal />
       <ModalShareSnapshot />
       <SaveSnapshotBeforeExit />

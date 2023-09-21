@@ -58,19 +58,13 @@ export const ProjectHistoryPanel = ({ showFullHistory }) => {
 
   if (currentTab === 'projectHistory') {
     return (
-      <div
-        onClick={() =>
-          assignTagEditorOpen === true ? (dispatch(setTagEditorOpen(false)), dispatch(setMoleculeForTagEdit(null))) : ''
-        }
-      >
-        <ProjectHistory
-          showFullHistory={showFullHistory}
-          graphKey={graphKey}
-          expanded={expanded}
-          onExpanded={expanded => setExpanded(expanded)}
-          onTabChange={tab => setCurrentTab(tab)}
-        />
-      </div>
+      <ProjectHistory
+        showFullHistory={showFullHistory}
+        graphKey={graphKey}
+        expanded={expanded}
+        onExpanded={expanded => setExpanded(expanded)}
+        onTabChange={tab => setCurrentTab(tab)}
+      />
     );
   }
 

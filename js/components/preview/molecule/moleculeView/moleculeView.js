@@ -571,7 +571,6 @@ const MoleculeView = memo(
               aria-owns={open ? 'mouse-over-popper' : undefined}
               aria-haspopup="true"
               style={{ fontSize: '10px', display: 'flex' }}
-              onClick={() => (assignTagEditorOpen === true ? dispatch(setTagEditorOpen(false)) : '')}
             >
               <Popper open={open} placement="right-start" anchorEl={tagPopoverOpen} style={{ display: 'flex' }}>
                 <Panel
@@ -581,7 +580,7 @@ const MoleculeView = memo(
                     background: '',
                     width: '320px',
                     display: 'flex',
-                    transform: 'translate(' +  popperPadding + 'px, -10%)'
+                    transform: 'translate(' + popperPadding + 'px, -10%)'
                   }}
                 >
                   <Grid alignItems="inherit" direction="row" container>
@@ -952,15 +951,7 @@ const MoleculeView = memo(
 
     return (
       <>
-        <Grid
-          container
-          justify="space-between"
-          direction="row"
-          className={classes.container}
-          wrap="nowrap"
-          ref={ref}
-          onClick={() => (assignTagEditorOpen === true ? dispatch(setTagEditorOpen(false)) : '')}
-        >
+        <Grid container justify="space-between" direction="row" className={classes.container} wrap="nowrap" ref={ref}>
           {/* Site number */}
           <Grid item container justify="space-between" direction="column" className={classes.site}>
             <Grid item>
