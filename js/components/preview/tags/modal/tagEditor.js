@@ -145,7 +145,7 @@ export const TagEditor = memo(
 
     const handleOutsideClick = e => {
       if (refForOutsideClick.current && !refForOutsideClick.current.contains(e.target)) {
-        assignTagEditorOpen === true ? dispatch(setTagEditorOpen(false)) : '';
+        assignTagEditorOpen === true ? ( dispatch(setTagEditorOpen(false)),dispatch(setMoleculeForTagEdit(null))) : '';
       }
     };
 

@@ -31,7 +31,8 @@ import {
   setMolListToEdit,
   setSelectAllMolecules,
   setUnselectAllMolecules,
-  setTagEditorOpen
+  setTagEditorOpen,
+  setMoleculeForTagEdit
 } from '../../../../reducers/selection/actions';
 import { base_url } from '../../../routes/constants';
 import {
@@ -131,6 +132,7 @@ export const autoHideTagEditorDialogsOnScroll = ({ tagEditorRef, scrollBarRef })
       Math.abs(scrollBarBoundingClientRect.bottom - currentBoundingClientRectTagEdit.top) < 42
     ) {
       dispatch(setTagEditorOpen(false));
+      dispatch(setMoleculeForTagEdit(null));
     }
   }
 };
