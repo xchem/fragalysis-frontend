@@ -111,6 +111,30 @@ const generateBondColorMap = inputDict => {
   return out_d;
 };
 
+export const autoHideTagEditorDialogsOnScroll = ({ tagEditorRef, scrollBarRef }) => (dispatch, getState) => {
+  const state = getState();
+  const isOpenTagEditor = state.selectionReducers.tagEditorOpened;
+
+  const currentBoundingClientRectTagEdit =
+    (tagEditorRef.current && tagEditorRef.current.getBoundingClientRect()) || null;
+
+  const scrollBarBoundingClientRect = (scrollBarRef.current && scrollBarRef.current.getBoundingClientRect()) || null;
+  if (
+    isOpenTagEditor &&
+    currentBoundingClientRectTagEdit !== null &&
+    scrollBarBoundingClientRect !== null &&
+    currentBoundingClientRectTagEdit.x !== 0 &&
+    currentBoundingClientRectTagEdit.y !== 0
+  ) {
+    if (
+      Math.round(currentBoundingClientRectTagEdit.top) < Math.round(scrollBarBoundingClientRect.top) ||
+      Math.abs(scrollBarBoundingClientRect.bottom - currentBoundingClientRectTagEdit.top) < 42
+    ) {
+      dispatch(setTagEditorOpen(false));
+    }
+  }
+};
+
 const getViewUrl = (get_view, data) => {
   const url = new URL(base_url + '/api/' + get_view + '/' + data.id + '/');
   return url;
@@ -1170,26 +1194,3 @@ export const selectAllHits = (allFilteredMolecules, setNextXMolecules, unselect)
   }
 };
 
-export const autoHideTagEditorDialogsOnScroll = ({ tagEditorRef, scrollBarRef }) => (dispatch, getState) => {
-  const state = getState();
-  const isOpenTagEditor = state.selectionReducers.tagEditorOpened;
-
-  const currentBoundingClientRectTagEdit =
-    (tagEditorRef.current && tagEditorRef.current.getBoundingClientRect()) || null;
-
-  const scrollBarBoundingClientRect = (scrollBarRef.current && scrollBarRef.current.getBoundingClientRect()) || null;
-  if (
-    isOpenTagEditor &&
-    currentBoundingClientRectTagEdit !== null &&
-    scrollBarBoundingClientRect !== null &&
-    currentBoundingClientRectTagEdit.x !== 0 &&
-    currentBoundingClientRectTagEdit.y !== 0
-  ) {
-    if (
-      Math.round(currentBoundingClientRectTagEdit.top) < Math.round(scrollBarBoundingClientRect.top) ||
-      Math.abs(scrollBarBoundingClientRect.bottom - currentBoundingClientRectTagEdit.top) < 42
-    ) {
-      dispatch(setTagEditorOpen(false));
-    }
-  }
-};

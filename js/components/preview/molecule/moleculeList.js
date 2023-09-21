@@ -1011,7 +1011,7 @@ export const MoleculeList = memo(({ hideProjects }) => {
           </>
         )}
       </div>
-      <Grid container>
+      <Grid container spacing={1}>
         {allSelectedMolecules.length > 0 && (
           <Grid>
             <Tooltip title="all ligands" style={{ marginLeft: '5px' }}>
@@ -1121,10 +1121,10 @@ export const MoleculeList = memo(({ hideProjects }) => {
           }`}</Typography>
         </Grid>
       </Grid>
-      <Grid container direction="column" justify="flex-start" className={classes.container}>
+      <Grid container spacing={1} direction="column" justify="flex-start" className={classes.container}>
         <Grid item>
           {/* Header */}
-          <Grid container justify="flex-start" direction="row" className={classes.molHeader} wrap="nowrap">
+          <Grid container spacing={1} justify="flex-start" direction="row" className={classes.molHeader} wrap="nowrap">
             <Grid item container justify="flex-start" direction="row">
               {Object.keys(moleculeProperty).map(key => (
                 <Grid item key={key} className={classes.rightBorder}>
@@ -1205,7 +1205,7 @@ export const MoleculeList = memo(({ hideProjects }) => {
               </InfiniteScroll>
             </Grid>
             <Grid item>
-              <Grid container justify="space-between" alignItems="center" direction="row">
+              <Grid container spacing={1} justify="space-between" alignItems="center" direction="row">
                 <Grid item>
                   <span className={classes.total}>{`Total ${joinedMoleculeLists?.length}`}</span>
                 </Grid>

@@ -583,7 +583,7 @@ const MoleculeView = memo(
                     transform: 'translate(' + popperPadding + 'px, -10%)'
                   }}
                 >
-                  <Grid alignItems="inherit" direction="row" container>
+                  <Grid alignItems="center" direction="row" container>
                     {sortedData.map((item, index) => (
                       <Grid
                         style={{
