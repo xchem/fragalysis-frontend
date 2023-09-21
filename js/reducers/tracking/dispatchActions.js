@@ -2363,6 +2363,12 @@ const handleUndoAction = (action, stages) => (dispatch, getState) => {
       case actionType.TURN_SIDE:
         dispatch(handleTurnSideAction(action, false));
         break;
+      case actionType.SELECTED_SELECT_ALL_BUTTON_FOR_DATASET:
+        dispatch(handleSelectAllDatasetCompounds(action, false));
+        break;
+      case actionType.SELECT_ALL_DATASET_COMPOUNDS:
+        dispatch(handleUnselectedAllCompounds(action));
+        break;
       default:
         break;
     }
@@ -2625,6 +2631,12 @@ const handleRedoAction = (action, stages) => (dispatch, getState) => {
         break;
       case actionType.TURN_SIDE:
         dispatch(handleTurnSideAction(action, true));
+        break;
+      case actionType.SELECTED_SELECT_ALL_BUTTON_FOR_DATASET:
+        dispatch(handleSelectAllDatasetCompounds(action, true));
+        break;
+      case actionType.SELECT_ALL_DATASET_COMPOUNDS:
+        dispatch(handleSelectedAllCompounds(action));
         break;
       default:
         break;
@@ -2993,6 +3005,24 @@ const handleSelectMoleculeByName = (molName, isSelected) => (dispatch, getState)
 const handleSelectAllMolecules = (action, isSelected) => (dispatch, getState) => {
   if (action && action.items) {
     dispatch(selectAllHits(action.items, setNextXMolecules, !isSelected));
+  }
+};
+
+const handleSelectAllDatasetCompounds = (action, isSelected) => (dispatch, getState) => {
+  if (action.selectAllButton) {
+    dispatch(setSelectAllButtonForDataset(isSelected));
+  }
+};
+
+const handleSelectedAllCompounds = action => (dispatch, getState) => {
+  if (action) {
+    dispatch(setCompoundToSelectedCompoundsByDataset(action.dataset_id.datasetID, action.dataset_id.selectedCompounds));
+  }
+};
+
+const handleUnselectedAllCompounds = action => (dispatch, getState) => {
+  if (action) {
+    dispatch(setCompoundToSelectedCompoundsByDataset(action.dataset_id.datasetID, []));
   }
 };
 

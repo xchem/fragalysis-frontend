@@ -326,7 +326,7 @@ export const setFilterWithInspirations = isChecked => ({
   payload: isChecked
 });
 
-export const setCompoundToSelectedCompoundsByDataset = (datasetID, compoundList = []) => ({
+export const setCompoundToSelectedCompoundsByDataset = (datasetID, compoundList = [], setNextXMolecules) => ({
   type: constants.SET_COMPOUND_TO_SELECTED_COMPOUNDS_BY_DATASET,
   payload: { datasetID, selectedCompounds: compoundList }
 });
