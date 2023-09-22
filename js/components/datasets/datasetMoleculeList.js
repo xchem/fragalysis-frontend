@@ -370,7 +370,7 @@ const DatasetMoleculeList = ({ title, datasetID, url }) => {
   //   setSelectedMolecules((moleculeLists[datasetID] || []).filter(mol => compoundsToBuyList?.includes(mol.id)));
   // }, [compoundsToBuyList, datasetID, moleculeLists]);
 
-  const selectedMolecules = (moleculeLists[datasetID] || []).filter(mol => compoundsToBuyList?.includes(mol.id));
+  const allMolecules = moleculeLists[datasetID];
   let lockedMolecules = useSelector(state => state.datasetsReducers.selectedCompoundsByDataset[datasetID]) ?? [];
   const editedColorGroup = useSelector(state => state.datasetsReducers.editedColorGroup);
 
@@ -401,8 +401,8 @@ const DatasetMoleculeList = ({ title, datasetID, url }) => {
   const compoundColors = useSelector(state => state.datasetsReducers.compoundColorByDataset[datasetID]) ?? {};
 
   const isSelectedTypeOn = typeList => {
-    if (typeList && compoundsToBuyList) {
-      return typeList.some(molId => selectedMolecules.some(mol => mol.id === molId));
+    if (typeList) {
+      return typeList.some(molId => allMolecules.some(mol => mol.id === molId));
     }
     return false;
   };
@@ -960,6 +960,7 @@ const DatasetMoleculeList = ({ title, datasetID, url }) => {
                       wrap="nowrap"
                       className={classes.contButtonsMargin}
                     >
+                      {console.log('isLigandOn', isLigandOn)}
                       <Tooltip title="all ligands">
                         <Grid item>
                           <Button
