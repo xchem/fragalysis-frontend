@@ -251,9 +251,9 @@ export const TagEditor = memo(
     })(Switch);
 
     return (
-      <Popper id={id} open={open} anchorEl={anchorEl} placement="left-start" ref={refForOutsideClick}>
+      <Popper id={id} open={open} anchorEl={anchorEl} placement="left-start" ref={tagEditorRef}>
         <Panel
-          ref={tagEditorRef}
+          ref={refForOutsideClick}
           hasHeader
           secondaryBackground
           title="Assign tags"
