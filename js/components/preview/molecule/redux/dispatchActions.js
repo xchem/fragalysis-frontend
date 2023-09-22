@@ -115,16 +115,11 @@ const generateBondColorMap = inputDict => {
 export const autoHideTagEditorDialogsOnScroll = ({ tagEditorRef, scrollBarRef }) => (dispatch, getState) => {
   const state = getState();
   const isOpenTagEditor = state.selectionReducers.tagEditorOpened;
-  console.log('isOpenTagEditor', isOpenTagEditor);
-
-  console.log('diffRef', tagEditorRef, scrollBarRef);
 
   const currentBoundingClientRectTagEdit =
     (tagEditorRef.current && tagEditorRef.current.getBoundingClientRect()) || null;
 
   const scrollBarBoundingClientRect = (scrollBarRef.current && scrollBarRef.current.getBoundingClientRect()) || null;
-
-  console.log('values', currentBoundingClientRectTagEdit, scrollBarBoundingClientRect);
 
   if (
     isOpenTagEditor &&
@@ -133,16 +128,10 @@ export const autoHideTagEditorDialogsOnScroll = ({ tagEditorRef, scrollBarRef })
     currentBoundingClientRectTagEdit.x !== 0 &&
     currentBoundingClientRectTagEdit.y !== 0
   ) {
-    console.log('firstCondition accepted');
     if (
       Math.round(currentBoundingClientRectTagEdit.top) < Math.round(scrollBarBoundingClientRect.top) ||
       Math.abs(scrollBarBoundingClientRect.bottom - currentBoundingClientRectTagEdit.top) < 42
     ) {
-      console.log('secondCondition accepted');
-      console.log('math1', Math.round(currentBoundingClientRectTagEdit.top));
-      console.log('math2', Math.round(scrollBarBoundingClientRect.top));
-      console.log('math3', Math.abs(scrollBarBoundingClientRect.bottom - currentBoundingClientRectTagEdit.top));
-
       dispatch(setTagEditorOpen(false));
       dispatch(setMoleculeForTagEdit(null));
     }
