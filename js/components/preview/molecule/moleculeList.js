@@ -934,7 +934,7 @@ export const MoleculeList = memo(({ hideProjects }) => {
   const anyControlButtonDisabled = Object.values(groupNglControlButtonsDisabledState).some(buttonState => buttonState);
 
   return (
-    <Panel hasHeader title="Hit navigator" headerActions={actions}  ref={tagEditorRef}>
+    <Panel hasHeader title="Hit navigator" headerActions={actions}>
       <AlertModal
         title="Are you sure?"
         description={`Loading of ${joinedMoleculeLists?.length} may take a long time`}
@@ -1134,7 +1134,7 @@ export const MoleculeList = memo(({ hideProjects }) => {
             </Grid>
           </Grid>
         </Grid>
-        {console.log("tagEditorRef", tagEditorRef)}
+        {console.log('tagEditorRef', tagEditorRef)}
         {currentMolecules.length > 0 && (
           <>
             <Grid item className={classes.gridItemList} ref={scrollBarRef}>
