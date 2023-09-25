@@ -222,7 +222,7 @@ const useStyles = makeStyles(theme => ({
 }));
 let selectedDisplayHits = false;
 
-export const MoleculeList = memo(({ hideProjects }) => {
+export const MoleculeList = ({ hideProjects }) => {
   const classes = useStyles();
   const dispatch = useDispatch();
   let match = useRouteMatch();
@@ -1246,4 +1246,4 @@ export const MoleculeList = memo(({ hideProjects }) => {
       </Grid>
     </Panel>
   );
-});
+};
