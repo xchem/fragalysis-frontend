@@ -173,6 +173,28 @@ const useStyles = makeStyles(theme => ({
       borderColor: 'white'
     }
   },
+  contColButtonUnselected: {
+    minWidth: 'fit-content',
+    paddingLeft: theme.spacing(1) / 4,
+    paddingRight: theme.spacing(1) / 4,
+    paddingBottom: 0,
+    paddingTop: 0,
+    fontWeight: 'bold',
+    fontSize: 9,
+    borderRadius: 0,
+    borderColor: theme.palette.primary.main,
+    backgroundColor: theme.palette.primary.light,
+    '&:hover': {
+      backgroundColor: theme.palette.primary.light
+      // color: theme.palette.primary.contrastText
+    },
+    '&:disabled': {
+      borderRadius: 0,
+      borderColor: 'white',
+      color: 'white'
+    }
+  },
+
   contColButtonSelected: {
     backgroundColor: theme.palette.primary.main,
     color: theme.palette.primary.contrastText,
@@ -222,7 +244,7 @@ const useStyles = makeStyles(theme => ({
 }));
 let selectedDisplayHits = false;
 
-export const MoleculeList = ({ hideProjects }) => {
+export const MoleculeList = memo(({ hideProjects }) => {
   const classes = useStyles();
   const dispatch = useDispatch();
   let match = useRouteMatch();
@@ -232,7 +254,7 @@ export const MoleculeList = ({ hideProjects }) => {
   const nextXMolecules = useSelector(state => state.selectionReducers.nextXMolecules);
   const [selectAllHitsPressed, setSelectAllHitsPressed] = useState(false);
   const [selectDisplayedHitsPressed, setSelectDisplayedHitsPressed] = useState(false);
-  const moleculesPerPage = 5;
+  const moleculesPerPage = 30;
   const [currentPage, setCurrentPage] = useState(0);
   const searchString = useSelector(state => state.previewReducers.molecule.searchStringLHS);
   // const [searchString, setSearchString] = useState(null);
@@ -1012,53 +1034,58 @@ export const MoleculeList = ({ hideProjects }) => {
         )}
       </div>
       <Grid container spacing={1}>
-        {allSelectedMolecules.length > 0 && (
-          <Grid>
-            <Tooltip title="all ligands" style={{ marginLeft: '5px' }}>
-              <Button
-                variant="outlined"
-                className={classNames(classes.contColButton, {
-                  [classes.contColButtonSelected]: isLigandOn === true,
-                  [classes.contColButtonHalfSelected]: isLigandOn === null
-                })}
-                onClick={() => onButtonToggle('ligand')}
-                disabled={groupNglControlButtonsDisabledState.ligand}
-              >
-                L
-              </Button>
-            </Tooltip>
-            <Tooltip title="all sidechains" style={{ marginLeft: '5px' }}>
-              <Button
-                variant="outlined"
-                className={classNames(classes.contColButton, {
+        <Grid style={{ marginTop: '4px' }}>
+          <Tooltip title="all ligands" style={{ marginLeft: '5px' }}>
+            <Button
+              variant="outlined"
+              className={classNames(classes.contColButton, {
+                [classes.contColButtonSelected]: isLigandOn === true,
+                [classes.contColButtonHalfSelected]: isLigandOn === null
+              })}
+              onClick={() => onButtonToggle('ligand')}
+              disabled={groupNglControlButtonsDisabledState.ligand || allSelectedMolecules.length === 0}
+            >
+              L
+            </Button>
+          </Tooltip>
+          <Tooltip title="all sidechains" style={{ marginLeft: '5px' }}>
+            <Button
+              variant="outlined"
+              className={classNames(
+                allSelectedMolecules.length === 0 ? classes.contColButton : classes.contColButtonUnselected,
+                {
                   [classes.contColButtonSelected]: isProteinOn,
                   [classes.contColButtonHalfSelected]: isProteinOn === null
-                })}
-                onClick={() => onButtonToggle('protein')}
-                disabled={groupNglControlButtonsDisabledState.protein}
-              >
-                P
-              </Button>
-            </Tooltip>
-            <Tooltip title="all interactions" style={{ marginLeft: '5px' }}>
-              {/* C stands for contacts now */}
-              <Button
-                variant="outlined"
-                className={classNames(classes.contColButton, {
+                }
+              )}
+              onClick={() => onButtonToggle('protein')}
+              disabled={groupNglControlButtonsDisabledState.protein || allSelectedMolecules.length === 0}
+            >
+              P
+            </Button>
+          </Tooltip>
+          <Tooltip title="all interactions" style={{ marginLeft: '5px' }}>
+            {/* C stands for contacts now */}
+            <Button
+              variant="outlined"
+              className={classNames(
+                allSelectedMolecules.length === 0 ? classes.contColButton : classes.contColButtonUnselected,
+                {
                   [classes.contColButtonSelected]: isComplexOn,
                   [classes.contColButtonHalfSelected]: isComplexOn === null
-                })}
-                onClick={() => onButtonToggle('complex')}
-                disabled={groupNglControlButtonsDisabledState.complex}
-              >
-                C
-              </Button>
-            </Tooltip>
-          </Grid>
-        )}
+                }
+              )}
+              onClick={() => onButtonToggle('complex')}
+              disabled={groupNglControlButtonsDisabledState.complex || allSelectedMolecules.length === 0}
+            >
+              C
+            </Button>
+          </Tooltip>
+        </Grid>
+
         {
           <Tooltip title={selectAllHitsPressed ? 'Unselect all hits' : 'Select all hits'}>
-            <Grid item style={{ marginLeft: allSelectedMolecules.length === 0 ? '70px' : '20px' }}>
+            <Grid item style={{ marginLeft: '20px' }}>
               <Button
                 variant="outlined"
                 className={classNames(classes.contColButton, {
@@ -1115,7 +1142,7 @@ export const MoleculeList = ({ hideProjects }) => {
             </Grid>
           </Tooltip>
         )}
-        <Grid>
+        <Grid style={{ marginTop: '4px' }}>
           <Typography variant="caption" className={classes.noOfSelectedHits}>{`Selected: ${
             allSelectedMolecules ? allSelectedMolecules.length : 0
           }`}</Typography>
@@ -1246,4 +1273,4 @@ export const MoleculeList = ({ hideProjects }) => {
       </Grid>
     </Panel>
   );
-};
+});
