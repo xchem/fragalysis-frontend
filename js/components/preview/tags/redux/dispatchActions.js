@@ -224,7 +224,6 @@ export const unselectTag = tag => (dispatch, getState) => {
 //   });
 //   // }
 // };
-
 const getTagsForMol = (molId, tagList) => {
   const result = tagList.filter(t => t.site_observations.includes(molId));
   return result;
@@ -242,7 +241,7 @@ export const loadMoleculesAndTagsNew = targetId => async (dispatch, getState) =>
       let newObject = { ...mol };
       const tagsForMol = getTagsForMol(mol.id, tags);
       if (tagsForMol) {
-        newObject['tags_set'] = [...tagsForMol.map(t => t.id)];
+        newObject['tags_set'] = [...tagsForMol];
       } else {
         newObject['tags_set'] = [];
       }
@@ -250,10 +249,10 @@ export const loadMoleculesAndTagsNew = targetId => async (dispatch, getState) =>
     });
 
     allMolecules?.sort((a, b) => {
-      if (a.code < b.code) {
+      if (a.protein_code < b.protein_code) {
         return -1;
       }
-      if (a.code > b.code) {
+      if (a.protein_code > b.protein_code) {
         return 1;
       }
       return 0;
