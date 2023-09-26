@@ -11,6 +11,22 @@ export const getAllData = targetId => {
   });
 };
 
+export const getTags = targetId => {
+  return api({ url: `${base_url}/api/siteobservation_tag/?target=${targetId}` }).then(response => {
+    if (response?.data) {
+      return response.data;
+    }
+  });
+};
+
+export const getAllDataNew = async targetId => {
+  return api({ url: `${base_url}/api/site_observations/?target=${targetId}` }).then(response => {
+    if (response?.data) {
+      return response.data;
+    }
+  });
+};
+
 export const getTagMolecules = targetId => {
   return api({ url: `${base_url}/api/molecule_tag/?target=${targetId}` })
     .then(response => {
