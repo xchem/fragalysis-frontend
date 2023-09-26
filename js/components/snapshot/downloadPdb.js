@@ -9,7 +9,7 @@ import FileSaver from 'file-saver';
 import { api } from '../../utils/api';
 import { CloudDownload, Loop } from '@material-ui/icons';
 import { setDownloadStructuresDialogOpen } from './redux/actions';
-import { getTagMolecules } from '../preview/tags/api/tagsApi';
+import { getTagMolecules, getTags } from '../preview/tags/api/tagsApi';
 import { compareTagsAsc } from '../preview/tags/utils/tagUtils';
 import { DJANGO_CONTEXT } from '../../utils/djangoContext';
 import { diffBetweenDatesInDays } from '../../utils/common';
@@ -40,7 +40,7 @@ const DownloadPdb = memo(({ targetOn, targetOnName, key }) => {
   };
 
   const openDownloadStructuresDialog = () => {
-    getTagMolecules(target_on)
+    getTags(target_on)
       .then(data => {
         const sorted = data.results.sort(compareTagsAsc);
         const downloadTags = [];

@@ -35,8 +35,8 @@ import { useUpdateGridLayout } from './useUpdateGridLayout';
 import { createHtmlPortalNode, InPortal, OutPortal } from 'react-reverse-portal';
 import { RHS } from './rhs';
 import { ResizableLayout } from './ResizableLayout';
-import { loadMoleculesAndTags } from './tags/redux/dispatchActions';
-import { getTagMolecules } from './tags/api/tagsApi';
+import { loadMoleculesAndTags, loadMoleculesAndTagsNew } from './tags/redux/dispatchActions';
+import { getTagMolecules, getTags } from './tags/api/tagsApi';
 import { compareTagsAsc } from './tags/utils/tagUtils';
 import { setMoleculeTags } from '../../reducers/api/actions';
 import { PickProjectModal } from './PickProjectModal';
@@ -125,16 +125,13 @@ const Preview = memo(({ isStateLoaded, hideProjects, isSnapshot = false }) => {
 
   useEffect(() => {
     if (target_on && !isSnapshot) {
-      setMoleculesAndTagsAreLoading(true);
-      dispatch(loadMoleculesAndTags(target_on)).finally(() => {
-        setMoleculesAndTagsAreLoading(false);
-      });
+      dispatch(loadMoleculesAndTagsNew(target_on));
     }
   }, [dispatch, target_on, isSnapshot, setMoleculesAndTagsAreLoading]);
 
   useEffect(() => {
     if (target_on) {
-      getTagMolecules(target_on).then(data => {
+      getTags(target_on).then(data => {
         const sorted = data.results.sort(compareTagsAsc);
         dispatch(setMoleculeTags(sorted));
       });

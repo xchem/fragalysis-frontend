@@ -30,7 +30,7 @@ import {
 } from '../../../../reducers/api/actions';
 import { setSortDialogOpen } from '../../molecule/redux/actions';
 import { resetCurrentCompoundsSettings } from '../../compounds/redux/actions';
-import { updateExistingTag, getAllData } from '../api/tagsApi';
+import { updateExistingTag, getAllData, getAllDataNew, getTags } from '../api/tagsApi';
 import {
   getMoleculeTagForTag,
   createMoleculeTagObject,
@@ -170,11 +170,6 @@ export const unselectTag = tag => (dispatch, getState) => {
 };
 
 export const loadMoleculesAndTags = targetId => async (dispatch, getState) => {
-  // const state = getState();
-  // const isDataLoadingInProgress = state.apiReducers.target_data_loading_in_progress;
-  // const isAllDataLoaded = state.apiReducers.all_data_loaded;
-  // if (!isDataLoadingInProgress && !isAllDataLoaded) {
-  // dispatch(setTargetDataLoadingInProgress(true));
   return getAllData(targetId).then(data => {
     let tags_info = [];
     if (data.tags_info && data.tags_info.length > 0) {
@@ -218,9 +213,7 @@ export const loadMoleculesAndTags = targetId => async (dispatch, getState) => {
       return 0;
     });
     dispatch(setAllMolLists([...allMolecules]));
-    // dispatch(setDownloadTags(downloadTags));
 
-    // const categories = data.tag_categories;
     //need to do this this way because only categories which have at least one tag assigned are sent from backend
     const categories = getCategoryIds();
     tags_info = tags_info.sort(compareTagsAsc);
@@ -230,4 +223,47 @@ export const loadMoleculesAndTags = targetId => async (dispatch, getState) => {
     //console.log(tags_info);
   });
   // }
+};
+
+const getTagsForMol = (molId, tagList) => {
+  const result = tagList.filter(t => t.site_observations.includes(molId));
+  return result;
+};
+
+export const loadMoleculesAndTagsNew = targetId => async (dispatch, getState) => {
+  let tags = await getTags(targetId);
+  tags = tags.results;
+  if (tags?.length > 0) {
+    dispatch(setNoTagsReceived(false));
+  }
+  return getAllDataNew(targetId).then(data => {
+    let allMolecules = [];
+    data?.results?.forEach(mol => {
+      let newObject = { ...mol };
+      const tagsForMol = getTagsForMol(mol.id, tags);
+      if (tagsForMol) {
+        newObject['tags_set'] = [...tagsForMol];
+      } else {
+        newObject['tags_set'] = [];
+      }
+      allMolecules.push(newObject);
+    });
+
+    allMolecules?.sort((a, b) => {
+      if (a.protein_code < b.protein_code) {
+        return -1;
+      }
+      if (a.protein_code > b.protein_code) {
+        return 1;
+      }
+      return 0;
+    });
+
+    dispatch(setAllMolLists([...allMolecules]));
+    //need to do this this way because only categories which have at least one tag assigned are sent from backend
+    const categories = getCategoryIds();
+    tags = tags.sort(compareTagsAsc);
+    dispatch(setTagSelectorData(categories, tags));
+    dispatch(setAllDataLoaded(true));
+  });
 };
