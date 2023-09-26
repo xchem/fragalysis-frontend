@@ -69,7 +69,7 @@ const useStyles = makeStyles(theme => ({
     margin: '0 !important',
     padding: '0 !important',
     '& .MuiChip-labelSmall': {
-      textAlign: 'left !important'
+      //textAlign: 'left !important'
     },
     width: '96px'
   },

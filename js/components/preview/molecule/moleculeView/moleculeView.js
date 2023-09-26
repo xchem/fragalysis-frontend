@@ -1183,7 +1183,6 @@ const MoleculeView = memo(
                 </Tooltip>
               )}
             </div>
-            
           </div>
         </Grid>
         <SvgTooltip

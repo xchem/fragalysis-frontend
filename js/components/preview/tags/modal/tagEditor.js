@@ -150,6 +150,8 @@ export const TagEditor = memo(
       }
     };
 
+    const assignTagView = useSelector(state => state.selectionReducers.assignTagView);
+
     const handleCloseModal = () => {
       if (open) {
         dispatch(setAssignTagView(false));
