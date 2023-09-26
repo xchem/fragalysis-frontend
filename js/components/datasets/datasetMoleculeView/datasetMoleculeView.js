@@ -39,7 +39,8 @@ import {
   isCompoundLocked,
   getFirstUnlockedSelectedCompoundAfter,
   moveSelectedDatasetMoleculeUpDown,
-  getFirstUnlockedSelectedCompoundBefore
+  getFirstUnlockedSelectedCompoundBefore,
+  setCompoundToSelectedCompoundsByDataset
 } from '../redux/dispatchActions';
 
 import { isAnyInspirationTurnedOn, getFilteredDatasetMoleculeList } from '../redux/selectors';
@@ -152,7 +153,7 @@ const useStyles = makeStyles(theme => ({
     fontSize: 11,
     paddingLeft: theme.spacing(1) / 2,
     paddingRight: theme.spacing(1) / 2,
-    paddingBottom: theme.spacing(1) / 4,
+    //paddingBottom: theme.spacing(1) / 4,
     width: 32,
     textAlign: 'center',
     '&:last-child': {
@@ -891,11 +892,11 @@ const DatasetMoleculeView = memo(
                     className={classes.checkbox}
                     size="small"
                     color="primary"
-                    // disabled={isCompoundFromVectorSelector(data)}
                     onChange={e => {
                       const result = e.target.checked;
                       if (result) {
                         dispatch(appendCompoundToSelectedCompoundsByDataset(datasetID, currentID, moleculeTitle));
+                        dispatch(setCompoundToSelectedCompoundsByDataset(currentID));
                       } else {
                         dispatch(removeCompoundFromSelectedCompoundsByDataset(datasetID, currentID, moleculeTitle));
                         dispatch(deselectVectorCompound(data));

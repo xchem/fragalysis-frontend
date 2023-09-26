@@ -34,10 +34,11 @@ const useStyles = makeStyles(theme => ({
 
 const sideWidth = 500;
 let panelHeight = 0;
-let totalTagDetailHeight = 200;
 const resizerSize = 20;
 let screenHeight = 0;
-let tagDetails = 100;
+const tagDetailGridLayoutHeight = 135;
+const tagDetailListLayoutHeight = 145;
+const listTagHeight = 19;
 
 export const ResizableLayout = ({ gridRef, hideProjects, showHistory, onShowHistoryChange, nglPortal }) => {
   const classes = useStyles();
@@ -54,25 +55,30 @@ export const ResizableLayout = ({ gridRef, hideProjects, showHistory, onShowHist
   const tagDetailView = useSelector(state => state.selectionReducers.tagDetailView);
 
   const tags = useSelector(state => state.apiReducers.tagList);
-  const tagsLength = tags.length;
 
-  if (tagDetailView) {
-    totalTagDetailHeight = (preTagList.length / 2) * 15 + 30;
-  } else {
-    if (preTagList.length < 10) {
-      totalTagDetailHeight = preTagList.length * 15 + 45;
-    } else {
-      totalTagDetailHeight = preTagList.length * 15 + 55;
-    }
+  let maxLengthTagDetail = 0;
+  for (let tagNumber = 0; tagNumber < tags.length; tagNumber++) {
+    maxLengthTagDetail =
+      tags[tagNumber].tag.length > maxLengthTagDetail ? tags[tagNumber].tag.length : maxLengthTagDetail;
   }
 
-    if (tagsLength > 7 && tagsLength < 11) {
-      tagDetails = 110
-    } 
-    if (tagsLength > 11 && tagsLength < 15) {
-      tagDetails = 130
-    } 
- 
+  const oneRowHeight = 19;
+  const twoRowHeight = 30;
+  const threeRowHeight = 48;
+  const oneRowTagLength = 15;
+  const moreRowTagLength = 30;
+  const defaultTagDetailColumnNumber = 5;
+
+  const absoluteMaxTagLength =
+    maxLengthTagDetail > oneRowTagLength
+      ? maxLengthTagDetail > moreRowTagLength
+        ? threeRowHeight
+        : twoRowHeight
+      : oneRowHeight;
+
+  const tagDetailListHeight = preTagList.length * listTagHeight + tagDetailListLayoutHeight;
+  const tagDetailGridHeight =
+    Math.ceil(preTagList.length / defaultTagDetailColumnNumber) * absoluteMaxTagLength + tagDetailGridLayoutHeight;
 
   useEffect(() => {
     if (sidesOpen.LHS) {
@@ -152,7 +158,7 @@ export const ResizableLayout = ({ gridRef, hideProjects, showHistory, onShowHist
 
   const onTagDetailsResize = useCallback(
     (_, y) => {
-      dispatch(setResizableLayout(true))
+      dispatch(setResizableLayout(true));
       setTagDetailsHeight(() => {
         const gridRect = gridRef.current?.elementRef.current.firstChild.getBoundingClientRect();
 
@@ -186,13 +192,12 @@ export const ResizableLayout = ({ gridRef, hideProjects, showHistory, onShowHist
     },
     [gridRef, tagDetailsHeight]
   );
-
   return (
     <div className={classes.root}>
       {sidesOpen.LHS && (
         <>
           <div className={classes.lhs} style={{ width: lhsWidth }}>
-            <div style={{ height: tagDetailsHeight }}>
+            <div style={{ height: tagDetailsHeight, overflow: 'auto' }}>
               <TagDetails />
             </div>
             <Resizer orientation="horizontal" onResize={onTagDetailsResize} />
@@ -206,8 +211,10 @@ export const ResizableLayout = ({ gridRef, hideProjects, showHistory, onShowHist
               style={{
                 height:
                   tagDetailsHeight === undefined
-                    ? screenHeight - totalTagDetailHeight - tagDetails
-                    : screenHeight - tagDetailsHeight - 20
+                    ? tagDetailView?.tagDetailView === true || tagDetailView === true
+                      ? screenHeight - tagDetailGridHeight + 'px'
+                      : screenHeight - tagDetailListHeight + 'px'
+                    : screenHeight - tagDetailsHeight - 20 + 'px'
               }}
             >
               <HitNavigator hideProjects={hideProjects} />

@@ -92,6 +92,7 @@ const TagDetailRow = memo(({ tag, moleculesToEditIds, moleculesToEdit }) => {
   const targetName = useSelector(state => state.apiReducers.target_on_name);
   const selectedTagList = useSelector(state => state.selectionReducers.selectedTagList);
   const allMolList = useSelector(state => state.apiReducers.all_mol_lists);
+  const tagList = useSelector(state => state.apiReducers.tagList);
 
   useEffect(() => {
     if (allMolList.length) {
@@ -150,6 +151,7 @@ const TagDetailRow = memo(({ tag, moleculesToEditIds, moleculesToEdit }) => {
     <>
       {/* TagView Chip */}
       <TagView
+        tags={tagList}
         key={`tag-item-editor${tag.id}`}
         tag={tag}
         selected={selectedTagList.some(i => i.id === tag.id)}
