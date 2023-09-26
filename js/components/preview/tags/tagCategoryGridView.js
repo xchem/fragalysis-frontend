@@ -95,8 +95,9 @@ const TagCategoryGridView = memo(({ name, tags, specialTags, clickCallback, disa
                 let selected = selectedTagList.some(i => i.id === tag.id);
                 let tagSelected = isTagSelected(tag);
                 return (
-                  <Grid item rowSpacing={0} spacing={0} xs={6}>
+                  <Grid item rowSpacing={0} spacing={0} xs={4} style={{ display: 'flex' }}>
                     <TagView
+                      tags={tags}
                       key={`tag-item-${idx}`}
                       tag={tag}
                       selected={clickCallback !== undefined ? tagSelected.isSelected : selected}

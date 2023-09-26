@@ -50,7 +50,9 @@ import {
   setDragDropState,
   setFilterDialogOpen,
   setIsOpenLockVisibleCompoundsDialogGlobal,
-  setSearchStringOfCompoundSet
+  setSearchStringOfCompoundSet,
+  setCompoundToSelectedCompoundsByDataset,
+  setSelectAllButtonForDataset
 } from './redux/actions';
 import { DatasetFilter } from './datasetFilter';
 import { FilterList, Link, DeleteForever, ArrowUpward, ArrowDownward, Edit } from '@material-ui/icons';
@@ -181,6 +183,28 @@ const useStyles = makeStyles(theme => ({
       borderColor: 'white'
     }
   },
+  contColButtonUnselect: {
+    minWidth: 'fit-content',
+    paddingLeft: theme.spacing(1) / 4,
+    paddingRight: theme.spacing(1) / 4,
+    paddingBottom: 0,
+    paddingTop: 0,
+    fontWeight: 'bold',
+    fontSize: 9,
+    borderRadius: 0,
+    borderColor: theme.palette.primary.main,
+    backgroundColor: theme.palette.primary.light,
+    '&:hover': {
+      backgroundColor: theme.palette.primary.light
+      // color: theme.palette.primary.contrastText
+    },
+    '&:disabled': {
+      borderRadius: 0,
+      borderColor: 'white',
+      color: 'white'
+    }
+  },
+
   contColButtonSelected: {
     backgroundColor: theme.palette.primary.main,
     color: theme.palette.primary.contrastText,
@@ -329,6 +353,8 @@ const DatasetMoleculeList = ({ title, datasetID, url }) => {
 
   const askLockCompoundsQuestion = useSelector(state => state.datasetsReducers.askLockCompoundsQuestion);
 
+  const selectAllPressed = useSelector(state => state.datasetsReducers.isSelectedSelectAllButtonForDataset);
+
   // console.log('DatasetMoleculeList - update');
 
   // const disableUserInteraction = useDisableUserInteraction();
@@ -366,8 +392,8 @@ const DatasetMoleculeList = ({ title, datasetID, url }) => {
   //   setSelectedMolecules((moleculeLists[datasetID] || []).filter(mol => compoundsToBuyList?.includes(mol.id)));
   // }, [compoundsToBuyList, datasetID, moleculeLists]);
 
-  const selectedMolecules = (moleculeLists[datasetID] || []).filter(mol => compoundsToBuyList?.includes(mol.id));
-  const lockedMolecules = useSelector(state => state.datasetsReducers.selectedCompoundsByDataset[datasetID]) ?? [];
+  const allMolecules = moleculeLists[datasetID];
+  let lockedMolecules = useSelector(state => state.datasetsReducers.selectedCompoundsByDataset[datasetID]) ?? [];
   const editedColorGroup = useSelector(state => state.datasetsReducers.editedColorGroup);
 
   const currentCompoundClass = useSelector(state => state.previewReducers.compounds.currentCompoundClass);
@@ -397,8 +423,8 @@ const DatasetMoleculeList = ({ title, datasetID, url }) => {
   const compoundColors = useSelector(state => state.datasetsReducers.compoundColorByDataset[datasetID]) ?? {};
 
   const isSelectedTypeOn = typeList => {
-    if (typeList && compoundsToBuyList) {
-      return typeList.some(molId => selectedMolecules.some(mol => mol.id === molId));
+    if (typeList) {
+      return typeList.some(molId => allMolecules.some(mol => mol.id === molId));
     }
     return false;
   };
@@ -767,6 +793,21 @@ const DatasetMoleculeList = ({ title, datasetID, url }) => {
     }
   };
 
+  const selectAllDatasetMolecule = selectAll => {
+    selectedAll.current = true;
+
+    lockedMolecules = [];
+
+    if (selectAll === true) {
+      joinedMoleculeLists.map(molecule => {
+        lockedMolecules.push(molecule.id);
+      });
+      dispatch(setCompoundToSelectedCompoundsByDataset(datasetID, lockedMolecules));
+    } else {
+      dispatch(setCompoundToSelectedCompoundsByDataset(datasetID, []));
+    }
+  };
+
   return (
     <Panel hasHeader title={title} withTooltip headerActions={actions}>
       <AlertModal
@@ -931,7 +972,7 @@ const DatasetMoleculeList = ({ title, datasetID, url }) => {
                       </Grid>
                     </Tooltip>
                   ))}
-                {lockedMolecules && lockedMolecules.length > 0 && (
+                {lockedMolecules && (
                   <Grid item>
                     <Grid
                       container
@@ -941,18 +982,24 @@ const DatasetMoleculeList = ({ title, datasetID, url }) => {
                       wrap="nowrap"
                       className={classes.contButtonsMargin}
                     >
+                      {console.log('isLigandOn', isLigandOn)}
                       <Tooltip title="all ligands">
                         <Grid item>
                           <Button
                             variant="outlined"
-                            className={classNames(classes.contColButton, {
-                              [classes.contColButtonSelected]: isLigandOn
-                            })}
+                            className={classNames(
+                              lockedMolecules.length === 0 ? classes.contColButton : classes.contColButtonUnselect,
+                              {
+                                [classes.contColButtonSelected]: isLigandOn
+                              }
+                            )}
                             onClick={() => {
                               dispatch(setAskLockCompoundsQuestion(true));
                               onButtonToggle('ligand');
                             }}
-                            disabled={groupDatasetsNglControlButtonsDisabledState.ligand}
+                            disabled={
+                              groupDatasetsNglControlButtonsDisabledState.ligand || lockedMolecules.length === 0
+                            }
                           >
                             L
                           </Button>
@@ -969,7 +1016,7 @@ const DatasetMoleculeList = ({ title, datasetID, url }) => {
                               dispatch(setAskLockCompoundsQuestion(true));
                               onButtonToggle('protein');
                             }}
-                            disabled={groupDatasetsNglControlButtonsDisabledState.protein}
+                            disabled={lockedMolecules.length === 0}
                           >
                             P
                           </Button>
@@ -987,7 +1034,7 @@ const DatasetMoleculeList = ({ title, datasetID, url }) => {
                               dispatch(setAskLockCompoundsQuestion(true));
                               onButtonToggle('complex');
                             }}
-                            disabled={groupDatasetsNglControlButtonsDisabledState.complex}
+                            disabled={lockedMolecules.length === 0}
                           >
                             C
                           </Button>
@@ -1033,6 +1080,27 @@ const DatasetMoleculeList = ({ title, datasetID, url }) => {
                       </IconButton>
                     </Grid>
                   </Grid>
+                </Grid>
+                <Grid item>
+                  {
+                    <Tooltip title={selectAllPressed ? 'Unselect all' : 'Select all'}>
+                      <Grid item style={{ margin: '4px', marginLeft: '5px' }}>
+                        <Button
+                          variant="outlined"
+                          className={classNames(classes.contColButton, {
+                            [classes.contColButtonHalfSelected]: false
+                          })}
+                          onClick={() => {
+                            dispatch(setSelectAllButtonForDataset(!selectAllPressed));
+                            selectAllDatasetMolecule(!selectAllPressed);
+                          }}
+                          disabled={false}
+                        >
+                          {selectAllPressed ? 'Unselect all' : 'Select all'}
+                        </Button>
+                      </Grid>
+                    </Tooltip>
+                  }
                 </Grid>
               </Grid>
             </Grid>

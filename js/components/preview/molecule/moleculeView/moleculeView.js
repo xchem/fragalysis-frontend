@@ -4,7 +4,8 @@
 
 import React, { memo, useEffect, useState, useRef, useContext, useCallback } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { Grid, Button, makeStyles, Tooltip, IconButton, Paper } from '@material-ui/core';
+import { Grid, Button, makeStyles, Tooltip, IconButton, Popper, Item } from '@material-ui/core';
+import { Panel } from '../../../common';
 import { MyLocation, Warning, Assignment, AssignmentTurnedIn } from '@material-ui/icons';
 import SVGInline from 'react-svg-inline';
 import classNames from 'classnames';
@@ -52,6 +53,8 @@ import MoleculeSelectCheckbox from './moleculeSelectCheckbox';
 import useClipboard from 'react-use-clipboard';
 import Popover from '@mui/material/Popover';
 import Typography from '@mui/material/Typography';
+import { Edit } from '@material-ui/icons';
+import { DJANGO_CONTEXT } from '../../../../utils/djangoContext';
 
 const useStyles = makeStyles(theme => ({
   container: {
@@ -61,7 +64,8 @@ const useStyles = makeStyles(theme => ({
   },
   contButtonsMargin: {
     margin: theme.spacing(1) / 2,
-    width: 'inherit'
+    width: 'inherit',
+    marginTop: 0
   },
   contColButton: {
     minWidth: 'fit-content',
@@ -155,7 +159,8 @@ const useStyles = makeStyles(theme => ({
     ...theme.typography.button,
     overflow: 'hidden',
     whiteSpace: 'nowrap',
-    textOverflow: 'ellipsis'
+    textOverflow: 'ellipsis',
+    lineHeight: '1.45'
   },
   checkbox: {
     padding: 0
@@ -235,23 +240,55 @@ const useStyles = makeStyles(theme => ({
     right: 0
   },
   tagPopover: {
-    height: '15px',
-    width: '55px',
+    height: '10px',
+    width: '220px',
     padding: '0px',
-    fontSize: '10px',
-    backgroundColor: '#e0e0e0',
-    borderRadius: '7px',
+    fontSize: '9px',
+    borderRadius: '6px',
     textAlign: 'center',
-    opacity: '0.40'
+    verticalAlign: 'center',
+    paddingBottom: '14px'
+  },
+  tagPopoverSingle: {
+    height: '10px',
+    width: '18px',
+    padding: '0px',
+    fontSize: '9px',
+    borderRadius: '7px',
+    verticalAlign: 'center',
+    paddingBottom: '14px',
+    paddingLeft: '2px',
+    paddingRight: '3px',
+    textAlign: 'center'
   },
   popover: {
     paddingLeft: '5px',
     fontSize: '10px',
-    borderRadius: '7px',
+    borderRadius: '5px',
     border: '0px black solid',
     paddingRight: '5px',
-    minWidth: '55px',
-    textAlign: 'center'
+    minWidth: '35px',
+    textAlign: 'center',
+    verticalAlign: 'center'
+  },
+  editButtonIcon: {
+    width: '0.7em',
+    height: '0.7em',
+    padding: '0px',
+    marginLeft: '11px',
+    border: 'solid 1px black',
+    borderRadius: '5px'
+  },
+  gridTagsPopover: {
+    width: '400px'
+  },
+  paper: {
+    maxHeight: 343,
+    height: 'auto',
+    overflowY: 'auto',
+    top: '50%',
+    left: '50%'
+    //transform: 'translate(86%, 0%)'
   }
 }));
 
@@ -301,6 +338,11 @@ const MoleculeView = memo(
 
     const viewParams = useSelector(state => state.nglReducers.viewParams);
     const tagList = useSelector(state => state.apiReducers.tagList);
+    const tagEditorOpen = useSelector(state => state.selectionReducers.tagEditorOpened);
+
+    const assignTagEditorOpen = useSelector(state => state.selectionReducers.tagEditorOpened);
+
+    const [tagEditModalOpenNew, setTagEditModalOpenNew] = useState(tagEditorOpen);
 
     const { getNglView } = useContext(NglContext);
     const stage = getNglView(VIEWS.MAJOR_VIEW) && getNglView(VIEWS.MAJOR_VIEW).stage;
@@ -362,6 +404,10 @@ const MoleculeView = memo(
       return assignedTags;
     };
 
+    useEffect(() => {
+      setTagEditModalOpenNew(tagEditorOpen);
+    }, [tagEditorOpen]);
+
     const handlePopoverOpen = event => {
       setTagPopoverOpen(event.currentTarget);
     };
@@ -371,106 +417,237 @@ const MoleculeView = memo(
     };
 
     const generateTagPopover = () => {
-      const data = getDataForTagsTooltip();
+      const allData = getDataForTagsTooltip();
+      const sortedData = [...allData].sort((a, b) => a.tag.localeCompare(b.tag));
 
-      const modifiedObjects = data.map(obj => {
-        if (obj.tag.length > 8) {
-          return { ...obj, tag: obj.tag.slice(0, 8) + '...' };
+      const mergedArray = [...sortedData, ...tagList.filter(item => !sortedData.includes(item))];
+
+      const modifiedObjects = sortedData.map(obj => {
+        const tagNameShortLength = 2;
+        if (obj.tag.length > tagNameShortLength) {
+          return { ...obj, tag: obj.tag.slice(0, tagNameShortLength) };
         }
         return obj;
       });
 
-      const firstThreeTags = modifiedObjects.slice(0, 3);
+      const allTagsLength = allData.length > 9 ? 9 : allData.length;
+      const popperPadding = allTagsLength > 1 ? 250 : 420;
 
-      return modifiedObjects.length > 0 ? (
+      return modifiedObjects?.length > 0 ? (
         <div>
           <Typography
             aria-owns={open ? 'mouse-over-popover' : undefined}
             aria-haspopup="true"
-            onMouseEnter={handlePopoverOpen}
-            onMouseLeave={handlePopoverClose}
             style={{ fontSize: '10px' }}
           >
-            {
-              <>
-                {firstThreeTags.length > 0 ? (
-                  <div
-                    style={{
-                      backgroundColor: firstThreeTags[0].colour,
-                      color: firstThreeTags[0].colour === null ? 'black' : 'white'
-                    }}
-                    className={classes.tagPopover}
-                  >
-                    {firstThreeTags[0].tag}
-                  </div>
-                ) : (
-                  ''
-                )}
-                {firstThreeTags.length > 1 ? (
-                  <div
-                    style={{
-                      backgroundColor: firstThreeTags[1].colour,
-                      color: firstThreeTags[1].colour === null ? 'black' : 'white'
-                    }}
-                    className={classes.tagPopover}
-                  >
-                    {firstThreeTags[1].tag}
-                  </div>
-                ) : (
-                  ''
-                )}
-                {firstThreeTags.length > 2 ? (
-                  <div
-                    style={{
-                      backgroundColor: firstThreeTags[2].colour,
-                      color: firstThreeTags[2].colour === null ? 'black' : 'white'
-                    }}
-                    className={classes.tagPopover}
-                  >
-                    {firstThreeTags[2].tag}
-                  </div>
-                ) : (
-                  ''
-                )}
-              </>
-            }
-          </Typography>
-          <Popover
-            id="mouse-over-popover"
-            sx={{
-              pointerEvents: 'none'
-            }}
-            open={open}
-            anchorEl={tagPopoverOpen}
-            anchorOrigin={{
-              vertical: 'top',
-              horizontal: 'left'
-            }}
-            transformOrigin={{
-              vertical: 'top',
-              horizontal: 'left'
-            }}
-            onMouseEnter={handlePopoverOpen}
-            onClose={handlePopoverClose}
-            disableRestoreFocus
-            style={{ paddingLeft: '10px' }}
-          >
-            {data.map(t => (
-              <div
+            {modifiedObjects.length < 2 ? (
+              <Grid
+                className={classes.tagPopover}
+                container
+                direction="row"
+                style={{ width: '50px' }}
                 onMouseEnter={handlePopoverOpen}
-                className={classes.popover}
-                style={{
-                  backgroundColor: t.colour === null ? '#e0e0e0' : t.colour,
-                  color: t.colour === null ? 'black' : 'white'
-                }}
+                onMouseLeave={handlePopoverClose}
               >
-                {t.tag}
-              </div>
-            ))}
-          </Popover>
+                {modifiedObjects.map((item, index) =>
+                  index < allTagsLength ? (
+                    <Grid
+                      style={{
+                        backgroundColor:
+                          modifiedObjects[index].colour !== null ? modifiedObjects[index].colour : '#e0e0e0',
+                        color: modifiedObjects[index].colour === null ? 'black' : 'white',
+                        display: 'block',
+                        maxWidth: '20px'
+                      }}
+                      className={classes.tagPopover}
+                      item
+                      xs={9}
+                      key={index}
+                    >
+                      <div>{item.tag} </div>
+                    </Grid>
+                  ) : (
+                    <div></div>
+                  )
+                )}
+                {DJANGO_CONTEXT['username'] === 'NOT_LOGGED_IN' ? (
+                  <div></div>
+                ) : (
+                  <div style={{ width: '10px' }}>
+                    <Grid item xs={1}>
+                      <IconButton
+                        color={'inherit'}
+                        disabled={!modifiedObjects}
+                        onClick={() => {
+                          if (tagEditModalOpenNew) {
+                            setTagEditModalOpenNew(false);
+                            dispatch(setTagEditorOpen(!tagEditModalOpenNew));
+                            dispatch(setMoleculeForTagEdit(null));
+                          } else {
+                            setTagEditModalOpenNew(true);
+                            dispatch(setMoleculeForTagEdit(data.id));
+                            dispatch(setTagEditorOpen(true));
+                            if (setRef) {
+                              setRef(ref.current);
+                            }
+                          }
+                        }}
+                        style={{ padding: '0px', paddingBottom: '3px', marginRight: '5px', position: 'right' }}
+                      >
+                        <Tooltip title="Edit tag" className={classes.editButtonIcon}>
+                          <Edit />
+                        </Tooltip>
+                      </IconButton>
+                    </Grid>
+                  </div>
+                )}
+              </Grid>
+            ) : (
+              <Grid
+                className={classes.tagPopover}
+                container
+                direction="row"
+                onMouseEnter={handlePopoverOpen}
+                onMouseLeave={handlePopoverClose}
+              >
+                <div style={{ display: 'flex', width: `${20 * allTagsLength}` + 'px' }}>
+                  {modifiedObjects.map((item, index) =>
+                    index < allTagsLength ? (
+                      <Grid
+                        style={{
+                          backgroundColor:
+                            modifiedObjects[index].colour !== null ? modifiedObjects[index].colour : '#e0e0e0',
+                          color: modifiedObjects[index].colour === null ? 'black' : 'white',
+                          display: 'flex',
+                          width: '20px',
+                          paddingLeft: '3px'
+                        }}
+                        className={classes.tagPopover}
+                        item
+                        xs={12}
+                        key={index}
+                      >
+                        <div>{item.tag} </div>
+                      </Grid>
+                    ) : (
+                      <div></div>
+                    )
+                  )}
+                </div>
+                <div>
+                  {DJANGO_CONTEXT['username'] === 'NOT_LOGGED_IN' ? (
+                    <div></div>
+                  ) : (
+                    <IconButton
+                      color={'inherit'}
+                      disabled={!modifiedObjects}
+                      onClick={() => {
+                        if (tagEditModalOpenNew) {
+                          setTagEditModalOpenNew(false);
+                          dispatch(setTagEditorOpen(!tagEditModalOpenNew));
+                          dispatch(setMoleculeForTagEdit(null));
+                        } else {
+                          setTagEditModalOpenNew(true);
+                          dispatch(setMoleculeForTagEdit(data.id));
+                          dispatch(setTagEditorOpen(true));
+                          if (setRef) {
+                            setRef(ref.current);
+                          }
+                        }
+                      }}
+                      style={{ padding: '0px', paddingBottom: '3px', cursor: 'pointer' }}
+                    >
+                      <Tooltip title="Edit tags" className={classes.editButtonIcon}>
+                        <Edit />
+                      </Tooltip>
+                    </IconButton>
+                  )}
+                </div>
+              </Grid>
+            )}
+          </Typography>
+          {tagEditorOpen === false ? (
+            <Typography
+              aria-owns={open ? 'mouse-over-popper' : undefined}
+              aria-haspopup="true"
+              style={{ fontSize: '10px', display: 'flex' }}
+            >
+              <Popper open={open} placement="right-start" anchorEl={tagPopoverOpen} style={{ display: 'flex' }}>
+                <Panel
+                  secondaryBackground
+                  className={classes.paper}
+                  style={{
+                    background: '',
+                    width: '320px',
+                    display: 'flex',
+                    transform: 'translate(' + popperPadding + 'px, -10%)'
+                  }}
+                >
+                  <Grid alignItems="center" direction="row" container>
+                    {sortedData.map((item, index) => (
+                      <Grid
+                        style={{
+                          backgroundColor:
+                            index < allData.length
+                              ? sortedData[index].colour !== null
+                                ? sortedData[index].colour
+                                : '#e0e0e0'
+                              : 'white',
+                          color:
+                            index < allTagsLength ? (sortedData[index].colour === null ? 'black' : 'white') : 'black',
+                          border:
+                            index < allTagsLength
+                              ? sortedData[index].colour !== null
+                                ? `${sortedData[index].colour} solid 1px`
+                                : 'black solid 1px'
+                              : sortedData[index].colour !== null
+                              ? `${sortedData[index].colour} solid 1px`
+                              : `#e0e0e0 solid 0.05rem`,
+                          display: 'grid',
+                          placeItems: 'center'
+                        }}
+                        className={classes.popover}
+                        item
+                        xs={sortedData.length === 1 ? 12 : sortedData.length === 2 ? 6 : 4}
+                        key={index}
+                      >
+                        <div>{item.tag}</div>
+                      </Grid>
+                    ))}
+                  </Grid>
+                </Panel>
+              </Popper>
+            </Typography>
+          ) : (
+            <div> </div>
+          )}
         </div>
-      ) : (
+      ) : DJANGO_CONTEXT['username'] === 'NOT_LOGGED_IN' ? (
         <div></div>
+      ) : (
+        <IconButton
+          color={'inherit'}
+          disabled={!modifiedObjects}
+          onClick={() => {
+            if (tagEditModalOpenNew) {
+              setTagEditModalOpenNew(false);
+              dispatch(setTagEditorOpen(!tagEditModalOpenNew));
+              dispatch(setMoleculeForTagEdit(null));
+            } else {
+              setTagEditModalOpenNew(true);
+              dispatch(setMoleculeForTagEdit(data.id));
+              dispatch(setTagEditorOpen(true));
+              if (setRef) {
+                setRef(ref.current);
+              }
+            }
+          }}
+          style={{ padding: '0px', paddingBottom: '3px', cursor: 'pointer' }}
+        >
+          <Tooltip title="Edit tags" className={classes.editButtonIcon}>
+            <Edit />
+          </Tooltip>
+        </IconButton>
       );
     };
 
@@ -800,13 +977,14 @@ const MoleculeView = memo(
           </Grid>
           <Grid item container className={classes.detailsCol} justify="space-between" direction="row">
             {/* Title label */}
-            <Grid item xs={6}>
+            <Grid item xs={7}>
               <Tooltip title={moleculeTitle} placement="bottom-start">
                 <div className={classes.moleculeTitleLabel}>{moleculeTitle}</div>
               </Tooltip>
+              {generateTagPopover()}
             </Grid>
             {/* Control Buttons A, L, C, V */}
-            <Grid item xs={6}>
+            <Grid item xs={4}>
               <Grid
                 container
                 direction="row"
@@ -990,28 +1168,6 @@ const MoleculeView = memo(
           >
             {svg_image}
             <div className={classes.imageActions}>
-              {(moleculeTooltipOpen || isTagEditorInvokedByMolecule) && (
-                <Tooltip>
-                  <MoleculeSelectCheckbox
-                    color="primary"
-                    className={classes.tagIcon}
-                    onClick={() => {
-                      // setTagAddModalOpen(!tagAddModalOpen);
-                      if (isTagEditorInvokedByMolecule) {
-                        dispatch(setTagEditorOpen(!isTagEditorOpen));
-                        dispatch(setMoleculeForTagEdit(null));
-                        dispatch(setTagEditorOpen(false));
-                      } else {
-                        dispatch(setMoleculeForTagEdit(data.id));
-                        dispatch(setTagEditorOpen(true));
-                        if (setRef) {
-                          setRef(ref.current);
-                        }
-                      }
-                    }}
-                  />
-                </Tooltip>
-              )}
               {moleculeTooltipOpen && (
                 <Tooltip title={!isCopied ? 'Copy smiles' : 'Copied'}>
                   <IconButton className={classes.copyIcon} onClick={setCopied}>
@@ -1027,7 +1183,6 @@ const MoleculeView = memo(
                 </Tooltip>
               )}
             </div>
-            <div className={classes.imageTagActions}>{generateTagPopover()}</div>
           </div>
         </Grid>
         <SvgTooltip

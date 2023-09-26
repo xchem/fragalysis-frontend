@@ -30,7 +30,9 @@ import {
   setArrowUpDown,
   setMolListToEdit,
   setSelectAllMolecules,
-  setUnselectAllMolecules
+  setUnselectAllMolecules,
+  setTagEditorOpen,
+  setMoleculeForTagEdit
 } from '../../../../reducers/selection/actions';
 import { base_url } from '../../../routes/constants';
 import {
@@ -108,6 +110,32 @@ const generateBondColorMap = inputDict => {
     }
   }
   return out_d;
+};
+
+export const autoHideTagEditorDialogsOnScroll = ({ tagEditorRef, scrollBarRef }) => (dispatch, getState) => {
+  const state = getState();
+  const isOpenTagEditor = state.selectionReducers.tagEditorOpened;
+
+  const currentBoundingClientRectTagEdit =
+    (tagEditorRef.current && tagEditorRef.current.getBoundingClientRect()) || null;
+
+  const scrollBarBoundingClientRect = (scrollBarRef.current && scrollBarRef.current.getBoundingClientRect()) || null;
+
+  if (
+    isOpenTagEditor &&
+    currentBoundingClientRectTagEdit !== null &&
+    scrollBarBoundingClientRect !== null &&
+    currentBoundingClientRectTagEdit.x !== 0 &&
+    currentBoundingClientRectTagEdit.y !== 0
+  ) {
+    if (
+      Math.round(currentBoundingClientRectTagEdit.top) < Math.round(scrollBarBoundingClientRect.top) ||
+      Math.abs(scrollBarBoundingClientRect.bottom - currentBoundingClientRectTagEdit.top) < 42
+    ) {
+      dispatch(setTagEditorOpen(false));
+      dispatch(setMoleculeForTagEdit(null));
+    }
+  }
 };
 
 const getViewUrl = (get_view, data) => {
