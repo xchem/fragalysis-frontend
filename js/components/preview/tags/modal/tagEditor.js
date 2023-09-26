@@ -115,7 +115,9 @@ const useStyles = makeStyles(theme => ({
 export const TagEditor = memo(
   forwardRef(({ open = false, anchorEl, setOpenDialog, closeDisabled }, tagEditorRef) => {
     const id = open ? 'simple-popover-mols-tag-editor' : undefined;
-    {console.log('tagEditorRef2 plus id', tagEditorRef, id)}
+    {
+      console.log('tagEditorRef2 plus id', tagEditorRef, id);
+    }
     const classes = useStyles();
     const dispatch = useDispatch();
     const refForOutsideClick = useRef(null);
@@ -149,8 +151,6 @@ export const TagEditor = memo(
         assignTagEditorOpen === true ? (dispatch(setTagEditorOpen(false)), dispatch(setMoleculeForTagEdit(null))) : '';
       }
     };
-
-    const assignTagView = useSelector(state => state.selectionReducers.assignTagView);
 
     const handleCloseModal = () => {
       if (open) {
