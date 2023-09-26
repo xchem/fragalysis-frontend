@@ -39,8 +39,7 @@ import {
   isCompoundLocked,
   getFirstUnlockedSelectedCompoundAfter,
   moveSelectedDatasetMoleculeUpDown,
-  getFirstUnlockedSelectedCompoundBefore,
-  setCompoundToSelectedCompoundsByDataset
+  getFirstUnlockedSelectedCompoundBefore
 } from '../redux/dispatchActions';
 
 import { isAnyInspirationTurnedOn, getFilteredDatasetMoleculeList } from '../redux/selectors';
@@ -57,7 +56,8 @@ import {
   removeCompoundColorOfDataset,
   setIsOpenLockVisibleCompoundsDialogLocal,
   setCmpForLocalLockVisibleCompoundsDialog,
-  setAskLockCompoundsQuestion
+  setAskLockCompoundsQuestion,
+  setCompoundToSelectedCompoundsByDataset
 } from '../redux/actions';
 import { centerOnLigandByMoleculeID } from '../../../reducers/ngl/dispatchActions';
 import { ArrowDownward, ArrowUpward, MyLocation } from '@material-ui/icons';

@@ -1035,7 +1035,7 @@ export const MoleculeList = memo(({ hideProjects }) => {
       </div>
       <Grid container spacing={1}>
         <Grid style={{ marginTop: '4px' }}>
-          <Tooltip title="all ligands" style={{ marginLeft: '5px' }}>
+          <Tooltip title="all ligands" style={{ marginLeft: '1px' }}>
             <Button
               variant="outlined"
               className={classNames(classes.contColButton, {
@@ -1048,7 +1048,7 @@ export const MoleculeList = memo(({ hideProjects }) => {
               L
             </Button>
           </Tooltip>
-          <Tooltip title="all sidechains" style={{ marginLeft: '5px' }}>
+          <Tooltip title="all sidechains" style={{ marginLeft: '1px' }}>
             <Button
               variant="outlined"
               className={classNames(
@@ -1064,7 +1064,7 @@ export const MoleculeList = memo(({ hideProjects }) => {
               P
             </Button>
           </Tooltip>
-          <Tooltip title="all interactions" style={{ marginLeft: '5px' }}>
+          <Tooltip title="all interactions" style={{ marginLeft: '1px' }}>
             {/* C stands for contacts now */}
             <Button
               variant="outlined"
