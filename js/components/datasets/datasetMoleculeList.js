@@ -930,13 +930,12 @@ const DatasetMoleculeList = ({ title, datasetID, url }) => {
                   </Typography>
                 </Grid>
                 <Grid item xs={11}>
-                  <Grid container direction="row" justify="flex-start" spacing={1}>
+                  <Grid container direction="row" justifyContent="flex-start" spacing={1}>
                     {filterSettings.priorityOrder.map(attr => (
                       <Grid item key={`Mol-Tooltip-${attr}`}>
                         <Tooltip
-                          title={`${filterProperties[attr].minValue}-${filterProperties[attr].maxValue} ${
-                            filterProperties[attr].order === 1 ? '\u2191' : '\u2193'
-                          }`}
+                          title={`${filterProperties[attr].minValue}-${filterProperties[attr].maxValue} ${filterProperties[attr].order === 1 ? '\u2191' : '\u2193'
+                            }`}
                           placement="top"
                         >
                           <Chip size="small" label={attr} className={classes.propertyChip} />
@@ -951,7 +950,7 @@ const DatasetMoleculeList = ({ title, datasetID, url }) => {
           </>
         )}
       </div>
-      <Grid container direction="row" justify="flex-start" className={classes.container}>
+      <Grid container direction="row" justifyContent="flex-start" className={classes.container}>
         <Grid item>
           {/* Selection */}
           <Grid container direction="row" alignItems="center">
@@ -1014,8 +1013,8 @@ const DatasetMoleculeList = ({ title, datasetID, url }) => {
         <Grid item>
           {/* Header */}
           {isLoadingMoleculeList === false && (
-            <Grid container justify="flex-start" direction="row" className={classes.molHeader} wrap="nowrap">
-              <Grid item container justify="flex-start" direction="row">
+            <Grid container justifyContent="flex-start" direction="row" className={classes.molHeader} wrap="nowrap">
+              <Grid item container justifyContent="flex-start" direction="row">
                 <Tooltip title="Total count of compounds">
                   <Grid item className={classes.rank}>
                     {`Total ${joinedMoleculeLists?.length}`}
@@ -1036,7 +1035,7 @@ const DatasetMoleculeList = ({ title, datasetID, url }) => {
                     <Grid
                       container
                       direction="row"
-                      justify="flex-start"
+                      justifyContent="flex-start"
                       alignItems="center"
                       wrap="nowrap"
                       className={classes.contButtonsMargin}
@@ -1194,7 +1193,7 @@ const DatasetMoleculeList = ({ title, datasetID, url }) => {
           )}
         </Grid>
         {isLoadingMoleculeList && (
-          <Grid item container alignItems="center" justify="center" className={classes.loading}>
+          <Grid item container alignItems="center" justifyContent="center" className={classes.loading}>
             <Grid item>
               <CircularProgress />
             </Grid>
@@ -1221,7 +1220,7 @@ const DatasetMoleculeList = ({ title, datasetID, url }) => {
                     <Grid
                       container
                       direction="row"
-                      justify="center"
+                      justifyContent="center"
                       alignItems="center"
                       className={classes.paddingProgress}
                     >
@@ -1282,7 +1281,7 @@ const DatasetMoleculeList = ({ title, datasetID, url }) => {
               </InfiniteScroll>
             </Grid>
             <Grid item>
-              <Grid container justify="space-between" alignItems="center" direction="row">
+              <Grid container justifyContent="space-between" alignItems="center" direction="row">
                 <Grid item>
                   <span className={classes.total}>{`Total ${joinedMoleculeLists?.length}`}</span>
                 </Grid>

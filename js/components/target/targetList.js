@@ -317,14 +317,14 @@ export const TargetList = memo(() => {
           component="th"
           scope="row"
           style={{ minWidth: '150px', padding: '0px 10px 0px 0px', margin: '0px', padding: '0px' }}
-        >
+            >
           <div>{target.id}</div>
         </TableCell>
       </Tooltip> */}
         <TableCell align="left" style={{ padding: '0px 10px 0px 0px', margin: '0px', padding: '0px' }}>
           <Link to={preview}>
             <div style={{ wordBreak: 'break-all' }}>{target.title}</div>
-          </Link>
+            </Link>
         </TableCell>
         <TableCell style={{ width: '2px', padding: '0px', margin: '0px' }}></TableCell>
         <TableCell align="left" style={{ padding: '0px 10px 0px 0px', margin: '0px', padding: '0px' }}>
@@ -336,32 +336,32 @@ export const TargetList = memo(() => {
         </TableCell>
         <TableCell style={{ width: '2px', padding: '0px', margin: '0px' }}></TableCell>
         <TableCell align="left" style={{ padding: '0px 10px 0px 0px', margin: '0px', padding: '0px' }}>
-          {sgcUploaded.includes(target.title) && (
-            <a href={sgcUrl} target="new">
+              {sgcUploaded.includes(target.title) && (
+                <a href={sgcUrl} target="new">
               SGC summary
-            </a>
-          )}
-          {discourseAvailable && (
-            <Tooltip title="Go to Discourse">
-              <IconButton
-                disabled={!isDiscourseAvailable()}
-                onClick={() => {
-                  generateDiscourseTargetURL(target.title)
-                    .then(response => {
-                      const link = response.data['Post url'];
-                      openDiscourseLink(link);
-                    })
-                    .catch(err => {
-                      console.log(err);
-                      dispatch(setOpenDiscourseErrorModal(true));
-                    });
-                }}
+                </a>
+              )}
+              {discourseAvailable && (
+                <Tooltip title="Go to Discourse">
+                  <IconButton
+                    disabled={!isDiscourseAvailable()}
+                    onClick={() => {
+                      generateDiscourseTargetURL(target.title)
+                        .then(response => {
+                          const link = response.data['Post url'];
+                          openDiscourseLink(link);
+                        })
+                        .catch(err => {
+                          console.log(err);
+                          dispatch(setOpenDiscourseErrorModal(true));
+                        });
+                    }}
                 style={{ padding: '0px' }}
-              >
+                  >
                 <Chat style={{ height: '15px' }} />
-              </IconButton>
-            </Tooltip>
-          )}
+                  </IconButton>
+                </Tooltip>
+              )}
         </TableCell>
         {/*
       <TableCell
@@ -1162,7 +1162,7 @@ export const TargetList = memo(() => {
                       )
                     ) : (
                       <UnfoldMore style={{ padding: '0px' }} />
-                    )}
+          )}
                   </Tooltip>
                 </IconButton>
                     </TableCell>*/}

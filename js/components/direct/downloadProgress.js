@@ -13,7 +13,7 @@ import {
 import { useSelector } from 'react-redux';
 import { base_url } from '../routes/constants';
 
-export const DownloadProgress = memo(({}) => {
+export const DownloadProgress = memo(({ }) => {
   const downloadInProgress = useSelector(state => state.apiReducers.directDownloadInProgress);
   const snapshotUrl = useSelector(state => state.apiReducers.snapshotDownloadUrl);
 
@@ -26,9 +26,9 @@ export const DownloadProgress = memo(({}) => {
   };
 
   return (
-    <Grid container direction="column" alignItems="center" justify="center" style={{ minHeight: '100vh' }}>
+    <Grid container direction="column" alignItems="center" justifyContent="center" style={{ minHeight: '100vh' }}>
       <Grid item>{downloadInProgress && <CircularProgress />}</Grid>
-      <Grid item container direction="column" alignItems="center" justify="center">
+      <Grid item container direction="column" alignItems="center" justifyContent="center">
         <Grid item>
           <Typography varian="h3">Preparing and downloading the download</Typography>
         </Grid>

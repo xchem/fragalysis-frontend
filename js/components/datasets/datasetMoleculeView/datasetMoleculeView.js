@@ -857,7 +857,7 @@ const DatasetMoleculeView = memo(
         <>
           <Grid
             container
-            justify="space-between"
+            justifyContent="space-between"
             direction="row"
             className={classNames(classes.container, dragDropEnabled ? classes.dragDropCursor : undefined)}
             wrap="nowrap"
@@ -885,7 +885,7 @@ const DatasetMoleculeView = memo(
                 />
               )}
             {/*Site number*/}
-            <Grid item container justify="space-between" direction="column" className={classes.site}>
+            <Grid item container justifyContent="space-between" direction="column" className={classes.site}>
               <Grid item>
                 {!isCompoundFromVectorSelector(data) && (
                   <DatasetMoleculeSelectCheckbox
@@ -910,7 +910,7 @@ const DatasetMoleculeView = memo(
                 {index + 1}.
               </Grid>
             </Grid>
-            <Grid item container className={classes.detailsCol} justify="space-between" direction="row">
+            <Grid item container className={classes.detailsCol} justifyContent="space-between" direction="row">
               {/* Title label */}
               <Grid
                 item
@@ -939,7 +939,7 @@ const DatasetMoleculeView = memo(
                 <Grid
                   container
                   direction="row"
-                  justify="flex-start"
+                  justifyContent="flex-start"
                   alignItems="center"
                   wrap="nowrap"
                   className={classes.contButtonsMargin}
@@ -1120,7 +1120,7 @@ const DatasetMoleculeView = memo(
                 <Grid
                   item
                   container
-                  justify="flex-start"
+                  justifyContent="flex-start"
                   alignItems="flex-end"
                   direction="row"
                   wrap="nowrap"
@@ -1153,10 +1153,10 @@ const DatasetMoleculeView = memo(
                                 null}
                             </Grid>
                           )) || (
-                            <Grid item className={classes.rightBorder}>
-                              -
-                            </Grid>
-                          )}
+                              <Grid item className={classes.rightBorder}>
+                                -
+                              </Grid>
+                            )}
                         </Tooltip>
                       );
                     })}
@@ -1191,7 +1191,7 @@ const DatasetMoleculeView = memo(
               <Grid
                 container
                 direction="column"
-                justify="space-between"
+                justifyContent="space-between"
                 className={classNames(classes.arrows, areArrowsVisible && classes.arrowsHighlight)}
               >
                 <Grid item>

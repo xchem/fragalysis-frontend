@@ -25,7 +25,7 @@ const useStyles = makeStyles(theme => ({
   }
 }));
 
-export const ModalShareSnapshot = memo(({}) => {
+export const ModalShareSnapshot = memo(({ }) => {
   const classes = useStyles();
   const sharedSnapshot = useSelector(state => state.snapshotReducers.sharedSnapshot);
   const isLoadingSnapshotDialog = useSelector(state => state.snapshotReducers.isLoadingSnapshotDialog);
@@ -71,7 +71,7 @@ export const ModalShareSnapshot = memo(({}) => {
         <>
           <DialogTitle id="form-dialog-title">Preparing data...</DialogTitle>
           <DialogContent>
-            <Grid container alignItems="center" justify="center" className={classes.loading}>
+            <Grid container alignItems="center" justifyContent="center" className={classes.loading}>
               <Grid item>
                 <CircularProgress />
               </Grid>

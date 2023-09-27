@@ -64,7 +64,7 @@ export const Management = memo(() => {
 
   if (proposalList) {
     return (
-      <Grid container direction="column" justify="space-between" className={classes.root}>
+      <Grid container direction="column" justifyContent="space-between" className={classes.root}>
         <Grid item>
           <Grid container>
             <Grid item xs={6} md={6} className={classes.paddingItem}>

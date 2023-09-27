@@ -145,7 +145,7 @@ export const DensityMapsModal = memo(({ openDialog, setOpenDialog, data, setDens
             />
           </Grid>
         </Grid>
-        <Grid container justify="flex-end" direction="row">
+        <Grid container justifyContent="flex-end" direction="row">
           <Grid item>
             <Button color="secondary" onClick={handleCloseModal}>
               Cancel

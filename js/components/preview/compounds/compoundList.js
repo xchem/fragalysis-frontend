@@ -144,7 +144,7 @@ export const CompoundList = memo(() => {
     <Panel hasHeader title={headerMessage} ref={panelRef}>
       {currentCompounds && (
         <Box width="100%">
-          <Grid container direction="row" justify="space-between" alignItems="center">
+          <Grid container direction="row" justifyContent="space-between" alignItems="center">
             {Object.keys(compoundsColors).map(item => (
               <>
                 <Grid item key={item}>
@@ -200,7 +200,7 @@ export const CompoundList = memo(() => {
               </>
             ))}
           </Grid>
-          <Grid container justify="space-between" className={classes.infinityContainer}>
+          <Grid container justifyContent="space-between" className={classes.infinityContainer}>
             <Box width="inherit" overflow="auto">
               <InfiniteScroll
                 pageStart={0}

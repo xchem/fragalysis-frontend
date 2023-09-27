@@ -90,7 +90,7 @@ export const ProjectDetailDrawer = memo(({ showHistory, setShowHistory }) => {
     subject: `${title}`,
     body: (
       <>
-        <Grid container justify="flex-start" direction="row" alignItems="center" className={classes.title}>
+        <Grid container justifyContent="flex-start" direction="row" alignItems="center" className={classes.title}>
           {
             <Box xs={6} flexShrink={1} className={classes.titleMargin}>
               {/*<img src={require('../../../img/xchemLogo.png')} className={classes.thumbnail} onClick={() => setOpen(true)} />*/}
@@ -153,14 +153,14 @@ export const ProjectDetailDrawer = memo(({ showHistory, setShowHistory }) => {
       const nodeImages =
         currentSnapshotImage != null
           ? [
-              {
-                src: currentSnapshotImage.image,
-                thumbnail: currentSnapshotImage.image,
-                thumbnailWidth: 0,
-                thumbnailHeight: 0,
-                caption: currentSnapshotImage.title
-              }
-            ]
+            {
+              src: currentSnapshotImage.image,
+              thumbnail: currentSnapshotImage.image,
+              thumbnailWidth: 0,
+              thumbnailHeight: 0,
+              caption: currentSnapshotImage.title
+            }
+          ]
           : [];
 
       newBranch.commit(
@@ -190,14 +190,14 @@ export const ProjectDetailDrawer = memo(({ showHistory, setShowHistory }) => {
   const images =
     image != null
       ? [
-          {
-            src: image.image,
-            thumbnail: image.image,
-            thumbnailWidth: 0,
-            thumbnailHeight: 0,
-            caption: image.title
-          }
-        ]
+        {
+          src: image.image,
+          thumbnail: image.image,
+          thumbnailWidth: 0,
+          thumbnailHeight: 0,
+          caption: image.title
+        }
+      ]
       : [];
 
   return (
@@ -205,7 +205,7 @@ export const ProjectDetailDrawer = memo(({ showHistory, setShowHistory }) => {
       <Drawer anchor="bottom" open={showHistory} onClose={handleCloseHistory}>
         <div className={classes.drawer}>
           <div className={classes.historyHeader}>
-            <Grid container direction="row" justify="space-between">
+            <Grid container direction="row" justifyContent="space-between">
               <Grid item className={classes.headerTitle}>
                 <Typography variant="h6" color="inherit" noWrap>
                   Project History
