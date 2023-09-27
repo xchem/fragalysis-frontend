@@ -80,7 +80,7 @@ export const TagAddModal = memo(({ openDialog, setOpenDialog, molecule }) => {
               data
             })
           )
-            .then(() => {})
+            .then(() => { })
             .catch(error => {
               setState(() => {
                 throw error;
@@ -141,7 +141,7 @@ export const TagAddModal = memo(({ openDialog, setOpenDialog, molecule }) => {
                 />
               </Grid>
             </Grid>
-            <Grid container justify="flex-end" direction="row">
+            <Grid container justifyContent="flex-end" direction="row">
               <Grid item>
                 <Button color="secondary" disabled={isSubmitting} onClick={handleCloseModal}>
                   Cancel

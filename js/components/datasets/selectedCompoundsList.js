@@ -769,10 +769,10 @@ export const SelectedCompoundList = memo(() => {
       {isOpenCrossReferenceDialog && (
         <CrossReferenceDialog open anchorEl={selectedMoleculeRef} ref={crossReferenceDialogRef} />
       )}
-      <Grid container direction="row" justify="flex-start" className={classes.container}>
+      <Grid container direction="row" justifyContent="flex-start" className={classes.container}>
         <Grid container direction="column">
           {/* Selection */}
-          <Grid container direction="row" justify="space-between" alignItems="center">
+          <Grid container direction="row" justifyContent="space-between" alignItems="center">
             {Object.keys(compoundsColors).map(item => (
               <>
                 <Grid item key={item}>
@@ -884,7 +884,7 @@ export const SelectedCompoundList = memo(() => {
                   <Grid
                     container
                     direction="row"
-                    justify="center"
+                    justifyContent="center"
                     alignItems="center"
                     className={classes.paddingProgress}
                   >
@@ -970,7 +970,7 @@ export const SelectedCompoundList = memo(() => {
           </Grid>
         )}
         {!(currentMolecules.length > 0) && (
-          <Grid container justify="center" alignItems="center" direction="row" className={classes.notFound}>
+          <Grid container justifyContent="center" alignItems="center" direction="row" className={classes.notFound}>
             <Grid item>
               <Typography variant="body2">No molecules found!</Typography>
             </Grid>

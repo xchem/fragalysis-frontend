@@ -861,7 +861,7 @@ export const MoleculeList = memo(({ hideProjects }) => {
     return molecules;
   };
 
-  const openGlobalTagEditor = () => {};
+  const openGlobalTagEditor = () => { };
 
   // let filterSearchString = '';
   // const getSearchedString = () => {
@@ -1013,13 +1013,12 @@ export const MoleculeList = memo(({ hideProjects }) => {
                   </Typography>
                 </Grid>
                 <Grid item xs={11}>
-                  <Grid container direction="row" justify="flex-start" spacing={1}>
+                  <Grid container direction="row" justifyContent="flex-start" spacing={1}>
                     {filter.priorityOrder.map(attr => (
                       <Grid item key={`Mol-Tooltip-${attr}`}>
                         <Tooltip
-                          title={`${filter.filter[attr].minValue}-${filter.filter[attr].maxValue} ${
-                            filter.filter[attr].order === 1 ? '\u2191' : '\u2193'
-                          }`}
+                          title={`${filter.filter[attr].minValue}-${filter.filter[attr].maxValue} ${filter.filter[attr].order === 1 ? '\u2191' : '\u2193'
+                            }`}
                           placement="top"
                         >
                           <Chip size="small" label={attr} style={{ backgroundColor: getAttrDefinition(attr).color }} />
@@ -1037,21 +1036,21 @@ export const MoleculeList = memo(({ hideProjects }) => {
       <Grid container spacing={1}>
         <Grid style={{ marginTop: '4px' }}>
           <Tooltip title="all ligands" style={{ marginLeft: '1px' }}>
-            <Button
-              variant="outlined"
-              className={classNames(classes.contColButton, {
-                [classes.contColButtonSelected]: isLigandOn === true,
-                [classes.contColButtonHalfSelected]: isLigandOn === null
-              })}
-              onClick={() => onButtonToggle('ligand')}
+              <Button
+                variant="outlined"
+                className={classNames(classes.contColButton, {
+                  [classes.contColButtonSelected]: isLigandOn === true,
+                  [classes.contColButtonHalfSelected]: isLigandOn === null
+                })}
+                onClick={() => onButtonToggle('ligand')}
               disabled={groupNglControlButtonsDisabledState.ligand || allSelectedMolecules.length === 0}
-            >
-              L
-            </Button>
-          </Tooltip>
+              >
+                L
+              </Button>
+            </Tooltip>
           <Tooltip title="all sidechains" style={{ marginLeft: '1px' }}>
-            <Button
-              variant="outlined"
+              <Button
+                variant="outlined"
               className={classNames(
                 allSelectedMolecules.length === 0 ? classes.contColButton : classes.contColButtonUnselected,
                 {
@@ -1059,16 +1058,16 @@ export const MoleculeList = memo(({ hideProjects }) => {
                   [classes.contColButtonHalfSelected]: isProteinOn === null
                 }
               )}
-              onClick={() => onButtonToggle('protein')}
+                onClick={() => onButtonToggle('protein')}
               disabled={groupNglControlButtonsDisabledState.protein || allSelectedMolecules.length === 0}
-            >
-              P
-            </Button>
-          </Tooltip>
+              >
+                P
+              </Button>
+            </Tooltip>
           <Tooltip title="all interactions" style={{ marginLeft: '1px' }}>
-            {/* C stands for contacts now */}
-            <Button
-              variant="outlined"
+              {/* C stands for contacts now */}
+              <Button
+                variant="outlined"
               className={classNames(
                 allSelectedMolecules.length === 0 ? classes.contColButton : classes.contColButtonUnselected,
                 {
@@ -1076,13 +1075,13 @@ export const MoleculeList = memo(({ hideProjects }) => {
                   [classes.contColButtonHalfSelected]: isComplexOn === null
                 }
               )}
-              onClick={() => onButtonToggle('complex')}
+                onClick={() => onButtonToggle('complex')}
               disabled={groupNglControlButtonsDisabledState.complex || allSelectedMolecules.length === 0}
-            >
-              C
-            </Button>
-          </Tooltip>
-        </Grid>
+              >
+                C
+              </Button>
+            </Tooltip>
+          </Grid>
 
         {
           <Tooltip title={selectAllHitsPressed ? 'Unselect all hits' : 'Select all hits'}>
@@ -1144,16 +1143,15 @@ export const MoleculeList = memo(({ hideProjects }) => {
           </Tooltip>
         )}
         <Grid style={{ marginTop: '4px' }}>
-          <Typography variant="caption" className={classes.noOfSelectedHits}>{`Selected: ${
-            allSelectedMolecules ? allSelectedMolecules.length : 0
-          }`}</Typography>
+          <Typography variant="caption" className={classes.noOfSelectedHits}>{`Selected: ${allSelectedMolecules ? allSelectedMolecules.length : 0
+            }`}</Typography>
         </Grid>
       </Grid>
-      <Grid container spacing={1} direction="column" justify="flex-start" className={classes.container}>
+      <Grid container spacing={1} direction="column" justifyContent="flex-start" className={classes.container}>
         <Grid item>
           {/* Header */}
-          <Grid container spacing={1} justify="flex-start" direction="row" className={classes.molHeader} wrap="nowrap">
-            <Grid item container justify="flex-start" direction="row">
+          <Grid container spacing={1} justifyContent="flex-start" direction="row" className={classes.molHeader} wrap="nowrap">
+            <Grid item container justifyContent="flex-start" direction="row">
               {Object.keys(moleculeProperty).map(key => (
                 <Grid item key={key} className={classes.rightBorder}>
                   {moleculeProperty[key]}
@@ -1183,7 +1181,7 @@ export const MoleculeList = memo(({ hideProjects }) => {
                     <Grid
                       container
                       direction="row"
-                      justify="center"
+                      justifyContent="center"
                       alignItems="center"
                       className={classes.paddingProgress}
                     >
@@ -1234,7 +1232,7 @@ export const MoleculeList = memo(({ hideProjects }) => {
               </InfiniteScroll>
             </Grid>
             <Grid item>
-              <Grid container spacing={1} justify="space-between" alignItems="center" direction="row">
+              <Grid container spacing={1} justifyContent="space-between" alignItems="center" direction="row">
                 <Grid item>
                   <span className={classes.total}>{`Total ${joinedMoleculeLists?.length}`}</span>
                 </Grid>

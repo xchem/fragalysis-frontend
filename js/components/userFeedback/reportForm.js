@@ -302,7 +302,7 @@ export const ReportForm = memo(({ formType }) => {
             </Typography>
             <Typography variant="body1">After you proceed, {getHintText()}.</Typography>
           </Grid>
-          <Grid container justify="flex-end" direction="row">
+          <Grid container justifyContent="flex-end" direction="row">
             <Grid item>
               <Button onClick={handleCloseDialog}>Cancel</Button>
             </Grid>
@@ -413,7 +413,7 @@ export const ReportForm = memo(({ formType }) => {
                       />
                     </Grid>
 
-                    <Grid item xs={12} container justify="flex-start" direction="row">
+                    <Grid item xs={12} container justifyContent="flex-start" direction="row">
                       <Grid item>
                         <Button disabled={isSubmitting} onClick={handleCloseForm}>
                           Close
@@ -437,7 +437,7 @@ export const ReportForm = memo(({ formType }) => {
                 item
                 xs
                 container
-                justify="center"
+                justifyContent="center"
                 alignItems="center"
                 direction="row"
                 spacing={2}
@@ -449,7 +449,7 @@ export const ReportForm = memo(({ formType }) => {
                   align="center"
                   container
                   direction="row"
-                  justify="space-between"
+                  justifyContent="space-between"
                   alignItems="center"
                   spacing={1}
                 >
@@ -491,7 +491,7 @@ export const ReportForm = memo(({ formType }) => {
                   align="center"
                   container
                   direction="row"
-                  justify="space-between"
+                  justifyContent="space-between"
                   alignItems="center"
                   spacing={1}
                 >
@@ -519,7 +519,7 @@ export const ReportForm = memo(({ formType }) => {
                   align="center"
                   container
                   direction="row"
-                  justify="flex-end"
+                  justifyContent="flex-end"
                   alignItems="center"
                   spacing={1}
                 >

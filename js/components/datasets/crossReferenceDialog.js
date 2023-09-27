@@ -299,14 +299,14 @@ export const CrossReferenceDialog = memo(
               >
                 {isLoadingCrossReferenceScores === false && moleculeList && (
                   <>
-                    <Grid container justify="flex-start" direction="row" className={classes.molHeader} wrap="nowrap">
-                      <Grid item container justify="flex-start" direction="row">
+                    <Grid container justifyContent="flex-start" direction="row" className={classes.molHeader} wrap="nowrap">
+                      <Grid item container justifyContent="flex-start" direction="row">
                         {selectedMolecules.length > 0 && (
                           <Grid item>
                             <Grid
                               container
                               direction="row"
-                              justify="flex-start"
+                              justifyContent="flex-start"
                               alignItems="center"
                               wrap="nowrap"
                               className={classes.contButtonsMargin}
@@ -409,7 +409,7 @@ export const CrossReferenceDialog = memo(
                       {!(moleculeList.length > 0) && (
                         <Grid
                           container
-                          justify="center"
+                          justifyContent="center"
                           alignItems="center"
                           direction="row"
                           className={classes.notFound}
@@ -423,7 +423,7 @@ export const CrossReferenceDialog = memo(
                   </>
                 )}
                 {isLoadingCrossReferenceScores === true && (
-                  <Grid container alignItems="center" justify="center">
+                  <Grid container alignItems="center" justifyContent="center">
                     <Grid item>
                       <CircularProgress />
                     </Grid>

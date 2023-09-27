@@ -951,9 +951,9 @@ const MoleculeView = memo(
 
     return (
       <>
-        <Grid container justify="space-between" direction="row" className={classes.container} wrap="nowrap" ref={ref}>
+        <Grid container justifyContent="space-between" direction="row" className={classes.container} wrap="nowrap" ref={ref}>
           {/* Site number */}
-          <Grid item container justify="space-between" direction="column" className={classes.site}>
+          <Grid item container justifyContent="space-between" direction="column" className={classes.site}>
             <Grid item>
               <MoleculeSelectCheckbox
                 moleculeID={currentID}
@@ -975,7 +975,7 @@ const MoleculeView = memo(
               {index + 1}.
             </Grid>
           </Grid>
-          <Grid item container className={classes.detailsCol} justify="space-between" direction="row">
+          <Grid item container className={classes.detailsCol} justifyContent="space-between" direction="row">
             {/* Title label */}
             <Grid item xs={7}>
               <Tooltip title={moleculeTitle} placement="bottom-start">
@@ -988,7 +988,7 @@ const MoleculeView = memo(
               <Grid
                 container
                 direction="row"
-                justify="flex-end"
+                justifyContent="flex-end"
                 alignItems="center"
                 wrap="nowrap"
                 className={classes.contButtonsMargin}
@@ -1133,7 +1133,7 @@ const MoleculeView = memo(
               <Grid
                 item
                 container
-                justify="flex-start"
+                justifyContent="flex-start"
                 alignItems="flex-end"
                 direction="row"
                 wrap="nowrap"

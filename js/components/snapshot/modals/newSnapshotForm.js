@@ -192,7 +192,7 @@ export const NewSnapshotForm = memo(({ handleCloseModal }) => {
                 </Grid>
               )}
             </Grid>
-            <Grid container justify="flex-end" direction="row">
+            <Grid container justifyContent="flex-end" direction="row">
               <Grid item>
                 <Button color="secondary" disabled={isLoadingSnapshotDialog || isSubmitting} onClick={handleCloseModal}>
                   Cancel
