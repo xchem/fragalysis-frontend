@@ -1,4 +1,4 @@
-import { constants } from './constatnts';
+import { constants } from './constants';
 
 export const setOldUrl = url => ({ type: constants.SET_OLD_URL, payload: url });
 
@@ -20,3 +20,18 @@ export const setCurrentProject = project => {
 export const setOpenPickProjectModal = isOpen => ({ type: constants.SET_OPEN_PICK_PROJECT_MODAL, payload: isOpen });
 
 export const setProjectsLoaded = isLoaded => ({ type: constants.SET_PROJECTS_LOADED, payload: isLoaded });
+
+export const setListOfFilteredTargets = targets => ({
+  type: constants.SET_LIST_OF_FILTERED_TARGETS,
+  payload: targets
+});
+
+export const setSortTargetDialogOpen = isOpen => ({
+  type: constants.SET_SORT_TARGET_DIALOG_OPEN,
+  payload: isOpen
+});
+
+export const setListOfTargets = targets => ({
+  type: constants.SET_LIST_OF_TARGETS,
+  payload: targets
+});

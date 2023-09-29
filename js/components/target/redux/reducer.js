@@ -1,4 +1,4 @@
-import { constants } from './constatnts';
+import { constants } from './constants';
 
 export const INITIAL_STATE = {
   oldUrl: '',
@@ -42,6 +42,15 @@ export const targetReducers = (state = INITIAL_STATE, action = {}) => {
 
     case constants.SET_PROJECTS_LOADED:
       return { ...state, projectsLoaded: action.payload };
+
+    case constants.SET_LIST_OF_FILTERED_TARGETS:
+      return Object.assign({}, state, { listOfFilteredTargets: action.payload });
+
+    case constants.SET_SORT_TARGET_DIALOG_OPEN:
+      return { ...state, targetListFilterDialog: action.payload };
+
+    case constants.SET_LIST_OF_TARGETS:
+      return { ...state, listOfTargets: action.payload };
 
     default:
       return state;
