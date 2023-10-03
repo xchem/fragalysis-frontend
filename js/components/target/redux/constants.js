@@ -11,7 +11,9 @@ export const constants = {
   SET_PROJECTS_LOADED: prefix + 'SET_PROJECTS_LOADED',
   SET_LIST_OF_FILTERED_TARGETS: prefix + 'SET_LIST_OF_FILTERED_TARGETS',
   SET_SORT_TARGET_DIALOG_OPEN: prefix + 'SET_SORT_TARGET_DIALOG_OPEN',
-  SET_LIST_OF_TARGETS: prefix + 'SET_LIST_OF_TARGETS'
+  SET_LIST_OF_TARGETS: prefix + 'SET_LIST_OF_TARGETS',
+  SET_IS_LOADING_LIST_OF_TARGETS: prefix + 'SET_IS_LOADING_LIST_OF_TARGETS',
+  SET_FILTER_CLEAN: prefix + 'SET_FILTER_CLEAN'
 };
 
 export const TARGETS_ATT = {
@@ -107,7 +109,7 @@ export const TARGETS_ATT = {
   },
   NHits: {
     key: 'NHits',
-    name: 'N Hits',
+    name: 'N hits',
     isFloat: true,
     color: '#f58588',
     filter: true,
@@ -116,7 +118,7 @@ export const TARGETS_ATT = {
   },
   dateLastEdit: {
     key: 'dateLastEdit',
-    name: 'Date last Edit',
+    name: 'Date last edit',
     isFloat: true,
     color: '#dcc520',
     filter: true,

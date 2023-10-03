@@ -29,7 +29,6 @@ import { URLS } from '../routes/constants';
 import { isDiscourseAvailable, generateDiscourseTargetURL, openDiscourseLink } from '../../utils/discourse';
 import { setOpenDiscourseErrorModal } from '../../reducers/api/actions';
 import { Chat } from '@material-ui/icons';
-import { getTargetProjectCombinations } from './redux/dispatchActions';
 import { URL_TOKENS } from '../direct/constants';
 import { setListOfFilteredTargets, setSortTargetDialogOpen, setListOfTargets } from './redux/actions';
 import {
@@ -65,7 +64,6 @@ import {
   compareVersionIdDesc
 } from './sortTargets/sortTargets';
 import { TargetListSortFilterDialog, sortTargets } from './targetListSortFilterDialog';
-
 import {
   Delete,
   Add,
@@ -76,10 +74,11 @@ import {
   UnfoldMore,
   FilterList
 } from '@material-ui/icons';
+import { MOCK_LIST_OF_TARGETS } from './MOCK';
 
 const useStyles = makeStyles(theme => ({
   table: {
-    minWidth: 1600,
+    minWidth: 1700,
     tableLayout: 'auto',
     marginTop: '8px'
   },
@@ -108,18 +107,17 @@ const useStyles = makeStyles(theme => ({
 export const TargetList = memo(() => {
   const classes = useStyles();
   const dispatch = useDispatch();
+  const [page, setPage] = useState(0);
   const isTargetLoading = useSelector(state => state.targetReducers.isTargetLoading);
   const target_id_list = useSelector(state => state.apiReducers.target_id_list);
-  const projectsList = useSelector(state => state.targetReducers.projects);
-  const isLoadingListOfProjects = useSelector(state => state.projectReducers.isLoadingListOfProjects);
 
-  let filteredListOfTargets = useSelector(state => state.targetReducers.listOfFilteredProject);
+  let filteredListOfTargets = useSelector(state => state.targetReducers.listOfFilteredTargets);
 
   const [sortSwitch, setSortSwitch] = useState(0);
   const [sortDialogAnchorEl, setSortDialogAnchorEl] = useState(null);
   const sortDialogOpen = useSelector(state => state.targetReducers.targetListFilterDialog);
 
-  const listOfAllTargetsDefault = [];
+  const listOfAllTargetsDefault = MOCK_LIST_OF_TARGETS;
   let searchString = '';
 
   // checkbox for search
@@ -171,12 +169,34 @@ export const TargetList = memo(() => {
   let searchedByECNumber = [];
   let searchedNHits = [];
 
-  const filterClean = useSelector(state => state.projectReducers.filterClean);
+  const filterClean = useSelector(state => state.targetReducers.filterClean);
   const filter = useSelector(state => state.selectionReducers.filter);
 
   const isActiveFilter = !!(filter || {}).active;
 
   let listOfAllTarget = [...listOfAllTargetsDefault];
+
+  useEffect(() => {
+    // remove filter data
+    if (filterClean === true) {
+    }
+  }, [filterClean]);
+
+  // window height for showing rows per page
+  const [windowHeight, setWindowHeight] = useState(window.innerHeight);
+  let projectListWindowHeight = windowHeight / 26 - 6;
+  let projectListWindowHeightFinal = parseInt(projectListWindowHeight.toFixed(0), 10);
+  const [rowsPerPage, setRowsPerPage] = useState(projectListWindowHeightFinal);
+  const [rowsPerPagePerPageSize, setRowsPerPagePerPageSize] = useState(projectListWindowHeightFinal);
+
+  const handleChangePage = (event, newPage) => {
+    setPage(newPage);
+  };
+
+  const handleChangeRowsPerPage = event => {
+    setRowsPerPage(parseInt(event.target.value, 10));
+    setPage(0);
+  };
 
   useEffect(() => {
     if (isActiveFilter) {
@@ -249,131 +269,106 @@ export const TargetList = memo(() => {
   const handleSearch = event => {
     searchString = event.target.value;
     if (checkedId === true) {
-      searchedById = listOfAllTarget.filter(item => item.id.toLowerCase().includes(searchString.toLowerCase()));
+      searchedById = listOfAllTarget.filter(item => item.id.toString().includes(searchString));
     } else {
       searchedById = [];
     }
     if (checkedTarget === true) {
-      searchedByTarget = listOfAllTarget.filter(item =>
-        item.target.title.toLowerCase().includes(searchString.toLowerCase())
-      );
+      searchedByTarget = listOfAllTarget.filter(item => item.target.toLowerCase().includes(searchString.toLowerCase()));
     } else {
       searchedByTarget = [];
     }
     if (checkedNumberOfChains === true) {
-      searchedByNumberOfChains = listOfAllTarget.filter(item =>
-        item.numberOfChains.toLowerCase().includes(searchString.toLowerCase())
-      );
+      searchedByNumberOfChains = listOfAllTarget.filter(item => item.numberOfChains.toString().includes(searchString));
     } else {
       searchedByNumberOfChains = [];
     }
     if (checkedPrimaryChain === true) {
       searchedByPrimaryChain = listOfAllTarget.filter(item => {
-        if (item.primaryChain !== null) {
-          item.primaryChain.toLowerCase().includes(searchString.toLowerCase());
-        }
+        return item.primaryChain.toLowerCase().includes(searchString.toLowerCase());
       });
     } else {
       searchedByPrimaryChain = [];
     }
     if (checkedUniprot === true) {
       searchedByUniprot = listOfAllTarget.filter(item => {
-        if (item.uniprot !== null) {
-          item.uniprot.toLowerCase().includes(searchString.toLowerCase());
-        }
+        return item.uniprot.toLowerCase().includes(searchString.toLowerCase());
       });
     } else {
       searchedByUniprot = [];
     }
     if (checkedRange === true) {
       searchedByRange = listOfAllTarget.filter(item => {
-        if (item.range !== null) {
-          item.range.toLowerCase().includes(searchString.toLowerCase());
-        }
+        return item.range.toString().includes(searchString);
       });
     } else {
       searchedByRange = [];
     }
     if (checkedProteinName === true) {
       searchedByProteinName = listOfAllTarget.filter(item => {
-        if (item.proteinName !== null) {
-          item.proteinName.toLowerCase().includes(searchString.toLowerCase());
-        }
+        return item.proteinName.toLowerCase().includes(searchString.toLowerCase());
       });
     } else {
       searchedByProteinName = [];
     }
     if (checkedGeneName === true) {
       searchedByGeneName = listOfAllTarget.filter(item => {
-        if (item.geneName !== null) {
-          item.geneName.toLowerCase().includes(searchString.toLowerCase());
-        }
+        return item.geneName
+          .toLowerCase()
+          .toString()
+          .includes(searchString.toLowerCase());
       });
     } else {
       searchedByGeneName = [];
     }
     if (checkedSpeciesId === true) {
       searchedBySpeciesId = listOfAllTarget.filter(item => {
-        if (item.speciesId !== null) {
-          item.speciesId.toLowerCase().includes(searchString.toLowerCase());
-        }
+        return item.speciesId.toString().includes(searchString);
       });
     } else {
       searchedBySpeciesId = [];
     }
     if (checkedSpecies === true) {
       searchedBySpecies = listOfAllTarget.filter(item => {
-        if (item.species !== null) {
-          item.species.toLowerCase().includes(searchString.toLowerCase());
-        }
+        return item.species.toLowerCase().includes(searchString.toLowerCase());
       });
     } else {
       searchedBySpecies = [];
     }
     if (checkedDomain === true) {
       searchedByDomain = listOfAllTarget.filter(item => {
-        if (item.domain !== null) {
-          item.domain.toLowerCase().includes(searchString.toLowerCase());
-        }
+        return item.domain.toLowerCase().includes(searchString.toLowerCase());
       });
     } else {
       searchedByDomain = [];
     }
-    if (checkedDateLastEdit === true) {
-      searchedByDateLastEdit = listOfAllTarget.filter(item => {
-        if (item.dateLastEdit !== null) {
-          item.dateLastEdit.toLowerCase().includes(searchString.toLowerCase());
-        }
-      });
-    } else {
-      searchedByDateLastEdit = [];
-    }
-    if (checkedVersionId === true) {
-      searchedVersionId = listOfAllTarget.filter(item => {
-        if (item.versionId !== null) {
-          item.versionId.toLowerCase().includes(searchString.toLowerCase());
-        }
-      });
-    } else {
-      searchedVersionId = [];
-    }
     if (checkedECNumber === true) {
       searchedByECNumber = listOfAllTarget.filter(item => {
-        if (item.ECNumber !== null) {
-          item.ECNumber.toLowerCase().includes(searchString.toLowerCase());
-        }
+        return item.ECNumber.toLowerCase().includes(searchString.toLowerCase());
       });
     } else {
       searchedByECNumber = [];
     }
     if (checkedNHits === true) {
       searchedNHits = listOfAllTarget.filter(item => {
-        if (item.NHits !== null) {
-          item.NHits.toLowerCase().includes(searchString.toLowerCase());
-        }
+        return item.NHits.toString().includes(searchString);
       });
     } else {
       searchedNHits = [];
+    }
+    if (checkedDateLastEdit === true) {
+      searchedByDateLastEdit = listOfAllTarget.filter(item => {
+        return item.dateLastEdit.toLowerCase().includes(searchString.toLowerCase());
+      });
+    } else {
+      searchedByDateLastEdit = [];
+    }
+    if (checkedVersionId === true) {
+      searchedVersionId = listOfAllTarget.filter(item => {
+        return item.versionId.toString().includes(searchString);
+      });
+    } else {
+      searchedVersionId = [];
     }
 
     const mergedSearchList = [
@@ -584,6 +579,8 @@ export const TargetList = memo(() => {
         break;
     }
   };
+
+  const targetsToUse = filteredListOfTargets ? filteredListOfTargets : listOfAllTarget;
   if (target_id_list) {
     return (
       <Panel
@@ -623,7 +620,6 @@ export const TargetList = memo(() => {
             </Tooltip>
           </IconButton>
         ]}
-        isLoading={isTargetLoading}
       >
         <Table className={classes.table} aria-label="a dense table">
           <TableHead>
@@ -990,6 +986,103 @@ export const TargetList = memo(() => {
               </TableCell>
             </TableRow>
           </TableHead>
+          <TableBody>
+            {targetsToUse.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map(target => (
+              <TableRow hover key={target.id}>
+                <Tooltip title={`${target.description}`}>
+                  <TableCell
+                    component="th"
+                    scope="row"
+                    style={{ minWidth: '150px', padding: '0px 10px 0px 0px', margin: '0px', padding: '0px' }}
+                  >
+                    <div>{target.id}</div>
+                  </TableCell>
+                </Tooltip>
+                <TableCell
+                  align="left"
+                  style={{ minWidth: '100px', padding: '0px 10px 0px 0px', margin: '0px', padding: '0px' }}
+                >
+                  <Link to={`${URLS.target}${target.target}`}>
+                    <div>{target.target.title === undefined ? target.target : target.target.title}</div>
+                  </Link>
+                </TableCell>
+                <TableCell
+                  align="left"
+                  style={{ minWidth: '100px', padding: '5px 10px 0px 0px', margin: '0px', padding: '0px' }}
+                >
+                  <div>{target.numberOfChains}</div>
+                </TableCell>
+                <TableCell
+                  align="left"
+                  style={{ minWidth: '150px', padding: '0px 10px 0px 0px', margin: '0px', padding: '0px' }}
+                >
+                  <div>{target.primaryChain}</div>
+                </TableCell>
+                <TableCell style={{ padding: '0px' }} align="left">
+                  <Link to={`${URLS.target}${target.uniprot}`}>
+                    <div>{target.uniprot} </div>
+                  </Link>
+                </TableCell>
+                <TableCell style={{ padding: '0px' }} align="left">
+                  {target.range}
+                </TableCell>{' '}
+                <TableCell style={{ padding: '0px' }} align="left">
+                  {target.proteinName}
+                </TableCell>{' '}
+                <TableCell style={{ padding: '0px' }} align="left">
+                  {target.geneName}
+                </TableCell>{' '}
+                <TableCell style={{ padding: '0px' }} align="left">
+                  {target.speciesId}
+                </TableCell>
+                <TableCell align="left" style={{ padding: '0px' }}>
+                  <Link to={`${URLS.target}${target.species}`}>
+                    <div>{target.species} </div>
+                  </Link>
+                </TableCell>
+                <TableCell style={{ padding: '0px' }} align="left">
+                  {target.domain}
+                </TableCell>
+                <TableCell style={{ padding: '0px' }} align="left">
+                  {target.ECNumber}
+                </TableCell>
+                <TableCell
+                  align="left"
+                  style={{ minWidth: '150px', padding: '0px 10px 0px 0px', margin: '0px', padding: '0px' }}
+                >
+                  <div> {target.NHits}</div>
+                </TableCell>
+                <TableCell
+                  align="left"
+                  style={{ minWidth: '150px', padding: '0px 10px 0px 0px', margin: '0px', padding: '0px' }}
+                >
+                  <div> {target.DateLastEdit}</div>
+                </TableCell>
+                <TableCell
+                  align="left"
+                  style={{ minWidth: '150px', padding: '0px 10px 0px 0px', margin: '0px', padding: '0px' }}
+                >
+                  <div> {target.versionId}</div>
+                </TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+          <TableFooter>
+            <TableRow>
+              <TablePagination
+                rowsPerPageOptions={[rowsPerPagePerPageSize, 20, 30, 40, 50, 100]}
+                count={listOfAllTarget.length}
+                rowsPerPage={rowsPerPage}
+                page={page}
+                SelectProps={{
+                  inputProps: { 'aria-label': 'rows per page' },
+                  native: true
+                }}
+                onPageChange={handleChangePage}
+                onRowsPerPageChange={handleChangeRowsPerPage}
+              />
+            </TableRow>
+          </TableFooter>
         </Table>
         {sortDialogOpen && (
           <TargetListSortFilterDialog
@@ -999,234 +1092,7 @@ export const TargetList = memo(() => {
             setSortDialogAnchorEl={setSortDialogAnchorEl}
           />
         )}
-      </Panel> /*}
-            <TableBody>
-              {projectsToUse.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map(
-                project => (
-                  (tags = JSON.parse(project.tags)),
-                  (
-                    <TableRow hover key={project.id}>
-                      <Tooltip title={`${project.description}`}>
-                        <TableCell style={{padding: '0px'}}
-                          component="th"
-                          scope="row"
-                          style={{ minWidth: '150px', padding: '0px 10px 0px 0px', margin: '0px' }}
-                        >
-                          <Link to={`${URLS.projects}${project.id}`}>
-                            <div>{project.title === undefined ? project.title : project.title}</div>
-                          </Link>
-                        </TableCell>
-                      </Tooltip>
-                      <TableCell style={{padding: '0px'}} align="left" style={{ minWidth: '100px', padding: '0px 10px 0px 0px', margin: '0px' }}>
-                        <Link to={`${URLS.target}${project.target}`}>
-                          <div>{project.target.title === undefined ? project.target : project.target.title}</div>
-                        </Link>
-                      </TableCell>
-                      <TableCell style={{padding: '0px'}} align="left" style={{ minWidth: '100px', padding: '5px 10px 0px 0px', margin: '0px' }}>
-                        <div>{project.description}</div>
-                      </TableCell>
-                      <TableCell style={{padding: '0px'}} align="left" style={{ minWidth: '150px', padding: '0px 10px 0px 0px', margin: '0px' }}>
-                        <div>{project.project?.target_access_string}</div>
-                      </TableCell>
-                      <TableCell style={{padding: '0px'}} align="left" style={{ padding: '0px 10px 0px 0px', margin: '0px' }}>
-                        <div>
-                          {tags.map((tag, index) => (
-                            <Chip key={index} label={tag} className={classes.chip} />
-                          ))}
-                        </div>
-                      </TableCell>
-                      {/*<TableCell style={{padding: '0px'}} align="left">{project.author}</TableCell> */ /*}{
-                      <TableCell style={{padding: '0px'}} align="left" style={{ minWidth: '150px', padding: '0px 10px 0px 0px', margin: '0px' }}>
-                        <div>{project.project?.authority} </div>
-                      </TableCell>
-                      <TableCell style={{padding: '0px'}} align="left" style={{ minWidth: '150px', padding: '0px 10px 0px 0px', margin: '0px' }}>
-                        <div>{moment(project.init_date).format('LLL')}</div>
-                      </TableCell>
-                      <TableCell style={{padding: '0px'}}
-                        align="center"
-                        style={{ minWidth: '100px', padding: '0px 10px 0px 0px', margin: '0px' }}
-                      >
-                        <Tooltip title="Delete project">
-                          <IconButton
-                            style={{ padding: '0px' }}
-                            disabled={DJANGO_CONTEXT['username'] === 'NOT_LOGGED_IN'}
-                            onClick={() =>
-                              dispatch(removeProject(project.id)).catch(error => {
-                                throw new Error(error);
-                              })
-                            }
-                          >
-                            <Delete />
-                          </IconButton>
-                        </Tooltip>
-                        {discourseAvailable && (
-                          <Tooltip title="Go to Discourse">
-                            <IconButton
-                              style={{ padding: '0px' }}
-                              onClick={() => {
-                                getExistingPost(project.name)
-                                  .then(response => {
-                                    if (response.data['Post url']) {
-                                      const link = response.data['Post url'];
-                                      openDiscourseLink(link);
-                                    }
-                                  })
-                                  .catch(err => {
-                                    console.log(err);
-                                    dispatch(setOpenDiscourseErrorModal(true));
-                                  });
-                              }}
-                            >
-                              <QuestionAnswer />
-                            </IconButton>
-                          </Tooltip>
-                        )}
-                      </TableCell>
-                    </TableRow>
-                  )
-                )
-              )}
-            </TableBody>
-            <TableFooter>
-              <TableRow>
-                <TablePagination
-                  rowsPerPageOptions={[rowsPerPagePerPageSize, 20, 30, 40, 50, 100]}
-                  count={listOfAllTarget.length}
-                  rowsPerPage={rowsPerPage}
-                  page={page}
-                  SelectProps={{
-                    inputProps: { 'aria-label': 'rows per page' },
-                    native: true
-                  }}
-                  onPageChange={handleChangePage}
-                  onRowsPerPageChange={handleChangeRowsPerPage}
-                />
-              </TableRow>
-            </TableFooter>
-          </Table>*/
-
-      /*
-        {isTargetLoading === false && (
-          <>
-        {/* <Table className={classes.table} aria-label="a dense table">
-            <TableHead>
-              <TableRow>
-                <div>
-                  <TableCell style={{padding: '0px'}} style={{ paddingLeft: '0px' }}>
-                    <div>
-                      <Grid container>
-                        <Typography variant="title">
-                          <input
-                            type="checkbox"
-                            style={{ verticalAlign: 'middle' }}
-                            checked={checkedName}
-                            onChange={() => setCheckedName(!checkedName)}
-                          />
-                          Name
-                        </Typography>
-                         <IconButton style={{padding:'0px'}}onClick={() => handleHeaderSort('title')}>
-                          <Tooltip title="Sort" className={classes.sortButton}>
-                            {[1, 2].includes(sortSwitch - offsetName) ? (
-                              sortSwitch % offsetName < 2 ? (
-                                <KeyboardArrowDown />
-                              ) : (
-                                <KeyboardArrowUp />
-                              )
-                            ) : (
-                              <UnfoldMore />
-                            )}
-                          </Tooltip>
-                        </IconButton>
-                      </Grid>
-                    </div>
-                  </TableCell>
-                </div>
-                <TableCell style={{padding: '0px'}} align="left" style={{ verticalAlign: 'middle', padding: '0px' }}>
-                  <Grid container>
-                    <Typography variant="Target">
-                      <input
-                        type="checkbox"
-                        style={{ verticalAlign: 'middle' }}
-                        checked={checkedTarget}
-                        onChange={() => setCheckedTarget(!checkedTarget)}
-                      />
-                      Target
-                    </Typography>
-                     <IconButton style={{padding:'0px'}}onClick={() => handleHeaderSort('target')}>
-                      <Tooltip title="Sort" className={classes.sortButton}>
-                        {[1, 2].includes(sortSwitch - offsetTarget) ? (
-                          sortSwitch % offsetTarget < 2 ? (
-                            <KeyboardArrowDown />
-                          ) : (
-                            <KeyboardArrowUp />
-                          )
-                        ) : (
-                          <UnfoldMore />
-                        )}
-                      </Tooltip>
-                    </IconButton>
-                  </Grid>
-                </TableCell>
-                <TableCell style={{padding: '0px'}} align="left" style={{ verticalAlign: 'middle', padding: '0px' }}>
-                  <Grid container>
-                    <Typography variant="Description">
-                      <input
-                        type="checkbox"
-                        style={{ verticalAlign: 'middle' }}
-                        checked={checkedDescription}
-                        onChange={() => setCheckedDescription(!checkedDescription)}
-                      />
-                      Description
-                    </Typography>
-                     <IconButton style={{padding:'0px'}}onClick={() => handleHeaderSort('description')}>
-                      <Tooltip title="Sort" className={classes.sortButton}>
-                        {[1, 2].includes(sortSwitch - offsetDescription) ? (
-                          sortSwitch % offsetDescription < 2 ? (
-                            <KeyboardArrowDown />
-                          ) : (
-                            <KeyboardArrowUp />
-                          )
-                        ) : (
-                          <UnfoldMore />
-                        )}
-                      </Tooltip>
-                    </IconButton>
-                  </Grid>
-                </TableCell>
-                <TableCell style={{padding: '0px'}} align="left" style={{ verticalAlign: 'middle', padding: '0px' }}>
-                  <Grid container>
-                    <Typography variant="Target access string">
-                      <input
-                        type="checkbox"
-                        style={{ verticalAlign: 'middle', padding: '0px' }}
-                        checked={checkedTargetAccessString}
-                        onChange={() => setCheckedTargetAccessString(!checkedTargetAccessString)}
-                      />
-                      Target access
-                    </Typography>
-                     <IconButton style={{padding:'0px'}}onClick={() => handleHeaderSort('targetAccessString')}>
-                      <Tooltip title="Sort" className={classes.sortButton}>
-                        {[1, 2].includes(sortSwitch - offsetTargetAccessString) ? (
-                          sortSwitch % offsetTargetAccessString < 2 ? (
-                            <KeyboardArrowDown />
-                          ) : (
-                            <KeyboardArrowUp />
-                          )
-                        ) : (
-                          <UnfoldMore />
-                        )}
-                      </Tooltip>
-                    </IconButton>
-                  </Grid>
-                </TableCell>
-                <TableCell style={{padding: '0px'}} align="left" style={{ verticalAlign: 'middle', padding: '0px' }}>
-                  <Grid container>
-                    <Typography variant="Tags">Tags</Typography>
-                  </Grid>
-                </TableCell>
-                {/* <TableCell style={{padding: '0px'}} align="left">Author</TableCell> */
-      /*
-        </Panel> */
+      </Panel>
     );
   }
 });

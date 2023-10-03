@@ -94,9 +94,9 @@ const useStyles = makeStyles(theme => ({
 const widthPrio = 50;
 const widthOrder = 60;
 const widthProperty = 170;
-const gridDateFromWidth = 75;
+const gridDateFromWidth = 85;
 const gridDateFromInputWidth = 90;
-const filterDataWidth = 185;
+const filterDataWidth = 200;
 
 let filteredProjectList = [];
 let searchNameString = '';
@@ -585,7 +585,7 @@ const ProjectListSortFilterItem = memo(props => {
                 {dateFilter === true ? (
                   <Grid item container className={classes.gridItemHeader}>
                     <Grid item style={{ width: gridDateFromWidth }} className={classNames(classes.dateFont)}>
-                      Created from
+                      Last edit from
                     </Grid>
                     <Grid item style={{ width: gridDateFromInputWidth }}>
                       <DatePicker
@@ -598,7 +598,7 @@ const ProjectListSortFilterItem = memo(props => {
                     </Grid>
 
                     <Grid item style={{ width: gridDateFromWidth }} className={classNames(classes.dateFont)}>
-                      Created to
+                      Last edit to
                     </Grid>
                     <Grid item style={{ width: gridDateFromInputWidth }}>
                       <DatePicker
@@ -641,7 +641,7 @@ const ProjectListSortFilterItem = memo(props => {
                 {dateFilter === true ? (
                   <Grid item container className={classes.gridItemHeader}>
                     <Grid item style={{ width: gridDateFromWidth }} className={classNames(classes.dateFont)}>
-                      Created from
+                      Last edit from
                     </Grid>
                     <Grid item style={{ width: gridDateFromInputWidth }}>
                       <DatePicker
@@ -653,7 +653,7 @@ const ProjectListSortFilterItem = memo(props => {
                       />
                     </Grid>
                     <Grid item style={{ width: gridDateFromWidth }} className={classNames(classes.dateFont)}>
-                      Created to
+                      Last edit to
                     </Grid>
                     <Grid item style={{ width: gridDateFromInputWidth }}>
                       <DatePicker

@@ -50,7 +50,7 @@ const useStyles = makeStyles(theme => ({
     top: 2
   },
   paper: {
-    width: 490,
+    width: 500,
     overflow: 'none'
   }
 }));

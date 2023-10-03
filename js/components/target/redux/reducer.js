@@ -52,6 +52,12 @@ export const targetReducers = (state = INITIAL_STATE, action = {}) => {
     case constants.SET_LIST_OF_TARGETS:
       return { ...state, listOfTargets: action.payload };
 
+    case constants.SET_IS_LOADING_LIST_OF_TARGETS:
+      return Object.assign({}, state, { isLoadingListOfTargets: action.payload });
+
+    case constants.SET_FILTER_CLEAN:
+      return Object.assign({}, state, { filterClean: action.payload });
+
     default:
       return state;
   }

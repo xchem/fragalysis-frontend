@@ -19,40 +19,40 @@ export const compareIdDesc = (a, b) => {
 };
 
 export const compareTargetAsc = (a, b) => {
-  if (a.target.title < b.target.title) {
+  if (a.target < b.target) {
     return -1;
   }
-  if (a.target.title > b.target.title) {
+  if (a.target > b.target) {
     return 1;
   }
   return 0;
 };
 
 export const compareTargetDesc = (a, b) => {
-  if (a.target.title > b.target.title) {
+  if (a.target > b.target) {
     return -1;
   }
-  if (a.target.title < b.target.title) {
+  if (a.target < b.target) {
     return 1;
   }
   return 0;
 };
 
 export const compareNumberOfChainAsc = (a, b) => {
-  if (a.numberOfChain < b.numberOfChain) {
+  if (a.numberOfChains < b.numberOfChains) {
     return -1;
   }
-  if (a.numberOfChain > b.numberOfChain) {
+  if (a.numberOfChains > b.numberOfChains) {
     return 1;
   }
   return 0;
 };
 
 export const compareNumberOfChainDesc = (a, b) => {
-  if (a.numberOfChain > b.numberOfChain) {
+  if (a.numberOfChains > b.numberOfChains) {
     return -1;
   }
-  if (a.numberOfChain < b.numberOfChain) {
+  if (a.numberOfChains < b.numberOfChain) {
     return 1;
   }
   return 0;
@@ -199,10 +199,10 @@ export const compareSpeciesDesc = (a, b) => {
 };
 
 export const compareDomainAsc = (a, b) => {
-  if (a.domain > b.domain) {
+  if (a.domain < b.domain) {
     return -1;
   }
-  if (a.domain < b.domain) {
+  if (a.domain > b.domain) {
     return 1;
   }
   return 0;
@@ -219,48 +219,48 @@ export const compareDomainDesc = (a, b) => {
 };
 
 export const compareECNumberAsc = (a, b) => {
-  if (a.ecNumber > b.ecNumber) {
+  if (a.ECNumber < b.ECNumber) {
     return -1;
   }
-  if (a.ecNumber < b.ecNumber) {
+  if (a.ECNumber > b.ECNumber) {
     return 1;
   }
   return 0;
 };
 
 export const compareECNumberDesc = (a, b) => {
-  if (a.ecNumber > b.ecNumber) {
+  if (a.ECNumber > b.ECNumber) {
     return -1;
   }
-  if (a.ecNumber < b.ecNumber) {
+  if (a.ECNumber < b.ECNumber) {
     return 1;
   }
   return 0;
 };
 export const compareNHitsAsc = (a, b) => {
-  if (a.nHits > b.nHits) {
+  if (a.NHits < b.NHits) {
     return -1;
   }
-  if (a.nHits < b.nHits) {
+  if (a.NHits > b.NHits) {
     return 1;
   }
   return 0;
 };
 
 export const compareNHitsDesc = (a, b) => {
-  if (a.nHits > b.nHits) {
+  if (a.NHits > b.NHits) {
     return -1;
   }
-  if (a.nHits < b.nHits) {
+  if (a.NHits < b.NHits) {
     return 1;
   }
   return 0;
 };
 export const compareDateLastEditAsc = (a, b) => {
-  if (a.dateLastEdit > b.dateLastEdit) {
+  if (a.dateLastEdit < b.dateLastEdit) {
     return -1;
   }
-  if (a.dateLastEdit < b.dateLastEdit) {
+  if (a.dateLastEdit > b.dateLastEdit) {
     return 1;
   }
   return 0;
@@ -277,10 +277,10 @@ export const compareDateLastEditDesc = (a, b) => {
 };
 
 export const compareVersionIdAsc = (a, b) => {
-  if (a.versionId > b.versionId) {
+  if (a.versionId < b.versionId) {
     return -1;
   }
-  if (a.versionId < b.versionId) {
+  if (a.versionId > b.versionId) {
     return 1;
   }
   return 0;

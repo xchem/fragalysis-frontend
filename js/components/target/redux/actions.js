@@ -35,3 +35,8 @@ export const setListOfTargets = targets => ({
   type: constants.SET_LIST_OF_TARGETS,
   payload: targets
 });
+
+export const setDefaultFilter = isClean => ({
+  type: constants.SET_FILTER_CLEAN,
+  payload: isClean
+});
