@@ -8,17 +8,18 @@ import WarningIcon from '@material-ui/icons/Warning';
 import { makeStyles } from '@material-ui/styles';
 import { useDispatch, useSelector } from 'react-redux';
 import { TARGETS_ATTR } from './redux/constants';
-import { setFilter } from '../../reducers/selection/actions';
+import { setTargetFilter } from '../../reducers/selection/actions';
 import { Panel } from '../common/Surfaces/Panel';
 import {
-  setSortDialogOpen,
-  setListOfFilteredProjects,
-  setListOfProjects,
+  setSortTargetDialogOpen,
+  setListOfFilteredTargets,
+  setListOfTargets,
   setDefaultFilter,
-  setListOfFilteredProjectsByDate
+  setListOfFilteredTargetsByDate
 } from './redux/actions';
 import { debounce } from 'lodash';
-import { compareCreatedAtDateDesc } from './sortTargets/sortTargets';
+import { compareTargetAsc } from './sortTargets/sortTargets';
+import { MOCK_LIST_OF_TARGETS } from './MOCK';
 
 const useStyles = makeStyles(theme => ({
   title: {
@@ -106,8 +107,8 @@ export const TargetListSortFilterDialog = memo(
         active: false,
         predefined: 'none',
         filter: {},
-        priorityOrder: TARGETS_ATTR.map(project => project.key),
-        sortOptions: TARGETS_ATTR.map(project => [project.key, project.path])
+        priorityOrder: TARGETS_ATTR.map(target => target.key),
+        sortOptions: TARGETS_ATTR.map(target => [target.key, target.path])
       };
 
       for (let attr of TARGETS_ATTR) {
@@ -128,8 +129,9 @@ export const TargetListSortFilterDialog = memo(
     }, []);
 
     const [initState, setInitState] = useState(initialize());
-    let defaultListOfProjectsWithoutSort = useSelector(state => state.projectReducers.listOfProjects);
-    let defaultListOfProjects = [...defaultListOfProjectsWithoutSort].sort(compareCreatedAtDateDesc);
+    //let defaultListOfTargetsWithoutSort = useSelector(state => state.targetReducers.listOfTargets);
+    let defaultListOfTargetsWithoutSort = MOCK_LIST_OF_TARGETS; // remove after real data
+    let defaultListOfTargets = [...defaultListOfTargetsWithoutSort].sort(compareTargetAsc);
 
     filter = filter || initState;
 
@@ -141,7 +143,7 @@ export const TargetListSortFilterDialog = memo(
             filterSet.filter[attr.key].priority = 0;
           }
         }
-        dispatch(setFilter(filterSet));
+        dispatch(setTargetFilter(filterSet));
       },
       [dispatch]
     );
@@ -151,7 +153,7 @@ export const TargetListSortFilterDialog = memo(
       let newFilter = Object.assign({}, filter);
       newFilter.filter[key] = setting;
       newFilter.active = true;
-      dispatch(setFilter(newFilter));
+      dispatch(setTargetFilter(newFilter));
       handleFilterChange(newFilter);
     };
 
@@ -161,7 +163,7 @@ export const TargetListSortFilterDialog = memo(
     };
 
     const handlePrioChange = key => inc => () => {
-      const maxPrio = 5;
+      const maxPrio = 12;
       const minPrio = 0;
       let priorityOrder = filter.priorityOrder;
       let sortOptions = filter.sortOptions;
@@ -173,7 +175,7 @@ export const TargetListSortFilterDialog = memo(
         let newFilter = Object.assign({}, filter);
         newFilter.priorityOrder = priorityOrder;
         newFilter.active = true;
-        dispatch(setFilter(newFilter));
+        dispatch(setTargetFilter(newFilter));
         handleFilterChange(newFilter);
       }
       if (sortIndex > -1 && sortIndex + inc >= minPrio && sortIndex <= maxPrio) {
@@ -183,18 +185,18 @@ export const TargetListSortFilterDialog = memo(
         let newFilter = Object.assign({}, filter);
         newFilter.sortOptions = sortOptions;
         newFilter.active = true;
-        dispatch(setFilter(newFilter));
+        dispatch(setTargetFilter(newFilter));
         handleFilterChange(newFilter);
       }
     };
 
     const handleClearFilter = debounce(() => {
       dispatch(setDefaultFilter(true));
-      dispatch(setSortDialogOpen(false));
-      dispatch(setListOfFilteredProjects(defaultListOfProjects.sort(compareCreatedAtDateDesc)));
-      dispatch(setListOfFilteredProjectsByDate(defaultListOfProjects.sort(compareCreatedAtDateDesc)));
-      dispatch(setListOfProjects(defaultListOfProjects.sort(compareCreatedAtDateDesc)));
-      dispatch(setSortDialogOpen(true));
+      dispatch(setSortTargetDialogOpen(false));
+      dispatch(setListOfFilteredTargets(defaultListOfTargets.sort(compareTargetAsc)));
+      dispatch(setListOfFilteredTargetsByDate(defaultListOfTargets.sort(compareTargetAsc)));
+      dispatch(setListOfTargets(defaultListOfTargets.sort(compareTargetAsc)));
+      dispatch(setSortTargetDialogOpen(true));
     });
 
     // Check for multiple attributes with same sorting priority
@@ -216,7 +218,7 @@ export const TargetListSortFilterDialog = memo(
           hasHeader
           bodyOverflow
           secondaryBackground
-          title={`Project list filter`}
+          title={`Target list filter`}
           className={classes.paper}
           headerActions={[
             <Tooltip title="Clear filter">
@@ -227,7 +229,7 @@ export const TargetListSortFilterDialog = memo(
             <Tooltip title="Close filter">
               <IconButton
                 onClick={() => {
-                  dispatch(setSortDialogOpen(false));
+                  dispatch(setSortTargetDialogOpen(false));
                 }}
                 color="inherit"
                 className={classes.headerButton}

@@ -52,7 +52,7 @@ export const compareNumberOfChainDesc = (a, b) => {
   if (a.numberOfChains > b.numberOfChains) {
     return -1;
   }
-  if (a.numberOfChains < b.numberOfChain) {
+  if (a.numberOfChains < b.numberOfChains) {
     return 1;
   }
   return 0;

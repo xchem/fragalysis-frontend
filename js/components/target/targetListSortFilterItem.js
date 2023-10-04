@@ -13,9 +13,9 @@ import classNames from 'classnames';
 import { useDispatch, useSelector } from 'react-redux';
 import { debounce } from 'lodash';
 import {
-  setListOfProjects,
-  setListOfFilteredProjects,
-  setListOfFilteredProjectsByDate,
+  setListOfTargets,
+  setListOfFilteredTargets,
+  setListOfFilteredTargetsByDate,
   setSearchName,
   setSearchTarget,
   setSearchTargetAccessString,
@@ -28,7 +28,8 @@ import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
 import { compareCreatedAtDateDesc } from './sortTargets/sortTargets';
 import moment from 'moment';
-import { sortProjects } from './targetListSortFilterDialog';
+import { sortTargets } from './targetListSortFilterDialog';
+import { MOCK_LIST_OF_TARGETS } from './MOCK';
 
 const useStyles = makeStyles(theme => ({
   centered: {
@@ -98,23 +99,23 @@ const gridDateFromWidth = 85;
 const gridDateFromInputWidth = 90;
 const filterDataWidth = 200;
 
-let filteredProjectList = [];
+let filteredTargetList = [];
 let searchNameString = '';
 let searchTargetString = '';
 let searchTargetAccessString = '';
 let searchDescriptionString = '';
 let searchAuthorityString = '';
 
-let filteredProjectListByName = [];
-let filteredProjectListByTarget = [];
-let filteredProjectListByTargetAccessString = [];
-let filteredProjectListByDescription = [];
-let filteredProjectListByAuthority = [];
-let filteredProjectListByCreatedFrom = [];
-let filteredProjectListByCreatedTo = [];
-let filteredProjectListDate = [];
+let filteredTargetListByName = [];
+let filteredTargetListByTarget = [];
+let filteredTargetListByTargetAccessString = [];
+let filteredTargetListByDescription = [];
+let filteredTargetListByAuthority = [];
+let filteredTargetListByCreatedFrom = [];
+let filteredTargetListByCreatedTo = [];
+let filteredTargetListDate = [];
 
-const ProjectListSortFilterItem = memo(props => {
+const TargetListSortFilterItem = memo(props => {
   const dispatch = useDispatch();
   const { property, onChange, color, onChangePrio, filter, dateFilter } = props;
   const { order } = props;
@@ -131,9 +132,10 @@ const ProjectListSortFilterItem = memo(props => {
   const [endDate, setEndDate] = useState();
   const [searchString, setSearchString] = useState('');
 
-  let listOfAllProjectsDefaultWithOutSort = useSelector(state => state.projectReducers.listOfProjects);
-  let listOfAllProjectsDefault = [...listOfAllProjectsDefaultWithOutSort].sort(compareCreatedAtDateDesc);
-  let filteredListOfProjects = useSelector(state => state.projectReducers.listOfFilteredProjects);
+  //let listOfAllTargetsDefaultWithOutSort = useSelector(state => state.targetReducers.listOfTargets);
+  let listOfAllTargetsDefaultWithOutSort = MOCK_LIST_OF_TARGETS; // remove after real data
+  let listOfAllTargetsDefault = [...listOfAllTargetsDefaultWithOutSort].sort(compareCreatedAtDateDesc);
+  let filteredListOfTargets = useSelector(state => state.targetReducers.listOfFilteredTargets);
 
   const searchName = useSelector(state => state.projectReducers.searchName);
   const searchTarget = useSelector(state => state.projectReducers.searchTarget);
@@ -148,24 +150,24 @@ const ProjectListSortFilterItem = memo(props => {
   const isActiveFilter = !!(filters || {}).active;
   const filterClean = useSelector(state => state.projectReducers.filterClean);
 
-  let listOfAllProjects = [...listOfAllProjectsDefault].sort(compareCreatedAtDateDesc);
+  let listOfAllTargets = [...listOfAllTargetsDefault].sort(compareCreatedAtDateDesc);
 
   useEffect(() => {
-    if (filteredProjectList.length !== 0) {
-      dispatch(setListOfProjects(filteredProjectList));
+    if (filteredTargetList.length !== 0) {
+      dispatch(setListOfTargets(filteredTargetList));
     }
     if (resetFilter === true) {
       setSearchString(' ');
     }
-  }, [filteredProjectListByName, startDate, endDate, searchString, resetFilter]);
+  }, [filteredTargetListByName, startDate, endDate, searchString, resetFilter]);
 
   useEffect(() => {
     if (isActiveFilter) {
-      listOfAllProjectsDefault = sortProjects(listOfAllProjectsDefault, filters);
-      dispatch(setListOfProjects(listOfAllProjectsDefault));
-      if (filteredListOfProjects !== undefined) {
-        filteredListOfProjects = sortProjects(filteredListOfProjects, filters);
-        dispatch(setListOfFilteredProjects(filteredListOfProjects.sort(compareCreatedAtDateDesc)));
+      listOfAllTargetsDefault = sortTargets(listOfAllTargetsDefault, filters);
+      dispatch(setListOfTargets(listOfAllTargetsDefault));
+      if (filteredListOfTargets !== undefined) {
+        filteredListOfTargets = sortTargets(filteredListOfTargets, filters);
+        dispatch(setListOfFilteredTargets(filteredListOfTargets.sort(compareCreatedAtDateDesc)));
       }
     }
   }, [filter]);
@@ -178,14 +180,14 @@ const ProjectListSortFilterItem = memo(props => {
       searchTargetAccessString = '';
       searchDescriptionString = '';
       searchAuthorityString = '';
-      filteredProjectListByName = [];
-      filteredProjectListByTarget = [];
-      filteredProjectListByTargetAccessString = [];
-      filteredProjectListByDescription = [];
-      filteredProjectListByAuthority = [];
-      filteredProjectListByCreatedFrom = [];
-      filteredProjectListByCreatedTo = [];
-      filteredProjectListDate = [];
+      filteredTargetListByName = [];
+      filteredTargetListByTarget = [];
+      filteredTargetListByTargetAccessString = [];
+      filteredTargetListByDescription = [];
+      filteredTargetListByAuthority = [];
+      filteredTargetListByCreatedFrom = [];
+      filteredTargetListByCreatedTo = [];
+      filteredTargetListDate = [];
     }
   }, [filterClean]);
 
@@ -205,7 +207,7 @@ const ProjectListSortFilterItem = memo(props => {
     if (resetFilter === false) {
       setSearchString(event.target.value);
     } else if (resetFilter === true) {
-      return ProjectListSortFilterItem;
+      return TargetListSortFilterItem;
     }
     /* signal to React not to nullify the event object */
     onChangeFilterStringDebounce(event.target.value);
@@ -217,19 +219,19 @@ const ProjectListSortFilterItem = memo(props => {
     dispatch(setSearchDateFrom(formattedDate));
     setStartDate(event);
 
-    if (filteredListOfProjects === undefined) {
-      filteredProjectListByCreatedFrom = listOfAllProjects.filter(date => date.init_date > formattedStartDate);
+    if (filteredListOfTargets === undefined) {
+      filteredTargetListByCreatedFrom = listOfAllTargets.filter(date => date.init_date > formattedStartDate);
     } else {
-      filteredProjectListByCreatedFrom = filteredListOfProjects.filter(date => date.init_date > formattedStartDate);
+      filteredTargetListByCreatedFrom = filteredListOfTargets.filter(date => date.init_date > formattedStartDate);
     }
-    if (filteredProjectListByCreatedTo.length > 0 && filteredProjectListByCreatedFrom.length > 0) {
-      const filteredListOfProjectsByDate = filteredProjectListByCreatedFrom.filter(item1 =>
-        filteredProjectListByCreatedTo.some(item2 => item2.id === item1.id)
+    if (filteredTargetListByCreatedTo.length > 0 && filteredTargetListByCreatedFrom.length > 0) {
+      const filteredListOfTargetsByDate = filteredTargetListByCreatedFrom.filter(item1 =>
+        filteredTargetListByCreatedTo.some(item2 => item2.id === item1.id)
       );
-      dispatch(setListOfFilteredProjectsByDate(filteredListOfProjectsByDate));
+      dispatch(setListOfFilteredTargetsByDate(filteredListOfTargetsByDate));
     } else {
-      filteredProjectListDate = filteredProjectListByCreatedFrom;
-      dispatch(setListOfFilteredProjectsByDate(filteredProjectListDate));
+      filteredTargetListDate = filteredTargetListByCreatedFrom;
+      dispatch(setListOfFilteredTargetsByDate(filteredTargetListDate));
     }
   };
 
@@ -238,84 +240,84 @@ const ProjectListSortFilterItem = memo(props => {
     const formattedDate = moment(event).format('MM/DD/YYYY');
     dispatch(setSearchDateTo(formattedDate));
     setEndDate(event);
-    if (filteredListOfProjects === undefined) {
-      filteredProjectListByCreatedTo = listOfAllProjects.filter(date => date.init_date <= formattedEndDate + 1);
+    if (filteredListOfTargets === undefined) {
+      filteredTargetListByCreatedTo = listOfAllTargets.filter(date => date.init_date <= formattedEndDate + 1);
     } else {
-      filteredProjectListByCreatedTo = filteredListOfProjects.filter(date => date.init_date <= formattedEndDate + 1);
+      filteredTargetListByCreatedTo = filteredListOfTargets.filter(date => date.init_date <= formattedEndDate + 1);
     }
-    if (filteredProjectListByCreatedTo.length > 0 && filteredProjectListByCreatedFrom.length > 0) {
-      const filteredListOfProjectsByDate = filteredProjectListByCreatedFrom.filter(item1 =>
-        filteredProjectListByCreatedTo.some(item2 => item2.id === item1.id)
+    if (filteredTargetListByCreatedTo.length > 0 && filteredTargetListByCreatedFrom.length > 0) {
+      const filteredListOfTargetsByDate = filteredTargetListByCreatedFrom.filter(item1 =>
+        filteredTargetListByCreatedTo.some(item2 => item2.id === item1.id)
       );
-      dispatch(setListOfFilteredProjectsByDate(filteredListOfProjectsByDate));
+      dispatch(setListOfFilteredTargetsByDate(filteredListOfTargetsByDate));
     } else {
-      filteredProjectListDate = filteredProjectListByCreatedTo;
-      dispatch(setListOfFilteredProjects(filteredProjectListDate));
+      filteredTargetListDate = filteredTargetListByCreatedTo;
+      dispatch(setListOfFilteredTargets(filteredTargetListDate));
     }
   };
 
   const filterAllData = value => {
     if (searchNameString !== '' && searchTargetString !== '') {
-      let filteredData1 = filteredProjectListByName.filter(item1 =>
-        filteredProjectListByTarget.some(item2 => item2.id === item1.id)
+      let filteredData1 = filteredTargetListByName.filter(item1 =>
+        filteredTargetListByTarget.some(item2 => item2.id === item1.id)
       );
-      dispatch(setListOfFilteredProjects(filteredData1));
+      dispatch(setListOfFilteredTargets(filteredData1));
     }
 
     if (searchNameString !== '' && searchTargetAccessString !== '') {
-      let filteredData1 = filteredProjectListByName.filter(item1 =>
-        filteredProjectListByTargetAccessString.some(item2 => item2.id === item1.id)
+      let filteredData1 = filteredTargetListByName.filter(item1 =>
+        filteredTargetListByTargetAccessString.some(item2 => item2.id === item1.id)
       );
-      dispatch(setListOfFilteredProjects(filteredData1));
+      dispatch(setListOfFilteredTargets(filteredData1));
     }
 
     if (searchNameString !== '' && searchDescriptionString !== '') {
-      let filteredData1 = filteredProjectListByName.filter(item1 =>
-        filteredProjectListByDescription.some(item2 => item2.id === item1.id)
+      let filteredData1 = filteredTargetListByName.filter(item1 =>
+        filteredTargetListByDescription.some(item2 => item2.id === item1.id)
       );
-      dispatch(setListOfFilteredProjects(filteredData1));
+      dispatch(setListOfFilteredTargets(filteredData1));
     }
 
     if (searchNameString !== '' && searchAuthorityString !== '') {
-      let filteredData1 = filteredProjectListByName.filter(item1 =>
-        filteredProjectListByAuthority.some(item2 => item2.id === item1.id)
+      let filteredData1 = filteredTargetListByName.filter(item1 =>
+        filteredTargetListByAuthority.some(item2 => item2.id === item1.id)
       );
-      dispatch(setListOfFilteredProjects(filteredData1));
+      dispatch(setListOfFilteredTargets(filteredData1));
     }
 
     if (searchTargetString !== '' && searchTargetAccessString !== '') {
-      let filteredData1 = filteredProjectListByTarget.filter(item1 =>
-        filteredProjectListByTargetAccessString.some(item2 => item2.id === item1.id)
+      let filteredData1 = filteredTargetListByTarget.filter(item1 =>
+        filteredTargetListByTargetAccessString.some(item2 => item2.id === item1.id)
       );
-      dispatch(setListOfFilteredProjects(filteredData1));
+      dispatch(setListOfFilteredTargets(filteredData1));
     }
 
     if (searchTargetString !== '' && searchDescriptionString !== '') {
-      let filteredData1 = filteredProjectListByTarget.filter(item1 =>
-        filteredProjectListByDescription.some(item2 => item2.id === item1.id)
+      let filteredData1 = filteredTargetListByTarget.filter(item1 =>
+        filteredTargetListByDescription.some(item2 => item2.id === item1.id)
       );
-      dispatch(setListOfFilteredProjects(filteredData1));
+      dispatch(setListOfFilteredTargets(filteredData1));
     }
 
     if (searchTargetString !== '' && searchAuthorityString !== '') {
-      let filteredData1 = filteredProjectListByTarget.filter(item1 =>
-        filteredProjectListByAuthority.some(item2 => item2.id === item1.id)
+      let filteredData1 = filteredTargetListByTarget.filter(item1 =>
+        filteredTargetListByAuthority.some(item2 => item2.id === item1.id)
       );
-      dispatch(setListOfFilteredProjects(filteredData1));
+      dispatch(setListOfFilteredTargets(filteredData1));
     }
 
     if (searchTargetAccessString !== '' && searchDescriptionString !== '') {
-      let filteredData1 = filteredProjectListByTargetAccessString.filter(item1 =>
-        filteredProjectListByDescription.some(item2 => item2.id === item1.id)
+      let filteredData1 = filteredTargetListByTargetAccessString.filter(item1 =>
+        filteredTargetListByDescription.some(item2 => item2.id === item1.id)
       );
-      dispatch(setListOfFilteredProjects(filteredData1));
+      dispatch(setListOfFilteredTargets(filteredData1));
     }
 
     if (searchDescriptionString !== '' && searchAuthorityString !== '') {
-      let filteredData1 = filteredProjectListByDescription.filter(item1 =>
-        filteredProjectListByAuthority.some(item2 => item2.id === item1.id)
+      let filteredData1 = filteredTargetListByDescription.filter(item1 =>
+        filteredTargetListByAuthority.some(item2 => item2.id === item1.id)
       );
-      dispatch(setListOfFilteredProjects(filteredData1));
+      dispatch(setListOfFilteredTargets(filteredData1));
     }
 
     if (
@@ -324,57 +326,57 @@ const ProjectListSortFilterItem = memo(props => {
       searchTargetAccessString !== '' &&
       (property === 'Name' || property === 'Target' || property === 'Target access string')
     ) {
-      let filteredData1 = filteredProjectListByName.filter(
+      let filteredData1 = filteredTargetListByName.filter(
         item1 =>
-          filteredProjectListByTarget.some(item2 => item2.id === item1.id) &&
-          filteredProjectListByTargetAccessString.some(item3 => item3.id === item1.id)
+          filteredTargetListByTarget.some(item2 => item2.id === item1.id) &&
+          filteredTargetListByTargetAccessString.some(item3 => item3.id === item1.id)
       );
-      dispatch(setListOfFilteredProjects(filteredData1));
+      dispatch(setListOfFilteredTargets(filteredData1));
     }
 
     if (searchNameString !== '' && searchTargetString !== '' && searchDescriptionString !== '') {
-      let filteredData1 = filteredProjectListByName.filter(
+      let filteredData1 = filteredTargetListByName.filter(
         item1 =>
-          filteredProjectListByTarget.some(item2 => item2.id === item1.id) &&
-          filteredProjectListByDescription.some(item3 => item3.id === item1.id)
+          filteredTargetListByTarget.some(item2 => item2.id === item1.id) &&
+          filteredTargetListByDescription.some(item3 => item3.id === item1.id)
       );
-      dispatch(setListOfFilteredProjects(filteredData1));
+      dispatch(setListOfFilteredTargets(filteredData1));
     }
 
     if (searchNameString !== '' && searchTargetString !== '' && searchAuthorityString !== '') {
-      let filteredData1 = filteredProjectListByName.filter(
+      let filteredData1 = filteredTargetListByName.filter(
         item1 =>
-          filteredProjectListByTarget.some(item2 => item2.id === item1.id) &&
-          filteredProjectListByAuthority.some(item3 => item3.id === item1.id)
+          filteredTargetListByTarget.some(item2 => item2.id === item1.id) &&
+          filteredTargetListByAuthority.some(item3 => item3.id === item1.id)
       );
 
-      dispatch(setListOfFilteredProjects(filteredData1));
+      dispatch(setListOfFilteredTargets(filteredData1));
     }
     if (searchTargetString !== '' && searchTargetAccessString !== '' && searchDescriptionString !== '') {
-      let filteredData1 = filteredProjectListByTarget.filter(
+      let filteredData1 = filteredTargetListByTarget.filter(
         item1 =>
-          filteredProjectListByTargetAccessString.some(item2 => item2.id === item1.id) &&
-          filteredProjectListByDescription.some(item3 => item3.id === item1.id)
+          filteredTargetListByTargetAccessString.some(item2 => item2.id === item1.id) &&
+          filteredTargetListByDescription.some(item3 => item3.id === item1.id)
       );
-      dispatch(setListOfFilteredProjects(filteredData1));
+      dispatch(setListOfFilteredTargets(filteredData1));
     }
 
     if (searchTargetString !== '' && searchTargetAccessString !== '' && searchAuthorityString !== '') {
-      let filteredData1 = filteredProjectListByTarget.filter(
+      let filteredData1 = filteredTargetListByTarget.filter(
         item1 =>
-          filteredProjectListByTargetAccessString.some(item2 => item2.id === item1.id) &&
-          filteredProjectListByAuthority.some(item3 => item3.id === item1.id)
+          filteredTargetListByTargetAccessString.some(item2 => item2.id === item1.id) &&
+          filteredTargetListByAuthority.some(item3 => item3.id === item1.id)
       );
-      dispatch(setListOfFilteredProjects(filteredData1));
+      dispatch(setListOfFilteredTargets(filteredData1));
     }
 
     if (searchTargetAccessString !== '' && searchDescriptionString !== '' && searchAuthorityString !== '') {
-      let filteredData1 = filteredProjectListByTargetAccessString.filter(
+      let filteredData1 = filteredTargetListByTargetAccessString.filter(
         item1 =>
-          filteredProjectListByDescription.some(item2 => item2.id === item1.id) &&
-          filteredProjectListByAuthority.some(item3 => item3.id === item1.id)
+          filteredTargetListByDescription.some(item2 => item2.id === item1.id) &&
+          filteredTargetListByAuthority.some(item3 => item3.id === item1.id)
       );
-      dispatch(setListOfFilteredProjects(filteredData1));
+      dispatch(setListOfFilteredTargets(filteredData1));
     }
 
     if (
@@ -384,10 +386,10 @@ const ProjectListSortFilterItem = memo(props => {
       searchTargetAccessString === '' &&
       searchAuthorityString === ''
     ) {
-      const filteredData1 = listOfAllProjects.filter(item =>
+      const filteredData1 = listOfAllTargets.filter(item =>
         item.title.toLowerCase().includes(searchNameString.toLowerCase())
       );
-      dispatch(setListOfFilteredProjects(filteredData1));
+      dispatch(setListOfFilteredTargets(filteredData1));
     }
     if (
       searchTargetString !== '' &&
@@ -396,10 +398,10 @@ const ProjectListSortFilterItem = memo(props => {
       searchTargetAccessString === '' &&
       searchAuthorityString === ''
     ) {
-      const filteredData1 = listOfAllProjects.filter(item =>
+      const filteredData1 = listOfAllTargets.filter(item =>
         item.target.title.toLowerCase().includes(searchTargetString.toLowerCase())
       );
-      dispatch(setListOfFilteredProjects(filteredData1));
+      dispatch(setListOfFilteredTargets(filteredData1));
     }
     if (
       searchDescriptionString !== '' &&
@@ -408,10 +410,10 @@ const ProjectListSortFilterItem = memo(props => {
       searchNameString == '' &&
       searchAuthorityString === ''
     ) {
-      const filteredData1 = listOfAllProjects.filter(item =>
+      const filteredData1 = listOfAllTargets.filter(item =>
         item.description.toLowerCase().includes(searchDescriptionString.toLowerCase())
       );
-      dispatch(setListOfFilteredProjects(filteredData1));
+      dispatch(setListOfFilteredTargets(filteredData1));
     }
     if (
       searchTargetAccessString !== '' &&
@@ -420,10 +422,10 @@ const ProjectListSortFilterItem = memo(props => {
       searchNameString === '' &&
       searchTargetAccessString === ''
     ) {
-      const filteredData1 = listOfAllProjects.filter(item =>
+      const filteredData1 = listOfAllTargets.filter(item =>
         item.project.target_access_string.toLowerCase().includes(searchTargetAccessString.toLowerCase())
       );
-      dispatch(setListOfFilteredProjects(filteredData1));
+      dispatch(setListOfFilteredTargets(filteredData1));
     }
     if (
       searchAuthorityString !== '' &&
@@ -432,10 +434,10 @@ const ProjectListSortFilterItem = memo(props => {
       searchNameString === '' &&
       searchTargetAccessString === ''
     ) {
-      const filteredData1 = listOfAllProjects.filter(item =>
+      const filteredData1 = listOfAllTargets.filter(item =>
         item.project?.authority.toLowerCase().includes(searchAuthorityString.toLowerCase())
       );
-      dispatch(setListOfFilteredProjects(filteredData1));
+      dispatch(setListOfFilteredTargets(filteredData1));
     }
     if (
       searchNameString === '' &&
@@ -444,85 +446,85 @@ const ProjectListSortFilterItem = memo(props => {
       searchTargetAccessString === '' &&
       searchAuthorityString === ''
     ) {
-      const filteredData1 = sortProjects(listOfAllProjects, filters);
-      dispatch(setListOfFilteredProjects(filteredData1));
-      dispatch(setListOfProjects(filteredData1));
+      const filteredData1 = sortTargets(listOfAllTargets, filters);
+      dispatch(setListOfFilteredTargets(filteredData1));
+      dispatch(setListOfTargets(filteredData1));
     }
   };
 
   const onChangeFilterStringDebounce = debounce(value => {
     if (property === 'Name') {
       searchNameString = value;
-      if (filteredProjectListDate.length > 0) {
-        filteredProjectListByName = listOfAllProjects.filter(item =>
+      if (filteredTargetListDate.length > 0) {
+        filteredTargetListByName = listOfAllTargets.filter(item =>
           item.title.toLowerCase().includes(value.toLowerCase())
         );
       } else {
-        filteredProjectListByName = listOfAllProjects.filter(item =>
+        filteredTargetListByName = listOfAllTargets.filter(item =>
           item.title.toLowerCase().includes(value.toLowerCase())
         );
       }
-      dispatch(setListOfFilteredProjects(filteredProjectListByName));
+      dispatch(setListOfFilteredTargets(filteredTargetListByName));
       filterAllData(value);
     }
 
     if (property === 'Target') {
       searchTargetString = value;
-      if (filteredProjectListDate.length > 0) {
-        filteredProjectListByTarget = listOfAllProjects.filter(item =>
+      if (filteredTargetListDate.length > 0) {
+        filteredTargetListByTarget = listOfAllTargets.filter(item =>
           item.target.title.toLowerCase().includes(value.toLowerCase())
         );
       } else {
-        filteredProjectListByTarget = listOfAllProjects.filter(item =>
+        filteredTargetListByTarget = listOfAllTargets.filter(item =>
           item.target.title.toLowerCase().includes(value.toLowerCase())
         );
       }
-      dispatch(setListOfFilteredProjects(filteredProjectListByTarget));
+      dispatch(setListOfFilteredTargets(filteredTargetListByTarget));
       filterAllData(value);
     }
 
     if (property === 'Target access string') {
       searchTargetAccessString = value;
-      if (filteredProjectListDate.length > 0) {
-        filteredProjectListByTargetAccessString = listOfAllProjects.filter(item =>
+      if (filteredTargetListDate.length > 0) {
+        filteredTargetListByTargetAccessString = listOfAllTargets.filter(item =>
           item.project.target_access_string.toLowerCase().includes(value.toLowerCase())
         );
       } else {
-        filteredProjectListByTargetAccessString = listOfAllProjects.filter(item =>
+        filteredTargetListByTargetAccessString = listOfAllTargets.filter(item =>
           item.project.target_access_string.toLowerCase().includes(value.toLowerCase())
         );
       }
-      dispatch(setListOfFilteredProjects(filteredProjectListByTargetAccessString));
+      dispatch(setListOfFilteredTargets(filteredTargetListByTargetAccessString));
       filterAllData(value);
     }
 
     if (property === 'Description') {
       searchDescriptionString = value;
-      if (filteredProjectListDate.length > 0) {
-        filteredProjectListByDescription = listOfAllProjects.filter(item =>
+      if (filteredTargetListDate.length > 0) {
+        filteredTargetListByDescription = listOfAllTargets.filter(item =>
           item.description.toLowerCase().includes(value.toLowerCase())
         );
       } else {
-        filteredProjectListByDescription = listOfAllProjects.filter(item =>
+        filteredTargetListByDescription = listOfAllTargets.filter(item =>
           item.description.toLowerCase().includes(value.toLowerCase())
         );
       }
-      dispatch(setListOfFilteredProjects(filteredProjectListByDescription));
+      dispatch(setListOfFilteredTargets(filteredTargetListByDescription));
       filterAllData(value);
     }
 
     if (property === 'Authority') {
       searchAuthorityString = value;
-      if (filteredProjectListDate.length > 0) {
-        filteredProjectListByAuthority = listOfAllProjects.filter(item =>
+      if (filteredTargetListDate.length > 0) {
+        filteredTargetListByAuthority = listOfAllTargets.filter(item =>
           item.project?.authority.toLowerCase().includes(value.toLowerCase())
         );
       } else {
-        filteredProjectListByAuthority = listOfAllProjects.filter(item =>
+        filteredTargetListByAuthority = listOfAllTargets.filter(item =>
           item.project?.authority.toLowerCase().includes(value.toLowerCase())
         );
       }
-      dispatch(setListOfFilteredProjects(filteredProjectListByAuthority));
+      dispatch(setListOfFilteredTargets(filteredTargetListByAuthority));
       filterAllData(value);
     }
   }, 1000);
@@ -694,7 +696,7 @@ const ProjectListSortFilterItem = memo(props => {
   );
 });
 
-ProjectListSortFilterItem.propTypes = {
+TargetListSortFilterItem.propTypes = {
   order: PropTypes.number.isRequired,
   property: PropTypes.string.isRequired,
   color: PropTypes.string.isRequired,
@@ -704,4 +706,4 @@ ProjectListSortFilterItem.propTypes = {
   dateFilter: PropTypes.bool
 };
 
-export default ProjectListSortFilterItem;
+export default TargetListSortFilterItem;

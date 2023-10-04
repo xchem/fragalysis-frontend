@@ -13,7 +13,8 @@ export const constants = {
   SET_SORT_TARGET_DIALOG_OPEN: prefix + 'SET_SORT_TARGET_DIALOG_OPEN',
   SET_LIST_OF_TARGETS: prefix + 'SET_LIST_OF_TARGETS',
   SET_IS_LOADING_LIST_OF_TARGETS: prefix + 'SET_IS_LOADING_LIST_OF_TARGETS',
-  SET_FILTER_CLEAN: prefix + 'SET_FILTER_CLEAN'
+  SET_FILTER_CLEAN: prefix + 'SET_FILTER_CLEAN',
+  SET_LIST_OF_FILTERED_TARGETS_BY_DATE: prefix + 'SET_LIST_OF_FILTERED_TARGETS_BY_DATE'
 };
 
 export const TARGETS_ATT = {
@@ -26,8 +27,8 @@ export const TARGETS_ATT = {
     dateFilter: false,
     path: undefined
   },
-  numberOfChain: {
-    key: 'numberOfChain',
+  numberOfChains: {
+    key: 'numberOfChains',
     name: 'Number of chain',
     isFloat: true,
     color: '#f96587',

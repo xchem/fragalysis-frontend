@@ -30,7 +30,7 @@ import { isDiscourseAvailable, generateDiscourseTargetURL, openDiscourseLink } f
 import { setOpenDiscourseErrorModal } from '../../reducers/api/actions';
 import { Chat } from '@material-ui/icons';
 import { URL_TOKENS } from '../direct/constants';
-import { setListOfFilteredTargets, setSortTargetDialogOpen, setListOfTargets } from './redux/actions';
+import { setListOfFilteredTargets, setSortTargetDialogOpen, setListOfTargets, setDefaultFilter } from './redux/actions';
 import {
   compareIdAsc,
   compareIdDesc,
@@ -74,6 +74,7 @@ import {
   UnfoldMore,
   FilterList
 } from '@material-ui/icons';
+import { setTargetFilter } from '../../reducers/selection/actions';
 import { MOCK_LIST_OF_TARGETS } from './MOCK';
 
 const useStyles = makeStyles(theme => ({
@@ -117,7 +118,7 @@ export const TargetList = memo(() => {
   const [sortDialogAnchorEl, setSortDialogAnchorEl] = useState(null);
   const sortDialogOpen = useSelector(state => state.targetReducers.targetListFilterDialog);
 
-  const listOfAllTargetsDefault = MOCK_LIST_OF_TARGETS;
+  let listOfAllTargetsDefault = MOCK_LIST_OF_TARGETS; // change after import real data
   let searchString = '';
 
   // checkbox for search
@@ -170,7 +171,7 @@ export const TargetList = memo(() => {
   let searchedNHits = [];
 
   const filterClean = useSelector(state => state.targetReducers.filterClean);
-  const filter = useSelector(state => state.selectionReducers.filter);
+  const filter = useSelector(state => state.selectionReducers.targetFilter);
 
   const isActiveFilter = !!(filter || {}).active;
 
@@ -179,15 +180,56 @@ export const TargetList = memo(() => {
   useEffect(() => {
     // remove filter data
     if (filterClean === true) {
+      dispatch(setDefaultFilter(false));
+      const newFilter = { ...filter };
+      newFilter.priorityOrder = [
+        'target',
+        'numberOfChains',
+        'primaryChain',
+        'uniprot',
+        'range',
+        'proteinName',
+        'geneName',
+        'species',
+        'domain',
+        'ECNumber',
+        'NHits',
+        'dateLastEdit'
+      ];
+      newFilter.sortOptions = [
+        ['target', undefined],
+        ['numberOfChains', undefined],
+        ['primaryChain', undefined],
+        ['uniprot', undefined],
+        ['range', undefined],
+        ['geneName', undefined],
+        ['species', undefined],
+        ['domain', undefined],
+        ['ECNumber', undefined],
+        ['NHits', undefined],
+        ['dateLastEdit', undefined]
+      ];
+      newFilter.filter.numberOfChains.order = 1;
+      newFilter.filter.target.order = 1;
+      newFilter.filter.primaryChain.order = 1;
+      newFilter.filter.uniprot.order = 1;
+      newFilter.filter.range.order = 1;
+      newFilter.filter.geneName.order = 1;
+      newFilter.filter.species.order = 1;
+      newFilter.filter.domain.order = 1;
+      newFilter.filter.ECNumber.order = 1;
+      newFilter.filter.NHits.order = 1;
+      newFilter.filter.dateLastEdit.order = 1;
+      dispatch(setTargetFilter(newFilter));
     }
   }, [filterClean]);
 
   // window height for showing rows per page
   const [windowHeight, setWindowHeight] = useState(window.innerHeight);
-  let projectListWindowHeight = windowHeight / 26 - 6;
-  let projectListWindowHeightFinal = parseInt(projectListWindowHeight.toFixed(0), 10);
-  const [rowsPerPage, setRowsPerPage] = useState(projectListWindowHeightFinal);
-  const [rowsPerPagePerPageSize, setRowsPerPagePerPageSize] = useState(projectListWindowHeightFinal);
+  let targetListWindowHeight = windowHeight / 26 - 6;
+  let targetListWindowHeightFinal = parseInt(targetListWindowHeight.toFixed(0), 10);
+  const [rowsPerPage, setRowsPerPage] = useState(targetListWindowHeightFinal);
+  const [rowsPerPagePerPageSize, setRowsPerPagePerPageSize] = useState(targetListWindowHeightFinal);
 
   const handleChangePage = (event, newPage) => {
     setPage(newPage);
@@ -208,62 +250,6 @@ export const TargetList = memo(() => {
       }
     }
   }, [filter]);
-
-  const render_item_method = (target, project) => {
-    const preview = `${URLS.target}${target.title}/${URL_TOKENS.target_access_string}/${project.target_access_string}`;
-    const sgcUrl = 'https://thesgc.org/sites/default/files/XChem/' + target.title + '/html/index.html';
-    const sgcUploaded = ['BRD1A', 'DCLRE1AA', 'FALZA', 'FAM83BA', 'HAO1A', 'NUDT4A', 'NUDT5A', 'NUDT7A', 'PARP14A'];
-    const discourseAvailable = isDiscourseAvailable();
-    // const [discourseUrl, setDiscourseUrl] = useState();
-    return (
-      <ListItem key={`${target.id}_${project.id}`}>
-        <Grid container direction="row" spacing={2}>
-          <Grid item xs={4}>
-            <Link
-              to={preview}
-              onClick={() => {
-                // dispatch(setCurrentProject(project));
-              }}
-            >
-              <ListItemText primary={target.title} />
-            </Link>
-          </Grid>
-          <Grid item xs={4}>
-            <ListItemText primary={project.target_access_string} />
-          </Grid>
-          <Grid item xs={4}>
-            <Grid container direction="row" justify="center" alignItems="center">
-              {sgcUploaded.includes(target.title) && (
-                <a href={sgcUrl} target="new">
-                  Open SGC summary
-                </a>
-              )}
-              {discourseAvailable && (
-                <Tooltip title="Go to Discourse">
-                  <IconButton
-                    disabled={!isDiscourseAvailable()}
-                    onClick={() => {
-                      generateDiscourseTargetURL(target.title)
-                        .then(response => {
-                          const link = response.data['Post url'];
-                          openDiscourseLink(link);
-                        })
-                        .catch(err => {
-                          console.log(err);
-                          dispatch(setOpenDiscourseErrorModal(true));
-                        });
-                    }}
-                  >
-                    <Chat />
-                  </IconButton>
-                </Tooltip>
-              )}
-            </Grid>
-          </Grid>
-        </Grid>
-      </ListItem>
-    );
-  };
 
   // search from target list
   const handleSearch = event => {
@@ -605,7 +591,7 @@ export const TargetList = memo(() => {
           />,
           <IconButton
             onClick={event => {
-              if (sortDialogOpen === false) {
+              if (sortDialogOpen === false || sortDialogOpen === undefined) {
                 setSortDialogAnchorEl(event.currentTarget);
                 dispatch(setSortTargetDialogOpen(true));
               } else {

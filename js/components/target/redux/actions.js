@@ -26,6 +26,11 @@ export const setListOfFilteredTargets = targets => ({
   payload: targets
 });
 
+export const setListOfFilteredTargetsByDate = targets => ({
+  type: constants.SET_LIST_OF_FILTERED_TARGETS_BY_DATE,
+  payload: targets
+});
+
 export const setSortTargetDialogOpen = isOpen => ({
   type: constants.SET_SORT_TARGET_DIALOG_OPEN,
   payload: isOpen

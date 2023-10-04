@@ -58,6 +58,9 @@ export const targetReducers = (state = INITIAL_STATE, action = {}) => {
     case constants.SET_FILTER_CLEAN:
       return Object.assign({}, state, { filterClean: action.payload });
 
+    case constants.SET_LIST_OF_FILTERED_TARGETS_BY_DATE:
+      return Object.assign({}, state, { listOfFilteredTargetsByDate: action.payload });
+
     default:
       return state;
   }
