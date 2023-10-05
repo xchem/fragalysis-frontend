@@ -59,8 +59,8 @@ export const ModalShareSnapshot = memo(({}) => {
             <Button onClick={() => updateClipboard(sharedSnapshot.url)} color="primary">
               Copy link
             </Button>
-            <Button onClick={openInNewTab} color="primary">
-              Open in new tab
+            <Button style={{width: '175px'}} onClick={openInNewTab} color="primary">
+              Open in new tab to test (recommended!)
             </Button>
             <Button onClick={closeModal} color="secondary">
               Close
