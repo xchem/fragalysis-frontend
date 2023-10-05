@@ -242,7 +242,7 @@ export const loadMoleculesAndTagsNew = targetId => async (dispatch, getState) =>
       let newObject = { ...mol };
       const tagsForMol = getTagsForMol(mol.id, tags);
       if (tagsForMol) {
-        newObject['tags_set'] = [...tagsForMol];
+        newObject['tags_set'] = [...tagsForMol.map(t => t.id)];
       } else {
         newObject['tags_set'] = [];
       }
@@ -250,10 +250,10 @@ export const loadMoleculesAndTagsNew = targetId => async (dispatch, getState) =>
     });
 
     allMolecules?.sort((a, b) => {
-      if (a.protein_code < b.protein_code) {
+      if (a.code < b.code) {
         return -1;
       }
-      if (a.protein_code > b.protein_code) {
+      if (a.code > b.code) {
         return 1;
       }
       return 0;
