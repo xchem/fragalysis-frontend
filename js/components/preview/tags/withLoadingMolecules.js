@@ -2,7 +2,7 @@ import React, { memo, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { getTagMolecules, getTags } from './api/tagsApi';
 import { setMoleculeTags } from '../../../reducers/api/actions';
-import { loadMoleculesAndTags, loadMoleculesAndTagsNew } from '../tags/redux/dispatchActions';
+import { loadMoleculesAndTagsNew } from '../tags/redux/dispatchActions';
 import { compareTagsAsc } from '../tags/utils/tagUtils';
 
 export const withLoadingMolecules = WrappedComponent => {

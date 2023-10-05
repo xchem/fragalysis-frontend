@@ -70,7 +70,7 @@ const NewTagDetailRow = memo(({ moleculesToEditIds, moleculesToEdit }) => {
 
   useEffect(() => {
     if (tagToEdit) {
-      setNewTagCategory(tagToEdit.category_id);
+      setNewTagCategory(tagToEdit.category);
       if (tagToEdit.colour) {
         setNewTagColor(tagToEdit.colour);
       } else {
@@ -131,15 +131,15 @@ const NewTagDetailRow = memo(({ moleculesToEditIds, moleculesToEdit }) => {
         let augMolTagObject = augumentTagObjectWithId(
           {
             tag: molTag.tag,
-            category_id: molTag.category,
-            target_id: molTag.target,
-            user_id: molTag.user,
+            category: molTag.category,
+            target: molTag.target,
+            user: molTag.user,
             create_date: molTag.create_date,
             colour: molTag.colour,
             discourse_url: molTag.discourse_url,
             help_text: molTag.help_text,
             additional_info: molTag.additional_info,
-            mol_group_id: molTag.mol_group
+            mol_group: molTag.mol_group
           },
           molTag.id
         );
@@ -158,7 +158,7 @@ const NewTagDetailRow = memo(({ moleculesToEditIds, moleculesToEdit }) => {
       dispatch(
         updateTagProp(
           Object.assign({}, tagToEdit, {
-            category_id: newTagCategory,
+            category: newTagCategory,
             colour: newTagColor,
             tag: newTagName,
             discourse_url: newTagLink

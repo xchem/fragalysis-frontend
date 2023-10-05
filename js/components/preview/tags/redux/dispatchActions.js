@@ -30,7 +30,7 @@ import {
 } from '../../../../reducers/api/actions';
 import { setSortDialogOpen } from '../../molecule/redux/actions';
 import { resetCurrentCompoundsSettings } from '../../compounds/redux/actions';
-import { updateExistingTag, getAllData, getAllDataNew, getTags } from '../api/tagsApi';
+import { updateExistingTag, getAllDataNew, getTags } from '../api/tagsApi';
 import {
   getMoleculeTagForTag,
   createMoleculeTagObject,
@@ -132,11 +132,11 @@ export const updateTagProp = (tag, value, prop) => (dispatch, getState) => {
     let newMolTag = createMoleculeTagObject(
       newTag.tag,
       moleculeTag.target,
-      newTag.category_id,
+      newTag.category,
       DJANGO_CONTEXT.pk,
       newTag.colour,
       newTag.discourse_url,
-      [...moleculeTag.molecules],
+      [...moleculeTag.site_observations],
       newTag.create_date,
       newTag.additional_info,
       moleculeTag.mol_group
@@ -169,61 +169,61 @@ export const unselectTag = tag => (dispatch, getState) => {
   }
 };
 
-export const loadMoleculesAndTags = targetId => async (dispatch, getState) => {
-  return getAllData(targetId).then(data => {
-    let tags_info = [];
-    if (data.tags_info && data.tags_info.length > 0) {
-      dispatch(setNoTagsReceived(false));
-      data.tags_info.forEach(tag => {
-        let newObject = {};
-        Object.keys(tag.data[0]).forEach(prop => {
-          newObject[`${prop}`] = tag.data[0][`${prop}`];
-        });
-        let coords = {};
-        if (tag.coords && tag.coords.length > 1) {
-          Object.keys(tag.coords[0]).forEach(prop => {
-            coords[`${prop}`] = tag.coords[0][`${prop}`];
-          });
-        }
-        newObject['coords'] = coords;
+// export const loadMoleculesAndTags = targetId => async (dispatch, getState) => {
+//   return getAllData(targetId).then(data => {
+//     let tags_info = [];
+//     if (data.tags_info && data.tags_info.length > 0) {
+//       dispatch(setNoTagsReceived(false));
+//       data.tags_info.forEach(tag => {
+//         let newObject = {};
+//         Object.keys(tag.data[0]).forEach(prop => {
+//           newObject[`${prop}`] = tag.data[0][`${prop}`];
+//         });
+//         let coords = {};
+//         if (tag.coords && tag.coords.length > 1) {
+//           Object.keys(tag.coords[0]).forEach(prop => {
+//             coords[`${prop}`] = tag.coords[0][`${prop}`];
+//           });
+//         }
+//         newObject['coords'] = coords;
 
-        if (!newObject.additional_info) {
-          tags_info.push(newObject);
-        }
-      });
-    }
+//         if (!newObject.additional_info) {
+//           tags_info.push(newObject);
+//         }
+//       });
+//     }
 
-    let allMolecules = [];
-    data.molecules.forEach(mol => {
-      let newObject = {};
-      Object.keys(mol.data).forEach(prop => {
-        newObject[`${prop}`] = mol.data[`${prop}`];
-      });
-      newObject['tags_set'] = mol.tags_set;
+//     let allMolecules = [];
+//     data.molecules.forEach(mol => {
+//       let newObject = {};
+//       Object.keys(mol.data).forEach(prop => {
+//         newObject[`${prop}`] = mol.data[`${prop}`];
+//       });
+//       newObject['tags_set'] = mol.tags_set;
 
-      allMolecules.push(newObject);
-    });
-    allMolecules.sort((a, b) => {
-      if (a.protein_code < b.protein_code) {
-        return -1;
-      }
-      if (a.protein_code > b.protein_code) {
-        return 1;
-      }
-      return 0;
-    });
-    dispatch(setAllMolLists([...allMolecules]));
+//       allMolecules.push(newObject);
+//     });
+//     allMolecules.sort((a, b) => {
+//       if (a.protein_code < b.protein_code) {
+//         return -1;
+//       }
+//       if (a.protein_code > b.protein_code) {
+//         return 1;
+//       }
+//       return 0;
+//     });
+//     dispatch(setAllMolLists([...allMolecules]));
 
-    //need to do this this way because only categories which have at least one tag assigned are sent from backend
-    const categories = getCategoryIds();
-    tags_info = tags_info.sort(compareTagsAsc);
-    dispatch(setTagSelectorData(categories, tags_info));
-    dispatch(setAllDataLoaded(true));
-    // dispatch(setTargetDataLoadingInProgress(false));
-    //console.log(tags_info);
-  });
-  // }
-};
+//     //need to do this this way because only categories which have at least one tag assigned are sent from backend
+//     const categories = getCategoryIds();
+//     tags_info = tags_info.sort(compareTagsAsc);
+//     dispatch(setTagSelectorData(categories, tags_info));
+//     dispatch(setAllDataLoaded(true));
+//     // dispatch(setTargetDataLoadingInProgress(false));
+//     //console.log(tags_info);
+//   });
+//   // }
+// };
 
 const getTagsForMol = (molId, tagList) => {
   const result = tagList.filter(t => t.site_observations.includes(molId));
@@ -242,7 +242,7 @@ export const loadMoleculesAndTagsNew = targetId => async (dispatch, getState) =>
       let newObject = { ...mol };
       const tagsForMol = getTagsForMol(mol.id, tags);
       if (tagsForMol) {
-        newObject['tags_set'] = [...tagsForMol];
+        newObject['tags_set'] = [...tagsForMol.map(t => t.id)];
       } else {
         newObject['tags_set'] = [];
       }
@@ -250,10 +250,10 @@ export const loadMoleculesAndTagsNew = targetId => async (dispatch, getState) =>
     });
 
     allMolecules?.sort((a, b) => {
-      if (a.protein_code < b.protein_code) {
+      if (a.code < b.code) {
         return -1;
       }
-      if (a.protein_code > b.protein_code) {
+      if (a.code > b.code) {
         return 1;
       }
       return 0;

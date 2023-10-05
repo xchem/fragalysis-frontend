@@ -676,7 +676,7 @@ export const getFirstTag = () => (dispatch, getState) => {
   if (siteCategoryId) {
     const state = getState();
     const tagsList = state.apiReducers.tagList;
-    const foundTags = tagsList.filter(t => t.category_id === siteCategoryId);
+    const foundTags = tagsList.filter(t => t.category === siteCategoryId);
     return foundTags && foundTags.length > 0 ? foundTags[0] : null;
   } else {
     return null;
@@ -1012,7 +1012,7 @@ export const applyDirectSelection = stage => (dispatch, getState) => {
       for (let molIndex = 0; molIndex < allMols.length; molIndex++) {
         let molList = allMols;
         let mol = molList[molIndex];
-        let proteinCodeModded = mol.protein_code.toLowerCase();
+        let proteinCodeModded = mol.code.toLowerCase();
         if (
           m.exact ? proteinCodeModded === directProteinCodeModded : proteinCodeModded.includes(directProteinNameModded)
         ) {
@@ -1041,7 +1041,7 @@ export const applyDirectSelection = stage => (dispatch, getState) => {
 
 export const getQualityInformation = (data, molType, width, height) => (dispatch, getState) => {
   let moleculeObject = generateMoleculeObject(data);
-  let qualityInformation = dispatch(readQualityInformation(moleculeObject.name, data.sdf_info));
+  let qualityInformation = dispatch(readQualityInformation(moleculeObject.name, data.ligand_mol_file));
 
   let hasAdditionalInformation =
     qualityInformation &&
@@ -1053,7 +1053,7 @@ export const getQualityInformation = (data, molType, width, height) => (dispatch
 };
 
 export const getProteinData = molecule => dispatch => {
-  return dispatch(getProteinDataByMolId(molecule.id, molecule.protein_code));
+  return dispatch(getProteinDataByMolId(molecule.id, molecule.code));
 };
 
 export const getProteinDataByMolId = (molId, proteinCode) => (dispatch, getState) => {

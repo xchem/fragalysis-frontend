@@ -3,13 +3,13 @@ import { createTagPost, isDiscourseAvailable } from '../../../../utils/discourse
 import { base_url } from '../../../routes/constants';
 import { getDefaultTagDiscoursePostText } from '../utils/tagUtils';
 
-export const getAllData = targetId => {
-  return api({ url: `${base_url}/api/target_molecules/${targetId}` }).then(response => {
-    if (response?.data) {
-      return response.data;
-    }
-  });
-};
+// export const getAllData = targetId => {
+//   return api({ url: `${base_url}/api/target_molecules/${targetId}` }).then(response => {
+//     if (response?.data) {
+//       return response.data;
+//     }
+//   });
+// };
 
 export const getTags = targetId => {
   return api({ url: `${base_url}/api/siteobservation_tag/?target=${targetId}` }).then(response => {
@@ -28,7 +28,7 @@ export const getAllDataNew = async targetId => {
 };
 
 export const getTagMolecules = targetId => {
-  return api({ url: `${base_url}/api/molecule_tag/?target=${targetId}` })
+  return api({ url: `${base_url}/api/siteobservation_tag/?target=${targetId}` })
     .then(response => {
       return response.data;
     })
@@ -36,7 +36,7 @@ export const getTagMolecules = targetId => {
 };
 
 export const createNewTag = (tag, targetName) => {
-  let url = `${base_url}/api/molecule_tag/`;
+  let url = `${base_url}/api/siteobservation_tag/`;
   if (isDiscourseAvailable()) {
     return createTagPost(tag, targetName, getDefaultTagDiscoursePostText(tag))
       .then(tagResp => {
@@ -70,7 +70,7 @@ export const createNewTag = (tag, targetName) => {
 };
 
 export const createNewDownloadTag = tag => {
-  let url = `${base_url}/api/molecule_tag/`;
+  let url = `${base_url}/api/siteobservation_tag/`;
   const jsonString = JSON.stringify(tag);
   return api({
     url: url,
@@ -85,7 +85,7 @@ export const createNewDownloadTag = tag => {
 
 export const updateExistingTag = (tag, tagId) => {
   const jsonString = JSON.stringify(tag);
-  let url = `${base_url}/api/molecule_tag/${tagId}/`;
+  let url = `${base_url}/api/siteobservation_tag/${tagId}/`;
   return api({
     url: url,
     method: METHOD.PUT,
@@ -98,7 +98,7 @@ export const updateExistingTag = (tag, tagId) => {
 };
 
 export const getTagByName = tagName => {
-  let url = `${base_url}/api/molecule_tag/?tag=${tagName}`;
+  let url = `${base_url}/api/siteobservation_tag/?tag=${tagName}`;
   return api({ url: url }).then(response => {
     if (response?.data?.results?.length > 0) {
       return response.data.results[0];
@@ -108,7 +108,7 @@ export const getTagByName = tagName => {
 
 export const deleteExistingTag = (tag, tagId) => {
   const jsonString = JSON.stringify(tag);
-  let url = `${base_url}/api/molecule_tag/${tagId}/`;
+  let url = `${base_url}/api/siteobservation_tag/${tagId}/`;
   return api({
     url: url,
     method: METHOD.DELETE,

@@ -327,9 +327,7 @@ export const MoleculeList = memo(({ hideProjects }) => {
   let joinedMoleculeLists = useMemo(() => {
     // const searchedString = currentActionList.find(action => action.type === 'SEARCH_STRING_HIT_NAVIGATOR');
     if (searchString) {
-      return allMoleculesList.filter(molecule =>
-        molecule.protein_code.toLowerCase().includes(searchString.toLowerCase())
-      );
+      return allMoleculesList.filter(molecule => molecule.code.toLowerCase().includes(searchString.toLowerCase()));
       // } else if (searchedString) {
       //   return getJoinedMoleculeList.filter(molecule =>
       //     molecule.protein_code.toLowerCase().includes(searchedString.searchStringHitNavigator.toLowerCase())
@@ -435,10 +433,10 @@ export const MoleculeList = memo(({ hideProjects }) => {
       // joinedMoleculeLists = [tagEditMol, ...joinedMoleculeLists];
       joinedMoleculeLists.push(tagEditMol);
       joinedMoleculeLists.sort((a, b) => {
-        if (a.protein_code < b.protein_code) {
+        if (a.code < b.code) {
           return -1;
         }
-        if (a.protein_code > b.protein_code) {
+        if (a.code > b.code) {
           return 1;
         }
         return 0;
@@ -456,10 +454,10 @@ export const MoleculeList = memo(({ hideProjects }) => {
       }
     });
     joinedMoleculeLists.sort((a, b) => {
-      if (a.protein_code < b.protein_code) {
+      if (a.code < b.code) {
         return -1;
       }
-      if (a.protein_code > b.protein_code) {
+      if (a.code > b.code) {
         return 1;
       }
       return 0;
@@ -610,20 +608,6 @@ export const MoleculeList = memo(({ hideProjects }) => {
             selectedDisplayHits = false;
           }
         }
-        // allSelectedMolecules.map(selectedMolecules => {
-        //   if (
-        //     fragmentDisplayList.includes(selectedMolecules.id) ||
-        //     proteinList.includes(selectedMolecules.id) ||
-        //     complexList.includes(selectedMolecules.id) ||
-        //     surfaceList.includes(selectedMolecules.id) ||
-        //     densityList.includes(selectedMolecules.id) ||
-        //     vectorOnList.includes(selectedMolecules.id)
-        //   ) {
-        //     selectedDisplayHits = true;
-        //   } else {
-        //     selectedDisplayHits = false;
-        //   }
-        // });
       }
     }
   }

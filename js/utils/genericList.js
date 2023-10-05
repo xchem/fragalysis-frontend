@@ -131,7 +131,7 @@ export const loadFromServer = ({
           let data = response.data.results;
           let cachedDataArray = (data && data) || [];
           cachedDataArray.forEach(r => {
-            let result = getNumberFromCode(r.protein_code);
+            let result = getNumberFromCode(r.code);
             moleculeLists.push(Object.assign({ number: result.number }, r));
           });
         }
@@ -170,7 +170,7 @@ export const loadAllMolsFromMolGroup = ({ url, mol_group }) => {
   return api({ url }).then(response => {
     let list = [];
     response.data.results.forEach(r => {
-      let result = getNumberFromCode(r.protein_code);
+      let result = getNumberFromCode(r.code);
       list.push({ ...r, number: result.number });
     });
     return { mol_group: mol_group, molecules: list };

@@ -564,7 +564,7 @@ const getMoleculeIdsFromActions = (actions, actionType) => (dispatch, getState) 
     .map(action => {
       const mol = getMolecule(action.object_name, state);
       if (mol) {
-        return { id: mol?.id, name: mol?.protein_code };
+        return { id: mol?.id, name: mol?.code };
       }
     });
 

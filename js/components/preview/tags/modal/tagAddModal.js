@@ -62,7 +62,7 @@ export const TagAddModal = memo(({ openDialog, setOpenDialog, molecule }) => {
     <Modal open={openDialog} onClose={handleCloseModal}>
       <Typography variant="h4">Add tag</Typography>
       <Typography variant="subtitle1" gutterBottom className={classes.marginTop}>
-        {molecule.protein_code}
+        {molecule.code}
       </Typography>
       <Formik
         initialValues={{ tags: [] }}

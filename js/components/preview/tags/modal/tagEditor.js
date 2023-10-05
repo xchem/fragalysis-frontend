@@ -172,20 +172,26 @@ export const TagEditor = memo(
             newMol.tags_set = newMol.tags_set.filter(id => id !== tag.id);
             dispatch(updateMoleculeInMolLists(newMol));
             const moleculeTag = getMoleculeTagForTag(moleculeTags, tag.id);
-            let newMolList = [...moleculeTag.molecules];
-            newMolList = newMolList.filter(id => id !== m.id);
-            const mtObject = createMoleculeTagObject(
-              tag.tag,
-              targetId,
-              tag.category_id,
-              DJANGO_CONTEXT.pk,
-              tag.colour,
-              tag.discourse_url,
-              newMolList,
-              tag.create_date,
-              tag.additional_info
-            );
-            molTagObjects.push(mtObject);
+
+            let mtObject = molTagObjects.find(mto => mto.tag === tag.tag);
+            if (mtObject) {
+              mtObject.site_observations = mtObject.site_observations.filter(id => id !== m.id);
+            } else {
+              let newMolList = [...moleculeTag.site_observations];
+              newMolList = newMolList.filter(id => id !== m.id);
+              mtObject = createMoleculeTagObject(
+                tag.tag,
+                targetId,
+                tag.category,
+                DJANGO_CONTEXT.pk,
+                tag.colour,
+                tag.discourse_url,
+                newMolList,
+                tag.create_date,
+                tag.additional_info
+              );
+              molTagObjects.push(mtObject);
+            }
           });
         } else {
           moleculesToEdit.forEach(m => {
@@ -194,23 +200,28 @@ export const TagEditor = memo(
               newMol.tags_set.push(tag.id);
               dispatch(updateMoleculeInMolLists(newMol));
               const moleculeTag = getMoleculeTagForTag(moleculeTags, tag.id);
-              const mtObject = createMoleculeTagObject(
-                tag.tag,
-                targetId,
-                tag.category_id,
-                DJANGO_CONTEXT.pk,
-                tag.colour,
-                tag.discourse_url,
-                [...moleculeTag.molecules, newMol.id],
-                tag.create_date,
-                tag.additional_info
-              );
-              molTagObjects.push(mtObject);
+              let mtObject = molTagObjects.find(mto => mto.tag === tag.tag);
+              if (mtObject) {
+                mtObject.site_observations.push(newMol.id);
+              } else {
+                mtObject = createMoleculeTagObject(
+                  tag.tag,
+                  targetId,
+                  tag.category,
+                  DJANGO_CONTEXT.pk,
+                  tag.colour,
+                  tag.discourse_url,
+                  [...moleculeTag.site_observations, newMol.id],
+                  tag.create_date,
+                  tag.additional_info
+                );
+                molTagObjects.push(mtObject);
+              }
             }
           });
         }
         if (molTagObjects) {
-          let molsLeft = molTagObjects.length + 1;
+          let molsLeft = molTagObjects.length;
           setMolsLeftForTagging(molsLeft);
           for (const mto of molTagObjects) {
             let molTagObject = { ...mto };

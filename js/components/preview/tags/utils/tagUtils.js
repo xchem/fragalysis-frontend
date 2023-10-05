@@ -21,7 +21,7 @@ export const createMoleculeTagObject = (
     user: userId,
     colour: color,
     discourse_url: discourseUrl,
-    molecules: molecules,
+    site_observations: molecules,
     create_date: createDate,
     help_text: tagName,
     additional_info: additionalInfo,
@@ -50,20 +50,20 @@ export const compareTagsDesc = (a, b) => {
 };
 
 export const compareTagsByCategoryAsc = (a, b) => {
-  if (CATEGORY_TYPE_BY_ID[a.category_id] < CATEGORY_TYPE_BY_ID[b.category_id]) {
+  if (CATEGORY_TYPE_BY_ID[a.category] < CATEGORY_TYPE_BY_ID[b.category]) {
     return -1;
   }
-  if (CATEGORY_TYPE_BY_ID[a.category_id] > CATEGORY_TYPE_BY_ID[b.category_id]) {
+  if (CATEGORY_TYPE_BY_ID[a.category] > CATEGORY_TYPE_BY_ID[b.category]) {
     return 1;
   }
   return 0;
 };
 
 export const compareTagsByCategoryDesc = (a, b) => {
-  if (CATEGORY_TYPE_BY_ID[a.category_id] > CATEGORY_TYPE_BY_ID[b.category_id]) {
+  if (CATEGORY_TYPE_BY_ID[a.category] > CATEGORY_TYPE_BY_ID[b.category]) {
     return -1;
   }
-  if (CATEGORY_TYPE_BY_ID[a.category_id] < CATEGORY_TYPE_BY_ID[b.category_id]) {
+  if (CATEGORY_TYPE_BY_ID[a.category] < CATEGORY_TYPE_BY_ID[b.category]) {
     return 1;
   }
   return 0;

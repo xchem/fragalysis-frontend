@@ -149,7 +149,7 @@ export const InspirationDialog = memo(
     const moleculeList = useMemo(() => {
       if (searchString !== null) {
         return inspirationMoleculeDataList.filter(molecule =>
-          molecule.protein_code.toLowerCase().includes(searchString.toLowerCase())
+          molecule.code.toLowerCase().includes(searchString.toLowerCase())
         );
       }
       return inspirationMoleculeDataList;

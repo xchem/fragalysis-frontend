@@ -198,10 +198,10 @@ const getAdditionalInfo = state => {
   const { moleculesToEdit, fragmentDisplayList } = state.selectionReducers;
   const currentSnapshotSelectedCompounds = allMolecules
     .filter(molecule => moleculesToEdit.includes(molecule.id))
-    .map(molecule => molecule.protein_code);
+    .map(molecule => molecule.code);
   const currentSnapshotVisibleCompounds = allMolecules
     .filter(molecule => fragmentDisplayList.includes(molecule.id))
-    .map(molecule => molecule.protein_code);
+    .map(molecule => molecule.code);
 
   const { moleculeLists, ligandLists, compoundsToBuyDatasetMap } = state.datasetsReducers;
   const currentSnapshotVisibleDatasetsCompounds = Object.fromEntries(
@@ -441,7 +441,6 @@ export const activateSnapshotDialog = (loggedInUserID = undefined, finallyShareS
     dispatch(createProjectFromSnapshotDialog(data))
       .then(() => {
         dispatch(manageSendTrackingActions(sessionProjectID, true));
-
       })
       .catch(error => {
         throw new Error(error);
@@ -453,7 +452,7 @@ export const activateSnapshotDialog = (loggedInUserID = undefined, finallyShareS
     currentSnapshotAuthor === null
   ) {
     dispatch(setForceCreateProject(true));
-  } 
+  }
 };
 
 export const createNewSnapshotWithoutStateModification = ({
