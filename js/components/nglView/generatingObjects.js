@@ -19,8 +19,9 @@ export const assignRepresentationToComp = (type, params, comp, lastKnownID = und
   };
 };
 
-export const assignRepresentationArrayToComp = (representations, comp) =>
+export const assignRepresentationArrayToComp = (representations, comp) => {
   representations.map(rep => assignRepresentationToComp(rep.type, rep.params, comp, rep.lastKnownID));
+};
 
 export const generateProteinObject = data => {
   // Now deal with this target
@@ -46,10 +47,10 @@ export const generateCompoundMolObject = (sdf_info, identifier) => ({
 
 // Ligand
 export const generateMoleculeObject = (data, colourToggle, datasetID) => ({
-  name: `${data.protein_code || data.name}_${OBJECT_TYPE.LIGAND}${datasetID ? '_' + datasetID : ''}`,
+  name: `${data.code || data.name}_${OBJECT_TYPE.LIGAND}${datasetID ? '_' + datasetID : ''}`,
   OBJECT_TYPE: OBJECT_TYPE.LIGAND,
   colour: colourToggle,
-  sdf_info: data.sdf_info,
+  sdf_info: data.ligand_mol_file,
   moleculeId: data.id,
   selectionType: SELECTION_TYPE.LIGAND
 });
@@ -82,8 +83,8 @@ export const generateCylinderObject = (data, start, end, name, colour) => ({
 export const generateHitProteinObject = (data, colourToggle, base_url, datasetID) => {
   let prot_url;
 
-  if (data && data.molecule_protein) {
-    prot_url = base_url + data.molecule_protein;
+  if (data && data.apo_file) {
+    prot_url = data.apo_file;
   } else if (data.pdb_info) {
     if (location.protocol === 'https:') {
       prot_url = data.pdb_info.replace('http://', 'https://');
@@ -93,9 +94,9 @@ export const generateHitProteinObject = (data, colourToggle, base_url, datasetID
   }
 
   return {
-    name: `${data.protein_code || data.name}_${OBJECT_TYPE.HIT_PROTEIN}${datasetID ? '_' + datasetID : ''}`,
+    name: `${data.code || data.name}_${OBJECT_TYPE.HIT_PROTEIN}${datasetID ? '_' + datasetID : ''}`,
     OBJECT_TYPE: OBJECT_TYPE.HIT_PROTEIN,
-    sdf_info: data.sdf_info,
+    sdf_info: data.ligand_mol_file,
     colour: colourToggle,
     prot_url,
     moleculeId: data.id,
@@ -107,8 +108,8 @@ export const generateHitProteinObject = (data, colourToggle, base_url, datasetID
 export const generateComplexObject = (data, colourToggle, base_url, datasetID) => {
   let prot_url;
 
-  if (data && data.molecule_protein) {
-    prot_url = base_url + data.molecule_protein;
+  if (data && data.apo_file) {
+    prot_url = data.apo_file;
   } else if (data.pdb_info) {
     if (location.protocol === 'https:') {
       prot_url = data.pdb_info.replace('http://', 'https://');
@@ -118,9 +119,9 @@ export const generateComplexObject = (data, colourToggle, base_url, datasetID) =
   }
 
   return {
-    name: `${data.protein_code || data.name}_${OBJECT_TYPE.COMPLEX}${datasetID ? '_' + datasetID : ''}`,
+    name: `${data.code || data.name}_${OBJECT_TYPE.COMPLEX}${datasetID ? '_' + datasetID : ''}`,
     OBJECT_TYPE: OBJECT_TYPE.COMPLEX,
-    sdf_info: data.sdf_info,
+    sdf_info: data.ligand_mol_file,
     colour: colourToggle,
     prot_url,
     moleculeId: data.id,
@@ -132,8 +133,8 @@ export const generateComplexObject = (data, colourToggle, base_url, datasetID) =
 export const generateSurfaceObject = (data, colourToggle, base_url, datasetID) => {
   let prot_url;
 
-  if (data && data.molecule_protein) {
-    prot_url = base_url + data.molecule_protein;
+  if (data && data.apo_file) {
+    prot_url = data.apo_file;
   } else if (data.pdb_info) {
     if (location.protocol === 'https:') {
       prot_url = data.pdb_info.replace('http://', 'https://');
@@ -142,9 +143,9 @@ export const generateSurfaceObject = (data, colourToggle, base_url, datasetID) =
     }
   }
   return {
-    name: `${data.protein_code || data.name}_${OBJECT_TYPE.SURFACE}${datasetID ? '_' + datasetID : ''}`,
+    name: `${data.code || data.name}_${OBJECT_TYPE.SURFACE}${datasetID ? '_' + datasetID : ''}`,
     OBJECT_TYPE: OBJECT_TYPE.SURFACE,
-    sdf_info: data.sdf_info,
+    sdf_info: data.ligand_mol_file,
     colour: colourToggle,
     prot_url,
     moleculeId: data.id,
@@ -161,8 +162,8 @@ export const generateDensityObject = (data, colourToggle, base_url, isWireframeS
   let diff_url;
   let event_url;
 
-  if (data && data.molecule_protein) {
-    prot_url = base_url + data.molecule_protein;
+  if (data && data.apo_file) {
+    prot_url = data.apo_file;
   } else if (data.pdb_info) {
     if (location.protocol === 'https:') {
       prot_url = data.pdb_info.replace('http://', 'https://');
@@ -196,9 +197,9 @@ export const generateDensityObject = (data, colourToggle, base_url, isWireframeS
   }
 
   return {
-    name: `${data.protein_code || data.name}_${OBJECT_TYPE.DENSITY}`,
+    name: `${data.code || data.name}_${OBJECT_TYPE.DENSITY}`,
     OBJECT_TYPE: OBJECT_TYPE.DENSITY,
-    sdf_info: data.sdf_info,
+    sdf_info: data.ligand_mol_file,
     event_url,
     sigmaa_url,
     diff_url,
@@ -214,8 +215,8 @@ export const generateDensityObject = (data, colourToggle, base_url, isWireframeS
 
 export const generateMoleculeId = data => ({
   id: data.id,
-  name: data.protein_code,
-  isInspiration: data.isInspiration
+  name: data.code,
+  isInspiration: data.isInspiration || false
 });
 
 export const generateMoleculeCompoundId = data => ({
@@ -257,7 +258,7 @@ export const getVectorWithColorByCountOfCompounds = (item, currentVectorCompound
 };
 
 export const getRepresentationsByType = (objectsInView, object, objectType, datasetId) => {
-  let parentItem = `${object.protein_code || object.name}_${objectType}${datasetId ? '_' + datasetId : ''}`;
+  let parentItem = `${object.code || object.name}_${objectType}${datasetId ? '_' + datasetId : ''}`;
   let objectInView = objectsInView[parentItem];
   var representations = (objectInView && objectInView.representations) || undefined;
   return representations;
@@ -265,7 +266,7 @@ export const getRepresentationsByType = (objectsInView, object, objectType, data
 
 export const getRepresentationsForDensities = (objectsInView, object, objectType, datasetId) => {
   const densKeys = Object.keys(objectsInView).filter(
-    i => i.includes(`${object.protein_code || object.name}`) && i.includes('DENSITY')
+    i => i.includes(`${object.code || object.name}`) && i.includes('DENSITY')
   );
   let representations = [];
   densKeys.forEach(key => {

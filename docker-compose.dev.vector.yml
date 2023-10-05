@@ -55,6 +55,7 @@ services:
     # image: xchem/fragalysis-stack:latest
     # image: alanbchristie/fragalysis-backend:1069.4
     image: kaliif/fragalysis-backend:latest
+    # image: boriskovarm2ms/fragalysis-stack:experiment2
     command: /bin/bash /code/launch-stack.sh
     volumes:
       - ../data/logs:/code/logs/
@@ -70,11 +71,11 @@ services:
       POSTGRESQL_PORT: 5432
       NEO4J_AUTH: neo4j/test123
       OIDC_RP_CLIENT_SECRET: ${OIDC_RP_CLIENT_SECRET}
-      DISCOURSE_API_KEY: ${DISCOURSE_API_KEY}
+      # DISCOURSE_API_KEY: ${DISCOURSE_API_KEY}
       FRAGALYSIS_BACKEND_SENTRY_DNS: https://27fa0675f555431aa02ca552e93d8cfb@o194333.ingest.sentry.io/1298290
       ISPYB_FLAG: 'False'
-      DISCOURSE_DEV_POST_SUFFIX: '-boris-local'
-      DISCOURSE_HOST: 'https://discourse.xchem-dev.diamond.ac.uk'
+      # DISCOURSE_DEV_POST_SUFFIX: '-boris-local'
+      # DISCOURSE_HOST: 'https://discourse.xchem-dev.diamond.ac.uk'
       SQUONK2_UI_URL: 'https://data-manager-ui.xchem-dev.diamond.ac.uk/data-manager-ui'
       SQUONK2_DMAPI_URL: 'https://data-manager.xchem-dev.diamond.ac.uk/data-manager-api'
       OIDC_RENEW_ID_TOKEN_EXPIRY_MINUTES: 210
@@ -99,6 +100,7 @@ services:
       LOGGING_FRAMEWORK_ROOT_LEVEL: DEBUG
       AUTHENTICATE_UPLOAD: 'False'
       CELERY_TASK_ALWAYS_EAGER: 'True'
+      DEBUG_FRAGALYSIS: 'True'
     depends_on:
       database:
         condition: service_healthy

@@ -218,7 +218,7 @@ export const DownloadStructureDialog = memo(({}) => {
     if (!allStructures) {
       for (let i = 0; i < structuresToDownload.length; i++) {
         const struct = structuresToDownload[i];
-        proteinNames = proteinNames + struct.protein_code;
+        proteinNames = proteinNames + struct.code;
         if (i < structuresToDownload.length - 1) {
           proteinNames = proteinNames + ',';
         }

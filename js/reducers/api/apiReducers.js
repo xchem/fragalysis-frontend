@@ -334,7 +334,7 @@ export default function apiReducers(state = INITIAL_STATE, action = {}) {
         let foundTag = foundTags[0];
         foundTag.tag = action.item.tag;
         foundTag.colour = action.item.colour;
-        foundTag.category_id = action.item.category_id;
+        foundTag.category = action.item.category;
         foundTag.discourse_url = action.item.discourse_url;
 
         return { ...state, tagList: [...listWithUpdatedTag] };

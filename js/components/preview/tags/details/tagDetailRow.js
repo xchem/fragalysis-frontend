@@ -162,9 +162,9 @@ const TagDetailRow = memo(({ tag, moleculesToEditIds, moleculesToEdit }) => {
         isTagEditor={true}
       ></TagView>
       {/* category */}
-      <Tooltip title={CATEGORY_TYPE_BY_ID[tag.category_id]}>
+      <Tooltip title={CATEGORY_TYPE_BY_ID[tag.category]}>
         <Typography className={classes.text} variant="body2" noWrap>
-          {CATEGORY_TYPE_BY_ID[tag.category_id]}
+          {CATEGORY_TYPE_BY_ID[tag.category]}
         </Typography>
       </Tooltip>
       {/* select hits button */}

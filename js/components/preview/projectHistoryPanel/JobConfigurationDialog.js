@@ -286,7 +286,7 @@ const JobConfigurationDialog = ({ snapshots }) => {
           chosenSnapshot = await createSnapshot();
           const currentSnapshotSelectedCompounds = getAllMolecules
             .filter(molecule => currentSnapshotSelectedCompoundsIDs.includes(molecule.id))
-            .map(molecule => molecule.protein_code);
+            .map(molecule => molecule.code);
 
           const currentSnapshotSelectedDatasetsCompounds = [];
           Object.keys(selectedDatasetCompounds).map(datasetName => {
@@ -312,7 +312,7 @@ const JobConfigurationDialog = ({ snapshots }) => {
       } else if (inputs === 'selected-inputs') {
         const currentSnapshotSelectedCompounds = getAllMolecules
           .filter(molecule => currentSnapshotSelectedCompoundsIDs.includes(molecule.id))
-          .map(molecule => molecule.protein_code);
+          .map(molecule => molecule.code);
 
         const currentSnapshotSelectedDatasetsCompounds = [];
         Object.keys(selectedDatasetCompounds).map(datasetName => {
@@ -355,7 +355,7 @@ const JobConfigurationDialog = ({ snapshots }) => {
       } else if (inputs === 'visible-inputs') {
         const currentSnapshotVisibleCompounds = getAllMolecules
           .filter(molecule => currentSnapshotVisibleCompoundsIDs.includes(molecule.id))
-          .map(molecule => molecule.protein_code);
+          .map(molecule => molecule.code);
 
         const currentSnapshotVisibleDatasetCompounds = [];
         Object.keys(datasetVisibleDatasetCompoundsList).map(datasetName => {

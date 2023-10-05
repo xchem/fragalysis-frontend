@@ -35,7 +35,7 @@ import { useUpdateGridLayout } from './useUpdateGridLayout';
 import { createHtmlPortalNode, InPortal, OutPortal } from 'react-reverse-portal';
 import { RHS } from './rhs';
 import { ResizableLayout } from './ResizableLayout';
-import { loadMoleculesAndTags, loadMoleculesAndTagsNew } from './tags/redux/dispatchActions';
+import { loadMoleculesAndTagsNew } from './tags/redux/dispatchActions';
 import { getTagMolecules, getTags } from './tags/api/tagsApi';
 import { compareTagsAsc } from './tags/utils/tagUtils';
 import { setMoleculeTags } from '../../reducers/api/actions';

@@ -164,7 +164,6 @@ import { MAP_TYPE } from '../ngl/constants';
 import {
   removeSelectedTag,
   addSelectedTag,
-  loadMoleculesAndTags,
   loadMoleculesAndTagsNew
 } from '../../components/preview/tags/redux/dispatchActions';
 import { turnSide } from '../../components/preview/viewerControls/redux/actions';
@@ -1570,7 +1569,7 @@ const restoreSelectAllMolecules = moleculesAction => (dispatch, getState) => {
     const allMolecules = state.apiReducers.all_mol_lists;
     dispatch(setNextXMolecules(allMolecules.length));
     action.items.forEach(m => {
-      dispatch(handleSelectMoleculeByName(m.protein_code, true));
+      dispatch(handleSelectMoleculeByName(m.code, true));
     });
   }
 };
@@ -1613,14 +1612,14 @@ const restoreAllSelectionByTypeActions = (moleculesAction, stage, isSelection) =
         let actionItems = [];
         if (isSelection) {
           action.items.forEach(item => {
-            const mol = getMolecule(item.protein_code, state);
+            const mol = getMolecule(item.code, state);
             if (mol) {
               actionItems.push(mol);
             }
           });
         } else {
           action.items.forEach(item => {
-            const mol = getCompoundByName(item.protein_code, action.dataset_id, state);
+            const mol = getCompoundByName(item.code, action.dataset_id, state);
             if (mol) {
               actionItems.push(mol);
             }
@@ -2065,7 +2064,7 @@ export const getMolecule = (moleculeName, state) => {
   let moleculeList = state.apiReducers.all_mol_lists;
   let molecule = null;
 
-  molecule = moleculeList.find(m => m.protein_code === moleculeName);
+  molecule = moleculeList.find(m => m.code === moleculeName);
 
   return molecule;
 };
