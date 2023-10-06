@@ -14,7 +14,21 @@ export const constants = {
   SET_LIST_OF_TARGETS: prefix + 'SET_LIST_OF_TARGETS',
   SET_IS_LOADING_LIST_OF_TARGETS: prefix + 'SET_IS_LOADING_LIST_OF_TARGETS',
   SET_FILTER_CLEAN: prefix + 'SET_FILTER_CLEAN',
-  SET_LIST_OF_FILTERED_TARGETS_BY_DATE: prefix + 'SET_LIST_OF_FILTERED_TARGETS_BY_DATE'
+  SET_LIST_OF_FILTERED_TARGETS_BY_DATE: prefix + 'SET_LIST_OF_FILTERED_TARGETS_BY_DATE',
+
+  SEARCH_TARGET: prefix + 'SEARCH_TARGET',
+  SEARCH_NUMBER_OF_CHAINS: prefix + 'SEARCH_NUMBER_OF_CHAINS',
+  SEARCH_PRIMARY_CHAIN: prefix + 'SEARCH_PRIMARY_CHAIN',
+  SEARCH_UNIPROT: prefix + 'SEARCH_UNIPROT',
+  SEARCH_RANGE: prefix + 'SEARCH_RANGE',
+  SEARCH_PROTEIN_NAME: prefix + 'SEARCH_PROTEIN_NAME',
+  SEARCH_GENE_NAME: prefix + 'SEARCH_GENE_NAME',
+  SEARCH_SPECIES: prefix + 'SEARCH_SPECIES',
+  SEARCH_DOMAIN: prefix + 'SEARCH_DOMAIN',
+  SEARCH_EC_NUMBER: prefix + 'SEARCH_EC_NUMBER',
+  SEARCH_N_HITS: prefix + 'SEARCH_N_HITS',
+  SEARCH_DATE_LAST_EDIT_FROM: prefix + 'SEARCH_DATE_LAST_EDIT_FROM',
+  SEARCH_DATE_LAST_EDIT_TO: prefix + 'SEARCH_DATE_LAST_EDIT_TO'
 };
 
 export const TARGETS_ATT = {
@@ -27,9 +41,19 @@ export const TARGETS_ATT = {
     dateFilter: false,
     path: undefined
   },
+  targetAccessString: {
+    key: 'targetAccessString',
+    name: 'Target access string',
+    isFloat: true,
+    color: '#f96587',
+    filter: true,
+    dateFilter: false,
+    path: undefined
+  }
+  /*
   numberOfChains: {
     key: 'numberOfChains',
-    name: 'Number of chain',
+    name: 'Number of chains',
     isFloat: true,
     color: '#f96587',
     filter: true,
@@ -117,7 +141,7 @@ export const TARGETS_ATT = {
     dateFilter: false,
     path: undefined
   },
-  dateLastEdit: {
+  dateLastEditFrom: {
     key: 'dateLastEdit',
     name: 'Date last edit',
     isFloat: true,
@@ -125,7 +149,7 @@ export const TARGETS_ATT = {
     filter: true,
     dateFilter: true,
     path: undefined
-  }
+  }*/
 };
 
 export const TARGETS_ATTR = Object.values(TARGETS_ATT);

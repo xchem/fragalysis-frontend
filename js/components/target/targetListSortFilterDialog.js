@@ -3,12 +3,11 @@ import PropTypes from 'prop-types';
 import { Popper, Tooltip, IconButton } from '@material-ui/core';
 import { Close, Delete } from '@material-ui/icons';
 import Grid from '@material-ui/core/Grid';
-import ProjectListSortFilterItem from './targetListSortFilterItem';
+import TargetListSortFilterItem from './targetListSortFilterItem';
 import WarningIcon from '@material-ui/icons/Warning';
 import { makeStyles } from '@material-ui/styles';
 import { useDispatch, useSelector } from 'react-redux';
 import { TARGETS_ATTR } from './redux/constants';
-import { setTargetFilter } from '../../reducers/selection/actions';
 import { Panel } from '../common/Surfaces/Panel';
 import {
   setSortTargetDialogOpen,
@@ -17,6 +16,7 @@ import {
   setDefaultFilter,
   setListOfFilteredTargetsByDate
 } from './redux/actions';
+import { setTargetFilter } from '../../reducers/selection/actions';
 import { debounce } from 'lodash';
 import { compareTargetAsc } from './sortTargets/sortTargets';
 import { MOCK_LIST_OF_TARGETS } from './MOCK';
@@ -80,18 +80,17 @@ const getNestedAttributeValue = (object, attribute, path) => {
 };
 
 export const sortTargets = (targets, filter) => {
-  let sortedAttributes = filter.sortOptions.map(attr => attr);
+  let sortedAttributes = filter?.sortOptions.map(attr => attr);
   return targets.sort((a, b) => {
     for (const [attrName, path] of sortedAttributes) {
-      const order = filter.filter[attrName].order;
-      const val1 = getNestedAttributeValue(a, attrName, path);
-      const val2 = getNestedAttributeValue(b, attrName, path);
+      //const order = filter.filter[attrName].order;
+      //const val1 = getNestedAttributeValue(a, attrName, path);
+      //const val2 = getNestedAttributeValue(b, attrName, path);
 
-      if (val1 === val2) continue;
-      if (order === -1) {
-        return val1 > val2 ? -1 : 1;
+      if (filter.filter.target.order === -1) {
+        return a.title > b.title ? -1 : 1;
       } else {
-        return val1 < val2 ? -1 : 1;
+        return a.title < b.title ? -1 : 1;
       }
     }
     return 0;
@@ -128,9 +127,10 @@ export const TargetListSortFilterDialog = memo(
       setInitState(init);
     }, []);
 
+    const target_id_list = useSelector(state => state.apiReducers.target_id_list);
     const [initState, setInitState] = useState(initialize());
     //let defaultListOfTargetsWithoutSort = useSelector(state => state.targetReducers.listOfTargets);
-    let defaultListOfTargetsWithoutSort = MOCK_LIST_OF_TARGETS; // remove after real data
+    let defaultListOfTargetsWithoutSort = target_id_list; // remove after real data
     let defaultListOfTargets = [...defaultListOfTargetsWithoutSort].sort(compareTargetAsc);
 
     filter = filter || initState;
@@ -192,6 +192,7 @@ export const TargetListSortFilterDialog = memo(
 
     const handleClearFilter = debounce(() => {
       dispatch(setDefaultFilter(true));
+      dispatch(setTargetFilter(filter));
       dispatch(setSortTargetDialogOpen(false));
       dispatch(setListOfFilteredTargets(defaultListOfTargets.sort(compareTargetAsc)));
       dispatch(setListOfFilteredTargetsByDate(defaultListOfTargets.sort(compareTargetAsc)));
@@ -266,7 +267,7 @@ export const TargetListSortFilterDialog = memo(
             {filter.priorityOrder.map(attr => {
               let attrDef = getAttrDefinition(attr);
               return (
-                <ProjectListSortFilterItem
+                <TargetListSortFilterItem
                   key={attr}
                   property={attrDef.name}
                   order={filter.filter[attr].order}

@@ -16,11 +16,19 @@ import {
   setListOfTargets,
   setListOfFilteredTargets,
   setListOfFilteredTargetsByDate,
-  setSearchName,
   setSearchTarget,
-  setSearchTargetAccessString,
-  setSearchAuthority,
-  setSearchDescription,
+  setSearchNumberOfChains,
+  setSearchPrimaryChain,
+  setSearchUniprot,
+  setSearchRange,
+  setSearchProteinName,
+  setSearchGeneName,
+  setSearchSpecies,
+  setSearchDomain,
+  setSearchECNumber,
+  setSearchNHits,
+  setSearchDateLastEditFrom,
+  setSearchDateLastEditTo,
   setSearchDateFrom,
   setSearchDateTo
 } from './redux/actions';
@@ -100,20 +108,34 @@ const gridDateFromInputWidth = 90;
 const filterDataWidth = 200;
 
 let filteredTargetList = [];
-let searchNameString = '';
-let searchTargetString = '';
-let searchTargetAccessString = '';
-let searchDescriptionString = '';
-let searchAuthorityString = '';
 
-let filteredTargetListByName = [];
+let searchTargetString = '';
+let searchNumberOfChainsString = '';
+let searchPrimaryChainString = '';
+let searchUniprotString = '';
+let searchRangeString = '';
+let searchProteinNameString = ''; // TODO implement parameters
+let searchGeneNameString = '';
+let searchSpeciesString = '';
+let searchDomainString = '';
+let searchECNumberString = '';
+let searchNHitsString = '';
+let searchDateLastEditFromString = '';
+let searchDateLastEditToString = '';
+
 let filteredTargetListByTarget = [];
-let filteredTargetListByTargetAccessString = [];
-let filteredTargetListByDescription = [];
-let filteredTargetListByAuthority = [];
-let filteredTargetListByCreatedFrom = [];
-let filteredTargetListByCreatedTo = [];
-let filteredTargetListDate = [];
+let filteredTargetListByNumberOfChains = [];
+let filteredTargetListByPrimaryChain = [];
+let filteredTargetListByUniprot = [];
+let filteredTargetListByRange = [];
+let filteredTargetListByProteinName = [];
+let filteredTargetListByGeneName = [];
+let filteredTargetListBySpecies = [];
+let filteredTargetListByDomain = [];
+let filteredTargetListByDateLastEditFrom = [];
+let filteredTargetListByDateLastEditTo = [];
+let filteredTargetListByECNumber = [];
+let filteredTargetListByNHits = [];
 
 const TargetListSortFilterItem = memo(props => {
   const dispatch = useDispatch();
@@ -125,7 +147,7 @@ const TargetListSortFilterItem = memo(props => {
   let setting = {
     order: order
   };
-
+  const target_id_list = useSelector(state => state.apiReducers.target_id_list);
   const resetFilter = useSelector(state => state.selectionReducers.resetFilter);
 
   const [startDate, setStartDate] = useState();
@@ -133,22 +155,32 @@ const TargetListSortFilterItem = memo(props => {
   const [searchString, setSearchString] = useState('');
 
   //let listOfAllTargetsDefaultWithOutSort = useSelector(state => state.targetReducers.listOfTargets);
-  let listOfAllTargetsDefaultWithOutSort = MOCK_LIST_OF_TARGETS; // remove after real data
+  let listOfAllTargetsDefaultWithOutSort = target_id_list; // remove after real data
   let listOfAllTargetsDefault = [...listOfAllTargetsDefaultWithOutSort].sort(compareCreatedAtDateDesc);
   let filteredListOfTargets = useSelector(state => state.targetReducers.listOfFilteredTargets);
 
-  const searchName = useSelector(state => state.projectReducers.searchName);
-  const searchTarget = useSelector(state => state.projectReducers.searchTarget);
-  const searchDescription = useSelector(state => state.projectReducers.searchDescription);
-  const searchTargetAccessStringValue = useSelector(state => state.projectReducers.searchTargetAccessString);
-  const searchAuthority = useSelector(state => state.projectReducers.searchAuthority);
-  const searchDateFrom = useSelector(state => state.projectReducers.searchDateFrom);
-  const searchDateTo = useSelector(state => state.projectReducers.searchDateTo);
+  const searchTarget = useSelector(state => state.targetReducers.searchTarget);
+  const searchNumberOfChains = useSelector(state => state.targetReducers.searchNumberOfChains);
+  const searchPrimaryChain = useSelector(state => state.targetReducers.searchPrimaryChain);
+  const searchUniprot = useSelector(state => state.targetReducers.searchUniprot);
+  const searchRange = useSelector(state => state.targetReducers.searchRange);
+  const searchProteinName = useSelector(state => state.targetReducers.searchProteinName);
+  const searchGeneName = useSelector(state => state.targetReducers.searchGeneName);
+  const searchSpecies = useSelector(state => state.targetReducers.searchSpecies);
+  const searchDomain = useSelector(state => state.targetReducers.searchDomain);
+  const searchECNumber = useSelector(state => state.targetReducers.searchECNumber);
+  const searchNHits = useSelector(state => state.targetReducers.searchNHits);
+  const searchDateLastEditFrom = useSelector(state => state.targetReducers.searchDateLastEditFrom);
+  const searchDateLastEditTo = useSelector(state => state.targetReducers.searchDateLastEditTo);
+
+  const searchTargetAccessString = useSelector(state => state.targetReducers.searchTargetAccessString);
+
+  const listOfFilteredTargetsByDate = useSelector(state => state.targetReducers.listOfFilteredTargetsByDate);
 
   const filters = useSelector(state => state.selectionReducers.filter);
 
   const isActiveFilter = !!(filters || {}).active;
-  const filterClean = useSelector(state => state.projectReducers.filterClean);
+  const filterClean = useSelector(state => state.targetReducers.filterClean);
 
   let listOfAllTargets = [...listOfAllTargetsDefault].sort(compareCreatedAtDateDesc);
 
@@ -159,7 +191,7 @@ const TargetListSortFilterItem = memo(props => {
     if (resetFilter === true) {
       setSearchString(' ');
     }
-  }, [filteredTargetListByName, startDate, endDate, searchString, resetFilter]);
+  }, [startDate, endDate, searchString, resetFilter]);
 
   useEffect(() => {
     if (isActiveFilter) {
@@ -175,33 +207,56 @@ const TargetListSortFilterItem = memo(props => {
   useEffect(() => {
     // remove filter data
     if (filterClean === true) {
-      searchNameString = '';
+      searchNumberOfChainsString = '';
       searchTargetString = '';
-      searchTargetAccessString = '';
-      searchDescriptionString = '';
-      searchAuthorityString = '';
-      filteredTargetListByName = [];
+      searchPrimaryChainString = '';
+      searchRangeString = '';
+      searchUniprotString = '';
+      searchProteinNameString = '';
+      searchGeneNameString = '';
+      searchSpeciesString = '';
+      searchDomainString = '';
+      searchECNumberString = '';
+      searchNHitsString = '';
+      searchDateLastEditFromString = '';
+      searchDateLastEditToString = '';
       filteredTargetListByTarget = [];
-      filteredTargetListByTargetAccessString = [];
-      filteredTargetListByDescription = [];
-      filteredTargetListByAuthority = [];
-      filteredTargetListByCreatedFrom = [];
-      filteredTargetListByCreatedTo = [];
-      filteredTargetListDate = [];
+      filteredTargetListByNumberOfChains = [];
+      filteredTargetListByPrimaryChain = [];
+      filteredTargetListByUniprot = [];
+      filteredTargetListByRange = [];
+      filteredTargetListByProteinName = [];
+      filteredTargetListByGeneName = [];
     }
   }, [filterClean]);
 
   const onChangeFilterString = (event, property) => {
-    if (property === 'Name') {
-      dispatch(setSearchName(event.target.value));
-    } else if (property === 'Target') {
+    if (property === 'Target') {
       dispatch(setSearchTarget(event.target.value));
-    } else if (property === 'Target access string') {
-      dispatch(setSearchTargetAccessString(event.target.value));
-    } else if (property === 'Description') {
-      dispatch(setSearchDescription(event.target.value));
-    } else if (property === 'Authority') {
-      dispatch(setSearchAuthority(event.target.value));
+    } else if (property === 'Number of chains') {
+      dispatch(setSearchNumberOfChains(event.target.value));
+    } else if (property === 'Primary chain') {
+      dispatch(setSearchPrimaryChain(event.target.value));
+    } else if (property === 'Uniprot') {
+      dispatch(setSearchUniprot(event.target.value));
+    } else if (property === 'Range') {
+      dispatch(setSearchRange(event.target.value));
+    } else if (property === 'Protein name') {
+      dispatch(setSearchProteinName(event.target.value));
+    } else if (property === 'Gene name') {
+      dispatch(setSearchGeneName(event.target.value));
+    } else if (property === 'Species') {
+      dispatch(setSearchSpecies(event.target.value));
+    } else if (property === 'Domain') {
+      dispatch(setSearchDomain(event.target.value));
+    } else if (property === 'EC number') {
+      dispatch(setSearchECNumber(event.target.value));
+    } else if (property === 'N hits') {
+      dispatch(setSearchNHits(event.target.value));
+    } else if (property === 'Date last edit from') {
+      dispatch(setSearchDateLastEditFrom(event.target.value));
+    } else if (property === 'Date last edit to') {
+      dispatch(setSearchDateLastEditTo(event.target.value));
     }
 
     if (resetFilter === false) {
@@ -220,18 +275,20 @@ const TargetListSortFilterItem = memo(props => {
     setStartDate(event);
 
     if (filteredListOfTargets === undefined) {
-      filteredTargetListByCreatedFrom = listOfAllTargets.filter(date => date.init_date > formattedStartDate);
+      filteredTargetListByDateLastEditFrom = listOfAllTargets.filter(date => date.dateLastEdit > formattedStartDate);
     } else {
-      filteredTargetListByCreatedFrom = filteredListOfTargets.filter(date => date.init_date > formattedStartDate);
+      filteredTargetListByDateLastEditFrom = filteredListOfTargets.filter(
+        date => date.dateLastEdit > formattedStartDate
+      );
     }
-    if (filteredTargetListByCreatedTo.length > 0 && filteredTargetListByCreatedFrom.length > 0) {
-      const filteredListOfTargetsByDate = filteredTargetListByCreatedFrom.filter(item1 =>
-        filteredTargetListByCreatedTo.some(item2 => item2.id === item1.id)
+    if (filteredTargetListByDateLastEditTo.length > 0 && filteredTargetListByDateLastEditFrom.length > 0) {
+      const filteredListOfTargetsByDate = filteredTargetListByDateLastEditFrom.filter(item1 =>
+        filteredTargetListByDateLastEditTo.some(item2 => item2.id === item1.id)
       );
       dispatch(setListOfFilteredTargetsByDate(filteredListOfTargetsByDate));
     } else {
-      filteredTargetListDate = filteredTargetListByCreatedFrom;
-      dispatch(setListOfFilteredTargetsByDate(filteredTargetListDate));
+      filteredTargetListByGeneName = filteredTargetListByRange;
+      dispatch(setListOfFilteredTargetsByDate(filteredTargetListByGeneName));
     }
   };
 
@@ -241,210 +298,148 @@ const TargetListSortFilterItem = memo(props => {
     dispatch(setSearchDateTo(formattedDate));
     setEndDate(event);
     if (filteredListOfTargets === undefined) {
-      filteredTargetListByCreatedTo = listOfAllTargets.filter(date => date.init_date <= formattedEndDate + 1);
+      filteredTargetListByProteinName = listOfAllTargets.filter(date => date.init_date <= formattedEndDate + 1);
     } else {
-      filteredTargetListByCreatedTo = filteredListOfTargets.filter(date => date.init_date <= formattedEndDate + 1);
+      filteredTargetListByProteinName = filteredListOfTargets.filter(date => date.init_date <= formattedEndDate + 1);
     }
-    if (filteredTargetListByCreatedTo.length > 0 && filteredTargetListByCreatedFrom.length > 0) {
-      const filteredListOfTargetsByDate = filteredTargetListByCreatedFrom.filter(item1 =>
-        filteredTargetListByCreatedTo.some(item2 => item2.id === item1.id)
+    if (filteredTargetListByProteinName.length > 0 && filteredTargetListByRange.length > 0) {
+      const filteredListOfTargetsByDate = filteredTargetListByRange.filter(item1 =>
+        filteredTargetListByProteinName.some(item2 => item2.id === item1.id)
       );
       dispatch(setListOfFilteredTargetsByDate(filteredListOfTargetsByDate));
     } else {
-      filteredTargetListDate = filteredTargetListByCreatedTo;
-      dispatch(setListOfFilteredTargets(filteredTargetListDate));
+      filteredTargetListByGeneName = filteredTargetListByProteinName;
+      dispatch(setListOfFilteredTargets(filteredTargetListByGeneName));
     }
   };
 
   const filterAllData = value => {
-    if (searchNameString !== '' && searchTargetString !== '') {
-      let filteredData1 = filteredTargetListByName.filter(item1 =>
-        filteredTargetListByTarget.some(item2 => item2.id === item1.id)
-      );
-      dispatch(setListOfFilteredTargets(filteredData1));
-    }
-
-    if (searchNameString !== '' && searchTargetAccessString !== '') {
-      let filteredData1 = filteredTargetListByName.filter(item1 =>
-        filteredTargetListByTargetAccessString.some(item2 => item2.id === item1.id)
-      );
-      dispatch(setListOfFilteredTargets(filteredData1));
-    }
-
-    if (searchNameString !== '' && searchDescriptionString !== '') {
-      let filteredData1 = filteredTargetListByName.filter(item1 =>
-        filteredTargetListByDescription.some(item2 => item2.id === item1.id)
-      );
-      dispatch(setListOfFilteredTargets(filteredData1));
-    }
-
-    if (searchNameString !== '' && searchAuthorityString !== '') {
-      let filteredData1 = filteredTargetListByName.filter(item1 =>
-        filteredTargetListByAuthority.some(item2 => item2.id === item1.id)
-      );
-      dispatch(setListOfFilteredTargets(filteredData1));
-    }
-
-    if (searchTargetString !== '' && searchTargetAccessString !== '') {
+    if (searchTargetString !== '' && searchPrimaryChainString !== '') {
       let filteredData1 = filteredTargetListByTarget.filter(item1 =>
-        filteredTargetListByTargetAccessString.some(item2 => item2.id === item1.id)
+        filteredTargetListByNumberOfChains.some(item2 => item2.id === item1.id)
       );
       dispatch(setListOfFilteredTargets(filteredData1));
     }
 
-    if (searchTargetString !== '' && searchDescriptionString !== '') {
+    if (searchTargetString !== '' && searchRangeString !== '') {
       let filteredData1 = filteredTargetListByTarget.filter(item1 =>
-        filteredTargetListByDescription.some(item2 => item2.id === item1.id)
+        filteredTargetListByPrimaryChain.some(item2 => item2.id === item1.id)
       );
       dispatch(setListOfFilteredTargets(filteredData1));
     }
 
-    if (searchTargetString !== '' && searchAuthorityString !== '') {
+    if (searchTargetString !== '' && searchUniprotString !== '') {
       let filteredData1 = filteredTargetListByTarget.filter(item1 =>
-        filteredTargetListByAuthority.some(item2 => item2.id === item1.id)
+        filteredTargetListByUniprot.some(item2 => item2.id === item1.id)
       );
       dispatch(setListOfFilteredTargets(filteredData1));
     }
 
-    if (searchTargetAccessString !== '' && searchDescriptionString !== '') {
-      let filteredData1 = filteredTargetListByTargetAccessString.filter(item1 =>
-        filteredTargetListByDescription.some(item2 => item2.id === item1.id)
+    if (searchPrimaryChainString !== '' && searchRangeString !== '') {
+      let filteredData1 = filteredTargetListByNumberOfChains.filter(item1 =>
+        filteredTargetListByPrimaryChain.some(item2 => item2.id === item1.id)
       );
       dispatch(setListOfFilteredTargets(filteredData1));
     }
 
-    if (searchDescriptionString !== '' && searchAuthorityString !== '') {
-      let filteredData1 = filteredTargetListByDescription.filter(item1 =>
-        filteredTargetListByAuthority.some(item2 => item2.id === item1.id)
+    if (searchRangeString !== '' && searchUniprotString !== '') {
+      let filteredData1 = filteredTargetListByPrimaryChain.filter(item1 =>
+        filteredTargetListByUniprot.some(item2 => item2.id === item1.id)
+      );
+      dispatch(setListOfFilteredTargets(filteredData1));
+    }
+
+    if (searchTargetString !== '' && searchPrimaryChainString !== '' && searchRangeString !== '') {
+      let filteredData1 = filteredTargetListByTarget.filter(
+        item1 =>
+          filteredTargetListByNumberOfChains.some(item2 => item2.id === item1.id) &&
+          filteredTargetListByPrimaryChain.some(item3 => item3.id === item1.id)
+      );
+      dispatch(setListOfFilteredTargets(filteredData1));
+    }
+
+    if (searchTargetString !== '' && searchPrimaryChainString !== '' && searchUniprotString !== '') {
+      let filteredData1 = filteredTargetListByTarget.filter(
+        item1 =>
+          filteredTargetListByNumberOfChains.some(item2 => item2.id === item1.id) &&
+          filteredTargetListByUniprot.some(item3 => item3.id === item1.id)
+      );
+      dispatch(setListOfFilteredTargets(filteredData1));
+    }
+
+    if (searchPrimaryChainString !== '' && searchRangeString !== '' && searchUniprotString !== '') {
+      let filteredData1 = filteredTargetListByNumberOfChains.filter(
+        item1 =>
+          filteredTargetListByPrimaryChain.some(item2 => item2.id === item1.id) &&
+          filteredTargetListByUniprot.some(item3 => item3.id === item1.id)
       );
       dispatch(setListOfFilteredTargets(filteredData1));
     }
 
     if (
-      searchNameString !== '' &&
-      searchTargetString !== '' &&
-      searchTargetAccessString !== '' &&
-      (property === 'Name' || property === 'Target' || property === 'Target access string')
-    ) {
-      let filteredData1 = filteredTargetListByName.filter(
-        item1 =>
-          filteredTargetListByTarget.some(item2 => item2.id === item1.id) &&
-          filteredTargetListByTargetAccessString.some(item3 => item3.id === item1.id)
-      );
-      dispatch(setListOfFilteredTargets(filteredData1));
-    }
-
-    if (searchNameString !== '' && searchTargetString !== '' && searchDescriptionString !== '') {
-      let filteredData1 = filteredTargetListByName.filter(
-        item1 =>
-          filteredTargetListByTarget.some(item2 => item2.id === item1.id) &&
-          filteredTargetListByDescription.some(item3 => item3.id === item1.id)
-      );
-      dispatch(setListOfFilteredTargets(filteredData1));
-    }
-
-    if (searchNameString !== '' && searchTargetString !== '' && searchAuthorityString !== '') {
-      let filteredData1 = filteredTargetListByName.filter(
-        item1 =>
-          filteredTargetListByTarget.some(item2 => item2.id === item1.id) &&
-          filteredTargetListByAuthority.some(item3 => item3.id === item1.id)
-      );
-
-      dispatch(setListOfFilteredTargets(filteredData1));
-    }
-    if (searchTargetString !== '' && searchTargetAccessString !== '' && searchDescriptionString !== '') {
-      let filteredData1 = filteredTargetListByTarget.filter(
-        item1 =>
-          filteredTargetListByTargetAccessString.some(item2 => item2.id === item1.id) &&
-          filteredTargetListByDescription.some(item3 => item3.id === item1.id)
-      );
-      dispatch(setListOfFilteredTargets(filteredData1));
-    }
-
-    if (searchTargetString !== '' && searchTargetAccessString !== '' && searchAuthorityString !== '') {
-      let filteredData1 = filteredTargetListByTarget.filter(
-        item1 =>
-          filteredTargetListByTargetAccessString.some(item2 => item2.id === item1.id) &&
-          filteredTargetListByAuthority.some(item3 => item3.id === item1.id)
-      );
-      dispatch(setListOfFilteredTargets(filteredData1));
-    }
-
-    if (searchTargetAccessString !== '' && searchDescriptionString !== '' && searchAuthorityString !== '') {
-      let filteredData1 = filteredTargetListByTargetAccessString.filter(
-        item1 =>
-          filteredTargetListByDescription.some(item2 => item2.id === item1.id) &&
-          filteredTargetListByAuthority.some(item3 => item3.id === item1.id)
-      );
-      dispatch(setListOfFilteredTargets(filteredData1));
-    }
-
-    if (
-      searchNameString !== '' &&
+      searchNumberOfChainsString !== '' &&
       searchTargetString === '' &&
-      searchDescriptionString === '' &&
-      searchTargetAccessString === '' &&
-      searchAuthorityString === ''
+      searchRangeString === '' &&
+      searchPrimaryChainString === '' &&
+      searchUniprotString === ''
     ) {
       const filteredData1 = listOfAllTargets.filter(item =>
-        item.title.toLowerCase().includes(searchNameString.toLowerCase())
+        item.numberOfChains.toString().includes(searchNumberOfChainsString)
       );
       dispatch(setListOfFilteredTargets(filteredData1));
     }
     if (
       searchTargetString !== '' &&
-      searchNameString === '' &&
-      searchDescriptionString === '' &&
-      searchTargetAccessString === '' &&
-      searchAuthorityString === ''
+      searchNumberOfChainsString === '' &&
+      searchRangeString === '' &&
+      searchPrimaryChainString === '' &&
+      searchUniprotString === ''
     ) {
       const filteredData1 = listOfAllTargets.filter(item =>
-        item.target.title.toLowerCase().includes(searchTargetString.toLowerCase())
+        item.title.toLowerCase().includes(searchTargetString.toLowerCase())
       );
       dispatch(setListOfFilteredTargets(filteredData1));
     }
     if (
-      searchDescriptionString !== '' &&
+      searchRangeString !== '' &&
       searchTargetString === '' &&
-      searchTargetAccessString === '' &&
-      searchNameString == '' &&
-      searchAuthorityString === ''
+      searchPrimaryChainString === '' &&
+      searchNumberOfChainsString == '' &&
+      searchUniprotString === ''
+    ) {
+      const filteredData1 = listOfAllTargets.filter(item => item.range.toString().includes(searchRangeString));
+      dispatch(setListOfFilteredTargets(filteredData1));
+    }
+    if (
+      searchPrimaryChainString !== '' &&
+      searchTargetString === '' &&
+      searchRangeString === '' &&
+      searchNumberOfChainsString === '' &&
+      searchPrimaryChainString === ''
     ) {
       const filteredData1 = listOfAllTargets.filter(item =>
-        item.description.toLowerCase().includes(searchDescriptionString.toLowerCase())
+        item.primaryChain.toLowerCase().includes(searchPrimaryChainString.toLowerCase())
       );
       dispatch(setListOfFilteredTargets(filteredData1));
     }
     if (
-      searchTargetAccessString !== '' &&
+      searchUniprotString !== '' &&
       searchTargetString === '' &&
-      searchDescriptionString === '' &&
-      searchNameString === '' &&
-      searchTargetAccessString === ''
+      searchRangeString === '' &&
+      searchNumberOfChainsString === '' &&
+      searchPrimaryChainString === ''
     ) {
       const filteredData1 = listOfAllTargets.filter(item =>
-        item.project.target_access_string.toLowerCase().includes(searchTargetAccessString.toLowerCase())
+        item.uniprot.toLowerCase().includes(searchUniprotString.toLowerCase())
       );
       dispatch(setListOfFilteredTargets(filteredData1));
     }
     if (
-      searchAuthorityString !== '' &&
+      searchNumberOfChainsString === '' &&
       searchTargetString === '' &&
-      searchDescriptionString === '' &&
-      searchNameString === '' &&
-      searchTargetAccessString === ''
-    ) {
-      const filteredData1 = listOfAllTargets.filter(item =>
-        item.project?.authority.toLowerCase().includes(searchAuthorityString.toLowerCase())
-      );
-      dispatch(setListOfFilteredTargets(filteredData1));
-    }
-    if (
-      searchNameString === '' &&
-      searchTargetString === '' &&
-      searchDescriptionString === '' &&
-      searchTargetAccessString === '' &&
-      searchAuthorityString === ''
+      searchRangeString === '' &&
+      searchPrimaryChainString === '' &&
+      searchUniprotString === ''
     ) {
       const filteredData1 = sortTargets(listOfAllTargets, filters);
       dispatch(setListOfFilteredTargets(filteredData1));
@@ -453,78 +448,109 @@ const TargetListSortFilterItem = memo(props => {
   };
 
   const onChangeFilterStringDebounce = debounce(value => {
-    if (property === 'Name') {
-      searchNameString = value;
-      if (filteredTargetListDate.length > 0) {
-        filteredTargetListByName = listOfAllTargets.filter(item =>
-          item.title.toLowerCase().includes(value.toLowerCase())
-        );
-      } else {
-        filteredTargetListByName = listOfAllTargets.filter(item =>
-          item.title.toLowerCase().includes(value.toLowerCase())
-        );
-      }
-      dispatch(setListOfFilteredTargets(filteredTargetListByName));
-      filterAllData(value);
-    }
-
     if (property === 'Target') {
       searchTargetString = value;
-      if (filteredTargetListDate.length > 0) {
-        filteredTargetListByTarget = listOfAllTargets.filter(item =>
-          item.target.title.toLowerCase().includes(value.toLowerCase())
-        );
-      } else {
-        filteredTargetListByTarget = listOfAllTargets.filter(item =>
-          item.target.title.toLowerCase().includes(value.toLowerCase())
-        );
-      }
+
+      filteredTargetListByTarget = listOfAllTargets.filter(item =>
+        item.title.toLowerCase().includes(value.toLowerCase())
+      );
+
       dispatch(setListOfFilteredTargets(filteredTargetListByTarget));
       filterAllData(value);
     }
 
-    if (property === 'Target access string') {
-      searchTargetAccessString = value;
-      if (filteredTargetListDate.length > 0) {
-        filteredTargetListByTargetAccessString = listOfAllTargets.filter(item =>
-          item.project.target_access_string.toLowerCase().includes(value.toLowerCase())
-        );
-      } else {
-        filteredTargetListByTargetAccessString = listOfAllTargets.filter(item =>
-          item.project.target_access_string.toLowerCase().includes(value.toLowerCase())
-        );
-      }
-      dispatch(setListOfFilteredTargets(filteredTargetListByTargetAccessString));
+    if (property === 'Number of chains') {
+      searchNumberOfChainsString = value;
+      filteredTargetListByNumberOfChains = listOfAllTargets.filter(item =>
+        item.numberOfChains.toString().includes(value)
+      );
+      dispatch(setListOfFilteredTargets(filteredTargetListByNumberOfChains));
       filterAllData(value);
     }
 
-    if (property === 'Description') {
-      searchDescriptionString = value;
-      if (filteredTargetListDate.length > 0) {
-        filteredTargetListByDescription = listOfAllTargets.filter(item =>
-          item.description.toLowerCase().includes(value.toLowerCase())
-        );
-      } else {
-        filteredTargetListByDescription = listOfAllTargets.filter(item =>
-          item.description.toLowerCase().includes(value.toLowerCase())
-        );
-      }
-      dispatch(setListOfFilteredTargets(filteredTargetListByDescription));
+    if (property === 'Primary chain') {
+      searchPrimaryChainString = value;
+      filteredTargetListByPrimaryChain = listOfAllTargets.filter(item =>
+        item.primaryChain.toLowerCase().includes(value.toLowerCase())
+      );
+      dispatch(setListOfFilteredTargets(filteredTargetListByPrimaryChain));
       filterAllData(value);
     }
 
-    if (property === 'Authority') {
-      searchAuthorityString = value;
-      if (filteredTargetListDate.length > 0) {
-        filteredTargetListByAuthority = listOfAllTargets.filter(item =>
-          item.project?.authority.toLowerCase().includes(value.toLowerCase())
-        );
-      } else {
-        filteredTargetListByAuthority = listOfAllTargets.filter(item =>
-          item.project?.authority.toLowerCase().includes(value.toLowerCase())
-        );
-      }
-      dispatch(setListOfFilteredTargets(filteredTargetListByAuthority));
+    if (property === 'Uniprot') {
+      searchUniprotString = value;
+      filteredTargetListByUniprot = listOfAllTargets.filter(item =>
+        item.uniprot.toLowerCase().includes(value.toLowerCase())
+      );
+      dispatch(setListOfFilteredTargets(filteredTargetListByUniprot));
+      filterAllData(value);
+    }
+    if (property === 'Range') {
+      searchRangeString = value;
+      filteredTargetListByRange = listOfAllTargets.filter(item => item.range.toString().includes(value));
+      dispatch(setListOfFilteredTargets(filteredTargetListByRange));
+      filterAllData(value);
+    }
+    if (property === 'Protein name') {
+      searchProteinNameString = value;
+      filteredTargetListByProteinName = listOfAllTargets.filter(item =>
+        item.proteinName.toLowerCase().includes(value.toLowerCase())
+      );
+      dispatch(setListOfFilteredTargets(filteredTargetListByProteinName));
+      filterAllData(value);
+    }
+    if (property === 'Gene name') {
+      searchGeneNameString = value;
+      filteredTargetListByGeneName = listOfAllTargets.filter(item =>
+        item.geneName.toLowerCase().includes(value.toLowerCase())
+      );
+      dispatch(setListOfFilteredTargets(filteredTargetListByGeneName));
+      filterAllData(value);
+    }
+    if (property === 'Species') {
+      searchSpeciesString = value;
+      filteredTargetListBySpecies = listOfAllTargets.filter(item =>
+        item.uniprot.toLowerCase().includes(value.toLowerCase())
+      );
+      dispatch(setListOfFilteredTargets(filteredTargetListBySpecies));
+      filterAllData(value);
+    }
+    if (property === 'Domain') {
+      searchDomainString = value;
+      filteredTargetListByDomain = listOfAllTargets.filter(item =>
+        item.domain.toLowerCase().includes(value.toLowerCase())
+      );
+      dispatch(setListOfFilteredTargets(filteredTargetListByDomain));
+      filterAllData(value);
+    }
+    if (property === 'EC number') {
+      searchECNumberString = value;
+      filteredTargetListByECNumber = listOfAllTargets.filter(item =>
+        item.ECNumber.toLowerCase().includes(value.toLowerCase())
+      );
+      dispatch(setListOfFilteredTargets(filteredTargetListByECNumber));
+      filterAllData(value);
+    }
+    if (property === 'N hits') {
+      searchNHitsString = value;
+      filteredTargetListByNHits = listOfAllTargets.filter(item => item.NHits.toString().includes(value));
+      dispatch(setListOfFilteredTargets(filteredTargetListByNHits));
+      filterAllData(value);
+    }
+    if (property === 'Date last edit from') {
+      searchDateLastEditFromString = value;
+      filteredTargetListByDateLastEditFrom = listOfAllTargets.filter(item =>
+        item.dateLastEditFrom.toLowerCase().includes(value.toLowerCase())
+      );
+      dispatch(setListOfFilteredTargets(filteredTargetListByDateLastEditFrom));
+      filterAllData(value);
+    }
+    if (property === 'Date last edit to') {
+      searchDateLastEditToString = value;
+      filteredTargetListByDateLastEditTo = listOfAllTargets.filter(item =>
+        item.dateLastEditTo.toLowerCase().includes(value.toLowerCase())
+      );
+      dispatch(setListOfFilteredTargets(filteredTargetListByDateLastEditTo));
       filterAllData(value);
     }
   }, 1000);
@@ -595,7 +621,7 @@ const TargetListSortFilterItem = memo(props => {
                         selected={startDate}
                         onChange={event => onChangeFilterStartDate(event)}
                         placeholderText="MM/DD/YYYY"
-                        value={searchDateFrom}
+                        value={searchDateLastEditFrom}
                       />
                     </Grid>
 
@@ -609,7 +635,7 @@ const TargetListSortFilterItem = memo(props => {
                         selected={endDate}
                         onChange={event => onChangeFilterEndDate(event)}
                         placeholderText="MM/DD/YYYY"
-                        value={searchDateTo}
+                        value={searchDateLastEditTo}
                       />
                     </Grid>
                   </Grid>
@@ -617,19 +643,37 @@ const TargetListSortFilterItem = memo(props => {
                   <TextField
                     id="textFieldInput"
                     placeholder="Search"
-                    onChange={event => onChangeFilterString(event)}
+                    onChange={event => onChangeFilterString(event, property)}
                     key={property}
                     value={
-                      property === 'Name'
-                        ? searchName
-                        : property === 'Target'
+                      property === 'Target'
                         ? searchTarget
-                        : property === 'Description'
-                        ? searchDescription
+                        : property === 'Number of chains'
+                        ? searchNumberOfChains
+                        : property === 'Primary chain'
+                        ? searchPrimaryChain
+                        : property === 'Uniprot'
+                        ? searchUniprot
+                        : property === 'Range'
+                        ? searchRange
+                        : property === 'Protein name'
+                        ? searchProteinName
+                        : property === 'Gene name'
+                        ? searchGeneName
+                        : property === 'Species'
+                        ? searchSpecies
+                        : property === 'Domain'
+                        ? searchDomain
+                        : property === 'EC number'
+                        ? searchECNumber
+                        : property === 'N hits'
+                        ? searchNHits
+                        : property === 'Date last edit from'
+                        ? searchDateLastEditFrom
+                        : property === 'Date last edit to'
+                        ? searchDateLastEditTo
                         : property === 'Target access string'
-                        ? searchTargetAccessStringValue
-                        : property === 'Authority'
-                        ? searchAuthority
+                        ? searchTargetAccessString
                         : ''
                     }
                   ></TextField>
@@ -651,7 +695,7 @@ const TargetListSortFilterItem = memo(props => {
                         selected={startDate}
                         onChange={event => onChangeFilterStartDate(event)}
                         placeholderText="MM/DD/YYYY"
-                        value={searchDateFrom}
+                        value={searchDateLastEditFrom}
                       />
                     </Grid>
                     <Grid item style={{ width: gridDateFromWidth }} className={classNames(classes.dateFont)}>
@@ -664,7 +708,7 @@ const TargetListSortFilterItem = memo(props => {
                         selected={endDate}
                         onChange={event => onChangeFilterEndDate(event)}
                         placeholderText="MM/DD/YYYY"
-                        value={searchDateTo}
+                        value={searchDateLastEditTo}
                       />
                     </Grid>
                   </Grid>
@@ -675,16 +719,34 @@ const TargetListSortFilterItem = memo(props => {
                     onChange={event => onChangeFilterString(event, property)}
                     key={property}
                     value={
-                      property === 'Name'
-                        ? searchName
-                        : property === 'Target'
+                      property === 'Target'
                         ? searchTarget
-                        : property === 'Description'
-                        ? searchDescription
+                        : property === 'Number of chains'
+                        ? searchNumberOfChains
+                        : property === 'Primary chain'
+                        ? searchPrimaryChain
+                        : property === 'Uniprot'
+                        ? searchUniprot
+                        : property === 'Range'
+                        ? searchRange
+                        : property === 'Protein name'
+                        ? searchProteinName
+                        : property === 'Gene name'
+                        ? searchGeneName
+                        : property === 'Species'
+                        ? searchSpecies
+                        : property === 'Domain'
+                        ? searchDomain
+                        : property === 'EC number'
+                        ? searchECNumber
+                        : property === 'N hits'
+                        ? searchNHits
+                        : property === 'Date last edit from'
+                        ? searchDateLastEditFrom
+                        : property === 'Date last edit to'
+                        ? searchDateLastEditTo
                         : property === 'Target access string'
-                        ? searchTargetAccessStringValue
-                        : property === 'Authority'
-                        ? searchAuthority
+                        ? searchTargetAccessString
                         : ''
                     }
                   ></TextField>

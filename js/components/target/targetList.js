@@ -2,7 +2,7 @@
  * Created by abradley on 13/03/2018.
  */
 
-import React, { memo, useState, useEffect } from 'react';
+import React, { memo, useState, useEffect, useCallback } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import {
   ListItemText,
@@ -30,7 +30,25 @@ import { isDiscourseAvailable, generateDiscourseTargetURL, openDiscourseLink } f
 import { setOpenDiscourseErrorModal } from '../../reducers/api/actions';
 import { Chat } from '@material-ui/icons';
 import { URL_TOKENS } from '../direct/constants';
-import { setListOfFilteredTargets, setSortTargetDialogOpen, setListOfTargets, setDefaultFilter } from './redux/actions';
+import {
+  setListOfFilteredTargets,
+  setSortTargetDialogOpen,
+  setListOfTargets,
+  setDefaultFilter,
+  setSearchTarget,
+  setSearchNumberOfChains,
+  setSearchPrimaryChain,
+  setSearchUniprot,
+  setSearchRange,
+  setSearchProteinName,
+  setSearchGeneName,
+  setSearchSpecies,
+  setSearchDomain,
+  setSearchECNumber,
+  setSearchNHits,
+  setSearchDateLastEditFrom,
+  setSearchDateLastEditTo
+} from './redux/actions';
 import {
   compareIdAsc,
   compareIdDesc,
@@ -76,10 +94,12 @@ import {
 } from '@material-ui/icons';
 import { setTargetFilter } from '../../reducers/selection/actions';
 import { MOCK_LIST_OF_TARGETS } from './MOCK';
+import { TARGETS_ATTR } from './redux/constants';
+import { getTargetProjectCombinations } from './redux/dispatchActions';
 
 const useStyles = makeStyles(theme => ({
   table: {
-    minWidth: 1700,
+    minWidth: 360,
     tableLayout: 'auto',
     marginTop: '8px'
   },
@@ -111,6 +131,7 @@ export const TargetList = memo(() => {
   const [page, setPage] = useState(0);
   const isTargetLoading = useSelector(state => state.targetReducers.isTargetLoading);
   const target_id_list = useSelector(state => state.apiReducers.target_id_list);
+  const projectsList = useSelector(state => state.targetReducers.projects);
 
   let filteredListOfTargets = useSelector(state => state.targetReducers.listOfFilteredTargets);
 
@@ -118,7 +139,7 @@ export const TargetList = memo(() => {
   const [sortDialogAnchorEl, setSortDialogAnchorEl] = useState(null);
   const sortDialogOpen = useSelector(state => state.targetReducers.targetListFilterDialog);
 
-  let listOfAllTargetsDefault = MOCK_LIST_OF_TARGETS; // change after import real data
+  let listOfAllTargetsDefault = target_id_list; // change after import real data
   let searchString = '';
 
   // checkbox for search
@@ -137,6 +158,8 @@ export const TargetList = memo(() => {
   const [checkedNHits, setCheckedNHits] = useState(true);
   const [checkedDateLastEdit, setCheckedDateLastEdit] = useState(true);
   const [checkedVersionId, setCheckedVersionId] = useState(true);
+
+  const [checkedTargetAccessString, setCheckedTargetAccessString] = useState(true);
 
   const offsetId = 10;
   const offsetTarget = 20;
@@ -169,57 +192,230 @@ export const TargetList = memo(() => {
   let searchedVersionId = [];
   let searchedByECNumber = [];
   let searchedNHits = [];
+  let searchedByTargetAccessString = [];
 
+  let listOfFilteredTargetsByDate = useSelector(state => state.projectReducers.listOfFilteredTargetsByDate);
   const filterClean = useSelector(state => state.targetReducers.filterClean);
-  const filter = useSelector(state => state.selectionReducers.targetFilter);
+  let filter = useSelector(state => state.selectionReducers.targetFilter);
 
   const isActiveFilter = !!(filter || {}).active;
 
   let listOfAllTarget = [...listOfAllTargetsDefault];
 
+  const initialize = useCallback(() => {
+    let initObject = {
+      active: false,
+      predefined: 'none',
+      filter: {},
+      priorityOrder: TARGETS_ATTR.map(target => target.key),
+      sortOptions: TARGETS_ATTR.map(target => [target.key, target.path])
+    };
+
+    for (let attr of TARGETS_ATTR) {
+      const lowAttr = attr.key.toLowerCase();
+
+      initObject.filter[attr.key] = {
+        priority: 0,
+        order: 1,
+        isFloat: attr.isFloat
+      };
+    }
+    return initObject;
+  });
+
+  useEffect(() => {
+    const init = initialize();
+    setInitState(init);
+  }, []);
+
+  const [initState, setInitState] = useState(initialize());
+
+  filter = filter || initState;
+
+  const render_item_method = (target, project) => {
+    const preview = `${URLS.target}${target.title}/${URL_TOKENS.target_access_string}/${project.target_access_string}`;
+    const sgcUrl = 'https://thesgc.org/sites/default/files/XChem/' + target.title + '/html/index.html';
+    const sgcUploaded = ['BRD1A', 'DCLRE1AA', 'FALZA', 'FAM83BA', 'HAO1A', 'NUDT4A', 'NUDT5A', 'NUDT7A', 'PARP14A'];
+    const discourseAvailable = isDiscourseAvailable();
+    // const [discourseUrl, setDiscourseUrl] = useState();
+    return (
+      <TableRow hover key={target.id}>
+        {/*<Tooltip title={`${target.id}`}>
+        <TableCell
+          component="th"
+          scope="row"
+          style={{ minWidth: '150px', padding: '0px 10px 0px 0px', margin: '0px', padding: '0px' }}
+        >
+          <div>{target.id}</div>
+        </TableCell>
+      </Tooltip> */}
+        <TableCell
+          align="left"
+          style={{ minWidth: '100px', padding: '0px 10px 0px 0px', margin: '0px', padding: '0px' }}
+        >
+          <Link to={preview}>
+            <div>{target.title}</div>
+          </Link>
+        </TableCell>
+        <TableCell
+          align="left"
+          style={{ minWidth: '100px', padding: '0px 10px 0px 0px', margin: '0px', padding: '0px' }}
+        >
+          <div>{project.target_access_string} </div>
+        </TableCell>
+        <TableCell
+          align="left"
+          style={{ minWidth: '100px', padding: '0px 10px 0px 0px', margin: '0px', padding: '0px' }}
+        >
+          {sgcUploaded.includes(target.title) && (
+            <a href={sgcUrl} target="new">
+              Open SGC summary
+            </a>
+          )}
+          {discourseAvailable && (
+            <Tooltip title="Go to Discourse">
+              <IconButton
+                disabled={!isDiscourseAvailable()}
+                onClick={() => {
+                  generateDiscourseTargetURL(target.title)
+                    .then(response => {
+                      const link = response.data['Post url'];
+                      openDiscourseLink(link);
+                    })
+                    .catch(err => {
+                      console.log(err);
+                      dispatch(setOpenDiscourseErrorModal(true));
+                    });
+                }}
+              >
+                <Chat />
+              </IconButton>
+            </Tooltip>
+          )}
+        </TableCell>
+        {/*
+      <TableCell
+        align="left"
+        style={{ minWidth: '100px', padding: '5px 10px 0px 0px', margin: '0px', padding: '0px' }}
+      >
+        <div>{target.numberOfChains}</div>
+      </TableCell>
+      <TableCell
+        align="left"
+        style={{ minWidth: '150px', padding: '0px 10px 0px 0px', margin: '0px', padding: '0px' }}
+      >
+        <div>{target.primaryChain}</div>
+      </TableCell>
+      <TableCell style={{ padding: '0px' }} align="left">
+        <Link to={`${URLS.target}${target.uniprot}`}>
+          <div>{target.uniprot} </div>
+        </Link>
+      </TableCell>
+      <TableCell style={{ padding: '0px' }} align="left">
+        {target.range}
+      </TableCell>{' '}
+      <TableCell style={{ padding: '0px' }} align="left">
+        {target.proteinName}
+      </TableCell>{' '}
+      <TableCell style={{ padding: '0px' }} align="left">
+        {target.geneName}
+      </TableCell>{' '}
+      <TableCell style={{ padding: '0px' }} align="left">
+        {target.speciesId}
+      </TableCell>
+      <TableCell align="left" style={{ padding: '0px' }}>
+        <Link to={`${URLS.target}${target.species}`}>
+          <div>{target.species} </div>
+        </Link>
+      </TableCell>
+      <TableCell style={{ padding: '0px' }} align="left">
+        {target.domain}
+      </TableCell>
+      <TableCell style={{ padding: '0px' }} align="left">
+        {target.ECNumber}
+      </TableCell>
+      <TableCell
+        align="left"
+        style={{ minWidth: '150px', padding: '0px 10px 0px 0px', margin: '0px', padding: '0px' }}
+      >
+        <div> {target.NHits}</div>
+      </TableCell>
+      <TableCell
+        align="left"
+        style={{ minWidth: '150px', padding: '0px 10px 0px 0px', margin: '0px', padding: '0px' }}
+      >
+        <div> {target.dateLastEdit}</div>
+      </TableCell>
+      <TableCell
+        align="left"
+        style={{ minWidth: '150px', padding: '0px 10px 0px 0px', margin: '0px', padding: '0px' }}
+      >
+        <div> {target.versionId}</div>
+      </TableCell>
+    */}
+      </TableRow>
+    );
+  };
+
   useEffect(() => {
     // remove filter data
     if (filterClean === true) {
       dispatch(setDefaultFilter(false));
+      dispatch(setSearchTarget(''));
+      dispatch(setSearchNumberOfChains(''));
+      dispatch(setSearchPrimaryChain(''));
+      dispatch(setSearchUniprot(''));
+      dispatch(setSearchRange(''));
+      dispatch(setSearchProteinName(''));
+      dispatch(setSearchGeneName(''));
+      dispatch(setSearchSpecies(''));
+      dispatch(setSearchDomain(''));
+      dispatch(setSearchECNumber(''));
+      dispatch(setSearchNHits(''));
+      dispatch(setSearchDateLastEditFrom(''));
+      dispatch(setSearchDateLastEditTo(''));
       const newFilter = { ...filter };
       newFilter.priorityOrder = [
         'target',
-        'numberOfChains',
-        'primaryChain',
-        'uniprot',
-        'range',
-        'proteinName',
-        'geneName',
-        'species',
-        'domain',
-        'ECNumber',
-        'NHits',
-        'dateLastEdit'
+        'targetAccessString'
+        //'numberOfChains',
+        //'primaryChain',
+        //'uniprot',
+        //'range',
+        //'proteinName',
+        //'geneName',
+        //'species',
+        //'domain',
+        //'ECNumber',
+        //'NHits',
+        //'dateLastEdit'
       ];
       newFilter.sortOptions = [
         ['target', undefined],
-        ['numberOfChains', undefined],
-        ['primaryChain', undefined],
-        ['uniprot', undefined],
-        ['range', undefined],
-        ['geneName', undefined],
-        ['species', undefined],
-        ['domain', undefined],
-        ['ECNumber', undefined],
-        ['NHits', undefined],
-        ['dateLastEdit', undefined]
+        ['targetAccessString', undefined]
+        //['numberOfChains', undefined],
+        //['primaryChain', undefined],
+        //['uniprot', undefined],
+        //['range', undefined],
+        //['geneName', undefined],
+        //['species', undefined],
+        //['domain', undefined],
+        //['ECNumber', undefined],
+        //['NHits', undefined],
+        //['dateLastEdit', undefined]
       ];
-      newFilter.filter.numberOfChains.order = 1;
+      //newFilter.filter.numberOfChains.order = 1;
       newFilter.filter.target.order = 1;
-      newFilter.filter.primaryChain.order = 1;
-      newFilter.filter.uniprot.order = 1;
-      newFilter.filter.range.order = 1;
-      newFilter.filter.geneName.order = 1;
-      newFilter.filter.species.order = 1;
-      newFilter.filter.domain.order = 1;
-      newFilter.filter.ECNumber.order = 1;
-      newFilter.filter.NHits.order = 1;
-      newFilter.filter.dateLastEdit.order = 1;
+      newFilter.filter.targetAccessString.order = 1;
+      //newFilter.filter.primaryChain.order = 1;
+      //newFilter.filter.uniprot.order = 1;
+      //newFilter.filter.range.order = 1;
+      //newFilter.filter.geneName.order = 1;
+      //newFilter.filter.species.order = 1;
+      //newFilter.filter.domain.order = 1;
+      //newFilter.filter.ECNumber.order = 1;
+      //newFilter.filter.NHits.order = 1;
+      //newFilter.filter.dateLastEdit.order = 1;
       dispatch(setTargetFilter(newFilter));
     }
   }, [filterClean]);
@@ -254,17 +450,24 @@ export const TargetList = memo(() => {
   // search from target list
   const handleSearch = event => {
     searchString = event.target.value;
-    if (checkedId === true) {
+    /* if (checkedId === true) {
       searchedById = listOfAllTarget.filter(item => item.id.toString().includes(searchString));
     } else {
       searchedById = [];
-    }
+    }*/
     if (checkedTarget === true) {
-      searchedByTarget = listOfAllTarget.filter(item => item.target.toLowerCase().includes(searchString.toLowerCase()));
+      searchedByTarget = listOfAllTarget.filter(item => item.title.toLowerCase().includes(searchString.toLowerCase()));
     } else {
       searchedByTarget = [];
     }
-    if (checkedNumberOfChains === true) {
+    if (checkedTargetAccessString === true) {
+      searchedByTargetAccessString = projectsList.filter(item =>
+        item.target_access_string.toLowerCase().includes(searchString.toLowerCase())
+      );
+    } else {
+      searchedByTargetAccessString = [];
+    }
+    /* if (checkedNumberOfChains === true) {
       searchedByNumberOfChains = listOfAllTarget.filter(item => item.numberOfChains.toString().includes(searchString));
     } else {
       searchedByNumberOfChains = [];
@@ -356,7 +559,7 @@ export const TargetList = memo(() => {
     } else {
       searchedVersionId = [];
     }
-
+*/
     const mergedSearchList = [
       ...searchedById,
       ...searchedByTarget,
@@ -377,6 +580,16 @@ export const TargetList = memo(() => {
     const uniqueArray = Array.from(new Set(mergedSearchList.map(JSON.stringify))).map(JSON.parse);
     dispatch(setListOfFilteredTargets(uniqueArray));
   };
+
+  /* if (filteredListOfTargets === undefined) {
+    filteredListOfTargets = [...listOfAllTarget];
+  }*/
+
+  if (listOfFilteredTargetsByDate !== undefined && filteredListOfTargets !== undefined) {
+    filteredListOfTargets = filteredListOfTargets.filter(item1 =>
+      listOfFilteredTargetsByDate.some(item2 => item2.id === item1.id)
+    );
+  }
 
   const handleHeaderSort = type => {
     switch (type) {
@@ -610,7 +823,7 @@ export const TargetList = memo(() => {
         <Table className={classes.table} aria-label="a dense table">
           <TableHead>
             <TableRow style={{ padding: '0px', paddingTop: '15px' }}>
-              <TableCell style={{ padding: '0px' }}>
+              {/*} <TableCell style={{ padding: '0px' }}>
                 <Typography variant="title">
                   <input
                     type="checkbox"
@@ -633,7 +846,7 @@ export const TargetList = memo(() => {
                     )}
                   </Tooltip>
                 </IconButton>
-              </TableCell>
+                    </TableCell>*/}
               <TableCell style={{ padding: '0px' }}>
                 <Typography variant="title">
                   <input
@@ -659,6 +872,19 @@ export const TargetList = memo(() => {
                 </IconButton>
               </TableCell>
               <TableCell style={{ padding: '0px' }}>
+                <Typography variant="title">
+                  <input
+                    type="checkbox"
+                    style={{ verticalAlign: 'middle' }}
+                    checked={checkedTargetAccessString}
+                    onChange={() => setCheckedTargetAccessString(!checkedTargetAccessString)}
+                  />
+                  Target access string
+                </Typography>
+              </TableCell>
+
+              <TableCell style={{ padding: '0px' }}>SGC</TableCell>
+              {/*   <TableCell style={{ padding: '0px' }}>
                 <Typography variant="title">
                   <input
                     type="checkbox"
@@ -969,89 +1195,14 @@ export const TargetList = memo(() => {
                     )}
                   </Tooltip>
                 </IconButton>
-              </TableCell>
+                    </TableCell>*/}
             </TableRow>
           </TableHead>
           <TableBody>
-            {targetsToUse.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map(target => (
-              <TableRow hover key={target.id}>
-                <Tooltip title={`${target.description}`}>
-                  <TableCell
-                    component="th"
-                    scope="row"
-                    style={{ minWidth: '150px', padding: '0px 10px 0px 0px', margin: '0px', padding: '0px' }}
-                  >
-                    <div>{target.id}</div>
-                  </TableCell>
-                </Tooltip>
-                <TableCell
-                  align="left"
-                  style={{ minWidth: '100px', padding: '0px 10px 0px 0px', margin: '0px', padding: '0px' }}
-                >
-                  <Link to={`${URLS.target}${target.target}`}>
-                    <div>{target.target.title === undefined ? target.target : target.target.title}</div>
-                  </Link>
-                </TableCell>
-                <TableCell
-                  align="left"
-                  style={{ minWidth: '100px', padding: '5px 10px 0px 0px', margin: '0px', padding: '0px' }}
-                >
-                  <div>{target.numberOfChains}</div>
-                </TableCell>
-                <TableCell
-                  align="left"
-                  style={{ minWidth: '150px', padding: '0px 10px 0px 0px', margin: '0px', padding: '0px' }}
-                >
-                  <div>{target.primaryChain}</div>
-                </TableCell>
-                <TableCell style={{ padding: '0px' }} align="left">
-                  <Link to={`${URLS.target}${target.uniprot}`}>
-                    <div>{target.uniprot} </div>
-                  </Link>
-                </TableCell>
-                <TableCell style={{ padding: '0px' }} align="left">
-                  {target.range}
-                </TableCell>{' '}
-                <TableCell style={{ padding: '0px' }} align="left">
-                  {target.proteinName}
-                </TableCell>{' '}
-                <TableCell style={{ padding: '0px' }} align="left">
-                  {target.geneName}
-                </TableCell>{' '}
-                <TableCell style={{ padding: '0px' }} align="left">
-                  {target.speciesId}
-                </TableCell>
-                <TableCell align="left" style={{ padding: '0px' }}>
-                  <Link to={`${URLS.target}${target.species}`}>
-                    <div>{target.species} </div>
-                  </Link>
-                </TableCell>
-                <TableCell style={{ padding: '0px' }} align="left">
-                  {target.domain}
-                </TableCell>
-                <TableCell style={{ padding: '0px' }} align="left">
-                  {target.ECNumber}
-                </TableCell>
-                <TableCell
-                  align="left"
-                  style={{ minWidth: '150px', padding: '0px 10px 0px 0px', margin: '0px', padding: '0px' }}
-                >
-                  <div> {target.NHits}</div>
-                </TableCell>
-                <TableCell
-                  align="left"
-                  style={{ minWidth: '150px', padding: '0px 10px 0px 0px', margin: '0px', padding: '0px' }}
-                >
-                  <div> {target.DateLastEdit}</div>
-                </TableCell>
-                <TableCell
-                  align="left"
-                  style={{ minWidth: '150px', padding: '0px 10px 0px 0px', margin: '0px', padding: '0px' }}
-                >
-                  <div> {target.versionId}</div>
-                </TableCell>
-              </TableRow>
-            ))}
+            {getTargetProjectCombinations(
+              filteredListOfTargets !== undefined ? filteredListOfTargets : target_id_list,
+              projectsList
+            ).map(data => render_item_method(data.target, data.project))}
           </TableBody>
           <TableFooter>
             <TableRow>

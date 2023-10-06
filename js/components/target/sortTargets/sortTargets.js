@@ -19,20 +19,20 @@ export const compareIdDesc = (a, b) => {
 };
 
 export const compareTargetAsc = (a, b) => {
-  if (a.target < b.target) {
+  if (a.title < b.title) {
     return -1;
   }
-  if (a.target > b.target) {
+  if (a.title > b.title) {
     return 1;
   }
   return 0;
 };
 
 export const compareTargetDesc = (a, b) => {
-  if (a.target > b.target) {
+  if (a.title > b.title) {
     return -1;
   }
-  if (a.target < b.target) {
+  if (a.title < b.title) {
     return 1;
   }
   return 0;

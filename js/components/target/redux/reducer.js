@@ -61,6 +61,71 @@ export const targetReducers = (state = INITIAL_STATE, action = {}) => {
     case constants.SET_LIST_OF_FILTERED_TARGETS_BY_DATE:
       return Object.assign({}, state, { listOfFilteredTargetsByDate: action.payload });
 
+    case constants.SEARCH_TARGET:
+      return Object.assign({}, state, {
+        searchTarget: action.payload
+      });
+
+    case constants.SEARCH_NUMBER_OF_CHAINS:
+      return Object.assign({}, state, {
+        searchNumberOfChains: action.payload
+      });
+
+    case constants.SEARCH_PRIMARY_CHAIN:
+      return Object.assign({}, state, {
+        searchPrimaryChain: action.payload
+      });
+
+    case constants.SEARCH_UNIPROT:
+      return Object.assign({}, state, {
+        searchUniprot: action.payload
+      });
+
+    case constants.SEARCH_RANGE:
+      return Object.assign({}, state, {
+        searchRange: action.payload
+      });
+
+    case constants.SEARCH_PROTEIN_NAME:
+      return Object.assign({}, state, {
+        searchProteinName: action.payload
+      });
+
+    case constants.SEARCH_GENE_NAME:
+      return Object.assign({}, state, {
+        searchGeneName: action.payload
+      });
+
+    case constants.SEARCH_SPECIES:
+      return Object.assign({}, state, {
+        searchSpecies: action.payload
+      });
+
+    case constants.SEARCH_DOMAIN:
+      return Object.assign({}, state, {
+        searchDomain: action.payload
+      });
+
+    case constants.SEARCH_EC_NUMBER:
+      return Object.assign({}, state, {
+        searchECNumber: action.payload
+      });
+
+    case constants.SEARCH_N_HITS:
+      return Object.assign({}, state, {
+        searchNHits: action.payload
+      });
+
+    case constants.SEARCH_DATE_LAST_EDIT_FROM:
+      return Object.assign({}, state, {
+        searchDateLastEditFrom: action.payload
+      });
+
+    case constants.SEARCH_DATE_LAST_EDIT_TO:
+      return Object.assign({}, state, {
+        searchDateLastEditTo: action.payload
+      });
+
     default:
       return state;
   }
