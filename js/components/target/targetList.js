@@ -287,6 +287,7 @@ export const TargetList = memo(() => {
                       dispatch(setOpenDiscourseErrorModal(true));
                     });
                 }}
+                style={{ padding: '0px' }}
               >
                 <Chat />
               </IconButton>
@@ -422,7 +423,7 @@ export const TargetList = memo(() => {
 
   // window height for showing rows per page
   const [windowHeight, setWindowHeight] = useState(window.innerHeight);
-  let targetListWindowHeight = windowHeight / 26 - 6;
+  let targetListWindowHeight = windowHeight / 26;
   let targetListWindowHeightFinal = parseInt(targetListWindowHeight.toFixed(0), 10);
   const [rowsPerPage, setRowsPerPage] = useState(targetListWindowHeightFinal);
   const [rowsPerPagePerPageSize, setRowsPerPagePerPageSize] = useState(targetListWindowHeightFinal);
