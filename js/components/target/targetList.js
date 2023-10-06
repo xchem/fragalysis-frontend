@@ -608,13 +608,31 @@ export const TargetList = memo(() => {
         break;
       case 'target':
         if (sortSwitch === offsetTarget + 1) {
-          dispatch(setListOfFilteredTargets([...listOfAllTarget].sort(compareTargetAsc)));
+          dispatch(
+            setListOfFilteredTargets(
+              filteredListOfTargets === undefined
+                ? [...listOfAllTarget].sort(compareTargetAsc)
+                : [...filteredListOfTargets].sort(compareTargetAsc)
+            )
+          );
           setSortSwitch(sortSwitch + 1);
         } else if (sortSwitch === offsetTarget + 2) {
-          dispatch(setListOfFilteredTargets([...listOfAllTarget].sort(compareTargetAsc)));
+          dispatch(
+            setListOfFilteredTargets(
+              filteredListOfTargets === undefined
+                ? [...listOfAllTarget].sort(compareTargetAsc)
+                : [...filteredListOfTargets].sort(compareTargetAsc)
+            )
+          );
           setSortSwitch(0);
         } else {
-          dispatch(setListOfFilteredTargets([...listOfAllTarget].sort(compareTargetDesc)));
+          dispatch(
+            setListOfFilteredTargets(
+              filteredListOfTargets === undefined
+                ? [...listOfAllTarget].sort(compareTargetDesc)
+                : [...filteredListOfTargets].sort(compareTargetDesc)
+            )
+          );
           setSortSwitch(offsetTarget + 1);
         }
         break;
