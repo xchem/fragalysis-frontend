@@ -1268,7 +1268,9 @@ export const TargetList = memo(() => {
             {getTargetProjectCombinations(
               filteredListOfTargets !== undefined ? filteredListOfTargets : target_id_list,
               projectsList
-            ).map(data => render_item_method(data.updatedTarget))}
+            )
+              .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
+              .map(data => render_item_method(data.updatedTarget))}
           </TableBody>
           <TableFooter>
             <TableRow>
