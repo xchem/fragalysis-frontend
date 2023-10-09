@@ -79,7 +79,9 @@ import {
   compareDateLastEditAsc,
   compareDateLastEditDesc,
   compareVersionIdAsc,
-  compareVersionIdDesc
+  compareVersionIdDesc,
+  compareTargetAccessStringAsc,
+  compareTargetAccessStringDesc
 } from './sortTargets/sortTargets';
 import { TargetListSortFilterDialog, sortTargets } from './targetListSortFilterDialog';
 import {
@@ -176,6 +178,7 @@ export const TargetList = memo(() => {
   const offsetNHits = 140;
   const offsetDateLastEdit = 150;
   const offsetVersionId = 160;
+  const offsetTargetAccessString = 170;
 
   let searchedById = [];
   let searchedByTarget = [];
@@ -232,8 +235,8 @@ export const TargetList = memo(() => {
 
   filter = filter || initState;
 
-  const render_item_method = (target, project) => {
-    const preview = `${URLS.target}${target.title}/${URL_TOKENS.target_access_string}/${project.target_access_string}`;
+  const render_item_method = target => {
+    const preview = `${URLS.target}${target.title}/${URL_TOKENS.target_access_string}/${target.project.target_access_string}`;
     const sgcUrl = 'https://thesgc.org/sites/default/files/XChem/' + target.title + '/html/index.html';
     const sgcUploaded = ['BRD1A', 'DCLRE1AA', 'FALZA', 'FAM83BA', 'HAO1A', 'NUDT4A', 'NUDT5A', 'NUDT7A', 'PARP14A'];
     const discourseAvailable = isDiscourseAvailable();
@@ -261,7 +264,7 @@ export const TargetList = memo(() => {
           align="left"
           style={{ minWidth: '100px', padding: '0px 10px 0px 0px', margin: '0px', padding: '0px' }}
         >
-          <div>{project.target_access_string} </div>
+          <div>{target.project.target_access_string} </div>
         </TableCell>
         <TableCell
           align="left"
@@ -461,8 +464,8 @@ export const TargetList = memo(() => {
       searchedByTarget = [];
     }
     if (checkedTargetAccessString === true) {
-      searchedByTargetAccessString = projectsList.filter(item =>
-        item.target_access_string.toLowerCase().includes(searchString.toLowerCase())
+      searchedByTargetAccessString = listOfAllTarget.filter(item =>
+        item.project.target_access_string.toLowerCase().includes(searchString.toLowerCase())
       );
     } else {
       searchedByTargetAccessString = [];
@@ -575,7 +578,8 @@ export const TargetList = memo(() => {
       ...searchedByDateLastEdit,
       ...searchedVersionId,
       ...searchedByECNumber,
-      ...searchedNHits
+      ...searchedNHits,
+      ...searchedByTargetAccessString
     ];
     const uniqueArray = Array.from(new Set(mergedSearchList.map(JSON.stringify))).map(JSON.parse);
     dispatch(setListOfFilteredTargets(uniqueArray));
@@ -633,6 +637,36 @@ export const TargetList = memo(() => {
             )
           );
           setSortSwitch(offsetTarget + 1);
+        }
+        break;
+      case 'targetAccessString':
+        if (sortSwitch === offsetTargetAccessString + 1) {
+          dispatch(
+            setListOfFilteredTargets(
+              filteredListOfTargets === undefined
+                ? [...listOfAllTarget].sort(compareTargetAccessStringAsc)
+                : [...filteredListOfTargets].sort(compareTargetAccessStringAsc)
+            )
+          );
+          setSortSwitch(sortSwitch + 1);
+        } else if (sortSwitch === offsetTargetAccessString + 2) {
+          dispatch(
+            setListOfFilteredTargets(
+              filteredListOfTargets === undefined
+                ? [...listOfAllTarget].sort(compareTargetAccessStringAsc)
+                : [...filteredListOfTargets].sort(compareTargetAccessStringAsc)
+            )
+          );
+          setSortSwitch(0);
+        } else {
+          dispatch(
+            setListOfFilteredTargets(
+              filteredListOfTargets === undefined
+                ? [...listOfAllTarget].sort(compareTargetAccessStringDesc)
+                : [...filteredListOfTargets].sort(compareTargetAccessStringDesc)
+            )
+          );
+          setSortSwitch(offsetTargetAccessString + 1);
         }
         break;
       case 'numberOfChains':
@@ -899,6 +933,19 @@ export const TargetList = memo(() => {
                   />
                   Target access string
                 </Typography>
+                <IconButton style={{ padding: '0px' }} onClick={() => handleHeaderSort('targetAccessString')}>
+                  <Tooltip title="Sort" className={classes.sortButton}>
+                    {[1, 2].includes(sortSwitch - offsetTargetAccessString) ? (
+                      sortSwitch % offsetTargetAccessString < 2 ? (
+                        <KeyboardArrowDown />
+                      ) : (
+                        <KeyboardArrowUp />
+                      )
+                    ) : (
+                      <UnfoldMore />
+                    )}
+                  </Tooltip>
+                </IconButton>
               </TableCell>
 
               <TableCell style={{ padding: '0px' }}>SGC</TableCell>
@@ -1220,7 +1267,7 @@ export const TargetList = memo(() => {
             {getTargetProjectCombinations(
               filteredListOfTargets !== undefined ? filteredListOfTargets : target_id_list,
               projectsList
-            ).map(data => render_item_method(data.target, data.project))}
+            ).map(data => render_item_method(data.updatedTarget))}
           </TableBody>
           <TableFooter>
             <TableRow>
