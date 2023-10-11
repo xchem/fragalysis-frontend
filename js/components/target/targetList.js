@@ -135,6 +135,13 @@ export const TargetList = memo(() => {
   const target_id_list = useSelector(state => state.apiReducers.target_id_list);
   const projectsList = useSelector(state => state.targetReducers.projects);
 
+  const [isResizing, setIsResizing] = useState(false);
+  const [isResizingTargetAccessString, setIsResizingTargetAccessString] = useState(false);
+  const [isResizingSGC, setIsResizingSGC] = useState(false);
+  const [panelWidth, setPanelWidth] = useState(130);
+  const [panelWidthForTargetAccessString, setPanelWidthForTargetAccessString] = useState(180);
+  const [panelWidthForSGC, setPanelWidthForSGC] = useState(130);
+
   let filteredListOfTargets = useSelector(state => state.targetReducers.listOfFilteredTargets);
 
   const [sortSwitch, setSortSwitch] = useState(0);
@@ -252,24 +259,17 @@ export const TargetList = memo(() => {
           <div>{target.id}</div>
         </TableCell>
       </Tooltip> */}
-        <TableCell
-          align="left"
-          style={{ minWidth: '100px', padding: '0px 10px 0px 0px', margin: '0px', padding: '0px' }}
-        >
+        <TableCell align="left" style={{ padding: '0px 10px 0px 0px', margin: '0px', padding: '0px' }}>
           <Link to={preview}>
             <div>{target.title}</div>
           </Link>
         </TableCell>
-        <TableCell
-          align="left"
-          style={{ minWidth: '100px', padding: '0px 10px 0px 0px', margin: '0px', padding: '0px' }}
-        >
+        <TableCell style={{ width: '2px', padding: '0px', margin: '0px' }}></TableCell>
+        <TableCell align="left" style={{ padding: '0px 10px 0px 0px', margin: '0px', padding: '0px' }}>
           <div>{target.project.target_access_string} </div>
         </TableCell>
-        <TableCell
-          align="left"
-          style={{ minWidth: '100px', padding: '0px 10px 0px 0px', margin: '0px', padding: '0px' }}
-        >
+        <TableCell style={{ width: '2px', padding: '0px', margin: '0px' }}></TableCell>
+        <TableCell align="left" style={{ padding: '0px 10px 0px 0px', margin: '0px', padding: '0px' }}>
           {sgcUploaded.includes(target.title) && (
             <a href={sgcUrl} target="new">
               Open SGC summary
@@ -832,6 +832,96 @@ export const TargetList = memo(() => {
     }
   };
 
+  // START RESIZER FOR TARGET COLUMN
+  const handleMouseDown = () => {
+    setIsResizing(true);
+  };
+
+  const handleMouseMove = e => {
+    if (!isResizing) return;
+    const deltaX = e.clientX - 20;
+    setPanelWidth(deltaX);
+  };
+
+  const handleMouseUp = () => {
+    setIsResizing(false);
+    window.removeEventListener('mousemove', handleMouseMove);
+    window.removeEventListener('mouseup', handleMouseUp);
+  };
+
+  useEffect(() => {
+    if (isResizing) {
+      window.addEventListener('mousemove', handleMouseMove);
+      window.addEventListener('mouseup', handleMouseUp);
+    } else {
+      window.removeEventListener('mousemove', handleMouseMove);
+      window.removeEventListener('mouseup', handleMouseUp);
+    }
+  }, [isResizing]);
+  // END RESIZER FOR TARGET COLUMN
+
+  // START RESIZER FOR TARGET ACCESS STRING COLUMN
+  const handleMouseDownResizerTargetAccessString = () => {
+    setIsResizingTargetAccessString(true);
+    panelWidth !== undefined ? setPanelWidth(panelWidth) : setPanelWidth(130);
+  };
+
+  const handleMouseMoveTargetAccessString = e => {
+    if (!isResizingTargetAccessString) return;
+    const deltaX = e.clientX - 140;
+    setPanelWidthForTargetAccessString(deltaX);
+  };
+
+  const handleMouseUpTargetAccessString = () => {
+    setIsResizingTargetAccessString(false);
+    window.removeEventListener('mousemove', handleMouseMoveTargetAccessString);
+    window.removeEventListener('mouseup', handleMouseUpTargetAccessString);
+  };
+
+  useEffect(() => {
+    if (isResizingTargetAccessString) {
+      window.addEventListener('mousemove', handleMouseMoveTargetAccessString);
+      window.addEventListener('mouseup', handleMouseUpTargetAccessString);
+    } else {
+      window.removeEventListener('mousemove', handleMouseMoveTargetAccessString);
+      window.removeEventListener('mouseup', handleMouseUpTargetAccessString);
+    }
+  }, [isResizingTargetAccessString]);
+  // END RESIZER FOR TARGET ACCESS STRING COLUMN
+
+  // START RESIZER FOR SGC COLUMN
+  const handleMouseDownResizerSGC = () => {
+    setIsResizingSGC(true);
+    panelWidth !== undefined ? setPanelWidth(panelWidth) : setPanelWidth(180);
+
+    panelWidthForTargetAccessString !== undefined
+      ? setPanelWidthForTargetAccessString(panelWidthForTargetAccessString)
+      : setPanelWidthForTargetAccessString(130);
+  };
+
+  const handleMouseMoveSGC = e => {
+    if (!isResizingSGC) return;
+    const deltaX = e.clientX - 333;
+    setPanelWidthForSGC(deltaX);
+  };
+
+  const handleMouseUpSGC = () => {
+    setIsResizingSGC(false);
+    window.removeEventListener('mousemove', handleMouseMoveSGC);
+    window.removeEventListener('mouseup', handleMouseUpSGC);
+  };
+
+  useEffect(() => {
+    if (isResizingSGC) {
+      window.addEventListener('mousemove', handleMouseMoveSGC);
+      window.addEventListener('mouseup', handleMouseUpSGC);
+    } else {
+      window.removeEventListener('mousemove', handleMouseMoveSGC);
+      window.removeEventListener('mouseup', handleMouseUpSGC);
+    }
+  }, [isResizingSGC]);
+  // END RESIZER FOR SGC COLUMN
+
   const targetsToUse = filteredListOfTargets ? filteredListOfTargets : listOfAllTarget;
   if (target_id_list) {
     return (
@@ -900,7 +990,7 @@ export const TargetList = memo(() => {
                   </Tooltip>
                 </IconButton>
                     </TableCell>*/}
-              <TableCell style={{ padding: '0px' }}>
+              <TableCell style={{ width: panelWidth, padding: '0px' }}>
                 <Typography variant="title">
                   <input
                     type="checkbox"
@@ -924,7 +1014,12 @@ export const TargetList = memo(() => {
                   </Tooltip>
                 </IconButton>
               </TableCell>
-              <TableCell style={{ padding: '0px' }}>
+              <div
+                style={{ cursor: 'col-resize', width: 3, height: '20px', backgroundColor: '#eeeeee' }}
+                onMouseDown={handleMouseDown}
+              ></div>
+
+              <TableCell style={{ width: panelWidthForTargetAccessString, padding: '0px' }}>
                 <Typography variant="title">
                   <input
                     type="checkbox"
@@ -948,8 +1043,15 @@ export const TargetList = memo(() => {
                   </Tooltip>
                 </IconButton>
               </TableCell>
-
-              <TableCell style={{ padding: '0px' }}>SGC</TableCell>
+              <div
+                style={{ cursor: 'col-resize', width: 3, height: '20px', backgroundColor: '#eeeeee' }}
+                onMouseDown={handleMouseDownResizerTargetAccessString}
+              ></div>
+              <TableCell style={{ width: panelWidthForSGC, padding: '0px' }}>SGC</TableCell>
+              <div
+                style={{ cursor: 'col-resize', width: 3, height: '20px', backgroundColor: '#eeeeee' }}
+                onMouseDown={handleMouseDownResizerSGC}
+              ></div>
               {/*   <TableCell style={{ padding: '0px' }}>
                 <Typography variant="title">
                   <input
