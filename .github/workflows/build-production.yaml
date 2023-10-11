@@ -19,6 +19,9 @@ name: build production
 # STACK_GITHUB_NAMESPACE  optional - default xchem
 # STACK_NAMESPACE         optional - default xchem
 #
+# DOCKERHUB_USERNAME      optional
+# DOCKERHUB_TOKEN         optional - required if DOCKERHUB_USERNAME
+#
 # TRIGGER_DOWNSTREAM      optional - set to 'yes'
 #                                    to trigger downstream projects
 #
@@ -59,12 +62,15 @@ env:
 jobs:
   build:
     runs-on: ubuntu-latest
+    outputs:
+      push: ${{ steps.vars.outputs.push }}
     steps:
     - name: Inject slug/short variables
       uses: rlespinasse/github-slug-action@v3.x
     - name: Initialise workflow variables
       id: vars
       env:
+        DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
         TRIGGER_DOWNSTREAM: ${{ secrets.TRIGGER_DOWNSTREAM }}
       run: |
         # BE_IMAGE_TAG
@@ -109,6 +115,10 @@ jobs:
         echo STACK_NAMESPACE=${STACK_NAMESPACE}
         echo "STACK_NAMESPACE=${STACK_NAMESPACE}" >> $GITHUB_OUTPUT
 
+        # Do we push, i.e. is DOCKERHUB_USERNAME defined?
+        echo push=${{ env.DOCKERHUB_USERNAME != '' }}
+        echo "push=${{ env.DOCKERHUB_USERNAME != '' }}" >> $GITHUB_OUTPUT
+
         # Do we trigger downstream, i.e. is TRIGGER_DOWNSTREAM 'yes'?
         echo trigger=${{ env.TRIGGER_DOWNSTREAM == 'yes' }}
         echo "trigger=${{ env.TRIGGER_DOWNSTREAM == 'yes' }}" >> $GITHUB_OUTPUT
@@ -119,6 +129,16 @@ jobs:
       uses: docker/build-push-action@v4
       with:
         tags: ${{ steps.vars.outputs.FE_NAMESPACE }}/fragalysis-frontend:${{ steps.vars.outputs.FE_IMAGE_TAG }}
+    - name: Login to Docker Hub
+      if: steps.vars.outputs.push == 'true'
+      uses: docker/login-action@v3
+      with:
+        username: ${{ secrets.DOCKERHUB_USERNAME }}
+        password: ${{ secrets.DOCKERHUB_TOKEN }}
+    - name: Push
+      if: steps.vars.outputs.push == 'true'
+      run: |
+        docker push ${{ steps.vars.outputs.FE_NAMESPACE }}/fragalysis-frontend:${{ steps.vars.outputs.FE_IMAGE_TAG }}
 
     # Trigger the stack for this build,
     # identifying the 'stable' backend (or whatever BE_IMAGE_TAG was used)
