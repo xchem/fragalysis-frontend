@@ -228,13 +228,16 @@ export default memo(
       </Typography>
     );
 
-    if (headerNavbarTitle === '') {
-      if (document.location.host.startsWith('fragalysis.diamond') !== true) {
-        setHeaderNavbarTitle('DEVELOPMENT');
-      } else {
-        setHeaderNavbarTitle('Home');
+    useEffect(() => {
+      if (headerNavbarTitle === '') {
+        if (document.location.host.startsWith('fragalysis.diamond') !== true) {
+          setHeaderNavbarTitle('DEVELOPMENT');
+        } else {
+          setHeaderNavbarTitle('Home');
+        }
       }
-    }
+    }, [headerNavbarTitle, setHeaderNavbarTitle]);
+
     const [forceCompute, setForceCompute] = useState();
     const innerRef = React.useRef();
     const combinedRef = useCombinedRefs(ref, innerRef);
@@ -288,7 +291,7 @@ export default memo(
                         <Button
                           onClick={() => {
                             isProjectModalLoading === false ? (dispatch(setProjectModalIsLoading(true)), dispatch(setAddButton(false))) : dispatch(setProjectModalIsLoading(false)),
-                            openSaveSnapshotModal === true ? dispatch(setOpenSnapshotSavingDialog(false)) : ''
+                              openSaveSnapshotModal === true ? dispatch(setOpenSnapshotSavingDialog(false)) : ''
                           }}
                           key="newProject"
                           color="primary"
@@ -300,7 +303,7 @@ export default memo(
                         <Button
                           onClick={() => {
                             openNewProjectModal === false ? (dispatch(setProjectModalIsLoading(true)), dispatch(setAddButton(false))) : dispatch(setProjectModalIsLoading(false)),
-                            openSaveSnapshotModal === true ? dispatch(setOpenSnapshotSavingDialog(false)) : ''
+                              openSaveSnapshotModal === true ? dispatch(setOpenSnapshotSavingDialog(false)) : ''
                           }}
                           key="newProject"
                           color="primary"
@@ -484,7 +487,7 @@ export default memo(
             </Grid>
           </Grid>
           {//TODO this needs to be reworked if the optimizations help
-            (isLoading === true || false === true) && (
+            (isLoading === true) && (
               <LinearProgress color="secondary" className={classes.loadingProgress} variant="query" />
             )}
         </AppBar>
@@ -552,9 +555,9 @@ export default memo(
             <Grid item>
               {versions &&
                 versions.hasOwnProperty('version') &&
-                Object.entries(versions['version']).map(([sw, version]) => {
+                Object.entries(versions['version']).map(([sw, version], index) => {
                   return (
-                    <Typography variant="body2">
+                    <Typography variant="body2" key={index}>
                       {sw}: {version}
                     </Typography>
                   );
@@ -563,7 +566,7 @@ export default memo(
           </Grid>
         </Drawer>
         <Box paddingTop={`${headerHeight}px`} width="100%" />
-      </ComputeSize>
+      </ComputeSize >
     );
   })
 );
