@@ -213,7 +213,7 @@ export default memo(({ open, onClose }) => {
                 ))}
               </Select>
             </Grid>
-            <Grid item xs={6} container justify="flex-end" direction="row">
+            <Grid item xs={6} container justify="flex-end" direction="row" wrap="nowrap">
               <Grid item>
                 <IconButton onClick={e => openRepresentationEditMenu(e, representationKey)}>
                   <Edit />
