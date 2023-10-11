@@ -58,6 +58,14 @@ export const loadObject = ({
       versionFixedTarget.OBJECT_TYPE = OBJECT_TYPE.HIT_PROTEIN;
     }
 
+    // at first check if object was already used and has stashed state
+    const tempObjectsInViewStash = state.nglReducers.objectsInViewStash || {};
+    if (tempObjectsInViewStash.hasOwnProperty(versionFixedTarget.name)) {
+      // get stashed object representations to be loaded next
+      const stashedObject = tempObjectsInViewStash[versionFixedTarget.name];
+      previousRepresentations = stashedObject.representations;
+    }
+
     console.count(`Before object is loaded`);
     return nglObjectDictionary[versionFixedTarget.OBJECT_TYPE]({
       stage,

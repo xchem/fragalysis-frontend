@@ -5,6 +5,7 @@ import { VIEWS } from '../../constants/constants';
 export const INITIAL_STATE = {
   // NGL Scene properties
   objectsInView: {},
+  objectsInViewStash: {},
   nglOrientations: {},
   viewParams: {
     /*
@@ -52,13 +53,22 @@ export default function nglReducers(state = INITIAL_STATE, action = {}) {
     // Defined in initialState - but may be needed if we want to load a different structure
 
     case CONSTANTS.LOAD_OBJECT:
-      // Append the input to objectsToLoad list
+      // at first check if object was already stashed
+      const objectsInViewStashTemp = JSON.parse(JSON.stringify(state.objectsInViewStash));
+      const newStateObject = {};
+      if (objectsInViewStashTemp.hasOwnProperty(action.target.name)) {
+        // delete object (it was/could be already loaded in loadObject() call)
+        delete objectsInViewStashTemp[action.target.name];
+
+        newStateObject['objectsInViewStash'] = objectsInViewStashTemp;
+      }
+      // Add object into view list
       const newObjectsInView = JSON.parse(JSON.stringify(state.objectsInView));
       newObjectsInView[action.target.name] = { ...action.target, representations: action.representations };
 
-      return Object.assign({}, state, {
-        objectsInView: newObjectsInView
-      });
+      newStateObject['objectsInView'] = newObjectsInView;
+
+      return Object.assign({}, state, newStateObject);
 
     case CONSTANTS.UPDATE_COMPONENT_REPRESENTATION:
       const newObjInView = JSON.parse(JSON.stringify(state.objectsInView));
@@ -103,10 +113,18 @@ export default function nglReducers(state = INITIAL_STATE, action = {}) {
 
     case CONSTANTS.DELETE_OBJECT:
       const objectsInViewTemp = JSON.parse(JSON.stringify(state.objectsInView));
+
+      // stash state of the object
+      let newObjectsInViewStash = JSON.parse(JSON.stringify(state.objectsInViewStash));
+      if (objectsInViewTemp.hasOwnProperty(action.target.name)) {
+        newObjectsInViewStash[action.target.name] = { ...objectsInViewTemp[action.target.name], representations: objectsInViewTemp[action.target.name].representations };
+      }
+
       delete objectsInViewTemp[action.target.name];
 
       return Object.assign({}, state, {
-        objectsInView: objectsInViewTemp
+        objectsInView: objectsInViewTemp,
+        objectsInViewStash: newObjectsInViewStash
       });
 
     case CONSTANTS.SET_ORIENTATION:
