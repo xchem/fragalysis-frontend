@@ -893,6 +893,7 @@ export const MoleculeList = memo(({ hideProjects }) => {
       disabled={false || (getJoinedMoleculeList && getJoinedMoleculeList.length === 0)}
       // searchString={filterSearchString?.searchStringHitNavigator ?? ''}
       searchString={searchString ?? ''}
+      placeholder="Search"
     />,
 
     <IconButton
