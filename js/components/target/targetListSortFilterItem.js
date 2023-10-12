@@ -28,13 +28,11 @@ import {
   setSearchECNumber,
   setSearchNHits,
   setSearchDateLastEditFrom,
-  setSearchDateLastEditTo,
-  setSearchDateFrom,
-  setSearchDateTo
+  setSearchDateLastEditTo
 } from './redux/actions';
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
-import { compareCreatedAtDateDesc } from './sortTargets/sortTargets';
+import { compareTargetDesc } from './sortTargets/sortTargets';
 import moment from 'moment';
 import { sortTargets } from './targetListSortFilterDialog';
 import { MOCK_LIST_OF_TARGETS } from './MOCK';
@@ -156,7 +154,7 @@ const TargetListSortFilterItem = memo(props => {
 
   //let listOfAllTargetsDefaultWithOutSort = useSelector(state => state.targetReducers.listOfTargets);
   let listOfAllTargetsDefaultWithOutSort = target_id_list; // remove after real data
-  let listOfAllTargetsDefault = [...listOfAllTargetsDefaultWithOutSort].sort(compareCreatedAtDateDesc);
+  let listOfAllTargetsDefault = [...listOfAllTargetsDefaultWithOutSort].sort(compareTargetDesc);
   let filteredListOfTargets = useSelector(state => state.targetReducers.listOfFilteredTargets);
 
   const searchTarget = useSelector(state => state.targetReducers.searchTarget);
@@ -182,7 +180,7 @@ const TargetListSortFilterItem = memo(props => {
   const isActiveFilter = !!(filters || {}).active;
   const filterClean = useSelector(state => state.targetReducers.filterClean);
 
-  let listOfAllTargets = [...listOfAllTargetsDefault].sort(compareCreatedAtDateDesc);
+  let listOfAllTargets = [...listOfAllTargetsDefault].sort(compareTargetDesc);
 
   useEffect(() => {
     if (filteredTargetList.length !== 0) {
@@ -199,7 +197,7 @@ const TargetListSortFilterItem = memo(props => {
       dispatch(setListOfTargets(listOfAllTargetsDefault));
       if (filteredListOfTargets !== undefined) {
         filteredListOfTargets = sortTargets(filteredListOfTargets, filters);
-        dispatch(setListOfFilteredTargets(filteredListOfTargets.sort(compareCreatedAtDateDesc)));
+        dispatch(setListOfFilteredTargets(filteredListOfTargets.sort(compareTargetDesc)));
       }
     }
   }, [filter]);
@@ -271,7 +269,7 @@ const TargetListSortFilterItem = memo(props => {
   const onChangeFilterStartDate = event => {
     const formattedDate = moment(event).format('MM/DD/YYYY');
     const formattedStartDate = event.toISOString();
-    dispatch(setSearchDateFrom(formattedDate));
+    dispatch(setSearchDateLastEditFrom(formattedDate));
     setStartDate(event);
 
     if (filteredListOfTargets === undefined) {
@@ -295,7 +293,7 @@ const TargetListSortFilterItem = memo(props => {
   const onChangeFilterEndDate = event => {
     const formattedEndDate = new Date(event.getTime() - event.getTimezoneOffset() * 779900).toISOString();
     const formattedDate = moment(event).format('MM/DD/YYYY');
-    dispatch(setSearchDateTo(formattedDate));
+    dispatch(setSearchDateLastEditTo(formattedDate));
     setEndDate(event);
     if (filteredListOfTargets === undefined) {
       filteredTargetListByProteinName = listOfAllTargets.filter(date => date.init_date <= formattedEndDate + 1);
