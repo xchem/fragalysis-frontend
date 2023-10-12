@@ -19,20 +19,20 @@ export const compareIdDesc = (a, b) => {
 };
 
 export const compareTargetAsc = (a, b) => {
-  if (a.title < b.title) {
+  if (a.title.toLowerCase() < b.title.toLowerCase()) {
     return -1;
   }
-  if (a.title > b.title) {
+  if (a.title.toLowerCase() > b.title.toLowerCase()) {
     return 1;
   }
   return 0;
 };
 
 export const compareTargetDesc = (a, b) => {
-  if (a.title > b.title) {
+  if (a.title.toLowerCase() > b.title.toLowerCase()) {
     return -1;
   }
-  if (a.title < b.title) {
+  if (a.title.toLowerCase() < b.title.toLowerCase()) {
     return 1;
   }
   return 0;
@@ -59,40 +59,40 @@ export const compareNumberOfChainDesc = (a, b) => {
 };
 
 export const comparePrimaryChainAsc = (a, b) => {
-  if (a.primaryChain < b.primaryChain) {
+  if (a.primaryChain.toLowerCase() < b.primaryChain.toLowerCase()) {
     return -1;
   }
-  if (a.primaryChain > b.primaryChain) {
+  if (a.primaryChain.toLowerCase() > b.primaryChain.toLowerCase()) {
     return 1;
   }
   return 0;
 };
 
 export const comparePrimaryChainDesc = (a, b) => {
-  if (a.primaryChain > b.primaryChain) {
+  if (a.primaryChain.toLowerCase() > b.primaryChain.toLowerCase()) {
     return -1;
   }
-  if (a.primaryChain < b.primaryChain) {
+  if (a.primaryChain.toLowerCase() < b.primaryChain.toLowerCase()) {
     return 1;
   }
   return 0;
 };
 
 export const compareUniprotAsc = (a, b) => {
-  if (a.uniprot < b.uniprot) {
+  if (a.uniprot.toLowerCase() < b.uniprot.toLowerCase()) {
     return -1;
   }
-  if (a.uniprot > b.uniprot) {
+  if (a.uniprot.toLowerCase() > b.uniprot.toLowerCase()) {
     return 1;
   }
   return 0;
 };
 
 export const compareUniprotDesc = (a, b) => {
-  if (a.uniprot > b.uniprot) {
+  if (a.uniprot.toLowerCase() > b.uniprot.toLowerCase()) {
     return -1;
   }
-  if (a.uniprot < b.uniprot) {
+  if (a.uniprot.toLowerCase() < b.uniprot.toLowerCase()) {
     return 1;
   }
   return 0;
@@ -119,40 +119,40 @@ export const compareRangeDesc = (a, b) => {
 };
 
 export const compareProteinNameAsc = (a, b) => {
-  if (a.proteinName < b.proteinName) {
+  if (a.proteinName.toLowerCase() < b.proteinName.toLowerCase()) {
     return -1;
   }
-  if (a.proteinName > b.proteinName) {
+  if (a.proteinName.toLowerCase() > b.proteinName.toLowerCase()) {
     return 1;
   }
   return 0;
 };
 
 export const compareProteinNameDesc = (a, b) => {
-  if (a.proteinName > b.proteinName) {
+  if (a.proteinName.toLowerCase() > b.proteinName.toLowerCase()) {
     return -1;
   }
-  if (a.proteinName < b.proteinName) {
+  if (a.proteinName.toLowerCase() < b.proteinName.toLowerCase()) {
     return 1;
   }
   return 0;
 };
 
 export const compareGeneNameAsc = (a, b) => {
-  if (a.geneName < b.geneName) {
+  if (a.geneName.toLowerCase() < b.geneName.toLowerCase()) {
     return -1;
   }
-  if (a.geneName > b.geneName) {
+  if (a.geneName.toLowerCase() > b.geneName.toLowerCase()) {
     return 1;
   }
   return 0;
 };
 
 export const compareGeneNameDesc = (a, b) => {
-  if (a.geneName > b.geneName) {
+  if (a.geneName.toLowerCase() > b.geneName.toLowerCase()) {
     return -1;
   }
-  if (a.geneName < b.geneName) {
+  if (a.geneName.toLowerCase() < b.geneName.toLowerCase()) {
     return 1;
   }
   return 0;
@@ -179,40 +179,40 @@ export const compareSpeciesIdDesc = (a, b) => {
 };
 
 export const compareSpeciesAsc = (a, b) => {
-  if (a.species < b.species) {
+  if (a.species.toLowerCase() < b.species.toLowerCase()) {
     return -1;
   }
-  if (a.species > b.species) {
+  if (a.species.toLowerCase() > b.species.toLowerCase()) {
     return 1;
   }
   return 0;
 };
 
 export const compareSpeciesDesc = (a, b) => {
-  if (a.species > b.species) {
+  if (a.species.toLowerCase() > b.species.toLowerCase()) {
     return -1;
   }
-  if (a.species < b.species) {
+  if (a.species.toLowerCase() < b.species.toLowerCase()) {
     return 1;
   }
   return 0;
 };
 
 export const compareDomainAsc = (a, b) => {
-  if (a.domain < b.domain) {
+  if (a.domain.toLowerCase() < b.domain.toLowerCase()) {
     return -1;
   }
-  if (a.domain > b.domain) {
+  if (a.domain.toLowerCase() > b.domain.toLowerCase()) {
     return 1;
   }
   return 0;
 };
 
 export const compareDomainDesc = (a, b) => {
-  if (a.domain > b.domain) {
+  if (a.domain.toLowerCase() > b.domain.toLowerCase()) {
     return -1;
   }
-  if (a.domain < b.domain) {
+  if (a.domain.toLowerCase() < b.domain.toLowerCase()) {
     return 1;
   }
   return 0;
@@ -297,20 +297,20 @@ export const compareVersionIdDesc = (a, b) => {
 };
 
 export const compareTargetAccessStringAsc = (a, b) => {
-  if (a.project.target_access_string < b.project.target_access_string) {
+  if (a.project.target_access_string.toLowerCase() < b.project.target_access_string.toLowerCase()) {
     return -1;
   }
-  if (a.project.target_access_string > b.project.target_access_string) {
+  if (a.project.target_access_string.toLowerCase() > b.project.target_access_string.toLowerCase()) {
     return 1;
   }
   return 0;
 };
 
 export const compareTargetAccessStringDesc = (a, b) => {
-  if (a.project.target_access_string > b.project.target_access_string) {
+  if (a.project.target_access_string.toLowerCase() > b.project.target_access_string.toLowerCase()) {
     return -1;
   }
-  if (a.project.target_access_string < b.project.target_access_string) {
+  if (a.project.target_access_string.toLowerCase() < b.project.target_access_string.toLowerCase()) {
     return 1;
   }
   return 0;

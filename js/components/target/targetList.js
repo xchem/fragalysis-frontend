@@ -132,7 +132,7 @@ export const TargetList = memo(() => {
   const dispatch = useDispatch();
   const [page, setPage] = useState(0);
   const isTargetLoading = useSelector(state => state.targetReducers.isTargetLoading);
-  const target_id_list = useSelector(state => state.apiReducers.target_id_list);
+  const target_id_list_default = useSelector(state => state.apiReducers.target_id_list);
   const projectsList = useSelector(state => state.targetReducers.projects);
 
   const [isResizing, setIsResizing] = useState(false);
@@ -148,7 +148,8 @@ export const TargetList = memo(() => {
   const [sortDialogAnchorEl, setSortDialogAnchorEl] = useState(null);
   const sortDialogOpen = useSelector(state => state.targetReducers.targetListFilterDialog);
 
-  let listOfAllTargetsDefault = target_id_list; // change after import real data
+  const target_id_list = target_id_list_default.sort(compareTargetAsc);
+  let listOfAllTargetsDefault = target_id_list;
   let searchString = '';
 
   // checkbox for search
@@ -209,8 +210,7 @@ export const TargetList = memo(() => {
   let filter = useSelector(state => state.selectionReducers.targetFilter);
 
   const isActiveFilter = !!(filter || {}).active;
-
-  let listOfAllTarget = [...listOfAllTargetsDefault];
+  let listOfAllTarget = [...listOfAllTargetsDefault].sort(compareTargetDesc);
 
   const initialize = useCallback(() => {
     let initObject = {
