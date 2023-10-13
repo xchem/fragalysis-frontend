@@ -31,7 +31,9 @@ import {
   setSearchDateLastEditTo,
   setSearchDateFrom,
   setSearchDateTo,
-  setSearchTargetAccessString
+  setSearchTargetAccessString,
+  setSearchInitDateFrom,
+  setSearchInitDateTo
 } from './redux/actions';
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
@@ -134,8 +136,9 @@ let filteredTargetListByProteinName = [];
 let filteredTargetListByGeneName = [];
 let filteredTargetListBySpecies = [];
 let filteredTargetListByDomain = [];
-let filteredTargetListByDateLastEditFrom = [];
-let filteredTargetListByDateLastEditTo = [];
+let filteredTargetListByInitDateFrom = [];
+let filteredTargetListByInitDateTo = [];
+let filteredProjectListInitDate = [];
 let filteredTargetListByECNumber = [];
 let filteredTargetListByNHits = [];
 let filteredTargetListByTargetAccessString = [];
@@ -229,6 +232,9 @@ const TargetListSortFilterItem = memo(props => {
       filteredTargetListByProteinName = [];
       filteredTargetListByGeneName = [];
       filteredTargetListByTargetAccessString = [];
+      filteredTargetListByInitDateFrom = [];
+      filteredTargetListByInitDateTo = [];
+      filteredProjectListInitDate = [];
     }
   }, [filterClean]);
 
@@ -273,47 +279,49 @@ const TargetListSortFilterItem = memo(props => {
   };
 
   const onChangeFilterStartDate = event => {
-    const formattedDate = moment(event).format('MM/DD/YYYY');
+    const formattedDate = moment(event).format('YYYY-MM-DD');
     const formattedStartDate = event.toISOString();
-    dispatch(setSearchDateLastEditFrom(formattedDate));
+    dispatch(setSearchInitDateFrom(formattedDate));
     setStartDate(event);
 
     if (filteredListOfTargets === undefined) {
-      filteredTargetListByDateLastEditFrom = listOfAllTargets.filter(date => date.dateLastEdit > formattedStartDate);
+      filteredTargetListByInitDateFrom = listOfAllTargets.filter(date => date.project.init_date > formattedStartDate);
     } else {
-      filteredTargetListByDateLastEditFrom = filteredListOfTargets.filter(
-        date => date.dateLastEdit > formattedStartDate
+      filteredTargetListByInitDateFrom = filteredListOfTargets.filter(
+        date => date.project.init_date > formattedStartDate
       );
     }
-    if (filteredTargetListByDateLastEditTo.length > 0 && filteredTargetListByDateLastEditFrom.length > 0) {
-      const filteredListOfTargetsByDate = filteredTargetListByDateLastEditFrom.filter(item1 =>
-        filteredTargetListByDateLastEditTo.some(item2 => item2.id === item1.id)
+    if (filteredTargetListByInitDateTo.length > 0 && filteredTargetListByInitDateFrom.length > 0) {
+      const filteredListOfTargetsByInitDate = filteredTargetListByInitDateFrom.filter(item1 =>
+        filteredTargetListByInitDateTo.some(item2 => item2.id === item1.id)
       );
-      dispatch(setListOfFilteredTargetsByDate(filteredListOfTargetsByDate));
+      dispatch(setListOfFilteredTargetsByDate(filteredListOfTargetsByInitDate));
     } else {
-      filteredTargetListByGeneName = filteredTargetListByRange;
-      dispatch(setListOfFilteredTargetsByDate(filteredTargetListByGeneName));
+      filteredProjectListInitDate = filteredTargetListByInitDateFrom;
+      dispatch(setListOfFilteredTargetsByDate(filteredProjectListInitDate));
     }
   };
 
   const onChangeFilterEndDate = event => {
     const formattedEndDate = new Date(event.getTime() - event.getTimezoneOffset() * 779900).toISOString();
-    const formattedDate = moment(event).format('MM/DD/YYYY');
-    dispatch(setSearchDateLastEditTo(formattedDate));
+    const formattedDate = moment(event).format('YYYY-MM-DD');
+    dispatch(setSearchInitDateTo(formattedDate));
     setEndDate(event);
     if (filteredListOfTargets === undefined) {
-      filteredTargetListByProteinName = listOfAllTargets.filter(date => date.init_date <= formattedEndDate + 1);
+      filteredTargetListByInitDateTo = listOfAllTargets.filter(date => date.project.init_date <= formattedEndDate + 1);
     } else {
-      filteredTargetListByProteinName = filteredListOfTargets.filter(date => date.init_date <= formattedEndDate + 1);
+      filteredTargetListByInitDateTo = filteredListOfTargets.filter(
+        date => date.project.init_date <= formattedEndDate + 1
+      );
     }
-    if (filteredTargetListByProteinName.length > 0 && filteredTargetListByRange.length > 0) {
-      const filteredListOfTargetsByDate = filteredTargetListByRange.filter(item1 =>
-        filteredTargetListByProteinName.some(item2 => item2.id === item1.id)
+    if (filteredTargetListByInitDateTo.length > 0 && filteredTargetListByInitDateFrom.length > 0) {
+      const filteredListOfTargetsByDate = filteredTargetListByInitDateFrom.filter(item1 =>
+        filteredTargetListByInitDateTo.some(item2 => item2.id === item1.id)
       );
       dispatch(setListOfFilteredTargetsByDate(filteredListOfTargetsByDate));
     } else {
-      filteredTargetListByGeneName = filteredTargetListByProteinName;
-      dispatch(setListOfFilteredTargets(filteredTargetListByGeneName));
+      filteredProjectListInitDate = filteredTargetListByInitDateTo;
+      dispatch(setListOfFilteredTargets(filteredProjectListInitDate));
     }
   };
 
@@ -619,20 +627,20 @@ const TargetListSortFilterItem = memo(props => {
                 {dateFilter === true ? (
                   <Grid item container className={classes.gridItemHeader}>
                     <Grid item style={{ width: gridDateFromWidth }} className={classNames(classes.dateFont)}>
-                      Last edit from
+                      Init date from
                     </Grid>
                     <Grid item style={{ width: gridDateFromInputWidth }}>
                       <DatePicker
                         className={classes.dateInputWidth}
                         selected={startDate}
                         onChange={event => onChangeFilterStartDate(event)}
-                        placeholderText="MM/DD/YYYY"
+                        placeholderText="YYYY-MM-DD"
                         value={searchDateLastEditFrom}
                       />
                     </Grid>
 
                     <Grid item style={{ width: gridDateFromWidth }} className={classNames(classes.dateFont)}>
-                      Last edit to
+                      Init date to
                     </Grid>
                     <Grid item style={{ width: gridDateFromInputWidth }}>
                       <DatePicker
@@ -640,7 +648,7 @@ const TargetListSortFilterItem = memo(props => {
                         className={classes.dateInputWidth}
                         selected={endDate}
                         onChange={event => onChangeFilterEndDate(event)}
-                        placeholderText="MM/DD/YYYY"
+                        placeholderText="YYYY-MM-DD"
                         value={searchDateLastEditTo}
                       />
                     </Grid>
@@ -693,19 +701,19 @@ const TargetListSortFilterItem = memo(props => {
                 {dateFilter === true ? (
                   <Grid item container className={classes.gridItemHeader}>
                     <Grid item style={{ width: gridDateFromWidth }} className={classNames(classes.dateFont)}>
-                      Last edit from
+                      Init date from
                     </Grid>
                     <Grid item style={{ width: gridDateFromInputWidth }}>
                       <DatePicker
                         className={classes.dateInputWidth}
                         selected={startDate}
                         onChange={event => onChangeFilterStartDate(event)}
-                        placeholderText="MM/DD/YYYY"
+                        placeholderText="YYYY-MM-DD"
                         value={searchDateLastEditFrom}
                       />
                     </Grid>
                     <Grid item style={{ width: gridDateFromWidth }} className={classNames(classes.dateFont)}>
-                      Last edit to
+                      Init date to
                     </Grid>
                     <Grid item style={{ width: gridDateFromInputWidth }}>
                       <DatePicker
@@ -713,7 +721,7 @@ const TargetListSortFilterItem = memo(props => {
                         className={classes.dateInputWidth}
                         selected={endDate}
                         onChange={event => onChangeFilterEndDate(event)}
-                        placeholderText="MM/DD/YYYY"
+                        placeholderText="YYYY-MM-DD"
                         value={searchDateLastEditTo}
                       />
                     </Grid>

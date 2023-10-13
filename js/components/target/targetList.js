@@ -183,6 +183,18 @@ export const TargetList = memo(() => {
       }
       target_id_list = target_id_list.sort(compareTargetAccessStringAsc);
     }
+    // filter init date
+    if (filter.filter.initDate.order === 1) {
+      target_id_list = target_id_list.sort(compareInitDateDesc);
+      if (filteredListOfTargets !== undefined) {
+        filteredListOfTargets = [...filteredListOfTargets].sort(compareInitDateDesc);
+      }
+    } else {
+      if (filteredListOfTargets !== undefined) {
+        filteredListOfTargets = filteredListOfTargets.sort(compareInitDateAsc);
+      }
+      target_id_list = target_id_list.sort(compareInitDateAsc);
+    }
   }
 
   let searchString = '';
@@ -240,7 +252,7 @@ export const TargetList = memo(() => {
   let searchedNHits = [];
   let searchedByTargetAccessString = [];
 
-  let listOfFilteredTargetsByDate = useSelector(state => state.projectReducers.listOfFilteredTargetsByDate);
+  let listOfFilteredTargetsByDate = useSelector(state => state.targetReducers.listOfFilteredTargetsByDate);
 
   const isActiveFilter = !!(filter || {}).active;
   let listOfAllTarget = [...listOfAllTargetsDefault].sort(compareTargetDesc);
@@ -627,9 +639,9 @@ export const TargetList = memo(() => {
     dispatch(setListOfFilteredTargets(uniqueArray));
   };
 
-  /* if (filteredListOfTargets === undefined) {
+   if (filteredListOfTargets === undefined) {
     filteredListOfTargets = [...listOfAllTarget];
-  }*/
+  }
 
   if (listOfFilteredTargetsByDate !== undefined && filteredListOfTargets !== undefined) {
     filteredListOfTargets = filteredListOfTargets.filter(item1 =>

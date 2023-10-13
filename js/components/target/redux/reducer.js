@@ -131,6 +131,16 @@ export const targetReducers = (state = INITIAL_STATE, action = {}) => {
         searchTargetAccessString: action.payload
       });
 
+    case constants.SEARCH_INIT_DATE_FROM:
+      return Object.assign({}, state, {
+        searchInitDateFrom: action.payload
+      });
+
+    case constants.SEARCH_INIT_DATE_TO:
+      return Object.assign({}, state, {
+        searchInitDateTo: action.payload
+      });
+
     default:
       return state;
   }
