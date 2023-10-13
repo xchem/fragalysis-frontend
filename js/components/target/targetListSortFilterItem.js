@@ -179,8 +179,8 @@ const TargetListSortFilterItem = memo(props => {
   const searchDateLastEditFrom = useSelector(state => state.targetReducers.searchDateLastEditFrom);
   const searchDateLastEditTo = useSelector(state => state.targetReducers.searchDateLastEditTo);
   const searchTargetAccessString = useSelector(state => state.targetReducers.searchTargetAccessString);
-
-  const listOfFilteredTargetsByDate = useSelector(state => state.targetReducers.listOfFilteredTargetsByDate);
+  const searchInitDateFrom = useSelector(state => state.targetReducers.searchInitDateFrom);
+  const searchInitDateTo = useSelector(state => state.targetReducers.searchInitDateTo);
 
   const filters = useSelector(state => state.selectionReducers.filter);
   const isActiveFilter = !!(filters || {}).active;
@@ -609,12 +609,12 @@ const TargetListSortFilterItem = memo(props => {
       <Grid item className={classes.centered} style={{ width: widthOrder }}>
         <Radio
           style={{ left: 2 }}
-          checked={order === -1}
+          checked={order === 1}
           onChange={handleChangeOrder}
-          value={-1}
+          value={1}
           name="radio-button-demo"
         />
-        <Radio checked={order === 1} onChange={handleChangeOrder} value={1} name="radio-button-demo" />
+        <Radio checked={order === -1} onChange={handleChangeOrder} value={-1} name="radio-button-demo" />
         <Radio checked={order === 0} onChange={handleChangeOrder} value={0} name="radio-button-demo" />
       </Grid>
       <Grid item className={classNames(classes.property, classes.centered)} style={{ width: widthProperty }}>
@@ -635,7 +635,7 @@ const TargetListSortFilterItem = memo(props => {
                         selected={startDate}
                         onChange={event => onChangeFilterStartDate(event)}
                         placeholderText="YYYY-MM-DD"
-                        value={searchDateLastEditFrom}
+                        value={searchInitDateFrom}
                       />
                     </Grid>
 
@@ -649,7 +649,7 @@ const TargetListSortFilterItem = memo(props => {
                         selected={endDate}
                         onChange={event => onChangeFilterEndDate(event)}
                         placeholderText="YYYY-MM-DD"
-                        value={searchDateLastEditTo}
+                        value={searchInitDateTo}
                       />
                     </Grid>
                   </Grid>
@@ -709,7 +709,7 @@ const TargetListSortFilterItem = memo(props => {
                         selected={startDate}
                         onChange={event => onChangeFilterStartDate(event)}
                         placeholderText="YYYY-MM-DD"
-                        value={searchDateLastEditFrom}
+                        value={searchInitDateFrom}
                       />
                     </Grid>
                     <Grid item style={{ width: gridDateFromWidth }} className={classNames(classes.dateFont)}>
@@ -722,7 +722,7 @@ const TargetListSortFilterItem = memo(props => {
                         selected={endDate}
                         onChange={event => onChangeFilterEndDate(event)}
                         placeholderText="YYYY-MM-DD"
-                        value={searchDateLastEditTo}
+                        value={searchInitDateTo}
                       />
                     </Grid>
                   </Grid>

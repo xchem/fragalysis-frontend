@@ -48,7 +48,9 @@ import {
   setSearchNHits,
   setSearchDateLastEditFrom,
   setSearchDateLastEditTo,
-  setSearchTargetAccessString
+  setSearchTargetAccessString,
+  setSearchInitDateFrom,
+  setSearchInitDateTo
 } from './redux/actions';
 import {
   compareIdAsc,
@@ -268,12 +270,19 @@ export const TargetList = memo(() => {
 
     for (let attr of TARGETS_ATTR) {
       const lowAttr = attr.key.toLowerCase();
-
-      initObject.filter[attr.key] = {
-        priority: 0,
-        order: -1,
-        isFloat: attr.isFloat
-      };
+      if (attr.key === 'title') {
+        initObject.filter[attr.key] = {
+          priority: 0,
+          order: -1,
+          isFloat: attr.isFloat
+        };
+      } else {
+        initObject.filter[attr.key] = {
+          priority: 0,
+          order: 0,
+          isFloat: attr.isFloat
+        };
+      }
     }
     return initObject;
   });
@@ -428,6 +437,8 @@ export const TargetList = memo(() => {
       dispatch(setSearchDateLastEditFrom(''));
       dispatch(setSearchDateLastEditTo(''));
       dispatch(setSearchTargetAccessString(''));
+      dispatch(setSearchInitDateFrom(''));
+      dispatch(setSearchInitDateTo(''));
       const newFilter = { ...filter };
       newFilter.priorityOrder = [
         'title',
@@ -462,8 +473,8 @@ export const TargetList = memo(() => {
       ];
       //newFilter.filter.numberOfChains.order = 1;
       newFilter.filter.title.order = -1;
-      newFilter.filter.targetAccessString.order = -1;
-      newFilter.filter.initDate.order = -1;
+      newFilter.filter.targetAccessString.order = 0;
+      newFilter.filter.initDate.order = 0;
       //newFilter.filter.primaryChain.order = 1;
       //newFilter.filter.uniprot.order = 1;
       //newFilter.filter.range.order = 1;
@@ -639,7 +650,7 @@ export const TargetList = memo(() => {
     dispatch(setListOfFilteredTargets(uniqueArray));
   };
 
-   if (filteredListOfTargets === undefined) {
+  if (filteredListOfTargets === undefined) {
     filteredListOfTargets = [...listOfAllTarget];
   }
 
