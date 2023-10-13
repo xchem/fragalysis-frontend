@@ -50,6 +50,15 @@ export const TARGETS_ATT = {
     filter: true,
     dateFilter: false,
     path: 'project.target_access_string'
+  },
+  initDate: {
+    key: 'initDate',
+    name: 'Init date',
+    isFloat: true,
+    color: '#dcc520',
+    filter: true,
+    dateFilter: true,
+    path: 'project.init_date'
   }
   /*
   numberOfChains: {

@@ -315,3 +315,24 @@ export const compareTargetAccessStringDesc = (a, b) => {
   }
   return 0;
 };
+
+export const compareInitDateAsc = (a, b) => {
+  if (a.project.init_date < b.project.init_date) {
+    return -1;
+  }
+  if (a.project.init_date > b.project.init_date) {
+    return 1;
+  }
+  return 0;
+};
+
+export const compareInitDateDesc = (a, b) => {
+  if (a.project.init_date > b.project.init_date) {
+    return -1;
+  }
+  if (a.project.init_date < b.project.init_date) {
+    return 1;
+  }
+  return 0;
+};
+
