@@ -32,7 +32,7 @@ import {
 } from './redux/actions';
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
-import { compareTargetDesc } from './sortTargets/sortTargets';
+import { compareTargetAsc } from './sortTargets/sortTargets';
 import moment from 'moment';
 import { sortTargets } from './targetListSortFilterDialog';
 import { MOCK_LIST_OF_TARGETS } from './MOCK';
@@ -99,8 +99,8 @@ const useStyles = makeStyles(theme => ({
 }));
 
 const widthPrio = 50;
-const widthOrder = 60;
-const widthProperty = 170;
+const widthOrder = 90;
+const widthProperty = 160;
 const gridDateFromWidth = 85;
 const gridDateFromInputWidth = 90;
 const filterDataWidth = 200;
@@ -154,7 +154,7 @@ const TargetListSortFilterItem = memo(props => {
 
   //let listOfAllTargetsDefaultWithOutSort = useSelector(state => state.targetReducers.listOfTargets);
   let listOfAllTargetsDefaultWithOutSort = target_id_list; // remove after real data
-  let listOfAllTargetsDefault = [...listOfAllTargetsDefaultWithOutSort].sort(compareTargetDesc);
+  let listOfAllTargetsDefault = [...listOfAllTargetsDefaultWithOutSort].sort(compareTargetAsc);
   let filteredListOfTargets = useSelector(state => state.targetReducers.listOfFilteredTargets);
 
   const searchTarget = useSelector(state => state.targetReducers.searchTarget);
@@ -180,7 +180,7 @@ const TargetListSortFilterItem = memo(props => {
   const isActiveFilter = !!(filters || {}).active;
   const filterClean = useSelector(state => state.targetReducers.filterClean);
 
-  let listOfAllTargets = [...listOfAllTargetsDefault].sort(compareTargetDesc);
+  let listOfAllTargets = [...listOfAllTargetsDefault].sort(compareTargetAsc);
 
   useEffect(() => {
     if (filteredTargetList.length !== 0) {
@@ -197,7 +197,7 @@ const TargetListSortFilterItem = memo(props => {
       dispatch(setListOfTargets(listOfAllTargetsDefault));
       if (filteredListOfTargets !== undefined) {
         filteredListOfTargets = sortTargets(filteredListOfTargets, filters);
-        dispatch(setListOfFilteredTargets(filteredListOfTargets.sort(compareTargetDesc)));
+        dispatch(setListOfFilteredTargets(filteredListOfTargets.sort(compareTargetAsc)));
       }
     }
   }, [filter]);
@@ -588,6 +588,13 @@ const TargetListSortFilterItem = memo(props => {
       <Grid item className={classes.centered} style={{ width: widthOrder }}>
         <Radio
           style={{ left: 4 }}
+          checked={order === -1}
+          onChange={handleChangeOrder}
+          value={-1}
+          name="radio-button-demo"
+        />
+        <Radio
+          style={{ right: 4 }}
           checked={order === 1}
           onChange={handleChangeOrder}
           value={1}
@@ -595,9 +602,9 @@ const TargetListSortFilterItem = memo(props => {
         />
         <Radio
           style={{ right: 4 }}
-          checked={order === -1}
+          checked={order === 0}
           onChange={handleChangeOrder}
-          value={-1}
+          value={0}
           name="radio-button-demo"
         />
       </Grid>
