@@ -82,7 +82,9 @@ import {
   compareVersionIdAsc,
   compareVersionIdDesc,
   compareTargetAccessStringAsc,
-  compareTargetAccessStringDesc
+  compareTargetAccessStringDesc,
+  compareInitDateAsc,
+  compareInitDateDesc
 } from './sortTargets/sortTargets';
 import { TargetListSortFilterDialog, sortTargets } from './targetListSortFilterDialog';
 import {
@@ -99,6 +101,7 @@ import { setTargetFilter } from '../../reducers/selection/actions';
 import { MOCK_LIST_OF_TARGETS } from './MOCK';
 import { TARGETS_ATTR } from './redux/constants';
 import { getTargetProjectCombinations } from './redux/dispatchActions';
+import moment from 'moment';
 
 const useStyles = makeStyles(theme => ({
   table: {
@@ -135,8 +138,9 @@ export const TargetList = memo(() => {
   const [isResizing, setIsResizing] = useState(false);
   const [isResizingTargetAccessString, setIsResizingTargetAccessString] = useState(false);
   const [isResizingSGC, setIsResizingSGC] = useState(false);
-  const [panelWidth, setPanelWidth] = useState(130);
-  const [panelWidthForTargetAccessString, setPanelWidthForTargetAccessString] = useState(180);
+  const [panelWidth, setPanelWidth] = useState(100);
+  const [panelWidthForTargetAccessString, setPanelWidthForTargetAccessString] = useState(130);
+  const [panelWidthForInitDate, setPanelWidthForInitDate] = useState(100);
   const [panelWidthForSGC, setPanelWidthForSGC] = useState(130);
 
   const [sortSwitch, setSortSwitch] = useState(0);
@@ -217,6 +221,7 @@ export const TargetList = memo(() => {
   const offsetDateLastEdit = 150;
   const offsetVersionId = 160;
   const offsetTargetAccessString = 170;
+  const offsetInitDate = 180;
 
   let searchedById = [];
   let searchedByTarget = [];
@@ -298,9 +303,13 @@ export const TargetList = memo(() => {
         </TableCell>
         <TableCell style={{ width: '2px', padding: '0px', margin: '0px' }}></TableCell>
         <TableCell align="left" style={{ padding: '0px 10px 0px 0px', margin: '0px', padding: '0px' }}>
+          <div>{moment(target.project.init_date).format('YYYY-MM-DD')} </div>
+        </TableCell>
+        <TableCell style={{ width: '2px', padding: '0px', margin: '0px' }}></TableCell>
+        <TableCell align="left" style={{ padding: '0px 10px 0px 0px', margin: '0px', padding: '0px' }}>
           {sgcUploaded.includes(target.title) && (
             <a href={sgcUrl} target="new">
-              Open SGC summary
+              SGC summary
             </a>
           )}
           {discourseAvailable && (
@@ -320,7 +329,7 @@ export const TargetList = memo(() => {
                 }}
                 style={{ padding: '0px' }}
               >
-                <Chat />
+                <Chat style={{ height: '15px' }} />
               </IconButton>
             </Tooltip>
           )}
@@ -410,7 +419,8 @@ export const TargetList = memo(() => {
       const newFilter = { ...filter };
       newFilter.priorityOrder = [
         'title',
-        'targetAccessString'
+        'targetAccessString',
+        'initDate'
         //'numberOfChains',
         //'primaryChain',
         //'uniprot',
@@ -425,7 +435,8 @@ export const TargetList = memo(() => {
       ];
       newFilter.sortOptions = [
         ['title', undefined],
-        ['targetAccessString', undefined]
+        ['targetAccessString', 'project_target_access_string'],
+        ['initDate', 'project.init_date']
         //['numberOfChains', undefined],
         //['primaryChain', undefined],
         //['uniprot', undefined],
@@ -440,6 +451,7 @@ export const TargetList = memo(() => {
       //newFilter.filter.numberOfChains.order = 1;
       newFilter.filter.title.order = -1;
       newFilter.filter.targetAccessString.order = -1;
+      newFilter.filter.initDate.order = -1;
       //newFilter.filter.primaryChain.order = 1;
       //newFilter.filter.uniprot.order = 1;
       //newFilter.filter.range.order = 1;
@@ -455,7 +467,7 @@ export const TargetList = memo(() => {
 
   // window height for showing rows per page
   const [windowHeight, setWindowHeight] = useState(window.innerHeight);
-  let targetListWindowHeight = windowHeight / 26;
+  let targetListWindowHeight = windowHeight / 22.5;
   let targetListWindowHeightFinal = parseInt(targetListWindowHeight.toFixed(0), 10);
   const [rowsPerPage, setRowsPerPage] = useState(targetListWindowHeightFinal);
   const [rowsPerPagePerPageSize, setRowsPerPagePerPageSize] = useState(targetListWindowHeightFinal);
@@ -728,6 +740,51 @@ export const TargetList = memo(() => {
             )
           );
           setSortSwitch(offsetTargetAccessString + 1);
+        }
+        break;
+      case 'initDate':
+        if (sortSwitch === offsetInitDate + 1) {
+          if (filter !== undefined) {
+            const newFilter = { ...filter };
+            newFilter.filter.initDate.order = 1;
+            dispatch(setTargetFilter(newFilter));
+          }
+          dispatch(
+            setListOfFilteredTargets(
+              filteredListOfTargets === undefined
+                ? [...listOfAllTarget].sort(compareInitDateAsc)
+                : [...filteredListOfTargets].sort(compareInitDateAsc)
+            )
+          );
+          setSortSwitch(sortSwitch + 1);
+        } else if (sortSwitch === offsetInitDate + 2) {
+          if (filter !== undefined) {
+            const newFilter = { ...filter };
+            newFilter.filter.initDate.order = 0;
+            dispatch(setTargetFilter(newFilter));
+          }
+          dispatch(
+            setListOfFilteredTargets(
+              filteredListOfTargets === undefined
+                ? [...listOfAllTarget].sort(compareInitDateAsc)
+                : [...filteredListOfTargets].sort(compareInitDateAsc)
+            )
+          );
+          setSortSwitch(0);
+        } else {
+          if (filter !== undefined) {
+            const newFilter = { ...filter };
+            newFilter.filter.initDate.order = -1;
+            dispatch(setTargetFilter(newFilter));
+          }
+          dispatch(
+            setListOfFilteredTargets(
+              filteredListOfTargets === undefined
+                ? [...listOfAllTarget].sort(compareInitDateDesc)
+                : [...filteredListOfTargets].sort(compareInitDateDesc)
+            )
+          );
+          setSortSwitch(offsetInitDate + 1);
         }
         break;
       case 'numberOfChains':
@@ -1087,7 +1144,7 @@ export const TargetList = memo(() => {
                     checked={checkedTargetAccessString}
                     onChange={() => setCheckedTargetAccessString(!checkedTargetAccessString)}
                   />
-                  Target access string
+                  Target access
                 </Typography>
                 <IconButton style={{ padding: '0px' }} onClick={() => handleHeaderSort('targetAccessString')}>
                   <Tooltip title="Sort" className={classes.sortButton}>
@@ -1106,6 +1163,26 @@ export const TargetList = memo(() => {
               <div
                 style={{ cursor: 'col-resize', width: 3, height: '20px', backgroundColor: '#eeeeee' }}
                 onMouseDown={handleMouseDownResizerTargetAccessString}
+              ></div>
+              <TableCell style={{ width: panelWidthForInitDate, padding: '0px' }}>
+                Init date
+                <IconButton style={{ padding: '0px' }} onClick={() => handleHeaderSort('initDate')}>
+                  <Tooltip title="Sort" className={classes.sortButton}>
+                    {[1, 2].includes(sortSwitch - offsetInitDate) ? (
+                      sortSwitch % offsetInitDate < 2 ? (
+                        <KeyboardArrowDown />
+                      ) : (
+                        <KeyboardArrowUp />
+                      )
+                    ) : (
+                      <UnfoldMore />
+                    )}
+                  </Tooltip>
+                </IconButton>
+              </TableCell>
+              <div
+                style={{ cursor: 'col-resize', width: 3, height: '20px', backgroundColor: '#eeeeee' }}
+                onMouseDown={handleMouseDownResizerTargetAccessString} // TODO change resizer
               ></div>
               <TableCell style={{ width: panelWidthForSGC, padding: '0px' }}>SGC</TableCell>
               <div
