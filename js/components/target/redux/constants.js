@@ -32,8 +32,8 @@ export const constants = {
 };
 
 export const TARGETS_ATT = {
-  target: {
-    key: 'target',
+  title: {
+    key: 'title',
     name: 'Target',
     isFloat: true,
     color: '#daa520',
@@ -48,7 +48,7 @@ export const TARGETS_ATT = {
     color: '#f96587',
     filter: true,
     dateFilter: false,
-    path: undefined
+    path: 'project.target_access_string'
   }
   /*
   numberOfChains: {

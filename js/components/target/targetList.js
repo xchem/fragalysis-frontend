@@ -131,10 +131,6 @@ export const TargetList = memo(() => {
   const classes = useStyles();
   const dispatch = useDispatch();
   const [page, setPage] = useState(0);
-  const isTargetLoading = useSelector(state => state.targetReducers.isTargetLoading);
-  const target_id_list_default = useSelector(state => state.apiReducers.target_id_list);
-  const projectsList = useSelector(state => state.targetReducers.projects);
-
   const [isResizing, setIsResizing] = useState(false);
   const [isResizingTargetAccessString, setIsResizingTargetAccessString] = useState(false);
   const [isResizingSGC, setIsResizingSGC] = useState(false);
@@ -142,14 +138,48 @@ export const TargetList = memo(() => {
   const [panelWidthForTargetAccessString, setPanelWidthForTargetAccessString] = useState(180);
   const [panelWidthForSGC, setPanelWidthForSGC] = useState(130);
 
-  let filteredListOfTargets = useSelector(state => state.targetReducers.listOfFilteredTargets);
-
   const [sortSwitch, setSortSwitch] = useState(0);
   const [sortDialogAnchorEl, setSortDialogAnchorEl] = useState(null);
   const sortDialogOpen = useSelector(state => state.targetReducers.targetListFilterDialog);
 
-  const target_id_list = target_id_list_default.sort(compareTargetAsc);
+  const filterClean = useSelector(state => state.targetReducers.filterClean);
+  let filter = useSelector(state => state.selectionReducers.targetFilter);
+
+  const target_id_list_unsorted = useSelector(state => state.apiReducers.target_id_list);
+  const projectsList = useSelector(state => state.targetReducers.projects);
+  let listOfTargets = useSelector(state => state.targetReducers.listOfTargets);
+  let filteredListOfTargets = useSelector(state => state.targetReducers.listOfFilteredTargets);
+
+  let target_id_list = filter === undefined ? target_id_list_unsorted.sort(compareTargetAsc) : target_id_list_unsorted;
   let listOfAllTargetsDefault = target_id_list;
+
+  if (filter) {
+    // filter target
+    if (filter.filter.title.order === 1) {
+      target_id_list = target_id_list.sort(compareTargetDesc);
+      if (filteredListOfTargets !== undefined) {
+        filteredListOfTargets = [...filteredListOfTargets].sort(compareTargetDesc);
+      }
+    } else {
+      if (filteredListOfTargets !== undefined) {
+        filteredListOfTargets = filteredListOfTargets.sort(compareTargetAsc);
+      }
+      target_id_list = target_id_list.sort(compareTargetAsc);
+    }
+    // filter target access string
+    if (filter.filter.targetAccessString.order === 1) {
+      target_id_list = target_id_list.sort(compareTargetAccessStringDesc);
+      if (filteredListOfTargets !== undefined) {
+        filteredListOfTargets = [...filteredListOfTargets].sort(compareTargetAccessStringDesc);
+      }
+    } else {
+      if (filteredListOfTargets !== undefined) {
+        filteredListOfTargets = filteredListOfTargets.sort(compareTargetAccessStringAsc);
+      }
+      target_id_list = target_id_list.sort(compareTargetAccessStringAsc);
+    }
+  }
+
   let searchString = '';
 
   // checkbox for search
@@ -168,7 +198,6 @@ export const TargetList = memo(() => {
   const [checkedNHits, setCheckedNHits] = useState(true);
   const [checkedDateLastEdit, setCheckedDateLastEdit] = useState(true);
   const [checkedVersionId, setCheckedVersionId] = useState(true);
-
   const [checkedTargetAccessString, setCheckedTargetAccessString] = useState(true);
 
   const offsetId = 10;
@@ -206,8 +235,6 @@ export const TargetList = memo(() => {
   let searchedByTargetAccessString = [];
 
   let listOfFilteredTargetsByDate = useSelector(state => state.projectReducers.listOfFilteredTargetsByDate);
-  const filterClean = useSelector(state => state.targetReducers.filterClean);
-  let filter = useSelector(state => state.selectionReducers.targetFilter);
 
   const isActiveFilter = !!(filter || {}).active;
   let listOfAllTarget = [...listOfAllTargetsDefault].sort(compareTargetDesc);
@@ -226,7 +253,7 @@ export const TargetList = memo(() => {
 
       initObject.filter[attr.key] = {
         priority: 0,
-        order: 1,
+        order: -1,
         isFloat: attr.isFloat
       };
     }
@@ -380,7 +407,7 @@ export const TargetList = memo(() => {
       dispatch(setSearchDateLastEditTo(''));
       const newFilter = { ...filter };
       newFilter.priorityOrder = [
-        'target',
+        'title',
         'targetAccessString'
         //'numberOfChains',
         //'primaryChain',
@@ -395,7 +422,7 @@ export const TargetList = memo(() => {
         //'dateLastEdit'
       ];
       newFilter.sortOptions = [
-        ['target', undefined],
+        ['title', undefined],
         ['targetAccessString', undefined]
         //['numberOfChains', undefined],
         //['primaryChain', undefined],
@@ -612,24 +639,40 @@ export const TargetList = memo(() => {
         break;
       case 'target':
         if (sortSwitch === offsetTarget + 1) {
+          if (filter !== undefined) {
+            const newFilter = { ...filter };
+            newFilter.filter.title.order = 1;
+            dispatch(setTargetFilter(newFilter));
+          }
           dispatch(
             setListOfFilteredTargets(
               filteredListOfTargets === undefined
                 ? [...listOfAllTarget].sort(compareTargetAsc)
-                : [...filteredListOfTargets].sort(compareTargetAsc)
+                : filteredListOfTargets.sort(compareTargetAsc)
             )
           );
           setSortSwitch(sortSwitch + 1);
         } else if (sortSwitch === offsetTarget + 2) {
+          if (filter !== undefined) {
+            const newFilter = { ...filter };
+            newFilter.filter.title.order = 0;
+            dispatch(setTargetFilter(newFilter));
+          }
           dispatch(
             setListOfFilteredTargets(
               filteredListOfTargets === undefined
                 ? [...listOfAllTarget].sort(compareTargetAsc)
-                : [...filteredListOfTargets].sort(compareTargetAsc)
+                : filteredListOfTargets.sort(compareTargetAsc)
             )
           );
           setSortSwitch(0);
         } else {
+          if (filter !== undefined) {
+            // change radio button in project list filter
+            const newFilter = { ...filter };
+            newFilter.filter.title.order = -1;
+            dispatch(setTargetFilter(newFilter));
+          }
           dispatch(
             setListOfFilteredTargets(
               filteredListOfTargets === undefined
@@ -642,6 +685,11 @@ export const TargetList = memo(() => {
         break;
       case 'targetAccessString':
         if (sortSwitch === offsetTargetAccessString + 1) {
+          if (filter !== undefined) {
+            const newFilter = { ...filter };
+            newFilter.filter.targetAccessString.order = 1;
+            dispatch(setTargetFilter(newFilter));
+          }
           dispatch(
             setListOfFilteredTargets(
               filteredListOfTargets === undefined
@@ -651,6 +699,11 @@ export const TargetList = memo(() => {
           );
           setSortSwitch(sortSwitch + 1);
         } else if (sortSwitch === offsetTargetAccessString + 2) {
+          if (filter !== undefined) {
+            const newFilter = { ...filter };
+            newFilter.filter.targetAccessString.order = 0;
+            dispatch(setTargetFilter(newFilter));
+          }
           dispatch(
             setListOfFilteredTargets(
               filteredListOfTargets === undefined
@@ -660,6 +713,11 @@ export const TargetList = memo(() => {
           );
           setSortSwitch(0);
         } else {
+          if (filter !== undefined) {
+            const newFilter = { ...filter };
+            newFilter.filter.targetAccessString.order = -1;
+            dispatch(setTargetFilter(newFilter));
+          }
           dispatch(
             setListOfFilteredTargets(
               filteredListOfTargets === undefined
@@ -1368,7 +1426,11 @@ export const TargetList = memo(() => {
           </TableHead>
           <TableBody>
             {getTargetProjectCombinations(
-              filteredListOfTargets !== undefined ? filteredListOfTargets : target_id_list,
+              filteredListOfTargets !== undefined
+                ? filteredListOfTargets
+                : listOfTargets !== undefined
+                ? listOfTargets
+                : target_id_list,
               projectsList
             )
               .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
