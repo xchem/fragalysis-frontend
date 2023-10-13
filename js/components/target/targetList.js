@@ -162,40 +162,46 @@ export const TargetList = memo(() => {
 
   if (filter) {
     // filter target
-    if (filter.filter.title.order === 1) {
-      target_id_list = target_id_list.sort(compareTargetDesc);
-      if (filteredListOfTargets !== undefined) {
-        filteredListOfTargets = [...filteredListOfTargets].sort(compareTargetDesc);
+    if (sortSwitch > 20 && sortSwitch < 25) {
+      if (filter.filter.title.order === 1) {
+        target_id_list = target_id_list.sort(compareTargetDesc);
+        if (filteredListOfTargets !== undefined) {
+          filteredListOfTargets = [...filteredListOfTargets].sort(compareTargetDesc);
+        }
+      } else {
+        if (filteredListOfTargets !== undefined) {
+          filteredListOfTargets = filteredListOfTargets.sort(compareTargetAsc);
+        }
+        target_id_list = target_id_list.sort(compareTargetAsc);
       }
-    } else {
-      if (filteredListOfTargets !== undefined) {
-        filteredListOfTargets = filteredListOfTargets.sort(compareTargetAsc);
-      }
-      target_id_list = target_id_list.sort(compareTargetAsc);
     }
     // filter target access string
-    if (filter.filter.targetAccessString.order === 1) {
-      target_id_list = target_id_list.sort(compareTargetAccessStringDesc);
-      if (filteredListOfTargets !== undefined) {
-        filteredListOfTargets = [...filteredListOfTargets].sort(compareTargetAccessStringDesc);
+    if (sortSwitch > 170 && sortSwitch < 175) {
+      if (filter.filter.targetAccessString.order === 1) {
+        target_id_list = target_id_list.sort(compareTargetAccessStringDesc);
+        if (filteredListOfTargets !== undefined) {
+          filteredListOfTargets = filteredListOfTargets.sort(compareTargetAccessStringDesc);
+        }
+      } else {
+        if (filteredListOfTargets !== undefined) {
+          filteredListOfTargets = filteredListOfTargets.sort(compareTargetAccessStringAsc);
+        }
+        target_id_list = target_id_list.sort(compareTargetAccessStringAsc);
       }
-    } else {
-      if (filteredListOfTargets !== undefined) {
-        filteredListOfTargets = filteredListOfTargets.sort(compareTargetAccessStringAsc);
-      }
-      target_id_list = target_id_list.sort(compareTargetAccessStringAsc);
     }
     // filter init date
-    if (filter.filter.initDate.order === 1) {
-      target_id_list = target_id_list.sort(compareInitDateDesc);
-      if (filteredListOfTargets !== undefined) {
-        filteredListOfTargets = [...filteredListOfTargets].sort(compareInitDateDesc);
+    if (sortSwitch > 180 && sortSwitch < 185) {
+      if (filter.filter.initDate.order === 1) {
+        target_id_list = target_id_list.sort(compareInitDateDesc);
+        if (filteredListOfTargets !== undefined) {
+          filteredListOfTargets = [...filteredListOfTargets].sort(compareInitDateDesc);
+        }
+      } else {
+        if (filteredListOfTargets !== undefined) {
+          filteredListOfTargets = filteredListOfTargets.sort(compareInitDateAsc);
+        }
+        target_id_list = target_id_list.sort(compareInitDateAsc);
       }
-    } else {
-      if (filteredListOfTargets !== undefined) {
-        filteredListOfTargets = filteredListOfTargets.sort(compareInitDateAsc);
-      }
-      target_id_list = target_id_list.sort(compareInitDateAsc);
     }
   }
 
