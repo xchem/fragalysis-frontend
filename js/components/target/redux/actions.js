@@ -143,3 +143,17 @@ export const setSearchTargetAccessString = searchTargetAccessString => {
     payload: searchTargetAccessString
   };
 };
+
+export const setSearchInitDateFrom = searchInitDateFrom => {
+  return {
+    type: constants.SEARCH_INIT_DATE_FROM,
+    payload: searchInitDateFrom
+  };
+};
+
+export const setSearchInitDateTo = searchInitDateTo => {
+  return {
+    type: constants.SEARCH_INIT_DATE_TO,
+    payload: searchInitDateTo
+  };
+};
