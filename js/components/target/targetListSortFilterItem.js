@@ -28,7 +28,10 @@ import {
   setSearchECNumber,
   setSearchNHits,
   setSearchDateLastEditFrom,
-  setSearchDateLastEditTo
+  setSearchDateLastEditTo,
+  setSearchDateFrom,
+  setSearchDateTo,
+  setSearchTargetAccessString
 } from './redux/actions';
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
@@ -99,8 +102,8 @@ const useStyles = makeStyles(theme => ({
 }));
 
 const widthPrio = 50;
-const widthOrder = 90;
-const widthProperty = 160;
+const widthOrder = 110;
+const widthProperty = 150;
 const gridDateFromWidth = 85;
 const gridDateFromInputWidth = 90;
 const filterDataWidth = 200;
@@ -120,6 +123,7 @@ let searchECNumberString = '';
 let searchNHitsString = '';
 let searchDateLastEditFromString = '';
 let searchDateLastEditToString = '';
+let searchTargetAccessStringString = '';
 
 let filteredTargetListByTarget = [];
 let filteredTargetListByNumberOfChains = [];
@@ -134,6 +138,7 @@ let filteredTargetListByDateLastEditFrom = [];
 let filteredTargetListByDateLastEditTo = [];
 let filteredTargetListByECNumber = [];
 let filteredTargetListByNHits = [];
+let filteredTargetListByTargetAccessString = [];
 
 const TargetListSortFilterItem = memo(props => {
   const dispatch = useDispatch();
@@ -170,13 +175,11 @@ const TargetListSortFilterItem = memo(props => {
   const searchNHits = useSelector(state => state.targetReducers.searchNHits);
   const searchDateLastEditFrom = useSelector(state => state.targetReducers.searchDateLastEditFrom);
   const searchDateLastEditTo = useSelector(state => state.targetReducers.searchDateLastEditTo);
-
   const searchTargetAccessString = useSelector(state => state.targetReducers.searchTargetAccessString);
 
   const listOfFilteredTargetsByDate = useSelector(state => state.targetReducers.listOfFilteredTargetsByDate);
 
   const filters = useSelector(state => state.selectionReducers.filter);
-
   const isActiveFilter = !!(filters || {}).active;
   const filterClean = useSelector(state => state.targetReducers.filterClean);
 
@@ -225,6 +228,7 @@ const TargetListSortFilterItem = memo(props => {
       filteredTargetListByRange = [];
       filteredTargetListByProteinName = [];
       filteredTargetListByGeneName = [];
+      filteredTargetListByTargetAccessString = [];
     }
   }, [filterClean]);
 
@@ -233,6 +237,8 @@ const TargetListSortFilterItem = memo(props => {
       dispatch(setSearchTarget(event.target.value));
     } else if (property === 'Number of chains') {
       dispatch(setSearchNumberOfChains(event.target.value));
+    } else if (property === 'Target access string') {
+      dispatch(setSearchTargetAccessString(event.target.value));
     } else if (property === 'Primary chain') {
       dispatch(setSearchPrimaryChain(event.target.value));
     } else if (property === 'Uniprot') {
@@ -312,9 +318,9 @@ const TargetListSortFilterItem = memo(props => {
   };
 
   const filterAllData = value => {
-    if (searchTargetString !== '' && searchPrimaryChainString !== '') {
+    if (searchTargetString !== '' && searchTargetAccessStringString !== '') {
       let filteredData1 = filteredTargetListByTarget.filter(item1 =>
-        filteredTargetListByNumberOfChains.some(item2 => item2.id === item1.id)
+        filteredTargetListByTargetAccessString.some(item2 => item2.id === item1.id)
       );
       dispatch(setListOfFilteredTargets(filteredData1));
     }
@@ -448,12 +454,19 @@ const TargetListSortFilterItem = memo(props => {
   const onChangeFilterStringDebounce = debounce(value => {
     if (property === 'Target') {
       searchTargetString = value;
-
       filteredTargetListByTarget = listOfAllTargets.filter(item =>
         item.title.toLowerCase().includes(value.toLowerCase())
       );
-
       dispatch(setListOfFilteredTargets(filteredTargetListByTarget));
+      filterAllData(value);
+    }
+
+    if (property === 'Target access string') {
+      searchTargetAccessStringString = value;
+      filteredTargetListByTargetAccessString = listOfAllTargets.filter(item =>
+        item.project.target_access_string.toLowerCase().includes(value.toLowerCase())
+      );
+      dispatch(setListOfFilteredTargets(filteredTargetListByTargetAccessString));
       filterAllData(value);
     }
 
@@ -587,26 +600,14 @@ const TargetListSortFilterItem = memo(props => {
       </Grid>
       <Grid item className={classes.centered} style={{ width: widthOrder }}>
         <Radio
-          style={{ left: 4 }}
+          style={{ left: 2 }}
           checked={order === -1}
           onChange={handleChangeOrder}
           value={-1}
           name="radio-button-demo"
         />
-        <Radio
-          style={{ right: 4 }}
-          checked={order === 1}
-          onChange={handleChangeOrder}
-          value={1}
-          name="radio-button-demo"
-        />
-        <Radio
-          style={{ right: 4 }}
-          checked={order === 0}
-          onChange={handleChangeOrder}
-          value={0}
-          name="radio-button-demo"
-        />
+        <Radio checked={order === 1} onChange={handleChangeOrder} value={1} name="radio-button-demo" />
+        <Radio checked={order === 0} onChange={handleChangeOrder} value={0} name="radio-button-demo" />
       </Grid>
       <Grid item className={classNames(classes.property, classes.centered)} style={{ width: widthProperty }}>
         <Chip size="small" className={classes.propertyChip} label={property} style={{ backgroundColor: color }} />

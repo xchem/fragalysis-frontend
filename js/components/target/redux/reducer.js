@@ -126,6 +126,11 @@ export const targetReducers = (state = INITIAL_STATE, action = {}) => {
         searchDateLastEditTo: action.payload
       });
 
+    case constants.SEARCH_TARGET_ACCESS_STRING:
+      return Object.assign({}, state, {
+        searchTargetAccessString: action.payload
+      });
+
     default:
       return state;
   }

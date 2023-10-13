@@ -51,14 +51,14 @@ const useStyles = makeStyles(theme => ({
     top: 2
   },
   paper: {
-    width: 520,
+    width: 530,
     overflow: 'none'
   }
 }));
 
 const widthPrio = 50;
-const widthOrder = 90;
-const widthProperty = 170;
+const widthOrder = 110;
+const widthProperty = 150;
 const filterData = 160;
 
 export const getAttrDefinition = attr => {

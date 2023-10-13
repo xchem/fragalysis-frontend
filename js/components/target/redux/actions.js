@@ -136,3 +136,10 @@ export const setSearchDateLastEditTo = searchDateLastEditTo => {
     payload: searchDateLastEditTo
   };
 };
+
+export const setSearchTargetAccessString = searchTargetAccessString => {
+  return {
+    type: constants.SEARCH_TARGET_ACCESS_STRING,
+    payload: searchTargetAccessString
+  };
+};
