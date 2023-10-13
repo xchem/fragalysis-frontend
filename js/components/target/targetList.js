@@ -47,7 +47,8 @@ import {
   setSearchECNumber,
   setSearchNHits,
   setSearchDateLastEditFrom,
-  setSearchDateLastEditTo
+  setSearchDateLastEditTo,
+  setSearchTargetAccessString
 } from './redux/actions';
 import {
   compareIdAsc,
@@ -405,6 +406,7 @@ export const TargetList = memo(() => {
       dispatch(setSearchNHits(''));
       dispatch(setSearchDateLastEditFrom(''));
       dispatch(setSearchDateLastEditTo(''));
+      dispatch(setSearchTargetAccessString(''));
       const newFilter = { ...filter };
       newFilter.priorityOrder = [
         'title',
@@ -436,8 +438,8 @@ export const TargetList = memo(() => {
         //['dateLastEdit', undefined]
       ];
       //newFilter.filter.numberOfChains.order = 1;
-      newFilter.filter.target.order = 1;
-      newFilter.filter.targetAccessString.order = 1;
+      newFilter.filter.title.order = -1;
+      newFilter.filter.targetAccessString.order = -1;
       //newFilter.filter.primaryChain.order = 1;
       //newFilter.filter.uniprot.order = 1;
       //newFilter.filter.range.order = 1;
