@@ -168,6 +168,7 @@ import {
 } from '../../components/preview/tags/redux/dispatchActions';
 import { turnSide } from '../../components/preview/viewerControls/redux/actions';
 import { getQualityOffActions } from './utils';
+import { compoundsColors } from '../../components/preview/compounds/redux/constants';
 
 export const addCurrentActionsListToSnapshot = (snapshot, project, nglViewList) => async (dispatch, getState) => {
   let projectID = project && project.projectID;
@@ -434,6 +435,13 @@ const saveActionsList = (project, snapshot, actionList, nglViewList) => async (d
       orderedActionList,
       actionType.COMPOUND_LOCKED,
       getCollectionOfDataset(currentLockedCompounds),
+      currentActions
+    );
+
+    getCurrentActionListOfPaintAllMolecules(
+      orderedActionList,
+      actionType.ALL_COMPOUNDS_ADDED_TO_COLOR_GROUP,
+      getCollectionOfDatasetColors(currentColorsOfCompounds),
       currentActions
     );
 
@@ -739,6 +747,27 @@ const getCurrentActionListOfSelectAllMolecules = (orderedActionList, type, colle
   }
 };
 
+const getCurrentActionListOfPaintAllMolecules = (orderedActionList, type, collection, currentActions) => {
+  const definedColors = Object.keys(compoundsColors);
+  definedColors.forEach(color => {
+    let action = orderedActionList.find(action => action.type === type && action.color === color);
+    if (action && collection) {
+      const datasetId = action.dataset_id;
+      let actionItems = action.items;
+      let items = [];
+      collection.forEach(data => {
+        if (data.datasetId === datasetId && data.color === color) {
+          let item = actionItems.find(ai => ai === data.id);
+          if (item) {
+            items.push(item);
+          }
+        }
+      });
+      currentActions.push(Object.assign({ ...action, items: items }));
+    }
+  });
+};
+
 const getCurrentActionListOfShoppingCart = (orderedActionList, type, collection, currentActions) => {
   let actionList = orderedActionList.filter(action => action.type === type);
 
@@ -889,7 +918,7 @@ export const restoreStateBySavedActionList = () => (dispatch, getState) => {
   const currentActionList = state.trackingReducers.current_actions_list;
   const orderedActionList = currentActionList.sort((a, b) => a.timestamp - b.timestamp);
 
-  let onCancel = () => { };
+  let onCancel = () => {};
   dispatch(loadTargetList(onCancel))
     .then(() => {
       dispatch(restoreTargetActions(orderedActionList));
@@ -930,14 +959,14 @@ export const restoreAfterTargetActions = (stages, projectId) => async (dispatch,
     await dispatch(
       loadMoleculeGroupsOfTarget({
         isStateLoaded: false,
-        setOldUrl: url => { },
+        setOldUrl: url => {},
         target_on: targetId
       })
     )
       .catch(error => {
         throw error;
       })
-      .finally(() => { });
+      .finally(() => {});
 
     await dispatch(restoreSitesActions(orderedActionList));
     await dispatch(loadData(orderedActionList, targetId, majorView));
@@ -1483,16 +1512,16 @@ const restoreAllSelectionActions = (moleculesAction, stage, isSelection) => (dis
   let actions =
     isSelection === true
       ? moleculesAction.filter(
-        action =>
-          action.type === actionType.ALL_TURNED_ON &&
-          (action.object_type === actionObjectType.INSPIRATION || action.object_type === actionObjectType.MOLECULE)
-      )
+          action =>
+            action.type === actionType.ALL_TURNED_ON &&
+            (action.object_type === actionObjectType.INSPIRATION || action.object_type === actionObjectType.MOLECULE)
+        )
       : moleculesAction.filter(
-        action =>
-          action.type === actionType.ALL_TURNED_ON &&
-          (action.object_type === actionObjectType.CROSS_REFERENCE ||
-            action.object_type === actionObjectType.COMPOUND)
-      );
+          action =>
+            action.type === actionType.ALL_TURNED_ON &&
+            (action.object_type === actionObjectType.CROSS_REFERENCE ||
+              action.object_type === actionObjectType.COMPOUND)
+        );
 
   if (actions) {
     actions.forEach(action => {
@@ -1545,21 +1574,36 @@ const restoreSelectAllMolecules = moleculesAction => (dispatch, getState) => {
   }
 };
 
+const restorePaintAllCompounds = compoundActions => (dispatch, getState) => {
+  let actions = compoundActions?.filter(ma => ma.type === actionType.ALL_COMPOUNDS_ADDED_TO_COLOR_GROUP);
+  actions?.forEach(action => {
+    if (action?.items && action?.color && action?.dataset_id) {
+      const state = getState();
+      action.items.forEach(ai => {
+        const cmp = getCompoundById(ai, action.dataset_id, state);
+        if (cmp) {
+          dispatch(appendCompoundColorOfDataset(action.dataset_id, cmp.id, action.color, cmp.name, true));
+        }
+      });
+    }
+  });
+};
+
 const restoreAllSelectionByTypeActions = (moleculesAction, stage, isSelection) => (dispatch, getState) => {
   const state = getState();
   let actions =
     isSelection === true
       ? moleculesAction.filter(
-        action =>
-          action.type === actionType.SELECTED_TURNED_ON_BY_TYPE &&
-          (action.object_type === actionObjectType.INSPIRATION || action.object_type === actionObjectType.MOLECULE)
-      )
+          action =>
+            action.type === actionType.SELECTED_TURNED_ON_BY_TYPE &&
+            (action.object_type === actionObjectType.INSPIRATION || action.object_type === actionObjectType.MOLECULE)
+        )
       : moleculesAction.filter(
-        action =>
-          action.type === actionType.SELECTED_TURNED_ON_BY_TYPE &&
-          (action.object_type === actionObjectType.CROSS_REFERENCE ||
-            action.object_type === actionObjectType.COMPOUND)
-      );
+          action =>
+            action.type === actionType.SELECTED_TURNED_ON_BY_TYPE &&
+            (action.object_type === actionObjectType.CROSS_REFERENCE ||
+              action.object_type === actionObjectType.COMPOUND)
+        );
 
   if (actions) {
     actions.forEach(action => {
@@ -1642,13 +1686,14 @@ export const restoreRepresentationActions = (moleculesActions, stages) => async 
   }
   // if action points to non existing representation it was probably a default one so try to map it to current default one
   const fixUuid = (representationToCheck, objectId) => {
-    const representationExists = objectsInView[objectId].representations.some(representation => {
-      return representation.uuid === representationToCheck.uuid;
-    }) || addedRepresentations.includes(representationToCheck.uuid);
+    const representationExists =
+      objectsInView[objectId].representations.some(representation => {
+        return representation.uuid === representationToCheck.uuid;
+      }) || addedRepresentations.includes(representationToCheck.uuid);
     if (!representationExists && defaultStructuresMap.hasOwnProperty(objectId)) {
       representationToCheck.lastKnownID = defaultStructuresMap[objectId];
     }
-  }
+  };
 
   // here the object id is actually protein_code_object_type and is identifier in NGL view so it's ok to use object_id in here
   for (const action of moleculesActions) {
@@ -1666,7 +1711,6 @@ export const restoreRepresentationActions = (moleculesActions, stages) => async 
       await dispatch(changeMolecularRepresentationForSnapshotRestoration(action, nglView));
     }
   }
-
 };
 
 export const restoreTabActions = moleculesAction => (dispatch, getState) => {
@@ -1866,6 +1910,8 @@ export const restoreCompoundsActions = (orderedActionList, stage) => (dispatch, 
     }
   });
 
+  dispatch(restorePaintAllCompounds(compoundsAction));
+
   let compoundsColorGroupActions = compoundsAction?.filter(
     action => action.type === actionType.COMPOUND_ADDED_TO_COLOR_GROUP
   );
@@ -2046,6 +2092,19 @@ export const getCompoundByName = (name, datasetID, state) => {
     let moleculeListOfDataset = moleculeList[datasetID];
     if (moleculeListOfDataset) {
       molecule = moleculeListOfDataset.find(m => m.name === name);
+    }
+  }
+  return molecule;
+};
+
+export const getCompoundById = (cmpId, datasetID, state) => {
+  let moleculeList = state.datasetsReducers.moleculeLists;
+  let molecule = null;
+
+  if (moleculeList) {
+    let moleculeListOfDataset = moleculeList[datasetID];
+    if (moleculeListOfDataset) {
+      molecule = moleculeListOfDataset.find(m => m.id === cmpId);
     }
   }
   return molecule;
@@ -2274,6 +2333,12 @@ const handleUndoAction = (action, stages) => (dispatch, getState) => {
         break;
       case actionType.COMPOUND_REMOVED_FROM_COLOR_GROUP:
         dispatch(handleCompoundColorAction(action, true));
+        break;
+      case actionType.ALL_COMPOUNDS_ADDED_TO_COLOR_GROUP:
+        dispatch(handlePaintAllCompoundsAction(action, false));
+        break;
+      case actionType.ALL_COMPOUNDS_REMOVED_FROM_COLOR_GROUP:
+        dispatch(handlePaintAllCompoundsAction(action, true));
         break;
       case actionType.MOLECULE_SELECTED:
         dispatch(handleSelectMoleculeAction(action, false));
@@ -2543,6 +2608,12 @@ const handleRedoAction = (action, stages) => (dispatch, getState) => {
         break;
       case actionType.COMPOUND_REMOVED_FROM_COLOR_GROUP:
         dispatch(handleCompoundColorAction(action, false));
+        break;
+      case actionType.ALL_COMPOUNDS_ADDED_TO_COLOR_GROUP:
+        dispatch(handlePaintAllCompoundsAction(action, true));
+        break;
+      case actionType.ALL_COMPOUNDS_REMOVED_FROM_COLOR_GROUP:
+        dispatch(handlePaintAllCompoundsAction(action, false));
         break;
       case actionType.MOLECULE_SELECTED:
         dispatch(handleSelectMoleculeAction(action, true));
@@ -3005,6 +3076,22 @@ const handleCompoundColorAction = (action, isAdded) => (dispatch, getState) => {
         dispatch(removeCompoundColorOfDataset(action.dataset_id, data.id, action.color_class, data.name));
       }
     }
+  }
+};
+
+const handlePaintAllCompoundsAction = (action, arePainted) => (dispatch, getState) => {
+  const state = getState();
+  if (action?.items) {
+    action.items.forEach(cmpId => {
+      const cmp = getCompoundById(cmpId, action?.dataset_id, state);
+      if (cmp) {
+        if (arePainted) {
+          dispatch(appendCompoundColorOfDataset(action?.dataset_id, cmpId, action?.color, cmp.name, true));
+        } else {
+          dispatch(removeCompoundColorOfDataset(action?.dataset_id, cmpId, action?.color, cmp.name, true));
+        }
+      }
+    });
   }
 };
 
@@ -3807,11 +3894,11 @@ export const updateTrackingActions = action => (dispatch, getState) => {
         method: METHOD.PUT,
         data: JSON.stringify(dataToSend)
       })
-        .then(() => { })
+        .then(() => {})
         .catch(error => {
           throw new Error(error);
         })
-        .finally(() => { });
+        .finally(() => {});
     } else {
       return Promise.resolve();
     }
@@ -3821,7 +3908,7 @@ export const updateTrackingActions = action => (dispatch, getState) => {
 };
 
 function groupArrayOfObjects(list, key) {
-  return list.reduce(function (rv, x) {
+  return list.reduce(function(rv, x) {
     (rv[x[key]] = rv[x[key]] || []).push(x);
     return rv;
   }, {});
@@ -3846,11 +3933,11 @@ export const setAndUpdateTrackingActions = (actionList, projectID) => (dispatch,
           method: METHOD.PUT,
           data: JSON.stringify(dataToSend)
         })
-          .then(() => { })
+          .then(() => {})
           .catch(error => {
             throw new Error(error);
           })
-          .finally(() => { });
+          .finally(() => {});
       } else {
         return Promise.resolve();
       }

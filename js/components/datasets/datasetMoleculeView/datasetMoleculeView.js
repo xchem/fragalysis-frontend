@@ -78,6 +78,7 @@ import AddShoppingCartIcon from '@mui/icons-material/AddShoppingCart';
 import RemoveShoppingCartIcon from '@mui/icons-material/RemoveShoppingCart';
 import { compoundsColors } from '../../preview/compounds/redux/constants';
 import { LockVisibleCompoundsDialog } from '../lockVisibleCompoundsDialog';
+import { fabClasses } from '@mui/material';
 
 const useStyles = makeStyles(theme => ({
   container: {
@@ -639,10 +640,10 @@ const DatasetMoleculeView = memo(
           // if (shoppingCartColors?.length === 1) {
           //   dispatch(removeMoleculeFromCompoundsOfDatasetToBuy(datasetID, currentID, moleculeTitle));
           // }
-          dispatch(removeCompoundColorOfDataset(datasetID, currentID, event.target.id, moleculeTitle, true));
+          dispatch(removeCompoundColorOfDataset(datasetID, currentID, event.target.id, moleculeTitle, false));
         } else {
           // dispatch(appendMoleculeToCompoundsOfDatasetToBuy(datasetID, currentID, moleculeTitle));
-          dispatch(appendCompoundColorOfDataset(datasetID, currentID, event.target.id, moleculeTitle, true));
+          dispatch(appendCompoundColorOfDataset(datasetID, currentID, event.target.id, moleculeTitle, false));
         }
       };
 
@@ -650,7 +651,7 @@ const DatasetMoleculeView = memo(
         if (shoppingCartColors?.length === 1) {
           dispatch(removeMoleculeFromCompoundsOfDatasetToBuy(datasetID, currentID, moleculeTitle));
         }
-        dispatch(removeCompoundColorOfDataset(datasetID, currentID, event.target.id, moleculeTitle, true));
+        dispatch(removeCompoundColorOfDataset(datasetID, currentID, event.target.id, moleculeTitle, false));
       };
 
       const handleShoppingCartClick = () => {
@@ -658,7 +659,7 @@ const DatasetMoleculeView = memo(
           // if (!isAddedToShoppingCart) {
           //   dispatch(appendMoleculeToCompoundsOfDatasetToBuy(datasetID, currentID, moleculeTitle));
           // }
-          dispatch(appendCompoundColorOfDataset(datasetID, currentID, currentCompoundClass, moleculeTitle, true));
+          dispatch(appendCompoundColorOfDataset(datasetID, currentID, currentCompoundClass, moleculeTitle, false));
         }
       };
 

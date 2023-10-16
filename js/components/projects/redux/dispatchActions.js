@@ -552,5 +552,5 @@ const getJobOverrides = async () => {
   const resultCall = await api({
     url: `${base_url}/api/job_override/`
   });
-  return resultCall.data.results[0].override;
+  return resultCall.data?.results[0]?.override;
 };

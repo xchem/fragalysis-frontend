@@ -204,6 +204,34 @@ export const findTrackAction = (action, state) => (dispatch, getState) => {
           text: `${actionDescription.ALL} ${paylodTypeDescription} ${actionDescription.TURNED_OFF} ${objectType}`
         };
       }
+    } else if (action.type === customDatasetConstants.APPEND_COLOR_TO_ALL_COMPOUNDS_OF_DATASET) {
+      let objectType = actionObjectType.COMPOUND;
+
+      trackAction = {
+        type: actionType.ALL_COMPOUNDS_ADDED_TO_COLOR_GROUP,
+        annotation: actionAnnotation.CHECK,
+        timestamp: Date.now(),
+        username: username,
+        object_type: objectType,
+        items: action.payload.cmpIds,
+        color: action.payload.colorClass,
+        dataset_id: action.payload.datasetID,
+        text: `All compounds of dataset ${action.payload.datasetID} were colored with color ${action.payload.colorClass}`
+      };
+    } else if (action.type === customDatasetConstants.REMOVE_COLOR_FROM_ALL_COMPOUNDS_OF_DATASET) {
+      let objectType = actionObjectType.COMPOUND;
+
+      trackAction = {
+        type: actionType.ALL_COMPOUNDS_REMOVED_FROM_COLOR_GROUP,
+        annotation: actionAnnotation.CLEAR,
+        timestamp: Date.now(),
+        username: username,
+        object_type: objectType,
+        items: action.payload.cmpIds,
+        color: action.payload.colorClass,
+        dataset_id: action.payload.datasetID,
+        text: `All compounds of dataset ${action.payload.datasetID} were unpainted with color ${action.payload.colorClass}`
+      };
     } else if (action.type === selectionConstants.SET_SELECT_ALL_MOLECULES) {
       if (action && action.items) {
         let objectType = actionObjectType.MOLECULE;
