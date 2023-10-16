@@ -14,7 +14,8 @@ import {
   TextField,
   Checkbox,
   InputAdornment,
-  setRef
+  setRef,
+  Box
 } from '@material-ui/core';
 import React, { useState, useEffect, memo, useRef, useContext, useCallback, useMemo } from 'react';
 import { useDispatch, useSelector, shallowEqual } from 'react-redux';
@@ -52,7 +53,11 @@ import {
   setIsOpenLockVisibleCompoundsDialogGlobal,
   setSearchStringOfCompoundSet,
   setCompoundToSelectedCompoundsByDataset,
-  setSelectAllButtonForDataset
+  setSelectAllButtonForDataset,
+  appendCompoundColorOfDataset,
+  appendColorToAllCompoundsOfDataset,
+  removeCompoundColorOfDataset,
+  removeColorFromAllCompoundsOfDataset
 } from './redux/actions';
 import { DatasetFilter } from './datasetFilter';
 import { FilterList, Link, DeleteForever, ArrowUpward, ArrowDownward, Edit } from '@material-ui/icons';
@@ -79,6 +84,7 @@ import {
   onStartEditColorClassName
 } from '../preview/compounds/redux/dispatchActions';
 import { LockVisibleCompoundsDialog } from './lockVisibleCompoundsDialog';
+import { size } from 'lodash';
 
 const useStyles = makeStyles(theme => ({
   container: {
@@ -162,6 +168,26 @@ const useStyles = makeStyles(theme => ({
   },
   contButtonsMargin: {
     margin: theme.spacing(1) / 2
+  },
+  paintAllButton: {
+    minWidth: 'fit-content',
+    paddingLeft: theme.spacing(1) / 4,
+    paddingRight: theme.spacing(1) / 4,
+    paddingBottom: 0,
+    paddingTop: 0,
+    fontWeight: 'bold',
+    fontSize: 9,
+    borderRadius: 0,
+    borderColor: theme.palette.primary.main,
+    backgroundColor: 'white',
+    '&:hover': {
+      backgroundColor: 'white'
+      // color: theme.palette.primary.contrastText
+    },
+    '&:disabled': {
+      borderRadius: 0,
+      borderColor: 'white'
+    }
   },
   contColButton: {
     minWidth: 'fit-content',
@@ -808,6 +834,39 @@ const DatasetMoleculeList = ({ title, datasetID, url }) => {
     }
   };
 
+  const isPaintOrUnpaintAll = () => {
+    let isPaint = true;
+    const compounds = Object.keys(compoundColors);
+    for (let i = 0; i < compounds.length; i++) {
+      const cmpId = compounds[i];
+      const colors = compoundColors[cmpId];
+      if (colors.some(c => c === currentCompoundClass)) {
+        isPaint = false;
+        break;
+      }
+    }
+
+    return isPaint;
+  };
+
+  const paintAllCompounds = () => {
+    const paintAll = isPaintOrUnpaintAll();
+    const cmpIds = joinedMoleculeLists.map(mol => mol.id);
+    if (paintAll) {
+      joinedMoleculeLists.forEach(molecule => {
+        const molName = molecule.name;
+        dispatch(appendCompoundColorOfDataset(datasetID, molecule.id, currentCompoundClass, molName, true));
+      });
+      dispatch(appendColorToAllCompoundsOfDataset(datasetID, currentCompoundClass, cmpIds));
+    } else {
+      joinedMoleculeLists.forEach(molecule => {
+        const molName = molecule.name;
+        dispatch(removeCompoundColorOfDataset(datasetID, molecule.id, currentCompoundClass, molName, true));
+      });
+      dispatch(removeColorFromAllCompoundsOfDataset(datasetID, currentCompoundClass, cmpIds));
+    }
+  };
+
   return (
     <Panel hasHeader title={title} withTooltip headerActions={actions}>
       <AlertModal
@@ -1082,25 +1141,53 @@ const DatasetMoleculeList = ({ title, datasetID, url }) => {
                   </Grid>
                 </Grid>
                 <Grid item>
-                  {
-                    <Tooltip title={selectAllPressed ? 'Unselect all' : 'Select all'}>
-                      <Grid item style={{ margin: '4px', marginLeft: '5px' }}>
-                        <Button
-                          variant="outlined"
-                          className={classNames(classes.contColButton, {
-                            [classes.contColButtonHalfSelected]: false
-                          })}
-                          onClick={() => {
-                            dispatch(setSelectAllButtonForDataset(!selectAllPressed));
-                            selectAllDatasetMolecule(!selectAllPressed);
+                  <Tooltip title={selectAllPressed ? 'Unselect all' : 'Select all'}>
+                    <Grid item style={{ margin: '4px', marginLeft: '5px' }}>
+                      <Button
+                        variant="outlined"
+                        className={classNames(classes.contColButton, {
+                          [classes.contColButtonHalfSelected]: false
+                        })}
+                        onClick={() => {
+                          dispatch(setSelectAllButtonForDataset(!selectAllPressed));
+                          selectAllDatasetMolecule(!selectAllPressed);
+                        }}
+                        disabled={false}
+                      >
+                        {selectAllPressed ? 'Unselect all' : 'Select all'}
+                      </Button>
+                    </Grid>
+                  </Tooltip>
+                </Grid>
+                <Grid item>
+                  <Tooltip
+                    title={
+                      isPaintOrUnpaintAll()
+                        ? 'Paint all compounds with selected color'
+                        : 'Unpaint all compounds with selected color'
+                    }
+                  >
+                    <Grid item style={{ margin: '4px', marginLeft: '5px' }}>
+                      <Button
+                        variant="outlined"
+                        className={classNames(classes.paintAllButton)}
+                        disabled={false}
+                        onClick={() => paintAllCompounds()}
+                      >
+                        <Box
+                          style={{
+                            width: '10px',
+                            height: '10px',
+                            backgroundColor: compoundsColors[currentCompoundClass]
+                              ? compoundsColors[currentCompoundClass].color
+                              : '#000000',
+                            marginRight: '2px'
                           }}
-                          disabled={false}
-                        >
-                          {selectAllPressed ? 'Unselect all' : 'Select all'}
-                        </Button>
-                      </Grid>
-                    </Tooltip>
-                  }
+                        />
+                        {isPaintOrUnpaintAll() ? 'Paint all' : 'Unpaint all'}
+                      </Button>
+                    </Grid>
+                  </Tooltip>
                 </Grid>
               </Grid>
             </Grid>

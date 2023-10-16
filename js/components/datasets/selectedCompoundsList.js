@@ -33,6 +33,7 @@ import { CrossReferenceDialog } from './crossReferenceDialog';
 import {
   autoHideDatasetDialogsOnScroll,
   getAllVisibleButNotLockedSelectedCompounds,
+  getInspirationsForMol,
   isCompoundLocked,
   isCompoundVisible,
   moveDatasetMoleculeUpDown,
@@ -419,7 +420,9 @@ export const SelectedCompoundList = memo(() => {
   const getUsedDatasets = mols => {
     const setOfDataSets = {};
     mols.forEach(mol => {
-      if (!setOfDataSets.hasOwnProperty(mol.datasetID)) setOfDataSets[mol.datasetID] = mol.datasetID;
+      if (!setOfDataSets.hasOwnProperty(mol.datasetID)) {
+        setOfDataSets[mol.datasetID] = mol.datasetID;
+      }
     });
 
     return setOfDataSets;
@@ -492,9 +495,37 @@ export const SelectedCompoundList = memo(() => {
         });
       });
 
+      const hasName = filteredCompounds.find(cmp => !!cmp.molecule.name);
+      let maxNumOfInspirations = 0;
+      const allInspirations = state.datasetsReducers.allInspirations;
+      filteredCompounds.forEach(cmp => {
+        const inspirations = getInspirationsForMol(allInspirations, cmp.datasetID, cmp.molecule.id);
+        if (inspirations?.length > maxNumOfInspirations) {
+          maxNumOfInspirations = inspirations.length;
+        }
+      });
+
       filteredCompounds.forEach(compound => {
         let molObj = getEmptyMolObject(props, ids);
+
+        if (hasName) {
+          molObj['name'] = compound.molecule.name ? compound.molecule.name : '';
+        }
+
+        molObj['compound_set'] = compound.datasetID;
+
         molObj = populateMolObject(molObj, compound, props, ids);
+
+        if (maxNumOfInspirations) {
+          const inspirations = getInspirationsForMol(allInspirations, compound.datasetID, compound.molecule.id);
+          for (let i = 0; i < maxNumOfInspirations; i++) {
+            if (inspirations?.[i]) {
+              molObj[`inspiration_${i + 1}`] = inspirations[i].protein_code;
+            } else {
+              molObj[`inspiration_${i + 1}`] = '';
+            }
+          }
+        }
 
         let shoppingCartColors = [];
         if (isCompoundFromVectorSelector(compound.molecule)) {
