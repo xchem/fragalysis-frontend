@@ -512,6 +512,8 @@ export const SelectedCompoundList = memo(() => {
           molObj['name'] = compound.molecule.name ? compound.molecule.name : '';
         }
 
+        molObj['compound_set'] = compound.datasetID;
+
         molObj = populateMolObject(molObj, compound, props, ids);
 
         if (maxNumOfInspirations) {
