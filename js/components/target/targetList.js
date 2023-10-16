@@ -1146,24 +1146,37 @@ export const TargetList = memo(() => {
                   />
                   Target
                 </Typography>
-                <IconButton style={{ padding: '0px' }} onClick={() => handleHeaderSort('target')}>
-                  <Tooltip title="Sort" className={classes.sortButton}>
-                    {[1, 2].includes(sortSwitch - offsetTarget) ? (
-                      sortSwitch % offsetTarget < 2 ? (
-                        <KeyboardArrowDown />
-                      ) : (
-                        <KeyboardArrowUp />
-                      )
-                    ) : (
-                      <UnfoldMore />
-                    )}
-                  </Tooltip>
-                </IconButton>
               </TableCell>
-              <div
-                style={{ cursor: 'col-resize', width: 3, height: '20px', backgroundColor: '#eeeeee' }}
-                onMouseDown={handleMouseDown}
-              ></div>
+              <div style={{ display: 'flex' }}>
+                <div>
+                  <IconButton
+                    style={{ padding: '0px', paddingRight: '5px' }}
+                    onClick={() => handleHeaderSort('target')}
+                  >
+                    <Tooltip title="Sort" className={classes.sortButton}>
+                      {[1, 2].includes(sortSwitch - offsetTarget) ? (
+                        sortSwitch % offsetTarget < 2 ? (
+                          <KeyboardArrowDown />
+                        ) : (
+                          <KeyboardArrowUp />
+                        )
+                      ) : (
+                        <UnfoldMore />
+                      )}
+                    </Tooltip>
+                  </IconButton>
+                </div>
+                <div
+                  style={{
+                    cursor: 'col-resize',
+                    width: 4,
+                    height: '21px',
+                    backgroundColor: '#cccccc',
+                    borderRadius: '3px'
+                  }}
+                  onMouseDown={handleMouseDown}
+                ></div>
+              </div>
 
               <TableCell style={{ width: panelWidthForTargetAccessString, padding: '0px' }}>
                 <Typography variant="title">
@@ -1175,49 +1188,84 @@ export const TargetList = memo(() => {
                   />
                   Target access
                 </Typography>
-                <IconButton style={{ padding: '0px' }} onClick={() => handleHeaderSort('targetAccessString')}>
-                  <Tooltip title="Sort" className={classes.sortButton}>
-                    {[1, 2].includes(sortSwitch - offsetTargetAccessString) ? (
-                      sortSwitch % offsetTargetAccessString < 2 ? (
-                        <KeyboardArrowDown />
-                      ) : (
-                        <KeyboardArrowUp />
-                      )
-                    ) : (
-                      <UnfoldMore />
-                    )}
-                  </Tooltip>
-                </IconButton>
               </TableCell>
-              <div
-                style={{ cursor: 'col-resize', width: 3, height: '20px', backgroundColor: '#eeeeee' }}
-                onMouseDown={handleMouseDownResizerTargetAccessString}
-              ></div>
-              <TableCell style={{ width: panelWidthForInitDate, padding: '0px' }}>
+              <div style={{ display: 'flex' }}>
+                <div>
+                  <IconButton
+                    style={{ padding: '0px', paddingRight: '5px' }}
+                    onClick={() => handleHeaderSort('targetAccessString')}
+                  >
+                    <Tooltip title="Sort" className={classes.sortButton}>
+                      {[1, 2].includes(sortSwitch - offsetTargetAccessString) ? (
+                        sortSwitch % offsetTargetAccessString < 2 ? (
+                          <KeyboardArrowDown />
+                        ) : (
+                          <KeyboardArrowUp />
+                        )
+                      ) : (
+                        <UnfoldMore />
+                      )}
+                    </Tooltip>
+                  </IconButton>
+                </div>
+                <div
+                  style={{
+                    cursor: 'col-resize',
+                    width: 4,
+                    height: '21px',
+                    backgroundColor: '#cccccc',
+                    borderRadius: '3px'
+                  }}
+                  onMouseDown={handleMouseDownResizerTargetAccessString}
+                ></div>
+              </div>
+              <TableCell
+                style={{ width: panelWidthForInitDate, padding: '0px', paddingLeft: '5px', verticalAlign: 'center' }}
+              >
                 Init date
-                <IconButton style={{ padding: '0px' }} onClick={() => handleHeaderSort('initDate')}>
-                  <Tooltip title="Sort" className={classes.sortButton}>
-                    {[1, 2].includes(sortSwitch - offsetInitDate) ? (
-                      sortSwitch % offsetInitDate < 2 ? (
-                        <KeyboardArrowDown />
-                      ) : (
-                        <KeyboardArrowUp />
-                      )
-                    ) : (
-                      <UnfoldMore />
-                    )}
-                  </Tooltip>
-                </IconButton>
               </TableCell>
-              <div
-                style={{ cursor: 'col-resize', width: 3, height: '20px', backgroundColor: '#eeeeee' }}
-                onMouseDown={handleMouseDownResizerTargetAccessString} // TODO change resizer
-              ></div>
-              <TableCell style={{ width: panelWidthForSGC, padding: '0px' }}>SGC</TableCell>
-              <div
-                style={{ cursor: 'col-resize', width: 3, height: '20px', backgroundColor: '#eeeeee' }}
-                onMouseDown={handleMouseDownResizerSGC}
-              ></div>
+              <div style={{ display: 'flex' }}>
+                <div style={{ paddingRight: '5px' }}>
+                  <IconButton
+                    style={{ padding: '0px', verticalAlign: 'center' }}
+                    onClick={() => handleHeaderSort('initDate')}
+                  >
+                    <Tooltip title="Sort" className={classes.sortButton}>
+                      {[1, 2].includes(sortSwitch - offsetInitDate) ? (
+                        sortSwitch % offsetInitDate < 2 ? (
+                          <KeyboardArrowDown />
+                        ) : (
+                          <KeyboardArrowUp />
+                        )
+                      ) : (
+                        <UnfoldMore />
+                      )}
+                    </Tooltip>
+                  </IconButton>
+                </div>
+
+                <div
+                  style={{
+                    cursor: 'col-resize',
+                    width: 4,
+                    height: '21px',
+                    backgroundColor: '#cccccc',
+                    borderRadius: '3px'
+                  }}
+                  onMouseDown={handleMouseDownResizerTargetAccessString}
+                ></div>
+              </div>
+              <TableCell
+                style={{ width: panelWidthForSGC, padding: '0px', paddingLeft: '5px', verticalAlign: 'center' }}
+              >
+                SGC
+              </TableCell>
+              {/*<div style={{ display: 'flex' }}>
+                <div
+                  style={{ cursor: 'col-resize', width: 3, height: '18px', backgroundColor: '#cccccc' }}
+                  onMouseDown={handleMouseDownResizerSGC}
+                ></div>
+                </div>*/}
               {/*   <TableCell style={{ padding: '0px' }}>
                 <Typography variant="title">
                   <input
