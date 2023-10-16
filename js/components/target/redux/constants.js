@@ -28,12 +28,15 @@ export const constants = {
   SEARCH_EC_NUMBER: prefix + 'SEARCH_EC_NUMBER',
   SEARCH_N_HITS: prefix + 'SEARCH_N_HITS',
   SEARCH_DATE_LAST_EDIT_FROM: prefix + 'SEARCH_DATE_LAST_EDIT_FROM',
-  SEARCH_DATE_LAST_EDIT_TO: prefix + 'SEARCH_DATE_LAST_EDIT_TO'
+  SEARCH_DATE_LAST_EDIT_TO: prefix + 'SEARCH_DATE_LAST_EDIT_TO',
+  SEARCH_TARGET_ACCESS_STRING: prefix + 'SEARCH_TARGET_ACCESS_STRING',
+  SEARCH_INIT_DATE_FROM: prefix + 'SEARCH_INIT_DATE_FROM',
+  SEARCH_INIT_DATE_TO: prefix + 'SEARCH_INIT_DATE_TO'
 };
 
 export const TARGETS_ATT = {
-  target: {
-    key: 'target',
+  title: {
+    key: 'title',
     name: 'Target',
     isFloat: true,
     color: '#daa520',
@@ -48,7 +51,16 @@ export const TARGETS_ATT = {
     color: '#f96587',
     filter: true,
     dateFilter: false,
-    path: undefined
+    path: 'project.target_access_string'
+  },
+  initDate: {
+    key: 'initDate',
+    name: 'Init date',
+    isFloat: true,
+    color: '#dcc520',
+    filter: true,
+    dateFilter: true,
+    path: 'project.init_date'
   }
   /*
   numberOfChains: {

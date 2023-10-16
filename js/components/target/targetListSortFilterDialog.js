@@ -51,14 +51,16 @@ const useStyles = makeStyles(theme => ({
     top: 2
   },
   paper: {
-    width: 500,
+    width: 530,
     overflow: 'none'
   }
 }));
 
 const widthPrio = 50;
-const widthOrder = 60;
-const widthProperty = 170;
+
+const widthOrder = 110;
+const widthProperty = 150;
+
 const filterData = 160;
 
 export const getAttrDefinition = attr => {
@@ -83,14 +85,13 @@ export const sortTargets = (targets, filter) => {
   let sortedAttributes = filter?.sortOptions.map(attr => attr);
   return targets.sort((a, b) => {
     for (const [attrName, path] of sortedAttributes) {
-      //const order = filter.filter[attrName].order;
-      //const val1 = getNestedAttributeValue(a, attrName, path);
-      //const val2 = getNestedAttributeValue(b, attrName, path);
-
-      if (filter.filter.target.order === -1) {
-        return a.title > b.title ? -1 : 1;
+      const order = filter.filter[attrName].order;
+      const val1 = getNestedAttributeValue(a, attrName, path);
+      const val2 = getNestedAttributeValue(b, attrName, path);
+      if (order === -1) {
+        return val1 < val2 ? 1 : -1; // !! TODO these return stop for...of loop!
       } else {
-        return a.title < b.title ? -1 : 1;
+        return val1 > val2 ? 1 : -1;
       }
     }
     return 0;
@@ -254,7 +255,7 @@ export const TargetListSortFilterDialog = memo(
                 <div style={{ textAlign: 'center' }}>
                   order
                   <br />
-                  <span style={{ fontSize: 'smaller' }}>(up/down)</span>
+                  <span style={{ fontSize: 'smaller' }}>(up/down/none)</span>
                 </div>
               </Grid>
               <Grid item className={classes.centered} style={{ width: widthProperty }}>

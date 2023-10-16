@@ -47,7 +47,10 @@ import {
   setSearchECNumber,
   setSearchNHits,
   setSearchDateLastEditFrom,
-  setSearchDateLastEditTo
+  setSearchDateLastEditTo,
+  setSearchTargetAccessString,
+  setSearchInitDateFrom,
+  setSearchInitDateTo
 } from './redux/actions';
 import {
   compareIdAsc,
@@ -81,7 +84,9 @@ import {
   compareVersionIdAsc,
   compareVersionIdDesc,
   compareTargetAccessStringAsc,
-  compareTargetAccessStringDesc
+  compareTargetAccessStringDesc,
+  compareInitDateAsc,
+  compareInitDateDesc
 } from './sortTargets/sortTargets';
 import { TargetListSortFilterDialog, sortTargets } from './targetListSortFilterDialog';
 import {
@@ -98,6 +103,7 @@ import { setTargetFilter } from '../../reducers/selection/actions';
 import { MOCK_LIST_OF_TARGETS } from './MOCK';
 import { TARGETS_ATTR } from './redux/constants';
 import { getTargetProjectCombinations } from './redux/dispatchActions';
+import moment from 'moment';
 
 const useStyles = makeStyles(theme => ({
   table: {
@@ -131,17 +137,74 @@ export const TargetList = memo(() => {
   const classes = useStyles();
   const dispatch = useDispatch();
   const [page, setPage] = useState(0);
-  const isTargetLoading = useSelector(state => state.targetReducers.isTargetLoading);
-  const target_id_list = useSelector(state => state.apiReducers.target_id_list);
-  const projectsList = useSelector(state => state.targetReducers.projects);
-
-  let filteredListOfTargets = useSelector(state => state.targetReducers.listOfFilteredTargets);
+  const [isResizing, setIsResizing] = useState(false);
+  const [isResizingTargetAccessString, setIsResizingTargetAccessString] = useState(false);
+  const [isResizingSGC, setIsResizingSGC] = useState(false);
+  const [panelWidth, setPanelWidth] = useState(100);
+  const [panelWidthForTargetAccessString, setPanelWidthForTargetAccessString] = useState(130);
+  const [panelWidthForInitDate, setPanelWidthForInitDate] = useState(100);
+  const [panelWidthForSGC, setPanelWidthForSGC] = useState(130);
 
   const [sortSwitch, setSortSwitch] = useState(0);
   const [sortDialogAnchorEl, setSortDialogAnchorEl] = useState(null);
   const sortDialogOpen = useSelector(state => state.targetReducers.targetListFilterDialog);
 
-  let listOfAllTargetsDefault = target_id_list; // change after import real data
+  const filterClean = useSelector(state => state.targetReducers.filterClean);
+  let filter = useSelector(state => state.selectionReducers.targetFilter);
+
+  const target_id_list_unsorted = useSelector(state => state.apiReducers.target_id_list);
+  const projectsList = useSelector(state => state.targetReducers.projects);
+  let listOfTargets = useSelector(state => state.targetReducers.listOfTargets);
+  let filteredListOfTargets = useSelector(state => state.targetReducers.listOfFilteredTargets);
+
+  let target_id_list = filter === undefined ? target_id_list_unsorted.sort(compareTargetAsc) : target_id_list_unsorted;
+  let listOfAllTargetsDefault = target_id_list;
+
+  if (filter) {
+    // filter target
+    if (sortSwitch > 20 && sortSwitch < 25) {
+      if (filter.filter.title.order === 1) {
+        target_id_list = target_id_list.sort(compareTargetDesc);
+        if (filteredListOfTargets !== undefined) {
+          filteredListOfTargets = [...filteredListOfTargets].sort(compareTargetDesc);
+        }
+      } else {
+        if (filteredListOfTargets !== undefined) {
+          filteredListOfTargets = filteredListOfTargets.sort(compareTargetAsc);
+        }
+        target_id_list = target_id_list.sort(compareTargetAsc);
+      }
+    }
+    // filter target access string
+    if (sortSwitch > 170 && sortSwitch < 175) {
+      if (filter.filter.targetAccessString.order === 1) {
+        target_id_list = target_id_list.sort(compareTargetAccessStringDesc);
+        if (filteredListOfTargets !== undefined) {
+          filteredListOfTargets = filteredListOfTargets.sort(compareTargetAccessStringDesc);
+        }
+      } else {
+        if (filteredListOfTargets !== undefined) {
+          filteredListOfTargets = filteredListOfTargets.sort(compareTargetAccessStringAsc);
+        }
+        target_id_list = target_id_list.sort(compareTargetAccessStringAsc);
+      }
+    }
+    // filter init date
+    if (sortSwitch > 180 && sortSwitch < 185) {
+      if (filter.filter.initDate.order === 1) {
+        target_id_list = target_id_list.sort(compareInitDateDesc);
+        if (filteredListOfTargets !== undefined) {
+          filteredListOfTargets = [...filteredListOfTargets].sort(compareInitDateDesc);
+        }
+      } else {
+        if (filteredListOfTargets !== undefined) {
+          filteredListOfTargets = filteredListOfTargets.sort(compareInitDateAsc);
+        }
+        target_id_list = target_id_list.sort(compareInitDateAsc);
+      }
+    }
+  }
+
   let searchString = '';
 
   // checkbox for search
@@ -160,7 +223,6 @@ export const TargetList = memo(() => {
   const [checkedNHits, setCheckedNHits] = useState(true);
   const [checkedDateLastEdit, setCheckedDateLastEdit] = useState(true);
   const [checkedVersionId, setCheckedVersionId] = useState(true);
-
   const [checkedTargetAccessString, setCheckedTargetAccessString] = useState(true);
 
   const offsetId = 10;
@@ -179,6 +241,7 @@ export const TargetList = memo(() => {
   const offsetDateLastEdit = 150;
   const offsetVersionId = 160;
   const offsetTargetAccessString = 170;
+  const offsetInitDate = 180;
 
   let searchedById = [];
   let searchedByTarget = [];
@@ -197,14 +260,11 @@ export const TargetList = memo(() => {
   let searchedNHits = [];
   let searchedByTargetAccessString = [];
 
-  let listOfFilteredTargetsByDate = useSelector(state => state.projectReducers.listOfFilteredTargetsByDate);
-  const filterClean = useSelector(state => state.targetReducers.filterClean);
-  let filter = useSelector(state => state.selectionReducers.targetFilter);
+  let listOfFilteredTargetsByDate = useSelector(state => state.targetReducers.listOfFilteredTargetsByDate);
 
   const isActiveFilter = !!(filter || {}).active;
-
-  let listOfAllTarget = [...listOfAllTargetsDefault];
-
+  let listOfAllTarget = [...listOfAllTargetsDefault].sort(compareTargetDesc);
+  
   const initialize = useCallback(() => {
     let initObject = {
       active: false,
@@ -216,12 +276,20 @@ export const TargetList = memo(() => {
 
     for (let attr of TARGETS_ATTR) {
       const lowAttr = attr.key.toLowerCase();
+      if (attr.key === 'title') {
+        initObject.filter[attr.key] = {
+          priority: 0,
+          order: -1,
+          isFloat: attr.isFloat
+        };
+      } else {
+        initObject.filter[attr.key] = {
+          priority: 0,
+          order: 0,
+          isFloat: attr.isFloat
+        };
+      }
 
-      initObject.filter[attr.key] = {
-        priority: 0,
-        order: 1,
-        isFloat: attr.isFloat
-      };
     }
     return initObject;
   });
@@ -252,27 +320,24 @@ export const TargetList = memo(() => {
           <div>{target.id}</div>
         </TableCell>
       </Tooltip> */}
-        <TableCell
-          align="left"
-          style={{ minWidth: '100px', padding: '0px 10px 0px 0px', margin: '0px', padding: '0px' }}
-        >
+        <TableCell align="left" style={{ padding: '0px 10px 0px 0px', margin: '0px', padding: '0px' }}>
           <Link to={preview}>
             <div>{target.title}</div>
           </Link>
         </TableCell>
-        <TableCell
-          align="left"
-          style={{ minWidth: '100px', padding: '0px 10px 0px 0px', margin: '0px', padding: '0px' }}
-        >
+        <TableCell style={{ width: '2px', padding: '0px', margin: '0px' }}></TableCell>
+        <TableCell align="left" style={{ padding: '0px 10px 0px 0px', margin: '0px', padding: '0px' }}>
           <div>{target.project.target_access_string} </div>
         </TableCell>
-        <TableCell
-          align="left"
-          style={{ minWidth: '100px', padding: '0px 10px 0px 0px', margin: '0px', padding: '0px' }}
-        >
+        <TableCell style={{ width: '2px', padding: '0px', margin: '0px' }}></TableCell>
+        <TableCell align="left" style={{ padding: '0px 10px 0px 0px', margin: '0px', padding: '0px' }}>
+          <div>{moment(target.project.init_date).format('YYYY-MM-DD')} </div>
+        </TableCell>
+        <TableCell style={{ width: '2px', padding: '0px', margin: '0px' }}></TableCell>
+        <TableCell align="left" style={{ padding: '0px 10px 0px 0px', margin: '0px', padding: '0px' }}>
           {sgcUploaded.includes(target.title) && (
             <a href={sgcUrl} target="new">
-              Open SGC summary
+              SGC summary
             </a>
           )}
           {discourseAvailable && (
@@ -292,7 +357,7 @@ export const TargetList = memo(() => {
                 }}
                 style={{ padding: '0px' }}
               >
-                <Chat />
+                <Chat style={{ height: '15px' }} />
               </IconButton>
             </Tooltip>
           )}
@@ -378,10 +443,14 @@ export const TargetList = memo(() => {
       dispatch(setSearchNHits(''));
       dispatch(setSearchDateLastEditFrom(''));
       dispatch(setSearchDateLastEditTo(''));
+      dispatch(setSearchTargetAccessString(''));
+      dispatch(setSearchInitDateFrom(''));
+      dispatch(setSearchInitDateTo(''));
       const newFilter = { ...filter };
       newFilter.priorityOrder = [
-        'target',
-        'targetAccessString'
+        'title',
+        'targetAccessString',
+        'initDate'
         //'numberOfChains',
         //'primaryChain',
         //'uniprot',
@@ -395,8 +464,9 @@ export const TargetList = memo(() => {
         //'dateLastEdit'
       ];
       newFilter.sortOptions = [
-        ['target', undefined],
-        ['targetAccessString', undefined]
+        ['title', undefined],
+        ['targetAccessString', 'project_target_access_string'],
+        ['initDate', 'project.init_date']
         //['numberOfChains', undefined],
         //['primaryChain', undefined],
         //['uniprot', undefined],
@@ -409,8 +479,9 @@ export const TargetList = memo(() => {
         //['dateLastEdit', undefined]
       ];
       //newFilter.filter.numberOfChains.order = 1;
-      newFilter.filter.target.order = 1;
-      newFilter.filter.targetAccessString.order = 1;
+      newFilter.filter.title.order = -1;
+      newFilter.filter.targetAccessString.order = 0;
+      newFilter.filter.initDate.order = 0;
       //newFilter.filter.primaryChain.order = 1;
       //newFilter.filter.uniprot.order = 1;
       //newFilter.filter.range.order = 1;
@@ -426,7 +497,7 @@ export const TargetList = memo(() => {
 
   // window height for showing rows per page
   const [windowHeight, setWindowHeight] = useState(window.innerHeight);
-  let targetListWindowHeight = windowHeight / 26;
+  let targetListWindowHeight = windowHeight / 22.5;
   let targetListWindowHeightFinal = parseInt(targetListWindowHeight.toFixed(0), 10);
   const [rowsPerPage, setRowsPerPage] = useState(targetListWindowHeightFinal);
   const [rowsPerPagePerPageSize, setRowsPerPagePerPageSize] = useState(targetListWindowHeightFinal);
@@ -586,9 +657,9 @@ export const TargetList = memo(() => {
     dispatch(setListOfFilteredTargets(uniqueArray));
   };
 
-  /* if (filteredListOfTargets === undefined) {
+  if (filteredListOfTargets === undefined) {
     filteredListOfTargets = [...listOfAllTarget];
-  }*/
+  }
 
   if (listOfFilteredTargetsByDate !== undefined && filteredListOfTargets !== undefined) {
     filteredListOfTargets = filteredListOfTargets.filter(item1 =>
@@ -612,24 +683,40 @@ export const TargetList = memo(() => {
         break;
       case 'target':
         if (sortSwitch === offsetTarget + 1) {
+          if (filter !== undefined) {
+            const newFilter = { ...filter };
+            newFilter.filter.title.order = 1;
+            dispatch(setTargetFilter(newFilter));
+          }
           dispatch(
             setListOfFilteredTargets(
               filteredListOfTargets === undefined
                 ? [...listOfAllTarget].sort(compareTargetAsc)
-                : [...filteredListOfTargets].sort(compareTargetAsc)
+                : filteredListOfTargets.sort(compareTargetAsc)
             )
           );
           setSortSwitch(sortSwitch + 1);
         } else if (sortSwitch === offsetTarget + 2) {
+          if (filter !== undefined) {
+            const newFilter = { ...filter };
+            newFilter.filter.title.order = 0;
+            dispatch(setTargetFilter(newFilter));
+          }
           dispatch(
             setListOfFilteredTargets(
               filteredListOfTargets === undefined
                 ? [...listOfAllTarget].sort(compareTargetAsc)
-                : [...filteredListOfTargets].sort(compareTargetAsc)
+                : filteredListOfTargets.sort(compareTargetAsc)
             )
           );
           setSortSwitch(0);
         } else {
+          if (filter !== undefined) {
+            // change radio button in project list filter
+            const newFilter = { ...filter };
+            newFilter.filter.title.order = -1;
+            dispatch(setTargetFilter(newFilter));
+          }
           dispatch(
             setListOfFilteredTargets(
               filteredListOfTargets === undefined
@@ -642,6 +729,11 @@ export const TargetList = memo(() => {
         break;
       case 'targetAccessString':
         if (sortSwitch === offsetTargetAccessString + 1) {
+          if (filter !== undefined) {
+            const newFilter = { ...filter };
+            newFilter.filter.targetAccessString.order = 1;
+            dispatch(setTargetFilter(newFilter));
+          }
           dispatch(
             setListOfFilteredTargets(
               filteredListOfTargets === undefined
@@ -651,6 +743,11 @@ export const TargetList = memo(() => {
           );
           setSortSwitch(sortSwitch + 1);
         } else if (sortSwitch === offsetTargetAccessString + 2) {
+          if (filter !== undefined) {
+            const newFilter = { ...filter };
+            newFilter.filter.targetAccessString.order = 0;
+            dispatch(setTargetFilter(newFilter));
+          }
           dispatch(
             setListOfFilteredTargets(
               filteredListOfTargets === undefined
@@ -660,6 +757,11 @@ export const TargetList = memo(() => {
           );
           setSortSwitch(0);
         } else {
+          if (filter !== undefined) {
+            const newFilter = { ...filter };
+            newFilter.filter.targetAccessString.order = -1;
+            dispatch(setTargetFilter(newFilter));
+          }
           dispatch(
             setListOfFilteredTargets(
               filteredListOfTargets === undefined
@@ -668,6 +770,51 @@ export const TargetList = memo(() => {
             )
           );
           setSortSwitch(offsetTargetAccessString + 1);
+        }
+        break;
+      case 'initDate':
+        if (sortSwitch === offsetInitDate + 1) {
+          if (filter !== undefined) {
+            const newFilter = { ...filter };
+            newFilter.filter.initDate.order = 1;
+            dispatch(setTargetFilter(newFilter));
+          }
+          dispatch(
+            setListOfFilteredTargets(
+              filteredListOfTargets === undefined
+                ? [...listOfAllTarget].sort(compareInitDateAsc)
+                : [...filteredListOfTargets].sort(compareInitDateAsc)
+            )
+          );
+          setSortSwitch(sortSwitch + 1);
+        } else if (sortSwitch === offsetInitDate + 2) {
+          if (filter !== undefined) {
+            const newFilter = { ...filter };
+            newFilter.filter.initDate.order = 0;
+            dispatch(setTargetFilter(newFilter));
+          }
+          dispatch(
+            setListOfFilteredTargets(
+              filteredListOfTargets === undefined
+                ? [...listOfAllTarget].sort(compareInitDateAsc)
+                : [...filteredListOfTargets].sort(compareInitDateAsc)
+            )
+          );
+          setSortSwitch(0);
+        } else {
+          if (filter !== undefined) {
+            const newFilter = { ...filter };
+            newFilter.filter.initDate.order = -1;
+            dispatch(setTargetFilter(newFilter));
+          }
+          dispatch(
+            setListOfFilteredTargets(
+              filteredListOfTargets === undefined
+                ? [...listOfAllTarget].sort(compareInitDateDesc)
+                : [...filteredListOfTargets].sort(compareInitDateDesc)
+            )
+          );
+          setSortSwitch(offsetInitDate + 1);
         }
         break;
       case 'numberOfChains':
@@ -832,6 +979,95 @@ export const TargetList = memo(() => {
     }
   };
 
+  // START RESIZER FOR TARGET COLUMN
+  const handleMouseDown = () => {
+    setIsResizing(true);
+  };
+
+  const handleMouseMove = e => {
+    if (!isResizing) return;
+    const deltaX = e.clientX - 20;
+    setPanelWidth(deltaX);
+  };
+
+  const handleMouseUp = () => {
+    setIsResizing(false);
+    window.removeEventListener('mousemove', handleMouseMove);
+    window.removeEventListener('mouseup', handleMouseUp);
+  };
+
+  useEffect(() => {
+    if (isResizing) {
+      window.addEventListener('mousemove', handleMouseMove);
+      window.addEventListener('mouseup', handleMouseUp);
+    } else {
+      window.removeEventListener('mousemove', handleMouseMove);
+      window.removeEventListener('mouseup', handleMouseUp);
+    }
+  }, [isResizing]);
+  // END RESIZER FOR TARGET COLUMN
+
+  // START RESIZER FOR TARGET ACCESS STRING COLUMN
+  const handleMouseDownResizerTargetAccessString = () => {
+    setIsResizingTargetAccessString(true);
+    panelWidth !== undefined ? setPanelWidth(panelWidth) : setPanelWidth(130);
+  };
+
+  const handleMouseMoveTargetAccessString = e => {
+    if (!isResizingTargetAccessString) return;
+    const deltaX = e.clientX - 140;
+    setPanelWidthForTargetAccessString(deltaX);
+  };
+
+  const handleMouseUpTargetAccessString = () => {
+    setIsResizingTargetAccessString(false);
+    window.removeEventListener('mousemove', handleMouseMoveTargetAccessString);
+    window.removeEventListener('mouseup', handleMouseUpTargetAccessString);
+  };
+
+  useEffect(() => {
+    if (isResizingTargetAccessString) {
+      window.addEventListener('mousemove', handleMouseMoveTargetAccessString);
+      window.addEventListener('mouseup', handleMouseUpTargetAccessString);
+    } else {
+      window.removeEventListener('mousemove', handleMouseMoveTargetAccessString);
+      window.removeEventListener('mouseup', handleMouseUpTargetAccessString);
+    }
+  }, [isResizingTargetAccessString]);
+  // END RESIZER FOR TARGET ACCESS STRING COLUMN
+
+  // START RESIZER FOR SGC COLUMN
+  const handleMouseDownResizerSGC = () => {
+    setIsResizingSGC(true);
+    panelWidth !== undefined ? setPanelWidth(panelWidth) : setPanelWidth(180);
+
+    panelWidthForTargetAccessString !== undefined
+      ? setPanelWidthForTargetAccessString(panelWidthForTargetAccessString)
+      : setPanelWidthForTargetAccessString(130);
+  };
+
+  const handleMouseMoveSGC = e => {
+    if (!isResizingSGC) return;
+    const deltaX = e.clientX - 333;
+    setPanelWidthForSGC(deltaX);
+  };
+
+  const handleMouseUpSGC = () => {
+    setIsResizingSGC(false);
+    window.removeEventListener('mousemove', handleMouseMoveSGC);
+    window.removeEventListener('mouseup', handleMouseUpSGC);
+  };
+
+  useEffect(() => {
+    if (isResizingSGC) {
+      window.addEventListener('mousemove', handleMouseMoveSGC);
+      window.addEventListener('mouseup', handleMouseUpSGC);
+    } else {
+      window.removeEventListener('mousemove', handleMouseMoveSGC);
+      window.removeEventListener('mouseup', handleMouseUpSGC);
+    }
+  }, [isResizingSGC]);
+  // END RESIZER FOR SGC COLUMN
   const targetsToUse = filteredListOfTargets ? filteredListOfTargets : listOfAllTarget;
   if (target_id_list) {
     return (
@@ -900,7 +1136,7 @@ export const TargetList = memo(() => {
                   </Tooltip>
                 </IconButton>
                     </TableCell>*/}
-              <TableCell style={{ padding: '0px' }}>
+              <TableCell style={{ width: panelWidth, padding: '0px' }}>
                 <Typography variant="title">
                   <input
                     type="checkbox"
@@ -924,7 +1160,12 @@ export const TargetList = memo(() => {
                   </Tooltip>
                 </IconButton>
               </TableCell>
-              <TableCell style={{ padding: '0px' }}>
+              <div
+                style={{ cursor: 'col-resize', width: 3, height: '20px', backgroundColor: '#eeeeee' }}
+                onMouseDown={handleMouseDown}
+              ></div>
+
+              <TableCell style={{ width: panelWidthForTargetAccessString, padding: '0px' }}>
                 <Typography variant="title">
                   <input
                     type="checkbox"
@@ -932,7 +1173,7 @@ export const TargetList = memo(() => {
                     checked={checkedTargetAccessString}
                     onChange={() => setCheckedTargetAccessString(!checkedTargetAccessString)}
                   />
-                  Target access string
+                  Target access
                 </Typography>
                 <IconButton style={{ padding: '0px' }} onClick={() => handleHeaderSort('targetAccessString')}>
                   <Tooltip title="Sort" className={classes.sortButton}>
@@ -948,8 +1189,35 @@ export const TargetList = memo(() => {
                   </Tooltip>
                 </IconButton>
               </TableCell>
-
-              <TableCell style={{ padding: '0px' }}>SGC</TableCell>
+              <div
+                style={{ cursor: 'col-resize', width: 3, height: '20px', backgroundColor: '#eeeeee' }}
+                onMouseDown={handleMouseDownResizerTargetAccessString}
+              ></div>
+              <TableCell style={{ width: panelWidthForInitDate, padding: '0px' }}>
+                Init date
+                <IconButton style={{ padding: '0px' }} onClick={() => handleHeaderSort('initDate')}>
+                  <Tooltip title="Sort" className={classes.sortButton}>
+                    {[1, 2].includes(sortSwitch - offsetInitDate) ? (
+                      sortSwitch % offsetInitDate < 2 ? (
+                        <KeyboardArrowDown />
+                      ) : (
+                        <KeyboardArrowUp />
+                      )
+                    ) : (
+                      <UnfoldMore />
+                    )}
+                  </Tooltip>
+                </IconButton>
+              </TableCell>
+              <div
+                style={{ cursor: 'col-resize', width: 3, height: '20px', backgroundColor: '#eeeeee' }}
+                onMouseDown={handleMouseDownResizerTargetAccessString} // TODO change resizer
+              ></div>
+              <TableCell style={{ width: panelWidthForSGC, padding: '0px' }}>SGC</TableCell>
+              <div
+                style={{ cursor: 'col-resize', width: 3, height: '20px', backgroundColor: '#eeeeee' }}
+                onMouseDown={handleMouseDownResizerSGC}
+              ></div>
               {/*   <TableCell style={{ padding: '0px' }}>
                 <Typography variant="title">
                   <input
@@ -1266,7 +1534,11 @@ export const TargetList = memo(() => {
           </TableHead>
           <TableBody>
             {getTargetProjectCombinations(
-              filteredListOfTargets !== undefined ? filteredListOfTargets : target_id_list,
+              filteredListOfTargets !== undefined
+                ? filteredListOfTargets
+                : listOfTargets !== undefined
+                ? listOfTargets
+                : target_id_list,
               projectsList
             )
               .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
