@@ -264,7 +264,7 @@ export const TargetList = memo(() => {
 
   const isActiveFilter = !!(filter || {}).active;
   let listOfAllTarget = [...listOfAllTargetsDefault].sort(compareTargetDesc);
-
+  
   const initialize = useCallback(() => {
     let initObject = {
       active: false,
@@ -289,6 +289,7 @@ export const TargetList = memo(() => {
           isFloat: attr.isFloat
         };
       }
+
     }
     return initObject;
   });
@@ -1067,7 +1068,6 @@ export const TargetList = memo(() => {
     }
   }, [isResizingSGC]);
   // END RESIZER FOR SGC COLUMN
-
   const targetsToUse = filteredListOfTargets ? filteredListOfTargets : listOfAllTarget;
   if (target_id_list) {
     return (

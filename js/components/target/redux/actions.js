@@ -157,3 +157,4 @@ export const setSearchInitDateTo = searchInitDateTo => {
     payload: searchInitDateTo
   };
 };
+

@@ -335,4 +335,3 @@ export const compareInitDateDesc = (a, b) => {
   }
   return 0;
 };
-

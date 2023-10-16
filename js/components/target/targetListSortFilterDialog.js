@@ -57,8 +57,10 @@ const useStyles = makeStyles(theme => ({
 }));
 
 const widthPrio = 50;
+
 const widthOrder = 110;
 const widthProperty = 150;
+
 const filterData = 160;
 
 export const getAttrDefinition = attr => {

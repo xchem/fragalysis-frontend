@@ -140,7 +140,6 @@ export const targetReducers = (state = INITIAL_STATE, action = {}) => {
       return Object.assign({}, state, {
         searchInitDateTo: action.payload
       });
-
     default:
       return state;
   }
