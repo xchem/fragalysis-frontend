@@ -139,10 +139,11 @@ export const TargetList = memo(() => {
   const [page, setPage] = useState(0);
   const [isResizing, setIsResizing] = useState(false);
   const [isResizingTargetAccessString, setIsResizingTargetAccessString] = useState(false);
+  const [isResizingInitDate, setIsResizingInitDate] = useState(false);
   const [isResizingSGC, setIsResizingSGC] = useState(false);
-  const [panelWidth, setPanelWidth] = useState(100);
-  const [panelWidthForTargetAccessString, setPanelWidthForTargetAccessString] = useState(130);
-  const [panelWidthForInitDate, setPanelWidthForInitDate] = useState(100);
+  const [panelWidth, setPanelWidth] = useState(110);
+  const [panelWidthForTargetAccessString, setPanelWidthForTargetAccessString] = useState(140);
+  const [panelWidthForInitDate, setPanelWidthForInitDate] = useState(90);
   const [panelWidthForSGC, setPanelWidthForSGC] = useState(130);
 
   const [sortSwitch, setSortSwitch] = useState(0);
@@ -321,7 +322,7 @@ export const TargetList = memo(() => {
       </Tooltip> */}
         <TableCell align="left" style={{ padding: '0px 10px 0px 0px', margin: '0px', padding: '0px' }}>
           <Link to={preview}>
-            <div>{target.title}</div>
+            <div style={{ wordBreak: 'break-all' }}>{target.title}</div>
           </Link>
         </TableCell>
         <TableCell style={{ width: '2px', padding: '0px', margin: '0px' }}></TableCell>
@@ -1035,6 +1036,35 @@ export const TargetList = memo(() => {
   }, [isResizingTargetAccessString]);
   // END RESIZER FOR TARGET ACCESS STRING COLUMN
 
+  // START RESIZER FOR INIT DATE COLUMN
+  const handleMouseDownResizerInitDate = () => {
+    setIsResizingInitDate(true);
+    //panelWidth !== undefined ? setPanelWidth(panelWidth) : setPanelWidth(130);
+  };
+
+  const handleMouseMoveInitDate = e => {
+    if (!isResizingInitDate) return;
+    const deltaX = e.clientX - 240;
+    setPanelWidthForInitDate(deltaX);
+  };
+
+  const handleMouseUpInitDate = () => {
+    setIsResizingInitDate(false);
+    window.removeEventListener('mousemove', handleMouseMoveInitDate);
+    window.removeEventListener('mouseup', handleMouseUpInitDate);
+  };
+
+  useEffect(() => {
+    if (isResizingInitDate) {
+      window.addEventListener('mousemove', handleMouseMoveInitDate);
+      window.addEventListener('mouseup', handleMouseUpInitDate);
+    } else {
+      window.removeEventListener('mousemove', handleMouseMoveInitDate);
+      window.removeEventListener('mouseup', handleMouseUpInitDate);
+    }
+  }, [isResizingInitDate]);
+  // END RESIZER FOR INIT DATE COLUMN
+
   // START RESIZER FOR SGC COLUMN
   const handleMouseDownResizerSGC = () => {
     setIsResizingSGC(true);
@@ -1252,7 +1282,7 @@ export const TargetList = memo(() => {
                     backgroundColor: '#cccccc',
                     borderRadius: '3px'
                   }}
-                  onMouseDown={handleMouseDownResizerTargetAccessString}
+                  onMouseDown={handleMouseDownResizerInitDate}
                 ></div>
               </div>
               <TableCell
