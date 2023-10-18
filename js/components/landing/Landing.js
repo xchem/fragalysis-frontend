@@ -9,10 +9,11 @@ import * as apiActions from '../../reducers/api/actions';
 import * as selectionActions from '../../reducers/selection/actions';
 import { DJANGO_CONTEXT } from '../../utils/djangoContext';
 import { Projects } from '../projects';
-import { HeaderContext } from '../header/headerContext';
 import { resetCurrentCompoundsSettings } from '../preview/compounds/redux/actions';
 import { resetProjectsReducer } from '../projects/redux/actions';
 import { withLoadingProjects } from '../target/withLoadingProjects';
+import { ToastContext } from '../toast';
+import { HeaderContext } from '../header/headerContext';
 
 const useStyles = makeStyles(theme => ({
   root: {
@@ -33,17 +34,18 @@ const Landing = memo(
     const [projectListWidth, setProjectListWidth] = useState(projectWidth);
 
     const { setSnackBarTitle } = useContext(HeaderContext);
+    const { toast } = useContext(ToastContext);
     const [loginText, setLoginText] = useState("You're logged in as " + DJANGO_CONTEXT['username']);
 
     useEffect(() => {
       if (DJANGO_CONTEXT['authenticated'] !== true) {
         setLoginText(
-          <>
+          <span>
             {'To view own projects login here: '}
             <Link href="/accounts/login" color="inherit" variant="subtitle2">
               FedID Login
             </Link>
-          </>
+          </span>
         );
       }
     }, []);
@@ -51,17 +53,15 @@ const Landing = memo(
     useEffect(() => {
       resetTargetState();
       resetSelectionState();
-      setSnackBarTitle(loginText);
+      toast(loginText, {
+        anchorOrigin: {
+          vertical: 'bottom',
+          horizontal: 'right'
+        }
+      });
       resetCurrentCompoundsSettings(true);
       resetProjectsReducer();
-    }, [
-      resetTargetState,
-      resetSelectionState,
-      setSnackBarTitle,
-      loginText,
-      resetCurrentCompoundsSettings,
-      resetProjectsReducer
-    ]);
+    }, [resetTargetState, resetSelectionState, toast, loginText, resetCurrentCompoundsSettings, resetProjectsReducer]);
 
     const handleMouseDownResizer = () => {
       setIsResizing(true);

@@ -1,17 +1,17 @@
-import React, { memo, useContext, useEffect, useState } from 'react';
+import { memo, useContext, useEffect } from 'react';
 import { api } from '../../utils/api';
 import { base_url, URLS } from '../routes/constants';
 import { useHistory, useRouteMatch } from 'react-router-dom';
-import { HeaderContext } from '../header/headerContext';
 import { setIsLoadingCurrentSnapshot } from '../projects/redux/actions';
 import { useDispatch } from 'react-redux';
+import { ToastContext } from '../toast';
 
 export const SessionRedirect = memo(() => {
   const dispatch = useDispatch();
   let history = useHistory();
   let match = useRouteMatch();
   const sessionUUID = match && match.params && match.params.sessionUUID;
-  const { setSnackBarTitle } = useContext(HeaderContext);
+  const { toastError } = useContext(ToastContext);
 
   useEffect(() => {
     dispatch(setIsLoadingCurrentSnapshot(true));
@@ -35,12 +35,12 @@ export const SessionRedirect = memo(() => {
         }
       })
       .catch(error => {
-        setSnackBarTitle(error);
+        toastError(error);
       })
       .finally(() => {
         dispatch(setIsLoadingCurrentSnapshot(false));
       });
-  }, [dispatch, history, sessionUUID, setSnackBarTitle]);
+  }, [dispatch, history, sessionUUID, toastError]);
 
   return null;
 });

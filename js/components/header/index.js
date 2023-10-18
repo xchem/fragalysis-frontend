@@ -96,10 +96,6 @@ const useStyles = makeStyles(theme => ({
     pointerEvents: 'initial',
     cursor: 'progress'
   },
-  loadingProgress: {
-    height: 2,
-    bottom: -2
-  },
   clickableImage: {
     cursor: 'pointer'
   },
@@ -117,7 +113,7 @@ export default memo(
     const dispatch = useDispatch();
     let history = useHistory();
     const classes = useStyles();
-    const { isLoading, headerNavbarTitle, setHeaderNavbarTitle, headerButtons } = useContext(HeaderContext);
+    const { headerNavbarTitle, setHeaderNavbarTitle, headerButtons } = useContext(HeaderContext);
 
     const [openMenu, setOpenMenu] = useState(false);
     const [openFunders, setOpenFunders] = useState(false);
@@ -486,10 +482,6 @@ export default memo(
               </Grid>
             </Grid>
           </Grid>
-          {//TODO this needs to be reworked if the optimizations help
-            (isLoading === true) && (
-              <LinearProgress color="secondary" className={classes.loadingProgress} variant="query" />
-            )}
         </AppBar>
         <FundersModal openModal={openFunders} onModalClose={() => setOpenFunders(false)} />
         <TrackingModal openModal={openTrackingModal} onModalClose={() => setOpenTrackingModal(false)} />

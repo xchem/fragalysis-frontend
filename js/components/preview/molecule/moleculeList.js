@@ -74,6 +74,7 @@ import SearchField from '../../common/Components/SearchField';
 import useDisableNglControlButtons from './useDisableNglControlButtons';
 import GroupNglControlButtonsContext from './groupNglControlButtonsContext';
 import { extractTargetFromURLParam } from '../utils';
+import { LoadingContext } from '../../loading';
 
 const useStyles = makeStyles(theme => ({
   container: {
@@ -305,6 +306,7 @@ export const MoleculeList = memo(({ hideProjects }) => {
   const isActiveFilter = !!(filter || {}).active;
 
   const { getNglView } = useContext(NglContext);
+  const { moleculesAndTagsAreLoading } = useContext(LoadingContext);
   const majorViewStage = getNglView(VIEWS.MAJOR_VIEW) && getNglView(VIEWS.MAJOR_VIEW).stage;
 
   const filterRef = useRef();
@@ -1269,6 +1271,7 @@ export const MoleculeList = memo(({ hideProjects }) => {
             </Grid>
           </>
         )}
+        {moleculesAndTagsAreLoading && <Grid container direction="row" justifyContent="center"><Grid item><CircularProgress /></Grid></Grid>}
       </Grid>
     </Panel>
   );

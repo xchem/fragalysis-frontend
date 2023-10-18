@@ -1,6 +1,6 @@
-import React, { memo, useRef, useEffect, useCallback, useState, useMemo } from 'react';
+import React, { memo, useRef, useEffect, useCallback, useState, useMemo, useContext } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
-import { Switch, Typography, makeStyles, IconButton, Tooltip, Grid, FormControlLabel } from '@material-ui/core';
+import { Switch, Typography, makeStyles, IconButton, Tooltip, Grid, FormControlLabel, CircularProgress } from '@material-ui/core';
 import { Panel } from '../../../common/Surfaces/Panel';
 import TagDetailRow from './tagDetailRow';
 import TagGridRows from './tagGridRows';
@@ -33,6 +33,7 @@ import {
 } from '../../../../reducers/selection/actions';
 import { selectAllTags, clearAllTags } from '../redux/dispatchActions';
 import { Button } from '../../../common/Inputs/Button';
+import { LoadingContext } from '../../../loading';
 
 export const heightOfBody = '172px';
 export const defaultHeaderPadding = 15;
@@ -147,6 +148,8 @@ const TagDetails = memo(() => {
   const dispatch = useDispatch();
   const [sortSwitch, setSortSwitch] = useState(0);
 
+  const { moleculesAndTagsAreLoading } = useContext(LoadingContext);
+
   const preTagList = useSelector(state => state.apiReducers.tagList);
   const tagMode = useSelector(state => state.selectionReducers.tagFilteringMode);
   const displayAllMolecules = useSelector(state => state.selectionReducers.displayAllMolecules);
@@ -178,8 +181,8 @@ const TagDetails = memo(() => {
   const moleculesToEditIds = useSelector(state => state.selectionReducers.moleculesToEdit);
   const moleculesToEdit =
     moleculesToEditIds &&
-    moleculesToEditIds.length > 0 &&
-    !(moleculesToEditIds.length === 1 && moleculesToEditIds[0] === null)
+      moleculesToEditIds.length > 0 &&
+      !(moleculesToEditIds.length === 1 && moleculesToEditIds[0] === null)
       ? moleculesToEditIds.map(id => dispatch(getMoleculeForId(id)))
       : [];
 
@@ -470,6 +473,7 @@ const TagDetails = memo(() => {
                     </Grid>
                   );
                 })}
+              {moleculesAndTagsAreLoading && <Grid container direction="row" justifyContent="center"><Grid item><CircularProgress /></Grid></Grid>}
             </Grid>
           </>
         ) : (
@@ -566,6 +570,7 @@ const TagDetails = memo(() => {
                   />
                 );
               })}
+            {moleculesAndTagsAreLoading && <Grid container direction="row" justifyContent="center" style={{ gridColumn: '1 / -1' }}><Grid item><CircularProgress /></Grid></Grid>}
           </div>
         )}
         <div style={{ paddingBottom: resizableLayout === true ? '17px' : '0px' }}>

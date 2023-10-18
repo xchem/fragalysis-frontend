@@ -2,7 +2,7 @@
  * Created by abradley on 14/04/2018.
  */
 
-import React, { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import React, { memo, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
 import { makeStyles, useTheme } from '@material-ui/core';
 import NGLView from '../nglView/nglView';
 import HitNavigator from './molecule/hitNavigator';
@@ -24,7 +24,6 @@ import { DownloadStructureDialog } from '../snapshot/modals/downloadStructuresDi
 import { loadDatasetCompoundsWithScores, loadDataSets } from '../datasets/redux/dispatchActions';
 import { setMoleculeListIsLoading, setSelectedDatasetIndex, setAllInspirations } from '../datasets/redux/actions';
 import { prepareFakeFilterData } from './compounds/redux/dispatchActions';
-import { withLoadingMolecules } from './tags/withLoadingMolecules';
 import { ViewerControls } from './viewerControls';
 
 import 'react-grid-layout/css/styles.css';
@@ -40,15 +39,12 @@ import { loadMoleculesAndTags } from './tags/redux/dispatchActions';
 import { getTagMolecules } from './tags/api/tagsApi';
 import { compareTagsAsc } from './tags/utils/tagUtils';
 import { setMoleculeTags } from '../../reducers/api/actions';
-import { useRouteMatch } from 'react-router-dom';
-import { extractProjectFromURLParam } from './utils';
 import { PickProjectModal } from './PickProjectModal';
-import { setCurrentProject, setOpenPickProjectModal } from '../target/redux/actions';
-import { getProjectsForSelectedTarget } from './redux/dispatchActions';
 import { withLoadingProjects } from '../target/withLoadingProjects';
 import { setProjectModalOpen } from '../projects/redux/actions';
 import { setOpenSnapshotSavingDialog } from '../snapshot/redux/actions';
 import { setTagEditorOpen, setMoleculeForTagEdit } from '../../reducers/selection/actions';
+import { LoadingContext } from '../loading';
 
 const ReactGridLayout = WidthProvider(ResponsiveGridLayout);
 
@@ -123,11 +119,16 @@ const Preview = memo(({ isStateLoaded, hideProjects, isSnapshot = false }) => {
 
   const nglPortal = useMemo(() => createHtmlPortalNode({ attributes: { style: 'height: 100%' } }), []);
 
+  const { setMoleculesAndTagsAreLoading } = useContext(LoadingContext);
+
   useEffect(() => {
     if (target_on && !isSnapshot) {
-      dispatch(loadMoleculesAndTags(target_on));
+      setMoleculesAndTagsAreLoading(true);
+      dispatch(loadMoleculesAndTags(target_on)).finally(() => {
+        setMoleculesAndTagsAreLoading(false);
+      });
     }
-  }, [dispatch, target_on, isSnapshot]);
+  }, [dispatch, target_on, isSnapshot, setMoleculesAndTagsAreLoading]);
 
   useEffect(() => {
     if (target_on) {
