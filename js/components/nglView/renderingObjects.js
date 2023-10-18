@@ -187,7 +187,7 @@ const showHitProtein = async ({
         object_name,
         input_dict.colour
       ]);
-      renderHitProtein(ol, representations, orientationMatrix);
+      return renderHitProtein(ol, representations, orientationMatrix);
     }
   }
 };
@@ -497,31 +497,31 @@ const showDensity = ({ stage, input_dict, object_name, representations }) => {
 
   return Promise.all([
     input_dict.sigmaa_url &&
-      input_dict.render_sigmaa &&
-      stage.loadFile(input_dict.sigmaa_url, { name: object_name + DENSITY_MAPS.SIGMAA, ext: 'map' }).then(comp => {
-        const repr = createRepresentationStructure(MOL_REPRESENTATION.surface, densityParams_sigmaa);
-        const reprArray = representations || createRepresentationsArray([repr]);
-        return { repr: assignRepresentationArrayToComp(reprArray, comp), name: object_name + DENSITY_MAPS.SIGMAA };
-      }),
+    input_dict.render_sigmaa &&
+    stage.loadFile(input_dict.sigmaa_url, { name: object_name + DENSITY_MAPS.SIGMAA, ext: 'map' }).then(comp => {
+      const repr = createRepresentationStructure(MOL_REPRESENTATION.surface, densityParams_sigmaa);
+      const reprArray = representations || createRepresentationsArray([repr]);
+      return { repr: assignRepresentationArrayToComp(reprArray, comp), name: object_name + DENSITY_MAPS.SIGMAA };
+    }),
     input_dict.diff_url &&
-      input_dict.render_diff &&
-      stage.loadFile(input_dict.diff_url, { name: object_name + DENSITY_MAPS.DIFF, ext: 'map' }).then(comp => {
-        const repr = createRepresentationStructure(MOL_REPRESENTATION.surface, densityParams_diff);
-        const reprArray = representations || createRepresentationsArray([repr]);
-        return { repr: assignRepresentationArrayToComp(reprArray, comp), name: object_name + DENSITY_MAPS.DIFF };
-      }) &&
-      stage.loadFile(input_dict.diff_url, { name: object_name + DENSITY_MAPS.DIFF, ext: 'map' }).then(comp => {
-        const repr = createRepresentationStructure(MOL_REPRESENTATION.surface, densityParams_diff_negate);
-        const reprArray = representations || createRepresentationsArray([repr]);
-        return { repr: assignRepresentationArrayToComp(reprArray, comp), name: object_name + DENSITY_MAPS.DIFF };
-      }),
+    input_dict.render_diff &&
+    stage.loadFile(input_dict.diff_url, { name: object_name + DENSITY_MAPS.DIFF, ext: 'map' }).then(comp => {
+      const repr = createRepresentationStructure(MOL_REPRESENTATION.surface, densityParams_diff);
+      const reprArray = representations || createRepresentationsArray([repr]);
+      return { repr: assignRepresentationArrayToComp(reprArray, comp), name: object_name + DENSITY_MAPS.DIFF };
+    }) &&
+    stage.loadFile(input_dict.diff_url, { name: object_name + DENSITY_MAPS.DIFF, ext: 'map' }).then(comp => {
+      const repr = createRepresentationStructure(MOL_REPRESENTATION.surface, densityParams_diff_negate);
+      const reprArray = representations || createRepresentationsArray([repr]);
+      return { repr: assignRepresentationArrayToComp(reprArray, comp), name: object_name + DENSITY_MAPS.DIFF };
+    }),
     input_dict.event_url &&
-      input_dict.render_event &&
-      stage.loadFile(input_dict.event_url, { name: object_name, ext: 'ccp4' }).then(comp => {
-        const repr = createRepresentationStructure(MOL_REPRESENTATION.surface, densityParams_event);
-        const reprArray = representations || createRepresentationsArray([repr]);
-        return { repr: assignRepresentationArrayToComp(reprArray, comp), name: object_name };
-      })
+    input_dict.render_event &&
+    stage.loadFile(input_dict.event_url, { name: object_name, ext: 'ccp4' }).then(comp => {
+      const repr = createRepresentationStructure(MOL_REPRESENTATION.surface, densityParams_event);
+      const reprArray = representations || createRepresentationsArray([repr]);
+      return { repr: assignRepresentationArrayToComp(reprArray, comp), name: object_name };
+    })
   ]).then(values => {
     let val = [...values].filter(v => v !== undefined);
     return val;
