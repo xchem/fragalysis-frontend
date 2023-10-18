@@ -3,14 +3,14 @@ import Preview from '../../preview/Preview';
 import { useDispatch, useSelector } from 'react-redux';
 import { useRouteMatch } from 'react-router-dom';
 import { loadCurrentSnapshotByID, loadSnapshotByProjectID } from '../redux/dispatchActions';
-import { HeaderContext } from '../../header/headerContext';
 import { DJANGO_CONTEXT } from '../../../utils/djangoContext';
 import { restoreCurrentActionsList } from '../../../reducers/tracking/dispatchActions';
 import { setIsSnapshotDirty } from '../../../reducers/tracking/actions';
 import { setDownloadStructuresDialogOpen } from '../../snapshot/redux/actions';
+import { ToastContext } from '../../toast';
 
-export const ProjectPreview = memo(({}) => {
-  const { setSnackBarTitle } = useContext(HeaderContext);
+export const ProjectPreview = memo(({ }) => {
+  const { toast } = useContext(ToastContext);
   const [canShow, setCanShow] = useState(undefined);
   const isSnapshotLoaded = useRef(undefined);
   let match = useRouteMatch();
@@ -79,7 +79,7 @@ export const ProjectPreview = memo(({}) => {
   }, [currentSnapshotID, dispatch, projectId, snapshotId, isActionRestoring, isActionRestored, canShow]);
 
   if (canShow === false) {
-    setSnackBarTitle('Not valid snapshot!');
+    toast('Not valid snapshot!');
   }
 
   console.log(

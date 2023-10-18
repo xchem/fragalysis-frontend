@@ -8,16 +8,15 @@ import Alert from '@material-ui/lab/Alert';
 import { ReportProblem, EmojiObjects, Delete } from '@material-ui/icons';
 import { Button } from '../common/Inputs/Button';
 import Modal from '../common/Modal';
-import { HeaderContext } from '../header/headerContext';
 import { Formik, Form, Field } from 'formik';
 import { createIssue } from './githubApi';
 import { canCaptureScreen, captureScreen, isFirefox, isChrome } from './browserApi';
 import { resetForm, setName, setEmail, setTitle, setDescription } from './redux/actions';
 import { useDispatch, useSelector } from 'react-redux';
-import { snackbarColors } from '../header/constants';
 import CanvasDraw from 'react-canvas-draw';
 import { SketchPicker } from 'react-color';
 import { TextField } from 'formik-material-ui';
+import { ToastContext } from '../toast';
 
 /* Min resolution is 960 x 540 */
 const FORM_MIN_WIDTH = 960;
@@ -88,7 +87,7 @@ export const ReportForm = memo(({ formType }) => {
 
   const dispatch = useDispatch();
   const formState = useSelector(state => state.issueReducers);
-  const { setSnackBarTitle, setSnackBarColor } = useContext(HeaderContext);
+  const { toast } = useContext(ToastContext);
 
   const getTitle = () => {
     switch (formType) {
@@ -145,15 +144,14 @@ export const ReportForm = memo(({ formType }) => {
   };
 
   const afterCreateIssueCallback = url => {
-    setSnackBarTitle(
-      <>
+    toast(
+      <span>
         {getCreatedText()}
         <a href={url} target="_blank" className={classes.link}>
           {url}
         </a>
-      </>
+      </span>
     );
-    setSnackBarColor(snackbarColors.default);
     handleCloseForm();
   };
 
