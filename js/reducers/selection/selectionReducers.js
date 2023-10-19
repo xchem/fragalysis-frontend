@@ -480,6 +480,10 @@ export function selectionReducers(state = INITIAL_STATE, action = {}) {
     case constants.SET_IS_LHS_CMP_TAG_EDIT:
       return { ...state, isLHSCmpTagEdit: action.isLHSCmpTagEdit };
 
+      case constants.SET_RHS_WIDTH:
+        return Object.assign({}, state, { rhsWidth: action.payload });
+  
+
     // Cases like: @@redux/INIT
     default:
       return state;

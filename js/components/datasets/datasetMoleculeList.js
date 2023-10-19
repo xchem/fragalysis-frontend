@@ -106,7 +106,13 @@ const useStyles = makeStyles(theme => ({
   },
   gridItemList: {
     overflow: 'auto',
-    height: `calc(100% - ${theme.spacing(6)}px - ${theme.spacing(2)}px)`
+    height: `calc(98% - ${theme.spacing(6)}px - ${theme.spacing(2)}px)`,
+    width: '100%'
+  },
+  gridItemListSmallSize: {
+    overflow: 'auto',
+    height: `calc(85% - ${theme.spacing(6)}px - ${theme.spacing(2)}px)`,
+    width: '100%'
   },
   centered: {
     display: 'flex',
@@ -351,6 +357,7 @@ const DatasetMoleculeList = ({ title, datasetID, url }) => {
   const isLockVisibleCompoundsDialogOpenGlobal = useSelector(
     state => state.datasetsReducers.isLockVisibleCompoundsDialogOpenGlobal
   );
+  const rhsWidth = useSelector(state => state.selectionReducers.rhsWidth);
 
   const moleculeLists = useSelector(state => state.datasetsReducers.moleculeLists);
   const isLoadingMoleculeList = useSelector(state => state.datasetsReducers.isLoadingMoleculeList);
@@ -972,67 +979,74 @@ const DatasetMoleculeList = ({ title, datasetID, url }) => {
         )}
       </div>
       <Grid container direction="row" justifyContent="flex-start" className={classes.container}>
-        <Grid item>
+        <Grid item style={{ width: '100%' }}>
           {/* Selection */}
           <Grid container direction="row" alignItems="center">
             {Object.keys(compoundsColors).map(item => (
-              <Grid item key={`${item}-txtfield`}>
-                <TextField
-                  InputProps={{
-                    readOnly: editedColorGroup !== item,
-                    endAdornment: (
-                      <InputAdornment position="end">
-                        <IconButton
-                          className={
-                            editedColorGroup !== item ? classes.editClassNameIcon : classes.editClassNameIconSelected
-                          }
-                          color={'inherit'}
-                          value={`${item}`}
-                          onClick={e => {
-                            dispatch(onStartEditColorClassName(e));
-                            inputRefs[item].current.focus();
-                            inputRefs[item].current.select();
-                          }}
-                        >
-                          <Edit />
-                        </IconButton>
-                      </InputAdornment>
-                    ),
-                    startAdornment: (
-                      <InputAdornment position="start">
-                        <Checkbox
-                          className={classes.classCheckbox}
-                          key={`CHCK_${item}`}
-                          value={`${item}`}
-                          onChange={e => dispatch(onChangeCompoundClassCheckbox(e))}
-                          checked={currentCompoundClass === item}
-                        ></Checkbox>
-                      </InputAdornment>
-                    )
-                  }}
-                  inputRef={inputRefs[item]}
-                  autoComplete="off"
-                  id={`${item}`}
-                  key={`CLASS_${item}`}
-                  variant="standard"
-                  className={classNames(
-                    classes.textField,
-                    classes[item],
-                    currentCompoundClass === item && classes.selectedInput
-                  )}
-                  onChange={e => dispatch(onChangeCompoundClassValue(e))}
-                  onKeyDown={e => dispatch(onKeyDownCompoundClass(e))}
-                  // onClick={e => dispatch(onClickCompoundClass(e))}
-                  value={inputs[item] || ''}
-                />
-              </Grid>
+                <Grid item key={`${item}-txtfield`}>
+                  <TextField
+                    InputProps={{
+                      readOnly: editedColorGroup !== item,
+                      endAdornment: (
+                        <InputAdornment position="end">
+                          <IconButton
+                            className={
+                              editedColorGroup !== item ? classes.editClassNameIcon : classes.editClassNameIconSelected
+                            }
+                            color={'inherit'}
+                            value={`${item}`}
+                            onClick={e => {
+                              dispatch(onStartEditColorClassName(e));
+                              inputRefs[item].current.focus();
+                              inputRefs[item].current.select();
+                            }}
+                          >
+                            <Edit />
+                          </IconButton>
+                        </InputAdornment>
+                      ),
+                      startAdornment: (
+                        <InputAdornment position="start">
+                          <Checkbox
+                            className={classes.classCheckbox}
+                            key={`CHCK_${item}`}
+                            value={`${item}`}
+                            onChange={e => dispatch(onChangeCompoundClassCheckbox(e))}
+                            checked={currentCompoundClass === item}
+                          ></Checkbox>
+                        </InputAdornment>
+                      )
+                    }}
+                    inputRef={inputRefs[item]}
+                    autoComplete="off"
+                    id={`${item}`}
+                    key={`CLASS_${item}`}
+                    variant="standard"
+                    className={classNames(
+                      classes.textField,
+                      classes[item],
+                      currentCompoundClass === item && classes.selectedInput
+                    )}
+                    onChange={e => dispatch(onChangeCompoundClassValue(e))}
+                    onKeyDown={e => dispatch(onKeyDownCompoundClass(e))}
+                    // onClick={e => dispatch(onClickCompoundClass(e))}
+                    value={inputs[item] || ''}
+                  />
+                </Grid>
             ))}
           </Grid>
         </Grid>
         <Grid item>
           {/* Header */}
           {isLoadingMoleculeList === false && (
-            <Grid container justifyContent="flex-start" direction="row" className={classes.molHeader} wrap="nowrap">
+            <Grid
+              container
+              justifyContent="flex-start"
+              direction="row"
+              className={classes.molHeader}
+              wrap="nowrap"
+              style={{ width: '100%' }}
+            >
               <Grid item container justifyContent="flex-start" direction="row">
                 <Tooltip title="Total count of compounds">
                   <Grid item className={classes.rank}>
@@ -1220,7 +1234,13 @@ const DatasetMoleculeList = ({ title, datasetID, url }) => {
         )}
         {isLoadingMoleculeList === false && currentMolecules.length > 0 && (
           <>
-            <Grid item className={classes.gridItemList} ref={scrollBarRef}>
+            <Grid
+              item
+              className={
+                rhsWidth > 480 || rhsWidth === undefined ? classes.gridItemList : classes.gridItemListSmallSize
+              }
+              ref={scrollBarRef}
+            >
               <InfiniteScroll
                 getScrollParent={() =>
                   dispatch(

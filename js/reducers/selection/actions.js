@@ -560,3 +560,10 @@ export const setAssignTagView = assignTagView => {
     payload: assignTagView
   };
 };
+
+export const setActualRhsWidth = rhsWidth => {
+  return {
+    type: constants.SET_RHS_WIDTH,
+    payload: rhsWidth
+  };
+};

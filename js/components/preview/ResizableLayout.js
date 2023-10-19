@@ -10,7 +10,7 @@ import { RHS } from './rhs';
 import TagDetails from './tags/details/tagDetails';
 import TagSelector from './tags/tagSelector';
 import { ViewerControls } from './viewerControls';
-import { setResizableLayout } from '../../reducers/selection/actions';
+import { setResizableLayout, setActualRhsWidth } from '../../reducers/selection/actions';
 
 const useStyles = makeStyles(theme => ({
   root: {
@@ -131,13 +131,23 @@ export const ResizableLayout = ({ gridRef, hideProjects, showHistory, onShowHist
           if (sidesOpen.LHS) {
             const adjustedX = x - gridRect.x - (lhsWidth + resizerSize) - resizerSize / 2;
             const containerWidth = gridRect.width - lhsWidth - resizerSize * 2;
+            dispatch(setActualRhsWidth(containerWidth - clamp(adjustedX, 0, containerWidth)));
 
-            return containerWidth - clamp(adjustedX, 0, containerWidth);
+            if (containerWidth - clamp(adjustedX, 0, containerWidth) < 380) {
+              return 380;
+            } else {
+              return containerWidth - clamp(adjustedX, 0, containerWidth);
+            }
           } else {
             const adjustedX = x - gridRect.x - resizerSize / 2;
             const containerWidth = gridRect.width - resizerSize;
+            dispatch(setActualRhsWidth(containerWidth - clamp(adjustedX, 0, containerWidth)));
 
-            return containerWidth - clamp(adjustedX, 0, containerWidth);
+            if (containerWidth - clamp(adjustedX, 0, containerWidth) < 380) {
+              return 380;
+            } else {
+              return containerWidth - clamp(adjustedX, 0, containerWidth);
+            }
           }
         } else {
           return 0;

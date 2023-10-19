@@ -94,7 +94,11 @@ export const constants = {
 
   SET_RESIZABLE_LAYOUT: prefix + 'SET_RESIZABLE_LAYOUT',
 
-  SET_IS_LHS_CMP_TAG_EDIT: prefix + 'SET_IS_LHS_CMP_TAG_EDIT'
+  SET_IS_LHS_CMP_TAG_EDIT: prefix + 'SET_IS_LHS_CMP_TAG_EDIT',
+
+  SET_RESIZABLE_LAYOUT: prefix + 'SET_RESIZABLE_LAYOUT',
+
+  SET_RHS_WIDTH: prefix + 'SET_RHS_WIDTH'
 };
 
 export const PREDEFINED_FILTERS = {
