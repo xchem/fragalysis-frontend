@@ -342,3 +342,12 @@ export const setCategoryList = function(categoryList, skipTracking = false) {
     skipTracking
   };
 };
+
+export const setSnapshotLoadingInProgress = (snapshotLoadingInProgress, skipTracking = true) => {
+  console.log(`setSnapshotLoadingInProgress with value ${snapshotLoadingInProgress}`);
+  return {
+    type: constants.SET_SNAPSHOT_LOADING_IN_PROGRESS,
+    snapshotLoadingInProgress: snapshotLoadingInProgress,
+    skipTracking
+  };
+};

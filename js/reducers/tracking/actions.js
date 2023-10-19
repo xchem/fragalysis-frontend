@@ -144,7 +144,7 @@ export const setSkipOrientationChange = skipOrientationChange => ({
 });
 
 export const setIsSnapshotDirty = isSnapshotDirty => {
-  // console.count(`setIsSnapshotDirty with value ${isSnapshotDirty}`);
+  console.count(`setIsSnapshotDirty with value ${isSnapshotDirty}`);
   return {
     type: constants.SET_IS_SNAPSHOT_DIRTY,
     isSnapshotDirty: isSnapshotDirty,

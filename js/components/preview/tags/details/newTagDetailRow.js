@@ -120,7 +120,7 @@ const NewTagDetailRow = memo(({ moleculesToEditIds, moleculesToEdit }) => {
     if (newTagName && newTagCategory) {
       const tagObject = createMoleculeTagObject(
         newTagName,
-        moleculesToEdit.length ? moleculesToEdit[0].proteinData.target_id : targetId,
+        targetId,
         newTagCategory,
         DJANGO_CONTEXT.pk,
         newTagColor,

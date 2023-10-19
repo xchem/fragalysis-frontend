@@ -18,6 +18,7 @@ import { changeSnapshot } from '../../../reducers/tracking/dispatchActionsSwitch
 import { NglContext } from '../../nglView/nglProvider';
 import { VIEWS } from '../../../constants/constants';
 import { useRouteMatch } from 'react-router-dom';
+import { setSnapshotLoadingInProgress } from '../../../reducers/api/actions';
 
 export const heightOfProjectHistory = PROJECTS_JOBS_PANEL_HEIGHT;
 
@@ -94,8 +95,8 @@ export const ProjectHistory = memo(({ showFullHistory, graphKey, expanded, onExp
   const sessionProjectID = paramsProjectID && paramsProjectID != null ? paramsProjectID : currentSessionProjectID;
 
   const currentProject = useSelector(state => state.targetReducers.currentProject);
-  const actionListNGL =  useSelector(state => state.nglTrackingReducers.track_actions_list);
-  const actionList =  useSelector(state => state.trackingReducers.track_actions_list);
+  const actionListNGL = useSelector(state => state.nglTrackingReducers.track_actions_list);
+  const actionList = useSelector(state => state.trackingReducers.track_actions_list);
 
   const [tryToOpen, setTryToOpen] = useState(false);
   const [transitionToSnapshot, setTransitionToSnapshot] = useState(null);
@@ -119,17 +120,8 @@ export const ProjectHistory = memo(({ showFullHistory, graphKey, expanded, onExp
       dispatch(setSelectedSnapshotToSwitch(transitionToSnapshot.hash));
       dispatch(setIsOpenModalBeforeExit(true));
       setTryToOpen(false);
-      if (actionListNGL.length !== 0) {
-        setTryToOpen(false);
-        dispatch(setIsOpenModalBeforeExit(false));
-        dispatch(changeSnapshot(sessionProjectID, transitionToSnapshot.hash, nglViewList, stage));
-        dispatch(setIsOpenModalBeforeExit(false));
-      }
-    } else 
-    if (!isSnapshotDirty && tryToOpen && transitionToSnapshot) {
-      if (actionListNGL.length !== 0) {
-      dispatch(setIsOpenModalBeforeExit(true));
-      }
+      // dispatch(changeSnapshot(sessionProjectID, transitionToSnapshot.hash, nglViewList, stage));
+    } else if (!isSnapshotDirty && tryToOpen && transitionToSnapshot) {
       dispatch(changeSnapshot(sessionProjectID, transitionToSnapshot.hash, nglViewList, stage));
       setTryToOpen(false);
     }

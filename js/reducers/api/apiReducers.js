@@ -89,7 +89,8 @@ export const RESET_TARGET_STATE = {
   snapshotDownloadUrl: null,
   tagList: [],
   target_data_loading_in_progress: false,
-  all_data_loaded: false
+  all_data_loaded: false,
+  snapshotLoadingInProgress: false
 };
 
 export default function apiReducers(state = INITIAL_STATE, action = {}) {
@@ -146,6 +147,9 @@ export default function apiReducers(state = INITIAL_STATE, action = {}) {
     case constants.APPEND_MOLECULE_TAG:
       state.moleculeTags.push(action.moleculeTag);
       return { ...state };
+
+    case constants.SET_SNAPSHOT_LOADING_IN_PROGRESS:
+      return { ...state, snapshotLoadingInProgress: action.snapshotLoadingInProgress };
 
     case constants.UPDATE_MOLECULE_TAG:
       let newMolTagsList = [...state.moleculeTags];
