@@ -146,7 +146,7 @@ export const TargetList = memo(() => {
   const [panelWidthForInitDate, setPanelWidthForInitDate] = useState(90);
   const [panelWidthForSGC, setPanelWidthForSGC] = useState(130);
 
-  const [sortSwitch, setSortSwitch] = useState(0);
+  const [sortSwitch, setSortSwitch] = useState(21);
   const [sortDialogAnchorEl, setSortDialogAnchorEl] = useState(null);
   const sortDialogOpen = useSelector(state => state.targetReducers.targetListFilterDialog);
 
@@ -264,8 +264,8 @@ export const TargetList = memo(() => {
   let listOfFilteredTargetsByDate = useSelector(state => state.targetReducers.listOfFilteredTargetsByDate);
 
   const isActiveFilter = !!(filter || {}).active;
-  let listOfAllTarget = [...listOfAllTargetsDefault].sort(compareTargetDesc);
-  
+  let listOfAllTarget = [...listOfAllTargetsDefault].sort(compareTargetAsc);
+
   const initialize = useCallback(() => {
     let initObject = {
       active: false,
@@ -1184,15 +1184,13 @@ export const TargetList = memo(() => {
                     onClick={() => handleHeaderSort('target')}
                   >
                     <Tooltip title="Sort" className={classes.sortButton}>
-                      {[1, 2].includes(sortSwitch - offsetTarget) ? (
-                        sortSwitch % offsetTarget < 2 ? (
-                          <KeyboardArrowDown />
-                        ) : (
-                          <KeyboardArrowUp />
-                        )
-                      ) : (
-                        <UnfoldMore />
-                      )}
+                    {filter.filter.title.order === -1 ? (
+                      <KeyboardArrowDown />
+                    ) : filter.filter.title.order === 1 ? (
+                      <KeyboardArrowUp />
+                    ) : (
+                      <UnfoldMore />
+                    )}
                     </Tooltip>
                   </IconButton>
                 </div>
@@ -1226,15 +1224,13 @@ export const TargetList = memo(() => {
                     onClick={() => handleHeaderSort('targetAccessString')}
                   >
                     <Tooltip title="Sort" className={classes.sortButton}>
-                      {[1, 2].includes(sortSwitch - offsetTargetAccessString) ? (
-                        sortSwitch % offsetTargetAccessString < 2 ? (
-                          <KeyboardArrowDown />
-                        ) : (
-                          <KeyboardArrowUp />
-                        )
-                      ) : (
-                        <UnfoldMore />
-                      )}
+                    {filter.filter.targetAccessString.order === -1 ? (
+                      <KeyboardArrowDown />
+                    ) : filter.filter.targetAccessString.order === 1 ? (
+                      <KeyboardArrowUp />
+                    ) : (
+                      <UnfoldMore />
+                    )}
                     </Tooltip>
                   </IconButton>
                 </div>
@@ -1261,15 +1257,13 @@ export const TargetList = memo(() => {
                     onClick={() => handleHeaderSort('initDate')}
                   >
                     <Tooltip title="Sort" className={classes.sortButton}>
-                      {[1, 2].includes(sortSwitch - offsetInitDate) ? (
-                        sortSwitch % offsetInitDate < 2 ? (
-                          <KeyboardArrowDown />
-                        ) : (
-                          <KeyboardArrowUp />
-                        )
-                      ) : (
-                        <UnfoldMore />
-                      )}
+                    {filter.filter.initDate.order === -1 ? (
+                      <KeyboardArrowDown />
+                    ) : filter.filter.initDate.order === 1 ? (
+                      <KeyboardArrowUp />
+                    ) : (
+                      <UnfoldMore />
+                    )}
                     </Tooltip>
                   </IconButton>
                 </div>
