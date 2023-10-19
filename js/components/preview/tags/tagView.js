@@ -133,28 +133,28 @@ const TagView = memo(
     tagDetailView = tagDetailView?.tagDetailView === undefined ? tagDetailView : tagDetailView.tagDetailView;
 
     let maxLengthTagDetail = 0;
-    for(let tagNumber =0; tagNumber <tags?.length; tagNumber++ ) {
-      maxLengthTagDetail=  tags[tagNumber].tag.length > maxLengthTagDetail ? tags[tagNumber].tag.length : maxLengthTagDetail;
+    for (let tagNumber = 0; tagNumber < tags?.length; tagNumber++) {
+      maxLengthTagDetail = tags[tagNumber].tag.length > maxLengthTagDetail ? tags[tagNumber].tag.length : maxLengthTagDetail;
     }
 
     const absoluteMaxTagLength = maxLengthTagDetail > 15 ? maxLengthTagDetail > 30 ? 48 : 30 : 19;
 
     const style = isTagEditor
       ? {
-          backgroundColor: bgColor,
-          color: color,
-          width: tagDetailView === true ? '93px' : '200px',
-          height: tagDetailView === true ? absoluteMaxTagLength +'px' : '19px',
-          border: `solid 0.05px ${tagData.colour === null ? 'gray' : tagData.colour}`
-        }
+        backgroundColor: bgColor,
+        color: color,
+        width: tagDetailView === true ? '93px' : '200px',
+        height: tagDetailView === true ? absoluteMaxTagLength + 'px' : '19px',
+        border: `solid 0.05px ${tagData.colour === null ? 'gray' : tagData.colour}`
+      }
       : selected
-      ? {
+        ? {
           backgroundColor: bgColor,
           color: color,
           width: assignTagView === false ? '93px' : '200px',
           border: `solid 0.05px ${tagData.colour === null ? 'gray' : tagData.colour}`
         }
-      : {
+        : {
           backgroundColor: 'white',
           color: 'black',
           borderColor: bgColor,
@@ -190,9 +190,8 @@ const TagView = memo(
         if (selected) {
           return {
             size: 'small',
-            className: `${classes.chip} ${selected && !isSpecialTag ? classes.chipSelected : null} ${
-              tagDetailView === true ? classes.tagDetailsChip : classes.tagDetailsChipList
-            }`,
+            className: `${classes.chip} ${selected && !isSpecialTag ? classes.chipSelected : null} ${tagDetailView === true ? classes.tagDetailsChip : classes.tagDetailsChipList
+              }`,
             label:
               assignTagView === false
                 ? tagDetailView === false
@@ -200,7 +199,6 @@ const TagView = memo(
                   : originalTagData.tag
                 : originalTagData.tag,
             clickable: true,
-            color: bgColor,
             style: style,
             onClick: () => {
               handleClick && handleClick(selected, tag, allTags);
@@ -211,17 +209,16 @@ const TagView = memo(
         } else {
           return {
             size: 'small',
-            className: `${classes.chip} ${selected && !isSpecialTag ? classes.chipSelected : null} ${
-              tagDetailView === true ? classes.tagDetailsChip : classes.tagDetailsChipList
-            }`,
+            className: `${classes.chip} ${selected && !isSpecialTag ? classes.chipSelected : null} ${tagDetailView === true ? classes.tagDetailsChip : classes.tagDetailsChipList
+              }`,
             label: assignTagView === false ? (tagDetailView === false ? tagData.tag : tagData.tag) : tagData.tag,
             clickable: true,
-            color: bgColor,
             style: {
               backgroundColor: 'white',
+              // color: bgColor, // do we want text to be the same color as border?
               border: '1px solid rgba(0, 0, 0, 0.23)',
               borderColor: bgColor,
-              height: tagDetailView === true ? absoluteMaxTagLength +'px' : '19px',
+              height: tagDetailView === true ? absoluteMaxTagLength + 'px' : '19px',
               width: tagDetailView === true ? '93px' : '200px'
             },
             onClick: () => {
@@ -239,7 +236,6 @@ const TagView = memo(
           className: `${classes.chip} ${selected && !isSpecialTag ? classes.chipSelected : null}`,
           label: partiallySelected ? `${tagData.tag}*` : originalTagData.tag,
           clickable: true,
-          color: bgColor,
           borderColor: bgColor,
           style: style,
           onClick: () => {
@@ -255,7 +251,6 @@ const TagView = memo(
         className: `${classes.chip} ${selected && !isSpecialTag ? classes.chipSelected : null}`,
         label: tagDetailView === true && assignTagView === true ? tagData.tag : originalTagData.tag,
         clickable: true,
-        color: bgColor,
         borderColor: bgColor,
         style: style,
         variant: 'outlined',
