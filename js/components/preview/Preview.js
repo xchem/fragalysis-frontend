@@ -100,7 +100,9 @@ const Preview = memo(({ isStateLoaded, hideProjects, isSnapshot = false }) => {
   //   }
   // }
 
-  dispatch(prepareFakeFilterData());
+  useEffect(() => {
+    dispatch(prepareFakeFilterData());
+  }, [dispatch]);
 
   const customDatasets = useSelector(state => state.datasetsReducers.datasets);
   const target_on = useSelector(state => state.apiReducers.target_on);
