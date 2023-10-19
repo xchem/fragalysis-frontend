@@ -1140,7 +1140,6 @@ export const TargetList = memo(() => {
                   />
                   Target
                 </Typography>
-                {console.log('filter', filter)}
                 <IconButton style={{ padding: '0px' }} onClick={() => handleHeaderSort('target')}>
                   <Tooltip title="Sort" className={classes.sortButton}>
                     {filter.filter.title.order === -1 ? (
