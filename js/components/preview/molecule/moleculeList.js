@@ -1038,6 +1038,8 @@ export const MoleculeList = memo(({ hideProjects }) => {
       <Grid container spacing={1}>
         <Grid style={{ marginTop: '4px' }}>
           <Tooltip title="all ligands" style={{ marginLeft: '1px' }}>
+            {/* Tooltip should not have disabled element as a direct child */}
+            <>
               <Button
                 variant="outlined"
                 className={classNames(classes.contColButton, {
@@ -1045,45 +1047,52 @@ export const MoleculeList = memo(({ hideProjects }) => {
                   [classes.contColButtonHalfSelected]: isLigandOn === null
                 })}
                 onClick={() => onButtonToggle('ligand')}
-              disabled={groupNglControlButtonsDisabledState.ligand || allSelectedMolecules.length === 0}
+                disabled={groupNglControlButtonsDisabledState.ligand || allSelectedMolecules.length === 0}
               >
                 L
               </Button>
-            </Tooltip>
+            </>
+          </Tooltip>
           <Tooltip title="all sidechains" style={{ marginLeft: '1px' }}>
+            {/* Tooltip should not have disabled element as a direct child */}
+            <>
               <Button
                 variant="outlined"
-              className={classNames(
-                allSelectedMolecules.length === 0 ? classes.contColButton : classes.contColButtonUnselected,
-                {
-                  [classes.contColButtonSelected]: isProteinOn,
-                  [classes.contColButtonHalfSelected]: isProteinOn === null
-                }
-              )}
+                className={classNames(
+                  allSelectedMolecules.length === 0 ? classes.contColButton : classes.contColButtonUnselected,
+                  {
+                    [classes.contColButtonSelected]: isProteinOn,
+                    [classes.contColButtonHalfSelected]: isProteinOn === null
+                  }
+                )}
                 onClick={() => onButtonToggle('protein')}
-              disabled={groupNglControlButtonsDisabledState.protein || allSelectedMolecules.length === 0}
+                disabled={groupNglControlButtonsDisabledState.protein || allSelectedMolecules.length === 0}
               >
                 P
               </Button>
-            </Tooltip>
+            </>
+          </Tooltip>
           <Tooltip title="all interactions" style={{ marginLeft: '1px' }}>
+            {/* Tooltip should not have disabled element as a direct child */}
+            <>
               {/* C stands for contacts now */}
               <Button
                 variant="outlined"
-              className={classNames(
-                allSelectedMolecules.length === 0 ? classes.contColButton : classes.contColButtonUnselected,
-                {
-                  [classes.contColButtonSelected]: isComplexOn,
-                  [classes.contColButtonHalfSelected]: isComplexOn === null
-                }
-              )}
+                className={classNames(
+                  allSelectedMolecules.length === 0 ? classes.contColButton : classes.contColButtonUnselected,
+                  {
+                    [classes.contColButtonSelected]: isComplexOn,
+                    [classes.contColButtonHalfSelected]: isComplexOn === null
+                  }
+                )}
                 onClick={() => onButtonToggle('complex')}
-              disabled={groupNglControlButtonsDisabledState.complex || allSelectedMolecules.length === 0}
+                disabled={groupNglControlButtonsDisabledState.complex || allSelectedMolecules.length === 0}
               >
                 C
               </Button>
-            </Tooltip>
-          </Grid>
+            </>
+          </Tooltip>
+        </Grid>
 
         {
           <Tooltip title={selectAllHitsPressed ? 'Unselect all hits' : 'Select all hits'}>

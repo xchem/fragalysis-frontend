@@ -323,7 +323,7 @@ export const TargetList = memo(() => {
         <TableCell align="left" style={{ padding: '0px 10px 0px 0px', margin: '0px', padding: '0px' }}>
           <Link to={preview}>
             <div style={{ wordBreak: 'break-all' }}>{target.title}</div>
-            </Link>
+          </Link>
         </TableCell>
         <TableCell style={{ width: '2px', padding: '0px', margin: '0px' }}></TableCell>
         <TableCell align="left" style={{ padding: '0px 10px 0px 0px', margin: '0px', padding: '0px' }}>
@@ -335,32 +335,32 @@ export const TargetList = memo(() => {
         </TableCell>
         <TableCell style={{ width: '2px', padding: '0px', margin: '0px' }}></TableCell>
         <TableCell align="left" style={{ padding: '0px 10px 0px 0px', margin: '0px', padding: '0px' }}>
-              {sgcUploaded.includes(target.title) && (
-                <a href={sgcUrl} target="new">
+          {sgcUploaded.includes(target.title) && (
+            <a href={sgcUrl} target="new">
               SGC summary
-                </a>
-              )}
-              {discourseAvailable && (
-                <Tooltip title="Go to Discourse">
-                  <IconButton
-                    disabled={!isDiscourseAvailable()}
-                    onClick={() => {
-                      generateDiscourseTargetURL(target.title)
-                        .then(response => {
-                          const link = response.data['Post url'];
-                          openDiscourseLink(link);
-                        })
-                        .catch(err => {
-                          console.log(err);
-                          dispatch(setOpenDiscourseErrorModal(true));
-                        });
-                    }}
+            </a>
+          )}
+          {discourseAvailable && (
+            <Tooltip title="Go to Discourse">
+              <IconButton
+                disabled={!isDiscourseAvailable()}
+                onClick={() => {
+                  generateDiscourseTargetURL(target.title)
+                    .then(response => {
+                      const link = response.data['Post url'];
+                      openDiscourseLink(link);
+                    })
+                    .catch(err => {
+                      console.log(err);
+                      dispatch(setOpenDiscourseErrorModal(true));
+                    });
+                }}
                 style={{ padding: '0px' }}
-                  >
+              >
                 <Chat style={{ height: '15px' }} />
-                  </IconButton>
-                </Tooltip>
-              )}
+              </IconButton>
+            </Tooltip>
+          )}
         </TableCell>
         {/*
       <TableCell
@@ -1141,7 +1141,7 @@ export const TargetList = memo(() => {
           <TableHead>
             <TableRow style={{ padding: '0px', paddingTop: '15px' }}>
               {/*} <TableCell style={{ padding: '0px' }}>
-                <Typography variant="title">
+                <Typography variant="inherit">
                   <input
                     type="checkbox"
                     style={{ verticalAlign: 'middle' }}
@@ -1165,7 +1165,7 @@ export const TargetList = memo(() => {
                 </IconButton>
                     </TableCell>*/}
               <TableCell style={{ width: panelWidth, padding: '0px' }}>
-                <Typography variant="title">
+                <Typography variant="inherit">
                   <input
                     type="checkbox"
                     style={{ verticalAlign: 'middle' }}
@@ -1183,12 +1183,12 @@ export const TargetList = memo(() => {
                   >
                     <Tooltip title="Sort" className={classes.sortButton}>
                     {filter.filter.title.order === -1 ? (
-                      <KeyboardArrowDown />
+                          <KeyboardArrowDown />
                     ) : filter.filter.title.order === 1 ? (
-                      <KeyboardArrowUp />
-                    ) : (
-                      <UnfoldMore />
-                    )}
+                          <KeyboardArrowUp />
+                      ) : (
+                        <UnfoldMore />
+                      )}
                     </Tooltip>
                   </IconButton>
                 </div>
@@ -1204,7 +1204,7 @@ export const TargetList = memo(() => {
                 ></div>
               </div>
               <TableCell style={{ width: panelWidthForTargetAccessString, padding: '0px' }}>
-                <Typography variant="title">
+                <Typography variant="inherit">
                   <input
                     type="checkbox"
                     style={{ verticalAlign: 'middle' }}
@@ -1222,12 +1222,12 @@ export const TargetList = memo(() => {
                   >
                     <Tooltip title="Sort" className={classes.sortButton}>
                     {filter.filter.targetAccessString.order === -1 ? (
-                      <KeyboardArrowDown />
+                          <KeyboardArrowDown />
                     ) : filter.filter.targetAccessString.order === 1 ? (
-                      <KeyboardArrowUp />
-                    ) : (
-                      <UnfoldMore />
-                    )}
+                          <KeyboardArrowUp />
+                      ) : (
+                        <UnfoldMore />
+                      )}
                     </Tooltip>
                   </IconButton>
                 </div>
@@ -1255,12 +1255,12 @@ export const TargetList = memo(() => {
                   >
                     <Tooltip title="Sort" className={classes.sortButton}>
                     {filter.filter.initDate.order === -1 ? (
-                      <KeyboardArrowDown />
+                          <KeyboardArrowDown />
                     ) : filter.filter.initDate.order === 1 ? (
-                      <KeyboardArrowUp />
-                    ) : (
-                      <UnfoldMore />
-                    )}
+                          <KeyboardArrowUp />
+                      ) : (
+                        <UnfoldMore />
+                      )}
                     </Tooltip>
                   </IconButton>
                 </div>
@@ -1288,7 +1288,7 @@ export const TargetList = memo(() => {
                 ></div>
                 </div>*/}
               {/*   <TableCell style={{ padding: '0px' }}>
-                <Typography variant="title">
+                <Typography variant="inherit">
                   <input
                     type="checkbox"
                     style={{ verticalAlign: 'middle' }}
@@ -1312,7 +1312,7 @@ export const TargetList = memo(() => {
                 </IconButton>
               </TableCell>
               <TableCell style={{ padding: '0px' }}>
-                <Typography variant="title">
+                <Typography variant="inherit">
                   <input
                     type="checkbox"
                     style={{ verticalAlign: 'middle' }}
@@ -1336,7 +1336,7 @@ export const TargetList = memo(() => {
                 </IconButton>
               </TableCell>
               <TableCell style={{ padding: '0px' }}>
-                <Typography variant="title">
+                <Typography variant="inherit">
                   <input
                     type="checkbox"
                     style={{ verticalAlign: 'middle' }}
@@ -1360,7 +1360,7 @@ export const TargetList = memo(() => {
                 </IconButton>
               </TableCell>
               <TableCell style={{ padding: '0px' }}>
-                <Typography variant="title">
+                <Typography variant="inherit">
                   <input
                     type="checkbox"
                     style={{ verticalAlign: 'middle' }}
@@ -1384,7 +1384,7 @@ export const TargetList = memo(() => {
                 </IconButton>
               </TableCell>
               <TableCell style={{ padding: '0px' }}>
-                <Typography variant="title">
+                <Typography variant="inherit">
                   <input
                     type="checkbox"
                     style={{ verticalAlign: 'middle' }}
@@ -1408,7 +1408,7 @@ export const TargetList = memo(() => {
                 </IconButton>
               </TableCell>
               <TableCell style={{ padding: '0px' }}>
-                <Typography variant="title">
+                <Typography variant="inherit">
                   <input
                     type="checkbox"
                     style={{ verticalAlign: 'middle' }}
@@ -1432,7 +1432,7 @@ export const TargetList = memo(() => {
                 </IconButton>
               </TableCell>
               <TableCell style={{ padding: '0px' }}>
-                <Typography variant="title">
+                <Typography variant="inherit">
                   <input
                     type="checkbox"
                     style={{ verticalAlign: 'middle' }}
@@ -1456,7 +1456,7 @@ export const TargetList = memo(() => {
                 </IconButton>
               </TableCell>
               <TableCell style={{ padding: '0px' }}>
-                <Typography variant="title">
+                <Typography variant="inherit">
                   <input
                     type="checkbox"
                     style={{ verticalAlign: 'middle' }}
@@ -1480,7 +1480,7 @@ export const TargetList = memo(() => {
                 </IconButton>
               </TableCell>
               <TableCell style={{ padding: '0px' }}>
-                <Typography variant="title">
+                <Typography variant="inherit">
                   <input
                     type="checkbox"
                     style={{ verticalAlign: 'middle' }}
@@ -1504,7 +1504,7 @@ export const TargetList = memo(() => {
                 </IconButton>
               </TableCell>
               <TableCell style={{ padding: '0px' }}>
-                <Typography variant="title">
+                <Typography variant="inherit">
                   <input
                     type="checkbox"
                     style={{ verticalAlign: 'middle' }}
@@ -1528,7 +1528,7 @@ export const TargetList = memo(() => {
                 </IconButton>
               </TableCell>
               <TableCell style={{ padding: '0px' }}>
-                <Typography variant="title">
+                <Typography variant="inherit">
                   <input
                     type="checkbox"
                     style={{ verticalAlign: 'middle' }}
@@ -1552,7 +1552,7 @@ export const TargetList = memo(() => {
                 </IconButton>
               </TableCell>
               <TableCell style={{ padding: '0px' }}>
-                <Typography variant="title">
+                <Typography variant="inherit">
                   <input
                     type="checkbox"
                     style={{ verticalAlign: 'middle' }}
@@ -1576,7 +1576,7 @@ export const TargetList = memo(() => {
                 </IconButton>
               </TableCell>
               <TableCell style={{ padding: '0px' }}>
-                <Typography variant="title">
+                <Typography variant="inherit">
                   <input
                     type="checkbox"
                     style={{ verticalAlign: 'middle' }}
@@ -1606,8 +1606,8 @@ export const TargetList = memo(() => {
               filteredListOfTargets !== undefined
                 ? filteredListOfTargets
                 : listOfTargets !== undefined
-                ? listOfTargets
-                : target_id_list,
+                  ? listOfTargets
+                  : target_id_list,
               projectsList
             )
               .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
