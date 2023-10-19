@@ -236,8 +236,8 @@ const TagView = memo(
           className: `${classes.chip} ${selected && !isSpecialTag ? classes.chipSelected : null}`,
           label: partiallySelected ? `${tagData.tag}*` : originalTagData.tag,
           clickable: true,
-          borderColor: bgColor,
-          style: style,
+          // borderColor: bgColor,
+          style: { ...style, borderColor: bgColor },
           onClick: () => {
             handleClick && handleClick(selected, tag, allTags);
           },
@@ -251,8 +251,8 @@ const TagView = memo(
         className: `${classes.chip} ${selected && !isSpecialTag ? classes.chipSelected : null}`,
         label: tagDetailView === true && assignTagView === true ? tagData.tag : originalTagData.tag,
         clickable: true,
-        borderColor: bgColor,
-        style: style,
+        // borderColor: bgColor,
+        style: { ...style, borderColor: bgColor },
         variant: 'outlined',
         onClick: () => {
           handleClick && handleClick(selected, tag, allTags);
