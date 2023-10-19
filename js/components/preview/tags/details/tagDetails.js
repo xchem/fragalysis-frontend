@@ -331,7 +331,7 @@ const TagDetails = memo(() => {
         dispatch
       ])}
       headerActions={[
-        <Grid xs={12} container className={classes.headerContainer}>
+        <Grid container className={classes.headerContainer}>
           <Grid item xs={4}>
             <Tooltip
               title={
