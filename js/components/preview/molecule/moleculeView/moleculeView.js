@@ -447,6 +447,7 @@ const MoleculeView = memo(
             aria-owns={open ? 'mouse-over-popover' : undefined}
             aria-haspopup="true"
             style={{ fontSize: '10px' }}
+            component={'div'}
           >
             {modifiedObjects.length < 2 ? (
               <Grid
@@ -579,6 +580,7 @@ const MoleculeView = memo(
               aria-owns={open ? 'mouse-over-popper' : undefined}
               aria-haspopup="true"
               style={{ fontSize: '10px', display: 'flex' }}
+              component={'div'}
             >
               <Popper open={open} placement="right-start" anchorEl={tagPopoverOpen} style={{ display: 'flex' }}>
                 <Panel
