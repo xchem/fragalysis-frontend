@@ -403,7 +403,7 @@ const MoleculeView = memo(
 
     const moleculeImgRef = useRef(null);
 
-    const open = tagPopoverOpen ?? false;
+    const open = tagPopoverOpen ? true : false;
 
     let proteinData = data?.proteinData;
 
