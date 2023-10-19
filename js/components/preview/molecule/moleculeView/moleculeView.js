@@ -403,7 +403,7 @@ const MoleculeView = memo(
 
     const moleculeImgRef = useRef(null);
 
-    const open = tagPopoverOpen;
+    const open = tagPopoverOpen ?? false;
 
     let proteinData = data?.proteinData;
 
@@ -454,27 +454,27 @@ const MoleculeView = memo(
                 container
                 direction="row"
                 style={{ width: '50px' }}
-            onMouseEnter={handlePopoverOpen}
-            onMouseLeave={handlePopoverClose}
-          >
+                onMouseEnter={handlePopoverOpen}
+                onMouseLeave={handlePopoverClose}
+              >
                 {modifiedObjects.map((item, index) =>
                   index < allTagsLength ? (
                     <Grid
-                    style={{
+                      style={{
                         backgroundColor:
                           modifiedObjects[index].colour !== null ? modifiedObjects[index].colour : '#e0e0e0',
                         color: modifiedObjects[index].colour === null ? 'black' : 'white',
                         display: 'block',
                         maxWidth: '20px'
-                    }}
-                    className={classes.tagPopover}
+                      }}
+                      className={classes.tagPopover}
                       item
                       xs={9}
                       key={index}
-                  >
+                    >
                       <div>{item.tag} </div>
                     </Grid>
-                ) : (
+                  ) : (
                     <div></div>
                   )
                 )}
@@ -499,9 +499,9 @@ const MoleculeView = memo(
                               setRef(ref.current);
                             }
                           }
-                    }}
+                        }}
                         style={{ padding: '0px', paddingBottom: '3px', marginRight: '5px', position: 'right' }}
-                  >
+                      >
                         <Tooltip title="Edit tag" className={classes.editButtonIcon}>
                           <Edit />
                         </Tooltip>
@@ -510,7 +510,7 @@ const MoleculeView = memo(
                   </div>
                 )}
               </Grid>
-                ) : (
+            ) : (
               <Grid
                 className={classes.tagPopover}
                 container
@@ -522,30 +522,30 @@ const MoleculeView = memo(
                   {modifiedObjects.map((item, index) =>
                     index < allTagsLength ? (
                       <Grid
-                    style={{
+                        style={{
                           backgroundColor:
                             modifiedObjects[index].colour !== null ? modifiedObjects[index].colour : '#e0e0e0',
                           color: modifiedObjects[index].colour === null ? 'black' : 'white',
                           display: 'flex',
                           width: '20px',
                           paddingLeft: '3px'
-                    }}
-                    className={classes.tagPopover}
+                        }}
+                        className={classes.tagPopover}
                         item
                         xs={12}
                         key={index}
-                  >
+                      >
                         <div>{item.tag} </div>
                       </Grid>
                     ) : (
                       <div></div>
                     )
                   )}
-                  </div>
+                </div>
                 <div>
                   {DJANGO_CONTEXT['username'] === 'NOT_LOGGED_IN' ? (
                     <div></div>
-                ) : (
+                  ) : (
                     <IconButton
                       color={'inherit'}
                       disabled={!modifiedObjects}
@@ -569,7 +569,7 @@ const MoleculeView = memo(
                         <Edit />
                       </Tooltip>
                     </IconButton>
-                )}
+                  )}
                 </div>
               </Grid>
             )}
@@ -589,12 +589,12 @@ const MoleculeView = memo(
                     width: '320px',
                     display: 'flex',
                     transform: 'translate(' + popperPadding + 'px, -10%)'
-            }}
-          >
+                  }}
+                >
                   <Grid alignItems="center" direction="row" container>
                     {sortedData.map((item, index) => (
                       <Grid
-                style={{
+                        style={{
                           backgroundColor:
                             index < allData.length
                               ? sortedData[index].colour !== null
@@ -609,19 +609,19 @@ const MoleculeView = memo(
                                 ? `${sortedData[index].colour} solid 1px`
                                 : 'black solid 1px'
                               : sortedData[index].colour !== null
-                              ? `${sortedData[index].colour} solid 1px`
-                              : `#e0e0e0 solid 0.05rem`,
+                                ? `${sortedData[index].colour} solid 1px`
+                                : `#e0e0e0 solid 0.05rem`,
                           display: 'grid',
                           placeItems: 'center'
-                }}
+                        }}
                         className={classes.popover}
                         item
                         xs={sortedData.length === 1 ? 12 : sortedData.length === 2 ? 6 : 4}
                         key={index}
-              >
+                      >
                         <div>{item.tag}</div>
                       </Grid>
-            ))}
+                    ))}
                   </Grid>
                 </Panel>
               </Popper>
