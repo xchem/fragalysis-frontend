@@ -380,7 +380,9 @@ const TagDetails = memo(() => {
       ]}
     >
       <div>
-        <Grid style={{ paddingLeft: '70px' }} container item rowSpacing={1} spacing={2}>
+        {/* MUI5 rowSpacing is not available in current version of MUI */}
+        {/* <Grid container item rowSpacing={1} spacing={2} style={{ paddingLeft: '70px' }}> */}
+        <Grid container item spacing={2} style={{ paddingLeft: '70px' }}>
           <Grid item>
             <Button
               onClick={() => handleShowUntaggedMoleculesButton()}
@@ -429,7 +431,7 @@ const TagDetails = memo(() => {
               {/* START grid view */}
               {/* tag name */}
               <div className={classes.columnLabel}>
-                <Typography className={classes.columnTitleGrid} variant="tagName">
+                <Typography className={classes.columnTitleGrid} variant="inherit">
                   Tag name
                 </Typography>
                 <IconButton size="small" onClick={() => handleHeaderSort('name')}>
@@ -448,14 +450,13 @@ const TagDetails = memo(() => {
               </div>
             </div>
 
-            <Grid container rowSpacing={0} spacing={0} style={{ marginBottom: 'auto' }}>
+            <Grid container spacing={0} style={{ marginBottom: 'auto' }}>
               {filteredTagList &&
                 filteredTagList.map((tag, idx) => {
                   return (
                     <Grid
                       item
                       key={idx}
-                      rowSpacing={5}
                       style={{
                         verticalAlign: 'bottom',
                         display: 'contents',
