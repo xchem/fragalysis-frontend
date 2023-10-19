@@ -251,7 +251,13 @@ export default memo(
         forceCompute={forceCompute === true}
       >
         <AppBar position="absolute" ref={combinedRef} className={classes.appBar}>
-          <Grid container direction="row" justifyContent="space-between" alignItems="center" className={classes.headerPadding}>
+          <Grid
+            container
+            direction="row"
+            justifyContent="space-between"
+            alignItems="center"
+            className={classes.headerPadding}
+          >
             <Grid item>
               <ButtonGroup variant="text" size="small">
                 <Button
@@ -277,53 +283,71 @@ export default memo(
                       window.location.reload();
                     }}
                   >
-                    Fragalysis: <b id={"headerNavbarTitle"}>{headerNavbarTitle}</b>
+                    Fragalysis: <b id={'headerNavbarTitle'}>{headerNavbarTitle}</b>
                   </Typography>
                 </Button>
-                {username !== null && targetName !== undefined ?
-                  [
-                    [currentProject.authorID === null || currentProject.projectID === null || currentProject.authorID === userId ?
-                      <Button
-                        onClick={() => {
-                          isProjectModalLoading === false ? (dispatch(setProjectModalIsLoading(true)), dispatch(setAddButton(false))) : dispatch(setProjectModalIsLoading(false)),
-                            openSaveSnapshotModal === true ? dispatch(setOpenSnapshotSavingDialog(false)) : ''
-                        }}
-                        key="newProject"
-                        color="primary"
-                        startIcon={<CreateNewFolder />}
-                      >
-                        New project
-                      </Button>
-                      :
-                      <Button
-                        onClick={() => {
-                          openNewProjectModal === false ? (dispatch(setProjectModalIsLoading(true)), dispatch(setAddButton(false))) : dispatch(setProjectModalIsLoading(false)),
-                            openSaveSnapshotModal === true ? dispatch(setOpenSnapshotSavingDialog(false)) : ''
-                        }}
-                        key="newProject"
-                        color="primary"
-                        startIcon={<CreateNewFolder />}
-                      >
-                        New project from snapshot
-                      </Button>
-                    ],
-                    [currentProject.projectID !== null ?
-                      <Button
-                        key="saveSnapshot"
-                        color="primary"
-                        onClick={() => {
-                          dispatch(activateSnapshotDialog(DJANGO_CONTEXT['pk']),
-                            openSaveSnapshotModal === false ? dispatch(setOpenSnapshotSavingDialog(true)) : dispatch(setOpenSnapshotSavingDialog(false)),
-                            openSaveSnapshotModal === true ? dispatch(setOpenSnapshotSavingDialog(false)) : '',
-                            isProjectModalLoading === true ? dispatch(setProjectModalIsLoading(false)) : ''), dispatch(setAddButton(false))
-                        }}
-                        startIcon={<Save />}
-                      >
-                        Save
-                      </Button> : ''
-                    ]
-                  ]
-                  : ''}
+                {username !== null ? (
+                  targetName !== undefined ? (
+                    <>
+                      {currentProject.authorID === null ||
+                      currentProject.projectID === null ||
+                      currentProject.authorID === userId ? (
+                        <Button
+                          onClick={() => {
+                            isProjectModalLoading === false
+                              ? (dispatch(setProjectModalIsLoading(true)), dispatch(setAddButton(false)))
+                              : dispatch(setProjectModalIsLoading(false));
+                            openSaveSnapshotModal === true ? dispatch(setOpenSnapshotSavingDialog(false)) : '';
+                          }}
+                          key="newProject"
+                          color="primary"
+                          startIcon={<CreateNewFolder />}
+                        >
+                          New project
+                        </Button>
+                      ) : (
+                        <Button
+                          onClick={() => {
+                            openNewProjectModal === false
+                              ? (dispatch(setProjectModalIsLoading(true)), dispatch(setAddButton(false)))
+                              : dispatch(setProjectModalIsLoading(false));
+                            openSaveSnapshotModal === true ? dispatch(setOpenSnapshotSavingDialog(false)) : '';
+                          }}
+                          key="newProject"
+                          color="primary"
+                          startIcon={<CreateNewFolder />}
+                        >
+                          New project from snapshot
+                        </Button>
+                      )}
+                      {currentProject.projectID !== null ? (
+                        <Button
+                          key="saveSnapshot"
+                          color="primary"
+                          onClick={() => {
+                            dispatch(activateSnapshotDialog(DJANGO_CONTEXT['pk']));
+                            openSaveSnapshotModal === false
+                              ? dispatch(setOpenSnapshotSavingDialog(true))
+                              : dispatch(setOpenSnapshotSavingDialog(false));
+                            openSaveSnapshotModal === true ? dispatch(setOpenSnapshotSavingDialog(false)) : '';
+                            isProjectModalLoading === true ? dispatch(setProjectModalIsLoading(false)) : '';
+
+                            dispatch(setAddButton(false));
+                          }}
+                          startIcon={<Save />}
+                        >
+                          Save
+                        </Button>
+                      ) : (
+                        ''
+                      )}
+                    </>
+                  ) : (
+                    ''
+                  )
+                ) : (
+                  ''
+                )}
                 {headerButtons && headerButtons.map(item => item)}
                 <AddProjectDetail />
               </ButtonGroup>
@@ -502,7 +526,13 @@ export default memo(
             className={classes.inheritHeight}
           >
             <Grid item>
-              <Grid container direction="column" justifyContent="center" alignItems="center" className={classes.drawerHeader}>
+              <Grid
+                container
+                direction="column"
+                justifyContent="center"
+                alignItems="center"
+                className={classes.drawerHeader}
+              >
                 <Grid item>
                   <Avatar className={classes.padding}>
                     <Person />
@@ -559,7 +589,7 @@ export default memo(
           </Grid>
         </Drawer>
         <Box paddingTop={`${headerHeight}px`} width="100%" />
-      </ComputeSize >
+      </ComputeSize>
     );
   })
 );

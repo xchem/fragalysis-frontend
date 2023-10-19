@@ -102,7 +102,7 @@ const generateObjectList = (out_data, data) => {
 };
 
 const generateBondColorMap = inputDict => {
-  var out_d = {};
+  const out_d = {};
   for (let keyItem in inputDict) {
     for (let vector in inputDict[keyItem]) {
       const vect = vector.split('_')[0];
@@ -147,7 +147,7 @@ const handleVector = (json, stage, data) => (dispatch, getState) => {
   const state = getState();
   const { vector_list, compoundsOfVectors } = state.selectionReducers;
 
-  var objList = generateObjectList(json['3d'], data);
+  const objList = generateObjectList(json['3d'], data);
   dispatch(setVectorList([...vector_list, ...objList]));
 
   const currentVectorCompounds = compoundsOfVectors && compoundsOfVectors[data.smiles];
@@ -165,7 +165,7 @@ const handleVector = (json, stage, data) => (dispatch, getState) => {
       })
     )
   );
-  var vectorBondColorMap = generateBondColorMap(json['indices']);
+  const vectorBondColorMap = generateBondColorMap(json['indices']);
   dispatch(updateBondColorMapOfCompounds(data.smiles, vectorBondColorMap));
 };
 
@@ -178,16 +178,16 @@ export const addVector = (stage, data, skipTracking = false) => async (dispatch,
   return api({ url: getViewUrl('graph', data) })
     .then(response => {
       const result = response.data.graph;
-      var new_dict = {};
+      const new_dict = {};
       // Uniquify
       if (result) {
         Object.keys(result).forEach(key => {
-          var smiSet = new Set();
+          const smiSet = new Set();
           new_dict[key] = {};
           new_dict[key]['addition'] = [];
           new_dict[key]['vector'] = result[key]['vector'];
           Object.keys(result[key]['addition']).forEach(index => {
-            var newSmi = result[key]['addition'][index]['end'];
+            const newSmi = result[key]['addition'][index]['end'];
             if (smiSet.has(newSmi) !== true) {
               new_dict[key]['addition'].push(result[key]['addition'][index]);
               smiSet.add(newSmi);
@@ -197,8 +197,10 @@ export const addVector = (stage, data, skipTracking = false) => async (dispatch,
       }
       return dispatch(updateVectorCompounds(data.smiles, new_dict));
     })
-    .then(() => api({ url: getViewUrl('vector', data) }))
-    .then(response => dispatch(handleVector(response.data.vectors, stage, data)))
+    .then(() => api({ url: new URL(base_url + '/api/vector/?id=' + data.id) }))
+    .then(response => {
+      dispatch(handleVector(response.data?.results[0]?.vectors, stage, data));
+    })
     .finally(() => {
       const currentOrientation = stage.viewerControls.getOrientation();
       dispatch(setOrientation(VIEWS.MAJOR_VIEW, currentOrientation));

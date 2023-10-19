@@ -211,11 +211,10 @@ const JobConfigurationDialog = ({ snapshots }) => {
   const jobList = useSelector(state => state.projectReducers.jobList);
 
   useEffect(() => {
-    if (!jobList || jobList.length === 0)
-      dispatch(getJobConfigurationsFromServer()).then(jobs => {
-        dispatch(setJobList(jobs));
-      });
-  }, [dispatch, jobList]);
+    dispatch(getJobConfigurationsFromServer()).then(jobs => {
+      dispatch(setJobList(jobs));
+    });
+  }, []);
 
   // if (currentProject && !currentProject.user_can_use_squonk) {
   //   setErrorMsg(

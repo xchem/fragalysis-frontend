@@ -661,20 +661,20 @@ const MoleculeView = memo(
       );
     };
 
-    useEffect(() => {
-      if (!proteinData) {
-        dispatch(getProteinData(data)).then(i => {
-          if (i && i.length > 0) {
-            const proteinData = i[0];
-            data.proteinData = proteinData;
-            const result =
-              data.proteinData &&
-              (data.proteinData.diff_info || data.proteinData.event_info || data.proteinData.sigmaa_info);
-            setHasMap(result);
-          }
-        });
-      }
-    }, [data, dispatch, proteinData]);
+    // useEffect(() => {
+    //   if (!proteinData) {
+    //     dispatch(getProteinData(data)).then(i => {
+    //       if (i && i.length > 0) {
+    //         const proteinData = i[0];
+    //         data.proteinData = proteinData;
+    //         const result =
+    //           data.proteinData &&
+    //           (data.proteinData.diff_info || data.proteinData.event_info || data.proteinData.sigmaa_info);
+    //         setHasMap(result);
+    //       }
+    //     });
+    //   }
+    // }, [data, dispatch, proteinData]);
 
     // componentDidMount
     useEffect(() => {
