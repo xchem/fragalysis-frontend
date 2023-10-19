@@ -280,34 +280,34 @@ export default memo(
                     Fragalysis: <b id={"headerNavbarTitle"}>{headerNavbarTitle}</b>
                   </Typography>
                 </Button>
-                {username !== null ? targetName !== undefined ?
-                  <>
-                    {
-                      currentProject.authorID === null || currentProject.projectID === null || currentProject.authorID === userId ?
-                        <Button
-                          onClick={() => {
-                            isProjectModalLoading === false ? (dispatch(setProjectModalIsLoading(true)), dispatch(setAddButton(false))) : dispatch(setProjectModalIsLoading(false)),
-                              openSaveSnapshotModal === true ? dispatch(setOpenSnapshotSavingDialog(false)) : ''
-                          }}
-                          key="newProject"
-                          color="primary"
-                          startIcon={<CreateNewFolder />}
-                        >
-                          New project
-                        </Button>
-                        :
-                        <Button
-                          onClick={() => {
-                            openNewProjectModal === false ? (dispatch(setProjectModalIsLoading(true)), dispatch(setAddButton(false))) : dispatch(setProjectModalIsLoading(false)),
-                              openSaveSnapshotModal === true ? dispatch(setOpenSnapshotSavingDialog(false)) : ''
-                          }}
-                          key="newProject"
-                          color="primary"
-                          startIcon={<CreateNewFolder />}
-                        >
-                          New project from snapshot
-                        </Button>}
-                    {currentProject.projectID !== null ?
+                {username !== null && targetName !== undefined ?
+                  [
+                    [currentProject.authorID === null || currentProject.projectID === null || currentProject.authorID === userId ?
+                      <Button
+                        onClick={() => {
+                          isProjectModalLoading === false ? (dispatch(setProjectModalIsLoading(true)), dispatch(setAddButton(false))) : dispatch(setProjectModalIsLoading(false)),
+                            openSaveSnapshotModal === true ? dispatch(setOpenSnapshotSavingDialog(false)) : ''
+                        }}
+                        key="newProject"
+                        color="primary"
+                        startIcon={<CreateNewFolder />}
+                      >
+                        New project
+                      </Button>
+                      :
+                      <Button
+                        onClick={() => {
+                          openNewProjectModal === false ? (dispatch(setProjectModalIsLoading(true)), dispatch(setAddButton(false))) : dispatch(setProjectModalIsLoading(false)),
+                            openSaveSnapshotModal === true ? dispatch(setOpenSnapshotSavingDialog(false)) : ''
+                        }}
+                        key="newProject"
+                        color="primary"
+                        startIcon={<CreateNewFolder />}
+                      >
+                        New project from snapshot
+                      </Button>
+                    ],
+                    [currentProject.projectID !== null ?
                       <Button
                         key="saveSnapshot"
                         color="primary"
@@ -320,9 +320,10 @@ export default memo(
                         startIcon={<Save />}
                       >
                         Save
-                      </Button> : ''}
-                  </>
-                  : '' : ''}
+                      </Button> : ''
+                    ]
+                  ]
+                  : ''}
                 {headerButtons && headerButtons.map(item => item)}
                 <AddProjectDetail />
               </ButtonGroup>
