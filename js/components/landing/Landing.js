@@ -28,7 +28,7 @@ const Landing = memo(
     const classes = useStyles();
 
     const { toast } = useContext(ToastContext);
-    const [loginText, setLoginText] = useState("You're logged in as " + DJANGO_CONTEXT['username']);
+    const [loginText, setLoginText] = useState(DJANGO_CONTEXT['username'] === 'NOT_LOGGED_IN' ? '' : "You're logged in as " + DJANGO_CONTEXT['username']);
 
     useEffect(() => {
       if (DJANGO_CONTEXT['authenticated'] !== true) {
