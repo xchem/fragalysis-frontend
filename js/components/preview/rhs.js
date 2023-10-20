@@ -4,6 +4,7 @@ import React, { useRef, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { TabPanel } from '../common/Tabs';
 import { CustomDatasetList } from '../datasets/customDatasetList';
+import { CompoundSetList } from '../datasets/compoundSetList';
 import { DatasetSelectorMenuButton } from '../datasets/datasetSelectorMenuButton';
 import { setSelectedDatasetIndex, setTabValue } from '../datasets/redux/actions';
 import { SelectedCompoundList } from '../datasets/selectedCompoundsList';
@@ -64,7 +65,7 @@ export const RHS = ({ hideProjects }) => {
       return 'Selected compounds';
     }
     if (tabValue >= 2) {
-      return currentDataset?.title;
+      return 'COMPOUND SETS';
     }
     return '';
   };
@@ -82,6 +83,7 @@ export const RHS = ({ hideProjects }) => {
             size="small"
             variant={getTabValue() === 0 ? 'contained' : 'text'}
             onClick={() => dispatch(setTabValue(tabValue, 0, 'Vector selector', getTabName()))}
+            style={{ width: '33%' }}
           >
             Vector selector
           </Button>
@@ -89,6 +91,7 @@ export const RHS = ({ hideProjects }) => {
             size="small"
             variant={getTabValue() === 1 ? 'contained' : 'text'}
             onClick={() => dispatch(setTabValue(tabValue, 1, 'Selected compounds', getTabName()))}
+            style={{ width: '33%' }}
           >
             Selected compounds
           </Button>
@@ -96,8 +99,9 @@ export const RHS = ({ hideProjects }) => {
             size="small"
             variant={getTabValue() >= 2 ? 'contained' : 'text'}
             onClick={() => dispatch(setTabValue(tabValue, 2, currentDataset?.title, getTabName()))}
+            style={{ width: '33%' }}
           >
-            {currentDataset?.title}
+            Compound sets
           </Button>
           <Button
             variant="text"
@@ -136,6 +140,7 @@ export const RHS = ({ hideProjects }) => {
           return (
             <TabPanel key={index + 2} value={getTabValue()} index={index + 2} className={classes.tabPanel}>
               <Grid item style={{ height: '100%' }}>
+                <CompoundSetList />
                 <CustomDatasetList
                   dataset={dataset}
                   hideProjects={hideProjects}
