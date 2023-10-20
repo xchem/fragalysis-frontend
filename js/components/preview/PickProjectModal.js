@@ -6,7 +6,7 @@ import { URLS } from '../routes/constants';
 import { Modal } from '../common';
 import { useHistory } from 'react-router-dom';
 
-export const PickProjectModal = memo(({}) => {
+export const PickProjectModal = memo(({ }) => {
   const dispatch = useDispatch();
   const openPickProjectModal = useSelector(state => state.targetReducers.openPickProjectModal);
   const projects = useSelector(state => state.targetReducers.projects);
@@ -54,7 +54,7 @@ export const PickProjectModal = memo(({}) => {
               ))}
           </Select>
         </Grid>
-        <Grid container justify="flex-end" direction="row">
+        <Grid container justifyContent="flex-end" direction="row">
           <Grid item>
             <Button color="secondary" disabled={false} onClick={handleCloseModal}>
               Cancel

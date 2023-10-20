@@ -326,6 +326,16 @@ export const setFilterWithInspirations = isChecked => ({
   payload: isChecked
 });
 
+export const setCompoundToSelectedCompoundsByDataset = (datasetID, compoundList = [], setNextXMolecules) => ({
+  type: constants.SET_COMPOUND_TO_SELECTED_COMPOUNDS_BY_DATASET,
+  payload: { datasetID, selectedCompounds: compoundList }
+});
+
+export const setSelectAllButtonForDataset = isSelected => ({
+  type: constants.SET_SELECT_ALL_BUTTON_FOR_DATASET,
+  payload: isSelected
+});
+
 export const appendCompoundToSelectedCompoundsByDataset = (
   datasetID,
   compoundID,
@@ -378,7 +388,8 @@ export const appendCompoundColorOfDataset = (
   skipTracking = false
 ) => ({
   type: constants.APPEND_COMPOUND_COLOR_OF_DATASET,
-  payload: { datasetID, compoundID, colorClass, compoundTitle, skipTracking: skipTracking }
+  payload: { datasetID, compoundID, colorClass, compoundTitle },
+  skipTracking: skipTracking
 });
 
 export const removeCompoundColorOfDataset = (
@@ -389,7 +400,18 @@ export const removeCompoundColorOfDataset = (
   skipTracking = false
 ) => ({
   type: constants.REMOVE_COMPOUND_COLOR_OF_DATASET,
-  payload: { datasetID, compoundID, colorClass, compoundTitle, skipTracking: skipTracking }
+  payload: { datasetID, compoundID, colorClass, compoundTitle },
+  skipTracking: skipTracking
+});
+
+export const appendColorToAllCompoundsOfDataset = (datasetID, colorClass, cmpIds) => ({
+  type: constants.APPEND_COLOR_TO_ALL_COMPOUNDS_OF_DATASET,
+  payload: { datasetID, colorClass, cmpIds }
+});
+
+export const removeColorFromAllCompoundsOfDataset = (datasetID, colorClass, cmpIds) => ({
+  type: constants.REMOVE_COLOR_FROM_ALL_COMPOUNDS_OF_DATASET,
+  payload: { datasetID, colorClass, cmpIds }
 });
 
 export const appendColorToSelectedColorFilter = colorClass => ({

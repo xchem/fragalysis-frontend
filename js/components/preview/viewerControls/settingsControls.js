@@ -95,8 +95,8 @@ export const SettingControls = memo(({ open, onClose }) => {
 
   return (
     <Drawer title="Settings" open={open} onClose={onClose}>
-      <Grid container justify="flex-start" direction="column" className={classes.root} spacing={1}>
-        <Grid item container direction="row" justify="space-between">
+      <Grid container justifyContent="flex-start" direction="column" className={classes.root} spacing={1}>
+        <Grid item container direction="row" justifyContent="space-between">
           <Grid item>
             <Typography variant="body1">Background colour</Typography>
           </Grid>
@@ -109,7 +109,7 @@ export const SettingControls = memo(({ open, onClose }) => {
             />
           </Grid>
         </Grid>
-        <Grid item container direction="row" justify="space-between">
+        <Grid item container direction="row" justifyContent="space-between">
           <Grid item>
             <Typography variant="body1">Clip near</Typography>
           </Grid>
@@ -124,7 +124,7 @@ export const SettingControls = memo(({ open, onClose }) => {
             />
           </Grid>
         </Grid>
-        <Grid item container direction="row" justify="space-between">
+        <Grid item container direction="row" justifyContent="space-between">
           <Grid item>
             <Typography variant="body1">Clip far</Typography>
           </Grid>
@@ -139,7 +139,7 @@ export const SettingControls = memo(({ open, onClose }) => {
             />
           </Grid>
         </Grid>
-        <Grid item container direction="row" justify="space-between">
+        <Grid item container direction="row" justifyContent="space-between">
           <Grid item>
             <Typography variant="body1">Clip dist</Typography>
           </Grid>
@@ -152,7 +152,7 @@ export const SettingControls = memo(({ open, onClose }) => {
             />
           </Grid>
         </Grid>
-        <Grid item container direction="row" justify="space-between">
+        <Grid item container direction="row" justifyContent="space-between">
           <Grid item>
             <Typography variant="body1">Fog near</Typography>
           </Grid>
@@ -167,7 +167,7 @@ export const SettingControls = memo(({ open, onClose }) => {
             />
           </Grid>
         </Grid>
-        <Grid item container direction="row" justify="space-between">
+        <Grid item container direction="row" justifyContent="space-between">
           <Grid item>
             <Typography variant="body1">Fog far</Typography>
           </Grid>
@@ -191,7 +191,7 @@ export const SettingControls = memo(({ open, onClose }) => {
                 </Typography>
               </Grid>
             </Grid>
-            <Grid item container direction="row" justify="space-between">
+            <Grid item container direction="row" justifyContent="space-between">
               <Grid item>
                 <Typography variant="body1">ISO</Typography>
               </Grid>
@@ -208,7 +208,7 @@ export const SettingControls = memo(({ open, onClose }) => {
                 />
               </Grid>
             </Grid>
-            <Grid item container direction="row" justify="space-between">
+            <Grid item container direction="row" justifyContent="space-between">
               <Grid item>
                 <Typography variant="body1">Box size</Typography>
               </Grid>
@@ -225,7 +225,7 @@ export const SettingControls = memo(({ open, onClose }) => {
                 />
               </Grid>
             </Grid>
-            <Grid item container direction="row" justify="space-between">
+            <Grid item container direction="row" justifyContent="space-between">
               <Grid item>
                 <Typography variant="body1">Opacity</Typography>
               </Grid>
@@ -242,7 +242,7 @@ export const SettingControls = memo(({ open, onClose }) => {
                 />
               </Grid>
             </Grid>
-            <Grid item container direction="row" justify="space-between">
+            <Grid item container direction="row" justifyContent="space-between">
               <Grid item>
                 <Typography variant="body1">Surface/wireframe toggle</Typography>
               </Grid>
@@ -255,7 +255,7 @@ export const SettingControls = memo(({ open, onClose }) => {
                 />
               </Grid>
             </Grid>
-            <Grid item container direction="row" justify="space-between">
+            <Grid item container direction="row" justifyContent="space-between">
               <Grid item>
                 <Typography variant="body1">Colour</Typography>
               </Grid>
@@ -289,7 +289,7 @@ export const SettingControls = memo(({ open, onClose }) => {
                 </Typography>
               </Grid>
             </Grid>
-            <Grid item container direction="row" justify="space-between">
+            <Grid item container direction="row" justifyContent="space-between">
               <Grid item>
                 <Typography variant="body1">ISO</Typography>
               </Grid>
@@ -308,7 +308,7 @@ export const SettingControls = memo(({ open, onClose }) => {
                 />
               </Grid>
             </Grid>
-            <Grid item container direction="row" justify="space-between">
+            <Grid item container direction="row" justifyContent="space-between">
               <Grid item>
                 <Typography variant="body1">Box size</Typography>
               </Grid>
@@ -327,7 +327,7 @@ export const SettingControls = memo(({ open, onClose }) => {
                 />
               </Grid>
             </Grid>
-            <Grid item container direction="row" justify="space-between">
+            <Grid item container direction="row" justifyContent="space-between">
               <Grid item>
                 <Typography variant="body1">Opacity</Typography>
               </Grid>
@@ -346,7 +346,7 @@ export const SettingControls = memo(({ open, onClose }) => {
                 />
               </Grid>
             </Grid>
-            <Grid item container direction="row" justify="space-between">
+            <Grid item container direction="row" justifyContent="space-between">
               <Grid item>
                 <Typography variant="body1">Surface/wireframe toggle</Typography>
               </Grid>
@@ -359,7 +359,7 @@ export const SettingControls = memo(({ open, onClose }) => {
                 />
               </Grid>
             </Grid>
-            <Grid item container direction="row" justify="space-between">
+            <Grid item container direction="row" justifyContent="space-between">
               <Grid item>
                 <Typography variant="body1">Colour</Typography>
               </Grid>
@@ -393,7 +393,7 @@ export const SettingControls = memo(({ open, onClose }) => {
                 </Typography>
               </Grid>
             </Grid>
-            <Grid item container direction="row" justify="space-between">
+            <Grid item container direction="row" justifyContent="space-between">
               <Grid item>
                 <Typography variant="body1">ISO</Typography>
               </Grid>
@@ -412,7 +412,7 @@ export const SettingControls = memo(({ open, onClose }) => {
                 />
               </Grid>
             </Grid>
-            <Grid item container direction="row" justify="space-between">
+            <Grid item container direction="row" justifyContent="space-between">
               <Grid item>
                 <Typography variant="body1">Box size</Typography>
               </Grid>
@@ -431,7 +431,7 @@ export const SettingControls = memo(({ open, onClose }) => {
                 />
               </Grid>
             </Grid>
-            <Grid item container direction="row" justify="space-between">
+            <Grid item container direction="row" justifyContent="space-between">
               <Grid item>
                 <Typography variant="body1">Opacity</Typography>
               </Grid>
@@ -450,7 +450,7 @@ export const SettingControls = memo(({ open, onClose }) => {
                 />
               </Grid>
             </Grid>
-            <Grid item container direction="row" justify="space-between">
+            <Grid item container direction="row" justifyContent="space-between">
               <Grid item>
                 <Typography variant="body1">Surface/wireframe toggle</Typography>
               </Grid>
@@ -466,7 +466,7 @@ export const SettingControls = memo(({ open, onClose }) => {
           </div>
         )}
         <div className={classes.divider}>
-          <Grid item container direction="row" justify="space-between">
+          <Grid item container direction="row" justifyContent="space-between">
             <Grid item>
               <Typography variant="body1">Warning icon toggle</Typography>
             </Grid>

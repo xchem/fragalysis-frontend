@@ -1,6 +1,6 @@
-import React, { memo, useRef, useEffect, useCallback, useState, useMemo } from 'react';
+import React, { memo, useRef, useEffect, useCallback, useState, useMemo, useContext } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
-import { Switch, Typography, makeStyles, IconButton, Tooltip, Grid, FormControlLabel } from '@material-ui/core';
+import { Switch, Typography, makeStyles, IconButton, Tooltip, Grid, FormControlLabel, CircularProgress } from '@material-ui/core';
 import { Panel } from '../../../common/Surfaces/Panel';
 import TagDetailRow from './tagDetailRow';
 import TagGridRows from './tagGridRows';
@@ -27,10 +27,13 @@ import {
   setTagFilteringMode,
   setDisplayAllMolecules,
   setDisplayUntaggedMolecules,
-  setTagDetailView
+  setTagDetailView,
+  setTagEditorOpen,
+  setMoleculeForTagEdit
 } from '../../../../reducers/selection/actions';
 import { selectAllTags, clearAllTags } from '../redux/dispatchActions';
 import { Button } from '../../../common/Inputs/Button';
+import { LoadingContext } from '../../../loading';
 
 export const heightOfBody = '172px';
 export const defaultHeaderPadding = 15;
@@ -60,7 +63,7 @@ const useStyles = makeStyles(theme => ({
   },
   container: {
     display: 'grid',
-    gridTemplateColumns: '220px 65px 80px min-content 20px min-content auto',
+    gridTemplateColumns: '210px 65px 80px min-content 20px min-content auto',
     alignItems: 'center',
     gap: 1
   },
@@ -85,7 +88,7 @@ const useStyles = makeStyles(theme => ({
     width: 32, // Should be adjusted if a label for the switch changes
     // justify: 'flex-end',
     marginRight: '90px',
-    marginLeft: '1px'
+    marginLeft: '-10px'
   },
   headerContainer: {
     marginRight: '0px',
@@ -145,18 +148,22 @@ const TagDetails = memo(() => {
   const dispatch = useDispatch();
   const [sortSwitch, setSortSwitch] = useState(0);
 
+  const { moleculesAndTagsAreLoading } = useContext(LoadingContext);
+
   const preTagList = useSelector(state => state.apiReducers.tagList);
   const tagMode = useSelector(state => state.selectionReducers.tagFilteringMode);
   const displayAllMolecules = useSelector(state => state.selectionReducers.displayAllMolecules);
   const displayUntaggedMolecules = useSelector(state => state.selectionReducers.displayUntaggedMolecules);
-  const tagDetailView = useSelector(state => state.selectionReducers.tagDetailView);
+  let tagDetailView = useSelector(state => state.selectionReducers.tagDetailView);
   const resizableLayout = useSelector(state => state.selectionReducers.resizableLayout);
-
+  const assignTagEditorOpen = useSelector(state => state.selectionReducers.tagEditorOpened);
 
   const [tagList, setTagList] = useState([]);
   const [selectAll, setSelectAll] = useState(true);
-
   const [searchString, setSearchString] = useState(null);
+
+  tagDetailView = tagDetailView?.tagDetailView === undefined ? tagDetailView : tagDetailView.tagDetailView;
+
   const filteredTagList = useMemo(() => {
     if (searchString) {
       return tagList.filter(tag => tag.tag.toLowerCase().includes(searchString.toLowerCase()));
@@ -174,8 +181,8 @@ const TagDetails = memo(() => {
   const moleculesToEditIds = useSelector(state => state.selectionReducers.moleculesToEdit);
   const moleculesToEdit =
     moleculesToEditIds &&
-    moleculesToEditIds.length > 0 &&
-    !(moleculesToEditIds.length === 1 && moleculesToEditIds[0] === null)
+      moleculesToEditIds.length > 0 &&
+      !(moleculesToEditIds.length === 1 && moleculesToEditIds[0] === null)
       ? moleculesToEditIds.map(id => dispatch(getMoleculeForId(id)))
       : [];
 
@@ -324,7 +331,7 @@ const TagDetails = memo(() => {
         dispatch
       ])}
       headerActions={[
-        <Grid xs={12} container className={classes.headerContainer}>
+        <Grid container className={classes.headerContainer}>
           <Grid item xs={4}>
             <Tooltip
               title={
@@ -373,7 +380,9 @@ const TagDetails = memo(() => {
       ]}
     >
       <div>
-        <Grid style={{ paddingLeft: '70px' }} container item rowSpacing={1} spacing={2}>
+        {/* MUI5 rowSpacing is not available in current version of MUI */}
+        {/* <Grid container item rowSpacing={1} spacing={2} style={{ paddingLeft: '70px' }}> */}
+        <Grid container item spacing={2} style={{ paddingLeft: '70px' }}>
           <Grid item>
             <Button
               onClick={() => handleShowUntaggedMoleculesButton()}
@@ -418,34 +427,44 @@ const TagDetails = memo(() => {
       <div ref={elementRef} className={classes.containerExpanded}>
         {tagDetailView ? (
           <>
-          <div className={classes.container} id="tagName">
-            {/* START grid view */}
-            {/* tag name */}
-            <div className={classes.columnLabel}>
-              <Typography className={classes.columnTitleGrid} variant="tagName">
-                Tag name
-              </Typography>
-              <IconButton size="small" onClick={() => handleHeaderSort('name')}>
-                <Tooltip title="Sort" className={classes.sortButton}>
-                  {[1, 2].includes(sortSwitch - offsetName) ? (
-                    sortSwitch % offsetName < 2 ? (
-                      <KeyboardArrowDown />
+            <div className={classes.container} id="tagName">
+              {/* START grid view */}
+              {/* tag name */}
+              <div className={classes.columnLabel}>
+                <Typography className={classes.columnTitleGrid} variant="inherit">
+                  Tag name
+                </Typography>
+                <IconButton size="small" onClick={() => handleHeaderSort('name')}>
+                  <Tooltip title="Sort" className={classes.sortButton}>
+                    {[1, 2].includes(sortSwitch - offsetName) ? (
+                      sortSwitch % offsetName < 2 ? (
+                        <KeyboardArrowDown />
+                      ) : (
+                        <KeyboardArrowUp />
+                      )
                     ) : (
-                      <KeyboardArrowUp />
-                    )
-                  ) : (
-                    <UnfoldMore />
-                  )}
-                </Tooltip>
-              </IconButton>
+                      <UnfoldMore />
+                    )}
+                  </Tooltip>
+                </IconButton>
+              </div>
             </div>
-            </div>
-            
-            <Grid container rowSpacing={0} spacing={0} style={{marginBottom: 'auto' }}>
+
+            <Grid container spacing={0} style={{ marginBottom: 'auto' }}>
               {filteredTagList &&
                 filteredTagList.map((tag, idx) => {
                   return (
-                    <Grid item key={idx}>
+                    <Grid
+                      item
+                      key={idx}
+                      style={{
+                        verticalAlign: 'bottom',
+                        display: 'contents',
+                        justifyContent: 'center',
+                        height: '100%',
+                        alignItems: 'center'
+                      }}
+                    >
                       <TagGridRows
                         tag={tag}
                         moleculesToEditIds={moleculesToEditIds}
@@ -455,8 +474,9 @@ const TagDetails = memo(() => {
                     </Grid>
                   );
                 })}
+              {moleculesAndTagsAreLoading && <Grid container direction="row" justifyContent="center"><Grid item><CircularProgress /></Grid></Grid>}
             </Grid>
-         </>
+          </>
         ) : (
           <div className={classes.container} id="tagName">
             {/* tag name */}
@@ -551,10 +571,11 @@ const TagDetails = memo(() => {
                   />
                 );
               })}
+            {moleculesAndTagsAreLoading && <Grid container direction="row" justifyContent="center" style={{ gridColumn: '1 / -1' }}><Grid item><CircularProgress /></Grid></Grid>}
           </div>
         )}
-        <div style={{paddingBottom: resizableLayout === true ? '17px' : '0px'}}>
-        <NewTagDetailRow moleculesToEditIds={moleculesToEditIds} moleculesToEdit={moleculesToEdit}/>
+        <div style={{ paddingBottom: resizableLayout === true ? '17px' : '0px' }}>
+          <NewTagDetailRow moleculesToEditIds={moleculesToEditIds} moleculesToEdit={moleculesToEdit} />
         </div>
       </div>
     </Panel>

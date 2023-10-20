@@ -167,30 +167,36 @@ export const ViewerControls = memo(() => {
         <div className={classes.nglButtons}>
           <ButtonGroup variant="contained" color="primary">
             <Tooltip title={nglUndoTooltip}>
-              <Button
-                size="small"
-                color="secondary"
-                onClick={() => {
-                  nglDoUndo();
-                }}
-                className={classes.button}
-                disabled={!nglCanUndo}
-              >
-                <Undo />
-              </Button>
+              {/* Tooltip should not have disabled element as a direct child */}
+              <>
+                <Button
+                  size="small"
+                  color="secondary"
+                  onClick={() => {
+                    nglDoUndo();
+                  }}
+                  className={classes.button}
+                  disabled={!nglCanUndo}
+                >
+                  <Undo />
+                </Button>
+              </>
             </Tooltip>
             <Tooltip title={undoTooltip}>
-              <Button
-                size="small"
-                color="primary"
-                onClick={() => {
-                  doUndo();
-                }}
-                className={classes.button}
-                disabled={!canUndo}
-              >
-                <Undo />
-              </Button>
+              {/* Tooltip should not have disabled element as a direct child */}
+              <>
+                <Button
+                  size="small"
+                  color="primary"
+                  onClick={() => {
+                    doUndo();
+                  }}
+                  className={classes.button}
+                  disabled={!canUndo}
+                >
+                  <Undo />
+                </Button>
+              </>
             </Tooltip>
             <Tooltip title="Settings controls">
               <Button
@@ -218,30 +224,36 @@ export const ViewerControls = memo(() => {
               </Button>
             </Tooltip>
             <Tooltip title={redoTooltip}>
-              <Button
-                size="small"
-                color="primary"
-                onClick={() => {
-                  doRedo();
-                }}
-                className={classes.button}
-                disabled={!canRedo}
-              >
-                <Redo />
-              </Button>
+              {/* Tooltip should not have disabled element as a direct child */}
+              <>
+                <Button
+                  size="small"
+                  color="primary"
+                  onClick={() => {
+                    doRedo();
+                  }}
+                  className={classes.button}
+                  disabled={!canRedo}
+                >
+                  <Redo />
+                </Button>
+              </>
             </Tooltip>
             <Tooltip title={nglRedoTooltip}>
-              <Button
-                size="small"
-                color="secondary"
-                onClick={() => {
-                  nglDoRedo();
-                }}
-                className={classes.button}
-                disabled={!nglCanRedo}
-              >
-                <Redo />
-              </Button>
+              {/* Tooltip should not have disabled element as a direct child */}
+              <>
+                <Button
+                  size="small"
+                  color="secondary"
+                  onClick={() => {
+                    nglDoRedo();
+                  }}
+                  className={classes.button}
+                  disabled={!nglCanRedo}
+                >
+                  <Redo />
+                </Button>
+              </>
             </Tooltip>
           </ButtonGroup>
 

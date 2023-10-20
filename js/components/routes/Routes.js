@@ -1,18 +1,16 @@
 import React, { memo, useContext, useEffect } from 'react';
-import { Box, IconButton, makeStyles, Snackbar, useTheme } from '@material-ui/core';
+import { Box, makeStyles, useTheme } from '@material-ui/core';
 import Header from '../header';
 import { Route, Switch, useLocation } from 'react-router-dom';
 import { Management } from '../management/management';
 import Tindspect from '../tindspect/Tindspect';
 import Landing from '../landing/Landing';
-import Preview from '../preview/Preview';
 import { ProjectPreview } from '../projects/projectPreview';
 import Funders from '../funders/fundersHolder';
 import { withLoadingTargetList } from '../target/withLoadingTargetIdList';
 import { BrowserCheck } from '../errorHandling/browserCheck';
 import { URLS } from './constants';
 import { HeaderContext } from '../header/headerContext';
-import { Close } from '@material-ui/icons';
 import { Projects } from '../projects';
 import { ProjectDetailSessionList } from '../projects/projectDetailSessionList';
 import { SessionRedirect } from '../snapshot/sessionRedirect';
@@ -34,19 +32,12 @@ const useStyles = makeStyles(theme => ({
 const Routes = memo(() => {
   const classes = useStyles();
   const theme = useTheme();
-  const { headerHeight, setHeaderHeight, snackBarTitle, setSnackBarTitle } = useContext(HeaderContext);
+  const { headerHeight, setHeaderHeight } = useContext(HeaderContext);
   const contentHeight = `calc(100vh - ${headerHeight}px - ${2 * theme.spacing(1)}px)`;
   const contentWidth = `100%`;
 
   const dispatch = useDispatch();
   const location = useLocation();
-
-  const handleCloseSnackbar = (event, reason) => {
-    if (reason === 'clickaway') {
-      return;
-    }
-    setSnackBarTitle(null);
-  };
 
   useEffect(() => {
     // Reset the snapshot just saved flag on each route change
@@ -77,25 +68,6 @@ const Routes = memo(() => {
         </Switch>
       </Box>
       <BrowserCheck />
-      {/* SnackBar is populated by Header Provider */}
-      <Snackbar
-        anchorOrigin={{
-          vertical: 'bottom',
-          horizontal: 'right'
-        }}
-        open={snackBarTitle !== null}
-        autoHideDuration={60000}
-        onClose={handleCloseSnackbar}
-        ContentProps={{
-          'aria-describedby': 'message-id'
-        }}
-        message={<span id="message-id">{snackBarTitle}</span>}
-        action={
-          <IconButton key="close" aria-label="close" color="inherit" onClick={handleCloseSnackbar}>
-            <Close />
-          </IconButton>
-        }
-      />
     </Box>
   );
 });

@@ -92,7 +92,7 @@ const useStyles = makeStyles(theme => ({
   }
 }));
 
-export const Projects = memo(({ }) => {
+export const Projects = memo(({}) => {
   const classes = useStyles();
   const dispatch = useDispatch();
   const [page, setPage] = React.useState(0);
@@ -591,36 +591,32 @@ export const Projects = memo(({ }) => {
           <Table className={classes.table} size="small" aria-label="a dense table">
             <TableHead>
               <TableRow>
-                <div>
-                  <TableCell style={{ paddingLeft: '0px' }}>
-                    <div>
-                      <Grid container>
-                        <Typography variant="inherit">
-                          <input
-                            type="checkbox"
-                            style={{ verticalAlign: 'middle' }}
-                            checked={checkedName}
-                            onChange={() => setCheckedName(!checkedName)}
-                          />
-                          Name
-                        </Typography>
-                        <IconButton size="small" onClick={() => handleHeaderSort('title')}>
-                          <Tooltip title="Sort" className={classes.sortButton}>
-                            {[1, 2].includes(sortSwitch - offsetName) ? (
-                              sortSwitch % offsetName < 2 ? (
-                                <KeyboardArrowDown />
-                              ) : (
-                                <KeyboardArrowUp />
-                              )
-                            ) : (
-                              <UnfoldMore />
-                            )}
-                          </Tooltip>
-                        </IconButton>
-                      </Grid>
-                    </div>
-                  </TableCell>
-                </div>
+                <TableCell style={{ paddingLeft: '0px' }}>
+                  <Grid container>
+                    <Typography variant="inherit">
+                      <input
+                        type="checkbox"
+                        style={{ verticalAlign: 'middle' }}
+                        checked={checkedName}
+                        onChange={() => setCheckedName(!checkedName)}
+                      />
+                      Name
+                    </Typography>
+                    <IconButton size="small" onClick={() => handleHeaderSort('title')}>
+                      <Tooltip title="Sort" className={classes.sortButton}>
+                        {[1, 2].includes(sortSwitch - offsetName) ? (
+                          sortSwitch % offsetName < 2 ? (
+                            <KeyboardArrowDown />
+                          ) : (
+                            <KeyboardArrowUp />
+                          )
+                        ) : (
+                          <UnfoldMore />
+                        )}
+                      </Tooltip>
+                    </IconButton>
+                  </Grid>
+                </TableCell>
                 <TableCell align="left" style={{ verticalAlign: 'middle', padding: '0px' }}>
                   <Grid container>
                     <Typography variant="inherit">

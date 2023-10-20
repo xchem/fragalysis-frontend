@@ -25,7 +25,7 @@ const useStyles = makeStyles(theme => ({
   }
 }));
 
-export const ModalShareSnapshot = memo(({}) => {
+export const ModalShareSnapshot = memo(({ }) => {
   const classes = useStyles();
   const sharedSnapshot = useSelector(state => state.snapshotReducers.sharedSnapshot);
   const isLoadingSnapshotDialog = useSelector(state => state.snapshotReducers.isLoadingSnapshotDialog);
@@ -59,8 +59,8 @@ export const ModalShareSnapshot = memo(({}) => {
             <Button onClick={() => updateClipboard(sharedSnapshot.url)} color="primary">
               Copy link
             </Button>
-            <Button onClick={openInNewTab} color="primary">
-              Open in new tab
+            <Button style={{width: '175px'}} onClick={openInNewTab} color="primary">
+              Open in new tab to test (recommended!)
             </Button>
             <Button onClick={closeModal} color="secondary">
               Close
@@ -71,7 +71,7 @@ export const ModalShareSnapshot = memo(({}) => {
         <>
           <DialogTitle id="form-dialog-title">Preparing data...</DialogTitle>
           <DialogContent>
-            <Grid container alignItems="center" justify="center" className={classes.loading}>
+            <Grid container alignItems="center" justifyContent="center" className={classes.loading}>
               <Grid item>
                 <CircularProgress />
               </Grid>

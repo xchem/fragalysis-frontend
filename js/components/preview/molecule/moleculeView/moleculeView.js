@@ -4,7 +4,8 @@
 
 import React, { memo, useEffect, useState, useRef, useContext, useCallback } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { Grid, Button, makeStyles, Tooltip, IconButton, Paper } from '@material-ui/core';
+import { Button, Grid, makeStyles, Tooltip, IconButton, Popper, Item, CircularProgress } from '@material-ui/core';
+import { Panel } from '../../../common';
 import { MyLocation, Warning, Assignment, AssignmentTurnedIn } from '@material-ui/icons';
 import SVGInline from 'react-svg-inline';
 import classNames from 'classnames';
@@ -52,6 +53,8 @@ import MoleculeSelectCheckbox from './moleculeSelectCheckbox';
 import useClipboard from 'react-use-clipboard';
 import Popover from '@mui/material/Popover';
 import Typography from '@mui/material/Typography';
+import { Edit } from '@material-ui/icons';
+import { DJANGO_CONTEXT } from '../../../../utils/djangoContext';
 
 const useStyles = makeStyles(theme => ({
   container: {
@@ -61,7 +64,8 @@ const useStyles = makeStyles(theme => ({
   },
   contButtonsMargin: {
     margin: theme.spacing(1) / 2,
-    width: 'inherit'
+    width: 'inherit',
+    marginTop: 0
   },
   contColButton: {
     minWidth: 'fit-content',
@@ -155,7 +159,8 @@ const useStyles = makeStyles(theme => ({
     ...theme.typography.button,
     overflow: 'hidden',
     whiteSpace: 'nowrap',
-    textOverflow: 'ellipsis'
+    textOverflow: 'ellipsis',
+    lineHeight: '1.45'
   },
   checkbox: {
     padding: 0
@@ -235,23 +240,63 @@ const useStyles = makeStyles(theme => ({
     right: 0
   },
   tagPopover: {
-    height: '15px',
-    width: '55px',
+    height: '10px',
+    width: '220px',
     padding: '0px',
-    fontSize: '10px',
-    backgroundColor: '#e0e0e0',
-    borderRadius: '7px',
+    fontSize: '9px',
+    borderRadius: '6px',
     textAlign: 'center',
-    opacity: '0.40'
+    verticalAlign: 'center',
+    paddingBottom: '14px'
+  },
+  tagPopoverSingle: {
+    height: '10px',
+    width: '18px',
+    padding: '0px',
+    fontSize: '9px',
+    borderRadius: '7px',
+    verticalAlign: 'center',
+    paddingBottom: '14px',
+    paddingLeft: '2px',
+    paddingRight: '3px',
+    textAlign: 'center'
   },
   popover: {
     paddingLeft: '5px',
     fontSize: '10px',
-    borderRadius: '7px',
+    borderRadius: '5px',
     border: '0px black solid',
     paddingRight: '5px',
-    minWidth: '55px',
-    textAlign: 'center'
+    minWidth: '35px',
+    textAlign: 'center',
+    verticalAlign: 'center'
+  },
+  editButtonIcon: {
+    width: '0.7em',
+    height: '0.7em',
+    padding: '0px',
+    marginLeft: '11px',
+    border: 'solid 1px black',
+    borderRadius: '5px'
+  },
+  gridTagsPopover: {
+    width: '400px'
+  },
+  paper: {
+    maxHeight: 343,
+    height: 'auto',
+    overflowY: 'auto',
+    top: '50%',
+    left: '50%'
+    //transform: 'translate(86%, 0%)'
+  },
+  buttonLoadingOverlay: {
+    position: 'absolute',
+    width: '11px !important',
+    height: '11px !important'
+  },
+  buttonSelectedLoadingOverlay: {
+    color: theme.palette.primary.contrastText
   }
 }));
 
@@ -301,6 +346,11 @@ const MoleculeView = memo(
 
     const viewParams = useSelector(state => state.nglReducers.viewParams);
     const tagList = useSelector(state => state.apiReducers.tagList);
+    const tagEditorOpen = useSelector(state => state.selectionReducers.tagEditorOpened);
+
+    const assignTagEditorOpen = useSelector(state => state.selectionReducers.tagEditorOpened);
+
+    const [tagEditModalOpenNew, setTagEditModalOpenNew] = useState(tagEditorOpen);
 
     const { getNglView } = useContext(NglContext);
     const stage = getNglView(VIEWS.MAJOR_VIEW) && getNglView(VIEWS.MAJOR_VIEW).stage;
@@ -353,7 +403,7 @@ const MoleculeView = memo(
 
     const moleculeImgRef = useRef(null);
 
-    const open = tagPopoverOpen;
+    const open = tagPopoverOpen ? true : false;
 
     let proteinData = data?.proteinData;
 
@@ -361,6 +411,10 @@ const MoleculeView = memo(
       const assignedTags = getAllTagsForMol(data, tagList);
       return assignedTags;
     };
+
+    useEffect(() => {
+      setTagEditModalOpenNew(tagEditorOpen);
+    }, [tagEditorOpen]);
 
     const handlePopoverOpen = event => {
       setTagPopoverOpen(event.currentTarget);
@@ -371,106 +425,239 @@ const MoleculeView = memo(
     };
 
     const generateTagPopover = () => {
-      const data = getDataForTagsTooltip();
+      const allData = getDataForTagsTooltip();
+      const sortedData = [...allData].sort((a, b) => a.tag.localeCompare(b.tag));
 
-      const modifiedObjects = data.map(obj => {
-        if (obj.tag.length > 8) {
-          return { ...obj, tag: obj.tag.slice(0, 8) + '...' };
+      const mergedArray = [...sortedData, ...tagList.filter(item => !sortedData.includes(item))];
+
+      const modifiedObjects = sortedData.map(obj => {
+        const tagNameShortLength = 2;
+        if (obj.tag.length > tagNameShortLength) {
+          return { ...obj, tag: obj.tag.slice(0, tagNameShortLength) };
         }
         return obj;
       });
 
-      const firstThreeTags = modifiedObjects.slice(0, 3);
+      const allTagsLength = allData.length > 9 ? 9 : allData.length;
+      const popperPadding = allTagsLength > 1 ? 250 : 420;
 
-      return modifiedObjects.length > 0 ? (
+      return modifiedObjects?.length > 0 ? (
         <div>
           <Typography
             aria-owns={open ? 'mouse-over-popover' : undefined}
             aria-haspopup="true"
-            onMouseEnter={handlePopoverOpen}
-            onMouseLeave={handlePopoverClose}
             style={{ fontSize: '10px' }}
+            component={'div'}
           >
-            {
-              <>
-                {firstThreeTags.length > 0 ? (
-                  <div
-                    style={{
-                      backgroundColor: firstThreeTags[0].colour,
-                      color: firstThreeTags[0].colour === null ? 'black' : 'white'
-                    }}
-                    className={classes.tagPopover}
-                  >
-                    {firstThreeTags[0].tag}
-                  </div>
-                ) : (
-                  ''
-                )}
-                {firstThreeTags.length > 1 ? (
-                  <div
-                    style={{
-                      backgroundColor: firstThreeTags[1].colour,
-                      color: firstThreeTags[1].colour === null ? 'black' : 'white'
-                    }}
-                    className={classes.tagPopover}
-                  >
-                    {firstThreeTags[1].tag}
-                  </div>
-                ) : (
-                  ''
-                )}
-                {firstThreeTags.length > 2 ? (
-                  <div
-                    style={{
-                      backgroundColor: firstThreeTags[2].colour,
-                      color: firstThreeTags[2].colour === null ? 'black' : 'white'
-                    }}
-                    className={classes.tagPopover}
-                  >
-                    {firstThreeTags[2].tag}
-                  </div>
-                ) : (
-                  ''
-                )}
-              </>
-            }
-          </Typography>
-          <Popover
-            id="mouse-over-popover"
-            sx={{
-              pointerEvents: 'none'
-            }}
-            open={open}
-            anchorEl={tagPopoverOpen}
-            anchorOrigin={{
-              vertical: 'top',
-              horizontal: 'left'
-            }}
-            transformOrigin={{
-              vertical: 'top',
-              horizontal: 'left'
-            }}
-            onMouseEnter={handlePopoverOpen}
-            onClose={handlePopoverClose}
-            disableRestoreFocus
-            style={{ paddingLeft: '10px' }}
-          >
-            {data.map(t => (
-              <div
+            {modifiedObjects.length < 2 ? (
+              <Grid
+                className={classes.tagPopover}
+                container
+                direction="row"
+                style={{ width: '50px' }}
                 onMouseEnter={handlePopoverOpen}
-                className={classes.popover}
-                style={{
-                  backgroundColor: t.colour === null ? '#e0e0e0' : t.colour,
-                  color: t.colour === null ? 'black' : 'white'
-                }}
+                onMouseLeave={handlePopoverClose}
               >
-                {t.tag}
-              </div>
-            ))}
-          </Popover>
+                {modifiedObjects.map((item, index) =>
+                  index < allTagsLength ? (
+                    <Grid
+                      style={{
+                        backgroundColor:
+                          modifiedObjects[index].colour !== null ? modifiedObjects[index].colour : '#e0e0e0',
+                        color: modifiedObjects[index].colour === null ? 'black' : 'white',
+                        display: 'block',
+                        maxWidth: '20px'
+                      }}
+                      className={classes.tagPopover}
+                      item
+                      xs={9}
+                      key={index}
+                    >
+                      <div>{item.tag} </div>
+                    </Grid>
+                  ) : (
+                    <div></div>
+                  )
+                )}
+                {DJANGO_CONTEXT['username'] === 'NOT_LOGGED_IN' ? (
+                  <div></div>
+                ) : (
+                  <div style={{ width: '10px' }}>
+                    <Grid item xs={1}>
+                      <IconButton
+                        color={'inherit'}
+                        disabled={!modifiedObjects}
+                        onClick={() => {
+                          if (tagEditModalOpenNew) {
+                            setTagEditModalOpenNew(false);
+                            dispatch(setTagEditorOpen(!tagEditModalOpenNew));
+                            dispatch(setMoleculeForTagEdit(null));
+                          } else {
+                            setTagEditModalOpenNew(true);
+                            dispatch(setMoleculeForTagEdit(data.id));
+                            dispatch(setTagEditorOpen(true));
+                            if (setRef) {
+                              setRef(ref.current);
+                            }
+                          }
+                        }}
+                        style={{ padding: '0px', paddingBottom: '3px', marginRight: '5px', position: 'right' }}
+                      >
+                        <Tooltip title="Edit tag" className={classes.editButtonIcon}>
+                          <Edit />
+                        </Tooltip>
+                      </IconButton>
+                    </Grid>
+                  </div>
+                )}
+              </Grid>
+            ) : (
+              <Grid
+                className={classes.tagPopover}
+                container
+                direction="row"
+                onMouseEnter={handlePopoverOpen}
+                onMouseLeave={handlePopoverClose}
+              >
+                <div style={{ display: 'flex', width: `${20 * allTagsLength}` + 'px' }}>
+                  {modifiedObjects.map((item, index) =>
+                    index < allTagsLength ? (
+                      <Grid
+                        style={{
+                          backgroundColor:
+                            modifiedObjects[index].colour !== null ? modifiedObjects[index].colour : '#e0e0e0',
+                          color: modifiedObjects[index].colour === null ? 'black' : 'white',
+                          display: 'flex',
+                          width: '20px',
+                          paddingLeft: '3px'
+                        }}
+                        className={classes.tagPopover}
+                        item
+                        xs={12}
+                        key={index}
+                      >
+                        <div>{item.tag} </div>
+                      </Grid>
+                    ) : (
+                      <div></div>
+                    )
+                  )}
+                </div>
+                <div>
+                  {DJANGO_CONTEXT['username'] === 'NOT_LOGGED_IN' ? (
+                    <div></div>
+                  ) : (
+                    <IconButton
+                      color={'inherit'}
+                      disabled={!modifiedObjects}
+                      onClick={() => {
+                        if (tagEditModalOpenNew) {
+                          setTagEditModalOpenNew(false);
+                          dispatch(setTagEditorOpen(!tagEditModalOpenNew));
+                          dispatch(setMoleculeForTagEdit(null));
+                        } else {
+                          setTagEditModalOpenNew(true);
+                          dispatch(setMoleculeForTagEdit(data.id));
+                          dispatch(setTagEditorOpen(true));
+                          if (setRef) {
+                            setRef(ref.current);
+                          }
+                        }
+                      }}
+                      style={{ padding: '0px', paddingBottom: '3px', cursor: 'pointer' }}
+                    >
+                      <Tooltip title="Edit tags" className={classes.editButtonIcon}>
+                        <Edit />
+                      </Tooltip>
+                    </IconButton>
+                  )}
+                </div>
+              </Grid>
+            )}
+          </Typography>
+          {tagEditorOpen === false ? (
+            <Typography
+              aria-owns={open ? 'mouse-over-popper' : undefined}
+              aria-haspopup="true"
+              style={{ fontSize: '10px', display: 'flex' }}
+              component={'div'}
+            >
+              <Popper open={open} placement="right-start" anchorEl={tagPopoverOpen} style={{ display: 'flex' }}>
+                <Panel
+                  secondaryBackground
+                  className={classes.paper}
+                  style={{
+                    background: '',
+                    width: '320px',
+                    display: 'flex',
+                    transform: 'translate(' + popperPadding + 'px, -10%)'
+                  }}
+                >
+                  <Grid alignItems="center" direction="row" container>
+                    {sortedData.map((item, index) => (
+                      <Grid
+                        style={{
+                          backgroundColor:
+                            index < allData.length
+                              ? sortedData[index].colour !== null
+                                ? sortedData[index].colour
+                                : '#e0e0e0'
+                              : 'white',
+                          color:
+                            index < allTagsLength ? (sortedData[index].colour === null ? 'black' : 'white') : 'black',
+                          border:
+                            index < allTagsLength
+                              ? sortedData[index].colour !== null
+                                ? `${sortedData[index].colour} solid 1px`
+                                : 'black solid 1px'
+                              : sortedData[index].colour !== null
+                                ? `${sortedData[index].colour} solid 1px`
+                                : `#e0e0e0 solid 0.05rem`,
+                          display: 'grid',
+                          placeItems: 'center'
+                        }}
+                        className={classes.popover}
+                        item
+                        xs={sortedData.length === 1 ? 12 : sortedData.length === 2 ? 6 : 4}
+                        key={index}
+                      >
+                        <div>{item.tag}</div>
+                      </Grid>
+                    ))}
+                  </Grid>
+                </Panel>
+              </Popper>
+            </Typography>
+          ) : (
+            <div> </div>
+          )}
         </div>
-      ) : (
+      ) : DJANGO_CONTEXT['username'] === 'NOT_LOGGED_IN' ? (
         <div></div>
+      ) : (
+        <IconButton
+          color={'inherit'}
+          disabled={!modifiedObjects}
+          onClick={() => {
+            if (tagEditModalOpenNew) {
+              setTagEditModalOpenNew(false);
+              dispatch(setTagEditorOpen(!tagEditModalOpenNew));
+              dispatch(setMoleculeForTagEdit(null));
+            } else {
+              setTagEditModalOpenNew(true);
+              dispatch(setMoleculeForTagEdit(data.id));
+              dispatch(setTagEditorOpen(true));
+              if (setRef) {
+                setRef(ref.current);
+              }
+            }
+          }}
+          style={{ padding: '0px', paddingBottom: '3px', cursor: 'pointer' }}
+        >
+          <Tooltip title="Edit tags" className={classes.editButtonIcon}>
+            <Edit />
+          </Tooltip>
+        </IconButton>
       );
     };
 
@@ -538,7 +725,10 @@ const MoleculeView = memo(
       selectedAll.current = false;
     };
 
+    const [loadingAll, setLoadingAll] = useState(false);
+    const [loadingLigand, setLoadingLigand] = useState(false);
     const onLigand = calledFromSelectAll => {
+      setLoadingLigand(true);
       if (calledFromSelectAll === true && selectedAll.current === true) {
         if (isLigandOn === false) {
           addNewLigand(calledFromSelectAll);
@@ -552,6 +742,7 @@ const MoleculeView = memo(
           removeSelectedLigand();
         }
       }
+      setLoadingLigand(false);
     };
 
     const removeSelectedProtein = (skipTracking = false) => {
@@ -570,7 +761,9 @@ const MoleculeView = memo(
       );
     };
 
+    const [loadingProtein, setLoadingProtein] = useState(false);
     const onProtein = calledFromSelectAll => {
+      setLoadingProtein(true);
       if (calledFromSelectAll === true && selectedAll.current === true) {
         if (isProteinOn === false) {
           addNewProtein(calledFromSelectAll);
@@ -584,6 +777,7 @@ const MoleculeView = memo(
           removeSelectedProtein();
         }
       }
+      setLoadingProtein(false);
     };
 
     const removeSelectedComplex = (skipTracking = false) => {
@@ -599,7 +793,9 @@ const MoleculeView = memo(
       );
     };
 
+    const [loadingComplex, setLoadingComplex] = useState(false);
     const onComplex = calledFromSelectAll => {
+      setLoadingComplex(true);
       if (calledFromSelectAll === true && selectedAll.current === true) {
         if (isComplexOn === false) {
           addNewComplex(calledFromSelectAll);
@@ -613,6 +809,7 @@ const MoleculeView = memo(
           removeSelectedComplex();
         }
       }
+      setLoadingComplex(false);
     };
 
     const removeSelectedSurface = () => {
@@ -630,12 +827,15 @@ const MoleculeView = memo(
       );
     };
 
+    const [loadingSurface, setLoadingSurface] = useState(false);
     const onSurface = () => {
+      setLoadingSurface(true);
       if (isSurfaceOn === false) {
         addNewSurface();
       } else {
         removeSelectedSurface();
       }
+      setLoadingSurface(false);
     };
 
     const removeSelectedDensity = () => {
@@ -662,7 +862,9 @@ const MoleculeView = memo(
       );
     };
 
+    const [loadingDensity, setLoadingDensity] = useState(false);
     const onDensity = () => {
+      setLoadingDensity(true);
       if (isDensityOn === false && isDensityCustomOn === false) {
         dispatch(getDensityMapData(data)).then(r => {
           if (r) {
@@ -676,6 +878,7 @@ const MoleculeView = memo(
       } else {
         removeSelectedDensity();
       }
+      setLoadingDensity(false);
     };
 
     const removeSelectedQuality = () => {
@@ -713,12 +916,15 @@ const MoleculeView = memo(
       );
     };
 
+    const [loadingVector, setLoadingVector] = useState(false);
     const onVector = () => {
+      setLoadingVector(true);
       if (isVectorOn === false) {
         addNewVector();
       } else {
         removeSelectedVector();
       }
+      setLoadingVector(false);
     };
 
     const setCalledFromAll = () => {
@@ -774,9 +980,9 @@ const MoleculeView = memo(
 
     return (
       <>
-        <Grid container justify="space-between" direction="row" className={classes.container} wrap="nowrap" ref={ref}>
+        <Grid container justifyContent="space-between" direction="row" className={classes.container} wrap="nowrap" ref={ref}>
           {/* Site number */}
-          <Grid item container justify="space-between" direction="column" className={classes.site}>
+          <Grid item container justifyContent="space-between" direction="column" className={classes.site}>
             <Grid item>
               <MoleculeSelectCheckbox
                 moleculeID={currentID}
@@ -798,19 +1004,20 @@ const MoleculeView = memo(
               {index + 1}.
             </Grid>
           </Grid>
-          <Grid item container className={classes.detailsCol} justify="space-between" direction="row">
+          <Grid item container className={classes.detailsCol} justifyContent="space-between" direction="row">
             {/* Title label */}
-            <Grid item xs={6}>
+            <Grid item xs={7}>
               <Tooltip title={moleculeTitle} placement="bottom-start">
                 <div className={classes.moleculeTitleLabel}>{moleculeTitle}</div>
               </Tooltip>
+              {generateTagPopover()}
             </Grid>
             {/* Control Buttons A, L, C, V */}
-            <Grid item xs={6}>
+            <Grid item xs={4}>
               <Grid
                 container
                 direction="row"
-                justify="flex-end"
+                justifyContent="flex-end"
                 alignItems="center"
                 wrap="nowrap"
                 className={classes.contButtonsMargin}
@@ -843,6 +1050,7 @@ const MoleculeView = memo(
                         }
                       )}
                       onClick={() => {
+                        setLoadingAll(true);
                         // always deselect all if are selected only some of options
                         selectedAll.current = hasSomeValuesOn || hasAllValuesOn ? false : !selectedAll.current;
 
@@ -850,10 +1058,14 @@ const MoleculeView = memo(
                         onLigand(true);
                         onProtein(true);
                         onComplex(true);
+                        setLoadingAll(false);
                       }}
                       disabled={groupMoleculeLPCControlButtonDisabled || moleculeLPCControlButtonDisabled}
                     >
                       A
+                      {loadingAll && <CircularProgress className={classNames(classes.buttonLoadingOverlay, {
+                        [classes.buttonSelectedLoadingOverlay]: hasAllValuesOn || hasSomeValuesOn
+                      })} />}
                     </Button>
                   </Grid>
                 </Tooltip>
@@ -868,6 +1080,9 @@ const MoleculeView = memo(
                       disabled={disableL || disableMoleculeNglControlButtons.ligand}
                     >
                       L
+                      {loadingLigand && <CircularProgress className={classNames(classes.buttonLoadingOverlay, {
+                        [classes.buttonSelectedLoadingOverlay]: isLigandOn
+                      })} />}
                     </Button>
                   </Grid>
                 </Tooltip>
@@ -882,6 +1097,9 @@ const MoleculeView = memo(
                       disabled={disableP || disableMoleculeNglControlButtons.protein}
                     >
                       P
+                      {loadingProtein && <CircularProgress className={classNames(classes.buttonLoadingOverlay, {
+                        [classes.buttonSelectedLoadingOverlay]: isProteinOn
+                      })} />}
                     </Button>
                   </Grid>
                 </Tooltip>
@@ -897,6 +1115,9 @@ const MoleculeView = memo(
                       disabled={disableC || disableMoleculeNglControlButtons.complex}
                     >
                       C
+                      {loadingComplex && <CircularProgress className={classNames(classes.buttonLoadingOverlay, {
+                        [classes.buttonSelectedLoadingOverlay]: isComplexOn
+                      })} />}
                     </Button>
                   </Grid>
                 </Tooltip>
@@ -911,6 +1132,9 @@ const MoleculeView = memo(
                       disabled={disableMoleculeNglControlButtons.surface}
                     >
                       S
+                      {loadingSurface && <CircularProgress className={classNames(classes.buttonLoadingOverlay, {
+                        [classes.buttonSelectedLoadingOverlay]: isSurfaceOn
+                      })} />}
                     </Button>
                   </Grid>
                 </Tooltip>
@@ -931,6 +1155,9 @@ const MoleculeView = memo(
                       disabled={!hasMap || disableMoleculeNglControlButtons.density}
                     >
                       D
+                      {loadingDensity && <CircularProgress className={classNames(classes.buttonLoadingOverlay, {
+                        [classes.buttonSelectedLoadingOverlay]: isDensityOn || isDensityCustomOn
+                      })} />}
                     </Button>
                   </Grid>
                 </Tooltip>
@@ -945,6 +1172,9 @@ const MoleculeView = memo(
                       disabled={disableMoleculeNglControlButtons.vector}
                     >
                       V
+                      {loadingVector && <CircularProgress className={classNames(classes.buttonLoadingOverlay, {
+                        [classes.buttonSelectedLoadingOverlay]: isVectorOn
+                      })} />}
                     </Button>
                   </Grid>
                 </Tooltip>
@@ -955,7 +1185,7 @@ const MoleculeView = memo(
               <Grid
                 item
                 container
-                justify="flex-start"
+                justifyContent="flex-start"
                 alignItems="flex-end"
                 direction="row"
                 wrap="nowrap"
@@ -990,28 +1220,6 @@ const MoleculeView = memo(
           >
             {svg_image}
             <div className={classes.imageActions}>
-              {(moleculeTooltipOpen || isTagEditorInvokedByMolecule) && (
-                <Tooltip>
-                  <MoleculeSelectCheckbox
-                    color="primary"
-                    className={classes.tagIcon}
-                    onClick={() => {
-                      // setTagAddModalOpen(!tagAddModalOpen);
-                      if (isTagEditorInvokedByMolecule) {
-                        dispatch(setTagEditorOpen(!isTagEditorOpen));
-                        dispatch(setMoleculeForTagEdit(null));
-                        dispatch(setTagEditorOpen(false));
-                      } else {
-                        dispatch(setMoleculeForTagEdit(data.id));
-                        dispatch(setTagEditorOpen(true));
-                        if (setRef) {
-                          setRef(ref.current);
-                        }
-                      }
-                    }}
-                  />
-                </Tooltip>
-              )}
               {moleculeTooltipOpen && (
                 <Tooltip title={!isCopied ? 'Copy smiles' : 'Copied'}>
                   <IconButton className={classes.copyIcon} onClick={setCopied}>
@@ -1027,7 +1235,6 @@ const MoleculeView = memo(
                 </Tooltip>
               )}
             </div>
-            <div className={classes.imageTagActions}>{generateTagPopover()}</div>
           </div>
         </Grid>
         <SvgTooltip

@@ -335,6 +335,11 @@ export function selectionReducers(state = INITIAL_STATE, action = {}) {
         filter: action.payload
       });
 
+    case constants.SET_TARGET_FILTER:
+      return Object.assign({}, state, {
+        targetFilter: action.payload
+      });
+
     case constants.RESET_COMPOUNDS_OF_VECTORS:
       return Object.assign({}, state, {
         compoundsOfVectors: null

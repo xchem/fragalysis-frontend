@@ -61,7 +61,7 @@ const MolGroupSelector = memo(({ handleHeightChange }) => {
         }
       }}
     >
-      <Grid container justify="space-between" className={classes.containerExpanded}>
+      <Grid container justifyContent="space-between" className={classes.containerExpanded}>
         <Grid item xs={5} className={classes.nglViewItem}>
           <NGLView div_id={VIEWS.SUMMARY_VIEW} height={heightOfBody} />
         </Grid>

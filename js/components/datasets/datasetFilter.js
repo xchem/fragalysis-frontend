@@ -261,7 +261,7 @@ export const DatasetFilter = memo(
             </Tooltip>
           ]}
         >
-          <Grid container justify="space-between" direction="row" alignItems="center">
+          <Grid container justifyContent="space-between" direction="row" alignItems="center">
             <Grid item>
               <div className={classes.numberOfHits}>
                 {prioWarning && (

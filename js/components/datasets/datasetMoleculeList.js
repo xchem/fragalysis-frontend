@@ -14,7 +14,8 @@ import {
   TextField,
   Checkbox,
   InputAdornment,
-  setRef
+  setRef,
+  Box
 } from '@material-ui/core';
 import React, { useState, useEffect, memo, useRef, useContext, useCallback, useMemo } from 'react';
 import { useDispatch, useSelector, shallowEqual } from 'react-redux';
@@ -50,7 +51,13 @@ import {
   setDragDropState,
   setFilterDialogOpen,
   setIsOpenLockVisibleCompoundsDialogGlobal,
-  setSearchStringOfCompoundSet
+  setSearchStringOfCompoundSet,
+  setCompoundToSelectedCompoundsByDataset,
+  setSelectAllButtonForDataset,
+  appendCompoundColorOfDataset,
+  appendColorToAllCompoundsOfDataset,
+  removeCompoundColorOfDataset,
+  removeColorFromAllCompoundsOfDataset
 } from './redux/actions';
 import { DatasetFilter } from './datasetFilter';
 import { FilterList, Link, DeleteForever, ArrowUpward, ArrowDownward, Edit } from '@material-ui/icons';
@@ -77,6 +84,7 @@ import {
   onStartEditColorClassName
 } from '../preview/compounds/redux/dispatchActions';
 import { LockVisibleCompoundsDialog } from './lockVisibleCompoundsDialog';
+import { size } from 'lodash';
 
 const useStyles = makeStyles(theme => ({
   container: {
@@ -161,6 +169,26 @@ const useStyles = makeStyles(theme => ({
   contButtonsMargin: {
     margin: theme.spacing(1) / 2
   },
+  paintAllButton: {
+    minWidth: 'fit-content',
+    paddingLeft: theme.spacing(1) / 4,
+    paddingRight: theme.spacing(1) / 4,
+    paddingBottom: 0,
+    paddingTop: 0,
+    fontWeight: 'bold',
+    fontSize: 9,
+    borderRadius: 0,
+    borderColor: theme.palette.primary.main,
+    backgroundColor: 'white',
+    '&:hover': {
+      backgroundColor: 'white'
+      // color: theme.palette.primary.contrastText
+    },
+    '&:disabled': {
+      borderRadius: 0,
+      borderColor: 'white'
+    }
+  },
   contColButton: {
     minWidth: 'fit-content',
     paddingLeft: theme.spacing(1) / 4,
@@ -181,6 +209,28 @@ const useStyles = makeStyles(theme => ({
       borderColor: 'white'
     }
   },
+  contColButtonUnselect: {
+    minWidth: 'fit-content',
+    paddingLeft: theme.spacing(1) / 4,
+    paddingRight: theme.spacing(1) / 4,
+    paddingBottom: 0,
+    paddingTop: 0,
+    fontWeight: 'bold',
+    fontSize: 9,
+    borderRadius: 0,
+    borderColor: theme.palette.primary.main,
+    backgroundColor: theme.palette.primary.light,
+    '&:hover': {
+      backgroundColor: theme.palette.primary.light
+      // color: theme.palette.primary.contrastText
+    },
+    '&:disabled': {
+      borderRadius: 0,
+      borderColor: 'white',
+      color: 'white'
+    }
+  },
+
   contColButtonSelected: {
     backgroundColor: theme.palette.primary.main,
     color: theme.palette.primary.contrastText,
@@ -329,6 +379,8 @@ const DatasetMoleculeList = ({ title, datasetID, url }) => {
 
   const askLockCompoundsQuestion = useSelector(state => state.datasetsReducers.askLockCompoundsQuestion);
 
+  const selectAllPressed = useSelector(state => state.datasetsReducers.isSelectedSelectAllButtonForDataset);
+
   // console.log('DatasetMoleculeList - update');
 
   // const disableUserInteraction = useDisableUserInteraction();
@@ -366,8 +418,8 @@ const DatasetMoleculeList = ({ title, datasetID, url }) => {
   //   setSelectedMolecules((moleculeLists[datasetID] || []).filter(mol => compoundsToBuyList?.includes(mol.id)));
   // }, [compoundsToBuyList, datasetID, moleculeLists]);
 
-  const selectedMolecules = (moleculeLists[datasetID] || []).filter(mol => compoundsToBuyList?.includes(mol.id));
-  const lockedMolecules = useSelector(state => state.datasetsReducers.selectedCompoundsByDataset[datasetID]) ?? [];
+  const allMolecules = moleculeLists[datasetID];
+  let lockedMolecules = useSelector(state => state.datasetsReducers.selectedCompoundsByDataset[datasetID]) ?? [];
   const editedColorGroup = useSelector(state => state.datasetsReducers.editedColorGroup);
 
   const currentCompoundClass = useSelector(state => state.previewReducers.compounds.currentCompoundClass);
@@ -397,8 +449,8 @@ const DatasetMoleculeList = ({ title, datasetID, url }) => {
   const compoundColors = useSelector(state => state.datasetsReducers.compoundColorByDataset[datasetID]) ?? {};
 
   const isSelectedTypeOn = typeList => {
-    if (typeList && compoundsToBuyList) {
-      return typeList.some(molId => selectedMolecules.some(mol => mol.id === molId));
+    if (typeList) {
+      return typeList.some(molId => allMolecules.some(mol => mol.id === molId));
     }
     return false;
   };
@@ -767,6 +819,54 @@ const DatasetMoleculeList = ({ title, datasetID, url }) => {
     }
   };
 
+  const selectAllDatasetMolecule = selectAll => {
+    selectedAll.current = true;
+
+    lockedMolecules = [];
+
+    if (selectAll === true) {
+      joinedMoleculeLists.map(molecule => {
+        lockedMolecules.push(molecule.id);
+      });
+      dispatch(setCompoundToSelectedCompoundsByDataset(datasetID, lockedMolecules));
+    } else {
+      dispatch(setCompoundToSelectedCompoundsByDataset(datasetID, []));
+    }
+  };
+
+  const isPaintOrUnpaintAll = () => {
+    let isPaint = true;
+    const compounds = Object.keys(compoundColors);
+    for (let i = 0; i < compounds.length; i++) {
+      const cmpId = compounds[i];
+      const colors = compoundColors[cmpId];
+      if (colors.some(c => c === currentCompoundClass)) {
+        isPaint = false;
+        break;
+      }
+    }
+
+    return isPaint;
+  };
+
+  const paintAllCompounds = () => {
+    const paintAll = isPaintOrUnpaintAll();
+    const cmpIds = joinedMoleculeLists.map(mol => mol.id);
+    if (paintAll) {
+      joinedMoleculeLists.forEach(molecule => {
+        const molName = molecule.name;
+        dispatch(appendCompoundColorOfDataset(datasetID, molecule.id, currentCompoundClass, molName, true));
+      });
+      dispatch(appendColorToAllCompoundsOfDataset(datasetID, currentCompoundClass, cmpIds));
+    } else {
+      joinedMoleculeLists.forEach(molecule => {
+        const molName = molecule.name;
+        dispatch(removeCompoundColorOfDataset(datasetID, molecule.id, currentCompoundClass, molName, true));
+      });
+      dispatch(removeColorFromAllCompoundsOfDataset(datasetID, currentCompoundClass, cmpIds));
+    }
+  };
+
   return (
     <Panel hasHeader title={title} withTooltip headerActions={actions}>
       <AlertModal
@@ -830,13 +930,12 @@ const DatasetMoleculeList = ({ title, datasetID, url }) => {
                   </Typography>
                 </Grid>
                 <Grid item xs={11}>
-                  <Grid container direction="row" justify="flex-start" spacing={1}>
+                  <Grid container direction="row" justifyContent="flex-start" spacing={1}>
                     {filterSettings.priorityOrder.map(attr => (
                       <Grid item key={`Mol-Tooltip-${attr}`}>
                         <Tooltip
-                          title={`${filterProperties[attr].minValue}-${filterProperties[attr].maxValue} ${
-                            filterProperties[attr].order === 1 ? '\u2191' : '\u2193'
-                          }`}
+                          title={`${filterProperties[attr].minValue}-${filterProperties[attr].maxValue} ${filterProperties[attr].order === 1 ? '\u2191' : '\u2193'
+                            }`}
                           placement="top"
                         >
                           <Chip size="small" label={attr} className={classes.propertyChip} />
@@ -851,71 +950,69 @@ const DatasetMoleculeList = ({ title, datasetID, url }) => {
           </>
         )}
       </div>
-      <Grid container direction="row" justify="flex-start" className={classes.container}>
+      <Grid container direction="row" justifyContent="flex-start" className={classes.container}>
         <Grid item>
           {/* Selection */}
           <Grid container direction="row" alignItems="center">
             {Object.keys(compoundsColors).map(item => (
-              <>
-                <Grid item key={`${item}-txtfield`}>
-                  <TextField
-                    InputProps={{
-                      readOnly: editedColorGroup !== item,
-                      endAdornment: (
-                        <InputAdornment position="end">
-                          <IconButton
-                            className={
-                              editedColorGroup !== item ? classes.editClassNameIcon : classes.editClassNameIconSelected
-                            }
-                            color={'inherit'}
-                            value={`${item}`}
-                            onClick={e => {
-                              dispatch(onStartEditColorClassName(e));
-                              inputRefs[item].current.focus();
-                              inputRefs[item].current.select();
-                            }}
-                          >
-                            <Edit />
-                          </IconButton>
-                        </InputAdornment>
-                      ),
-                      startAdornment: (
-                        <InputAdornment position="start">
-                          <Checkbox
-                            className={classes.classCheckbox}
-                            key={`CHCK_${item}`}
-                            value={`${item}`}
-                            onChange={e => dispatch(onChangeCompoundClassCheckbox(e))}
-                            checked={currentCompoundClass === item}
-                          ></Checkbox>
-                        </InputAdornment>
-                      )
-                    }}
-                    inputRef={inputRefs[item]}
-                    autoComplete="off"
-                    id={`${item}`}
-                    key={`CLASS_${item}`}
-                    variant="standard"
-                    className={classNames(
-                      classes.textField,
-                      classes[item],
-                      currentCompoundClass === item && classes.selectedInput
-                    )}
-                    onChange={e => dispatch(onChangeCompoundClassValue(e))}
-                    onKeyDown={e => dispatch(onKeyDownCompoundClass(e))}
-                    // onClick={e => dispatch(onClickCompoundClass(e))}
-                    value={inputs[item] || ''}
-                  />
-                </Grid>
-              </>
+              <Grid item key={`${item}-txtfield`}>
+                <TextField
+                  InputProps={{
+                    readOnly: editedColorGroup !== item,
+                    endAdornment: (
+                      <InputAdornment position="end">
+                        <IconButton
+                          className={
+                            editedColorGroup !== item ? classes.editClassNameIcon : classes.editClassNameIconSelected
+                          }
+                          color={'inherit'}
+                          value={`${item}`}
+                          onClick={e => {
+                            dispatch(onStartEditColorClassName(e));
+                            inputRefs[item].current.focus();
+                            inputRefs[item].current.select();
+                          }}
+                        >
+                          <Edit />
+                        </IconButton>
+                      </InputAdornment>
+                    ),
+                    startAdornment: (
+                      <InputAdornment position="start">
+                        <Checkbox
+                          className={classes.classCheckbox}
+                          key={`CHCK_${item}`}
+                          value={`${item}`}
+                          onChange={e => dispatch(onChangeCompoundClassCheckbox(e))}
+                          checked={currentCompoundClass === item}
+                        ></Checkbox>
+                      </InputAdornment>
+                    )
+                  }}
+                  inputRef={inputRefs[item]}
+                  autoComplete="off"
+                  id={`${item}`}
+                  key={`CLASS_${item}`}
+                  variant="standard"
+                  className={classNames(
+                    classes.textField,
+                    classes[item],
+                    currentCompoundClass === item && classes.selectedInput
+                  )}
+                  onChange={e => dispatch(onChangeCompoundClassValue(e))}
+                  onKeyDown={e => dispatch(onKeyDownCompoundClass(e))}
+                  // onClick={e => dispatch(onClickCompoundClass(e))}
+                  value={inputs[item] || ''}
+                />
+              </Grid>
             ))}
           </Grid>
         </Grid>
         <Grid item>
           {/* Header */}
           {isLoadingMoleculeList === false && (
-            <Grid container justify="flex-start" direction="row" className={classes.molHeader} wrap="nowrap">
-              <Grid item container justify="flex-start" direction="row">
+            <Grid container justifyContent="flex-start" direction="row" className={classes.molHeader} wrap="nowrap">
+              <Grid item container justifyContent="flex-start" direction="row">
                 <Tooltip title="Total count of compounds">
                   <Grid item className={classes.rank}>
                     {`Total ${joinedMoleculeLists?.length}`}
@@ -931,28 +1028,34 @@ const DatasetMoleculeList = ({ title, datasetID, url }) => {
                       </Grid>
                     </Tooltip>
                   ))}
-                {lockedMolecules && lockedMolecules.length > 0 && (
+                {lockedMolecules && (
                   <Grid item>
                     <Grid
                       container
                       direction="row"
-                      justify="flex-start"
+                      justifyContent="flex-start"
                       alignItems="center"
                       wrap="nowrap"
                       className={classes.contButtonsMargin}
                     >
+                      {console.log('isLigandOn', isLigandOn)}
                       <Tooltip title="all ligands">
                         <Grid item>
                           <Button
                             variant="outlined"
-                            className={classNames(classes.contColButton, {
-                              [classes.contColButtonSelected]: isLigandOn
-                            })}
+                            className={classNames(
+                              lockedMolecules.length === 0 ? classes.contColButton : classes.contColButtonUnselect,
+                              {
+                                [classes.contColButtonSelected]: isLigandOn
+                              }
+                            )}
                             onClick={() => {
                               dispatch(setAskLockCompoundsQuestion(true));
                               onButtonToggle('ligand');
                             }}
-                            disabled={groupDatasetsNglControlButtonsDisabledState.ligand}
+                            disabled={
+                              groupDatasetsNglControlButtonsDisabledState.ligand || lockedMolecules.length === 0
+                            }
                           >
                             L
                           </Button>
@@ -969,7 +1072,7 @@ const DatasetMoleculeList = ({ title, datasetID, url }) => {
                               dispatch(setAskLockCompoundsQuestion(true));
                               onButtonToggle('protein');
                             }}
-                            disabled={groupDatasetsNglControlButtonsDisabledState.protein}
+                            disabled={lockedMolecules.length === 0}
                           >
                             P
                           </Button>
@@ -987,7 +1090,7 @@ const DatasetMoleculeList = ({ title, datasetID, url }) => {
                               dispatch(setAskLockCompoundsQuestion(true));
                               onButtonToggle('complex');
                             }}
-                            disabled={groupDatasetsNglControlButtonsDisabledState.complex}
+                            disabled={lockedMolecules.length === 0}
                           >
                             C
                           </Button>
@@ -1034,12 +1137,61 @@ const DatasetMoleculeList = ({ title, datasetID, url }) => {
                     </Grid>
                   </Grid>
                 </Grid>
+                <Grid item>
+                  <Tooltip title={selectAllPressed ? 'Unselect all' : 'Select all'}>
+                    <Grid item style={{ margin: '4px', marginLeft: '5px' }}>
+                      <Button
+                        variant="outlined"
+                        className={classNames(classes.contColButton, {
+                          [classes.contColButtonHalfSelected]: false
+                        })}
+                        onClick={() => {
+                          dispatch(setSelectAllButtonForDataset(!selectAllPressed));
+                          selectAllDatasetMolecule(!selectAllPressed);
+                        }}
+                        disabled={false}
+                      >
+                        {selectAllPressed ? 'Unselect all' : 'Select all'}
+                      </Button>
+                    </Grid>
+                  </Tooltip>
+                </Grid>
+                <Grid item>
+                  <Tooltip
+                    title={
+                      isPaintOrUnpaintAll()
+                        ? 'Paint all compounds with selected color'
+                        : 'Unpaint all compounds with selected color'
+                    }
+                  >
+                    <Grid item style={{ margin: '4px', marginLeft: '5px' }}>
+                      <Button
+                        variant="outlined"
+                        className={classNames(classes.paintAllButton)}
+                        disabled={false}
+                        onClick={() => paintAllCompounds()}
+                      >
+                        <Box
+                          style={{
+                            width: '10px',
+                            height: '10px',
+                            backgroundColor: compoundsColors[currentCompoundClass]
+                              ? compoundsColors[currentCompoundClass].color
+                              : '#000000',
+                            marginRight: '2px'
+                          }}
+                        />
+                        {isPaintOrUnpaintAll() ? 'Paint all' : 'Unpaint all'}
+                      </Button>
+                    </Grid>
+                  </Tooltip>
+                </Grid>
               </Grid>
             </Grid>
           )}
         </Grid>
         {isLoadingMoleculeList && (
-          <Grid item container alignItems="center" justify="center" className={classes.loading}>
+          <Grid item container alignItems="center" justifyContent="center" className={classes.loading}>
             <Grid item>
               <CircularProgress />
             </Grid>
@@ -1066,7 +1218,7 @@ const DatasetMoleculeList = ({ title, datasetID, url }) => {
                     <Grid
                       container
                       direction="row"
-                      justify="center"
+                      justifyContent="center"
                       alignItems="center"
                       className={classes.paddingProgress}
                     >
@@ -1127,7 +1279,7 @@ const DatasetMoleculeList = ({ title, datasetID, url }) => {
               </InfiniteScroll>
             </Grid>
             <Grid item>
-              <Grid container justify="space-between" alignItems="center" direction="row">
+              <Grid container justifyContent="space-between" alignItems="center" direction="row">
                 <Grid item>
                   <span className={classes.total}>{`Total ${joinedMoleculeLists?.length}`}</span>
                 </Grid>

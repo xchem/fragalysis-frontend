@@ -108,7 +108,7 @@ export const EditRepresentationMenu = memo(
           break;
         case 'vector3':
           representationComponent = (
-            <Grid container direction="row" justify="space-between" className={classes.itemWidth}>
+            <Grid container direction="row" justifyContent="space-between" className={classes.itemWidth}>
               {['x', 'y', 'z'].map(axis => (
                 <Grid item xs={4} key={axis}>
                   <TextField
@@ -201,7 +201,7 @@ export const EditRepresentationMenu = memo(
       }
 
       return (
-        <Grid container justify="space-between" direction="row" alignItems="center" key={key} spacing={1}>
+        <Grid container justifyContent="space-between" direction="row" alignItems="center" key={key} spacing={1}>
           <Grid item>{key}</Grid>
           <Grid item>{representationComponent}</Grid>
         </Grid>

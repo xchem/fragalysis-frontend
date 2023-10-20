@@ -44,8 +44,8 @@ const TagCategoryGridView = memo(({ name, tags, specialTags, clickCallback, disa
   }
   const moleculesToEdit =
     moleculesToEditIds &&
-    moleculesToEditIds.length > 0 &&
-    !(moleculesToEditIds.length === 1 && moleculesToEditIds[0] === null)
+      moleculesToEditIds.length > 0 &&
+      !(moleculesToEditIds.length === 1 && moleculesToEditIds[0] === null)
       ? moleculesToEditIds.map(id => dispatch(getMoleculeForId(id)))
       : [];
 
@@ -95,8 +95,9 @@ const TagCategoryGridView = memo(({ name, tags, specialTags, clickCallback, disa
                 let selected = selectedTagList.some(i => i.id === tag.id);
                 let tagSelected = isTagSelected(tag);
                 return (
-                  <Grid item rowSpacing={0} spacing={0} xs={6}>
+                  <Grid item xs={4} style={{ display: 'flex' }} key={`tag-item-wrapper-${idx}`}>
                     <TagView
+                      tags={tags}
                       key={`tag-item-${idx}`}
                       tag={tag}
                       selected={clickCallback !== undefined ? tagSelected.isSelected : selected}

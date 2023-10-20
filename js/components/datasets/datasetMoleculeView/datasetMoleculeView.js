@@ -4,7 +4,7 @@
 
 import React, { memo, useEffect, useState, useRef, useContext, forwardRef } from 'react';
 import { useDispatch, useSelector, shallowEqual } from 'react-redux';
-import { Grid, Button, makeStyles, Tooltip, IconButton } from '@material-ui/core';
+import { Grid, Button, makeStyles, Tooltip, IconButton, CircularProgress } from '@material-ui/core';
 import {
   ClearOutlined,
   CheckOutlined,
@@ -56,7 +56,8 @@ import {
   removeCompoundColorOfDataset,
   setIsOpenLockVisibleCompoundsDialogLocal,
   setCmpForLocalLockVisibleCompoundsDialog,
-  setAskLockCompoundsQuestion
+  setAskLockCompoundsQuestion,
+  setCompoundToSelectedCompoundsByDataset
 } from '../redux/actions';
 import { centerOnLigandByMoleculeID } from '../../../reducers/ngl/dispatchActions';
 import { ArrowDownward, ArrowUpward, MyLocation } from '@material-ui/icons';
@@ -77,6 +78,7 @@ import AddShoppingCartIcon from '@mui/icons-material/AddShoppingCart';
 import RemoveShoppingCartIcon from '@mui/icons-material/RemoveShoppingCart';
 import { compoundsColors } from '../../preview/compounds/redux/constants';
 import { LockVisibleCompoundsDialog } from '../lockVisibleCompoundsDialog';
+import { fabClasses } from '@mui/material';
 
 const useStyles = makeStyles(theme => ({
   container: {
@@ -152,7 +154,7 @@ const useStyles = makeStyles(theme => ({
     fontSize: 11,
     paddingLeft: theme.spacing(1) / 2,
     paddingRight: theme.spacing(1) / 2,
-    paddingBottom: theme.spacing(1) / 4,
+    //paddingBottom: theme.spacing(1) / 4,
     width: 32,
     textAlign: 'center',
     '&:last-child': {
@@ -330,6 +332,14 @@ const useStyles = makeStyles(theme => ({
   },
   unselectedButton: {
     backgroundColor: 'white'
+  },
+  buttonLoadingOverlay: {
+    position: 'absolute',
+    width: '11px !important',
+    height: '11px !important'
+  },
+  buttonSelectedLoadingOverlay: {
+    color: theme.palette.primary.contrastText
   }
 }));
 
@@ -483,7 +493,12 @@ const DatasetMoleculeView = memo(
         selectedAll.current = false;
       };
 
+      const [loadingInspiration, setLoadingInspiration] = useState(false);
+      const [loadingReference, setLoadingReference] = useState(false);
+      const [loadingAll, setLoadingAll] = useState(false);
+      const [loadingLigand, setLoadingLigand] = useState(false);
       const onLigand = calledFromSelectAll => {
+        setLoadingLigand(true);
         if (calledFromSelectAll === true && selectedAll.current === true) {
           if (isLigandOn === false) {
             addNewLigand(calledFromSelectAll);
@@ -501,6 +516,7 @@ const DatasetMoleculeView = memo(
             }
           }
         }
+        setLoadingLigand(false);
       };
 
       const removeSelectedProtein = (skipTracking = false) => {
@@ -516,7 +532,9 @@ const DatasetMoleculeView = memo(
         );
       };
 
+      const [loadingProtein, setLoadingProtein] = useState(false);
       const onProtein = calledFromSelectAll => {
+        setLoadingProtein(true);
         if (calledFromSelectAll === true && selectedAll.current === true) {
           if (isProteinOn === false) {
             addNewProtein(calledFromSelectAll);
@@ -530,6 +548,7 @@ const DatasetMoleculeView = memo(
             removeSelectedProtein();
           }
         }
+        setLoadingProtein(false);
       };
 
       const removeSelectedComplex = (skipTracking = false) => {
@@ -545,7 +564,9 @@ const DatasetMoleculeView = memo(
         );
       };
 
+      const [loadingComplex, setLoadingComplex] = useState(false);
       const onComplex = calledFromSelectAll => {
+        setLoadingComplex(true);
         if (calledFromSelectAll === true && selectedAll.current === true) {
           if (isComplexOn === false) {
             addNewComplex(calledFromSelectAll);
@@ -559,6 +580,7 @@ const DatasetMoleculeView = memo(
             removeSelectedComplex();
           }
         }
+        setLoadingComplex(false);
       };
 
       const removeSelectedSurface = () => {
@@ -574,7 +596,9 @@ const DatasetMoleculeView = memo(
         );
       };
 
+      const [loadingSurface, setLoadingSurface] = useState(false);
       const onSurface = calledFromSelectAll => {
+        setLoadingSurface(true);
         if (calledFromSelectAll === true && selectedAll.current === true) {
           if (isSurfaceOn === false) {
             addNewSurface();
@@ -588,6 +612,7 @@ const DatasetMoleculeView = memo(
             removeSelectedSurface();
           }
         }
+        setLoadingSurface(false);
       };
 
       const setCalledFromAll = () => {
@@ -638,10 +663,10 @@ const DatasetMoleculeView = memo(
           // if (shoppingCartColors?.length === 1) {
           //   dispatch(removeMoleculeFromCompoundsOfDatasetToBuy(datasetID, currentID, moleculeTitle));
           // }
-          dispatch(removeCompoundColorOfDataset(datasetID, currentID, event.target.id, moleculeTitle, true));
+          dispatch(removeCompoundColorOfDataset(datasetID, currentID, event.target.id, moleculeTitle, false));
         } else {
           // dispatch(appendMoleculeToCompoundsOfDatasetToBuy(datasetID, currentID, moleculeTitle));
-          dispatch(appendCompoundColorOfDataset(datasetID, currentID, event.target.id, moleculeTitle, true));
+          dispatch(appendCompoundColorOfDataset(datasetID, currentID, event.target.id, moleculeTitle, false));
         }
       };
 
@@ -649,7 +674,7 @@ const DatasetMoleculeView = memo(
         if (shoppingCartColors?.length === 1) {
           dispatch(removeMoleculeFromCompoundsOfDatasetToBuy(datasetID, currentID, moleculeTitle));
         }
-        dispatch(removeCompoundColorOfDataset(datasetID, currentID, event.target.id, moleculeTitle, true));
+        dispatch(removeCompoundColorOfDataset(datasetID, currentID, event.target.id, moleculeTitle, false));
       };
 
       const handleShoppingCartClick = () => {
@@ -657,7 +682,7 @@ const DatasetMoleculeView = memo(
           // if (!isAddedToShoppingCart) {
           //   dispatch(appendMoleculeToCompoundsOfDatasetToBuy(datasetID, currentID, moleculeTitle));
           // }
-          dispatch(appendCompoundColorOfDataset(datasetID, currentID, currentCompoundClass, moleculeTitle, true));
+          dispatch(appendCompoundColorOfDataset(datasetID, currentID, currentCompoundClass, moleculeTitle, false));
         }
       };
 
@@ -855,7 +880,7 @@ const DatasetMoleculeView = memo(
         <>
           <Grid
             container
-            justify="space-between"
+            justifyContent="space-between"
             direction="row"
             className={classNames(classes.container, dragDropEnabled ? classes.dragDropCursor : undefined)}
             wrap="nowrap"
@@ -883,7 +908,7 @@ const DatasetMoleculeView = memo(
                 />
               )}
             {/*Site number*/}
-            <Grid item container justify="space-between" direction="column" className={classes.site}>
+            <Grid item container justifyContent="space-between" direction="column" className={classes.site}>
               <Grid item>
                 {!isCompoundFromVectorSelector(data) && (
                   <DatasetMoleculeSelectCheckbox
@@ -891,11 +916,11 @@ const DatasetMoleculeView = memo(
                     className={classes.checkbox}
                     size="small"
                     color="primary"
-                    // disabled={isCompoundFromVectorSelector(data)}
                     onChange={e => {
                       const result = e.target.checked;
                       if (result) {
                         dispatch(appendCompoundToSelectedCompoundsByDataset(datasetID, currentID, moleculeTitle));
+                        dispatch(setCompoundToSelectedCompoundsByDataset(currentID));
                       } else {
                         dispatch(removeCompoundFromSelectedCompoundsByDataset(datasetID, currentID, moleculeTitle));
                         dispatch(deselectVectorCompound(data));
@@ -908,7 +933,7 @@ const DatasetMoleculeView = memo(
                 {index + 1}.
               </Grid>
             </Grid>
-            <Grid item container className={classes.detailsCol} justify="space-between" direction="row">
+            <Grid item container className={classes.detailsCol} justifyContent="space-between" direction="row">
               {/* Title label */}
               <Grid
                 item
@@ -937,7 +962,7 @@ const DatasetMoleculeView = memo(
                 <Grid
                   container
                   direction="row"
-                  justify="flex-start"
+                  justifyContent="flex-start"
                   alignItems="center"
                   wrap="nowrap"
                   className={classes.contButtonsMargin}
@@ -970,6 +995,7 @@ const DatasetMoleculeView = memo(
                           }
                         )}
                         onClick={() => {
+                          setLoadingAll(true);
                           // always deselect all if are selected only some of options
                           dispatch(setAskLockCompoundsQuestion(true));
                           selectedAll.current = hasSomeValuesOn ? false : !selectedAll.current;
@@ -978,6 +1004,7 @@ const DatasetMoleculeView = memo(
                           onLigand(true);
                           onProtein(true);
                           onComplex(true);
+                          setLoadingAll(false);
                         }}
                         disabled={
                           isFromVectorSelector ||
@@ -986,6 +1013,9 @@ const DatasetMoleculeView = memo(
                         }
                       >
                         A
+                        {loadingAll && <CircularProgress className={classNames(classes.buttonLoadingOverlay, {
+                          [classes.buttonSelectedLoadingOverlay]: hasAllValuesOn || hasSomeValuesOn
+                        })} />}
                       </Button>
                     </Grid>
                   </Tooltip>
@@ -1003,6 +1033,9 @@ const DatasetMoleculeView = memo(
                         disabled={disableL || disableMoleculeNglControlButtons.ligand}
                       >
                         L
+                        {loadingLigand && <CircularProgress className={classNames(classes.buttonLoadingOverlay, {
+                          [classes.buttonSelectedLoadingOverlay]: isLigandOn
+                        })} />}
                       </Button>
                     </Grid>
                   </Tooltip>
@@ -1020,6 +1053,9 @@ const DatasetMoleculeView = memo(
                         disabled={isFromVectorSelector || disableP || disableMoleculeNglControlButtons.protein}
                       >
                         P
+                        {loadingProtein && <CircularProgress className={classNames(classes.buttonLoadingOverlay, {
+                          [classes.buttonSelectedLoadingOverlay]: isProteinOn
+                        })} />}
                       </Button>
                     </Grid>
                   </Tooltip>
@@ -1038,6 +1074,9 @@ const DatasetMoleculeView = memo(
                         disabled={isFromVectorSelector || disableC || disableMoleculeNglControlButtons.complex}
                       >
                         C
+                        {loadingComplex && <CircularProgress className={classNames(classes.buttonLoadingOverlay, {
+                          [classes.buttonSelectedLoadingOverlay]: isComplexOn
+                        })} />}
                       </Button>
                     </Grid>
                   </Tooltip>
@@ -1055,6 +1094,9 @@ const DatasetMoleculeView = memo(
                         disabled={isFromVectorSelector || disableMoleculeNglControlButtons.surface}
                       >
                         S
+                        {loadingSurface && <CircularProgress className={classNames(classes.buttonLoadingOverlay, {
+                          [classes.buttonSelectedLoadingOverlay]: isSurfaceOn
+                        })} />}
                       </Button>
                     </Grid>
                   </Tooltip>
@@ -1067,6 +1109,7 @@ const DatasetMoleculeView = memo(
                             [classes.contColButtonSelected]: isAnyInspirationOn
                           })}
                           onClick={() => {
+                            setLoadingInspiration(true);
                             dispatch((dispatch, getState) => {
                               const allInspirations = getState().datasetsReducers.allInspirations;
 
@@ -1081,10 +1124,14 @@ const DatasetMoleculeView = memo(
                             if (setRef) {
                               setRef(ref.current);
                             }
+                            setLoadingInspiration(false);
                           }}
                           disabled={isFromVectorSelector}
                         >
                           F
+                          {loadingInspiration && <CircularProgress className={classNames(classes.buttonLoadingOverlay, {
+                            [classes.buttonSelectedLoadingOverlay]: isAnyInspirationOn
+                          })} />}
                         </Button>
                       </Grid>
                     </Tooltip>
@@ -1098,15 +1145,20 @@ const DatasetMoleculeView = memo(
                             // [classes.contColButtonSelected]: isAnyInspirationOn
                           })}
                           onClick={() => {
+                            setLoadingReference(true);
                             dispatch(setCrossReferenceCompoundName(moleculeTitle));
                             dispatch(setIsOpenCrossReferenceDialog(true));
                             if (setRef) {
                               setRef(ref.current);
                             }
+                            setLoadingReference(false);
                           }}
                           disabled={isFromVectorSelector}
                         >
                           X
+                          {loadingReference && <CircularProgress className={classNames(classes.buttonLoadingOverlay, {
+                            // [classes.buttonSelectedLoadingOverlay]: isAnyInspirationOn
+                          })} />}
                         </Button>
                       </Grid>
                     </Tooltip>
@@ -1118,7 +1170,7 @@ const DatasetMoleculeView = memo(
                 <Grid
                   item
                   container
-                  justify="flex-start"
+                  justifyContent="flex-start"
                   alignItems="flex-end"
                   direction="row"
                   wrap="nowrap"
@@ -1151,10 +1203,10 @@ const DatasetMoleculeView = memo(
                                 null}
                             </Grid>
                           )) || (
-                            <Grid item className={classes.rightBorder}>
-                              -
-                            </Grid>
-                          )}
+                              <Grid item className={classes.rightBorder}>
+                                -
+                              </Grid>
+                            )}
                         </Tooltip>
                       );
                     })}
@@ -1189,7 +1241,7 @@ const DatasetMoleculeView = memo(
               <Grid
                 container
                 direction="column"
-                justify="space-between"
+                justifyContent="space-between"
                 className={classNames(classes.arrows, areArrowsVisible && classes.arrowsHighlight)}
               >
                 <Grid item>

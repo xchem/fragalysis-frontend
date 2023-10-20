@@ -155,7 +155,7 @@ const TimelineView = memo(({ data, index }) => {
     <div ref={ref} onMouseEnter={() => setIsHovering(true)} onMouseLeave={() => setIsHovering(false)}>
       {data.type && data.type === actionType.SNAPSHOT ? (
         <>
-          <Grid container justify="flex-start" direction="row" alignItems="center" className={classes.title}>
+          <Grid container justifyContent="flex-start" direction="row" alignItems="center" className={classes.title}>
             {isSelected && (
               <Box xs={2} className={classes.titleMargin} flexShrink={1}>
                 <Chip color="primary" size="small" label={`selected snapshot`} />
@@ -186,7 +186,7 @@ const TimelineView = memo(({ data, index }) => {
             key={index}
             title={
               <div>
-                <Grid container justify="flex-start" direction="row" alignItems="center" className={classes.headerGrid}>
+                <Grid container justifyContent="flex-start" direction="row" alignItems="center" className={classes.headerGrid}>
                   {
                     <Grid item xs={8} className={classes.grid}>
                       <EditableText dataText={data.text} index={index} updateText={updateDataText} />
@@ -196,7 +196,7 @@ const TimelineView = memo(({ data, index }) => {
                     <Grid
                       container
                       item
-                      justify="flex-end"
+                      justifyContent="flex-end"
                       direction="row"
                       alignItems="flex-end"
                       xs={4}

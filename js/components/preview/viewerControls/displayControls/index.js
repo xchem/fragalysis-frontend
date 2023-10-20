@@ -194,7 +194,7 @@ export default memo(({ open, onClose }) => {
         label={
           <Grid
             container
-            justify="space-between"
+            justifyContent="space-between"
             direction="row"
             wrap="nowrap"
             alignItems="center"
@@ -213,7 +213,7 @@ export default memo(({ open, onClose }) => {
                 ))}
               </Select>
             </Grid>
-            <Grid item xs={6} container justify="flex-end" direction="row">
+            <Grid item xs={6} container justifyContent="flex-end" direction="row" wrap="nowrap">
               <Grid item>
                 <IconButton onClick={e => openRepresentationEditMenu(e, representationKey)}>
                   <Edit />
@@ -269,7 +269,7 @@ export default memo(({ open, onClose }) => {
               nodeId={objectsInView[parentItem].name}
               key={objectsInView[parentItem].name}
               label={
-                <Grid container justify="space-between" direction="row" wrap="nowrap" alignItems="center">
+                <Grid container justifyContent="space-between" direction="row" wrap="nowrap" alignItems="center">
                   <Grid item>{objectsInView[parentItem].name}</Grid>
                   <Grid item>
                     <IconButton onClick={e => addMolecularRepresentation(parentItem, e)}>

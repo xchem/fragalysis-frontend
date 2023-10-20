@@ -44,13 +44,19 @@ import {
   removeQuality,
   withDisabledMoleculesNglControlButtons,
   removeSelectedTypesInHitNavigator,
-  selectAllHits
+  selectAllHits,
+  autoHideTagEditorDialogsOnScroll
 } from './redux/dispatchActions';
 import { DEFAULT_FILTER, PREDEFINED_FILTERS } from '../../../reducers/selection/constants';
 import { Edit, FilterList } from '@material-ui/icons';
 import { selectAllMoleculeList, selectJoinedMoleculeList } from './redux/selectors';
 import { MOL_ATTRIBUTES } from './redux/constants';
-import { setFilter, setMolListToEdit, setNextXMolecules } from '../../../reducers/selection/actions';
+import {
+  setFilter,
+  setMolListToEdit,
+  setNextXMolecules,
+  setMoleculeForTagEdit
+} from '../../../reducers/selection/actions';
 import { initializeFilter } from '../../../reducers/selection/dispatchActions';
 import * as listType from '../../../constants/listTypes';
 import { useRouteMatch } from 'react-router-dom';
@@ -68,6 +74,7 @@ import SearchField from '../../common/Components/SearchField';
 import useDisableNglControlButtons from './useDisableNglControlButtons';
 import GroupNglControlButtonsContext from './groupNglControlButtonsContext';
 import { extractTargetFromURLParam } from '../utils';
+import { LoadingContext } from '../../loading';
 
 const useStyles = makeStyles(theme => ({
   container: {
@@ -167,6 +174,28 @@ const useStyles = makeStyles(theme => ({
       borderColor: 'white'
     }
   },
+  contColButtonUnselected: {
+    minWidth: 'fit-content',
+    paddingLeft: theme.spacing(1) / 4,
+    paddingRight: theme.spacing(1) / 4,
+    paddingBottom: 0,
+    paddingTop: 0,
+    fontWeight: 'bold',
+    fontSize: 9,
+    borderRadius: 0,
+    borderColor: theme.palette.primary.main,
+    backgroundColor: theme.palette.primary.light,
+    '&:hover': {
+      backgroundColor: theme.palette.primary.light
+      // color: theme.palette.primary.contrastText
+    },
+    '&:disabled': {
+      borderRadius: 0,
+      borderColor: 'white',
+      color: 'white'
+    }
+  },
+
   contColButtonSelected: {
     backgroundColor: theme.palette.primary.main,
     color: theme.palette.primary.contrastText,
@@ -226,7 +255,7 @@ export const MoleculeList = memo(({ hideProjects }) => {
   const nextXMolecules = useSelector(state => state.selectionReducers.nextXMolecules);
   const [selectAllHitsPressed, setSelectAllHitsPressed] = useState(false);
   const [selectDisplayedHitsPressed, setSelectDisplayedHitsPressed] = useState(false);
-  const moleculesPerPage = 5;
+  const moleculesPerPage = 30;
   const [currentPage, setCurrentPage] = useState(0);
   const searchString = useSelector(state => state.previewReducers.molecule.searchStringLHS);
   // const [searchString, setSearchString] = useState(null);
@@ -270,16 +299,19 @@ export const MoleculeList = memo(({ hideProjects }) => {
 
   const proteinsHasLoaded = useSelector(state => state.nglReducers.proteinsHasLoaded);
   const currentActionList = useSelector(state => state.trackingReducers.current_actions_list);
+  const assignTagEditorOpen = useSelector(state => state.selectionReducers.tagEditorOpened);
 
   const [predefinedFilter, setPredefinedFilter] = useState(filter !== undefined ? filter.predefined : DEFAULT_FILTER);
 
   const isActiveFilter = !!(filter || {}).active;
 
   const { getNglView } = useContext(NglContext);
+  const { moleculesAndTagsAreLoading } = useContext(LoadingContext);
   const majorViewStage = getNglView(VIEWS.MAJOR_VIEW) && getNglView(VIEWS.MAJOR_VIEW).stage;
 
   const filterRef = useRef();
   const tagEditorRef = useRef();
+  const scrollBarRef = useRef();
   const [tagEditorAnchorEl, setTagEditorAnchorEl] = useState(null);
 
   if (directDisplay && directDisplay.target) {
@@ -831,7 +863,7 @@ export const MoleculeList = memo(({ hideProjects }) => {
     return molecules;
   };
 
-  const openGlobalTagEditor = () => {};
+  const openGlobalTagEditor = () => { };
 
   // let filterSearchString = '';
   // const getSearchedString = () => {
@@ -982,13 +1014,12 @@ export const MoleculeList = memo(({ hideProjects }) => {
                   </Typography>
                 </Grid>
                 <Grid item xs={11}>
-                  <Grid container direction="row" justify="flex-start" spacing={1}>
+                  <Grid container direction="row" justifyContent="flex-start" spacing={1}>
                     {filter.priorityOrder.map(attr => (
                       <Grid item key={`Mol-Tooltip-${attr}`}>
                         <Tooltip
-                          title={`${filter.filter[attr].minValue}-${filter.filter[attr].maxValue} ${
-                            filter.filter[attr].order === 1 ? '\u2191' : '\u2193'
-                          }`}
+                          title={`${filter.filter[attr].minValue}-${filter.filter[attr].maxValue} ${filter.filter[attr].order === 1 ? '\u2191' : '\u2193'
+                            }`}
                           placement="top"
                         >
                           <Chip size="small" label={attr} style={{ backgroundColor: getAttrDefinition(attr).color }} />
@@ -1003,10 +1034,11 @@ export const MoleculeList = memo(({ hideProjects }) => {
           </>
         )}
       </div>
-      <Grid container>
-        {allSelectedMolecules.length > 0 && (
-          <Grid>
-            <Tooltip title="all ligands" style={{ marginLeft: '5px' }}>
+      <Grid container spacing={1}>
+        <Grid style={{ marginTop: '4px' }}>
+          <Tooltip title="all ligands" style={{ marginLeft: '1px' }}>
+            {/* Tooltip should not have disabled element as a direct child */}
+            <>
               <Button
                 variant="outlined"
                 className={classNames(classes.contColButton, {
@@ -1014,43 +1046,56 @@ export const MoleculeList = memo(({ hideProjects }) => {
                   [classes.contColButtonHalfSelected]: isLigandOn === null
                 })}
                 onClick={() => onButtonToggle('ligand')}
-                disabled={groupNglControlButtonsDisabledState.ligand}
+                disabled={groupNglControlButtonsDisabledState.ligand || allSelectedMolecules.length === 0}
               >
                 L
               </Button>
-            </Tooltip>
-            <Tooltip title="all sidechains" style={{ marginLeft: '5px' }}>
+            </>
+          </Tooltip>
+          <Tooltip title="all sidechains" style={{ marginLeft: '1px' }}>
+            {/* Tooltip should not have disabled element as a direct child */}
+            <>
               <Button
                 variant="outlined"
-                className={classNames(classes.contColButton, {
-                  [classes.contColButtonSelected]: isProteinOn,
-                  [classes.contColButtonHalfSelected]: isProteinOn === null
-                })}
+                className={classNames(
+                  allSelectedMolecules.length === 0 ? classes.contColButton : classes.contColButtonUnselected,
+                  {
+                    [classes.contColButtonSelected]: isProteinOn,
+                    [classes.contColButtonHalfSelected]: isProteinOn === null
+                  }
+                )}
                 onClick={() => onButtonToggle('protein')}
-                disabled={groupNglControlButtonsDisabledState.protein}
+                disabled={groupNglControlButtonsDisabledState.protein || allSelectedMolecules.length === 0}
               >
                 P
               </Button>
-            </Tooltip>
-            <Tooltip title="all interactions" style={{ marginLeft: '5px' }}>
+            </>
+          </Tooltip>
+          <Tooltip title="all interactions" style={{ marginLeft: '1px' }}>
+            {/* Tooltip should not have disabled element as a direct child */}
+            <>
               {/* C stands for contacts now */}
               <Button
                 variant="outlined"
-                className={classNames(classes.contColButton, {
-                  [classes.contColButtonSelected]: isComplexOn,
-                  [classes.contColButtonHalfSelected]: isComplexOn === null
-                })}
+                className={classNames(
+                  allSelectedMolecules.length === 0 ? classes.contColButton : classes.contColButtonUnselected,
+                  {
+                    [classes.contColButtonSelected]: isComplexOn,
+                    [classes.contColButtonHalfSelected]: isComplexOn === null
+                  }
+                )}
                 onClick={() => onButtonToggle('complex')}
-                disabled={groupNglControlButtonsDisabledState.complex}
+                disabled={groupNglControlButtonsDisabledState.complex || allSelectedMolecules.length === 0}
               >
                 C
               </Button>
-            </Tooltip>
-          </Grid>
-        )}
+            </>
+          </Tooltip>
+        </Grid>
+
         {
           <Tooltip title={selectAllHitsPressed ? 'Unselect all hits' : 'Select all hits'}>
-            <Grid item style={{ marginLeft: allSelectedMolecules.length === 0 ? '70px' : '20px' }}>
+            <Grid item style={{ marginLeft: '20px' }}>
               <Button
                 variant="outlined"
                 className={classNames(classes.contColButton, {
@@ -1107,17 +1152,16 @@ export const MoleculeList = memo(({ hideProjects }) => {
             </Grid>
           </Tooltip>
         )}
-        <Grid>
-          <Typography variant="caption" className={classes.noOfSelectedHits}>{`Selected: ${
-            allSelectedMolecules ? allSelectedMolecules.length : 0
-          }`}</Typography>
+        <Grid style={{ marginTop: '4px' }}>
+          <Typography variant="caption" className={classes.noOfSelectedHits}>{`Selected: ${allSelectedMolecules ? allSelectedMolecules.length : 0
+            }`}</Typography>
         </Grid>
       </Grid>
-      <Grid container direction="column" justify="flex-start" className={classes.container}>
+      <Grid container spacing={1} direction="column" justifyContent="flex-start" className={classes.container}>
         <Grid item>
           {/* Header */}
-          <Grid container justify="flex-start" direction="row" className={classes.molHeader} wrap="nowrap">
-            <Grid item container justify="flex-start" direction="row">
+          <Grid container spacing={1} justifyContent="flex-start" direction="row" className={classes.molHeader} wrap="nowrap">
+            <Grid item container justifyContent="flex-start" direction="row">
               {Object.keys(moleculeProperty).map(key => (
                 <Grid item key={key} className={classes.rightBorder}>
                   {moleculeProperty[key]}
@@ -1126,10 +1170,19 @@ export const MoleculeList = memo(({ hideProjects }) => {
             </Grid>
           </Grid>
         </Grid>
+        {console.log('tagEditorRef', tagEditorRef)}
         {currentMolecules.length > 0 && (
           <>
-            <Grid item className={classes.gridItemList}>
+            <Grid item className={classes.gridItemList} ref={scrollBarRef}>
               <InfiniteScroll
+                getScrollParent={() =>
+                  dispatch(
+                    autoHideTagEditorDialogsOnScroll({
+                      tagEditorRef,
+                      scrollBarRef
+                    })
+                  )
+                }
                 pageStart={0}
                 loadMore={loadNextMolecules}
                 hasMore={canLoadMore}
@@ -1138,7 +1191,7 @@ export const MoleculeList = memo(({ hideProjects }) => {
                     <Grid
                       container
                       direction="row"
-                      justify="center"
+                      justifyContent="center"
                       alignItems="center"
                       className={classes.paddingProgress}
                     >
@@ -1189,7 +1242,7 @@ export const MoleculeList = memo(({ hideProjects }) => {
               </InfiniteScroll>
             </Grid>
             <Grid item>
-              <Grid container justify="space-between" alignItems="center" direction="row">
+              <Grid container spacing={1} justifyContent="space-between" alignItems="center" direction="row">
                 <Grid item>
                   <span className={classes.total}>{`Total ${joinedMoleculeLists?.length}`}</span>
                 </Grid>
@@ -1226,6 +1279,7 @@ export const MoleculeList = memo(({ hideProjects }) => {
             </Grid>
           </>
         )}
+        {moleculesAndTagsAreLoading && <Grid container direction="row" justifyContent="center"><Grid item><CircularProgress /></Grid></Grid>}
       </Grid>
     </Panel>
   );

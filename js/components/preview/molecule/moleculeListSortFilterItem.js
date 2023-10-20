@@ -129,7 +129,7 @@ const moleculeListSortFilterItem = memo(props => {
   return (
     <Grid container item className={classes.gridItemHeader}>
       <Grid item container className={classes.centered} style={{ width: widthPrio }}>
-        <Grid item container justify="center">
+        <Grid item container justifyContent="center">
           <Grid item>
             <Button
               variant="outlined"

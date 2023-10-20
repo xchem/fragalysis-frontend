@@ -52,7 +52,7 @@ export default memo(({ type, data }) => {
     case molStatusTypes.QUALITY:
       // TODO: decide color based on provided data
       valueElement = (
-        <Grid container alignItems="center" direction="column" justify="center" style={{ color: 'orange' }}>
+        <Grid container alignItems="center" direction="column" justifyContent="center" style={{ color: 'orange' }}>
           <Grid item className={classes.qualCircle} style={{ backgroundColor: 'orange' }} />
           <Grid item className={classes.qualValue}>
             {3.6}

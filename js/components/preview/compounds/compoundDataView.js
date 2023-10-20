@@ -36,12 +36,12 @@ export const CompoundDataView = memo(({ currentCompoundIds, isTooltip, index }) 
             <Grid
               key={i}
               container
-              justify="flex-start"
+              justifyContent="flex-start"
               direction="row"
               className={isTooltip === true ? classes.containerTooltip : classes.container}
               wrap="nowrap"
             >
-              <Grid item container className={''} justify="flex-start" direction="row">
+              <Grid item container className={''} justifyContent="flex-start" direction="row">
                 <Grid item xs={12}>
                   {isTooltip === true ? (
                     <div>{data}</div>
