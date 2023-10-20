@@ -17,7 +17,7 @@ import { withLoadingProjects } from '../target/withLoadingProjects';
 const useStyles = makeStyles(theme => ({
   root: {
     height: '100%',
-    gap: theme.spacing(2),
+    gap: theme.spacing(1),
     flexWrap: 'nowrap',
     padding: theme.spacing()
   }
@@ -26,6 +26,9 @@ const useStyles = makeStyles(theme => ({
 const Landing = memo(
   ({ resetSelectionState, resetTargetState, resetCurrentCompoundsSettings, resetProjectsReducer }) => {
     const classes = useStyles();
+
+    const [isResizing, setIsResizing] = useState(false);
+    const [targetListWidth, setTargetListWidth] = useState(450);
 
     const { setSnackBarTitle } = useContext(HeaderContext);
     const [loginText, setLoginText] = useState("You're logged in as " + DJANGO_CONTEXT['username']);
@@ -58,11 +61,47 @@ const Landing = memo(
       resetProjectsReducer
     ]);
 
+    const handleMouseDownResizer = () => {
+      setIsResizing(true);
+    };
+
+    const handleMouseMove = e => {
+      if (!isResizing) return;
+      const deltaX = e.clientX;
+      setTargetListWidth(deltaX);
+    };
+
+    const handleMouseUp = () => {
+      setIsResizing(false);
+      window.removeEventListener('mousemove', handleMouseMove);
+      window.removeEventListener('mouseup', handleMouseUp);
+    };
+
+    useEffect(() => {
+      if (isResizing) {
+        window.addEventListener('mousemove', handleMouseMove);
+        window.addEventListener('mouseup', handleMouseUp);
+      } else {
+        window.removeEventListener('mousemove', handleMouseMove);
+        window.removeEventListener('mouseup', handleMouseUp);
+      }
+    }, [isResizing]);
+
     return (
       <Grid container className={classes.root}>
-        <Grid item xs={3}>
+        <Grid item style={{ width: targetListWidth }}>
           <TargetList />
         </Grid>
+        <div
+          style={{
+            cursor: 'col-resize',
+            width: 3,
+            height: '100%',
+            backgroundColor: '#eeeeee',
+            borderRadius: '3px'
+          }}
+          onMouseDown={handleMouseDownResizer}
+        ></div>
         <Grid item xs={9}>
           <Projects />
         </Grid>
