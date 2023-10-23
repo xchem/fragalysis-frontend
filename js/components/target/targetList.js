@@ -107,7 +107,7 @@ import moment from 'moment';
 
 const useStyles = makeStyles(theme => ({
   table: {
-    minWidth: 360,
+    minWidth: 430,
     tableLayout: 'auto',
     marginTop: '8px'
   },
