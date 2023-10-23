@@ -1,7 +1,7 @@
 /**
  * Created by abradley on 14/03/2018.
  */
-import React, { useEffect, memo } from 'react';
+import React, { useEffect, memo, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { clearDatasetSettings, initializeDatasetFilter } from './redux/dispatchActions';
 import DatasetMoleculeList from './datasetMoleculeList';
@@ -20,6 +20,10 @@ import {
 } from '@material-ui/core';
 import { Panel } from '../common/Surfaces/Panel';
 import Radio from '@material-ui/core/Radio';
+import CloudDownloadOutlinedIcon from '@mui/icons-material/CloudDownloadOutlined';
+import ExpansionPanel from '@material-ui/core/ExpansionPanel';
+import ExpansionPanelSummary from '@material-ui/core/ExpansionPanelSummary';
+import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 
 const useStyles = makeStyles(theme => ({
   table: {
@@ -56,9 +60,29 @@ export const CompoundSetList = () => {
   const customDatasets = useSelector(state => state.datasetsReducers.datasets);
   const isLoadingMoleculeList = useSelector(state => state.datasetsReducers.isLoadingMoleculeList);
 
+  const [isExpanded, setIsExpanded] = useState(false);
+
+  const handleExpandedChange = (event, isExpanded) => {
+    // Tu môžete vykonať akcie na základe zmeny stavu
+    if (event) {
+      setIsExpanded(true);
+      console.log('Panel je roztiahnutý');
+    } else {
+      setIsExpanded(false);
+      console.log('Panel je stiahnutý');
+    }
+  };
+console.log("isExpanded",isExpanded)
   return (
     <>
-      <Panel hasHeader hasExpansion defaultExpanded title="Compound sets" style={{ maxHeight: '150px' }}>
+      <Panel
+        onExpandChange={handleExpandedChange}
+        hasHeader
+        hasExpansion
+        defaultExpanded
+        title="Compound sets"
+        style={{ maxHeight: '150px', height: isExpanded === true ? '100%': '30px'}}
+      >
         <Table className={classes.table}>
           <TableHead>
             <TableRow style={{ padding: '0px' }}>
@@ -83,6 +107,9 @@ export const CompoundSetList = () => {
               <TableCell item style={{ width: '70px', padding: '0px' }}>
                 Method
               </TableCell>
+              <TableCell item style={{ width: '30px', padding: '0px' }}>
+                CSV
+              </TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
@@ -98,11 +125,16 @@ export const CompoundSetList = () => {
                     />
                   </TableCell>
                   <TableCell style={{ width: '50px', padding: '0px' }} key={dataset.id}>
-                    {dataset.title.length > 30 ? dataset.title.slice(0, 20) + '...' : dataset.title}
+                    {dataset.title.length > 30 ? dataset.title.slice(0, 15) + '...' : dataset.title}
                   </TableCell>
                   <TableCell style={{ padding: '0px' }}></TableCell>
                   <TableCell style={{ padding: '0px' }}></TableCell>
                   <TableCell style={{ padding: '0px' }}></TableCell>
+                  <TableCell style={{ padding: '0px' }}></TableCell>
+                  <TableCell style={{ padding: '0px' }}></TableCell>
+                  <TableCell style={{ padding: '0px' }}>
+                    <CloudDownloadOutlinedIcon />
+                  </TableCell>
                 </TableRow>
               );
             })}
