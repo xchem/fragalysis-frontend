@@ -27,8 +27,10 @@ const Landing = memo(
   ({ resetSelectionState, resetTargetState, resetCurrentCompoundsSettings, resetProjectsReducer }) => {
     const classes = useStyles();
 
+    const projectWidth = window.innerWidth;
     const [isResizing, setIsResizing] = useState(false);
     const [targetListWidth, setTargetListWidth] = useState(450);
+    const [projectListWidth, setProjectListWidth] = useState(projectWidth);
 
     const { setSnackBarTitle } = useContext(HeaderContext);
     const [loginText, setLoginText] = useState("You're logged in as " + DJANGO_CONTEXT['username']);
@@ -67,8 +69,10 @@ const Landing = memo(
 
     const handleMouseMove = e => {
       if (!isResizing) return;
-      const deltaX = e.clientX;
-      setTargetListWidth(deltaX);
+      const targetListWidth = e.clientX;
+      const projectListWidth = window.innerWidth - targetListWidth;
+      setTargetListWidth(targetListWidth);
+      setProjectListWidth(projectListWidth);
     };
 
     const handleMouseUp = () => {
@@ -102,7 +106,7 @@ const Landing = memo(
           }}
           onMouseDown={handleMouseDownResizer}
         ></div>
-        <Grid item xs={9}>
+        <Grid item style={{ width: projectListWidth }}>
           <Projects />
         </Grid>
       </Grid>
