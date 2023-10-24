@@ -1,34 +1,22 @@
 /**
  * Created by abradley on 14/03/2018.
  */
-import React, { useEffect, memo, useState } from 'react';
+import React, { useEffect, memo, useState, useCallback } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { clearDatasetSettings, initializeDatasetFilter } from './redux/dispatchActions';
+import { setExpandCompoundSets, setDataset, setSelectedDatasetIndex, setUpdatedDatasets } from './redux/actions';
 import DatasetMoleculeList from './datasetMoleculeList';
-import {
-  Button,
-  ButtonGroup,
-  Grid,
-  makeStyles,
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableRow,
-  TableSortLabel,
-  Typography
-} from '@material-ui/core';
+import { makeStyles, Table, TableBody, TableCell, TableHead, TableRow, Tooltip } from '@material-ui/core';
 import { Panel } from '../common/Surfaces/Panel';
 import Radio from '@material-ui/core/Radio';
 import CloudDownloadOutlinedIcon from '@mui/icons-material/CloudDownloadOutlined';
-import ExpansionPanel from '@material-ui/core/ExpansionPanel';
-import ExpansionPanelSummary from '@material-ui/core/ExpansionPanelSummary';
-import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
+import SearchField from '../common/Components/SearchField';
 
 const useStyles = makeStyles(theme => ({
   table: {
     tableLayout: 'auto',
-    marginTop: '6px'
+    marginTop: '6px',
+    overflow: 'auto'
   },
   search: {
     margin: theme.spacing(1),
@@ -49,6 +37,10 @@ const useStyles = makeStyles(theme => ({
     width: '0.75em',
     height: '0.75em',
     padding: '0px'
+  },
+  search: {
+    width: 140,
+    paddingTop: '5px'
   }
 }));
 
@@ -58,30 +50,60 @@ export const CompoundSetList = () => {
 
   const selectedDatasetIndex = useSelector(state => state.datasetsReducers.selectedDatasetIndex);
   const customDatasets = useSelector(state => state.datasetsReducers.datasets);
-  const isLoadingMoleculeList = useSelector(state => state.datasetsReducers.isLoadingMoleculeList);
+  const updatedDatasets = useSelector(state => state.datasetsReducers.updatedDatasets);
 
   const [isExpanded, setIsExpanded] = useState(false);
+  const [searchString, setSearchString] = useState(null);
+  const [defaultSelectedValue, setDefaultSelectedValue] = useState();
 
-  const handleExpandedChange = (event, isExpanded) => {
-    // Tu môžete vykonať akcie na základe zmeny stavu
+  useEffect(() => {
+    if (selectedDatasetIndex === 0) {
+      const newDataset = customDatasets.map((dataSet, index) =>
+        index === 0 ? { ...dataSet, visibility: true } : { ...dataSet, visibility: false }
+      );
+      setDefaultSelectedValue(newDataset);
+      dispatch(setUpdatedDatasets(newDataset));
+    }
+  }, []);
+
+  const handleExpandedChange = event => {
     if (event) {
       setIsExpanded(true);
-      console.log('Panel je roztiahnutý');
+      dispatch(setExpandCompoundSets(true));
     } else {
       setIsExpanded(false);
-      console.log('Panel je stiahnutý');
+      dispatch(setExpandCompoundSets(false));
     }
   };
-console.log("isExpanded",isExpanded)
+
+  const handleChangeVisibility = index => {
+    const newDataset = customDatasets.map((dataSetValue, i) =>
+      i === index ? { ...dataSetValue, visibility: true } : { ...dataSetValue, visibility: false }
+    );
+
+    dispatch(setSelectedDatasetIndex(index, index, index, index));
+    dispatch(setUpdatedDatasets(newDataset));
+  };
+
+  const actualDataset = updatedDatasets === undefined ? defaultSelectedValue : updatedDatasets;
   return (
     <>
       <Panel
-        onExpandChange={handleExpandedChange}
+        onExpandChange={useCallback(handleExpandedChange, [dispatch])}
         hasHeader
         hasExpansion
+        bodyOverflow
         defaultExpanded
         title="Compound sets"
-        style={{ maxHeight: '150px', height: isExpanded === true ? '100%': '30px'}}
+        style={{ maxHeight: '150px', height: isExpanded === true ? '100%' : '30px', overflow: 'auto' }}
+        headerActions={[
+          <SearchField
+            placeholder={'Search compound'}
+            className={classes.search}
+            id="search-compounds-sets"
+            onChange={setSearchString}
+          />
+        ]}
       >
         <Table className={classes.table}>
           <TableHead>
@@ -113,26 +135,31 @@ console.log("isExpanded",isExpanded)
             </TableRow>
           </TableHead>
           <TableBody>
-            {customDatasets.map(dataset => {
+            {actualDataset?.map((dataset, index) => {
               return (
-                <TableRow container key={dataset.id}>
-                  <TableCell style={{ width: '30px', padding: '0px' }}>
+                <TableRow container key={index} style={{ height: '10px' }}>
+                  <TableCell style={{ width: '10px', padding: '0px', height: '10px' }}>
                     <Radio
-                      checked={true}
-                      //onChange={handleChangeOrder}
-                      value={1}
+                      onClick={() => {
+                        handleChangeVisibility(index);
+                      }}
+                      checked={dataset.visibility}
+                      value={true}
                       name="radio-button-demo"
+                      style={{ width: '30px', padding: '0px' }}
                     />
                   </TableCell>
-                  <TableCell style={{ width: '50px', padding: '0px' }} key={dataset.id}>
-                    {dataset.title.length > 30 ? dataset.title.slice(0, 15) + '...' : dataset.title}
-                  </TableCell>
-                  <TableCell style={{ padding: '0px' }}></TableCell>
-                  <TableCell style={{ padding: '0px' }}></TableCell>
-                  <TableCell style={{ padding: '0px' }}></TableCell>
-                  <TableCell style={{ padding: '0px' }}></TableCell>
-                  <TableCell style={{ padding: '0px' }}></TableCell>
-                  <TableCell style={{ padding: '0px' }}>
+                  <Tooltip title={dataset.title}>
+                    <TableCell style={{ height: '10px', width: '50px', padding: '0px' }} key={dataset.id}>
+                      {dataset.title.length > 13 ? dataset.title.slice(0, 13) + '...' : dataset.title}
+                    </TableCell>
+                  </Tooltip>
+                  <TableCell style={{ height: '10px', padding: '0px' }}></TableCell>
+                  <TableCell style={{ height: '10px', padding: '0px' }}></TableCell>
+                  <TableCell style={{ height: '10px', padding: '0px' }}></TableCell>
+                  <TableCell style={{ height: '10px', padding: '0px' }}></TableCell>
+                  <TableCell style={{ height: '10px', padding: '0px' }}></TableCell>
+                  <TableCell style={{ height: '10px', padding: '0px' }}>
                     <CloudDownloadOutlinedIcon />
                   </TableCell>
                 </TableRow>

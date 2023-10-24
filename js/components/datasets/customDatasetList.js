@@ -27,6 +27,7 @@ export const CustomDatasetList = memo(({ dataset, hideProjects, isActive }) => {
 
   return (
     <DatasetMoleculeList
+      style={{ paddingTop: '10px' }}
       title={title}
       url={dataset && dataset.url}
       hideProjects={hideProjects}

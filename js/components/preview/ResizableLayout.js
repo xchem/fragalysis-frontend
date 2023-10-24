@@ -32,7 +32,7 @@ const useStyles = makeStyles(theme => ({
   }
 }));
 
-const sideWidth = 500;
+const sideWidth = 505;
 let panelHeight = 0;
 const resizerSize = 20;
 let screenHeight = 0;
@@ -133,8 +133,8 @@ export const ResizableLayout = ({ gridRef, hideProjects, showHistory, onShowHist
             const containerWidth = gridRect.width - lhsWidth - resizerSize * 2;
             dispatch(setActualRhsWidth(containerWidth - clamp(adjustedX, 0, containerWidth)));
 
-            if (containerWidth - clamp(adjustedX, 0, containerWidth) < 380) {
-              return 380;
+            if (containerWidth - clamp(adjustedX, 0, containerWidth) < 500) {
+              return 500;
             } else {
               return containerWidth - clamp(adjustedX, 0, containerWidth);
             }
@@ -143,8 +143,8 @@ export const ResizableLayout = ({ gridRef, hideProjects, showHistory, onShowHist
             const containerWidth = gridRect.width - resizerSize;
             dispatch(setActualRhsWidth(containerWidth - clamp(adjustedX, 0, containerWidth)));
 
-            if (containerWidth - clamp(adjustedX, 0, containerWidth) < 380) {
-              return 380;
+            if (containerWidth - clamp(adjustedX, 0, containerWidth) < 500) {
+              return 500;
             } else {
               return containerWidth - clamp(adjustedX, 0, containerWidth);
             }

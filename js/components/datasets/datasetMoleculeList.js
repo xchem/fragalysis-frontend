@@ -88,7 +88,7 @@ import { size } from 'lodash';
 
 const useStyles = makeStyles(theme => ({
   container: {
-    height: '100%',
+    height: '97%',
     width: 'inherit',
     color: theme.palette.black
   },
@@ -106,7 +106,7 @@ const useStyles = makeStyles(theme => ({
   },
   gridItemList: {
     overflow: 'auto',
-    height: `calc(98% - ${theme.spacing(6)}px - ${theme.spacing(2)}px)`,
+    height: `calc(97% - ${theme.spacing(6)}px - ${theme.spacing(2)}px)`,
     width: '100%'
   },
   gridItemListSmallSize: {
@@ -1073,7 +1073,6 @@ const DatasetMoleculeList = ({ title, datasetID, url }) => {
                       wrap="nowrap"
                       className={classes.contButtonsMargin}
                     >
-                      {console.log('isLigandOn', isLigandOn)}
                       <Tooltip title="all ligands">
                         <Grid item>
                           <Button
