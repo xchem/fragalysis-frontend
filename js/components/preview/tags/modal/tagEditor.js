@@ -17,12 +17,14 @@ import {
   compareTagsAsc,
   augumentTagObjectWithId,
   createMoleculeTagObject,
-  getMoleculeTagForTag
+  getMoleculeTagForTag,
+  DEFAULT_TAG_COLOR
 } from '../utils/tagUtils';
 import TagCategory from '../tagCategory';
 import { TaggingInProgressModal } from './taggingInProgressModal';
 import { withStyles } from '@material-ui/core/styles';
 import { blue } from '@material-ui/core/colors';
+import { getCategoryById } from '../../molecule/redux/dispatchActions';
 
 const useStyles = makeStyles(theme => ({
   paper: {
@@ -123,6 +125,7 @@ export const TagEditor = memo(
     const molId = useSelector(state => state.selectionReducers.molForTagEdit);
     let moleculesToEditIds = useSelector(state => state.selectionReducers.moleculesToEdit);
     const targetId = useSelector(state => state.apiReducers.target_on);
+
     const [taggingInProgress, setTaggingInProgress] = useState(false);
     const [isError, setIsError] = useState(false);
     const [molsLeftForTagging, setMolsLeftForTagging] = useState(0);
@@ -162,6 +165,16 @@ export const TagEditor = memo(
       try {
         setTaggingInProgress(true);
 
+        let tagColor = DEFAULT_TAG_COLOR;
+        if (tag.colour && tag.colour !== '') {
+          tagColor = tag.colour;
+        } else {
+          const tagCategory = dispatch(getCategoryById(tag.category));
+          if (tagCategory) {
+            tagColor = `#${tagCategory.colour}`;
+          }
+        }
+
         let molTagObjects = [];
         if (selected) {
           moleculesToEdit.forEach(m => {
@@ -181,7 +194,7 @@ export const TagEditor = memo(
                 targetId,
                 tag.category,
                 DJANGO_CONTEXT.pk,
-                tag.colour,
+                tagColor,
                 tag.discourse_url,
                 newMolList,
                 tag.create_date,
@@ -206,7 +219,7 @@ export const TagEditor = memo(
                   targetId,
                   tag.category,
                   DJANGO_CONTEXT.pk,
-                  tag.colour,
+                  tagColor,
                   tag.discourse_url,
                   [...moleculeTag.site_observations, newMol.id],
                   tag.create_date,

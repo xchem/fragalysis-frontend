@@ -26,17 +26,17 @@ import {
   appendTagList,
   setCategoryList,
   setTargetDataLoadingInProgress,
-  setAllDataLoaded
+  setAllDataLoaded,
+  setMoleculeTags
 } from '../../../../reducers/api/actions';
 import { setSortDialogOpen } from '../../molecule/redux/actions';
 import { resetCurrentCompoundsSettings } from '../../compounds/redux/actions';
-import { updateExistingTag, getAllDataNew, getTags } from '../api/tagsApi';
+import { updateExistingTag, getTags, getAllDataNew, getTagCategories } from '../api/tagsApi';
 import {
   getMoleculeTagForTag,
   createMoleculeTagObject,
   augumentTagObjectWithId,
-  compareTagsAsc,
-  getCategoryIds
+  compareTagsAsc
 } from '../utils/tagUtils';
 import { DJANGO_CONTEXT } from '../../../../utils/djangoContext';
 
@@ -236,6 +236,7 @@ export const loadMoleculesAndTagsNew = targetId => async (dispatch, getState) =>
   if (tags?.length > 0) {
     dispatch(setNoTagsReceived(false));
   }
+  const tagCategories = await getTagCategories();
   return getAllDataNew(targetId).then(data => {
     let allMolecules = [];
     data?.results?.forEach(mol => {
@@ -261,9 +262,9 @@ export const loadMoleculesAndTagsNew = targetId => async (dispatch, getState) =>
 
     dispatch(setAllMolLists([...allMolecules]));
     //need to do this this way because only categories which have at least one tag assigned are sent from backend
-    const categories = getCategoryIds();
     tags = tags.sort(compareTagsAsc);
-    dispatch(setTagSelectorData(categories, tags));
+    dispatch(setMoleculeTags(tags));
+    dispatch(setTagSelectorData(tagCategories, tags));
     dispatch(setAllDataLoaded(true));
   });
 };

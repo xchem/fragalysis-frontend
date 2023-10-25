@@ -19,6 +19,14 @@ export const getTags = targetId => {
   });
 };
 
+export const getTagCategories = () => {
+  return api({ url: `${base_url}/api/tag_category/` }).then(response => {
+    if (response?.data) {
+      return response.data?.results;
+    }
+  });
+};
+
 export const getAllDataNew = async targetId => {
   return api({ url: `${base_url}/api/site_observations/?target=${targetId}` }).then(response => {
     if (response?.data) {

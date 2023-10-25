@@ -17,6 +17,7 @@ import {
 } from '../../../../utils/discourse';
 import { setTagToEdit, appendToMolListToEdit, removeFromMolListToEdit } from '../../../../reducers/selection/actions';
 import { setOpenDiscourseErrorModal } from '../../../../reducers/api/actions';
+import { getCategoryById } from '../../molecule/redux/dispatchActions';
 
 const useStyles = makeStyles(theme => ({
   contColButton: {
@@ -162,9 +163,9 @@ const TagDetailRow = memo(({ tag, moleculesToEditIds, moleculesToEdit }) => {
         isTagEditor={true}
       ></TagView>
       {/* category */}
-      <Tooltip title={CATEGORY_TYPE_BY_ID[tag.category]}>
+      <Tooltip title={dispatch(getCategoryById(tag.category))?.category}>
         <Typography className={classes.text} variant="body2" noWrap>
-          {CATEGORY_TYPE_BY_ID[tag.category]}
+          {dispatch(getCategoryById(tag.category))?.category}
         </Typography>
       </Tooltip>
       {/* select hits button */}

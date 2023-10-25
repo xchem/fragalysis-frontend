@@ -129,14 +129,14 @@ const Preview = memo(({ isStateLoaded, hideProjects, isSnapshot = false }) => {
     }
   }, [dispatch, target_on, isSnapshot, setMoleculesAndTagsAreLoading]);
 
-  useEffect(() => {
-    if (target_on) {
-      getTags(target_on).then(data => {
-        const sorted = data.results.sort(compareTagsAsc);
-        dispatch(setMoleculeTags(sorted));
-      });
-    }
-  }, [dispatch, target_on]);
+  // useEffect(() => {
+  //   if (target_on) {
+  //     getTags(target_on).then(data => {
+  //       const sorted = data.results.sort(compareTagsAsc);
+  //       dispatch(setMoleculeTags(sorted));
+  //     });
+  //   }
+  // }, [dispatch, target_on]);
 
   /*
      Loading datasets

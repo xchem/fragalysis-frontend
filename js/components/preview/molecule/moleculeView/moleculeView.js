@@ -32,7 +32,8 @@ import {
   getQualityInformation,
   getDensityMapData,
   getProteinData,
-  withDisabledMoleculeNglControlButton
+  withDisabledMoleculeNglControlButton,
+  getCategoryById
 } from '../redux/dispatchActions';
 import {
   setSelectedAll,
@@ -48,13 +49,14 @@ import { SvgTooltip } from '../../../common';
 import { MOL_TYPE } from '../redux/constants';
 import { DensityMapsModal } from '../modals/densityMapsModal';
 import { getRandomColor } from '../utils/color';
-import { getAllTagsForMol } from '../../tags/utils/tagUtils';
+import { DEFAULT_TAG_COLOR, getAllTagsForMol } from '../../tags/utils/tagUtils';
 import MoleculeSelectCheckbox from './moleculeSelectCheckbox';
 import useClipboard from 'react-use-clipboard';
 import Popover from '@mui/material/Popover';
 import Typography from '@mui/material/Typography';
 import { Edit } from '@material-ui/icons';
 import { DJANGO_CONTEXT } from '../../../../utils/djangoContext';
+import { getFontColorByBackgroundColor } from '../../../../utils/colors';
 
 const useStyles = makeStyles(theme => ({
   container: {
@@ -347,6 +349,7 @@ const MoleculeView = memo(
     const viewParams = useSelector(state => state.nglReducers.viewParams);
     const tagList = useSelector(state => state.apiReducers.tagList);
     const tagEditorOpen = useSelector(state => state.selectionReducers.tagEditorOpened);
+    const tagCategories = useSelector(state => state.apiReducers.categoryList);
 
     const assignTagEditorOpen = useSelector(state => state.selectionReducers.tagEditorOpened);
 
@@ -424,11 +427,29 @@ const MoleculeView = memo(
       setTagPopoverOpen(null);
     };
 
+    const resolveTagBackgroundColor = tag => {
+      let color = DEFAULT_TAG_COLOR;
+
+      if (tag.colour && tag.colour !== '') {
+        color = tag.colour;
+      } else {
+        const category = dispatch(getCategoryById(tag.category));
+        if (category) {
+          color = `#${category.colour}`;
+        }
+      }
+
+      return color;
+    };
+
+    const resolveTagForegroundColor = tag => {
+      const bgColor = resolveTagBackgroundColor(tag);
+      return getFontColorByBackgroundColor(bgColor);
+    };
+
     const generateTagPopover = () => {
       const allData = getDataForTagsTooltip();
       const sortedData = [...allData].sort((a, b) => a.tag.localeCompare(b.tag));
-
-      const mergedArray = [...sortedData, ...tagList.filter(item => !sortedData.includes(item))];
 
       const modifiedObjects = sortedData.map(obj => {
         const tagNameShortLength = 2;
@@ -462,9 +483,8 @@ const MoleculeView = memo(
                   index < allTagsLength ? (
                     <Grid
                       style={{
-                        backgroundColor:
-                          modifiedObjects[index].colour !== null ? modifiedObjects[index].colour : '#e0e0e0',
-                        color: modifiedObjects[index].colour === null ? 'black' : 'white',
+                        backgroundColor: resolveTagBackgroundColor(modifiedObjects[index]),
+                        color: resolveTagForegroundColor(modifiedObjects[index]),
                         display: 'block',
                         maxWidth: '20px'
                       }}
@@ -524,9 +544,8 @@ const MoleculeView = memo(
                     index < allTagsLength ? (
                       <Grid
                         style={{
-                          backgroundColor:
-                            modifiedObjects[index].colour !== null ? modifiedObjects[index].colour : '#e0e0e0',
-                          color: modifiedObjects[index].colour === null ? 'black' : 'white',
+                          backgroundColor: resolveTagBackgroundColor(modifiedObjects[index]),
+                          color: resolveTagForegroundColor(modifiedObjects[index]),
                           display: 'flex',
                           width: '20px',
                           paddingLeft: '3px'
@@ -597,22 +616,9 @@ const MoleculeView = memo(
                     {sortedData.map((item, index) => (
                       <Grid
                         style={{
-                          backgroundColor:
-                            index < allData.length
-                              ? sortedData[index].colour !== null
-                                ? sortedData[index].colour
-                                : '#e0e0e0'
-                              : 'white',
-                          color:
-                            index < allTagsLength ? (sortedData[index].colour === null ? 'black' : 'white') : 'black',
-                          border:
-                            index < allTagsLength
-                              ? sortedData[index].colour !== null
-                                ? `${sortedData[index].colour} solid 1px`
-                                : 'black solid 1px'
-                              : sortedData[index].colour !== null
-                                ? `${sortedData[index].colour} solid 1px`
-                                : `#e0e0e0 solid 0.05rem`,
+                          backgroundColor: resolveTagBackgroundColor(sortedData[index]),
+                          color: resolveTagForegroundColor(sortedData[index]),
+                          border: `${resolveTagBackgroundColor(sortedData[index])} solid 1px`,
                           display: 'grid',
                           placeItems: 'center'
                         }}
@@ -980,7 +986,14 @@ const MoleculeView = memo(
 
     return (
       <>
-        <Grid container justifyContent="space-between" direction="row" className={classes.container} wrap="nowrap" ref={ref}>
+        <Grid
+          container
+          justifyContent="space-between"
+          direction="row"
+          className={classes.container}
+          wrap="nowrap"
+          ref={ref}
+        >
           {/* Site number */}
           <Grid item container justifyContent="space-between" direction="column" className={classes.site}>
             <Grid item>
@@ -1063,9 +1076,13 @@ const MoleculeView = memo(
                       disabled={groupMoleculeLPCControlButtonDisabled || moleculeLPCControlButtonDisabled}
                     >
                       A
-                      {loadingAll && <CircularProgress className={classNames(classes.buttonLoadingOverlay, {
-                        [classes.buttonSelectedLoadingOverlay]: hasAllValuesOn || hasSomeValuesOn
-                      })} />}
+                      {loadingAll && (
+                        <CircularProgress
+                          className={classNames(classes.buttonLoadingOverlay, {
+                            [classes.buttonSelectedLoadingOverlay]: hasAllValuesOn || hasSomeValuesOn
+                          })}
+                        />
+                      )}
                     </Button>
                   </Grid>
                 </Tooltip>
@@ -1080,9 +1097,13 @@ const MoleculeView = memo(
                       disabled={disableL || disableMoleculeNglControlButtons.ligand}
                     >
                       L
-                      {loadingLigand && <CircularProgress className={classNames(classes.buttonLoadingOverlay, {
-                        [classes.buttonSelectedLoadingOverlay]: isLigandOn
-                      })} />}
+                      {loadingLigand && (
+                        <CircularProgress
+                          className={classNames(classes.buttonLoadingOverlay, {
+                            [classes.buttonSelectedLoadingOverlay]: isLigandOn
+                          })}
+                        />
+                      )}
                     </Button>
                   </Grid>
                 </Tooltip>
@@ -1097,9 +1118,13 @@ const MoleculeView = memo(
                       disabled={disableP || disableMoleculeNglControlButtons.protein}
                     >
                       P
-                      {loadingProtein && <CircularProgress className={classNames(classes.buttonLoadingOverlay, {
-                        [classes.buttonSelectedLoadingOverlay]: isProteinOn
-                      })} />}
+                      {loadingProtein && (
+                        <CircularProgress
+                          className={classNames(classes.buttonLoadingOverlay, {
+                            [classes.buttonSelectedLoadingOverlay]: isProteinOn
+                          })}
+                        />
+                      )}
                     </Button>
                   </Grid>
                 </Tooltip>
@@ -1115,9 +1140,13 @@ const MoleculeView = memo(
                       disabled={disableC || disableMoleculeNglControlButtons.complex}
                     >
                       C
-                      {loadingComplex && <CircularProgress className={classNames(classes.buttonLoadingOverlay, {
-                        [classes.buttonSelectedLoadingOverlay]: isComplexOn
-                      })} />}
+                      {loadingComplex && (
+                        <CircularProgress
+                          className={classNames(classes.buttonLoadingOverlay, {
+                            [classes.buttonSelectedLoadingOverlay]: isComplexOn
+                          })}
+                        />
+                      )}
                     </Button>
                   </Grid>
                 </Tooltip>
@@ -1132,9 +1161,13 @@ const MoleculeView = memo(
                       disabled={disableMoleculeNglControlButtons.surface}
                     >
                       S
-                      {loadingSurface && <CircularProgress className={classNames(classes.buttonLoadingOverlay, {
-                        [classes.buttonSelectedLoadingOverlay]: isSurfaceOn
-                      })} />}
+                      {loadingSurface && (
+                        <CircularProgress
+                          className={classNames(classes.buttonLoadingOverlay, {
+                            [classes.buttonSelectedLoadingOverlay]: isSurfaceOn
+                          })}
+                        />
+                      )}
                     </Button>
                   </Grid>
                 </Tooltip>
@@ -1155,9 +1188,13 @@ const MoleculeView = memo(
                       disabled={!hasMap || disableMoleculeNglControlButtons.density}
                     >
                       D
-                      {loadingDensity && <CircularProgress className={classNames(classes.buttonLoadingOverlay, {
-                        [classes.buttonSelectedLoadingOverlay]: isDensityOn || isDensityCustomOn
-                      })} />}
+                      {loadingDensity && (
+                        <CircularProgress
+                          className={classNames(classes.buttonLoadingOverlay, {
+                            [classes.buttonSelectedLoadingOverlay]: isDensityOn || isDensityCustomOn
+                          })}
+                        />
+                      )}
                     </Button>
                   </Grid>
                 </Tooltip>
@@ -1172,9 +1209,13 @@ const MoleculeView = memo(
                       disabled={disableMoleculeNglControlButtons.vector}
                     >
                       V
-                      {loadingVector && <CircularProgress className={classNames(classes.buttonLoadingOverlay, {
-                        [classes.buttonSelectedLoadingOverlay]: isVectorOn
-                      })} />}
+                      {loadingVector && (
+                        <CircularProgress
+                          className={classNames(classes.buttonLoadingOverlay, {
+                            [classes.buttonSelectedLoadingOverlay]: isVectorOn
+                          })}
+                        />
+                      )}
                     </Button>
                   </Grid>
                 </Tooltip>

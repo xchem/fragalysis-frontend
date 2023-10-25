@@ -712,9 +712,20 @@ export const getFirstMolecule = () => (dispatch, getState) => {
 export const getSiteCategoryId = () => (dispatch, getState) => {
   const state = getState();
   const categoriesList = state.apiReducers.categoryList;
-  const foundCategories = categoriesList.filter(c => c.category === CATEGORY_TYPE.SITE);
+  const foundCategories = categoriesList.filter(c => c.category.toLowerCase('site'));
   if (foundCategories && foundCategories.length > 0) {
     return foundCategories[0].id;
+  } else {
+    return null;
+  }
+};
+
+export const getCategoryById = categoryId => (dispatch, getState) => {
+  const state = getState();
+  const categoriesList = state.apiReducers.categoryList;
+  const foundCategories = categoriesList.filter(c => c.id === categoryId);
+  if (foundCategories && foundCategories.length > 0) {
+    return foundCategories[0];
   } else {
     return null;
   }
