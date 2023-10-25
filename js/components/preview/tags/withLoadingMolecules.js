@@ -13,20 +13,20 @@ export const withLoadingMolecules = WrappedComponent => {
     const isTrackingRestoring = useSelector(state => state.trackingReducers.isTrackingCompoundsRestoring);
     const isAllDataLoaded = useSelector(state => state.apiReducers.all_data_loaded);
 
-    useEffect(() => {
-      if (target_on && !isTrackingRestoring && !isAllDataLoaded) {
-        dispatch(loadMoleculesAndTagsNew(target_on));
-      }
-    }, [dispatch, target_on, isTrackingRestoring, isAllDataLoaded]);
+    // useEffect(() => {
+    //   if (target_on && !isTrackingRestoring && !isAllDataLoaded) {
+    //     dispatch(loadMoleculesAndTagsNew(target_on));
+    //   }
+    // }, [dispatch, target_on, isTrackingRestoring, isAllDataLoaded]);
 
-    useEffect(() => {
-      if (target_on) {
-        getTags(target_on).then(data => {
-          const sorted = data.results.sort(compareTagsAsc);
-          dispatch(setMoleculeTags(sorted));
-        });
-      }
-    }, [dispatch, target_on]);
+    // useEffect(() => {
+    //   if (target_on) {
+    //     getTags(target_on).then(data => {
+    //       const sorted = data.results.sort(compareTagsAsc);
+    //       dispatch(setMoleculeTags(sorted));
+    //     });
+    //   }
+    // }, [dispatch, target_on]);
 
     return <WrappedComponent {...rest} />;
   });
