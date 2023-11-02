@@ -7,16 +7,16 @@ export const ServicesStatusWrapper = memo(() => {
     const [services, setServices] = useState([]);
 
     /**
-     * Fetch status of services every 5 seconds
+     * Fetch status of services every 30 seconds
      */
     const fetchServiceStatus = () => {
         setTimeout(() => new Promise(async () => {
             const temp = await getServiceStatus();
             setServices(temp);
-        }), 5000);
+        }), 30000);
     }
 
-    // fetchServiceStatus();
+    fetchServiceStatus();
 
     if (services.length > 0) {
         return <Grid item>
