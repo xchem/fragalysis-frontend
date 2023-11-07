@@ -265,7 +265,6 @@ export const TargetList = memo(() => {
 
   const isActiveFilter = !!(filter || {}).active;
   let listOfAllTarget = [...listOfAllTargetsDefault].sort(compareTargetAsc);
-
   const initialize = useCallback(() => {
     let initObject = {
       active: false,
@@ -1065,7 +1064,6 @@ export const TargetList = memo(() => {
     }
   }, [isResizingInitDate]);
   // END RESIZER FOR INIT DATE COLUMN
-
   // START RESIZER FOR SGC COLUMN
   const handleMouseDownResizerSGC = () => {
     setIsResizingSGC(true);
@@ -1205,7 +1203,6 @@ export const TargetList = memo(() => {
                   onMouseDown={handleMouseDown}
                 ></div>
               </div>
-
               <TableCell style={{ width: panelWidthForTargetAccessString, padding: '0px' }}>
                 <Typography variant="title">
                   <input
