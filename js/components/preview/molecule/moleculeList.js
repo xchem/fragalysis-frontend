@@ -234,7 +234,7 @@ const useStyles = makeStyles(theme => ({
     fill: 'inherit'
   },
   search: {
-    width: 116
+    width: 150
   },
   total: {
     ...theme.typography.button,
@@ -907,6 +907,7 @@ export const MoleculeList = memo(({ hideProjects }) => {
       disabled={false || (getJoinedMoleculeList && getJoinedMoleculeList.length === 0)}
       // searchString={filterSearchString?.searchStringHitNavigator ?? ''}
       searchString={searchString ?? ''}
+      placeholder={'Search displayed hits'}
     />,
 
     <IconButton
