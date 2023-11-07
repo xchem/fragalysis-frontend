@@ -53,9 +53,9 @@ services:
   web:
     container_name: web_dock
     # image: xchem/fragalysis-stack:latest
-    #image: alanbchristie/fragalysis-backend:1055.1
+    image: alanbchristie/fragalysis-backend:1187.1
     # image: boriskovarm2ms/fragalysis-stack:experiment2
-    image: kaliif/fragalysis-backend:latest
+    # image: kaliif/fragalysis-backend:latest
     # image: boriskovarm2ms/fragalysis-stack:experiment2
     command: /bin/bash /code/launch-stack.sh
     volumes:
