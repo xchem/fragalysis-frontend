@@ -197,13 +197,6 @@ const JobConfigurationDialog = ({ snapshots }) => {
 
   const target_on_name = useSelector(state => state.apiReducers.target_on_name);
 
-  const getMoleculeEnumName = title => {
-    let newTitle = title.replace(new RegExp(`${target_on_name}-`, 'i'), '');
-    newTitle = newTitle.replace(new RegExp(':.*$', 'i'), '');
-
-    return newTitle;
-  };
-
   const getMoleculeTitle = title => {
     return title.replace(new RegExp(':.*$', 'i'), '');
   };
@@ -396,6 +389,10 @@ const JobConfigurationDialog = ({ snapshots }) => {
         }
       }
 
+      //reconstruct lhs molecules
+      const chosenLHSCompoundsFull = chosenLHSCompounds.map(molecule => {
+        return getAllMolecules.find(mol => mol.code === molecule);
+      });
       // Remove the unnecessary part from protein_code
       chosenLHSCompounds = chosenLHSCompounds.map(molecule => getMoleculeTitle(molecule));
 
@@ -434,7 +431,8 @@ const JobConfigurationDialog = ({ snapshots }) => {
             inputs_dir: `${transfer_root}/${transfer_target}`,
             // Prepares data for expanding, see comments in JobFragmentProteinSelectWindow
             data: {
-              lhs: chosenLHSCompounds.map(compound => getMoleculeEnumName(compound))
+              // lhs: chosenLHSCompounds.map(compound => getMoleculeEnumName(compound))
+              lhs: chosenLHSCompoundsFull
             }
           })
         );
