@@ -9,5 +9,8 @@ export const getServiceStatus = async () => {
     .then(resp => {
       return resp.data.service_states;
     })
-    .catch(err => console.log('error fetching service_state', err));
+    .catch(err => {
+      console.log('error fetching service_state', err);
+      return [];
+    });
 };
