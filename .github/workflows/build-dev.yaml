@@ -1,31 +1,14 @@
 ---
 name: build dev
 
-# Actions that take place after every commit to a developer branch
-# (any branch that is not 'staging' or 'production'). What takes
-# place here is controlled by a number of repository secrets/variables.
+# Actions that take place after every commit that's not on either the
+# staging ore production branches.
 
 # ---------------
 # Control secrets
 # ---------------
 #
-# At the GitHub 'organisation' or 'project' level you are expected to
-# have the following GitHub 'Repository Secrets' defined
-# (i.e. via 'Settings -> Secrets'): -
-#
-# BE_IMAGE_TAG            optional - default stable
-# BE_NAMESPACE            optional - default xchem
-# FE_BRANCH               optional - default staging
-# FE_NAMESPACE            optional - default xchem
-# STACK_BRANCH            optional - default master
-# STACK_GITHUB_NAMESPACE  optional - default xchem
-# STACK_NAMESPACE         optional - default xchem
-#
-# TRIGGER_DOWNSTREAM      optional - set to 'yes'
-#                                    to trigger downstream projects
-#
-# STACK_USER              optional - set if triggering
-# STACK_USER_TOKEN        optional - set if triggering
+# (none)
 #
 # -----------
 # Environment (GitHub Environments)
@@ -49,97 +32,25 @@ env:
   #
   #   For Jobs conditional on the presence of a secret see this Gist...
   #   https://gist.github.com/jonico/24ffebee6d2fa2e679389fac8aef50a3
-  BE_IMAGE_TAG: latest
-  BE_NAMESPACE: xchem
-  FE_BRANCH: staging
   FE_NAMESPACE: xchem
-  STACK_BRANCH: master
-  STACK_GITHUB_NAMESPACE: xchem
-  STACK_NAMESPACE: xchem
 
 jobs:
   build:
     runs-on: ubuntu-latest
     steps:
     - name: Inject slug/short variables
-      uses: rlespinasse/github-slug-action@v4
+      uses: rlespinasse/github-slug-action@v3.x
     - name: Initialise workflow variables
       id: vars
-      env:
-        TRIGGER_DOWNSTREAM: ${{ secrets.TRIGGER_DOWNSTREAM }}
       run: |
-        # BE_IMAGE_TAG
-        BE_IMAGE_TAG="${{ env.BE_IMAGE_TAG }}"
-        if [ -n "${{ secrets.BE_IMAGE_TAG }}" ]; then BE_IMAGE_TAG="${{ secrets.BE_IMAGE_TAG }}"; fi
-        echo set-output name=BE_IMAGE_TAG::${BE_IMAGE_TAG}
-        echo ::set-output name=BE_IMAGE_TAG::${BE_IMAGE_TAG}
-
-        # BE_NAMESPACE
-        BE_NAMESPACE="${{ env.BE_NAMESPACE }}"
-        if [ -n "${{ secrets.BE_NAMESPACE }}" ]; then BE_NAMESPACE="${{ secrets.BE_NAMESPACE }}"; fi
-        echo set-output name=BE_NAMESPACE::${BE_NAMESPACE}
-        echo ::set-output name=BE_NAMESPACE::${BE_NAMESPACE}
-
-        # FE_BRANCH
-        FE_BRANCH="${{ env.FE_BRANCH }}"
-        if [ -n "${{ secrets.FE_BRANCH }}" ]; then FE_BRANCH="${{ secrets.FE_BRANCH }}"; fi
-        echo set-output name=FE_BRANCH::${FE_BRANCH}
-        echo ::set-output name=FE_BRANCH::${FE_BRANCH}
-
         # FE_NAMESPACE
         FE_NAMESPACE="${{ env.FE_NAMESPACE }}"
         if [ -n "${{ secrets.FE_NAMESPACE }}" ]; then FE_NAMESPACE="${{ secrets.FE_NAMESPACE }}"; fi
-        echo set-output name=FE_NAMESPACE::${FE_NAMESPACE}
-        echo ::set-output name=FE_NAMESPACE::${FE_NAMESPACE}
-
-        # STACK_BRANCH
-        STACK_BRANCH="${{ env.STACK_BRANCH }}"
-        if [ -n "${{ secrets.STACK_BRANCH }}" ]; then STACK_BRANCH="${{ secrets.STACK_BRANCH }}"; fi
-        echo set-output name=STACK_BRANCH::${STACK_BRANCH}
-        echo ::set-output name=STACK_BRANCH::${STACK_BRANCH}
-
-        # STACK_GITHUB_NAMESPACE
-        STACK_GITHUB_NAMESPACE="${{ env.STACK_GITHUB_NAMESPACE }}"
-        if [ -n "${{ secrets.STACK_GITHUB_NAMESPACE }}" ]; then STACK_GITHUB_NAMESPACE="${{ secrets.STACK_GITHUB_NAMESPACE }}"; fi
-        echo set-output name=STACK_GITHUB_NAMESPACE::${STACK_GITHUB_NAMESPACE}
-        echo ::set-output name=STACK_GITHUB_NAMESPACE::${STACK_GITHUB_NAMESPACE}
-
-        # STACK_NAMESPACE
-        STACK_NAMESPACE="${{ env.STACK_NAMESPACE }}"
-        if [ -n "${{ secrets.STACK_NAMESPACE }}" ]; then STACK_NAMESPACE="${{ secrets.STACK_NAMESPACE }}"; fi
-        echo set-output name=STACK_NAMESPACE::${STACK_NAMESPACE}
-        echo ::set-output name=STACK_NAMESPACE::${STACK_NAMESPACE}
-
-        # Do we trigger downstream, i.e. is TRIGGER_DOWNSTREAM 'yes'?
-        echo set-output name=trigger::${{ env.TRIGGER_DOWNSTREAM == 'yes' }}
-        echo ::set-output name=trigger::${{ env.TRIGGER_DOWNSTREAM == 'yes' }}
-
+        echo FE_NAMESPACE=${FE_NAMESPACE}
+        echo "FE_NAMESPACE=${FE_NAMESPACE}" >> $GITHUB_OUTPUT
     - name: Checkout
       uses: actions/checkout@v3
-    - name: Setup node 12
-      uses: actions/setup-node@v3
-      with:
-        node-version: '12.22.11'
-    - name: Install
-      run: yarn
     - name: Build
-      run: yarn run build
-
-    # Trigger the stack for this build,
-    # identifying the 'stable' backend (or whatever BE_IMAGE_TAG has been set)
-    - name: Trigger stack
-      if: steps.vars.outputs.trigger == 'true'
-      uses: informaticsmatters/trigger-ci-action@v1
+      uses: docker/build-push-action@v4
       with:
-        ci-owner: ${{ steps.vars.outputs.STACK_GITHUB_NAMESPACE }}
-        ci-repository: fragalysis-stack
-        ci-name: build main
-        ci-ref: refs/heads/${{ steps.vars.outputs.STACK_BRANCH }}
-        ci-inputs: >-
-          be_namespace=${{ steps.vars.outputs.BE_NAMESPACE }}
-          be_image_tag=${{ steps.vars.outputs.BE_IMAGE_TAG }}
-          fe_namespace=${{ steps.vars.outputs.FE_NAMESPACE }}
-          fe_branch=${{ steps.vars.outputs.FE_BRANCH }}
-          stack_namespace=${{ steps.vars.outputs.STACK_NAMESPACE }}
-        ci-user: ${{ secrets.STACK_USER }}
-        ci-user-token: ${{ secrets.STACK_USER_TOKEN }}
+        tags: ${{ steps.vars.outputs.FE_NAMESPACE }}/fragalysis-frontend:${{ env.GITHUB_REF_SLUG }}

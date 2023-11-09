@@ -1,13 +1,32 @@
 ---
 name: build production
 
-# Actions that take place after every commit on the production branch.
+# Actions that take place after every commit and tag on the production branch.
 
 # ---------------
 # Control secrets
 # ---------------
 #
-# None
+# At the GitHub 'organisation' or 'project' level you are expected to
+# have the following GitHub 'Repository Secrets' defined
+# (i.e. via 'Settings -> Secrets'): -
+#
+# BE_IMAGE_TAG            optional - default stable
+# BE_NAMESPACE            optional - default xchem
+# FE_BRANCH               optional - default production
+# FE_NAMESPACE            optional - default xchem
+# STACK_BRANCH            optional - default master
+# STACK_GITHUB_NAMESPACE  optional - default xchem
+# STACK_NAMESPACE         optional - default xchem
+#
+# DOCKERHUB_USERNAME      optional
+# DOCKERHUB_TOKEN         optional - required if DOCKERHUB_USERNAME
+#
+# TRIGGER_DOWNSTREAM      optional - set to 'yes'
+#                                    to trigger downstream projects
+#
+# STACK_USER              optional - set if triggering
+# STACK_USER_TOKEN        optional - set if triggering
 #
 # -----------
 # Environment (GitHub Environments)
@@ -19,18 +38,123 @@ on:
   push:
     branches:
     - 'production'
+    tags:
+    # Only handle production-grade tags (i.e. "2022.1" or "1.0.0")
+    - '[0-9]+.[0-9]+'
+    - '[0-9]+.[0-9]+.[0-9]+'
+
+env:
+  # The following 'defaults' are used in the 'Initialise workflow variables' step,
+  # which creates 'outputs' for use in steps and jobs that follow it.
+  # The values set here are used unless a matching secret is found.
+  # Secrets are the way users dynamically control the behaviour of this Action.
+  #
+  #   For Jobs conditional on the presence of a secret see this Gist...
+  #   https://gist.github.com/jonico/24ffebee6d2fa2e679389fac8aef50a3
+  BE_IMAGE_TAG: stable
+  BE_NAMESPACE: xchem
+  FE_IMAGE_TAG: stable
+  FE_NAMESPACE: xchem
+  STACK_BRANCH: master
+  STACK_GITHUB_NAMESPACE: xchem
+  STACK_NAMESPACE: xchem
 
 jobs:
   build:
     runs-on: ubuntu-latest
+    outputs:
+      push: ${{ steps.vars.outputs.push }}
     steps:
+    - name: Inject slug/short variables
+      uses: rlespinasse/github-slug-action@v3.x
+    - name: Initialise workflow variables
+      id: vars
+      env:
+        DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
+        TRIGGER_DOWNSTREAM: ${{ secrets.TRIGGER_DOWNSTREAM }}
+      run: |
+        # BE_IMAGE_TAG
+        BE_IMAGE_TAG="${{ env.BE_IMAGE_TAG }}"
+        if [ -n "${{ secrets.BE_IMAGE_TAG }}" ]; then BE_IMAGE_TAG="${{ secrets.BE_IMAGE_TAG }}"; fi
+        echo BE_IMAGE_TAG=${BE_IMAGE_TAG}
+        echo "BE_IMAGE_TAG=${BE_IMAGE_TAG}" >> $GITHUB_OUTPUT
+
+        # BE_NAMESPACE
+        BE_NAMESPACE="${{ env.BE_NAMESPACE }}"
+        if [ -n "${{ secrets.BE_NAMESPACE }}" ]; then BE_NAMESPACE="${{ secrets.BE_NAMESPACE }}"; fi
+        echo BE_NAMESPACE=${BE_NAMESPACE}
+        echo "BE_NAMESPACE=${BE_NAMESPACE}" >> $GITHUB_OUTPUT
+
+        # FE_IMAGE_TAG
+        FE_IMAGE_TAG="${{ env.FE_IMAGE_TAG }}"
+        if [ -n "${{ secrets.FE_IMAGE_TAG }}" ]; then FE_IMAGE_TAG="${{ secrets.FE_IMAGE_TAG }}"; fi
+        echo FE_IMAGE_TAG={FE_IMAGE_TAG}
+        echo "FE_IMAGE_TAG=${FE_IMAGE_TAG}" >> $GITHUB_OUTPUT
+
+        # FE_NAMESPACE
+        FE_NAMESPACE="${{ env.FE_NAMESPACE }}"
+        if [ -n "${{ secrets.FE_NAMESPACE }}" ]; then FE_NAMESPACE="${{ secrets.FE_NAMESPACE }}"; fi
+        echo FE_NAMESPACE=${FE_NAMESPACE}
+        echo "FE_NAMESPACE=${FE_NAMESPACE}" >> $GITHUB_OUTPUT
+
+        # STACK_BRANCH
+        STACK_BRANCH="${{ env.STACK_BRANCH }}"
+        if [ -n "${{ secrets.STACK_BRANCH }}" ]; then STACK_BRANCH="${{ secrets.STACK_BRANCH }}"; fi
+        echo STACK_BRANCH=${STACK_BRANCH}
+        echo "STACK_BRANCH=${STACK_BRANCH}" >> $GITHUB_OUTPUT
+
+        # STACK_GITHUB_NAMESPACE
+        STACK_GITHUB_NAMESPACE="${{ env.STACK_GITHUB_NAMESPACE }}"
+        if [ -n "${{ secrets.STACK_GITHUB_NAMESPACE }}" ]; then STACK_GITHUB_NAMESPACE="${{ secrets.STACK_GITHUB_NAMESPACE }}"; fi
+        echo STACK_GITHUB_NAMESPACE=${STACK_GITHUB_NAMESPACE}
+        echo "STACK_GITHUB_NAMESPACE=${STACK_GITHUB_NAMESPACE}" >> $GITHUB_OUTPUT
+
+        # STACK_NAMESPACE
+        STACK_NAMESPACE="${{ env.STACK_NAMESPACE }}"
+        if [ -n "${{ secrets.STACK_NAMESPACE }}" ]; then STACK_NAMESPACE="${{ secrets.STACK_NAMESPACE }}"; fi
+        echo STACK_NAMESPACE=${STACK_NAMESPACE}
+        echo "STACK_NAMESPACE=${STACK_NAMESPACE}" >> $GITHUB_OUTPUT
+
+        # Do we push, i.e. is DOCKERHUB_USERNAME defined?
+        echo push=${{ env.DOCKERHUB_USERNAME != '' }}
+        echo "push=${{ env.DOCKERHUB_USERNAME != '' }}" >> $GITHUB_OUTPUT
+
+        # Do we trigger downstream, i.e. is TRIGGER_DOWNSTREAM 'yes'?
+        echo trigger=${{ env.TRIGGER_DOWNSTREAM == 'yes' }}
+        echo "trigger=${{ env.TRIGGER_DOWNSTREAM == 'yes' }}" >> $GITHUB_OUTPUT
+
     - name: Checkout
       uses: actions/checkout@v3
-    - name: Setup node
-      uses: actions/setup-node@v3
-      with:
-        node-version: '12.22.11'
-    - name: Install
-      run: yarn
     - name: Build
-      run: yarn run build
+      uses: docker/build-push-action@v4
+      with:
+        tags: ${{ steps.vars.outputs.FE_NAMESPACE }}/fragalysis-frontend:${{ steps.vars.outputs.FE_IMAGE_TAG }}
+    - name: Login to Docker Hub
+      if: steps.vars.outputs.push == 'true'
+      uses: docker/login-action@v3
+      with:
+        username: ${{ secrets.DOCKERHUB_USERNAME }}
+        password: ${{ secrets.DOCKERHUB_TOKEN }}
+    - name: Push
+      if: steps.vars.outputs.push == 'true'
+      run: |
+        docker push ${{ steps.vars.outputs.FE_NAMESPACE }}/fragalysis-frontend:${{ steps.vars.outputs.FE_IMAGE_TAG }}
+
+    # Trigger the stack for this build,
+    # identifying the 'stable' backend (or whatever BE_IMAGE_TAG was used)
+    - name: Trigger stack
+      if: steps.vars.outputs.trigger == 'true'
+      uses: informaticsmatters/trigger-ci-action@v1
+      with:
+        ci-owner: ${{ steps.vars.outputs.STACK_GITHUB_NAMESPACE }}
+        ci-repository: fragalysis-stack
+        ci-name: build main
+        ci-ref: refs/heads/${{ steps.vars.outputs.STACK_BRANCH }}
+        ci-inputs: >-
+          be_namespace=${{ steps.vars.outputs.BE_NAMESPACE }}
+          be_image_tag=${{ steps.vars.outputs.BE_IMAGE_TAG }}
+          fe_namespace=${{ steps.vars.outputs.FE_NAMESPACE }}
+          fe_image_tag=${{ steps.vars.outputs.FE_IMAGE_TAG }}
+          stack_namespace=${{ steps.vars.outputs.STACK_NAMESPACE }}
+        ci-user: ${{ secrets.STACK_USER }}
+        ci-user-token: ${{ secrets.STACK_USER_TOKEN }}
