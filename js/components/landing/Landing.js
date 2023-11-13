@@ -93,34 +93,6 @@ const Landing = memo(
       }
     }, [isResizing]);
 
-    const handleMouseDownResizer = () => {
-      setIsResizing(true);
-    };
-
-    const handleMouseMove = e => {
-      if (!isResizing) return;
-      const targetListWidth = e.clientX;
-      const projectListWidth = window.innerWidth - targetListWidth;
-      setTargetListWidth(targetListWidth);
-      setProjectListWidth(projectListWidth);
-    };
-
-    const handleMouseUp = () => {
-      setIsResizing(false);
-      window.removeEventListener('mousemove', handleMouseMove);
-      window.removeEventListener('mouseup', handleMouseUp);
-    };
-
-    useEffect(() => {
-      if (isResizing) {
-        window.addEventListener('mousemove', handleMouseMove);
-        window.addEventListener('mouseup', handleMouseUp);
-      } else {
-        window.removeEventListener('mousemove', handleMouseMove);
-        window.removeEventListener('mouseup', handleMouseUp);
-      }
-    }, [isResizing]);
-
     return (
       <Grid container className={classes.root}>
         <Grid item style={{ width: targetListWidth }}>
