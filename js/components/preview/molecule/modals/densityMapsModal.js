@@ -67,7 +67,7 @@ export const DensityMapsModal = memo(({ openDialog, setOpenDialog, data, setDens
       <>
         <Typography variant="h4">Density rendering maps selection</Typography>
         <Typography variant="subtitle1" gutterBottom className={classes.margin}>
-          {data.protein_code}
+          {data.code}
         </Typography>
         <Grid container direction="column" className={classes.body}>
           <Grid item>
@@ -145,7 +145,7 @@ export const DensityMapsModal = memo(({ openDialog, setOpenDialog, data, setDens
             />
           </Grid>
         </Grid>
-        <Grid container justify="flex-end" direction="row">
+        <Grid container justifyContent="flex-end" direction="row">
           <Grid item>
             <Button color="secondary" onClick={handleCloseModal}>
               Cancel

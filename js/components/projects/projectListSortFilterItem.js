@@ -538,7 +538,7 @@ const ProjectListSortFilterItem = memo(props => {
   return (
     <Grid container item className={classes.gridItemHeader}>
       <Grid item container className={classes.centered} style={{ width: widthPrio }}>
-        <Grid item container justify="center">
+        <Grid item container justifyContent="center">
           <Grid item>
             <Button
               variant="outlined"
@@ -580,116 +580,116 @@ const ProjectListSortFilterItem = memo(props => {
       </Grid>
       {resetFilter === false
         ? filter && (
-            <>
-              <Grid item className={classNames(classes.centered, classes.slider)} style={{ width: filterDataWidth }}>
-                {dateFilter === true ? (
-                  <Grid item container className={classes.gridItemHeader}>
-                    <Grid item style={{ width: gridDateFromWidth }} className={classNames(classes.dateFont)}>
-                      Created from
-                    </Grid>
-                    <Grid item style={{ width: gridDateFromInputWidth }}>
-                      <DatePicker
-                        className={classes.dateInputWidth}
-                        selected={startDate}
-                        onChange={event => onChangeFilterStartDate(event)}
-                        placeholderText="MM/DD/YYYY"
-                        value={searchDateFrom}
-                      />
-                    </Grid>
+          <>
+            <Grid item className={classNames(classes.centered, classes.slider)} style={{ width: filterDataWidth }}>
+              {dateFilter === true ? (
+                <Grid item container className={classes.gridItemHeader}>
+                  <Grid item style={{ width: gridDateFromWidth }} className={classNames(classes.dateFont)}>
+                    Created from
+                  </Grid>
+                  <Grid item style={{ width: gridDateFromInputWidth }}>
+                    <DatePicker
+                      className={classes.dateInputWidth}
+                      selected={startDate}
+                      onChange={event => onChangeFilterStartDate(event)}
+                      placeholderText="MM/DD/YYYY"
+                      value={searchDateFrom}
+                    />
+                  </Grid>
 
-                    <Grid item style={{ width: gridDateFromWidth }} className={classNames(classes.dateFont)}>
-                      Created to
-                    </Grid>
-                    <Grid item style={{ width: gridDateFromInputWidth }}>
-                      <DatePicker
-                        style={{ borderRadius: '10', fontSize: '10px' }}
-                        className={classes.dateInputWidth}
-                        selected={endDate}
-                        onChange={event => onChangeFilterEndDate(event)}
-                        placeholderText="MM/DD/YYYY"
-                        value={searchDateTo}
-                      />
-                    </Grid>
+                  <Grid item style={{ width: gridDateFromWidth }} className={classNames(classes.dateFont)}>
+                    Created to
                   </Grid>
-                ) : (
-                  <TextField
-                    id="textFieldInput"
-                    placeholder="Search"
-                    onChange={event => onChangeFilterString(event)}
-                    key={property}
-                    value={
-                      property === 'Name'
-                        ? searchName
-                        : property === 'Target'
+                  <Grid item style={{ width: gridDateFromInputWidth }}>
+                    <DatePicker
+                      style={{ borderRadius: '10', fontSize: '10px' }}
+                      className={classes.dateInputWidth}
+                      selected={endDate}
+                      onChange={event => onChangeFilterEndDate(event)}
+                      placeholderText="MM/DD/YYYY"
+                      value={searchDateTo}
+                    />
+                  </Grid>
+                </Grid>
+              ) : (
+                <TextField
+                  id="textFieldInput"
+                  placeholder="Search"
+                  onChange={event => onChangeFilterString(event)}
+                  key={property}
+                  value={
+                    property === 'Name'
+                      ? searchName
+                      : property === 'Target'
                         ? searchTarget
                         : property === 'Description'
-                        ? searchDescription
-                        : property === 'Target access string'
-                        ? searchTargetAccessStringValue
-                        : property === 'Authority'
-                        ? searchAuthority
-                        : ''
-                    }
-                  ></TextField>
-                )}
-              </Grid>
-            </>
-          )
+                          ? searchDescription
+                          : property === 'Target access string'
+                            ? searchTargetAccessStringValue
+                            : property === 'Authority'
+                              ? searchAuthority
+                              : ''
+                  }
+                ></TextField>
+              )}
+            </Grid>
+          </>
+        )
         : filter && (
-            <>
-              <Grid item className={classNames(classes.centered, classes.slider)} style={{ width: filterDataWidth }}>
-                {dateFilter === true ? (
-                  <Grid item container className={classes.gridItemHeader}>
-                    <Grid item style={{ width: gridDateFromWidth }} className={classNames(classes.dateFont)}>
-                      Created from
-                    </Grid>
-                    <Grid item style={{ width: gridDateFromInputWidth }}>
-                      <DatePicker
-                        className={classes.dateInputWidth}
-                        selected={startDate}
-                        onChange={event => onChangeFilterStartDate(event)}
-                        placeholderText="MM/DD/YYYY"
-                        value={searchDateFrom}
-                      />
-                    </Grid>
-                    <Grid item style={{ width: gridDateFromWidth }} className={classNames(classes.dateFont)}>
-                      Created to
-                    </Grid>
-                    <Grid item style={{ width: gridDateFromInputWidth }}>
-                      <DatePicker
-                        style={{ borderRadius: '10', fontSize: '10px' }}
-                        className={classes.dateInputWidth}
-                        selected={endDate}
-                        onChange={event => onChangeFilterEndDate(event)}
-                        placeholderText="MM/DD/YYYY"
-                        value={searchDateTo}
-                      />
-                    </Grid>
+          <>
+            <Grid item className={classNames(classes.centered, classes.slider)} style={{ width: filterDataWidth }}>
+              {dateFilter === true ? (
+                <Grid item container className={classes.gridItemHeader}>
+                  <Grid item style={{ width: gridDateFromWidth }} className={classNames(classes.dateFont)}>
+                    Created from
                   </Grid>
-                ) : (
-                  <TextField
-                    id="textFieldInput"
-                    placeholder="Search"
-                    onChange={event => onChangeFilterString(event, property)}
-                    key={property}
-                    value={
-                      property === 'Name'
-                        ? searchName
-                        : property === 'Target'
+                  <Grid item style={{ width: gridDateFromInputWidth }}>
+                    <DatePicker
+                      className={classes.dateInputWidth}
+                      selected={startDate}
+                      onChange={event => onChangeFilterStartDate(event)}
+                      placeholderText="MM/DD/YYYY"
+                      value={searchDateFrom}
+                    />
+                  </Grid>
+                  <Grid item style={{ width: gridDateFromWidth }} className={classNames(classes.dateFont)}>
+                    Created to
+                  </Grid>
+                  <Grid item style={{ width: gridDateFromInputWidth }}>
+                    <DatePicker
+                      style={{ borderRadius: '10', fontSize: '10px' }}
+                      className={classes.dateInputWidth}
+                      selected={endDate}
+                      onChange={event => onChangeFilterEndDate(event)}
+                      placeholderText="MM/DD/YYYY"
+                      value={searchDateTo}
+                    />
+                  </Grid>
+                </Grid>
+              ) : (
+                <TextField
+                  id="textFieldInput"
+                  placeholder="Search"
+                  onChange={event => onChangeFilterString(event, property)}
+                  key={property}
+                  value={
+                    property === 'Name'
+                      ? searchName
+                      : property === 'Target'
                         ? searchTarget
                         : property === 'Description'
-                        ? searchDescription
-                        : property === 'Target access string'
-                        ? searchTargetAccessStringValue
-                        : property === 'Authority'
-                        ? searchAuthority
-                        : ''
-                    }
-                  ></TextField>
-                )}
-              </Grid>
-            </>
-          )}
+                          ? searchDescription
+                          : property === 'Target access string'
+                            ? searchTargetAccessStringValue
+                            : property === 'Authority'
+                              ? searchAuthority
+                              : ''
+                  }
+                ></TextField>
+              )}
+            </Grid>
+          </>
+        )}
     </Grid>
   );
 });

@@ -55,7 +55,7 @@ const useStyles = makeStyles(theme => ({
 }));
 let currantTargetId = 1;
 
-export const ProjectModal = memo(({}) => {
+export const ProjectModal = memo(({ }) => {
   const classes = useStyles();
   const [state, setState] = useState();
   const [selectedTarget, setSelectedTarget] = useState(false);
@@ -124,10 +124,10 @@ export const ProjectModal = memo(({}) => {
 
   let selectedValue = '';
   if (currantTarget !== undefined) {
-  selectedValue = currantTarget;
+    selectedValue = currantTarget;
   }
   targetList.map(target => {
-    if (selectedValue === target.title && selectedTarget === false ) {
+    if (selectedValue === target.title && selectedTarget === false) {
       currantTargetId = target.id
     }
   })
@@ -135,12 +135,12 @@ export const ProjectModal = memo(({}) => {
   const handleChangeTarget = (event) => {
     setSelectedTarget(true);
     selectedValue = event.target.value;
-      targetList.map(target => {
-        if (selectedValue === target.title ) {
-          currantTargetId = target.id
-        }
-      })
-}
+    targetList.map(target => {
+      if (selectedValue === target.title) {
+        currantTargetId = target.id
+      }
+    })
+  }
 
 
   return (
@@ -307,13 +307,13 @@ export const ProjectModal = memo(({}) => {
                         <InputLabel htmlFor="selected-target" required disabled={isProjectModalLoading}>
                           Target
                         </InputLabel>
-                          <NativeSelect defaultValue={currantTarget} onChange={() => handleChangeTarget(event)}>
-                              {targetList.map(data => (
-                                  <option key={data.id} defaultValue={currantTarget}>
-                                    {data.title}
-                                  </option>
-                              ))}
-                          </NativeSelect>
+                        <NativeSelect defaultValue={currantTarget} onChange={() => handleChangeTarget(event)}>
+                          {targetList.map(data => (
+                            <option key={data.id} defaultValue={currantTarget}>
+                              {data.title}
+                            </option>
+                          ))}
+                        </NativeSelect>
                         <FormHelperText disabled={isProjectModalLoading}>{errors.targetId}</FormHelperText>
                       </FormControl>
                     }
@@ -421,7 +421,7 @@ export const ProjectModal = memo(({}) => {
                 </Grid>
               )}
             </Grid>
-            <Grid container justify="flex-end" direction="row">
+            <Grid container justifyContent="flex-end" direction="row">
               <Grid item>
                 <Button color="secondary" disabled={isProjectModalLoading || isSubmitting} onClick={handleCloseModal}>
                   Cancel

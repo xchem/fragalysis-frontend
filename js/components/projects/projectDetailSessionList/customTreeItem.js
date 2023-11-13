@@ -9,7 +9,7 @@ export const CustomTreeItem = memo(({ children, nodeId, title, description }) =>
     <TreeItem
       nodeId={nodeId}
       label={
-        <Grid container direction="row" justify="space-between">
+        <Grid container direction="row" justifyContent="space-between">
           <Grid item>
             <Typography variant="h6">{title}</Typography>
             <Typography variant="body2">

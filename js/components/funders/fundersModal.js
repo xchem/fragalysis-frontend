@@ -98,7 +98,7 @@ export const FundersModal = memo(({ openModal, onModalClose }) => {
   return (
     <Modal otherClasses={classes.customModal} open={openModal} onClose={() => onModalClose()}>
       <Typography variant="h5">Funded by:</Typography>
-      <Grid container justify="flex-start" alignItems="center">
+      <Grid container justifyContent="flex-start" alignItems="center">
         <Grid item xs={columnLayout} md={columnLayout} className={classes.image}>
           <img src={require('../../img/xchemLogo.png')} className={classes.img} onClick={() => openXchem()} />
         </Grid>
@@ -137,7 +137,7 @@ export const FundersModal = memo(({ openModal, onModalClose }) => {
         </Grid>
       </Grid>
       <Typography variant="h5">Contributors and collaborators:</Typography>
-      <Grid container justify="flex-start" alignItems="center">
+      <Grid container justifyContent="flex-start" alignItems="center">
         <Grid item xs={columnLayout} md={columnLayout} className={classes.image}>
           <img src={require('../../img/m2msLogo.png')} className={classes.img} onClick={() => openM2ms()} />
         </Grid>

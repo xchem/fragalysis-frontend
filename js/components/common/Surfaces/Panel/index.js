@@ -131,7 +131,7 @@ export const Panel = memo(
             <div className={secondaryBackground ? classes.headerSecondary : classes.header}>
               <Grid
                 container
-                justify="space-between"
+                justifyContent="space-between"
                 direction="row"
                 alignItems="center"
                 className={classes.headerGrid}
@@ -170,7 +170,7 @@ export const Panel = memo(
           {hasExpansion && (
             <div className={expanded === true ? bodyClass : classes.hidden}>
               {isLoading && (
-                <Grid container alignItems="center" justify="center" className={classes.loading}>
+                <Grid container alignItems="center" justifyContent="center" className={classes.loading}>
                   <Grid item>
                     <CircularProgress />
                   </Grid>
@@ -182,7 +182,7 @@ export const Panel = memo(
           {!hasExpansion && (
             <div className={bodyClass}>
               {isLoading && (
-                <Grid container alignItems="center" justify="center" className={classes.loading}>
+                <Grid container alignItems="center" justifyContent="center" className={classes.loading}>
                   <Grid item>
                     <CircularProgress />
                   </Grid>

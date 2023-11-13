@@ -44,7 +44,7 @@ const useStyles = makeStyles(theme => ({
   }
 }));
 
-export const AddProjectDetail = memo(({}) => {
+export const AddProjectDetail = memo(({ }) => {
   const classes = useStyles();
   const [state, setState] = useState();
   let [createDiscourse, setCreateDiscourse] = useState(true);
@@ -263,7 +263,7 @@ export const AddProjectDetail = memo(({}) => {
                 </Grid>
               )}
             </Grid>
-            <Grid container justify="flex-end" direction="row">
+            <Grid container justifyContent="flex-end" direction="row">
               <Grid item>
                 <Button color="secondary" onClick={handleCloseModal}>
                   Cancel

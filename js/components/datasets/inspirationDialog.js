@@ -149,7 +149,7 @@ export const InspirationDialog = memo(
     const moleculeList = useMemo(() => {
       if (searchString !== null) {
         return inspirationMoleculeDataList.filter(molecule =>
-          molecule.protein_code.toLowerCase().includes(searchString.toLowerCase())
+          molecule.code.toLowerCase().includes(searchString.toLowerCase())
         );
       }
       return inspirationMoleculeDataList;
@@ -327,8 +327,8 @@ export const InspirationDialog = memo(
         >
           {isLoadingInspirationListOfMolecules === false && moleculeList && (
             <>
-              <Grid container justify="flex-start" direction="row" className={classes.molHeader} wrap="nowrap">
-                <Grid item container justify="flex-start" direction="row">
+              <Grid container justifyContent="flex-start" direction="row" className={classes.molHeader} wrap="nowrap">
+                <Grid item container justifyContent="flex-start" direction="row">
                   {Object.keys(moleculeProperty).map(key => (
                     <Grid item key={key} className={classes.rightBorder}>
                       {moleculeProperty[key]}
@@ -339,7 +339,7 @@ export const InspirationDialog = memo(
                       <Grid
                         container
                         direction="row"
-                        justify="flex-start"
+                        justifyContent="flex-start"
                         alignItems="center"
                         wrap="nowrap"
                         className={classes.contButtonsMargin}
@@ -436,7 +436,7 @@ export const InspirationDialog = memo(
                     );
                   })}
                 {!(moleculeList.length > 0) && (
-                  <Grid container justify="center" alignItems="center" direction="row" className={classes.notFound}>
+                  <Grid container justifyContent="center" alignItems="center" direction="row" className={classes.notFound}>
                     <Grid item>
                       <Typography variant="body2">No molecules found!</Typography>
                     </Grid>
@@ -446,7 +446,7 @@ export const InspirationDialog = memo(
             </>
           )}
           {isLoadingInspirationListOfMolecules === true && (
-            <Grid container alignItems="center" justify="center">
+            <Grid container alignItems="center" justifyContent="center">
               <Grid item>
                 <CircularProgress />
               </Grid>

@@ -17,7 +17,7 @@ import {
   Box,
   ButtonGroup,
   LinearProgress,
-  Tooltip  
+  Tooltip
 } from '@material-ui/core';
 import {
   PowerSettingsNew,
@@ -96,10 +96,6 @@ const useStyles = makeStyles(theme => ({
     pointerEvents: 'initial',
     cursor: 'progress'
   },
-  loadingProgress: {
-    height: 2,
-    bottom: -2
-  },
   clickableImage: {
     cursor: 'pointer'
   },
@@ -117,7 +113,7 @@ export default memo(
     const dispatch = useDispatch();
     let history = useHistory();
     const classes = useStyles();
-    const { isLoading, headerNavbarTitle, setHeaderNavbarTitle, headerButtons } = useContext(HeaderContext);
+    const { headerNavbarTitle, setHeaderNavbarTitle, headerButtons } = useContext(HeaderContext);
 
     const [openMenu, setOpenMenu] = useState(false);
     const [openFunders, setOpenFunders] = useState(false);
@@ -132,7 +128,7 @@ export default memo(
 
     const openNewProjectModal = useSelector(state => state.projectReducers.isProjectModalOpen);
     const isProjectModalLoading = useSelector(state => state.projectReducers.isProjectModalLoading);
-    
+
     const openSaveSnapshotModal = useSelector(state => state.snapshotReducers.openSavingDialog);
 
     const openDiscourseError = useSelector(state => state.apiReducers.open_discourse_error_modal);
@@ -228,13 +224,16 @@ export default memo(
       </Typography>
     );
 
-    if (headerNavbarTitle === '') {
-      if (document.location.host.startsWith('fragalysis.diamond') !== true) {
-        setHeaderNavbarTitle('DEVELOPMENT');
-      } else {
-        setHeaderNavbarTitle('Home');
+    useEffect(() => {
+      if (headerNavbarTitle === '') {
+        if (document.location.host.startsWith('fragalysis.diamond') !== true) {
+          setHeaderNavbarTitle('DEVELOPMENT');
+        } else {
+          setHeaderNavbarTitle('Home');
+        }
       }
-    }
+    }, [headerNavbarTitle, setHeaderNavbarTitle]);
+
     const [forceCompute, setForceCompute] = useState();
     const innerRef = React.useRef();
     const combinedRef = useCombinedRefs(ref, innerRef);
@@ -252,7 +251,13 @@ export default memo(
         forceCompute={forceCompute === true}
       >
         <AppBar position="absolute" ref={combinedRef} className={classes.appBar}>
-          <Grid container direction="row" justify="space-between" alignItems="center" className={classes.headerPadding}>
+          <Grid
+            container
+            direction="row"
+            justifyContent="space-between"
+            alignItems="center"
+            className={classes.headerPadding}
+          >
             <Grid item>
               <ButtonGroup variant="text" size="small">
                 <Button
@@ -278,49 +283,74 @@ export default memo(
                       window.location.reload();
                     }}
                   >
-                    Fragalysis: <b id={"headerNavbarTitle"}>{headerNavbarTitle}</b>
+                    Fragalysis: <b id={'headerNavbarTitle'}>{headerNavbarTitle}</b>
                   </Typography>
                 </Button>
-                {username !== null ? targetName !== undefined ?
-                <>
-                 {
-                 currentProject.authorID === null || currentProject.projectID === null || currentProject.authorID ===  userId ?
-                <Button
-                 onClick={() => {isProjectModalLoading === false ? (dispatch(setProjectModalIsLoading(true)), dispatch(setAddButton(false))) : dispatch(setProjectModalIsLoading(false)),
-                  openSaveSnapshotModal === true ? dispatch(setOpenSnapshotSavingDialog(false)) : ''}} 
-                 key="newProject"
-                 color="primary"
-                 startIcon={<CreateNewFolder />}
-                >
-                   New project
-                </Button> 
-                :
-                <Button
-                 onClick={() => {openNewProjectModal === false ? (dispatch(setProjectModalIsLoading(true)), dispatch(setAddButton(false))) : dispatch(setProjectModalIsLoading(false)),
-                  openSaveSnapshotModal === true ? dispatch(setOpenSnapshotSavingDialog(false)) : ''}} 
-                 key="newProject"
-                 color="primary"
-                 startIcon={<CreateNewFolder />}
-                >
-                   New project from snapshot
-                </Button>  }
-                {currentProject.projectID !== null ?
-                <Button
-                   key="saveSnapshot"
-                   color="primary"
-                   onClick={() => {dispatch(activateSnapshotDialog(DJANGO_CONTEXT['pk']),
-                   openSaveSnapshotModal === false ? dispatch(setOpenSnapshotSavingDialog(true)) : dispatch(setOpenSnapshotSavingDialog(false)),
-                   openSaveSnapshotModal === true ? dispatch(setOpenSnapshotSavingDialog(false)) : '',
-                   isProjectModalLoading === true ? dispatch(setProjectModalIsLoading(false)) : ''), dispatch(setAddButton(false))}}
-                   startIcon={<Save />}
-                >
-                  Save
-                </Button> : ''}
-                </>
-                : '' : '' }
-                {headerButtons && headerButtons.map(item => item)} 
+                {username !== null ? (
+                  targetName !== undefined ? (
+                    <>
+                      {currentProject.authorID === null ||
+                      currentProject.projectID === null ||
+                      currentProject.authorID === userId ? (
+                        <Button
+                          onClick={() => {
+                            isProjectModalLoading === false
+                              ? (dispatch(setProjectModalIsLoading(true)), dispatch(setAddButton(false)))
+                              : dispatch(setProjectModalIsLoading(false));
+                            openSaveSnapshotModal === true ? dispatch(setOpenSnapshotSavingDialog(false)) : '';
+                          }}
+                          key="newProject"
+                          color="primary"
+                          startIcon={<CreateNewFolder />}
+                        >
+                          New project
+                        </Button>
+                      ) : (
+                        <Button
+                          onClick={() => {
+                            openNewProjectModal === false
+                              ? (dispatch(setProjectModalIsLoading(true)), dispatch(setAddButton(false)))
+                              : dispatch(setProjectModalIsLoading(false));
+                            openSaveSnapshotModal === true ? dispatch(setOpenSnapshotSavingDialog(false)) : '';
+                          }}
+                          key="newProject"
+                          color="primary"
+                          startIcon={<CreateNewFolder />}
+                        >
+                          New project from snapshot
+                        </Button>
+                      )}
+                      {currentProject.projectID !== null ? (
+                        <Button
+                          key="saveSnapshot"
+                          color="primary"
+                          onClick={() => {
+                            dispatch(activateSnapshotDialog(DJANGO_CONTEXT['pk']));
+                            openSaveSnapshotModal === false
+                              ? dispatch(setOpenSnapshotSavingDialog(true))
+                              : dispatch(setOpenSnapshotSavingDialog(false));
+                            openSaveSnapshotModal === true ? dispatch(setOpenSnapshotSavingDialog(false)) : '';
+                            isProjectModalLoading === true ? dispatch(setProjectModalIsLoading(false)) : '';
+
+                            dispatch(setAddButton(false));
+                          }}
+                          startIcon={<Save />}
+                        >
+                          Save
+                        </Button>
+                      ) : (
+                        ''
+                      )}
+                    </>
+                  ) : (
+                    ''
+                  )
+                ) : (
+                  ''
+                )}
+                {headerButtons && headerButtons.map(item => item)}
                 <AddProjectDetail />
-             </ButtonGroup>
+              </ButtonGroup>
             </Grid>
             <Grid item>
               {discourseAvailable && (
@@ -373,7 +403,7 @@ export default memo(
               )}
             </Grid>
             <Grid item>
-              <Grid container direction="row" justify="flex-start" alignItems="center" spacing={1}>
+              <Grid container direction="row" justifyContent="flex-start" alignItems="center" spacing={1}>
                 {layoutEnabled && (
                   <>
                     {!layouts[selectedLayoutName].static && (
@@ -477,10 +507,6 @@ export default memo(
               </Grid>
             </Grid>
           </Grid>
-          {//TODO this needs to be reworked if the optimizations help
-          (isLoading === true || false === true) && (
-            <LinearProgress color="secondary" className={classes.loadingProgress} variant="query" />
-          )}
         </AppBar>
         <FundersModal openModal={openFunders} onModalClose={() => setOpenFunders(false)} />
         <TrackingModal openModal={openTrackingModal} onModalClose={() => setOpenTrackingModal(false)} />
@@ -495,12 +521,18 @@ export default memo(
           <Grid
             container
             direction="column"
-            justify="space-between"
+            justifyContent="space-between"
             alignItems="center"
             className={classes.inheritHeight}
           >
             <Grid item>
-              <Grid container direction="column" justify="center" alignItems="center" className={classes.drawerHeader}>
+              <Grid
+                container
+                direction="column"
+                justifyContent="center"
+                alignItems="center"
+                className={classes.drawerHeader}
+              >
                 <Grid item>
                   <Avatar className={classes.padding}>
                     <Person />
@@ -546,9 +578,9 @@ export default memo(
             <Grid item>
               {versions &&
                 versions.hasOwnProperty('version') &&
-                Object.entries(versions['version']).map(([sw, version]) => {
+                Object.entries(versions['version']).map(([sw, version], index) => {
                   return (
-                    <Typography variant="body2">
+                    <Typography variant="body2" key={index}>
                       {sw}: {version}
                     </Typography>
                   );

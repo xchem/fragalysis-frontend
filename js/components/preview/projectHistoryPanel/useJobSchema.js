@@ -31,35 +31,71 @@ export const getCompileData = (target, djangoContext, jobLauncherData, fragalysi
   ...fragalysisJobsVars
 });
 
-const compileProperty = (property, data, ignoreFirstRound) => {
+const getMoleculeEnumName = (title, targetName) => {
+  let newTitle = title.replace(new RegExp(`${targetName}-`, 'i'), '');
+  newTitle = newTitle.replace(new RegExp(':.*$', 'i'), '');
+
+  return newTitle;
+};
+
+const prepareItem = (item, config, targetName) => {
+  let itemPath = '';
+  let itemName = '';
+
+  if (config?.file) {
+    const file = item[config.file];
+    itemPath = file;
+    itemName = getMoleculeEnumName(item.code, targetName);
+
+    if (config?.skip && config?.skip > 0) {
+      const url = new URL(file);
+      const parts = url.pathname.split('/');
+      for (let i = 0; i <= config.skip; i++) {
+        parts.shift();
+      }
+
+      itemPath = parts.join('/');
+    }
+  }
+
+  return { item: itemPath, itemName };
+};
+
+const compileProperty = (property, data, ignoreFirstRound, targetName) => {
   const copy = { ...property };
-  const { from, items, value, default: dflt } = copy;
+  let from = copy.from;
+  const { items, value, default: dflt } = copy;
   const dataObject = data || {};
 
   if (from) {
-    const itemsData = dataObject[from] || [];
+    const itemsData = dataObject[from.side] || [];
 
     copy.enum = itemsData.map(item => {
-      const localData = { ...dataObject, item };
+      const preparedItem = prepareItem(item, from, targetName);
+      const localData = { ...dataObject, ...preparedItem };
       return expandVars(copy.enum, localData, ignoreFirstRound);
     });
     copy.enumNames = itemsData.map(item => {
-      const localData = { ...dataObject, item };
+      const preparedItem = prepareItem(item, from, targetName);
+      const localData = { ...dataObject, ...preparedItem };
       return expandVars(copy.enumNames, localData, ignoreFirstRound);
     });
   }
 
   if (items) {
-    const itemsData = dataObject[items.from] || [];
+    from = items.from;
 
-    if (items.hasOwnProperty('from')) {
+    if (from) {
+      const itemsData = dataObject[from.side] || [];
       copy.items = {
         enum: itemsData.map(item => {
-          const localData = { ...dataObject, item };
+          const preparedItem = prepareItem(item, from, targetName);
+          const localData = { ...dataObject, ...preparedItem };
           return expandVars(items.enum, localData, ignoreFirstRound);
         }),
         enumNames: itemsData.map(item => {
-          const localData = { ...dataObject, item };
+          const preparedItem = prepareItem(item, from, targetName);
+          const localData = { ...dataObject, ...preparedItem };
           return expandVars(items.enumNames, localData, ignoreFirstRound);
         })
       };
@@ -127,7 +163,7 @@ export const useJobSchema = jobLauncherData => {
             ...options.properties,
             ...outputs.properties
           }).map(([key, property]) => {
-            return [key, compileProperty(property, data, ignoreFirstRound)];
+            return [key, compileProperty(property, data, ignoreFirstRound, targetName)];
           })
         )
       };

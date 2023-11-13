@@ -17,6 +17,7 @@ import {
 } from '../../../../utils/discourse';
 import { setTagToEdit, appendToMolListToEdit, removeFromMolListToEdit } from '../../../../reducers/selection/actions';
 import { setOpenDiscourseErrorModal } from '../../../../reducers/api/actions';
+import { getCategoryById } from '../../molecule/redux/dispatchActions';
 
 const useStyles = makeStyles(theme => ({
   contColButton: {
@@ -162,9 +163,9 @@ const TagDetailRow = memo(({ tag, moleculesToEditIds, moleculesToEdit }) => {
         isTagEditor={true}
       ></TagView>
       {/* category */}
-      <Tooltip title={CATEGORY_TYPE_BY_ID[tag.category_id]}>
+      <Tooltip title={dispatch(getCategoryById(tag.category))?.category}>
         <Typography className={classes.text} variant="body2" noWrap>
-          {CATEGORY_TYPE_BY_ID[tag.category_id]}
+          {dispatch(getCategoryById(tag.category))?.category}
         </Typography>
       </Tooltip>
       {/* select hits button */}
@@ -183,31 +184,34 @@ const TagDetailRow = memo(({ tag, moleculesToEditIds, moleculesToEdit }) => {
       </Tooltip>
       {/* discourse button */}
       <Tooltip title="Discourse link">
-        <Fab
-          color="secondary"
-          size="small"
-          className={classes.discourseButton}
-          onClick={() => {
-            try {
-              if (tag.discourse_url) {
-                openDiscourseLink(tag.discourse_url);
-              } else {
-                createTagPost(tag, targetName, getDefaultTagDiscoursePostText(tag)).then(resp => {
-                  const tagURL = resp.data['Post url'];
-                  tag['discourse_url'] = tagURL;
-                  dispatch(updateTagProp(tag, tagURL, 'discourse_url'));
+        {/* Tooltip should not have disabled element as a direct child */}
+        <>
+          <Fab
+            color="secondary"
+            size="small"
+            className={classes.discourseButton}
+            onClick={() => {
+              try {
+                if (tag.discourse_url) {
                   openDiscourseLink(tag.discourse_url);
-                });
+                } else {
+                  createTagPost(tag, targetName, getDefaultTagDiscoursePostText(tag)).then(resp => {
+                    const tagURL = resp.data['Post url'];
+                    tag['discourse_url'] = tagURL;
+                    dispatch(updateTagProp(tag, tagURL, 'discourse_url'));
+                    openDiscourseLink(tag.discourse_url);
+                  });
+                }
+              } catch (err) {
+                console.log(err);
+                dispatch(setOpenDiscourseErrorModal(true));
               }
-            } catch (err) {
-              console.log(err);
-              dispatch(setOpenDiscourseErrorModal(true));
-            }
-          }}
-          disabled={!(isDiscourseAvailable() || (isDiscourseAvailableNotSignedIn() && tag.discourse_url))}
-        >
-          <Forum className={classes.discourseButtonIcon} />
-        </Fab>
+            }}
+            disabled={!(isDiscourseAvailable() || (isDiscourseAvailableNotSignedIn() && tag.discourse_url))}
+          >
+            <Forum className={classes.discourseButtonIcon} />
+          </Fab>
+        </>
       </Tooltip>
       {/* user */}
       <Typography className={classes.text} variant="body2">
@@ -220,7 +224,6 @@ const TagDetailRow = memo(({ tag, moleculesToEditIds, moleculesToEdit }) => {
           : new Date(tag.create_date).toLocaleDateString()}
       </Typography>
       {/* edit button */}
-
       <IconButton
         variant="contained"
         className={classes.editButton}

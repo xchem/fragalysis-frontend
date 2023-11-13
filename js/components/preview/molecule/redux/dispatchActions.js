@@ -102,7 +102,7 @@ const generateObjectList = (out_data, data) => {
 };
 
 const generateBondColorMap = inputDict => {
-  var out_d = {};
+  const out_d = {};
   for (let keyItem in inputDict) {
     for (let vector in inputDict[keyItem]) {
       const vect = vector.split('_')[0];
@@ -147,7 +147,7 @@ const handleVector = (json, stage, data) => (dispatch, getState) => {
   const state = getState();
   const { vector_list, compoundsOfVectors } = state.selectionReducers;
 
-  var objList = generateObjectList(json['3d'], data);
+  const objList = generateObjectList(json['3d'], data);
   dispatch(setVectorList([...vector_list, ...objList]));
 
   const currentVectorCompounds = compoundsOfVectors && compoundsOfVectors[data.smiles];
@@ -165,7 +165,7 @@ const handleVector = (json, stage, data) => (dispatch, getState) => {
       })
     )
   );
-  var vectorBondColorMap = generateBondColorMap(json['indices']);
+  const vectorBondColorMap = generateBondColorMap(json['indices']);
   dispatch(updateBondColorMapOfCompounds(data.smiles, vectorBondColorMap));
 };
 
@@ -178,16 +178,16 @@ export const addVector = (stage, data, skipTracking = false) => async (dispatch,
   return api({ url: getViewUrl('graph', data) })
     .then(response => {
       const result = response.data.graph;
-      var new_dict = {};
+      const new_dict = {};
       // Uniquify
       if (result) {
         Object.keys(result).forEach(key => {
-          var smiSet = new Set();
+          const smiSet = new Set();
           new_dict[key] = {};
           new_dict[key]['addition'] = [];
           new_dict[key]['vector'] = result[key]['vector'];
           Object.keys(result[key]['addition']).forEach(index => {
-            var newSmi = result[key]['addition'][index]['end'];
+            const newSmi = result[key]['addition'][index]['end'];
             if (smiSet.has(newSmi) !== true) {
               new_dict[key]['addition'].push(result[key]['addition'][index]);
               smiSet.add(newSmi);
@@ -197,8 +197,10 @@ export const addVector = (stage, data, skipTracking = false) => async (dispatch,
       }
       return dispatch(updateVectorCompounds(data.smiles, new_dict));
     })
-    .then(() => api({ url: getViewUrl('vector', data) }))
-    .then(response => dispatch(handleVector(response.data.vectors, stage, data)))
+    .then(() => api({ url: new URL(base_url + '/api/vector/?id=' + data.id) }))
+    .then(response => {
+      dispatch(handleVector(response.data?.results[0]?.vectors, stage, data));
+    })
     .finally(() => {
       const currentOrientation = stage.viewerControls.getOrientation();
       dispatch(setOrientation(VIEWS.MAJOR_VIEW, currentOrientation));
@@ -676,7 +678,7 @@ export const getFirstTag = () => (dispatch, getState) => {
   if (siteCategoryId) {
     const state = getState();
     const tagsList = state.apiReducers.tagList;
-    const foundTags = tagsList.filter(t => t.category_id === siteCategoryId);
+    const foundTags = tagsList.filter(t => t.category === siteCategoryId);
     return foundTags && foundTags.length > 0 ? foundTags[0] : null;
   } else {
     return null;
@@ -710,9 +712,20 @@ export const getFirstMolecule = () => (dispatch, getState) => {
 export const getSiteCategoryId = () => (dispatch, getState) => {
   const state = getState();
   const categoriesList = state.apiReducers.categoryList;
-  const foundCategories = categoriesList.filter(c => c.category === CATEGORY_TYPE.SITE);
+  const foundCategories = categoriesList.filter(c => c.category.toLowerCase('site'));
   if (foundCategories && foundCategories.length > 0) {
     return foundCategories[0].id;
+  } else {
+    return null;
+  }
+};
+
+export const getCategoryById = categoryId => (dispatch, getState) => {
+  const state = getState();
+  const categoriesList = state.apiReducers.categoryList;
+  const foundCategories = categoriesList.filter(c => c.id === categoryId);
+  if (foundCategories && foundCategories.length > 0) {
+    return foundCategories[0];
   } else {
     return null;
   }
@@ -1012,7 +1025,7 @@ export const applyDirectSelection = stage => (dispatch, getState) => {
       for (let molIndex = 0; molIndex < allMols.length; molIndex++) {
         let molList = allMols;
         let mol = molList[molIndex];
-        let proteinCodeModded = mol.protein_code.toLowerCase();
+        let proteinCodeModded = mol.code.toLowerCase();
         if (
           m.exact ? proteinCodeModded === directProteinCodeModded : proteinCodeModded.includes(directProteinNameModded)
         ) {
@@ -1041,7 +1054,7 @@ export const applyDirectSelection = stage => (dispatch, getState) => {
 
 export const getQualityInformation = (data, molType, width, height) => (dispatch, getState) => {
   let moleculeObject = generateMoleculeObject(data);
-  let qualityInformation = dispatch(readQualityInformation(moleculeObject.name, data.sdf_info));
+  let qualityInformation = dispatch(readQualityInformation(moleculeObject.name, data.ligand_mol_file));
 
   let hasAdditionalInformation =
     qualityInformation &&
@@ -1053,7 +1066,7 @@ export const getQualityInformation = (data, molType, width, height) => (dispatch
 };
 
 export const getProteinData = molecule => dispatch => {
-  return dispatch(getProteinDataByMolId(molecule.id, molecule.protein_code));
+  return dispatch(getProteinDataByMolId(molecule.id, molecule.code));
 };
 
 export const getProteinDataByMolId = (molId, proteinCode) => (dispatch, getState) => {

@@ -2,7 +2,12 @@ import React, { memo, useState, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { CATEGORY_TYPE, CATEGORY_ID, CATEGORY_TYPE_BY_ID } from '../../../../constants/constants';
 import { ColorPicker } from '../../../common/Components/ColorPicker';
-import { DEFAULT_TAG_COLOR, augumentTagObjectWithId, createMoleculeTagObject } from '../utils/tagUtils';
+import {
+  DEFAULT_CATEGORY,
+  DEFAULT_TAG_COLOR,
+  augumentTagObjectWithId,
+  createMoleculeTagObject
+} from '../utils/tagUtils';
 import { DJANGO_CONTEXT } from '../../../../utils/djangoContext';
 import { updateTagProp, removeSelectedTag } from '../redux/dispatchActions';
 import { TextField, makeStyles, Button, Select, MenuItem, withStyles, Paper } from '@material-ui/core';
@@ -15,6 +20,7 @@ import {
   updateMoleculeInMolLists,
   setNoTagsReceived
 } from '../../../../reducers/api/actions';
+import { getCategoryById } from '../../molecule/redux/dispatchActions';
 
 const useStyles = makeStyles(theme => ({
   divContainer: {
@@ -30,7 +36,7 @@ const useStyles = makeStyles(theme => ({
     }
   },
   select: {
-    flex: '0 0 100px',
+    flex: '0 0 130px',
     color: 'inherit',
     fill: 'inherit',
     '&:hover:not(.Mui-disabled):before': {
@@ -48,6 +54,9 @@ const useStyles = makeStyles(theme => ({
     flex: '0 0 210px',
     justifyContent: 'center',
     gap: theme.spacing()
+  },
+  tagName: {
+    flex: '0 0 80px'
   }
 }));
 
@@ -62,6 +71,7 @@ const NewTagDetailRow = memo(({ moleculesToEditIds, moleculesToEdit }) => {
   const targetId = useSelector(state => state.apiReducers.target_on);
   const tagToEdit = useSelector(state => state.selectionReducers.tagToEdit);
   const allMolList = useSelector(state => state.apiReducers.all_mol_lists);
+  const categoriesList = useSelector(state => state.apiReducers.categoryList);
 
   const [newTagCategory, setNewTagCategory] = useState(1);
   const [newTagColor, setNewTagColor] = useState(DEFAULT_TAG_COLOR);
@@ -69,8 +79,15 @@ const NewTagDetailRow = memo(({ moleculesToEditIds, moleculesToEdit }) => {
   const [newTagLink, setNewTagLink] = useState('');
 
   useEffect(() => {
+    const category = dispatch(getCategoryById(DEFAULT_CATEGORY));
+    if (category) {
+      setNewTagColor(`#${category.colour}`);
+    }
+  }, [categoriesList]);
+
+  useEffect(() => {
     if (tagToEdit) {
-      setNewTagCategory(tagToEdit.category_id);
+      setNewTagCategory(tagToEdit.category);
       if (tagToEdit.colour) {
         setNewTagColor(tagToEdit.colour);
       } else {
@@ -92,24 +109,12 @@ const NewTagDetailRow = memo(({ moleculesToEditIds, moleculesToEdit }) => {
   const onCategoryForNewTagChange = event => {
     setNewTagCategory(event.target.value);
     // apply also default color for every categpry (TODO move values to constants?)
-    let defaultColor = DEFAULT_TAG_COLOR;
-    switch (CATEGORY_TYPE_BY_ID[event.target.value]) {
-      case CATEGORY_TYPE.SITE:
-        defaultColor = '#d7191c';
-        break;
-      case CATEGORY_TYPE.SERIES:
-        defaultColor = '#fdae61';
-        break;
-      case CATEGORY_TYPE.FORUM:
-        defaultColor = '#abd9e9';
-        break;
-      case CATEGORY_TYPE.OTHER:
-        defaultColor = '#2c7bb6';
-        break;
-      default:
-        break;
+    let tagColor = DEFAULT_TAG_COLOR;
+    const category = dispatch(getCategoryById(event.target.value));
+    if (category) {
+      tagColor = `#${category.colour}`;
     }
-    setNewTagColor(defaultColor);
+    setNewTagColor(tagColor);
   };
 
   const onNameForNewTagChange = event => {
@@ -120,7 +125,7 @@ const NewTagDetailRow = memo(({ moleculesToEditIds, moleculesToEdit }) => {
     if (newTagName && newTagCategory) {
       const tagObject = createMoleculeTagObject(
         newTagName,
-        moleculesToEdit.length ? moleculesToEdit[0].proteinData.target_id : targetId,
+        targetId,
         newTagCategory,
         DJANGO_CONTEXT.pk,
         newTagColor,
@@ -131,15 +136,15 @@ const NewTagDetailRow = memo(({ moleculesToEditIds, moleculesToEdit }) => {
         let augMolTagObject = augumentTagObjectWithId(
           {
             tag: molTag.tag,
-            category_id: molTag.category,
-            target_id: molTag.target,
-            user_id: molTag.user,
+            category: molTag.category,
+            target: molTag.target,
+            user: molTag.user,
             create_date: molTag.create_date,
             colour: molTag.colour,
             discourse_url: molTag.discourse_url,
             help_text: molTag.help_text,
             additional_info: molTag.additional_info,
-            mol_group_id: molTag.mol_group
+            mol_group: molTag.mol_group
           },
           molTag.id
         );
@@ -158,7 +163,7 @@ const NewTagDetailRow = memo(({ moleculesToEditIds, moleculesToEdit }) => {
       dispatch(
         updateTagProp(
           Object.assign({}, tagToEdit, {
-            category_id: newTagCategory,
+            category: newTagCategory,
             colour: newTagColor,
             tag: newTagName,
             discourse_url: newTagLink
@@ -230,17 +235,14 @@ const NewTagDetailRow = memo(({ moleculesToEditIds, moleculesToEdit }) => {
       />
       <Select
         className={classes.select}
-        value={newTagCategory || 1}
+        value={newTagCategory || DEFAULT_CATEGORY}
         label="Category"
         onChange={onCategoryForNewTagChange}
         disabled={!DJANGO_CONTEXT.pk}
       >
-        {Object.keys(CATEGORY_TYPE).map(c => (
-          <MenuItem
-            key={`tag-editor-new-category-${CATEGORY_ID[CATEGORY_TYPE[c]]}`}
-            value={CATEGORY_ID[CATEGORY_TYPE[c]]}
-          >
-            {CATEGORY_TYPE[c]}
+        {categoriesList?.map(c => (
+          <MenuItem key={`tag-editor-new-category-${c.id}`} value={c.id}>
+            {c.category}
           </MenuItem>
         ))}
       </Select>

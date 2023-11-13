@@ -41,7 +41,7 @@ const useStyles = makeStyles(theme => ({
   }
 }));
 
-const molGroupChecklist = memo(({}) => {
+const molGroupChecklist = memo(({ }) => {
   const classes = useStyles();
   const { getNglView } = useContext(NglContext);
   const stageSummaryView = getNglView(VIEWS.SUMMARY_VIEW) && getNglView(VIEWS.SUMMARY_VIEW).stage;
@@ -63,7 +63,7 @@ const molGroupChecklist = memo(({}) => {
                     item
                     container
                     alignItems="center"
-                    justify="flex-start"
+                    justifyContent="flex-start"
                     key={`mol-checklist-item-${idx}`}
                     className={classes.rowItem}
                   >

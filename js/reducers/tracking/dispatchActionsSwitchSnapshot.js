@@ -58,6 +58,7 @@ import {
   addDatasetComplex
 } from '../../components/datasets/redux/dispatchActions';
 import { getDifference } from './utils';
+import { setSnapshotLoadingInProgress } from '../api/actions';
 
 /**
  * The goal of this method is to restore the state of the app based on the tracking
@@ -137,6 +138,7 @@ export const restoreAfterSnapshotChange = (stages, projectId) => async (dispatch
  */
 export const changeSnapshot = (projectID, snapshotID, nglViewList, stage) => async (dispatch, getState) => {
   console.count(`Change snapshot - start`);
+  dispatch(setSnapshotLoadingInProgress(true));
   // A hacky way of changing the URL without triggering react-router
   window.history.replaceState(null, null, `${URLS.projects}${projectID}/${snapshotID}`);
 
@@ -180,6 +182,7 @@ export const changeSnapshot = (projectID, snapshotID, nglViewList, stage) => asy
   await dispatch(restoreAfterSnapshotChange(nglViewList, projectID));
 
   dispatch(setIsSnapshotDirty(false));
+  dispatch(setSnapshotLoadingInProgress(false));
 
   console.count(`Change snapshot - end`);
 };
@@ -564,7 +567,7 @@ const getMoleculeIdsFromActions = (actions, actionType) => (dispatch, getState) 
     .map(action => {
       const mol = getMolecule(action.object_name, state);
       if (mol) {
-        return { id: mol?.id, name: mol?.protein_code };
+        return { id: mol?.id, name: mol?.code };
       }
     });
 

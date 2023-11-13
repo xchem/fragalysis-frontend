@@ -46,12 +46,12 @@ export const SummaryView = memo(() => {
       headerActions={[]}
       title="Summary Info"
     >
-      <Grid container justify="space-between">
+      <Grid container justifyContent="space-between">
         <Grid
           item
           container
           direction="column"
-          justify="flex-start"
+          justifyContent="flex-start"
           alignItems="flex-start"
           className={classes.widthFitContent}
         >

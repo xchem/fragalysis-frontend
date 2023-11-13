@@ -1,10 +1,10 @@
 import React, { memo, useContext, useEffect, useState } from 'react';
 import { connect, useSelector } from 'react-redux';
-import { HeaderContext } from '../header/headerContext';
 import HandleUnrecognisedTarget from './handleUnrecognisedTarget';
 import { updateTarget, setTargetUUIDs, resetTargetAndSelection } from './redux/dispatchActions';
 import { useRouteMatch } from 'react-router-dom';
 import { extractTargetFromURLParam } from '../preview/utils';
+import { LoadingContext } from '../loading';
 
 export const withUpdatingTarget = WrappedContainer => {
   const UpdateTarget = memo(
@@ -20,7 +20,7 @@ export const withUpdatingTarget = WrappedContainer => {
 
       // const isActionRestoring = useSelector(state => state.trackingReducers.isActionRestoring);
 
-      const { isLoading, setIsLoading } = useContext(HeaderContext);
+      const { isLoading, setIsLoading } = useContext(LoadingContext);
       const [state, setState] = useState();
 
       useEffect(() => {

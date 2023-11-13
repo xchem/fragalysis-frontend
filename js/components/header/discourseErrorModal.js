@@ -30,7 +30,7 @@ export const DiscourseErrorModal = memo(({ openModal }) => {
           </Typography>
         </Grid>
       </Grid>
-      <Grid container justify="flex-end">
+      <Grid container justifyContent="flex-end">
         {' '}
         <Button
           color="primary"

@@ -1,12 +1,12 @@
 import React, { memo, useContext, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { Button } from '@material-ui/core';
-import { Save, Restore, Share } from '@material-ui/icons';
+import { Restore, Share } from '@material-ui/icons';
 import DownloadPdb from './downloadPdb';
 import { HeaderContext } from '../header/headerContext';
 import { useHistory, useRouteMatch } from 'react-router-dom';
 import { DJANGO_CONTEXT } from '../../utils/djangoContext';
-import { activateSnapshotDialog, saveAndShareSnapshot } from './redux/dispatchActions';
+import { saveAndShareSnapshot } from './redux/dispatchActions';
 import { NglContext } from '../nglView/nglProvider';
 import { restoreSnapshotActions } from '../preview/moleculeGroups/redux/dispatchActions';
 import { extractTargetFromURLParam } from '../preview/utils';
@@ -19,7 +19,7 @@ export const withSnapshotManagement = WrappedComponent => {
   return memo(({ ...rest }) => {
     const history = useHistory();
     let match = useRouteMatch();
-    const { setHeaderNavbarTitle, setHeaderButtons, setSnackBarTitle, setSnackBarColor } = useContext(HeaderContext);
+    const { setHeaderNavbarTitle, setHeaderButtons } = useContext(HeaderContext);
     const { nglViewList } = useContext(NglContext);
     const dispatch = useDispatch();
     const sessionTitle = useSelector(state => state.apiReducers.sessionTitle);
@@ -105,7 +105,6 @@ export const withSnapshotManagement = WrappedComponent => {
 
       return () => {
         setHeaderButtons(null);
-        setSnackBarTitle(null);
         setHeaderNavbarTitle('');
       };
     }, [
@@ -114,10 +113,8 @@ export const withSnapshotManagement = WrappedComponent => {
       sessionTitle,
       setHeaderNavbarTitle,
       setHeaderButtons,
-      setSnackBarTitle,
       targetIdList,
       targetName,
-      setSnackBarColor,
       sessionProjectId,
       currentSnapshotID,
       currentSessionProject,

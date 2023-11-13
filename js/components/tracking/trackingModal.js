@@ -79,7 +79,7 @@ export const TrackingModal = memo(({ openModal, onModalClose }) => {
       onClose={() => onModalClose()}
     >
       <Panel bodyOverflow={true} hasHeader={true} title="Action List" headerActions={actions}>
-        <Grid container justify="space-between" className={classes.containerExpanded}>
+        <Grid container justifyContent="space-between" className={classes.containerExpanded}>
           <div className={classes.divContainer}>
             <div className={classes.divScrollable}>
               <Timeline>

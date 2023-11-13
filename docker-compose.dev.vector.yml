@@ -1,3 +1,4 @@
+---
 version: '3'
 
 services:
@@ -12,6 +13,23 @@ services:
       PGDATA: /var/lib/postgresql/data/pgdata
     ports:
       - '5432:5432'
+    healthcheck:
+      test: pg_isready -U fragalysis -d frag
+      interval: 10s
+      timeout: 2s
+      retries: 5
+      start_period: 10s
+  redis:
+    image: redis:7.0.12-alpine3.18
+    container_name: redis
+    ports:
+    - "6379:6379"
+    healthcheck:
+      test: redis-cli ping
+      interval: 10s
+      timeout: 2s
+      retries: 5
+      start_period: 10s
   graph:
     container_name: neo4j
     image: informaticsmatters/fragnet-test:3.5.25-xchem-combi-sample-2021-02
@@ -27,10 +45,18 @@ services:
       GRAPH_PASSWORD: test123
       CYPHER_PRE_NEO4J_SLEEP: 0
       NEO4J_dbms_memory_pagecache_size: 4G
+    healthcheck:
+      test: wget http://localhost:7474 || exit 1
+      interval: 10s
+      timeout: 10s
+      retries: 20
+      start_period: 10s
   web:
     container_name: web_dock
     image: xchem/fragalysis-stack:latest
-    # image: alanbchristie/fragalysis-backend:1069.4
+    # image: alanbchristie/fragalysis-backend:1187.3
+    # image: boriskovarm2ms/fragalysis-stack:experiment2
+    # image: kaliif/fragalysis-backend:latest
     command: /bin/bash /code/launch-stack.sh
     volumes:
       - ../data/logs:/code/logs/
@@ -45,15 +71,13 @@ services:
       POSTGRESQL_HOST: database
       POSTGRESQL_PORT: 5432
       NEO4J_AUTH: neo4j/test123
-      OIDC_RP_CLIENT_SECRET: ${OIDC_RP_CLIENT_SECRET}
-      DISCOURSE_API_KEY: ${DISCOURSE_API_KEY}
+      # DISCOURSE_API_KEY: ${DISCOURSE_API_KEY}
       FRAGALYSIS_BACKEND_SENTRY_DNS: https://27fa0675f555431aa02ca552e93d8cfb@o194333.ingest.sentry.io/1298290
       ISPYB_FLAG: 'False'
-      DISCOURSE_DEV_POST_SUFFIX: '-boris-local'
-      DISCOURSE_HOST: 'https://discourse.xchem-dev.diamond.ac.uk'
+      # DISCOURSE_DEV_POST_SUFFIX: '-boris-local'
+      # DISCOURSE_HOST: 'https://discourse.xchem-dev.diamond.ac.uk'
       SQUONK2_UI_URL: 'https://data-manager-ui.xchem-dev.diamond.ac.uk/data-manager-ui'
       SQUONK2_DMAPI_URL: 'https://data-manager.xchem-dev.diamond.ac.uk/data-manager-api'
-      OIDC_RENEW_ID_TOKEN_EXPIRY_MINUTES: 210
       SQUONK2_ASAPI_URL: 'https://account-server.xchem-dev.diamond.ac.uk/account-server-api'
       SQUONK2_ORG_OWNER: ${SQUONK2_ORG_OWNER}
       SQUONK2_ORG_OWNER_PASSWORD: ${SQUONK2_ORG_OWNER_PASSWORD}
@@ -64,6 +88,9 @@ services:
       OIDC_AS_CLIENT_ID: 'account-server-api-dev'
       OIDC_DM_CLIENT_ID: 'data-manager-api-dev'
       OIDC_KEYCLOAK_REALM: 'https://keycloak.xchem-dev.diamond.ac.uk/auth/realms/xchem'
+      OIDC_RP_CLIENT_SECRET: ${OIDC_RP_CLIENT_SECRET}
+      OIDC_RP_CLIENT_ID: 'fragalysis-local'
+      OIDC_RENEW_ID_TOKEN_EXPIRY_MINUTES: 210
       ISPYB_HOST: ispybdbproxy.diamond.ac.uk
       ISPYB_PORT: 4306
       ISPYB_USER: ${ISPYB_USER}
@@ -73,6 +100,13 @@ services:
       SSH_USER: ${SSH_USER}
       SSH_PASSWORD: ${SSH_PASSWORD}
       LOGGING_FRAMEWORK_ROOT_LEVEL: DEBUG
+      AUTHENTICATE_UPLOAD: 'False'
+      CELERY_TASK_ALWAYS_EAGER: 'True'
+      DEBUG_FRAGALYSIS: 'True'
     depends_on:
-      - database
-      - graph
+      database:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      graph:
+        condition: service_healthy

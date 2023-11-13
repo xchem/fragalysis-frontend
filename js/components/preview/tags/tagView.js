@@ -6,6 +6,8 @@ import { getFontColorByBackgroundColor } from '../../../utils/colors';
 import { TagEditModal } from './modal/tagEditModal';
 import classNames from 'classnames';
 import { setAssignTagView } from '../../../reducers/selection/actions';
+import { getCategoryById } from '../molecule/redux/dispatchActions';
+import { DEFAULT_TAG_COLOR } from './utils/tagUtils';
 
 const useStyles = makeStyles(theme => ({
   tagItem: {
@@ -110,9 +112,27 @@ const TagView = memo(
     const classes = useStyles();
     const dispatch = useDispatch();
     const [tagEditModalOpen, setTagEditModalOpen] = useState(false);
+    const [tagCategory, setTagCategory] = useState(null);
+    const [bgColor, setBgColor] = useState(tag.colour || DEFAULT_TAG_COLOR);
 
     let tagDetailView = useSelector(state => state.selectionReducers.tagDetailView);
     const assignTagView = useSelector(state => state.selectionReducers.assignTagView);
+    const tagCategories = useSelector(state => state.apiReducers.categoryList);
+
+    useEffect(() => {
+      if (!tagCategory) {
+        const tc = dispatch(getCategoryById(tag.category));
+        setTagCategory(tc);
+      }
+    }, [tagCategories]);
+
+    useEffect(() => {
+      if (tagCategory) {
+        if (!tag.colour || tag.colour === '') {
+          setBgColor(`#${tagCategory.colour}`);
+        }
+      }
+    }, [tagCategory]);
 
     useEffect(() => {
       if (assignTagView === undefined) {
@@ -121,30 +141,31 @@ const TagView = memo(
     }, []);
 
     let tagData = [];
-    const maxTagNameLength = 34;
+    const maxTagNameLength = 30;
     if (originalTagData.tag.length > maxTagNameLength) {
       tagData = { ...originalTagData, tag: originalTagData.tag.slice(0, maxTagNameLength) + '...' };
     } else {
       tagData = originalTagData;
     }
 
-    const bgColor = tagData.colour || '#e0e0e0';
+    // const bgColor = tagData.colour || DEFAULT_TAG_COLOR;
     const color = getFontColorByBackgroundColor(bgColor);
     tagDetailView = tagDetailView?.tagDetailView === undefined ? tagDetailView : tagDetailView.tagDetailView;
 
     let maxLengthTagDetail = 0;
-    for(let tagNumber =0; tagNumber <tags?.length; tagNumber++ ) {
-      maxLengthTagDetail=  tags[tagNumber].tag.length > maxLengthTagDetail ? tags[tagNumber].tag.length : maxLengthTagDetail;
+    for (let tagNumber = 0; tagNumber < tags?.length; tagNumber++) {
+      maxLengthTagDetail =
+        tags[tagNumber].tag.length > maxLengthTagDetail ? tags[tagNumber].tag.length : maxLengthTagDetail;
     }
 
-    const absoluteMaxTagLength = maxLengthTagDetail > 15 ? maxLengthTagDetail > 30 ? 48 : 30 : 19;
+    const absoluteMaxTagLength = maxLengthTagDetail > 15 ? (maxLengthTagDetail > 30 ? 48 : 30) : 19;
 
     const style = isTagEditor
       ? {
           backgroundColor: bgColor,
           color: color,
           width: tagDetailView === true ? '93px' : '200px',
-          height: tagDetailView === true ? absoluteMaxTagLength +'px' : '19px',
+          height: tagDetailView === true ? absoluteMaxTagLength + 'px' : '19px',
           border: `solid 0.05px ${tagData.colour === null ? 'gray' : tagData.colour}`
         }
       : selected
@@ -200,7 +221,6 @@ const TagView = memo(
                   : originalTagData.tag
                 : originalTagData.tag,
             clickable: true,
-            color: bgColor,
             style: style,
             onClick: () => {
               handleClick && handleClick(selected, tag, allTags);
@@ -216,12 +236,12 @@ const TagView = memo(
             }`,
             label: assignTagView === false ? (tagDetailView === false ? tagData.tag : tagData.tag) : tagData.tag,
             clickable: true,
-            color: bgColor,
             style: {
               backgroundColor: 'white',
+              // color: bgColor, // do we want text to be the same color as border?
               border: '1px solid rgba(0, 0, 0, 0.23)',
               borderColor: bgColor,
-              height: tagDetailView === true ? absoluteMaxTagLength +'px' : '19px',
+              height: tagDetailView === true ? absoluteMaxTagLength + 'px' : '19px',
               width: tagDetailView === true ? '93px' : '200px'
             },
             onClick: () => {
@@ -239,9 +259,8 @@ const TagView = memo(
           className: `${classes.chip} ${selected && !isSpecialTag ? classes.chipSelected : null}`,
           label: partiallySelected ? `${tagData.tag}*` : originalTagData.tag,
           clickable: true,
-          color: bgColor,
-          borderColor: bgColor,
-          style: style,
+          // borderColor: bgColor,
+          style: { ...style, borderColor: bgColor },
           onClick: () => {
             handleClick && handleClick(selected, tag, allTags);
           },
@@ -255,9 +274,8 @@ const TagView = memo(
         className: `${classes.chip} ${selected && !isSpecialTag ? classes.chipSelected : null}`,
         label: tagDetailView === true && assignTagView === true ? tagData.tag : originalTagData.tag,
         clickable: true,
-        color: bgColor,
-        borderColor: bgColor,
-        style: style,
+        // borderColor: bgColor,
+        style: { ...style, borderColor: bgColor },
         variant: 'outlined',
         onClick: () => {
           handleClick && handleClick(selected, tag, allTags);

@@ -197,13 +197,6 @@ const JobConfigurationDialog = ({ snapshots }) => {
 
   const target_on_name = useSelector(state => state.apiReducers.target_on_name);
 
-  const getMoleculeEnumName = title => {
-    let newTitle = title.replace(new RegExp(`${target_on_name}-`, 'i'), '');
-    newTitle = newTitle.replace(new RegExp(':.*$', 'i'), '');
-
-    return newTitle;
-  };
-
   const getMoleculeTitle = title => {
     return title.replace(new RegExp(':.*$', 'i'), '');
   };
@@ -211,11 +204,10 @@ const JobConfigurationDialog = ({ snapshots }) => {
   const jobList = useSelector(state => state.projectReducers.jobList);
 
   useEffect(() => {
-    if (!jobList || jobList.length === 0)
-      dispatch(getJobConfigurationsFromServer()).then(jobs => {
-        dispatch(setJobList(jobs));
-      });
-  }, [dispatch, jobList]);
+    dispatch(getJobConfigurationsFromServer()).then(jobs => {
+      dispatch(setJobList(jobs));
+    });
+  }, []);
 
   // if (currentProject && !currentProject.user_can_use_squonk) {
   //   setErrorMsg(
@@ -286,7 +278,7 @@ const JobConfigurationDialog = ({ snapshots }) => {
           chosenSnapshot = await createSnapshot();
           const currentSnapshotSelectedCompounds = getAllMolecules
             .filter(molecule => currentSnapshotSelectedCompoundsIDs.includes(molecule.id))
-            .map(molecule => molecule.protein_code);
+            .map(molecule => molecule.code);
 
           const currentSnapshotSelectedDatasetsCompounds = [];
           Object.keys(selectedDatasetCompounds).map(datasetName => {
@@ -312,7 +304,7 @@ const JobConfigurationDialog = ({ snapshots }) => {
       } else if (inputs === 'selected-inputs') {
         const currentSnapshotSelectedCompounds = getAllMolecules
           .filter(molecule => currentSnapshotSelectedCompoundsIDs.includes(molecule.id))
-          .map(molecule => molecule.protein_code);
+          .map(molecule => molecule.code);
 
         const currentSnapshotSelectedDatasetsCompounds = [];
         Object.keys(selectedDatasetCompounds).map(datasetName => {
@@ -355,7 +347,7 @@ const JobConfigurationDialog = ({ snapshots }) => {
       } else if (inputs === 'visible-inputs') {
         const currentSnapshotVisibleCompounds = getAllMolecules
           .filter(molecule => currentSnapshotVisibleCompoundsIDs.includes(molecule.id))
-          .map(molecule => molecule.protein_code);
+          .map(molecule => molecule.code);
 
         const currentSnapshotVisibleDatasetCompounds = [];
         Object.keys(datasetVisibleDatasetCompoundsList).map(datasetName => {
@@ -397,6 +389,10 @@ const JobConfigurationDialog = ({ snapshots }) => {
         }
       }
 
+      //reconstruct lhs molecules
+      const chosenLHSCompoundsFull = chosenLHSCompounds.map(molecule => {
+        return getAllMolecules.find(mol => mol.code === molecule);
+      });
       // Remove the unnecessary part from protein_code
       chosenLHSCompounds = chosenLHSCompounds.map(molecule => getMoleculeTitle(molecule));
 
@@ -435,7 +431,8 @@ const JobConfigurationDialog = ({ snapshots }) => {
             inputs_dir: `${transfer_root}/${transfer_target}`,
             // Prepares data for expanding, see comments in JobFragmentProteinSelectWindow
             data: {
-              lhs: chosenLHSCompounds.map(compound => getMoleculeEnumName(compound))
+              // lhs: chosenLHSCompounds.map(compound => getMoleculeEnumName(compound))
+              lhs: chosenLHSCompoundsFull
             }
           })
         );

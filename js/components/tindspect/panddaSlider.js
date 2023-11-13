@@ -71,7 +71,7 @@ const PanddaSlider = memo(({ event_on, event_list, object_list, object_on, delet
   }, [currentlySelected, handleOnChange, object_list, object_on, checkForUpdate]);
 
   const pager = (
-    <Grid container justify="space-between">
+    <Grid container justifyContent="space-between">
       <Grid item>
         <Button onClick={() => handleBackward({ currentlySelected, object_list, handleOnChange })}>Previous</Button>
       </Grid>

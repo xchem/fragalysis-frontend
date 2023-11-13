@@ -79,7 +79,7 @@ import {
   setSelectedAll as setSelectedAllOfDataset,
   setSelectedAllByType as setSelectedAllByTypeOfDataset
 } from '../../components/datasets/redux/actions';
-import { loadMoleculesAndTags, addSelectedTag } from '../../components/preview/tags/redux/dispatchActions';
+import { addSelectedTag, loadMoleculesAndTagsNew } from '../../components/preview/tags/redux/dispatchActions';
 
 export const addCurrentActionsListToSnapshot = (snapshot, project, nglViewList) => async dispatch => {
   let projectID = project && project.projectID;
@@ -731,7 +731,7 @@ const loadAllDatasets = (orderedActionList, target_on, stage) => async dispatch 
 };
 
 const loadAllMolecules = target_on => async (dispatch, getState) => {
-  await dispatch(loadMoleculesAndTags(target_on));
+  await dispatch(loadMoleculesAndTagsNew(target_on));
 };
 
 const restoreSitesActions = (orderedActionList, summaryView) => (dispatch, getState) => {
@@ -1068,7 +1068,7 @@ const getMolecule = (moleculeName, state) => {
   let moleculeList = state.apiReducers.all_mol_lists;
   let molecule = null;
 
-  molecule = moleculeList.find(m => m.protein_code === moleculeName);
+  molecule = moleculeList.find(m => m.code === moleculeName);
 
   return molecule;
 };

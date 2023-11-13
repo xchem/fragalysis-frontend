@@ -769,64 +769,62 @@ export const SelectedCompoundList = memo(() => {
       {isOpenCrossReferenceDialog && (
         <CrossReferenceDialog open anchorEl={selectedMoleculeRef} ref={crossReferenceDialogRef} />
       )}
-      <Grid container direction="row" justify="flex-start" className={classes.container}>
+      <Grid container direction="row" justifyContent="flex-start" className={classes.container}>
         <Grid container direction="column">
           {/* Selection */}
-          <Grid container direction="row" justify="space-between" alignItems="center">
+          <Grid container direction="row" justifyContent="space-between" alignItems="center">
             {Object.keys(compoundsColors).map(item => (
-              <>
-                <Grid item key={item}>
-                  <TextField
-                    InputProps={{
-                      readOnly: editedColorGroup !== item,
-                      endAdornment: (
-                        <InputAdornment position="end">
-                          <IconButton
-                            className={
-                              editedColorGroup !== item ? classes.editClassNameIcon : classes.editClassNameIconSelected
-                            }
-                            color={'inherit'}
-                            value={`${item}`}
-                            onClick={e => {
-                              dispatch(onStartEditColorClassName(e));
-                              inputRefs[item].current.focus();
-                              inputRefs[item].current.select();
-                            }}
-                          >
-                            <Edit />
-                          </IconButton>
-                        </InputAdornment>
-                      ),
-                      startAdornment: (
-                        <InputAdornment position="start">
-                          <Checkbox
-                            className={classes.classCheckbox}
-                            key={`CHCK_${item}`}
-                            value={`${item}`}
-                            onChange={e => dispatch(onClickFilterClassCheckBox(e))}
-                            checked={colorFilterSettings.hasOwnProperty(item)}
-                          ></Checkbox>
-                        </InputAdornment>
-                      )
-                    }}
-                    autoComplete="off"
-                    inputRef={inputRefs[item]}
-                    id={`${item}`}
-                    key={`CLASS_${item}`}
-                    variant="standard"
-                    className={classNames(
-                      classes.textField,
-                      classes[item],
-                      colorFilterSettings.hasOwnProperty(item) && classes.selectedInput
-                    )}
-                    onChange={e => dispatch(onChangeCompoundClassValue(e))}
-                    onKeyDown={e => dispatch(onKeyDownCompoundClass(e))}
-                    // onKeyDown={e => dispatch(onKeyDownFilterClass(e))}
-                    // onClick={e => dispatch(onClickFilterClass(e))}
-                    value={inputs[item] || ''}
-                  />
-                </Grid>
-              </>
+              <Grid item key={item}>
+                <TextField
+                  InputProps={{
+                    readOnly: editedColorGroup !== item,
+                    endAdornment: (
+                      <InputAdornment position="end">
+                        <IconButton
+                          className={
+                            editedColorGroup !== item ? classes.editClassNameIcon : classes.editClassNameIconSelected
+                          }
+                          color={'inherit'}
+                          value={`${item}`}
+                          onClick={e => {
+                            dispatch(onStartEditColorClassName(e));
+                            inputRefs[item].current.focus();
+                            inputRefs[item].current.select();
+                          }}
+                        >
+                          <Edit />
+                        </IconButton>
+                      </InputAdornment>
+                    ),
+                    startAdornment: (
+                      <InputAdornment position="start">
+                        <Checkbox
+                          className={classes.classCheckbox}
+                          key={`CHCK_${item}`}
+                          value={`${item}`}
+                          onChange={e => dispatch(onClickFilterClassCheckBox(e))}
+                          checked={colorFilterSettings.hasOwnProperty(item)}
+                        ></Checkbox>
+                      </InputAdornment>
+                    )
+                  }}
+                  autoComplete="off"
+                  inputRef={inputRefs[item]}
+                  id={`${item}`}
+                  key={`CLASS_${item}`}
+                  variant="standard"
+                  className={classNames(
+                    classes.textField,
+                    classes[item],
+                    colorFilterSettings.hasOwnProperty(item) && classes.selectedInput
+                  )}
+                  onChange={e => dispatch(onChangeCompoundClassValue(e))}
+                  onKeyDown={e => dispatch(onKeyDownCompoundClass(e))}
+                  // onKeyDown={e => dispatch(onKeyDownFilterClass(e))}
+                  // onClick={e => dispatch(onClickFilterClass(e))}
+                  value={inputs[item] || ''}
+                />
+              </Grid>
             ))}
           </Grid>
           <Grid item>
@@ -884,7 +882,7 @@ export const SelectedCompoundList = memo(() => {
                   <Grid
                     container
                     direction="row"
-                    justify="center"
+                    justifyContent="center"
                     alignItems="center"
                     className={classes.paddingProgress}
                   >
@@ -970,7 +968,7 @@ export const SelectedCompoundList = memo(() => {
           </Grid>
         )}
         {!(currentMolecules.length > 0) && (
-          <Grid container justify="center" alignItems="center" direction="row" className={classes.notFound}>
+          <Grid container justifyContent="center" alignItems="center" direction="row" className={classes.notFound}>
             <Grid item>
               <Typography variant="body2">No molecules found!</Typography>
             </Grid>

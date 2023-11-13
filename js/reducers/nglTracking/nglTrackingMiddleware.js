@@ -11,10 +11,10 @@ const nglTrackingMiddleware = ({ dispatch, getState }) => next => action => {
     if (action && action.type && !action.type.includes(constants.APPEND_ACTIONS_LIST)) {
       let trackAction = findTrackAction(action, state);
       if (trackAction && trackAction != null) {
-        const isSnapshotDirty = state.trackingReducers.isSnapshotDirty;
-        if (!isSnapshotDirty) {
-          dispatch(setIsSnapshotDirty(true));
-        }
+        // const isSnapshotDirty = state.trackingReducers.isSnapshotDirty;
+        // if (!isSnapshotDirty) {
+        //   dispatch(setIsSnapshotDirty(true));
+        // }
         dispatch(appendAndSendTrackingActions(trackAction));
       }
     }

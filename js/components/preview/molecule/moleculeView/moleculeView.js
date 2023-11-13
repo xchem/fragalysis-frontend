@@ -4,7 +4,7 @@
 
 import React, { memo, useEffect, useState, useRef, useContext, useCallback } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { Grid, Button, makeStyles, Tooltip, IconButton, Popper, Item } from '@material-ui/core';
+import { Button, Grid, makeStyles, Tooltip, IconButton, Popper, Item, CircularProgress } from '@material-ui/core';
 import { Panel } from '../../../common';
 import { MyLocation, Warning, Assignment, AssignmentTurnedIn } from '@material-ui/icons';
 import SVGInline from 'react-svg-inline';
@@ -32,7 +32,8 @@ import {
   getQualityInformation,
   getDensityMapData,
   getProteinData,
-  withDisabledMoleculeNglControlButton
+  withDisabledMoleculeNglControlButton,
+  getCategoryById
 } from '../redux/dispatchActions';
 import {
   setSelectedAll,
@@ -48,13 +49,14 @@ import { SvgTooltip } from '../../../common';
 import { MOL_TYPE } from '../redux/constants';
 import { DensityMapsModal } from '../modals/densityMapsModal';
 import { getRandomColor } from '../utils/color';
-import { getAllTagsForMol } from '../../tags/utils/tagUtils';
+import { DEFAULT_TAG_COLOR, getAllTagsForMol } from '../../tags/utils/tagUtils';
 import MoleculeSelectCheckbox from './moleculeSelectCheckbox';
 import useClipboard from 'react-use-clipboard';
 import Popover from '@mui/material/Popover';
 import Typography from '@mui/material/Typography';
 import { Edit } from '@material-ui/icons';
 import { DJANGO_CONTEXT } from '../../../../utils/djangoContext';
+import { getFontColorByBackgroundColor } from '../../../../utils/colors';
 
 const useStyles = makeStyles(theme => ({
   container: {
@@ -289,6 +291,14 @@ const useStyles = makeStyles(theme => ({
     top: '50%',
     left: '50%'
     //transform: 'translate(86%, 0%)'
+  },
+  buttonLoadingOverlay: {
+    position: 'absolute',
+    width: '11px !important',
+    height: '11px !important'
+  },
+  buttonSelectedLoadingOverlay: {
+    color: theme.palette.primary.contrastText
   }
 }));
 
@@ -339,6 +349,7 @@ const MoleculeView = memo(
     const viewParams = useSelector(state => state.nglReducers.viewParams);
     const tagList = useSelector(state => state.apiReducers.tagList);
     const tagEditorOpen = useSelector(state => state.selectionReducers.tagEditorOpened);
+    const tagCategories = useSelector(state => state.apiReducers.categoryList);
 
     const assignTagEditorOpen = useSelector(state => state.selectionReducers.tagEditorOpened);
 
@@ -374,15 +385,15 @@ const MoleculeView = memo(
 
     const getCalculatedProps = useCallback(
       () => [
-        { name: moleculeProperty.mw, value: data.mw },
-        { name: moleculeProperty.logP, value: data.logp },
-        { name: moleculeProperty.tpsa, value: data.tpsa },
-        { name: moleculeProperty.ha, value: data.ha },
-        { name: moleculeProperty.hacc, value: data.hacc },
-        { name: moleculeProperty.hdon, value: data.hdon },
-        { name: moleculeProperty.rots, value: data.rots },
-        { name: moleculeProperty.rings, value: data.rings },
-        { name: moleculeProperty.velec, value: data.velec }
+        { name: moleculeProperty.mw, value: data.mw ?? 0 },
+        { name: moleculeProperty.logP, value: data.logp ?? 0 },
+        { name: moleculeProperty.tpsa, value: data.tpsa ?? 0 },
+        { name: moleculeProperty.ha, value: data.ha ?? 0 },
+        { name: moleculeProperty.hacc, value: data.hacc ?? 0 },
+        { name: moleculeProperty.hdon, value: data.hdon ?? 0 },
+        { name: moleculeProperty.rots, value: data.rots ?? 0 },
+        { name: moleculeProperty.rings, value: data.rings ?? 0 },
+        { name: moleculeProperty.velec, value: data.velec ?? 0 }
         //   { name: moleculeProperty.vectors, value: countOfVectors },
         //   { name: moleculeProperty.cpd, value: cmpds }
       ],
@@ -395,7 +406,7 @@ const MoleculeView = memo(
 
     const moleculeImgRef = useRef(null);
 
-    const open = tagPopoverOpen;
+    const open = tagPopoverOpen ? true : false;
 
     let proteinData = data?.proteinData;
 
@@ -416,11 +427,29 @@ const MoleculeView = memo(
       setTagPopoverOpen(null);
     };
 
+    const resolveTagBackgroundColor = tag => {
+      let color = DEFAULT_TAG_COLOR;
+
+      if (tag.colour && tag.colour !== '') {
+        color = tag.colour;
+      } else {
+        const category = dispatch(getCategoryById(tag.category));
+        if (category) {
+          color = `#${category.colour}`;
+        }
+      }
+
+      return color;
+    };
+
+    const resolveTagForegroundColor = tag => {
+      const bgColor = resolveTagBackgroundColor(tag);
+      return getFontColorByBackgroundColor(bgColor);
+    };
+
     const generateTagPopover = () => {
       const allData = getDataForTagsTooltip();
       const sortedData = [...allData].sort((a, b) => a.tag.localeCompare(b.tag));
-
-      const mergedArray = [...sortedData, ...tagList.filter(item => !sortedData.includes(item))];
 
       const modifiedObjects = sortedData.map(obj => {
         const tagNameShortLength = 2;
@@ -439,6 +468,7 @@ const MoleculeView = memo(
             aria-owns={open ? 'mouse-over-popover' : undefined}
             aria-haspopup="true"
             style={{ fontSize: '10px' }}
+            component={'div'}
           >
             {modifiedObjects.length < 2 ? (
               <Grid
@@ -453,9 +483,8 @@ const MoleculeView = memo(
                   index < allTagsLength ? (
                     <Grid
                       style={{
-                        backgroundColor:
-                          modifiedObjects[index].colour !== null ? modifiedObjects[index].colour : '#e0e0e0',
-                        color: modifiedObjects[index].colour === null ? 'black' : 'white',
+                        backgroundColor: resolveTagBackgroundColor(modifiedObjects[index]),
+                        color: resolveTagForegroundColor(modifiedObjects[index]),
                         display: 'block',
                         maxWidth: '20px'
                       }}
@@ -515,9 +544,8 @@ const MoleculeView = memo(
                     index < allTagsLength ? (
                       <Grid
                         style={{
-                          backgroundColor:
-                            modifiedObjects[index].colour !== null ? modifiedObjects[index].colour : '#e0e0e0',
-                          color: modifiedObjects[index].colour === null ? 'black' : 'white',
+                          backgroundColor: resolveTagBackgroundColor(modifiedObjects[index]),
+                          color: resolveTagForegroundColor(modifiedObjects[index]),
                           display: 'flex',
                           width: '20px',
                           paddingLeft: '3px'
@@ -571,6 +599,7 @@ const MoleculeView = memo(
               aria-owns={open ? 'mouse-over-popper' : undefined}
               aria-haspopup="true"
               style={{ fontSize: '10px', display: 'flex' }}
+              component={'div'}
             >
               <Popper open={open} placement="right-start" anchorEl={tagPopoverOpen} style={{ display: 'flex' }}>
                 <Panel
@@ -587,22 +616,9 @@ const MoleculeView = memo(
                     {sortedData.map((item, index) => (
                       <Grid
                         style={{
-                          backgroundColor:
-                            index < allData.length
-                              ? sortedData[index].colour !== null
-                                ? sortedData[index].colour
-                                : '#e0e0e0'
-                              : 'white',
-                          color:
-                            index < allTagsLength ? (sortedData[index].colour === null ? 'black' : 'white') : 'black',
-                          border:
-                            index < allTagsLength
-                              ? sortedData[index].colour !== null
-                                ? `${sortedData[index].colour} solid 1px`
-                                : 'black solid 1px'
-                              : sortedData[index].colour !== null
-                              ? `${sortedData[index].colour} solid 1px`
-                              : `#e0e0e0 solid 0.05rem`,
+                          backgroundColor: resolveTagBackgroundColor(sortedData[index]),
+                          color: resolveTagForegroundColor(sortedData[index]),
+                          border: `${resolveTagBackgroundColor(sortedData[index])} solid 1px`,
                           display: 'grid',
                           placeItems: 'center'
                         }}
@@ -651,20 +667,20 @@ const MoleculeView = memo(
       );
     };
 
-    useEffect(() => {
-      if (!proteinData) {
-        dispatch(getProteinData(data)).then(i => {
-          if (i && i.length > 0) {
-            const proteinData = i[0];
-            data.proteinData = proteinData;
-            const result =
-              data.proteinData &&
-              (data.proteinData.diff_info || data.proteinData.event_info || data.proteinData.sigmaa_info);
-            setHasMap(result);
-          }
-        });
-      }
-    }, [data, dispatch, proteinData]);
+    // useEffect(() => {
+    //   if (!proteinData) {
+    //     dispatch(getProteinData(data)).then(i => {
+    //       if (i && i.length > 0) {
+    //         const proteinData = i[0];
+    //         data.proteinData = proteinData;
+    //         const result =
+    //           data.proteinData &&
+    //           (data.proteinData.diff_info || data.proteinData.event_info || data.proteinData.sigmaa_info);
+    //         setHasMap(result);
+    //       }
+    //     });
+    //   }
+    // }, [data, dispatch, proteinData]);
 
     // componentDidMount
     useEffect(() => {
@@ -715,7 +731,10 @@ const MoleculeView = memo(
       selectedAll.current = false;
     };
 
+    const [loadingAll, setLoadingAll] = useState(false);
+    const [loadingLigand, setLoadingLigand] = useState(false);
     const onLigand = calledFromSelectAll => {
+      setLoadingLigand(true);
       if (calledFromSelectAll === true && selectedAll.current === true) {
         if (isLigandOn === false) {
           addNewLigand(calledFromSelectAll);
@@ -729,6 +748,7 @@ const MoleculeView = memo(
           removeSelectedLigand();
         }
       }
+      setLoadingLigand(false);
     };
 
     const removeSelectedProtein = (skipTracking = false) => {
@@ -747,7 +767,9 @@ const MoleculeView = memo(
       );
     };
 
+    const [loadingProtein, setLoadingProtein] = useState(false);
     const onProtein = calledFromSelectAll => {
+      setLoadingProtein(true);
       if (calledFromSelectAll === true && selectedAll.current === true) {
         if (isProteinOn === false) {
           addNewProtein(calledFromSelectAll);
@@ -761,6 +783,7 @@ const MoleculeView = memo(
           removeSelectedProtein();
         }
       }
+      setLoadingProtein(false);
     };
 
     const removeSelectedComplex = (skipTracking = false) => {
@@ -776,7 +799,9 @@ const MoleculeView = memo(
       );
     };
 
+    const [loadingComplex, setLoadingComplex] = useState(false);
     const onComplex = calledFromSelectAll => {
+      setLoadingComplex(true);
       if (calledFromSelectAll === true && selectedAll.current === true) {
         if (isComplexOn === false) {
           addNewComplex(calledFromSelectAll);
@@ -790,6 +815,7 @@ const MoleculeView = memo(
           removeSelectedComplex();
         }
       }
+      setLoadingComplex(false);
     };
 
     const removeSelectedSurface = () => {
@@ -807,12 +833,15 @@ const MoleculeView = memo(
       );
     };
 
+    const [loadingSurface, setLoadingSurface] = useState(false);
     const onSurface = () => {
+      setLoadingSurface(true);
       if (isSurfaceOn === false) {
         addNewSurface();
       } else {
         removeSelectedSurface();
       }
+      setLoadingSurface(false);
     };
 
     const removeSelectedDensity = () => {
@@ -839,7 +868,9 @@ const MoleculeView = memo(
       );
     };
 
+    const [loadingDensity, setLoadingDensity] = useState(false);
     const onDensity = () => {
+      setLoadingDensity(true);
       if (isDensityOn === false && isDensityCustomOn === false) {
         dispatch(getDensityMapData(data)).then(r => {
           if (r) {
@@ -853,6 +884,7 @@ const MoleculeView = memo(
       } else {
         removeSelectedDensity();
       }
+      setLoadingDensity(false);
     };
 
     const removeSelectedQuality = () => {
@@ -890,12 +922,15 @@ const MoleculeView = memo(
       );
     };
 
+    const [loadingVector, setLoadingVector] = useState(false);
     const onVector = () => {
+      setLoadingVector(true);
       if (isVectorOn === false) {
         addNewVector();
       } else {
         removeSelectedVector();
       }
+      setLoadingVector(false);
     };
 
     const setCalledFromAll = () => {
@@ -941,7 +976,7 @@ const MoleculeView = memo(
       });
     };
 
-    let moleculeTitle = data?.protein_code.replace(new RegExp(`${target_on_name}-`, 'i'), '');
+    let moleculeTitle = data?.code.replace(new RegExp(`${target_on_name}-`, 'i'), '');
 
     const moleculeLPCControlButtonDisabled = ['ligand', 'protein', 'complex'].some(
       type => disableMoleculeNglControlButtons[type]
@@ -951,9 +986,16 @@ const MoleculeView = memo(
 
     return (
       <>
-        <Grid container justify="space-between" direction="row" className={classes.container} wrap="nowrap" ref={ref}>
+        <Grid
+          container
+          justifyContent="space-between"
+          direction="row"
+          className={classes.container}
+          wrap="nowrap"
+          ref={ref}
+        >
           {/* Site number */}
-          <Grid item container justify="space-between" direction="column" className={classes.site}>
+          <Grid item container justifyContent="space-between" direction="column" className={classes.site}>
             <Grid item>
               <MoleculeSelectCheckbox
                 moleculeID={currentID}
@@ -975,7 +1017,7 @@ const MoleculeView = memo(
               {index + 1}.
             </Grid>
           </Grid>
-          <Grid item container className={classes.detailsCol} justify="space-between" direction="row">
+          <Grid item container className={classes.detailsCol} justifyContent="space-between" direction="row">
             {/* Title label */}
             <Grid item xs={7}>
               <Tooltip title={moleculeTitle} placement="bottom-start">
@@ -988,7 +1030,7 @@ const MoleculeView = memo(
               <Grid
                 container
                 direction="row"
-                justify="flex-end"
+                justifyContent="flex-end"
                 alignItems="center"
                 wrap="nowrap"
                 className={classes.contButtonsMargin}
@@ -1021,6 +1063,7 @@ const MoleculeView = memo(
                         }
                       )}
                       onClick={() => {
+                        setLoadingAll(true);
                         // always deselect all if are selected only some of options
                         selectedAll.current = hasSomeValuesOn || hasAllValuesOn ? false : !selectedAll.current;
 
@@ -1028,10 +1071,18 @@ const MoleculeView = memo(
                         onLigand(true);
                         onProtein(true);
                         onComplex(true);
+                        setLoadingAll(false);
                       }}
                       disabled={groupMoleculeLPCControlButtonDisabled || moleculeLPCControlButtonDisabled}
                     >
                       A
+                      {loadingAll && (
+                        <CircularProgress
+                          className={classNames(classes.buttonLoadingOverlay, {
+                            [classes.buttonSelectedLoadingOverlay]: hasAllValuesOn || hasSomeValuesOn
+                          })}
+                        />
+                      )}
                     </Button>
                   </Grid>
                 </Tooltip>
@@ -1046,6 +1097,13 @@ const MoleculeView = memo(
                       disabled={disableL || disableMoleculeNglControlButtons.ligand}
                     >
                       L
+                      {loadingLigand && (
+                        <CircularProgress
+                          className={classNames(classes.buttonLoadingOverlay, {
+                            [classes.buttonSelectedLoadingOverlay]: isLigandOn
+                          })}
+                        />
+                      )}
                     </Button>
                   </Grid>
                 </Tooltip>
@@ -1060,6 +1118,13 @@ const MoleculeView = memo(
                       disabled={disableP || disableMoleculeNglControlButtons.protein}
                     >
                       P
+                      {loadingProtein && (
+                        <CircularProgress
+                          className={classNames(classes.buttonLoadingOverlay, {
+                            [classes.buttonSelectedLoadingOverlay]: isProteinOn
+                          })}
+                        />
+                      )}
                     </Button>
                   </Grid>
                 </Tooltip>
@@ -1075,6 +1140,13 @@ const MoleculeView = memo(
                       disabled={disableC || disableMoleculeNglControlButtons.complex}
                     >
                       C
+                      {loadingComplex && (
+                        <CircularProgress
+                          className={classNames(classes.buttonLoadingOverlay, {
+                            [classes.buttonSelectedLoadingOverlay]: isComplexOn
+                          })}
+                        />
+                      )}
                     </Button>
                   </Grid>
                 </Tooltip>
@@ -1089,6 +1161,13 @@ const MoleculeView = memo(
                       disabled={disableMoleculeNglControlButtons.surface}
                     >
                       S
+                      {loadingSurface && (
+                        <CircularProgress
+                          className={classNames(classes.buttonLoadingOverlay, {
+                            [classes.buttonSelectedLoadingOverlay]: isSurfaceOn
+                          })}
+                        />
+                      )}
                     </Button>
                   </Grid>
                 </Tooltip>
@@ -1109,6 +1188,13 @@ const MoleculeView = memo(
                       disabled={!hasMap || disableMoleculeNglControlButtons.density}
                     >
                       D
+                      {loadingDensity && (
+                        <CircularProgress
+                          className={classNames(classes.buttonLoadingOverlay, {
+                            [classes.buttonSelectedLoadingOverlay]: isDensityOn || isDensityCustomOn
+                          })}
+                        />
+                      )}
                     </Button>
                   </Grid>
                 </Tooltip>
@@ -1123,6 +1209,13 @@ const MoleculeView = memo(
                       disabled={disableMoleculeNglControlButtons.vector}
                     >
                       V
+                      {loadingVector && (
+                        <CircularProgress
+                          className={classNames(classes.buttonLoadingOverlay, {
+                            [classes.buttonSelectedLoadingOverlay]: isVectorOn
+                          })}
+                        />
+                      )}
                     </Button>
                   </Grid>
                 </Tooltip>
@@ -1133,7 +1226,7 @@ const MoleculeView = memo(
               <Grid
                 item
                 container
-                justify="flex-start"
+                justifyContent="flex-start"
                 alignItems="flex-end"
                 direction="row"
                 wrap="nowrap"

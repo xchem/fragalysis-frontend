@@ -12,7 +12,8 @@ const trackingMiddleware = ({ dispatch, getState }) => next => action => {
       let trackAction = dispatch(findTrackAction(action, state));
       if (trackAction && trackAction != null) {
         const isSnapshotDirty = state.trackingReducers.isSnapshotDirty;
-        if (!isSnapshotDirty) {
+        const snapshotLoadingInProgress = state.apiReducers.snapshotLoadingInProgress;
+        if (!isSnapshotDirty && !snapshotLoadingInProgress) {
           dispatch(setIsSnapshotDirty(true));
         }
         dispatch(appendAndSendTrackingActions(trackAction));
