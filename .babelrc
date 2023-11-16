@@ -1,8 +1,5 @@
 {
-  "presets": [
-    "@babel/preset-env",
-    "@babel/preset-react"
-  ],
+  "presets": ["@babel/preset-env", "@babel/preset-react"],
   "plugins": [
     [
       "@babel/plugin-proposal-decorators",
@@ -11,7 +8,7 @@
       },
       "@babel/plugin-proposal-optional-chaining"
     ],
-    "react-refresh/babel",
+    // "react-refresh/babel",
     "@babel/plugin-syntax-dynamic-import",
     "@babel/plugin-syntax-import-meta",
     "@babel/plugin-proposal-class-properties",
