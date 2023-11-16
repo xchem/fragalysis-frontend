@@ -154,7 +154,7 @@ export const Panel = memo(
                 {(headerActions || hasExpansion) && (
                   <Grid item>
                     <Grid container direction="row" className={classes.actionsContainer}>
-                      {headerActions && headerActions.map((action, index) => <Fragment key={index}>{action}</Fragment>)}
+                      {headerActions && headerActions.map((action, index) => <Fragment key={`action-${index}`}>{action}</Fragment>)}
                       {hasExpansion && (
                         <IconButton className={classes.button} onClick={handleTitleButtonClick} color="inherit">
                           {expanded ? <ExpandLess /> : <ExpandMore />}

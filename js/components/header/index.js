@@ -65,6 +65,7 @@ import { activateSnapshotDialog } from '../snapshot/redux/dispatchActions';
 import { setAddButton, setProjectModalIsLoading } from '../projects/redux/actions';
 import { getVersions } from '../../utils/version';
 import { AddProjectDetail } from '../projects/addProjectDetail';
+import { ServicesStatus, ServicesStatusWrapper } from '../services';
 
 const useStyles = makeStyles(theme => ({
   padding: {
@@ -290,8 +291,8 @@ export default memo(
                   targetName !== undefined ? (
                     <>
                       {currentProject.authorID === null ||
-                      currentProject.projectID === null ||
-                      currentProject.authorID === userId ? (
+                        currentProject.projectID === null ||
+                        currentProject.authorID === userId ? (
                         <Button
                           onClick={() => {
                             isProjectModalLoading === false
@@ -402,6 +403,7 @@ export default memo(
                 </ButtonGroup>
               )}
             </Grid>
+            <ServicesStatusWrapper />
             <Grid item>
               <Grid container direction="row" justifyContent="flex-start" alignItems="center" spacing={1}>
                 {layoutEnabled && (
