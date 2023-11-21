@@ -5,6 +5,7 @@ import { useHistory, useRouteMatch } from 'react-router-dom';
 import { setIsLoadingCurrentSnapshot } from '../projects/redux/actions';
 import { useDispatch } from 'react-redux';
 import { ToastContext } from '../toast';
+import { setIsSnapshot } from '../../reducers/api/actions';
 
 export const SessionRedirect = memo(() => {
   const dispatch = useDispatch();
@@ -15,6 +16,7 @@ export const SessionRedirect = memo(() => {
 
   useEffect(() => {
     dispatch(setIsLoadingCurrentSnapshot(true));
+    dispatch(setIsSnapshot(true));
     api({ url: `${base_url}/api/viewscene/?uuid=${sessionUUID}` })
       .then(response => {
         if (response.data && response.data.results && response.data.results.length === 1) {

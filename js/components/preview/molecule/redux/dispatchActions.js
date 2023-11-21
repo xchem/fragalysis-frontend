@@ -654,21 +654,24 @@ export const initializeMolecules = majorView => (dispatch, getState) => {
   if (majorView) {
     const state = getState();
     const noTagsReceived = state.apiReducers.noTagsReceived;
+    const isSnapshot = state.apiReducers.isSnapshot;
 
-    const firstTag = dispatch(getFirstTag());
-    let firstMolecule = null;
-    if (firstTag) {
-      dispatch(addSelectedTag(firstTag));
-      firstMolecule = dispatch(getFirstMoleculeForTag(firstTag.id));
-    } else if (noTagsReceived) {
-      firstMolecule = dispatch(getFirstMolecule());
-    }
-    if (firstMolecule) {
-      dispatch(addHitProtein(majorView, firstMolecule, colourList[firstMolecule.id % colourList.length], true)).then(
-        () => {
-          dispatch(addLigand(majorView, firstMolecule, colourList[firstMolecule.id % colourList.length], true, true));
-        }
-      );
+    if (!isSnapshot) {
+      const firstTag = dispatch(getFirstTag());
+      let firstMolecule = null;
+      if (firstTag) {
+        dispatch(addSelectedTag(firstTag));
+        firstMolecule = dispatch(getFirstMoleculeForTag(firstTag.id));
+      } else if (noTagsReceived) {
+        firstMolecule = dispatch(getFirstMolecule());
+      }
+      if (firstMolecule) {
+        dispatch(addHitProtein(majorView, firstMolecule, colourList[firstMolecule.id % colourList.length], true)).then(
+          () => {
+            dispatch(addLigand(majorView, firstMolecule, colourList[firstMolecule.id % colourList.length], true, true));
+          }
+        );
+      }
     }
   }
 };

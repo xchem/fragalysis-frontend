@@ -1,6 +1,15 @@
 import React, { memo, useRef, useEffect, useCallback, useState, useMemo, useContext } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
-import { Switch, Typography, makeStyles, IconButton, Tooltip, Grid, FormControlLabel, CircularProgress } from '@material-ui/core';
+import {
+  Switch,
+  Typography,
+  makeStyles,
+  IconButton,
+  Tooltip,
+  Grid,
+  FormControlLabel,
+  CircularProgress
+} from '@material-ui/core';
 import { Panel } from '../../../common/Surfaces/Panel';
 import TagDetailRow from './tagDetailRow';
 import TagGridRows from './tagGridRows';
@@ -82,7 +91,7 @@ const useStyles = makeStyles(theme => ({
   },
   columnTitleGrid: {
     fontSize: theme.typography.pxToRem(13),
-    position: "center"
+    position: 'center'
   },
   tagModeSwitch: {
     width: 32, // Should be adjusted if a label for the switch changes
@@ -181,8 +190,8 @@ const TagDetails = memo(() => {
   const moleculesToEditIds = useSelector(state => state.selectionReducers.moleculesToEdit);
   const moleculesToEdit =
     moleculesToEditIds &&
-      moleculesToEditIds.length > 0 &&
-      !(moleculesToEditIds.length === 1 && moleculesToEditIds[0] === null)
+    moleculesToEditIds.length > 0 &&
+    !(moleculesToEditIds.length === 1 && moleculesToEditIds[0] === null)
       ? moleculesToEditIds.map(id => dispatch(getMoleculeForId(id)))
       : [];
 
@@ -474,7 +483,13 @@ const TagDetails = memo(() => {
                     </Grid>
                   );
                 })}
-              {moleculesAndTagsAreLoading && <Grid container direction="row" justifyContent="center"><Grid item><CircularProgress /></Grid></Grid>}
+              {moleculesAndTagsAreLoading && (
+                <Grid container direction="row" justifyContent="center">
+                  <Grid item>
+                    <CircularProgress />
+                  </Grid>
+                </Grid>
+              )}
             </Grid>
           </>
         ) : (
@@ -571,7 +586,13 @@ const TagDetails = memo(() => {
                   />
                 );
               })}
-            {moleculesAndTagsAreLoading && <Grid container direction="row" justifyContent="center" style={{ gridColumn: '1 / -1' }}><Grid item><CircularProgress /></Grid></Grid>}
+            {moleculesAndTagsAreLoading && (
+              <Grid container direction="row" justifyContent="center" style={{ gridColumn: '1 / -1' }}>
+                <Grid item>
+                  <CircularProgress />
+                </Grid>
+              </Grid>
+            )}
           </div>
         )}
         <div style={{ paddingBottom: resizableLayout === true ? '17px' : '0px' }}>

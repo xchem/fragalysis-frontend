@@ -169,62 +169,6 @@ export const unselectTag = tag => (dispatch, getState) => {
   }
 };
 
-// export const loadMoleculesAndTags = targetId => async (dispatch, getState) => {
-//   return getAllData(targetId).then(data => {
-//     let tags_info = [];
-//     if (data.tags_info && data.tags_info.length > 0) {
-//       dispatch(setNoTagsReceived(false));
-//       data.tags_info.forEach(tag => {
-//         let newObject = {};
-//         Object.keys(tag.data[0]).forEach(prop => {
-//           newObject[`${prop}`] = tag.data[0][`${prop}`];
-//         });
-//         let coords = {};
-//         if (tag.coords && tag.coords.length > 1) {
-//           Object.keys(tag.coords[0]).forEach(prop => {
-//             coords[`${prop}`] = tag.coords[0][`${prop}`];
-//           });
-//         }
-//         newObject['coords'] = coords;
-
-//         if (!newObject.additional_info) {
-//           tags_info.push(newObject);
-//         }
-//       });
-//     }
-
-//     let allMolecules = [];
-//     data.molecules.forEach(mol => {
-//       let newObject = {};
-//       Object.keys(mol.data).forEach(prop => {
-//         newObject[`${prop}`] = mol.data[`${prop}`];
-//       });
-//       newObject['tags_set'] = mol.tags_set;
-
-//       allMolecules.push(newObject);
-//     });
-//     allMolecules.sort((a, b) => {
-//       if (a.protein_code < b.protein_code) {
-//         return -1;
-//       }
-//       if (a.protein_code > b.protein_code) {
-//         return 1;
-//       }
-//       return 0;
-//     });
-//     dispatch(setAllMolLists([...allMolecules]));
-
-//     //need to do this this way because only categories which have at least one tag assigned are sent from backend
-//     const categories = getCategoryIds();
-//     tags_info = tags_info.sort(compareTagsAsc);
-//     dispatch(setTagSelectorData(categories, tags_info));
-//     dispatch(setAllDataLoaded(true));
-//     // dispatch(setTargetDataLoadingInProgress(false));
-//     //console.log(tags_info);
-//   });
-//   // }
-// };
-
 const getTagsForMol = (molId, tagList) => {
   const result = tagList.filter(t => t.site_observations.includes(molId));
   return result;
