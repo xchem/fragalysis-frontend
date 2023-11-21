@@ -3238,12 +3238,13 @@ const changeMolecularRepresentationForSnapshotRestoration = (action, nglView) =>
   );*/
 
   // remove previous representation from NGL
+
   dispatch(removeRepresentationForSnapshotRestoration(action.newRepresentation, action.object_id, nglView));
 
   // add new representation to redux
   dispatch(addComponentRepresentation(action.object_id, action.newRepresentation, true));
 
-  dispatch(changeComponentRepresentation(action.object_id, action.newRepresentation, action.newRepresentation));
+  dispatch(changeComponentRepresentation(action.object_id, action.oldRepresentation, action.newRepresentation));
 };
 
 const removeRepresentationForSnapshotRestoration = (representation, parentKey, nglView) => (dispatch, getState) => {

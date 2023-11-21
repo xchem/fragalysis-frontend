@@ -20,7 +20,7 @@ export const assignRepresentationToComp = (type, params, comp, lastKnownID = und
 };
 
 export const assignRepresentationArrayToComp = (representations, comp) => {
-  representations.map(rep => assignRepresentationToComp(rep.type, rep.params, comp, rep.lastKnownID));
+  return representations.map(rep => assignRepresentationToComp(rep.type, rep.params, comp, rep.lastKnownID));
 };
 
 export const generateProteinObject = data => {

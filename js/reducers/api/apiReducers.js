@@ -49,7 +49,8 @@ export const INITIAL_STATE = {
   tagList: [],
   categoryList: [],
   target_data_loading_in_progress: false,
-  all_data_loaded: false
+  all_data_loaded: false,
+  isSnapshot: false
 };
 
 export const RESET_TARGET_STATE = {
@@ -226,6 +227,9 @@ export default function apiReducers(state = INITIAL_STATE, action = {}) {
       return Object.assign({}, state, {
         sessionTitle: action.sessionTitle
       });
+
+    case constants.SET_IS_SNAPSHOT:
+      return { ...state, isSnapshot: action.isSnapshot };
 
     case constants.SET_SESSION_ID:
       return Object.assign({}, state, {

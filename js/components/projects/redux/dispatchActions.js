@@ -25,7 +25,7 @@ import { DJANGO_CONTEXT } from '../../../utils/djangoContext';
 import { sendInitTrackingActionByProjectId } from '../../../reducers/tracking/dispatchActions';
 import { resetTrackingState, setIsSnapshotDirty } from '../../../reducers/tracking/actions';
 import { createProjectPost } from '../../../utils/discourse';
-import { setOpenDiscourseErrorModal } from '../../../reducers/api/actions';
+import { setIsSnapshot, setOpenDiscourseErrorModal } from '../../../reducers/api/actions';
 
 import moment from 'moment';
 import { resetNglTrackingState } from '../../../reducers/nglTracking/dispatchActions';
@@ -142,6 +142,7 @@ export const loadSnapshotByProjectID = projectID => (dispatch, getState) => {
   const isLoadingCurrentSnapshot = state.projectReducers.isLoadingCurrentSnapshot;
   if (isLoadingCurrentSnapshot === false) {
     dispatch(setIsLoadingCurrentSnapshot(true));
+    dispatch(setIsSnapshot(true));
     return api({ url: `${base_url}/api/snapshots/?session_project=${projectID}&type=INIT` })
       .then(response => {
         if (response.data.results.length === 0) {
@@ -180,6 +181,7 @@ export const loadCurrentSnapshotByID = snapshotID => (dispatch, getState) => {
   const isLoadingCurrentSnapshot = state.projectReducers.isLoadingCurrentSnapshot;
   if (isLoadingCurrentSnapshot === false) {
     dispatch(setIsLoadingCurrentSnapshot(true));
+    dispatch(setIsSnapshot(true));
     return api({ url: `${base_url}/api/snapshots/${snapshotID}` })
       .then(response => {
         if (response.data.id === undefined) {

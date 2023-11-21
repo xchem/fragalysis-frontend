@@ -351,3 +351,11 @@ export const setSnapshotLoadingInProgress = (snapshotLoadingInProgress, skipTrac
     skipTracking
   };
 };
+
+export const setIsSnapshot = (isSnapshot, skipTracking = true) => {
+  return {
+    type: constants.SET_IS_SNAPSHOT,
+    isSnapshot: isSnapshot,
+    skipTracking
+  };
+};
