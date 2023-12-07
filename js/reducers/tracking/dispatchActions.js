@@ -616,17 +616,17 @@ const getCurrentActionList = (orderedActionList, type, collection, currentAction
 
   if (collection) {
     collection.forEach(data => {
-      let action = null;
+      let actions = [];
       if (data.hasOwnProperty('color')) {
-        action = actionList.find(
+        actions = actionList.filter(
           a => a.object_id === data.id && a.dataset_id === data.datasetId && a.color_class === data.color
         );
       } else {
-        action = actionList.find(a => a.object_id === data.id && a.dataset_id === data.datasetId);
+        actions = actionList.filter(a => a.object_id === data.id && a.dataset_id === data.datasetId);
       }
 
-      if (action) {
-        currentActions.push(Object.assign({ ...action }));
+      if (actions.length > 0) {
+        actions.forEach(action => currentActions.push(Object.assign({ ...action })));
       }
     });
   }
@@ -918,7 +918,7 @@ export const restoreStateBySavedActionList = () => (dispatch, getState) => {
   const currentActionList = state.trackingReducers.current_actions_list;
   const orderedActionList = currentActionList.sort((a, b) => a.timestamp - b.timestamp);
 
-  let onCancel = () => {};
+  let onCancel = () => { };
   dispatch(loadTargetList(onCancel))
     .then(() => {
       dispatch(restoreTargetActions(orderedActionList));
@@ -959,14 +959,14 @@ export const restoreAfterTargetActions = (stages, projectId) => async (dispatch,
     await dispatch(
       loadMoleculeGroupsOfTarget({
         isStateLoaded: false,
-        setOldUrl: url => {},
+        setOldUrl: url => { },
         target_on: targetId
       })
     )
       .catch(error => {
         throw error;
       })
-      .finally(() => {});
+      .finally(() => { });
 
     await dispatch(restoreSitesActions(orderedActionList));
     await dispatch(loadData(orderedActionList, targetId, majorView));
@@ -1512,16 +1512,16 @@ const restoreAllSelectionActions = (moleculesAction, stage, isSelection) => (dis
   let actions =
     isSelection === true
       ? moleculesAction.filter(
-          action =>
-            action.type === actionType.ALL_TURNED_ON &&
-            (action.object_type === actionObjectType.INSPIRATION || action.object_type === actionObjectType.MOLECULE)
-        )
+        action =>
+          action.type === actionType.ALL_TURNED_ON &&
+          (action.object_type === actionObjectType.INSPIRATION || action.object_type === actionObjectType.MOLECULE)
+      )
       : moleculesAction.filter(
-          action =>
-            action.type === actionType.ALL_TURNED_ON &&
-            (action.object_type === actionObjectType.CROSS_REFERENCE ||
-              action.object_type === actionObjectType.COMPOUND)
-        );
+        action =>
+          action.type === actionType.ALL_TURNED_ON &&
+          (action.object_type === actionObjectType.CROSS_REFERENCE ||
+            action.object_type === actionObjectType.COMPOUND)
+      );
 
   if (actions) {
     actions.forEach(action => {
@@ -1594,16 +1594,16 @@ const restoreAllSelectionByTypeActions = (moleculesAction, stage, isSelection) =
   let actions =
     isSelection === true
       ? moleculesAction.filter(
-          action =>
-            action.type === actionType.SELECTED_TURNED_ON_BY_TYPE &&
-            (action.object_type === actionObjectType.INSPIRATION || action.object_type === actionObjectType.MOLECULE)
-        )
+        action =>
+          action.type === actionType.SELECTED_TURNED_ON_BY_TYPE &&
+          (action.object_type === actionObjectType.INSPIRATION || action.object_type === actionObjectType.MOLECULE)
+      )
       : moleculesAction.filter(
-          action =>
-            action.type === actionType.SELECTED_TURNED_ON_BY_TYPE &&
-            (action.object_type === actionObjectType.CROSS_REFERENCE ||
-              action.object_type === actionObjectType.COMPOUND)
-        );
+        action =>
+          action.type === actionType.SELECTED_TURNED_ON_BY_TYPE &&
+          (action.object_type === actionObjectType.CROSS_REFERENCE ||
+            action.object_type === actionObjectType.COMPOUND)
+      );
 
   if (actions) {
     actions.forEach(action => {
@@ -1708,6 +1708,7 @@ export const restoreRepresentationActions = (moleculesActions, stages) => async 
       await dispatch(handleUpdateRepresentationAction(action, true, nglView));
     } else if (action.type === actionType.REPRESENTATION_CHANGED) {
       fixUuid(action.newRepresentation, action.object_id);
+      fixUuid(action.oldRepresentation, action.object_id);
       await dispatch(changeMolecularRepresentationForSnapshotRestoration(action, nglView));
     }
   }
@@ -3198,25 +3199,25 @@ const removeRepresentation = (action, parentKey, representation, nglView, skipTr
   getState
 ) => {
   const comp = nglView.stage.getComponentsByName(parentKey).first;
-  let foundedRepresentation = undefined;
+  let foundRepresentation = undefined;
   comp.eachRepresentation(r => {
     if (
       r.uuid === representation.uuid ||
       r.uuid === representation.lastKnownID ||
       r.repr.type === representation.type
     ) {
-      foundedRepresentation = r;
+      foundRepresentation = r;
     }
   });
 
-  if (foundedRepresentation) {
-    comp.removeRepresentation(foundedRepresentation);
+  if (foundRepresentation) {
+    comp.removeRepresentation(foundRepresentation);
 
     if (comp.reprList.length === 0) {
       dispatch(deleteObject(nglView, nglView.stage, true));
     } else {
-      hideShapeRepresentations(foundedRepresentation, nglView, parentKey);
-      dispatch(removeComponentRepresentation(parentKey, foundedRepresentation, skipTracking));
+      hideShapeRepresentations(foundRepresentation, nglView, parentKey);
+      dispatch(removeComponentRepresentation(parentKey, foundRepresentation, skipTracking));
     }
   } else {
     console.log(`Not found representation:`, representation);
@@ -3225,58 +3226,59 @@ const removeRepresentation = (action, parentKey, representation, nglView, skipTr
 
 const changeMolecularRepresentationForSnapshotRestoration = (action, nglView) => (dispatch, getState) => {
   // this is not needed probably
-  /*const newRepresentationType = action.newRepresentation.type;
-  const oldRepresentation = action.oldRepresentation;
   const comp = nglView.stage.getComponentsByName(action.object_id).first;
 
   // add representation to NGL
   const newRepresentation = assignRepresentationToComp(
-    newRepresentationType,
+    action.newRepresentation.type,
     action.newRepresentation.params,
     comp,
     action.newRepresentation.lastKnownID
-  );*/
+  );
 
   // remove previous representation from NGL
-
-  dispatch(removeRepresentationForSnapshotRestoration(action.newRepresentation, action.object_id, nglView));
+  dispatch(removeRepresentationForSnapshotRestoration(action.oldRepresentation, action.object_id, nglView));
 
   // add new representation to redux
-  dispatch(addComponentRepresentation(action.object_id, action.newRepresentation, true));
+  dispatch(addComponentRepresentation(action.object_id, newRepresentation, true));
 
-  dispatch(changeComponentRepresentation(action.object_id, action.oldRepresentation, action.newRepresentation));
+  dispatch(changeComponentRepresentation(action.object_id, action.oldRepresentation, newRepresentation));
 };
 
 const removeRepresentationForSnapshotRestoration = (representation, parentKey, nglView) => (dispatch, getState) => {
-  const comp = nglView.stage.getComponentsByName(parentKey).first;
-  let foundedRepresentation = undefined;
-  comp.eachRepresentation(r => {
-    if (r.uuid === representation.uuid || r.uuid === representation.lastKnownID) {
-      foundedRepresentation = r;
-    }
-  });
-  if (foundedRepresentation) {
-    // update in nglView
-    comp.removeRepresentation(foundedRepresentation);
-    // update in redux
-    const objectsInView = getState().nglReducers.objectsInView;
-    // TODO just a workaround, whole process needs to take into account default representations
-    let representationToRemove = undefined;
-    for (const [objectId, object] of Object.entries(objectsInView)) {
-      for (const r of object.representations) {
-        if (r.uuid === representation.uuid || r.uuid === representation.lastKnownID) {
-          representationToRemove = r;
-          break;
-        }
+  // find in redux
+  const objectsInView = getState().nglReducers.objectsInView;
+  // added representations have a new uuid so it is different than preserved lastKnownID in representation
+  // so compare all possibilities to fetch possible match saved in redux
+  let representationToRemove = undefined;
+  for (const [objectId, object] of Object.entries(objectsInView)) {
+    for (const r of object.representations) {
+      if (r.uuid === representation.uuid || r.uuid === representation.lastKnownID
+        || r.lastKnownID === representation.uuid || r.lastKnownID === representation.lastKnownID) {
+        representationToRemove = r;
+        break;
       }
     }
+  }
+  // find in nglView
+  const comp = nglView.stage.getComponentsByName(parentKey).first;
+  let foundRepresentation = undefined;
+  comp.eachRepresentation(r => {
+    if (r.uuid === representation.uuid || r.uuid === representation.lastKnownID
+      || (representationToRemove && (r.uuid === representationToRemove.uuid || r.uuid === representationToRemove.lastKnownID))) {
+      foundRepresentation = r;
+    }
+  });
+  if (foundRepresentation) {
+    // update in nglView
+    comp.removeRepresentation(foundRepresentation);
+    // update in redux
     const targetObject = objectsInView[parentKey];
-
     if (comp.reprList.length === 0) {
       // remove from nglReducer and selectionReducer
       dispatch(deleteObject(targetObject, nglView.stage, true));
     } else {
-      hideShapeRepresentations(foundedRepresentation, nglView, parentKey);
+      hideShapeRepresentations(foundRepresentation, nglView, parentKey);
       if (representationToRemove) {
         // this could freeze the app if "wrong" representation is passed, what is wrong tho
         dispatch(removeComponentRepresentation(parentKey, representationToRemove, true));
@@ -3895,11 +3897,11 @@ export const updateTrackingActions = action => (dispatch, getState) => {
         method: METHOD.PUT,
         data: JSON.stringify(dataToSend)
       })
-        .then(() => {})
+        .then(() => { })
         .catch(error => {
           throw new Error(error);
         })
-        .finally(() => {});
+        .finally(() => { });
     } else {
       return Promise.resolve();
     }
@@ -3909,7 +3911,7 @@ export const updateTrackingActions = action => (dispatch, getState) => {
 };
 
 function groupArrayOfObjects(list, key) {
-  return list.reduce(function(rv, x) {
+  return list.reduce(function (rv, x) {
     (rv[x[key]] = rv[x[key]] || []).push(x);
     return rv;
   }, {});
@@ -3934,11 +3936,11 @@ export const setAndUpdateTrackingActions = (actionList, projectID) => (dispatch,
           method: METHOD.PUT,
           data: JSON.stringify(dataToSend)
         })
-          .then(() => {})
+          .then(() => { })
           .catch(error => {
             throw new Error(error);
           })
-          .finally(() => {});
+          .finally(() => { });
       } else {
         return Promise.resolve();
       }
