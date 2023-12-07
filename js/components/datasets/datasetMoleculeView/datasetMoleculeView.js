@@ -450,6 +450,8 @@ const DatasetMoleculeView = memo(
 
       const colourToggle = getRandomColor(data);
 
+      const isPdbAvailable = !!(data && data.pdb_info);
+
       const [moleculeTooltipOpen, setMoleculeTooltipOpen] = useState(false);
       const moleculeImgRef = useRef(null);
 
@@ -1002,8 +1004,8 @@ const DatasetMoleculeView = memo(
 
                           setCalledFromAll();
                           onLigand(true);
-                          onProtein(true);
-                          onComplex(true);
+                          isPdbAvailable && onProtein(true);
+                          isPdbAvailable && onComplex(true);
                           setLoadingAll(false);
                         }}
                         disabled={
@@ -1013,9 +1015,13 @@ const DatasetMoleculeView = memo(
                         }
                       >
                         A
-                        {loadingAll && <CircularProgress className={classNames(classes.buttonLoadingOverlay, {
-                          [classes.buttonSelectedLoadingOverlay]: hasAllValuesOn || hasSomeValuesOn
-                        })} />}
+                        {loadingAll && (
+                          <CircularProgress
+                            className={classNames(classes.buttonLoadingOverlay, {
+                              [classes.buttonSelectedLoadingOverlay]: hasAllValuesOn || hasSomeValuesOn
+                            })}
+                          />
+                        )}
                       </Button>
                     </Grid>
                   </Tooltip>
@@ -1033,9 +1039,13 @@ const DatasetMoleculeView = memo(
                         disabled={disableL || disableMoleculeNglControlButtons.ligand}
                       >
                         L
-                        {loadingLigand && <CircularProgress className={classNames(classes.buttonLoadingOverlay, {
-                          [classes.buttonSelectedLoadingOverlay]: isLigandOn
-                        })} />}
+                        {loadingLigand && (
+                          <CircularProgress
+                            className={classNames(classes.buttonLoadingOverlay, {
+                              [classes.buttonSelectedLoadingOverlay]: isLigandOn
+                            })}
+                          />
+                        )}
                       </Button>
                     </Grid>
                   </Tooltip>
@@ -1050,12 +1060,21 @@ const DatasetMoleculeView = memo(
                           dispatch(setAskLockCompoundsQuestion(true));
                           onProtein();
                         }}
-                        disabled={isFromVectorSelector || disableP || disableMoleculeNglControlButtons.protein}
+                        disabled={
+                          isFromVectorSelector ||
+                          disableP ||
+                          disableMoleculeNglControlButtons.protein ||
+                          !isPdbAvailable
+                        }
                       >
                         P
-                        {loadingProtein && <CircularProgress className={classNames(classes.buttonLoadingOverlay, {
-                          [classes.buttonSelectedLoadingOverlay]: isProteinOn
-                        })} />}
+                        {loadingProtein && (
+                          <CircularProgress
+                            className={classNames(classes.buttonLoadingOverlay, {
+                              [classes.buttonSelectedLoadingOverlay]: isProteinOn
+                            })}
+                          />
+                        )}
                       </Button>
                     </Grid>
                   </Tooltip>
@@ -1071,12 +1090,21 @@ const DatasetMoleculeView = memo(
                           dispatch(setAskLockCompoundsQuestion(true));
                           onComplex();
                         }}
-                        disabled={isFromVectorSelector || disableC || disableMoleculeNglControlButtons.complex}
+                        disabled={
+                          isFromVectorSelector ||
+                          disableC ||
+                          disableMoleculeNglControlButtons.complex ||
+                          !isPdbAvailable
+                        }
                       >
                         C
-                        {loadingComplex && <CircularProgress className={classNames(classes.buttonLoadingOverlay, {
-                          [classes.buttonSelectedLoadingOverlay]: isComplexOn
-                        })} />}
+                        {loadingComplex && (
+                          <CircularProgress
+                            className={classNames(classes.buttonLoadingOverlay, {
+                              [classes.buttonSelectedLoadingOverlay]: isComplexOn
+                            })}
+                          />
+                        )}
                       </Button>
                     </Grid>
                   </Tooltip>
@@ -1091,12 +1119,16 @@ const DatasetMoleculeView = memo(
                           dispatch(setAskLockCompoundsQuestion(true));
                           onSurface();
                         }}
-                        disabled={isFromVectorSelector || disableMoleculeNglControlButtons.surface}
+                        disabled={isFromVectorSelector || disableMoleculeNglControlButtons.surface || !isPdbAvailable}
                       >
                         S
-                        {loadingSurface && <CircularProgress className={classNames(classes.buttonLoadingOverlay, {
-                          [classes.buttonSelectedLoadingOverlay]: isSurfaceOn
-                        })} />}
+                        {loadingSurface && (
+                          <CircularProgress
+                            className={classNames(classes.buttonLoadingOverlay, {
+                              [classes.buttonSelectedLoadingOverlay]: isSurfaceOn
+                            })}
+                          />
+                        )}
                       </Button>
                     </Grid>
                   </Tooltip>
@@ -1129,9 +1161,13 @@ const DatasetMoleculeView = memo(
                           disabled={isFromVectorSelector}
                         >
                           F
-                          {loadingInspiration && <CircularProgress className={classNames(classes.buttonLoadingOverlay, {
-                            [classes.buttonSelectedLoadingOverlay]: isAnyInspirationOn
-                          })} />}
+                          {loadingInspiration && (
+                            <CircularProgress
+                              className={classNames(classes.buttonLoadingOverlay, {
+                                [classes.buttonSelectedLoadingOverlay]: isAnyInspirationOn
+                              })}
+                            />
+                          )}
                         </Button>
                       </Grid>
                     </Tooltip>
@@ -1156,9 +1192,13 @@ const DatasetMoleculeView = memo(
                           disabled={isFromVectorSelector}
                         >
                           X
-                          {loadingReference && <CircularProgress className={classNames(classes.buttonLoadingOverlay, {
-                            // [classes.buttonSelectedLoadingOverlay]: isAnyInspirationOn
-                          })} />}
+                          {loadingReference && (
+                            <CircularProgress
+                              className={classNames(classes.buttonLoadingOverlay, {
+                                // [classes.buttonSelectedLoadingOverlay]: isAnyInspirationOn
+                              })}
+                            />
+                          )}
                         </Button>
                       </Grid>
                     </Tooltip>
@@ -1203,10 +1243,10 @@ const DatasetMoleculeView = memo(
                                 null}
                             </Grid>
                           )) || (
-                              <Grid item className={classes.rightBorder}>
-                                -
-                              </Grid>
-                            )}
+                            <Grid item className={classes.rightBorder}>
+                              -
+                            </Grid>
+                          )}
                         </Tooltip>
                       );
                     })}
