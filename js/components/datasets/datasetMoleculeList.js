@@ -485,10 +485,18 @@ const DatasetMoleculeList = ({ title, datasetID, url }) => {
   // TODO: maybe change "currentMolecules.forEach" to "{type}List.forEach"
 
   const removeSelectedType = (type, skipTracking) => {
-    lockedMolecules.forEach(cid => {
+    for (const cid of lockedMolecules) {
       let molecule = getCompoundForId(cid);
+      //this is dumb... I know but this original mechanism using eval and array of functions is even dumber
+      if ((type === 'protein' || type === 'complex') && !molecule.pdb_info) {
+        continue;
+      }
       dispatch(removeType[type](stage, molecule, colourList[molecule.id % colourList.length], datasetID, skipTracking));
-    });
+    }
+    // lockedMolecules.forEach(cid => {
+    //   let molecule = getCompoundForId(cid);
+    //   dispatch(removeType[type](stage, molecule, colourList[molecule.id % colourList.length], datasetID, skipTracking));
+    // });
     selectedAll.current = false;
   };
 
@@ -497,14 +505,26 @@ const DatasetMoleculeList = ({ title, datasetID, url }) => {
       withDisabledDatasetMoleculesNglControlButtons([datasetID], lockedMolecules, type, async () => {
         const promises = [];
 
-        lockedMolecules.forEach(cid => {
+        for (const cid of lockedMolecules) {
           let molecule = getCompoundForId(cid);
+          //this is dumb... I know but this original mechanism using eval and array of functions is even dumber
+          if ((type === 'protein' || type === 'complex') && !molecule.pdb_info) {
+            continue;
+          }
           promises.push(
             dispatch(
               addType[type](stage, molecule, colourList[molecule.id % colourList.length], datasetID, skipTracking)
             )
           );
-        });
+        }
+        // lockedMolecules.forEach(cid => {
+        //   let molecule = getCompoundForId(cid);
+        //   promises.push(
+        //     dispatch(
+        //       addType[type](stage, molecule, colourList[molecule.id % colourList.length], datasetID, skipTracking)
+        //     )
+        //   );
+        // });
 
         await Promise.all(promises);
       })
@@ -934,8 +954,9 @@ const DatasetMoleculeList = ({ title, datasetID, url }) => {
                     {filterSettings.priorityOrder.map(attr => (
                       <Grid item key={`Mol-Tooltip-${attr}`}>
                         <Tooltip
-                          title={`${filterProperties[attr].minValue}-${filterProperties[attr].maxValue} ${filterProperties[attr].order === 1 ? '\u2191' : '\u2193'
-                            }`}
+                          title={`${filterProperties[attr].minValue}-${filterProperties[attr].maxValue} ${
+                            filterProperties[attr].order === 1 ? '\u2191' : '\u2193'
+                          }`}
                           placement="top"
                         >
                           <Chip size="small" label={attr} className={classes.propertyChip} />

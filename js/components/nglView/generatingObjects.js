@@ -50,7 +50,7 @@ export const generateMoleculeObject = (data, colourToggle, datasetID) => ({
   name: `${data.code || data.name}_${OBJECT_TYPE.LIGAND}${datasetID ? '_' + datasetID : ''}`,
   OBJECT_TYPE: OBJECT_TYPE.LIGAND,
   colour: colourToggle,
-  sdf_info: data.ligand_mol_file,
+  sdf_info: data.ligand_mol_file || data.sdf_info,
   moleculeId: data.id,
   selectionType: SELECTION_TYPE.LIGAND
 });
@@ -96,7 +96,7 @@ export const generateHitProteinObject = (data, colourToggle, base_url, datasetID
   return {
     name: `${data.code || data.name}_${OBJECT_TYPE.HIT_PROTEIN}${datasetID ? '_' + datasetID : ''}`,
     OBJECT_TYPE: OBJECT_TYPE.HIT_PROTEIN,
-    sdf_info: data.ligand_mol_file,
+    sdf_info: data.ligand_mol_file || data.sdf_info,
     colour: colourToggle,
     prot_url,
     moleculeId: data.id,
@@ -121,7 +121,7 @@ export const generateComplexObject = (data, colourToggle, base_url, datasetID) =
   return {
     name: `${data.code || data.name}_${OBJECT_TYPE.COMPLEX}${datasetID ? '_' + datasetID : ''}`,
     OBJECT_TYPE: OBJECT_TYPE.COMPLEX,
-    sdf_info: data.ligand_mol_file,
+    sdf_info: data.ligand_mol_file || data.sdf_info,
     colour: colourToggle,
     prot_url,
     moleculeId: data.id,
@@ -145,7 +145,7 @@ export const generateSurfaceObject = (data, colourToggle, base_url, datasetID) =
   return {
     name: `${data.code || data.name}_${OBJECT_TYPE.SURFACE}${datasetID ? '_' + datasetID : ''}`,
     OBJECT_TYPE: OBJECT_TYPE.SURFACE,
-    sdf_info: data.ligand_mol_file,
+    sdf_info: data.ligand_mol_file || data.sdf_info,
     colour: colourToggle,
     prot_url,
     moleculeId: data.id,
@@ -199,7 +199,7 @@ export const generateDensityObject = (data, colourToggle, base_url, isWireframeS
   return {
     name: `${data.code || data.name}_${OBJECT_TYPE.DENSITY}`,
     OBJECT_TYPE: OBJECT_TYPE.DENSITY,
-    sdf_info: data.ligand_mol_file,
+    sdf_info: data.ligand_mol_file || data.sdf_info,
     event_url,
     sigmaa_url,
     diff_url,
