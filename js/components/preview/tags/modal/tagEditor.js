@@ -9,7 +9,8 @@ import {
   setMoleculeForTagEdit,
   setIsTagGlobalEdit,
   setAssignTagView,
-  setTagEditorOpen
+  setTagEditorOpen,
+  setIsLHSCmpTagEdit
 } from '../../../../reducers/selection/actions';
 import { updateExistingTag } from '../api/tagsApi';
 import { DJANGO_CONTEXT } from '../../../../utils/djangoContext';
@@ -121,17 +122,35 @@ export const TagEditor = memo(
     const dispatch = useDispatch();
     const refForOutsideClick = useRef(null);
     let moleculeTags = useSelector(state => state.apiReducers.moleculeTags);
+    const allMolecules = useSelector(state => state.apiReducers.all_mol_lists);
     const isTagGlobalEdit = useSelector(state => state.selectionReducers.isGlobalEdit);
+    const isLHSCmpTagEdit = useSelector(state => state.selectionReducers.isLHSCmpTagEdit);
     const molId = useSelector(state => state.selectionReducers.molForTagEdit);
-    let moleculesToEditIds = useSelector(state => state.selectionReducers.moleculesToEdit);
+    let cmpObsToEdit = useSelector(state => state.selectionReducers.obsCmpsToEdit);
     const targetId = useSelector(state => state.apiReducers.target_on);
 
     const [taggingInProgress, setTaggingInProgress] = useState(false);
     const [isError, setIsError] = useState(false);
     const [molsLeftForTagging, setMolsLeftForTagging] = useState(0);
+    let moleculesToEditIds = [];
+    if (isLHSCmpTagEdit) {
+      cmpObsToEdit = [];
+      cmpObsToEdit.push(molId);
+    }
     if (!isTagGlobalEdit) {
-      moleculesToEditIds = [];
-      moleculesToEditIds.push(molId);
+      if (isLHSCmpTagEdit) {
+        cmpObsToEdit.forEach(cmpId => {
+          const molIds = allMolecules.filter(m => m.cmpd === cmpId).map(m => m.id);
+          moleculesToEditIds = [...moleculesToEditIds, ...molIds];
+        });
+      } else {
+        moleculesToEditIds.push(molId);
+      }
+    } else {
+      cmpObsToEdit.forEach(cmpId => {
+        const molIds = allMolecules.filter(m => m.cmpd === cmpId).map(m => m.id);
+        moleculesToEditIds = [...moleculesToEditIds, ...molIds];
+      });
     }
     const moleculesToEdit = moleculesToEditIds.map(id => dispatch(getMoleculeForId(id)));
     moleculeTags = moleculeTags.sort(compareTagsAsc);
@@ -158,6 +177,7 @@ export const TagEditor = memo(
         dispatch(setOpenDialog(false));
         dispatch(setMoleculeForTagEdit(null));
         dispatch(setIsTagGlobalEdit(false));
+        dispatch(setIsLHSCmpTagEdit(false));
       }
     };
 
@@ -275,7 +295,7 @@ export const TagEditor = memo(
     })(Switch);
 
     return (
-      <Popper id={id} open={open} anchorEl={anchorEl} placement="left-start" ref={tagEditorRef}>
+      <Popper id={id} open={open} anchorEl={anchorEl} placement="right-start" ref={tagEditorRef}>
         <Panel
           ref={refForOutsideClick}
           hasHeader

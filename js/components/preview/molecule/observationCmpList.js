@@ -49,21 +49,25 @@ import {
 } from './redux/dispatchActions';
 import { DEFAULT_FILTER, PREDEFINED_FILTERS } from '../../../reducers/selection/constants';
 import { Edit, FilterList } from '@material-ui/icons';
-import { selectAllMoleculeList, selectJoinedMoleculeList } from './redux/selectors';
+import { getLHSCompoundsList, selectAllMoleculeList, selectJoinedMoleculeList } from './redux/selectors';
 import { MOL_ATTRIBUTES } from './redux/constants';
 import {
   setFilter,
   setMolListToEdit,
   setNextXMolecules,
-  setMoleculeForTagEdit,
-  setTagEditorOpenObs
+  setMoleculeForTagEdit
 } from '../../../reducers/selection/actions';
 import { initializeFilter } from '../../../reducers/selection/dispatchActions';
 import * as listType from '../../../constants/listTypes';
 import { useRouteMatch } from 'react-router-dom';
 import { setSortDialogOpen, setSearchStringOfHitNavigator } from './redux/actions';
 import { AlertModal } from '../../common/Modal/AlertModal';
-import { setSelectedAllByType, setDeselectedAllByType, setIsTagGlobalEdit } from '../../../reducers/selection/actions';
+import {
+  setSelectedAllByType,
+  setDeselectedAllByType,
+  setTagEditorOpen,
+  setIsTagGlobalEdit
+} from '../../../reducers/selection/actions';
 import { TagEditor } from '../tags/modal/tagEditor';
 import { getMoleculeForId, selectTag } from '../tags/redux/dispatchActions';
 import SearchField from '../../common/Components/SearchField';
@@ -72,6 +76,8 @@ import GroupNglControlButtonsContext from './groupNglControlButtonsContext';
 import { extractTargetFromURLParam } from '../utils';
 import { LoadingContext } from '../../loading';
 import { DJANGO_CONTEXT } from '../../../utils/djangoContext';
+import ObservationCmpView from './observationCmpView';
+import { ObservationsDialog } from './observationsDialog';
 
 const useStyles = makeStyles(theme => ({
   container: {
@@ -232,7 +238,7 @@ const useStyles = makeStyles(theme => ({
     fill: 'inherit'
   },
   search: {
-    width: 150
+    width: 116
   },
   total: {
     ...theme.typography.button,
@@ -242,7 +248,7 @@ const useStyles = makeStyles(theme => ({
 }));
 let selectedDisplayHits = false;
 
-export const MoleculeList = memo(({ hideProjects }) => {
+export const ObservationCmpList = memo(({ hideProjects }) => {
   const classes = useStyles();
   const dispatch = useDispatch();
   let match = useRouteMatch();
@@ -280,10 +286,13 @@ export const MoleculeList = memo(({ hideProjects }) => {
   const qualityList = useSelector(state => state.selectionReducers.qualityList);
   const vectorOnList = useSelector(state => state.selectionReducers.vectorOnList);
   const informationList = useSelector(state => state.selectionReducers.informationList);
-  const isTagEditorOpenObs = useSelector(state => state.selectionReducers.tagEditorOpenedObs);
+  const isTagEditorOpen = useSelector(state => state.selectionReducers.tagEditorOpened);
   const molForTagEditId = useSelector(state => state.selectionReducers.molForTagEdit);
   const moleculesToEditIds = useSelector(state => state.selectionReducers.moleculesToEdit);
+  const obsCmpsToEditIds = useSelector(state => state.selectionReducers.obsCmpsToEdit);
   const isGlobalEdit = useSelector(state => state.selectionReducers.isGlobalEdit);
+
+  const isObservationDialogOpen = useSelector(state => state.selectionReducers.isObservationDialogOpen);
 
   const object_selection = useSelector(state => state.selectionReducers.mol_group_selection);
 
@@ -294,8 +303,10 @@ export const MoleculeList = memo(({ hideProjects }) => {
   const noTagsReceived = useSelector(state => state.apiReducers.noTagsReceived);
   const categories = useSelector(state => state.apiReducers.categoryList);
 
+  const lhsCompoundsList = useSelector(state => getLHSCompoundsList(state));
+  const visibleObservations = useSelector(state => selectJoinedMoleculeList(state));
+
   const proteinsHasLoaded = useSelector(state => state.nglReducers.proteinsHasLoaded);
-  const currentActionList = useSelector(state => state.trackingReducers.current_actions_list);
 
   const [predefinedFilter, setPredefinedFilter] = useState(filter !== undefined ? filter.predefined : DEFAULT_FILTER);
 
@@ -363,8 +374,8 @@ export const MoleculeList = memo(({ hideProjects }) => {
     joinedMoleculeLists,
     proteinList,
     molForTagEditId,
-    isTagEditorOpenObs,
-    moleculesToEditIds
+    isTagEditorOpen,
+    obsCmpsToEditIds
   ]);
   // eslint-disable-next-line react-hooks/exhaustive-deps
   joinedMoleculeLists = useMemo(() => addSelectedMoleculesFromUnselectedSites(joinedMoleculeLists, complexList), [
@@ -372,8 +383,8 @@ export const MoleculeList = memo(({ hideProjects }) => {
     joinedMoleculeLists,
     complexList,
     molForTagEditId,
-    isTagEditorOpenObs,
-    moleculesToEditIds
+    isTagEditorOpen,
+    obsCmpsToEditIds
   ]);
   joinedMoleculeLists = useMemo(
     () => addSelectedMoleculesFromUnselectedSites(joinedMoleculeLists, fragmentDisplayList),
@@ -383,8 +394,8 @@ export const MoleculeList = memo(({ hideProjects }) => {
       joinedMoleculeLists,
       fragmentDisplayList,
       molForTagEditId,
-      isTagEditorOpenObs,
-      moleculesToEditIds
+      isTagEditorOpen,
+      obsCmpsToEditIds
     ]
   );
   // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -393,8 +404,8 @@ export const MoleculeList = memo(({ hideProjects }) => {
     joinedMoleculeLists,
     surfaceList,
     molForTagEditId,
-    isTagEditorOpenObs,
-    moleculesToEditIds
+    isTagEditorOpen,
+    obsCmpsToEditIds
   ]);
   // eslint-disable-next-line react-hooks/exhaustive-deps
   joinedMoleculeLists = useMemo(() => addSelectedMoleculesFromUnselectedSites(joinedMoleculeLists, densityList), [
@@ -402,8 +413,8 @@ export const MoleculeList = memo(({ hideProjects }) => {
     joinedMoleculeLists,
     densityList,
     molForTagEditId,
-    isTagEditorOpenObs,
-    moleculesToEditIds
+    isTagEditorOpen,
+    obsCmpsToEditIds
   ]);
   // eslint-disable-next-line react-hooks/exhaustive-deps
   joinedMoleculeLists = useMemo(() => addSelectedMoleculesFromUnselectedSites(joinedMoleculeLists, vectorOnList), [
@@ -411,8 +422,8 @@ export const MoleculeList = memo(({ hideProjects }) => {
     joinedMoleculeLists,
     vectorOnList,
     molForTagEditId,
-    isTagEditorOpenObs,
-    moleculesToEditIds
+    isTagEditorOpen,
+    obsCmpsToEditIds
   ]);
 
   if (isActiveFilter) {
@@ -440,8 +451,8 @@ export const MoleculeList = memo(({ hideProjects }) => {
     }
   }
 
-  if (moleculesToEditIds && moleculesToEditIds.length > 0 && isGlobalEdit) {
-    moleculesToEditIds.forEach(mid => {
+  if (obsCmpsToEditIds && obsCmpsToEditIds.length > 0 && isGlobalEdit) {
+    obsCmpsToEditIds.forEach(mid => {
       if (!joinedMoleculeLists.some(m => m.id === mid)) {
         const tagEditMol = dispatch(getMoleculeForId(mid));
         if (tagEditMol) {
@@ -466,7 +477,11 @@ export const MoleculeList = memo(({ hideProjects }) => {
   const wereMoleculesInitialized = useRef(false);
 
   useEffect(() => {
-    if ((proteinsHasLoaded === true || proteinsHasLoaded === null) && all_mol_lists.length > 0) {
+    if (
+      (proteinsHasLoaded === true || proteinsHasLoaded === null) &&
+      all_mol_lists?.length > 0 &&
+      lhsCompoundsList?.length > 0
+    ) {
       if (!directAccessProcessed && directDisplay && directDisplay.molecules && directDisplay.molecules.length > 0) {
         dispatch(applyDirectSelection(majorViewStage));
         wereMoleculesInitialized.current = true;
@@ -483,7 +498,7 @@ export const MoleculeList = memo(({ hideProjects }) => {
         categories.length > 0
       ) {
         dispatch(initializeFilter(object_selection, joinedMoleculeLists));
-        // dispatch(initializeMolecules(majorViewStage));
+        dispatch(initializeMolecules(majorViewStage));
         wereMoleculesInitialized.current = true;
       }
       if (
@@ -494,12 +509,13 @@ export const MoleculeList = memo(({ hideProjects }) => {
         noTagsReceived
       ) {
         dispatch(initializeFilter(object_selection, joinedMoleculeLists));
-        // dispatch(initializeMolecules(majorViewStage));
+        dispatch(initializeMolecules(majorViewStage));
         wereMoleculesInitialized.current = true;
       }
     }
   }, [
     list_type,
+    lhsCompoundsList,
     majorViewStage,
     dispatch,
     hideProjects,
@@ -535,8 +551,15 @@ export const MoleculeList = memo(({ hideProjects }) => {
 
   const allSelectedMolecules = useMemo(
     () =>
-      allMoleculesList.filter(molecule => moleculesToEditIds.includes(molecule.id) || molecule.id === molForTagEditId),
+      allMoleculesList.filter(
+        molecule => moleculesToEditIds.includes(molecule.id) /* || molecule.id === molForTagEditId*/
+      ),
     [allMoleculesList, moleculesToEditIds, molForTagEditId]
+  );
+
+  const allSelectedLHSCmps = useMemo(
+    () => lhsCompoundsList.filter(cmp => obsCmpsToEditIds.includes(cmp.id) /* || molecule.id === molForTagEditId*/),
+    [lhsCompoundsList, obsCmpsToEditIds, molForTagEditId]
   );
 
   let currentMolecules = joinedMoleculeLists.slice(0, listItemOffset);
@@ -692,6 +715,36 @@ export const MoleculeList = memo(({ hideProjects }) => {
     return null;
   };
 
+  let filteredLHSCompoundsList = useMemo(() => {
+    const compounds = [];
+    lhsCompoundsList.forEach(compound => {
+      const molsForCmp = joinedMoleculeLists.filter(molecule => molecule.cmpd === compound.id);
+      if (molsForCmp.length > 0) {
+        compounds.push(compound);
+      }
+    });
+    return compounds;
+  }, [lhsCompoundsList, joinedMoleculeLists]);
+
+  let compoundMolecules = useMemo(() => {
+    const compoundMolecules = {};
+
+    filteredLHSCompoundsList.forEach(compound => {
+      const molsForCmp = allMoleculesList.filter(molecule => molecule.cmpd === compound.id);
+      compoundMolecules[compound.id] = molsForCmp.sort((a, b) => {
+        if (a.code < b.code) {
+          return -1;
+        }
+        if (a.code > b.code) {
+          return 1;
+        }
+        return 0;
+      });
+    });
+
+    return compoundMolecules;
+  }, [filteredLHSCompoundsList, allMoleculesList]);
+
   const isLigandOn = changeButtonClassname(fragmentDisplayList, joinedLigandMatchLength);
   const isProteinOn = changeButtonClassname(proteinList, joinedProteinMatchLength);
   const isComplexOn = changeButtonClassname(complexList, joinedComplexMatchLength);
@@ -843,42 +896,7 @@ export const MoleculeList = memo(({ hideProjects }) => {
     return molecules;
   };
 
-  const openGlobalTagEditor = () => {};
-
-  // let filterSearchString = '';
-  // const getSearchedString = () => {
-  //   filterSearchString = currentActionList.find(action => action.type === 'SEARCH_STRING_HIT_NAVIGATOR');
-  // };
-  // getSearchedString();
-
-  // useEffect(() => {
-  //   if (filterSearchString?.searchStringHitNavigator !== '') {
-  //     setSearchString(filterSearchString.searchStringHitNavigator);
-  //   }
-  // }, [filterSearchString]);
-
   const actions = [
-    /* do not disable filter by itself if it does not have any result */
-    /*<FormControl className={classes.formControl} disabled={({predefinedFilter} === 'none' && !joinedMoleculeListsCopy.length) || sortDialogOpen}>
-      <Select
-        className={classes.select}
-        value={predefinedFilter}
-        onChange={changePredefinedFilter}
-        inputProps={{
-          name: 'predefined',
-          id: 'predefined-label-placeholder',
-          classes: { icon: classes.selectIcon }
-        }}
-        displayEmpty
-        name="predefined"
-      >
-        {Object.keys(PREDEFINED_FILTERS).map(preFilterKey => (
-          <MenuItem key={`Predefined-filter-${preFilterKey}`} value={preFilterKey}>
-            {PREDEFINED_FILTERS[preFilterKey].name}
-          </MenuItem>
-        ))}
-      </Select>
-    </FormControl>,*/
     <SearchField
       className={classes.search}
       id="search-hit-navigator"
@@ -889,7 +907,7 @@ export const MoleculeList = memo(({ hideProjects }) => {
       disabled={false || (getJoinedMoleculeList && getJoinedMoleculeList.length === 0)}
       // searchString={filterSearchString?.searchStringHitNavigator ?? ''}
       searchString={searchString ?? ''}
-      placeholder={'Search displayed hits'}
+      placeholder="Search"
     />,
 
     <IconButton
@@ -901,14 +919,14 @@ export const MoleculeList = memo(({ hideProjects }) => {
         DJANGO_CONTEXT['username'] === 'NOT_LOGGED_IN'
       }
       onClick={event => {
-        if (isTagEditorOpenObs === false) {
+        if (isTagEditorOpen === false) {
           setTagEditorAnchorEl(event.currentTarget);
           dispatch(setIsTagGlobalEdit(true));
-          dispatch(setTagEditorOpenObs(true));
+          dispatch(setTagEditorOpen(true));
         } else {
           setTagEditorAnchorEl(null);
           dispatch(setIsTagGlobalEdit(false));
-          dispatch(setTagEditorOpenObs(false));
+          dispatch(setTagEditorOpen(false));
         }
       }}
     >
@@ -927,7 +945,8 @@ export const MoleculeList = memo(({ hideProjects }) => {
         }
       }}
       color={'inherit'}
-      disabled={/*!joinedMoleculeListsCopy.length || */ predefinedFilter !== 'none'}
+      // disabled={predefinedFilter !== 'none'}
+      disabled={true}
     >
       <Tooltip title="Filter/Sort">
         <FilterList />
@@ -942,6 +961,16 @@ export const MoleculeList = memo(({ hideProjects }) => {
   const groupNglControlButtonsDisabledState = useDisableNglControlButtons(allSelectedMolecules);
 
   const anyControlButtonDisabled = Object.values(groupNglControlButtonsDisabledState).some(buttonState => buttonState);
+
+  const containsAtLeastOne = (list, molsList) => {
+    for (const mol in molsList) {
+      if (list.includes(mol.id)) {
+        return true;
+      }
+    }
+
+    return false;
+  };
 
   return (
     <Panel hasHeader title="Hit navigator" headerActions={actions}>
@@ -971,11 +1000,14 @@ export const MoleculeList = memo(({ hideProjects }) => {
           setIsOpenLPCAlert(false);
         }}
       />
-      {isTagEditorOpenObs && (
+      {isObservationDialogOpen && (
+        <ObservationsDialog open={isObservationDialogOpen} anchorEl={tagEditorAnchorEl} ref={tagEditorRef} />
+      )}
+      {isTagEditorOpen && (
         <TagEditor
-          open={isTagEditorOpenObs}
+          open={isTagEditorOpen}
           closeDisabled={anyControlButtonDisabled}
-          setOpenDialog={setTagEditorOpenObs}
+          setOpenDialog={setTagEditorOpen}
           anchorEl={tagEditorAnchorEl}
           ref={tagEditorRef}
         />
@@ -1165,7 +1197,6 @@ export const MoleculeList = memo(({ hideProjects }) => {
             </Grid>
           </Grid>
         </Grid>
-        {console.log('tagEditorRef', tagEditorRef)}
         {currentMolecules.length > 0 && (
           <>
             <Grid item className={classes.gridItemList} ref={scrollBarRef}>
@@ -1196,44 +1227,35 @@ export const MoleculeList = memo(({ hideProjects }) => {
                 }
                 useWindow={false}
               >
-                <GroupNglControlButtonsContext.Provider value={groupNglControlButtonsDisabledState}>
-                  {currentMolecules.map((data, index, array) => {
-                    const selected = allSelectedMolecules.some(molecule => molecule.id === data.id);
-                    const isTagEditorInvokedByMolecule = data.id === molForTagEditId;
+                {filteredLHSCompoundsList.map((data, index, array) => {
+                  const molsForCmp = compoundMolecules[data.id];
+                  const selected = allSelectedLHSCmps.some(molecule => molecule.id === data.id);
 
-                    return (
-                      <MoleculeView
-                        key={data.id}
-                        index={index}
-                        imageHeight={imgHeight}
-                        imageWidth={imgWidth}
-                        data={data}
-                        previousItemData={index > 0 && array[index - 1]}
-                        nextItemData={index < array?.length && array[index + 1]}
-                        setRef={setTagEditorAnchorEl}
-                        removeSelectedTypes={removeSelectedTypes}
-                        L={fragmentDisplayList.includes(data.id)}
-                        P={proteinList.includes(data.id)}
-                        C={complexList.includes(data.id)}
-                        S={surfaceList.includes(data.id)}
-                        D={densityList.includes(data.id)}
-                        D_C={densityListCustom.includes(data.id)}
-                        Q={qualityList.includes(data.id)}
-                        V={vectorOnList.includes(data.id)}
-                        I={informationList.includes(data.id)}
-                        eventInfo={data?.proteinData?.event_info || null}
-                        sigmaaInfo={data?.proteinData?.sigmaa_info || null}
-                        diffInfo={data?.proteinData?.diff_info || null}
-                        isTagEditorInvokedByMolecule={isTagEditorInvokedByMolecule}
-                        isTagEditorOpen={isTagEditorInvokedByMolecule && isTagEditorOpenObs}
-                        selected={selected}
-                        disableL={selected && groupNglControlButtonsDisabledState.ligand}
-                        disableP={selected && groupNglControlButtonsDisabledState.protein}
-                        disableC={selected && groupNglControlButtonsDisabledState.complex}
-                      />
-                    );
-                  })}
-                </GroupNglControlButtonsContext.Provider>
+                  return (
+                    <ObservationCmpView
+                      key={data.id}
+                      imageHeight={imgHeight}
+                      imageWidth={imgWidth}
+                      data={data}
+                      index={index}
+                      setRef={setTagEditorAnchorEl}
+                      L={containsAtLeastOne(fragmentDisplayList, molsForCmp)}
+                      P={containsAtLeastOne(proteinList, molsForCmp)}
+                      C={containsAtLeastOne(complexList, molsForCmp)}
+                      S={containsAtLeastOne(surfaceList, molsForCmp)}
+                      D={containsAtLeastOne(densityList, molsForCmp)}
+                      D_C={containsAtLeastOne(densityListCustom, molsForCmp)}
+                      Q={containsAtLeastOne(qualityList, molsForCmp)}
+                      V={containsAtLeastOne(vectorOnList, molsForCmp)}
+                      I={containsAtLeastOne(informationList, molsForCmp)}
+                      selected={selected}
+                      disableL={false}
+                      disableP={false}
+                      disableC={false}
+                      observations={molsForCmp}
+                    />
+                  );
+                })}
               </InfiniteScroll>
             </Grid>
             <Grid item>

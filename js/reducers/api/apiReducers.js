@@ -50,7 +50,8 @@ export const INITIAL_STATE = {
   categoryList: [],
   target_data_loading_in_progress: false,
   all_data_loaded: false,
-  isSnapshot: false
+  isSnapshot: false,
+  lhs_compounds_list: []
 };
 
 export const RESET_TARGET_STATE = {
@@ -91,7 +92,8 @@ export const RESET_TARGET_STATE = {
   tagList: [],
   target_data_loading_in_progress: false,
   all_data_loaded: false,
-  snapshotLoadingInProgress: false
+  snapshotLoadingInProgress: false,
+  lhs_compounds_list: []
 };
 
 export default function apiReducers(state = INITIAL_STATE, action = {}) {
@@ -174,6 +176,9 @@ export default function apiReducers(state = INITIAL_STATE, action = {}) {
       } else {
         return state;
       }
+
+    case constants.SET_LHS_COMPOUNDS_LIST:
+      return { ...state, lhs_compounds_list: action.lhs_compounds_list };
 
     case constants.SET_PANNDA_EVENT_LIST:
       return Object.assign({}, state, {

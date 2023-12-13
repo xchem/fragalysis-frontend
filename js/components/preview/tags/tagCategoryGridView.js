@@ -37,15 +37,35 @@ const TagCategoryGridView = memo(({ name, tags, specialTags, clickCallback, disa
   const tagList = useSelector(state => state.apiReducers.tagList);
   const isTagGlobalEdit = useSelector(state => state.selectionReducers.isGlobalEdit);
   const molId = useSelector(state => state.selectionReducers.molForTagEdit);
-  let moleculesToEditIds = useSelector(state => state.selectionReducers.moleculesToEdit);
+
+  const allMolecules = useSelector(state => state.apiReducers.all_mol_lists);
+  const isLHSCmpTagEdit = useSelector(state => state.selectionReducers.isLHSCmpTagEdit);
+  let cmpObsToEdit = useSelector(state => state.selectionReducers.obsCmpsToEdit);
+
+  let moleculesToEditIds = [];
+  if (isLHSCmpTagEdit) {
+    cmpObsToEdit = [];
+    cmpObsToEdit.push(molId);
+  }
   if (!isTagGlobalEdit) {
-    moleculesToEditIds = [];
-    moleculesToEditIds.push(molId);
+    if (isLHSCmpTagEdit) {
+      cmpObsToEdit.forEach(cmpId => {
+        const molIds = allMolecules.filter(m => m.cmpd === cmpId).map(m => m.id);
+        moleculesToEditIds = [...moleculesToEditIds, ...molIds];
+      });
+    } else {
+      moleculesToEditIds.push(molId);
+    }
+  } else {
+    cmpObsToEdit.forEach(cmpId => {
+      const molIds = allMolecules.filter(m => m.cmpd === cmpId).map(m => m.id);
+      moleculesToEditIds = [...moleculesToEditIds, ...molIds];
+    });
   }
   const moleculesToEdit =
     moleculesToEditIds &&
-      moleculesToEditIds.length > 0 &&
-      !(moleculesToEditIds.length === 1 && moleculesToEditIds[0] === null)
+    moleculesToEditIds.length > 0 &&
+    !(moleculesToEditIds.length === 1 && moleculesToEditIds[0] === null)
       ? moleculesToEditIds.map(id => dispatch(getMoleculeForId(id)))
       : [];
 

@@ -165,7 +165,6 @@ const TagDetails = memo(() => {
   const displayUntaggedMolecules = useSelector(state => state.selectionReducers.displayUntaggedMolecules);
   let tagDetailView = useSelector(state => state.selectionReducers.tagDetailView);
   const resizableLayout = useSelector(state => state.selectionReducers.resizableLayout);
-  const assignTagEditorOpen = useSelector(state => state.selectionReducers.tagEditorOpened);
 
   const [tagList, setTagList] = useState([]);
   const [selectAll, setSelectAll] = useState(true);

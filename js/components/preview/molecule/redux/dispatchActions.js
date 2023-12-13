@@ -70,6 +70,7 @@ import { readQualityInformation } from '../../../nglView/renderingHelpers';
 import { addSelectedTag } from '../../tags/redux/dispatchActions';
 import { CATEGORY_TYPE } from '../../../../constants/constants';
 import { selectJoinedMoleculeList } from './selectors';
+import { compareTagsAsc } from '../../tags/utils/tagUtils';
 // import { molFile, pdbApo } from './testData';
 
 /**
@@ -657,14 +658,15 @@ export const initializeMolecules = majorView => (dispatch, getState) => {
     const isSnapshot = state.apiReducers.isSnapshot;
 
     if (!isSnapshot) {
-      const firstTag = dispatch(getFirstTag());
+      const firstTag = dispatch(getFirstTagAlphabetically());
       let firstMolecule = null;
       if (firstTag) {
         dispatch(addSelectedTag(firstTag));
-        firstMolecule = dispatch(getFirstMoleculeForTag(firstTag.id));
+        // firstMolecule = dispatch(getFirstMoleculeForTag(firstTag.id));
       } else if (noTagsReceived) {
-        firstMolecule = dispatch(getFirstMolecule());
+        // firstMolecule = dispatch(getFirstMolecule());
       }
+      firstMolecule = dispatch(getFirstMolOfFirstCompound());
       if (firstMolecule) {
         dispatch(addHitProtein(majorView, firstMolecule, colourList[firstMolecule.id % colourList.length], true)).then(
           () => {
@@ -683,6 +685,30 @@ export const getFirstTag = () => (dispatch, getState) => {
     const tagsList = state.apiReducers.tagList;
     const foundTags = tagsList.filter(t => t.category === siteCategoryId);
     return foundTags && foundTags.length > 0 ? foundTags[0] : null;
+  } else {
+    return null;
+  }
+};
+
+export const getFirstTagAlphabetically = () => (dispatch, getState) => {
+  const state = getState();
+  const tagsList = state.apiReducers.tagList;
+  const sortedTags = tagsList.sort(compareTagsAsc);
+  return sortedTags && sortedTags.length > 0 ? sortedTags[0] : null;
+};
+
+export const getFirstMolOfFirstCompound = () => (dispatch, getState) => {
+  const state = getState();
+  const compoundsList = state.apiReducers.lhs_compounds_list;
+  const firstCompound = compoundsList[0];
+  if (firstCompound) {
+    const molList = state.apiReducers.all_mol_lists;
+    const firstMols = molList?.filter(m => m.cmpd === firstCompound.id);
+    if (firstMols && firstMols.length > 0) {
+      return firstMols[0];
+    } else {
+      return null;
+    }
   } else {
     return null;
   }

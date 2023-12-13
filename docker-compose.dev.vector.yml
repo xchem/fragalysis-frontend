@@ -103,6 +103,7 @@ services:
       AUTHENTICATE_UPLOAD: 'False'
       CELERY_TASK_ALWAYS_EAGER: 'True'
       DEBUG_FRAGALYSIS: 'True'
+      PROXY_FORWARDED_PROTO_HEADER: 'http'
     depends_on:
       database:
         condition: service_healthy

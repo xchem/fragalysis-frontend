@@ -3,9 +3,10 @@
  */
 import React, { memo } from 'react';
 import { MoleculeList } from './moleculeList';
+import { ObservationCmpList } from './observationCmpList';
 
 const HitNavigator = memo(({ hideProjects }) => {
-  return <MoleculeList hideProjects={hideProjects} />;
+  return <ObservationCmpList hideProjects={hideProjects} />;
 });
 
 export default HitNavigator;

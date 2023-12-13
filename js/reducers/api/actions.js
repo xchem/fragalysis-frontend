@@ -98,6 +98,13 @@ export const setAllMolLists = all_mol_lists => {
   };
 };
 
+export const setLHSCompoundsLIst = lhs_compounds_list => {
+  return {
+    type: constants.SET_LHS_COMPOUNDS_LIST,
+    lhs_compounds_list: lhs_compounds_list
+  };
+};
+
 export const setMoleculeTags = moleculeTags => {
   return {
     type: constants.SET_MOLECULE_TAGS,

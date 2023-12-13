@@ -2,7 +2,7 @@
  * Created by abradley on 14/03/2018.
  */
 
-import React, { memo, useEffect, useState, useRef, useContext, useCallback, useMemo } from 'react';
+import React, { memo, useEffect, useState, useRef, useContext, useCallback } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { Button, Grid, makeStyles, Tooltip, IconButton, Popper, Item, CircularProgress } from '@material-ui/core';
 import { Panel } from '../../../common';
@@ -39,9 +39,14 @@ import {
   setSelectedAll,
   setDeselectedAll,
   setMoleculeForTagEdit,
-  setTagEditorOpenObs,
+  setTagEditorOpen,
   appendToMolListToEdit,
-  removeFromMolListToEdit
+  removeFromMolListToEdit,
+  setOpenObservationsDialog,
+  setObservationsForLHSCmp,
+  appendToObsCmpListToEdit,
+  removeFromObsCmpListToEdit,
+  setIsLHSCmpTagEdit
 } from '../../../../reducers/selection/actions';
 import { moleculeProperty } from '../helperConstants';
 import { centerOnLigandByMoleculeID } from '../../../../reducers/ngl/dispatchActions';
@@ -49,14 +54,16 @@ import { SvgTooltip } from '../../../common';
 import { MOL_TYPE } from '../redux/constants';
 import { DensityMapsModal } from '../modals/densityMapsModal';
 import { getRandomColor } from '../utils/color';
-import { DEFAULT_TAG_COLOR, getAllTagsForMol } from '../../tags/utils/tagUtils';
-import MoleculeSelectCheckbox from './moleculeSelectCheckbox';
+import { DEFAULT_TAG_COLOR, getAllTagsForLHSCmp, getAllTagsForMol } from '../../tags/utils/tagUtils';
 import useClipboard from 'react-use-clipboard';
 import Popover from '@mui/material/Popover';
 import Typography from '@mui/material/Typography';
 import { Edit } from '@material-ui/icons';
 import { DJANGO_CONTEXT } from '../../../../utils/djangoContext';
 import { getFontColorByBackgroundColor } from '../../../../utils/colors';
+import MoleculeSelectCheckbox from '../moleculeView/moleculeSelectCheckbox';
+import { isAnyObservationTurnedOnForCmp } from '../../../../reducers/selection/selectors';
+import { first } from 'lodash';
 
 const useStyles = makeStyles(theme => ({
   container: {
@@ -307,17 +314,13 @@ export const img_data_init = `<svg xmlns="http://www.w3.org/2000/svg" version="1
     <animateTransform attributeName="transform" type="rotate" repeatCount="indefinite" dur="0.689655172413793s" values="0 50 50;360 50 50" keyTimes="0;1"></animateTransform>
   </circle>  '</svg>`;
 
-const MoleculeView = memo(
+const ObservationCmpView = memo(
   ({
     imageHeight,
     imageWidth,
     data,
-    searchMoleculeGroup,
     index,
-    previousItemData,
-    nextItemData,
     setRef,
-    removeSelectedTypes,
     L,
     P,
     C,
@@ -327,12 +330,11 @@ const MoleculeView = memo(
     Q,
     V,
     I,
-    isTagEditorInvokedByMolecule,
-    isTagEditorOpen,
     selected,
     disableL,
     disableP,
-    disableC
+    disableC,
+    observations
   }) => {
     // const [countOfVectors, setCountOfVectors] = useState('-');
     // const [cmpds, setCmpds] = useState('-');
@@ -348,28 +350,74 @@ const MoleculeView = memo(
 
     const viewParams = useSelector(state => state.nglReducers.viewParams);
     const tagList = useSelector(state => state.apiReducers.tagList);
-    const tagEditorOpenObs = useSelector(state => state.selectionReducers.tagEditorOpenedObs);
-    const tagCategories = useSelector(state => state.apiReducers.categoryList);
+    const tagEditorOpen = useSelector(state => state.selectionReducers.tagEditorOpened);
 
-    const [tagEditModalOpenNew, setTagEditModalOpenNew] = useState(tagEditorOpenObs);
+    const isObservationDialogOpen = useSelector(state => state.selectionReducers.isObservationDialogOpen);
+
+    const [tagEditModalOpenNew, setTagEditModalOpenNew] = useState(tagEditorOpen);
 
     const { getNglView } = useContext(NglContext);
     const stage = getNglView(VIEWS.MAJOR_VIEW) && getNglView(VIEWS.MAJOR_VIEW).stage;
 
-    const isLigandOn = L;
-    const isProteinOn = P;
-    const isComplexOn = C;
-    const isSurfaceOn = S;
-    const isDensityOn = D;
-    const isDensityCustomOn = D_C;
-    const isQualityOn = Q;
-    const isVectorOn = V;
+    const getFirstObservation = useCallback(() => {
+      let result = null;
+
+      if (observations && observations.length > 0) {
+        result = observations[0];
+      }
+
+      return result;
+    }, [observations]);
+
+    const getAllObservationsSelectedInList = list => {
+      let result = [];
+
+      if (list && list.length > 0 && observations && observations.length > 0) {
+        observations.forEach(obs => {
+          const isPresent = list.some(id => obs.id === id);
+          if (isPresent) {
+            result.push(obs);
+          }
+        });
+      }
+
+      return result;
+    };
+
+    const isAtLeastOneObservationOnInList = list => {
+      let result = false;
+
+      if (list && list.length > 0 && observations && observations.length > 0) {
+        for (const obs of observations) {
+          const isPresent = list.some(id => obs.id === id);
+          if (isPresent) {
+            result = true;
+            break;
+          }
+        }
+      }
+
+      return result;
+    };
+
+    const fragmentDisplayList = useSelector(state => state.selectionReducers.fragmentDisplayList);
+    const proteinList = useSelector(state => state.selectionReducers.proteinList);
+    const complexList = useSelector(state => state.selectionReducers.complexList);
+    const surfaceList = useSelector(state => state.selectionReducers.surfaceList);
+    const densityList = useSelector(state => state.selectionReducers.densityList);
+    const densityListCustom = useSelector(state => state.selectionReducers.densityListCustom);
+    const qualityList = useSelector(state => state.selectionReducers.qualityList);
+    const vectorOnList = useSelector(state => state.selectionReducers.vectorOnList);
+
+    const isLigandOn = isAtLeastOneObservationOnInList(fragmentDisplayList);
+    const isProteinOn = isAtLeastOneObservationOnInList(proteinList);
+    const isComplexOn = isAtLeastOneObservationOnInList(complexList);
+    const isSurfaceOn = isAtLeastOneObservationOnInList(surfaceList);
+    const isDensityOn = isAtLeastOneObservationOnInList(densityList);
+    const isDensityCustomOn = isAtLeastOneObservationOnInList(densityListCustom);
+    const isQualityOn = isAtLeastOneObservationOnInList(qualityList);
+    const isVectorOn = isAtLeastOneObservationOnInList(vectorOnList);
     const hasAdditionalInformation = I;
-
-    const allMolecules = useSelector(state => state.apiReducers.all_mol_lists);
-
-    //for some reason when tags are changed for this molecule the data are stale so I need to retrieve them from list of all molecules
-    data = allMolecules.filter(mol => mol.id === data.id)[0];
 
     const [isCopied, setCopied] = useClipboard(data.smiles, { successDuration: 5000 });
 
@@ -407,15 +455,22 @@ const MoleculeView = memo(
     const [moleculeTooltipOpen, setMoleculeTooltipOpen] = useState(false);
     const [tagPopoverOpen, setTagPopoverOpen] = useState(null);
 
+    const isAnyObservationOn = useSelector(state =>
+      isAnyObservationTurnedOnForCmp(state, observations?.map(obs => obs.id) || [])
+    );
+
     const moleculeImgRef = useRef(null);
 
     const open = tagPopoverOpen ? true : false;
 
-    let proteinData = data?.proteinData;
+    const getDataForTagsTooltip = () => {
+      const assignedTags = getAllTagsForLHSCmp(observations, tagList);
+      return assignedTags;
+    };
 
     useEffect(() => {
-      setTagEditModalOpenNew(tagEditorOpenObs);
-    }, [tagEditorOpenObs]);
+      setTagEditModalOpenNew(tagEditorOpen);
+    }, [tagEditorOpen]);
 
     const handlePopoverOpen = event => {
       setTagPopoverOpen(event.currentTarget);
@@ -423,11 +478,6 @@ const MoleculeView = memo(
 
     const handlePopoverClose = () => {
       setTagPopoverOpen(null);
-    };
-
-    const getDataForTagsTooltip = () => {
-      const assignedTags = getAllTagsForMol(data, tagList);
-      return assignedTags;
     };
 
     const resolveTagBackgroundColor = tag => {
@@ -451,7 +501,7 @@ const MoleculeView = memo(
     };
 
     const generateTagPopover = () => {
-      const allData = getAllTagsForMol(data, tagList);
+      const allData = getDataForTagsTooltip();
       const sortedData = [...allData].sort((a, b) => a.tag.localeCompare(b.tag));
 
       const modifiedObjects = sortedData.map(obj => {
@@ -513,12 +563,14 @@ const MoleculeView = memo(
                         onClick={() => {
                           if (tagEditModalOpenNew) {
                             setTagEditModalOpenNew(false);
-                            dispatch(setTagEditorOpenObs(!tagEditModalOpenNew));
+                            dispatch(setTagEditorOpen(!tagEditModalOpenNew));
                             dispatch(setMoleculeForTagEdit(null));
+                            dispatch(setIsLHSCmpTagEdit(false));
                           } else {
+                            dispatch(setIsLHSCmpTagEdit(true));
                             setTagEditModalOpenNew(true);
                             dispatch(setMoleculeForTagEdit(data.id));
-                            dispatch(setTagEditorOpenObs(true));
+                            dispatch(setTagEditorOpen(true));
                             if (setRef) {
                               setRef(ref.current);
                             }
@@ -575,12 +627,14 @@ const MoleculeView = memo(
                       onClick={() => {
                         if (tagEditModalOpenNew) {
                           setTagEditModalOpenNew(false);
-                          dispatch(setTagEditorOpenObs(!tagEditModalOpenNew));
+                          dispatch(setTagEditorOpen(!tagEditModalOpenNew));
                           dispatch(setMoleculeForTagEdit(null));
+                          dispatch(setIsLHSCmpTagEdit(false));
                         } else {
+                          dispatch(setIsLHSCmpTagEdit(true));
                           setTagEditModalOpenNew(true);
                           dispatch(setMoleculeForTagEdit(data.id));
-                          dispatch(setTagEditorOpenObs(true));
+                          dispatch(setTagEditorOpen(true));
                           if (setRef) {
                             setRef(ref.current);
                           }
@@ -597,7 +651,7 @@ const MoleculeView = memo(
               </Grid>
             )}
           </Typography>
-          {tagEditorOpenObs === false ? (
+          {tagEditorOpen === false ? (
             <Typography
               aria-owns={open ? 'mouse-over-popper' : undefined}
               aria-haspopup="true"
@@ -650,12 +704,14 @@ const MoleculeView = memo(
           onClick={() => {
             if (tagEditModalOpenNew) {
               setTagEditModalOpenNew(false);
-              dispatch(setTagEditorOpenObs(!tagEditModalOpenNew));
+              dispatch(setTagEditorOpen(!tagEditModalOpenNew));
               dispatch(setMoleculeForTagEdit(null));
+              dispatch(setIsLHSCmpTagEdit(false));
             } else {
+              dispatch(setIsLHSCmpTagEdit(true));
               setTagEditModalOpenNew(true);
               dispatch(setMoleculeForTagEdit(data.id));
-              dispatch(setTagEditorOpenObs(true));
+              dispatch(setTagEditorOpen(true));
               if (setRef) {
                 setRef(ref.current);
               }
@@ -672,10 +728,11 @@ const MoleculeView = memo(
 
     // componentDidMount
     useEffect(() => {
-      dispatch(getMolImage(data.id, MOL_TYPE.HIT, imageWidth, imageHeight)).then(i => {
+      const obs = getFirstObservation();
+      dispatch(getMolImage(obs.id, MOL_TYPE.HIT, imageWidth, imageHeight)).then(i => {
         setImg_data(i);
       });
-    }, [data.id, data.smiles, imageHeight, imageWidth, dispatch]);
+    }, [data.id, data.smiles, imageHeight, imageWidth, dispatch, getFirstObservation]);
 
     useEffect(() => {
       dispatch(getQualityInformation(data));
@@ -709,18 +766,26 @@ const MoleculeView = memo(
       // }
       dispatch(
         withDisabledMoleculeNglControlButton(currentID, 'ligand', async () => {
-          await dispatch(addLigand(stage, data, colourToggle, false, true, skipTracking));
+          const firstObs = getFirstObservation();
+          if (firstObs) {
+            const color = getRandomColor(firstObs);
+            await dispatch(addLigand(stage, firstObs, color, false, true, skipTracking));
+          }
         })
       );
     };
 
     const removeSelectedLigand = (skipTracking = false) => {
-      dispatch(removeLigand(stage, data, skipTracking));
+      const selectedObs = getAllObservationsSelectedInList(fragmentDisplayList);
+      for (const obs of selectedObs) {
+        dispatch(removeLigand(stage, obs, skipTracking));
+      }
       selectedAll.current = false;
     };
 
     const [loadingAll, setLoadingAll] = useState(false);
     const [loadingLigand, setLoadingLigand] = useState(false);
+
     const onLigand = calledFromSelectAll => {
       setLoadingLigand(true);
       if (calledFromSelectAll === true && selectedAll.current === true) {
@@ -740,7 +805,10 @@ const MoleculeView = memo(
     };
 
     const removeSelectedProtein = (skipTracking = false) => {
-      dispatch(removeHitProtein(stage, data, colourToggle, skipTracking));
+      const selectedObs = getAllObservationsSelectedInList(proteinList);
+      for (const obs of selectedObs) {
+        dispatch(removeHitProtein(stage, obs, colourToggle, skipTracking));
+      }
       selectedAll.current = false;
     };
 
@@ -750,12 +818,17 @@ const MoleculeView = memo(
       // }
       dispatch(
         withDisabledMoleculeNglControlButton(currentID, 'protein', async () => {
-          await dispatch(addHitProtein(stage, data, colourToggle, true, skipTracking));
+          const firstObs = getFirstObservation();
+          if (firstObs) {
+            const color = getRandomColor(firstObs);
+            await dispatch(addHitProtein(stage, firstObs, color, true, skipTracking));
+          }
         })
       );
     };
 
     const [loadingProtein, setLoadingProtein] = useState(false);
+
     const onProtein = calledFromSelectAll => {
       setLoadingProtein(true);
       if (calledFromSelectAll === true && selectedAll.current === true) {
@@ -775,19 +848,27 @@ const MoleculeView = memo(
     };
 
     const removeSelectedComplex = (skipTracking = false) => {
-      dispatch(removeComplex(stage, data, colourToggle, skipTracking));
+      const selectedObs = getAllObservationsSelectedInList(complexList);
+      for (const obs of selectedObs) {
+        dispatch(removeComplex(stage, obs, colourToggle, skipTracking));
+      }
       selectedAll.current = false;
     };
 
     const addNewComplex = (skipTracking = false) => {
       dispatch(
         withDisabledMoleculeNglControlButton(currentID, 'complex', async () => {
-          await dispatch(addComplex(stage, data, colourToggle, skipTracking));
+          const firstObs = getFirstObservation();
+          if (firstObs) {
+            const color = getRandomColor(firstObs);
+            await dispatch(addComplex(stage, firstObs, color, skipTracking));
+          }
         })
       );
     };
 
     const [loadingComplex, setLoadingComplex] = useState(false);
+
     const onComplex = calledFromSelectAll => {
       setLoadingComplex(true);
       if (calledFromSelectAll === true && selectedAll.current === true) {
@@ -807,18 +888,26 @@ const MoleculeView = memo(
     };
 
     const removeSelectedSurface = () => {
-      dispatch(removeSurface(stage, data, colourToggle));
+      const selectedObs = getAllObservationsSelectedInList(surfaceList);
+      for (const obs of selectedObs) {
+        dispatch(removeSurface(stage, obs, colourToggle));
+      }
     };
 
     const addNewSurface = () => {
       dispatch(
         withDisabledMoleculeNglControlButton(currentID, 'surface', async () => {
-          await dispatch(addSurface(stage, data, colourToggle));
+          const firstObs = getFirstObservation();
+          if (firstObs) {
+            const color = getRandomColor(firstObs);
+            await dispatch(addSurface(stage, firstObs, color));
+          }
         })
       );
     };
 
     const [loadingSurface, setLoadingSurface] = useState(false);
+
     const onSurface = () => {
       setLoadingSurface(true);
       if (isSurfaceOn === false) {
@@ -854,6 +943,7 @@ const MoleculeView = memo(
     };
 
     const [loadingDensity, setLoadingDensity] = useState(false);
+
     const onDensity = () => {
       setLoadingDensity(true);
       if (isDensityOn === false && isDensityCustomOn === false) {
@@ -873,13 +963,20 @@ const MoleculeView = memo(
     };
 
     const removeSelectedQuality = () => {
-      dispatch(removeQuality(stage, data, colourToggle));
+      const selectedObs = getAllObservationsSelectedInList(qualityList);
+      for (const obs of selectedObs) {
+        dispatch(removeQuality(stage, obs, colourToggle));
+      }
     };
 
     const addNewQuality = () => {
       dispatch(
         withDisabledMoleculeNglControlButton(currentID, 'ligand', async () => {
-          await dispatch(addQuality(stage, data, colourToggle));
+          const firstObs = getFirstObservation();
+          if (firstObs) {
+            const color = getRandomColor(firstObs);
+            await dispatch(addQuality(stage, firstObs, color));
+          }
         })
       );
     };
@@ -893,18 +990,25 @@ const MoleculeView = memo(
     };
 
     const removeSelectedVector = () => {
-      dispatch(removeVector(stage, data));
+      const selectedObs = getAllObservationsSelectedInList(vectorOnList);
+      for (const obs of selectedObs) {
+        dispatch(removeVector(stage, obs));
+      }
     };
 
     const addNewVector = () => {
       dispatch(
         withDisabledMoleculeNglControlButton(currentID, 'vector', async () => {
-          await dispatch(addVector(stage, data));
+          const firstObs = getFirstObservation();
+          if (firstObs) {
+            await dispatch(addVector(stage, firstObs));
+          }
         })
       );
     };
 
     const [loadingVector, setLoadingVector] = useState(false);
+
     const onVector = () => {
       setLoadingVector(true);
       if (isVectorOn === false) {
@@ -958,7 +1062,8 @@ const MoleculeView = memo(
       });
     };
 
-    let moleculeTitle = data?.code.replace(new RegExp(`${target_on_name}-`, 'i'), '');
+    let moleculeTitle = data.smiles;
+    const moleculeTitleTruncated = moleculeTitle.substring(0, 20) + (moleculeTitle.length > 20 ? '...' : '');
 
     const moleculeLPCControlButtonDisabled = ['ligand', 'protein', 'complex'].some(
       type => disableMoleculeNglControlButtons[type]
@@ -988,9 +1093,9 @@ const MoleculeView = memo(
                 onChange={e => {
                   const result = e.target.checked;
                   if (result) {
-                    dispatch(appendToMolListToEdit(currentID));
+                    dispatch(appendToObsCmpListToEdit(currentID));
                   } else {
-                    dispatch(removeFromMolListToEdit(currentID));
+                    dispatch(removeFromObsCmpListToEdit(currentID));
                   }
                 }}
               />
@@ -1003,7 +1108,7 @@ const MoleculeView = memo(
             {/* Title label */}
             <Grid item xs={7}>
               <Tooltip title={moleculeTitle} placement="bottom-start">
-                <div className={classes.moleculeTitleLabel}>{moleculeTitle}</div>
+                <div className={classes.moleculeTitleLabel}>{moleculeTitleTruncated}</div>
               </Tooltip>
               {generateTagPopover()}
             </Grid>
@@ -1201,10 +1306,35 @@ const MoleculeView = memo(
                     </Button>
                   </Grid>
                 </Tooltip>
+                <Tooltip title="observations">
+                  <Grid item>
+                    <Button
+                      variant="outlined"
+                      className={classNames(classes.contColButton, {
+                        [classes.contColButtonSelected]: isAnyObservationOn
+                      })}
+                      onClick={() => {
+                        // setLoadingInspiration(true);
+
+                        if (!isObservationDialogOpen) {
+                          dispatch(setObservationsForLHSCmp(observations));
+                        }
+                        dispatch(setOpenObservationsDialog(!isObservationDialogOpen));
+
+                        if (setRef) {
+                          setRef(ref.current);
+                        }
+                        // setLoadingInspiration(false);
+                      }}
+                      disabled={false}
+                    >
+                      O
+                    </Button>
+                  </Grid>
+                </Tooltip>
               </Grid>
             </Grid>
             <Grid item xs={12}>
-              {/* Molecule properties */}
               <Grid
                 item
                 container
@@ -1218,7 +1348,7 @@ const MoleculeView = memo(
                   <Tooltip title={item.name} key={item.name}>
                     <Grid item className={classNames(classes.rightBorder, getValueMatchingClass(item))}>
                       {item.name === moleculeProperty.mw && Math.round(item.value)}
-                      {item.name === moleculeProperty.logP && Math.round(item.value) /*.toPrecision(1)*/}
+                      {item.name === moleculeProperty.logP && Math.round(item.value)}
                       {item.name === moleculeProperty.tpsa && Math.round(item.value)}
                       {item.name !== moleculeProperty.mw &&
                         item.name !== moleculeProperty.logP &&
@@ -1279,5 +1409,5 @@ const MoleculeView = memo(
   }
 );
 
-MoleculeView.displayName = 'MoleculeView';
-export default MoleculeView;
+ObservationCmpView.displayName = 'ObservationCmpView';
+export default ObservationCmpView;

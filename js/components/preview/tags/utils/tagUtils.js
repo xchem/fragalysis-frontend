@@ -120,6 +120,7 @@ export const augumentTagObjectWithId = (tag, tagId) => {
 
 export const getAllTagsForMol = (mol, tagList) => {
   const result = [];
+
   mol.tags_set &&
     mol.tags_set.forEach(tagId => {
       let tag = tagList.filter(t => t.id === tagId);
@@ -127,46 +128,26 @@ export const getAllTagsForMol = (mol, tagList) => {
         result.push(tag[0]);
       }
     });
+
   return result;
 };
 
-// export const getCategoryIds = () => {
-//   const result = [];
+export const getAllTagsForLHSCmp = (observations, tagList) => {
+  const result = [];
 
-//   let categoryObject = {
-//     id: CATEGORY_ID[CATEGORY_TYPE.SITE],
-//     category: CATEGORY_TYPE['SITE'],
-//     colour: '00CC00',
-//     description: null
-//   };
-//   result.push({ ...categoryObject });
+  observations &&
+    observations.forEach(obs => {
+      obs.tags_set &&
+        obs.tags_set.forEach(tagId => {
+          let tag = tagList.filter(t => t.id === tagId);
+          if (tag && tag.length > 0 && !result.some(t => t.id === tag[0].id)) {
+            result.push(tag[0]);
+          }
+        });
+    });
 
-//   categoryObject = {
-//     id: CATEGORY_ID[CATEGORY_TYPE.SERIES],
-//     category: CATEGORY_TYPE['SERIES'],
-//     colour: '00CC00',
-//     description: null
-//   };
-//   result.push({ ...categoryObject });
-
-//   categoryObject = {
-//     id: CATEGORY_ID[CATEGORY_TYPE.FORUM],
-//     category: CATEGORY_TYPE['FORUM'],
-//     colour: '00CC00',
-//     description: null
-//   };
-//   result.push({ ...categoryObject });
-
-//   categoryObject = {
-//     id: CATEGORY_ID[CATEGORY_TYPE.OTHER],
-//     category: CATEGORY_TYPE['OTHER'],
-//     colour: '00CC00',
-//     description: null
-//   };
-//   result.push({ ...categoryObject });
-
-//   return result;
-// };
+  return result;
+};
 
 export const getDefaultTagDiscoursePostText = tag => {
   return `This post for tag ${tag.tag} is here to discuss its contents.`;

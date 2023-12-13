@@ -117,7 +117,6 @@ const Preview = memo(({ isStateLoaded, hideProjects, isSnapshot = false }) => {
 
   const openNewProjectModal = useSelector(state => state.projectReducers.isProjectModalOpen);
   const openSaveSnapshotModal = useSelector(state => state.snapshotReducers.openSavingDialog);
-  const assignTagEditorOpen = useSelector(state => state.selectionReducers.tagEditorOpened);
 
   const nglPortal = useMemo(() => createHtmlPortalNode({ attributes: { style: 'height: 100%' } }), []);
 
