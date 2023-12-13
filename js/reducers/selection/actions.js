@@ -405,6 +405,27 @@ export const setTagEditorOpen = isOpen => {
   };
 };
 
+export const setTagEditorOpenObs = isOpen => {
+  return {
+    type: constants.SET_TAG_EDITOR_OPEN_OBS,
+    isOpen: isOpen
+  };
+};
+
+export const setOpenObservationsDialog = isOpen => {
+  return {
+    type: constants.SET_OPEN_OBSERVATIONS_DIALOG,
+    isOpen: isOpen
+  };
+};
+
+export const setObservationsForLHSCmp = observations => {
+  return {
+    type: constants.SET_OBSERVATIONS_FOR_LHS_CMP,
+    observations: observations
+  };
+};
+
 export const setMoleculeForTagEdit = molId => {
   return {
     type: constants.SET_MOLECULE_FOR_TAG_EDIT,
@@ -426,6 +447,13 @@ export const setIsTagGlobalEdit = isGlobalEdit => {
   };
 };
 
+export const setIsLHSCmpTagEdit = isLHSCmpTagEdit => {
+  return {
+    type: constants.SET_IS_LHS_CMP_TAG_EDIT,
+    isLHSCmpTagEdit: isLHSCmpTagEdit
+  };
+};
+
 export const setMolListToEdit = list => {
   return {
     type: constants.SET_MOL_LIST_TO_EDIT,
@@ -444,6 +472,27 @@ export const removeFromMolListToEdit = molId => {
   return {
     type: constants.REMOVE_FROM_MOL_LIST_TO_EDIT,
     molId: molId
+  };
+};
+
+export const setObsCmpListToEdit = list => {
+  return {
+    type: constants.SET_OBS_MOL_LIST_TO_EDIT,
+    list: list
+  };
+};
+
+export const appendToObsCmpListToEdit = cmpId => {
+  return {
+    type: constants.APPEND_TO_OBS_MOL_LIST_TO_EDIT,
+    cmpId: cmpId
+  };
+};
+
+export const removeFromObsCmpListToEdit = cmpId => {
+  return {
+    type: constants.REMOVE_FROM_OBS_MOL_LIST_TO_EDIT,
+    cmpId: cmpId
   };
 };
 

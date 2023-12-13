@@ -18,7 +18,6 @@ export const ProjectHistoryPanel = ({ showFullHistory }) => {
   const currentSnapshotList = useSelector(state => state.projectReducers.currentSnapshotList);
   const currentSnapshotTree = useSelector(state => state.projectReducers.currentSnapshotTree);
   const isLoadingTree = useSelector(state => state.projectReducers.isLoadingTree);
-  const assignTagEditorOpen = useSelector(state => state.selectionReducers.tagEditorOpened);
 
   const refreshData = useSelector(state => state.projectReducers.refreshJobsData);
 

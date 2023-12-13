@@ -6,6 +6,7 @@ const getTagFilteringMode = state => state.selectionReducers.tagFilteringMode;
 const getNoTagsReceived = state => state.apiReducers.noTagsReceived;
 const getDisplayAllMolecules = state => state.selectionReducers.displayAllMolecules;
 const getDisplayUntaggedMolecules = state => state.selectionReducers.displayUntaggedMolecules;
+export const getLHSCompoundsList = state => state.apiReducers.lhs_compounds_list;
 
 export const selectJoinedMoleculeList = createSelector(
   getAllMolecules,

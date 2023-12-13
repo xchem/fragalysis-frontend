@@ -7,6 +7,13 @@ const getCurrentVector = state => state.selectionReducers.currentVector;
 const getBondColorMapOfVectors = state => state.selectionReducers.bondColorMapOfVectors;
 const getCompoundsOfVectors = state => state.selectionReducers.compoundsOfVectors;
 
+const fragmentDisplayList = state => state.selectionReducers.fragmentDisplayList;
+const proteinList = state => state.selectionReducers.proteinList;
+const complexList = state => state.selectionReducers.complexList;
+const surfaceList = state => state.selectionReducers.surfaceList;
+const densityList = state => state.selectionReducers.densityList;
+const vectorOnList = state => state.selectionReducers.vectorOnList;
+
 export const getMoleculeOfCurrentVector = createSelector(
   getCurrentVector,
   getVectorList,
@@ -90,5 +97,31 @@ export const getAllCompoundsList = createSelector(
       });
     }
     return compoundsList;
+  }
+);
+
+export const isAnyObservationTurnedOnForCmp = createSelector(
+  (_, observations = []) => observations,
+  fragmentDisplayList,
+  proteinList,
+  complexList,
+  surfaceList,
+  densityList,
+  vectorOnList,
+  (observations, ligands, proteins, complexis, surfaces, densities, vectors) => {
+    const allLists = new Set(ligands);
+    proteins.forEach(p => allLists.add(p));
+    complexis.forEach(p => allLists.add(p));
+    surfaces.forEach(p => allLists.add(p));
+    densities.forEach(p => allLists.add(p));
+    vectors.forEach(p => allLists.add(p));
+    let hasInspiration = false;
+    observations.forEach(moleculeID => {
+      if (allLists.has(moleculeID)) {
+        hasInspiration = true;
+        return hasInspiration;
+      }
+    });
+    return hasInspiration;
   }
 );

@@ -35,6 +35,14 @@ export const getAllDataNew = async targetId => {
   });
 };
 
+export const getCompoundsLHS = async targetId => {
+  return api({ url: `${base_url}/api/cmpdimg/?target=${targetId}` }).then(response => {
+    if (response?.data) {
+      return response.data?.results;
+    }
+  });
+};
+
 export const getTagMolecules = targetId => {
   return api({ url: `${base_url}/api/siteobservation_tag/?target=${targetId}` })
     .then(response => {

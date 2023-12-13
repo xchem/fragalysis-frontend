@@ -22,11 +22,13 @@ export const INITIAL_STATE = {
   moleculeAllSelection: [],
   moleculeAllTypeSelection: [],
   tagEditorOpened: false,
+  tagEditorOpenedObs: false,
   molForTagEdit: null,
   tagFilteringMode: false,
 
   selectedTagList: [],
   isGlobalEdit: false,
+  isLHSCmpTagEdit: false,
 
   compoundsOfVectors: null, // list of all vector's compounds to pick
   // compoundsOfVectors: {
@@ -39,12 +41,17 @@ export const INITIAL_STATE = {
   currentVector: null, // selected vector smile (ID) of compoundsOfVectors
   moleculesToEdit: [],
 
+  obsCmpsToEdit: [],
+
   // tags
   tagToEdit: null,
   //display all molecules in hit navigator regardless of the tag selection
   displayAllMolecules: false,
   displayUntaggedMolecules: false,
-  nextXMolecules: 0
+  nextXMolecules: 0,
+
+  isObservationDialogOpen: false,
+  observationsForLHSCmp: []
 };
 
 export function selectionReducers(state = INITIAL_STATE, action = {}) {
@@ -150,6 +157,12 @@ export function selectionReducers(state = INITIAL_STATE, action = {}) {
       diminishedComplexList.delete(action.item.id);
       return Object.assign({}, state, { complexList: [...diminishedComplexList] });
 
+    case constants.SET_OPEN_OBSERVATIONS_DIALOG:
+      return { ...state, isObservationDialogOpen: action.isOpen };
+
+    case constants.SET_OBSERVATIONS_FOR_LHS_CMP:
+      return { ...state, observationsForLHSCmp: [...action.observations] };
+
     case constants.SET_SURFACE_LIST:
       let newSurfaceList = new Set();
       action.surfaceList.forEach(f => {
@@ -229,6 +242,9 @@ export function selectionReducers(state = INITIAL_STATE, action = {}) {
 
     case constants.SET_TAG_EDITOR_OPEN:
       return { ...state, tagEditorOpened: action.isOpen };
+
+    case constants.SET_TAG_EDITOR_OPEN_OBS:
+      return { ...state, tagEditorOpenedObs: action.isOpen };
 
     case constants.SET_MOLECULE_FOR_TAG_EDIT:
       return { ...state, molForTagEdit: action.molId };
@@ -425,6 +441,16 @@ export function selectionReducers(state = INITIAL_STATE, action = {}) {
       let reducedMolListToEdit = state.moleculesToEdit.filter(mid => mid !== action.molId);
       return { ...state, moleculesToEdit: [...reducedMolListToEdit] };
 
+    case constants.SET_OBS_MOL_LIST_TO_EDIT:
+      return { ...state, obsCmpsToEdit: [...action.list] };
+
+    case constants.APPEND_TO_OBS_MOL_LIST_TO_EDIT:
+      return { ...state, obsCmpsToEdit: [...state.obsCmpsToEdit, action.cmpId] };
+
+    case constants.REMOVE_FROM_OBS_MOL_LIST_TO_EDIT:
+      let reducedObsCmpListToEdit = state.obsCmpsToEdit.filter(cid => cid !== action.cmpId);
+      return { ...state, obsCmpsToEdit: [...reducedObsCmpListToEdit] };
+
     case constants.SET_TAG_TO_EDIT: {
       return Object.assign({}, state, {
         tagToEdit: action.tagToEdit
@@ -450,6 +476,9 @@ export function selectionReducers(state = INITIAL_STATE, action = {}) {
 
     case constants.SET_RESIZABLE_LAYOUT:
       return Object.assign({}, state, { resizableLayout: action.payload });
+
+    case constants.SET_IS_LHS_CMP_TAG_EDIT:
+      return { ...state, isLHSCmpTagEdit: action.isLHSCmpTagEdit };
 
     // Cases like: @@redux/INIT
     default:
