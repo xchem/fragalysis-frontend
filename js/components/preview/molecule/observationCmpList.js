@@ -1229,7 +1229,8 @@ export const ObservationCmpList = memo(({ hideProjects }) => {
               >
                 {filteredLHSCompoundsList.map((data, index, array) => {
                   const molsForCmp = compoundMolecules[data.id];
-                  const selected = allSelectedLHSCmps.some(molecule => molecule.id === data.id);
+                  // const selected = allSelectedLHSCmps.some(molecule => molecule.id === data.id);
+                  const selected = allSelectedMolecules.some(molecule => molecule.cmpd === data.id);
 
                   return (
                     <ObservationCmpView
