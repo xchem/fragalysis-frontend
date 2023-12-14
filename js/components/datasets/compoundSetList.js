@@ -18,7 +18,15 @@ const useStyles = makeStyles(theme => ({
     marginTop: '6px',
     overflow: 'auto'
   },
+  tableCell: {
+    overflow: 'hidden',
+    textOverflow: 'ellipsis',
+    whiteSpace: 'nowrap',
+    padding: 0
+  },
   search: {
+    width: 140,
+    paddingTop: '5px',
     margin: theme.spacing(1),
     '& .MuiInputBase-root': {
       color: 'white'
@@ -37,10 +45,6 @@ const useStyles = makeStyles(theme => ({
     width: '0.75em',
     height: '0.75em',
     padding: '0px'
-  },
-  search: {
-    width: 140,
-    paddingTop: '5px'
   }
 }));
 
@@ -64,7 +68,7 @@ export const CompoundSetList = () => {
       setDefaultSelectedValue(newDataset);
       dispatch(setUpdatedDatasets(newDataset));
     }
-  }, []);
+  }, [customDatasets, dispatch, selectedDatasetIndex]);
 
   const handleExpandedChange = event => {
     if (event) {
@@ -107,29 +111,29 @@ export const CompoundSetList = () => {
       >
         <Table className={classes.table}>
           <TableHead>
-            <TableRow style={{ padding: '0px' }}>
-              <TableCell item style={{ width: '30px', padding: '0px' }}>
-                Select
+            <TableRow style={{ padding: 0 }}>
+              <TableCell style={{ width: 25, padding: 0 }}>
+                {/* Select */}
               </TableCell>
-              <TableCell item style={{ width: '50px', padding: '0px' }}>
+              <TableCell style={{ width: 60, padding: 0 }}>
                 Name
               </TableCell>
-              <TableCell item style={{ width: '50px', padding: '0px' }}>
+              <TableCell style={{ width: '50px', padding: 0 }}>
                 #
               </TableCell>
-              <TableCell item style={{ width: '100px', padding: '0px' }}>
+              <TableCell style={{ width: '100px', padding: 0 }}>
                 Submitter
               </TableCell>
-              <TableCell item style={{ width: '70px', padding: '0px' }}>
+              <TableCell style={{ width: '70px', padding: 0 }}>
                 Institution
               </TableCell>
-              <TableCell item style={{ width: '70px', padding: '0px' }}>
+              <TableCell style={{ width: '70px', padding: 0 }}>
                 Date
               </TableCell>
-              <TableCell item style={{ width: '70px', padding: '0px' }}>
+              <TableCell style={{ width: '70px', padding: 0 }}>
                 Method
               </TableCell>
-              <TableCell item style={{ width: '30px', padding: '0px' }}>
+              <TableCell style={{ width: '30px', padding: 0 }}>
                 CSV
               </TableCell>
             </TableRow>
@@ -137,8 +141,8 @@ export const CompoundSetList = () => {
           <TableBody>
             {actualDataset?.map((dataset, index) => {
               return (
-                <TableRow container key={index} style={{ height: '10px' }}>
-                  <TableCell style={{ width: '10px', padding: '0px', height: '10px' }}>
+                <TableRow key={index} style={{ height: 10 }}>
+                  <TableCell style={{ padding: 0 }}>
                     <Radio
                       onClick={() => {
                         handleChangeVisibility(index);
@@ -146,20 +150,21 @@ export const CompoundSetList = () => {
                       checked={dataset.visibility}
                       value={true}
                       name="radio-button-demo"
-                      style={{ width: '30px', padding: '0px' }}
+                      style={{ width: 25, padding: 0 }}
                     />
                   </TableCell>
                   <Tooltip title={dataset.title}>
-                    <TableCell style={{ height: '10px', width: '50px', padding: '0px' }} key={dataset.id}>
-                      {dataset.title.length > 13 ? dataset.title.slice(0, 13) + '...' : dataset.title}
+                    <TableCell className={classes.tableCell} style={{ maxWidth: 60 }} key={dataset.id}>
+                      {/* {dataset.title.length > 13 ? dataset.title.slice(0, 13) + '...' : dataset.title} */}
+                      {dataset.title}
                     </TableCell>
                   </Tooltip>
-                  <TableCell style={{ height: '10px', padding: '0px' }}></TableCell>
-                  <TableCell style={{ height: '10px', padding: '0px' }}></TableCell>
-                  <TableCell style={{ height: '10px', padding: '0px' }}></TableCell>
-                  <TableCell style={{ height: '10px', padding: '0px' }}></TableCell>
-                  <TableCell style={{ height: '10px', padding: '0px' }}></TableCell>
-                  <TableCell style={{ height: '10px', padding: '0px' }}>
+                  <TableCell className={classes.tableCell} style={{ maxWidth: 50 }}></TableCell>
+                  <TableCell className={classes.tableCell} style={{ maxWidth: 100 }}></TableCell>
+                  <TableCell className={classes.tableCell} style={{ maxWidth: 70 }}></TableCell>
+                  <TableCell className={classes.tableCell} style={{ maxWidth: 70 }}></TableCell>
+                  <TableCell className={classes.tableCell} style={{ maxWidth: 70 }}></TableCell>
+                  <TableCell style={{ padding: 0 }}>
                     <CloudDownloadOutlinedIcon />
                   </TableCell>
                 </TableRow>

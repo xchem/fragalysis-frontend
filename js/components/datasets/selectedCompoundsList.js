@@ -276,7 +276,7 @@ export const SelectedCompoundList = memo(() => {
       }
     }
     return result;
-  }, [dispatch, moleculesObjectIDListOfCompoundsToBuy, ligandList, proteinList, complexList, surfaceList]);
+  }, [dispatch, moleculesObjectIDListOfCompoundsToBuy]);
   // if (!moleculesObjectIDListOfCompoundsToBuy) {
   //   for (let i = 0; i < moleculesObjectIDListOfCompoundsToBuy.length; i++) {
   //     const cmp = moleculesObjectIDListOfCompoundsToBuy[i];
@@ -955,6 +955,7 @@ export const SelectedCompoundList = memo(() => {
                         shoppingCartColors={shoppingCartColors}
                         isAddedToShoppingCart={isAddedToShoppingCart}
                         inSelectedCompoundsList
+                        showDatasetName
                         colorButtonsEnabled={areColorButtonsEnabled}
                         isLocked={isLocked}
                         setRef={setSelectedMoleculeRef}

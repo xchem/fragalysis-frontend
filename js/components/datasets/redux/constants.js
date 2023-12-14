@@ -119,6 +119,7 @@ export const constants = {
 };
 
 export const COUNT_OF_VISIBLE_SCORES = 7;
+export const DEFAULT_COUNT_OF_VISIBLE_SCORES = 1;
 
 export const createFilterSettingsObject = ({ active, predefined, priorityOrder }) => ({
   active,

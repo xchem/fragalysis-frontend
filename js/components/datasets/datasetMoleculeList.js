@@ -338,6 +338,12 @@ const useStyles = makeStyles(theme => ({
     padding: '0px',
     // color: theme.palette.primary.main
     color: 'red'
+  },
+  activeFilterIcon: {
+    color: theme.palette.success.main,
+    '&:hover': {
+      color: theme.palette.success.dark
+    }
   }
 }));
 
@@ -636,7 +642,9 @@ const DatasetMoleculeList = ({ title, datasetID, url }) => {
         disabled={isLoadingMoleculeList}
       >
         <Tooltip title="Filter/Sort">
-          <FilterList />
+          <>
+            <FilterList {...(isActiveFilter && { className: classes.activeFilterIcon })} />
+          </>
         </Tooltip>
       </IconButton>,
       <IconButton
@@ -652,7 +660,7 @@ const DatasetMoleculeList = ({ title, datasetID, url }) => {
         </Tooltip>
       </IconButton>
     ],
-    [classes, datasetID, dispatch, filterRef, isLoadingMoleculeList, sortDialogOpen, url, searchString]
+    [classes, datasetID, dispatch, filterRef, isLoadingMoleculeList, sortDialogOpen, url, searchString, isActiveFilter]
   );
 
   // useEffectDebugger(
@@ -947,7 +955,8 @@ const DatasetMoleculeList = ({ title, datasetID, url }) => {
         <CrossReferenceDialog open anchorEl={selectedMoleculeRef} ref={crossReferenceDialogRef} />
       )}
       <div ref={filterRef}>
-        {isActiveFilter && (
+        {/* TODO disable showing of filter tags for now */}
+        {false && isActiveFilter && (
           <>
             <div className={classes.filterSection}>
               <Grid container spacing={1}>
@@ -983,56 +992,56 @@ const DatasetMoleculeList = ({ title, datasetID, url }) => {
           {/* Selection */}
           <Grid container direction="row" alignItems="center">
             {Object.keys(compoundsColors).map(item => (
-                <Grid item key={`${item}-txtfield`}>
-                  <TextField
-                    InputProps={{
-                      readOnly: editedColorGroup !== item,
-                      endAdornment: (
-                        <InputAdornment position="end">
-                          <IconButton
-                            className={
-                              editedColorGroup !== item ? classes.editClassNameIcon : classes.editClassNameIconSelected
-                            }
-                            color={'inherit'}
-                            value={`${item}`}
-                            onClick={e => {
-                              dispatch(onStartEditColorClassName(e));
-                              inputRefs[item].current.focus();
-                              inputRefs[item].current.select();
-                            }}
-                          >
-                            <Edit />
-                          </IconButton>
-                        </InputAdornment>
-                      ),
-                      startAdornment: (
-                        <InputAdornment position="start">
-                          <Checkbox
-                            className={classes.classCheckbox}
-                            key={`CHCK_${item}`}
-                            value={`${item}`}
-                            onChange={e => dispatch(onChangeCompoundClassCheckbox(e))}
-                            checked={currentCompoundClass === item}
-                          ></Checkbox>
-                        </InputAdornment>
-                      )
-                    }}
-                    inputRef={inputRefs[item]}
-                    autoComplete="off"
-                    id={`${item}`}
-                    key={`CLASS_${item}`}
-                    variant="standard"
-                    className={classNames(
-                      classes.textField,
-                      classes[item],
-                      currentCompoundClass === item && classes.selectedInput
-                    )}
-                    onChange={e => dispatch(onChangeCompoundClassValue(e))}
-                    onKeyDown={e => dispatch(onKeyDownCompoundClass(e))}
-                    // onClick={e => dispatch(onClickCompoundClass(e))}
-                    value={inputs[item] || ''}
-                  />
-                </Grid>
+              <Grid item key={`${item}-txtfield`}>
+                <TextField
+                  InputProps={{
+                    readOnly: editedColorGroup !== item,
+                    endAdornment: (
+                      <InputAdornment position="end">
+                        <IconButton
+                          className={
+                            editedColorGroup !== item ? classes.editClassNameIcon : classes.editClassNameIconSelected
+                          }
+                          color={'inherit'}
+                          value={`${item}`}
+                          onClick={e => {
+                            dispatch(onStartEditColorClassName(e));
+                            inputRefs[item].current.focus();
+                            inputRefs[item].current.select();
+                          }}
+                        >
+                          <Edit />
+                        </IconButton>
+                      </InputAdornment>
+                    ),
+                    startAdornment: (
+                      <InputAdornment position="start">
+                        <Checkbox
+                          className={classes.classCheckbox}
+                          key={`CHCK_${item}`}
+                          value={`${item}`}
+                          onChange={e => dispatch(onChangeCompoundClassCheckbox(e))}
+                          checked={currentCompoundClass === item}
+                        ></Checkbox>
+                      </InputAdornment>
+                    )
+                  }}
+                  inputRef={inputRefs[item]}
+                  autoComplete="off"
+                  id={`${item}`}
+                  key={`CLASS_${item}`}
+                  variant="standard"
+                  className={classNames(
+                    classes.textField,
+                    classes[item],
+                    currentCompoundClass === item && classes.selectedInput
+                  )}
+                  onChange={e => dispatch(onChangeCompoundClassValue(e))}
+                  onKeyDown={e => dispatch(onKeyDownCompoundClass(e))}
+                  // onClick={e => dispatch(onClickCompoundClass(e))}
+                  value={inputs[item] || ''}
+                />
+              </Grid>
             ))}
           </Grid>
         </Grid>
