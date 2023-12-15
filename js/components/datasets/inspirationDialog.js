@@ -1,6 +1,6 @@
 import React, { forwardRef, memo, useCallback, useContext, useMemo, useRef, useState } from 'react';
 import { CircularProgress, Grid, Popper, IconButton, Typography, Tooltip } from '@material-ui/core';
-import { Close } from '@material-ui/icons';
+import { Close, Link } from '@material-ui/icons';
 import { makeStyles } from '@material-ui/styles';
 import { useDispatch, useSelector } from 'react-redux';
 import {
@@ -156,7 +156,7 @@ export const InspirationDialog = memo(
         const moleculeID = inspirationLists[datasetID][0];
         const molecule = moleculeLists[datasetID].find(molecule => molecule.id === moleculeID);
         if (molecule !== undefined) {
-          rationale = molecule.text_scores.hasOwnProperty('rationale') ? molecule.text_scores.rationale : 'no rationale';
+          rationale = molecule.text_scores.hasOwnProperty('rationale') ? molecule.text_scores.rationale : '';
         }
       }
       return rationale;
@@ -467,11 +467,26 @@ export const InspirationDialog = memo(
                       </GroupNglControlButtonsContext.Provider>
                     );
                   })}
-                {moleculeList.length > 0 && (getRationale().length > 0 || getRefUrl().length > 0) &&
-                  <>
-                    <p>Rationale: {getRationale()}</p>
-                    <p>Ref URL: {getRefUrl()}</p>
-                  </>
+                {moleculeList.length > 0 &&
+                  <Grid container justifyContent="center" alignItems="center" direction="column" className={classes.notFound}>
+                    {getRationale().length > 0 &&
+                      <Grid item>
+                        <Typography variant="body2">{getRationale()}</Typography>
+                      </Grid>}
+                    {getRefUrl().length > 0 &&
+                      <Grid container justifyContent="center" alignItems="center" direction="row">
+                        <Grid item>
+                          <Typography variant="body2">Design-set rationale URL</Typography>
+                        </Grid>
+                        <Grid item>
+                          <Tooltip title="Open">
+                            <IconButton className={classes.panelButton} color={'inherit'} onClick={() => window.open(getRefUrl(), '_blank')}>
+                              <Link />
+                            </IconButton>
+                          </Tooltip>
+                        </Grid>
+                      </Grid>}
+                  </Grid>
                 }
                 {!(moleculeList.length > 0) && (
                   <Grid container justifyContent="center" alignItems="center" direction="row" className={classes.notFound}>
