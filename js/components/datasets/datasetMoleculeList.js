@@ -85,6 +85,7 @@ import {
 } from '../preview/compounds/redux/dispatchActions';
 import { LockVisibleCompoundsDialog } from './lockVisibleCompoundsDialog';
 import { size } from 'lodash';
+import { Circle } from '@mui/icons-material';
 
 const useStyles = makeStyles(theme => ({
   container: {
@@ -344,6 +345,12 @@ const useStyles = makeStyles(theme => ({
     '&:hover': {
       color: theme.palette.success.dark
     }
+  },
+  dotOverlay: {
+    fontSize: 9,
+    position: 'absolute',
+    top: 1,
+    right: 3
   }
 }));
 
@@ -643,7 +650,9 @@ const DatasetMoleculeList = ({ title, datasetID, url }) => {
       >
         <Tooltip title="Filter/Sort">
           <>
-            <FilterList {...(isActiveFilter && { className: classes.activeFilterIcon })} />
+            {/* fontSize does not change font here, but it disqualifies default font size so we do not need to !important */}
+            {isActiveFilter && <Circle className={classes.dotOverlay} fontSize='9px' color={'error'} />}
+            <FilterList />
           </>
         </Tooltip>
       </IconButton>,
