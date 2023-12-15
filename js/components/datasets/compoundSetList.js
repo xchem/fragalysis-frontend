@@ -120,13 +120,14 @@ export const CompoundSetList = () => {
 
   useEffect(() => {
     if (selectedDatasetIndex === 0) {
-      const newDataset = customDatasets.map((dataSet, index) =>
+      const filteredDataset = searchString ? customDatasets.filter(dataset => dataset.title.toLowerCase().includes(searchString.toLowerCase())) : customDatasets;
+      const newDataset = filteredDataset.map((dataSet, index) =>
         index === 0 ? { ...dataSet, visibility: true } : { ...dataSet, visibility: false }
       );
       setDefaultSelectedValue(newDataset);
       dispatch(setUpdatedDatasets(newDataset));
     }
-  }, [customDatasets, dispatch, selectedDatasetIndex]);
+  }, [customDatasets, dispatch, selectedDatasetIndex, searchString]);
 
   const handleExpandedChange = event => {
     if (event) {
@@ -139,7 +140,8 @@ export const CompoundSetList = () => {
   };
 
   const handleChangeVisibility = index => {
-    const newDataset = customDatasets.map((dataSetValue, i) =>
+    const filteredDataset = searchString ? customDatasets.filter(dataset => dataset.title.toLowerCase().includes(searchString.toLowerCase())) : customDatasets;
+    const newDataset = filteredDataset.map((dataSetValue, i) =>
       i === index ? { ...dataSetValue, visibility: true } : { ...dataSetValue, visibility: false }
     );
 
@@ -164,6 +166,7 @@ export const CompoundSetList = () => {
             className={classes.search}
             id="search-compounds-sets"
             onChange={setSearchString}
+            searchString={searchString ?? ''}
           />
         ]}
       >
