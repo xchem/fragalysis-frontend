@@ -142,6 +142,38 @@ export const InspirationDialog = memo(
     const molForTagEditId = useSelector(state => state.selectionReducers.molForTagEdit);
     const moleculesToEditIds = useSelector(state => state.selectionReducers.moleculesToEdit);
 
+    const inspirationLists = useSelector(state => state.datasetsReducers.inspirationLists);
+    const moleculeLists = useSelector(state => state.datasetsReducers.moleculeLists);
+    const scoreDatasetMap = useSelector(state => state.datasetsReducers.scoreDatasetMap);
+
+    /**
+     * Get rationale as score of each individual molecule
+     * @returns {string}
+     */
+    const getRationale = useCallback(() => {
+      let rationale = '';
+      if (datasetID && inspirationLists.hasOwnProperty(datasetID) && inspirationLists[datasetID][0]) {
+        const moleculeID = inspirationLists[datasetID][0];
+        const molecule = moleculeLists[datasetID].find(molecule => molecule.id === moleculeID);
+        if (molecule !== undefined) {
+          rationale = molecule.text_scores.hasOwnProperty('rationale') ? molecule.text_scores.rationale : 'no rationale';
+        }
+      }
+      return rationale;
+    }, [datasetID, inspirationLists, moleculeLists]);
+
+    /**
+     * Get ref_url as common score of all molecules
+     * @returns {string}
+     */
+    const getRefUrl = useCallback(() => {
+      let refUrl = '';
+      if (datasetID && scoreDatasetMap.hasOwnProperty(datasetID) && scoreDatasetMap[datasetID].hasOwnProperty('ref_url')) {
+        refUrl = scoreDatasetMap[datasetID].ref_url.description;
+      }
+      return refUrl;
+    }, [datasetID, scoreDatasetMap]);
+
     const dispatch = useDispatch();
 
     const [tagEditorAnchorEl, setTagEditorAnchorEl] = useState(null);
@@ -405,7 +437,7 @@ export const InspirationDialog = memo(
                     const selected = allSelectedMolecules.some(molecule => molecule.id === data.id);
 
                     return (
-                      <GroupNglControlButtonsContext.Provider value={groupNglControlButtonsDisabledState}>
+                      <GroupNglControlButtonsContext.Provider key={index} value={groupNglControlButtonsDisabledState}>
                         <MoleculeView
                           key={index}
                           index={index}
@@ -435,6 +467,12 @@ export const InspirationDialog = memo(
                       </GroupNglControlButtonsContext.Provider>
                     );
                   })}
+                {moleculeList.length > 0 && (getRationale().length > 0 || getRefUrl().length > 0) &&
+                  <>
+                    <p>Rationale: {getRationale()}</p>
+                    <p>Ref URL: {getRefUrl()}</p>
+                  </>
+                }
                 {!(moleculeList.length > 0) && (
                   <Grid container justifyContent="center" alignItems="center" direction="row" className={classes.notFound}>
                     <Grid item>
