@@ -11,6 +11,8 @@ import { Panel } from '../common/Surfaces/Panel';
 import Radio from '@material-ui/core/Radio';
 import CloudDownloadOutlinedIcon from '@mui/icons-material/CloudDownloadOutlined';
 import SearchField from '../common/Components/SearchField';
+import { base_url } from '../routes/constants';
+import { METHOD, api } from '../../utils/api';
 
 const useStyles = makeStyles(theme => ({
   table: {
@@ -45,6 +47,9 @@ const useStyles = makeStyles(theme => ({
     width: '0.75em',
     height: '0.75em',
     padding: '0px'
+  },
+  downloadIcon: {
+    cursor: 'pointer'
   }
 }));
 
@@ -55,10 +60,63 @@ export const CompoundSetList = () => {
   const selectedDatasetIndex = useSelector(state => state.datasetsReducers.selectedDatasetIndex);
   const customDatasets = useSelector(state => state.datasetsReducers.datasets);
   const updatedDatasets = useSelector(state => state.datasetsReducers.updatedDatasets);
+  const scoreDatasetMap = useSelector(state => state.datasetsReducers.scoreDatasetMap);
+  const moleculeLists = useSelector(state => state.datasetsReducers.moleculeLists);
 
   const [isExpanded, setIsExpanded] = useState(false);
   const [searchString, setSearchString] = useState(null);
   const [defaultSelectedValue, setDefaultSelectedValue] = useState();
+
+  /**
+   * Get common value of score defined in header molecule and not in individual molecule
+   *
+   * @param {*} datasetID
+   * @param {*} scoreName
+   * @returns {string}
+   */
+  const getCommonScore = (datasetID, scoreName) => {
+    let value = '';
+    if (datasetID && scoreDatasetMap.hasOwnProperty(datasetID) && scoreDatasetMap[datasetID].hasOwnProperty(scoreName)) {
+      value = scoreDatasetMap[datasetID][scoreName].description;
+    }
+    return value;
+  }
+
+  /**
+   * Download molecule list of given dataset as CSV file
+   *
+   * @param {*} datasetID
+   */
+  const downloadCSV = datasetID => {
+    const listOfMols = [];
+    const moleculeList = moleculeLists[datasetID] || [];
+
+    moleculeList.forEach(molecule => {
+      let molObj = {};
+
+      console.log('molecule', molecule);
+
+      molObj['smiles'] = molecule.smiles;
+      molObj['name'] = molecule.name;
+
+      listOfMols.push(molObj);
+    });
+
+    const reqObj = { title: datasetID, dict: listOfMols };
+    const jsonString = JSON.stringify(reqObj);
+
+    api({
+      url: `${base_url}/api/dicttocsv/`,
+      method: METHOD.POST,
+      data: jsonString
+    }).then(resp => {
+      var anchor = document.createElement('a');
+      anchor.href = `${base_url}/api/dicttocsv/?file_url=${resp.data['file_url']}`;
+      anchor.target = '_blank';
+      anchor.download = 'download';
+      anchor.click();
+    });
+  };
 
   useEffect(() => {
     if (selectedDatasetIndex === 0) {
@@ -160,12 +218,12 @@ export const CompoundSetList = () => {
                     </TableCell>
                   </Tooltip>
                   <TableCell className={classes.tableCell} style={{ maxWidth: 50 }}></TableCell>
-                  <TableCell className={classes.tableCell} style={{ maxWidth: 100 }}></TableCell>
-                  <TableCell className={classes.tableCell} style={{ maxWidth: 70 }}></TableCell>
-                  <TableCell className={classes.tableCell} style={{ maxWidth: 70 }}></TableCell>
-                  <TableCell className={classes.tableCell} style={{ maxWidth: 70 }}></TableCell>
+                  <TableCell className={classes.tableCell} style={{ maxWidth: 100 }}>{getCommonScore(dataset.id, 'submitter_name')}</TableCell>
+                  <TableCell className={classes.tableCell} style={{ maxWidth: 70 }}>{getCommonScore(dataset.id, 'submitter_institution')}</TableCell>
+                  <TableCell className={classes.tableCell} style={{ maxWidth: 70 }}>{getCommonScore(dataset.id, 'generation_date')}</TableCell>
+                  <TableCell className={classes.tableCell} style={{ maxWidth: 70 }}>{getCommonScore(dataset.id, 'method')}</TableCell>
                   <TableCell style={{ padding: 0 }}>
-                    <CloudDownloadOutlinedIcon />
+                    <CloudDownloadOutlinedIcon className={classes.downloadIcon} onClick={() => downloadCSV(dataset.id)} />
                   </TableCell>
                 </TableRow>
               );
