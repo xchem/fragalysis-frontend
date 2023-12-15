@@ -74,13 +74,13 @@ export const CompoundSetList = () => {
    * @param {*} scoreName
    * @returns {string}
    */
-  const getCommonScore = (datasetID, scoreName) => {
+  const getCommonScore = useCallback((datasetID, scoreName) => {
     let value = '';
     if (datasetID && scoreDatasetMap.hasOwnProperty(datasetID) && scoreDatasetMap[datasetID].hasOwnProperty(scoreName)) {
       value = scoreDatasetMap[datasetID][scoreName].description;
     }
     return value;
-  }
+  }, [scoreDatasetMap]);
 
   /**
    * Download molecule list of given dataset as CSV file
@@ -221,12 +221,22 @@ export const CompoundSetList = () => {
                     </TableCell>
                   </Tooltip>
                   <TableCell className={classes.tableCell} style={{ maxWidth: 50 }}></TableCell>
-                  <TableCell className={classes.tableCell} style={{ maxWidth: 100 }}>{getCommonScore(dataset.id, 'submitter_name')}</TableCell>
-                  <TableCell className={classes.tableCell} style={{ maxWidth: 70 }}>{getCommonScore(dataset.id, 'submitter_institution')}</TableCell>
-                  <TableCell className={classes.tableCell} style={{ maxWidth: 70 }}>{getCommonScore(dataset.id, 'generation_date')}</TableCell>
-                  <TableCell className={classes.tableCell} style={{ maxWidth: 70 }}>{getCommonScore(dataset.id, 'method')}</TableCell>
+                  <Tooltip title={getCommonScore(dataset.id, 'submitter_name')}>
+                    <TableCell className={classes.tableCell} style={{ maxWidth: 100 }}>{getCommonScore(dataset.id, 'submitter_name')}</TableCell>
+                  </Tooltip>
+                  <Tooltip title={getCommonScore(dataset.id, 'submitter_institution')}>
+                    <TableCell className={classes.tableCell} style={{ maxWidth: 70 }}>{getCommonScore(dataset.id, 'submitter_institution')}</TableCell>
+                  </Tooltip>
+                  <Tooltip title={getCommonScore(dataset.id, 'generation_date')}>
+                    <TableCell className={classes.tableCell} style={{ maxWidth: 70 }}>{getCommonScore(dataset.id, 'generation_date')}</TableCell>
+                  </Tooltip>
+                  <Tooltip title={getCommonScore(dataset.id, 'method')}>
+                    <TableCell className={classes.tableCell} style={{ maxWidth: 70 }}>{getCommonScore(dataset.id, 'method')}</TableCell>
+                  </Tooltip>
                   <TableCell style={{ padding: 0 }}>
-                    <CloudDownloadOutlinedIcon className={classes.downloadIcon} onClick={() => downloadCSV(dataset.id)} />
+                    <Tooltip title="Download as CSV">
+                      <CloudDownloadOutlinedIcon className={classes.downloadIcon} onClick={() => downloadCSV(dataset.id)} />
+                    </Tooltip>
                   </TableCell>
                 </TableRow>
               );
