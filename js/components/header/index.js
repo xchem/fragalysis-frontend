@@ -291,8 +291,8 @@ export default memo(
                   targetName !== undefined ? (
                     <>
                       {currentProject.authorID === null ||
-                        currentProject.projectID === null ||
-                        currentProject.authorID === userId ? (
+                      currentProject.projectID === null ||
+                      currentProject.authorID === userId ? (
                         <Button
                           onClick={() => {
                             isProjectModalLoading === false
@@ -547,7 +547,15 @@ export default memo(
               </Grid>
 
               <Divider />
-              <ListItem button onClick={() => history.push(URLS.landing)}>
+              <ListItem
+                button
+                onClick={() => {
+                  dispatch(setIsActionsRestoring(false, false));
+                  dispatch(setProjectActionListLoaded(false));
+                  history.push(URLS.landing);
+                  window.location.reload();
+                }}
+              >
                 <ListItemIcon>
                   <Home />
                 </ListItemIcon>
