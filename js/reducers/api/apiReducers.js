@@ -9,6 +9,7 @@ export const INITIAL_STATE = {
   project_id: undefined,
   target_id: undefined,
   target_id_list: [],
+  legacy_target_id_list: [],
   mol_group_list: [],
   molecule_list: [],
   cached_mol_lists: {},
@@ -105,6 +106,9 @@ export default function apiReducers(state = INITIAL_STATE, action = {}) {
       return Object.assign({}, state, {
         target_id_list: action.target_id_list
       });
+
+    case constants.SET_LEGACY_TARGET_ID_LIST:
+      return { ...state, legacy_target_id_list: action.legacy_target_id_list };
 
     case constants.SET_TARGET_ON:
       var target_on_name = undefined;
