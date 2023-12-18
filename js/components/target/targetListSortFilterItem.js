@@ -41,6 +41,7 @@ import { compareTargetAsc } from './sortTargets/sortTargets';
 import moment from 'moment';
 import { sortTargets } from './targetListSortFilterDialog';
 import { MOCK_LIST_OF_TARGETS } from './MOCK';
+import { getCombinedTargetList } from '../../reducers/api/selectors';
 
 const useStyles = makeStyles(theme => ({
   centered: {
@@ -153,7 +154,8 @@ const TargetListSortFilterItem = memo(props => {
   let setting = {
     order: order
   };
-  const target_id_list = useSelector(state => state.apiReducers.target_id_list);
+  // const target_id_list = useSelector(state => state.apiReducers.target_id_list);
+  const target_id_list = useSelector(state => getCombinedTargetList(state));
   const resetFilter = useSelector(state => state.selectionReducers.resetFilter);
 
   const [startDate, setStartDate] = useState();

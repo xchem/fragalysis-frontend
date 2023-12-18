@@ -1,6 +1,7 @@
 const prefix = 'REDUCERS_API_';
 export const constants = {
   SET_TARGET_ID_LIST: prefix + 'SET_TARGET_ID_LIST',
+  SET_LEGACY_TARGET_ID_LIST: prefix + 'SET_LEGACY_TARGET_ID_LIST',
   SET_DUCK_YANK_DATA: prefix + 'SET_DUCK_YANK_DATA',
   SET_TARGET_ON: prefix + 'REDUCERS_API_SET_TARGET_ON',
 
