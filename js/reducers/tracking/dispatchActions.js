@@ -918,7 +918,7 @@ export const restoreStateBySavedActionList = () => (dispatch, getState) => {
   const currentActionList = state.trackingReducers.current_actions_list;
   const orderedActionList = currentActionList.sort((a, b) => a.timestamp - b.timestamp);
 
-  let onCancel = () => { };
+  let onCancel = () => {};
   dispatch(loadTargetList(onCancel))
     .then(() => {
       dispatch(restoreTargetActions(orderedActionList));
@@ -959,14 +959,14 @@ export const restoreAfterTargetActions = (stages, projectId) => async (dispatch,
     await dispatch(
       loadMoleculeGroupsOfTarget({
         isStateLoaded: false,
-        setOldUrl: url => { },
+        setOldUrl: url => {},
         target_on: targetId
       })
     )
       .catch(error => {
         throw error;
       })
-      .finally(() => { });
+      .finally(() => {});
 
     await dispatch(restoreSitesActions(orderedActionList));
     await dispatch(loadData(orderedActionList, targetId, majorView));
@@ -1512,16 +1512,16 @@ const restoreAllSelectionActions = (moleculesAction, stage, isSelection) => (dis
   let actions =
     isSelection === true
       ? moleculesAction.filter(
-        action =>
-          action.type === actionType.ALL_TURNED_ON &&
-          (action.object_type === actionObjectType.INSPIRATION || action.object_type === actionObjectType.MOLECULE)
-      )
+          action =>
+            action.type === actionType.ALL_TURNED_ON &&
+            (action.object_type === actionObjectType.INSPIRATION || action.object_type === actionObjectType.MOLECULE)
+        )
       : moleculesAction.filter(
-        action =>
-          action.type === actionType.ALL_TURNED_ON &&
-          (action.object_type === actionObjectType.CROSS_REFERENCE ||
-            action.object_type === actionObjectType.COMPOUND)
-      );
+          action =>
+            action.type === actionType.ALL_TURNED_ON &&
+            (action.object_type === actionObjectType.CROSS_REFERENCE ||
+              action.object_type === actionObjectType.COMPOUND)
+        );
 
   if (actions) {
     actions.forEach(action => {
@@ -1594,16 +1594,16 @@ const restoreAllSelectionByTypeActions = (moleculesAction, stage, isSelection) =
   let actions =
     isSelection === true
       ? moleculesAction.filter(
-        action =>
-          action.type === actionType.SELECTED_TURNED_ON_BY_TYPE &&
-          (action.object_type === actionObjectType.INSPIRATION || action.object_type === actionObjectType.MOLECULE)
-      )
+          action =>
+            action.type === actionType.SELECTED_TURNED_ON_BY_TYPE &&
+            (action.object_type === actionObjectType.INSPIRATION || action.object_type === actionObjectType.MOLECULE)
+        )
       : moleculesAction.filter(
-        action =>
-          action.type === actionType.SELECTED_TURNED_ON_BY_TYPE &&
-          (action.object_type === actionObjectType.CROSS_REFERENCE ||
-            action.object_type === actionObjectType.COMPOUND)
-      );
+          action =>
+            action.type === actionType.SELECTED_TURNED_ON_BY_TYPE &&
+            (action.object_type === actionObjectType.CROSS_REFERENCE ||
+              action.object_type === actionObjectType.COMPOUND)
+        );
 
   if (actions) {
     actions.forEach(action => {
@@ -1979,14 +1979,12 @@ const addNewType = (moleculesAction, actionType, type, stage, state, skipTrackin
         } else if (type === 'density' || type === 'densityCustom') {
           if (!data.proteinData) {
             await dispatch(getProteinData(data)).then(i => {
-              if (i && i.length > 0) {
-                const proteinData = i[0];
-                data.proteinData = proteinData;
-                data.proteinData.render_event = !!action.render_event;
-                data.proteinData.render_diff = !!action.render_diff;
-                data.proteinData.render_sigmaa = !!action.render_sigmaa;
-                data.proteinData.render_quality = !!action.render_quality;
-              }
+              const proteinData = i;
+              data.proteinData = proteinData;
+              data.proteinData.render_event = !!action.render_event;
+              data.proteinData.render_diff = !!action.render_diff;
+              data.proteinData.render_sigmaa = !!action.render_sigmaa;
+              data.proteinData.render_quality = !!action.render_quality;
             });
             await dispatch(addType[type](stage, data, colourList[data.id % colourList.length], true, skipTracking));
           } else {
@@ -3253,8 +3251,12 @@ const removeRepresentationForSnapshotRestoration = (representation, parentKey, n
   let representationToRemove = undefined;
   for (const [objectId, object] of Object.entries(objectsInView)) {
     for (const r of object.representations) {
-      if (r.uuid === representation.uuid || r.uuid === representation.lastKnownID
-        || r.lastKnownID === representation.uuid || r.lastKnownID === representation.lastKnownID) {
+      if (
+        r.uuid === representation.uuid ||
+        r.uuid === representation.lastKnownID ||
+        r.lastKnownID === representation.uuid ||
+        r.lastKnownID === representation.lastKnownID
+      ) {
         representationToRemove = r;
         break;
       }
@@ -3264,8 +3266,12 @@ const removeRepresentationForSnapshotRestoration = (representation, parentKey, n
   const comp = nglView.stage.getComponentsByName(parentKey).first;
   let foundRepresentation = undefined;
   comp.eachRepresentation(r => {
-    if (r.uuid === representation.uuid || r.uuid === representation.lastKnownID
-      || (representationToRemove && (r.uuid === representationToRemove.uuid || r.uuid === representationToRemove.lastKnownID))) {
+    if (
+      r.uuid === representation.uuid ||
+      r.uuid === representation.lastKnownID ||
+      (representationToRemove &&
+        (r.uuid === representationToRemove.uuid || r.uuid === representationToRemove.lastKnownID))
+    ) {
       foundRepresentation = r;
     }
   });
@@ -3897,11 +3903,11 @@ export const updateTrackingActions = action => (dispatch, getState) => {
         method: METHOD.PUT,
         data: JSON.stringify(dataToSend)
       })
-        .then(() => { })
+        .then(() => {})
         .catch(error => {
           throw new Error(error);
         })
-        .finally(() => { });
+        .finally(() => {});
     } else {
       return Promise.resolve();
     }
@@ -3911,7 +3917,7 @@ export const updateTrackingActions = action => (dispatch, getState) => {
 };
 
 function groupArrayOfObjects(list, key) {
-  return list.reduce(function (rv, x) {
+  return list.reduce(function(rv, x) {
     (rv[x[key]] = rv[x[key]] || []).push(x);
     return rv;
   }, {});
@@ -3936,11 +3942,11 @@ export const setAndUpdateTrackingActions = (actionList, projectID) => (dispatch,
           method: METHOD.PUT,
           data: JSON.stringify(dataToSend)
         })
-          .then(() => { })
+          .then(() => {})
           .catch(error => {
             throw new Error(error);
           })
-          .finally(() => { });
+          .finally(() => {});
       } else {
         return Promise.resolve();
       }

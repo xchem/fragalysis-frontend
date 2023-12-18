@@ -31,7 +31,6 @@ import {
   addQuality,
   getQualityInformation,
   getDensityMapData,
-  getProteinData,
   withDisabledMoleculeNglControlButton,
   getCategoryById
 } from '../redux/dispatchActions';
@@ -356,6 +355,8 @@ const ObservationCmpView = memo(
 
     const [tagEditModalOpenNew, setTagEditModalOpenNew] = useState(tagEditorOpen);
 
+    const [hasMap, setHasMap] = useState(false);
+
     const { getNglView } = useContext(NglContext);
     const stage = getNglView(VIEWS.MAJOR_VIEW) && getNglView(VIEWS.MAJOR_VIEW).stage;
 
@@ -400,6 +401,29 @@ const ObservationCmpView = memo(
       return result;
     };
 
+    const getFirstObservationWithDensity = useCallback(() => {
+      let result = null;
+
+      for (const obs of observations) {
+        if (obs?.proteinData?.diff_info || obs?.proteinData?.sigmaa_info || obs?.proteinData?.event_info) {
+          result = obs;
+          break;
+        }
+      }
+
+      return result;
+    }, [observations]);
+
+    useEffect(() => {
+      for (let i = 0; i < observations.length; i++) {
+        const obs = observations[i];
+        if (obs?.proteinData?.diff_info || obs?.proteinData?.sigmaa_info || obs?.proteinData?.event_info) {
+          setHasMap(true);
+          break;
+        }
+      }
+    }, [observations]);
+
     const fragmentDisplayList = useSelector(state => state.selectionReducers.fragmentDisplayList);
     const proteinList = useSelector(state => state.selectionReducers.proteinList);
     const complexList = useSelector(state => state.selectionReducers.complexList);
@@ -420,8 +444,6 @@ const ObservationCmpView = memo(
     const hasAdditionalInformation = I;
 
     const [isCopied, setCopied] = useClipboard(data.smiles, { successDuration: 5000 });
-
-    const [hasMap, setHasMap] = useState();
 
     const hasAllValuesOn = isLigandOn && isProteinOn && isComplexOn;
     const hasSomeValuesOn = !hasAllValuesOn && (isLigandOn || isProteinOn || isComplexOn);
@@ -919,13 +941,15 @@ const ObservationCmpView = memo(
     };
 
     const removeSelectedDensity = () => {
-      dispatch(removeDensity(stage, data, colourToggle, false));
+      const firstObs = getFirstObservationWithDensity();
+      dispatch(removeDensity(stage, firstObs, colourToggle, false));
     };
 
     const addNewDensityCustom = async () => {
       dispatch(
         withDisabledMoleculeNglControlButton(currentID, 'density', async () => {
-          await dispatch(addDensityCustomView(stage, data, colourToggle, isWireframeStyle));
+          const firstObs = getFirstObservationWithDensity();
+          await dispatch(addDensityCustomView(stage, firstObs, colourToggle, isWireframeStyle));
         })
       );
     };
@@ -935,7 +959,8 @@ const ObservationCmpView = memo(
         withDisabledMoleculeNglControlButton(currentID, 'ligand', async () => {
           await dispatch(
             withDisabledMoleculeNglControlButton(currentID, 'density', async () => {
-              await dispatch(addDensity(stage, data, colourToggle, isWireframeStyle));
+              const firstObs = getFirstObservationWithDensity();
+              await dispatch(addDensity(stage, firstObs, colourToggle, isWireframeStyle));
             })
           );
         })
@@ -947,7 +972,8 @@ const ObservationCmpView = memo(
     const onDensity = () => {
       setLoadingDensity(true);
       if (isDensityOn === false && isDensityCustomOn === false) {
-        dispatch(getDensityMapData(data)).then(r => {
+        const firstObs = getFirstObservationWithDensity();
+        dispatch(getDensityMapData(firstObs)).then(r => {
           if (r) {
             dispatch(setDensityModalOpen(true));
           } else {
@@ -1406,7 +1432,7 @@ const ObservationCmpView = memo(
         <DensityMapsModal
           openDialog={densityModalOpen}
           setOpenDialog={setDensityModalOpen}
-          data={data}
+          data={getFirstObservationWithDensity()}
           setDensity={addNewDensity}
           isQualityOn={isQualityOn}
         />
