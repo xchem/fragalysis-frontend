@@ -193,6 +193,13 @@ export const loadMoleculesAndTagsNew = targetId => async (dispatch, getState) =>
     } else {
       newObject['tags_set'] = [];
     }
+
+    const maps = {};
+    maps.diff_info = mol.xmap_fofc_file;
+    maps.event_info = mol.event_file;
+    maps.sigmaa_info = mol.xmap_2fofc_file;
+    newObject['proteinData'] = maps;
+
     allMolecules.push(newObject);
   });
 
