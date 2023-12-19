@@ -255,7 +255,7 @@ export const loadDataSets = targetId => async dispatch => {
       setDataset(
         response.data.results.map(ds => ({
           id: ds.name,
-          title: ds.unique_name,
+          title: ds.name, // previously unique_name ($submitter-$method format)
           url: ds.method_url,
           version: ds.spec_version,
           submitted_sdf: ds.submitted_sdf
@@ -276,7 +276,7 @@ export const loadNewDataSets = targetId => async (dispatch, getState) => {
       if (!found) {
         const dataset = {
           id: ds.name,
-          title: ds.unique_name,
+          title: ds.name, // previously unique_name ($submitter-$method format)
           url: ds.method_url,
           version: ds.spec_version,
           submitted_sdf: ds.submitted_sdf
