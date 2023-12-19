@@ -1205,7 +1205,6 @@ export const TargetList = memo(() => {
                   onMouseDown={handleMouseDown}
                 ></div>
               </div>
-
               <TableCell style={{ width: panelWidthForTargetAccessString, padding: '0px' }}>
                 <Typography variant="title">
                   <input
