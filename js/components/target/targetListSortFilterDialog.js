@@ -140,12 +140,14 @@ export const TargetListSortFilterDialog = memo(
 
     const handleFilterChange = useCallback(
       filter => {
+        console.log(`handleFilterChange: start ${JSON.stringify(filter)}`);
         const filterSet = Object.assign({}, filter);
         for (let attr of TARGETS_ATTR) {
           if (filterSet.filter[attr.key].priority === undefined || filterSet.filter[attr.key].priority === '') {
             filterSet.filter[attr.key].priority = 0;
           }
         }
+        console.log(`handleFilterChange: end ${JSON.stringify(filter)}`);
         dispatch(setTargetFilter(filterSet));
       },
       [dispatch]
