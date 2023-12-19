@@ -94,8 +94,6 @@ export const CompoundSetList = () => {
     moleculeList.forEach(molecule => {
       let molObj = {};
 
-      console.log('molecule', molecule);
-
       molObj['smiles'] = molecule.smiles;
       molObj['name'] = molecule.name;
 
@@ -179,28 +177,29 @@ export const CompoundSetList = () => {
               <TableCell style={{ width: 60, padding: 0 }}>
                 Name
               </TableCell>
-              <TableCell style={{ width: '50px', padding: 0 }}>
+              <TableCell style={{ width: 15, padding: 0 }}>
                 #
               </TableCell>
-              <TableCell style={{ width: '100px', padding: 0 }}>
+              <TableCell style={{ width: 70, padding: 0 }}>
                 Submitter
               </TableCell>
-              <TableCell style={{ width: '70px', padding: 0 }}>
+              <TableCell style={{ width: 55, padding: 0 }}>
                 Institution
               </TableCell>
-              <TableCell style={{ width: '70px', padding: 0 }}>
+              <TableCell style={{ width: 60, padding: 0 }}>
                 Date
               </TableCell>
-              <TableCell style={{ width: '70px', padding: 0 }}>
+              <TableCell style={{ width: 70, padding: 0 }}>
                 Method
               </TableCell>
-              <TableCell style={{ width: '30px', padding: 0 }}>
+              <TableCell style={{ width: 30, padding: 0 }}>
                 CSV
               </TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
             {actualDataset?.map((dataset, index) => {
+              const moleculeList = moleculeLists[dataset.id] || [];
               return (
                 <TableRow key={index} style={{ height: 10 }}>
                   <TableCell style={{ padding: 0 }}>
@@ -220,7 +219,9 @@ export const CompoundSetList = () => {
                       {dataset.title}
                     </TableCell>
                   </Tooltip>
-                  <TableCell className={classes.tableCell} style={{ maxWidth: 50 }}></TableCell>
+                  <Tooltip title="Number of compounds">
+                    <TableCell className={classes.tableCell} style={{ maxWidth: 15 }}>{moleculeList.length}</TableCell>
+                  </Tooltip>
                   <Tooltip title={getCommonScore(dataset.id, 'submitter_name')}>
                     <TableCell className={classes.tableCell} style={{ maxWidth: 100 }}>{getCommonScore(dataset.id, 'submitter_name')}</TableCell>
                   </Tooltip>
@@ -228,10 +229,10 @@ export const CompoundSetList = () => {
                     <TableCell className={classes.tableCell} style={{ maxWidth: 70 }}>{getCommonScore(dataset.id, 'submitter_institution')}</TableCell>
                   </Tooltip>
                   <Tooltip title={getCommonScore(dataset.id, 'generation_date')}>
-                    <TableCell className={classes.tableCell} style={{ maxWidth: 70 }}>{getCommonScore(dataset.id, 'generation_date')}</TableCell>
+                    <TableCell className={classes.tableCell} style={{ maxWidth: 60 }}>{getCommonScore(dataset.id, 'generation_date')}</TableCell>
                   </Tooltip>
                   <Tooltip title={getCommonScore(dataset.id, 'method')}>
-                    <TableCell className={classes.tableCell} style={{ maxWidth: 70 }}>{getCommonScore(dataset.id, 'method')}</TableCell>
+                    <TableCell className={classes.tableCell} style={{ maxWidth: 150 }}>{getCommonScore(dataset.id, 'method')}</TableCell>
                   </Tooltip>
                   <TableCell style={{ padding: 0 }}>
                     <Tooltip title="Download as CSV">
