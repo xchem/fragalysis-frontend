@@ -39,15 +39,15 @@ const HandleUnrecognisedTarget = memo(({ targetUnrecognised, setTargetUnrecognis
 
   if (targetUnrecognised === true) {
     if (target_id_list && target_id_list.length === 0) {
-      modalBody = <h3>The target was not recognised and there are no other available targets.</h3>;
+      modalBody = <h3>Targets are loading. Please wait.</h3>;
     } else {
       modalBody = (
         <Modal open={targetUnrecognised}>
           <h3>
-            Target was not recognised or you do not have authentication to access target. <br />
+            Targets are loading. Please wait. <br />
           </h3>
           {request}
-          <TargetList key="TARGLIST" />
+          {/* <TargetList key="TARGLIST" />
           <Button
           color="primary"
           onClick={() => {
@@ -56,7 +56,7 @@ const HandleUnrecognisedTarget = memo(({ targetUnrecognised, setTargetUnrecognis
           style={{position: 'fixed', right: '25px'}}
         >
           Close
-          </Button>
+          </Button> */}
         </Modal>
       );
     }
@@ -66,10 +66,10 @@ const HandleUnrecognisedTarget = memo(({ targetUnrecognised, setTargetUnrecognis
     <Fragment>
       <Modal open={targetUnrecognised !== undefined ? targetUnrecognised : false}>
         {modalBody}
-        <Button color="primary" onClick={closeModal}>
+        {/* <Button color="primary" onClick={closeModal}>
           Close
         </Button>
-        <ErrorReport />
+        <ErrorReport /> */}
       </Modal>
     </Fragment>
   );
