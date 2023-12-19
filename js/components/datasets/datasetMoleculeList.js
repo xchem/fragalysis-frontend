@@ -912,7 +912,7 @@ const DatasetMoleculeList = ({ title, datasetID, url }) => {
   };
 
   return (
-    <Panel hasHeader title={title} withTooltip headerActions={actions}>
+    <Panel hasHeader title={title} withTooltip headerActions={actions} style={{ height: '94%' }} >
       <AlertModal
         title="Are you sure?"
         description={`Loading of ${joinedMoleculeLists?.length} may take a long time`}
@@ -937,32 +937,40 @@ const DatasetMoleculeList = ({ title, datasetID, url }) => {
           setIsDeleteDatasetAlertOpen(false);
         }}
       />
-      {sortDialogOpen && (
-        <DatasetFilter
-          open={sortDialogOpen}
-          anchorEl={sortDialogAnchorEl}
-          datasetID={datasetID}
-          filterProperties={filterProperties}
-          active={filterSettings && filterSettings.active}
-          predefined={filterSettings && filterSettings.predefined}
-          priorityOrder={filterSettings && filterSettings.priorityOrder}
-          setSortDialogAnchorEl={setSortDialogAnchorEl}
-        />
-      )}
-      {isOpenInspirationDialog && (
-        <InspirationDialog open anchorEl={selectedMoleculeRef} datasetID={datasetID} ref={inspirationDialogRef} />
-      )}
-      {askLockCompoundsQuestion && isLockVisibleCompoundsDialogOpenGlobal && (
-        <LockVisibleCompoundsDialog
-          open
-          ref={lockVisibleCompoundsDialogRef}
-          anchorEl={lockCompoundsDialogAnchorE1}
-          datasetId={datasetID}
-        />
-      )}
-      {isOpenCrossReferenceDialog && (
-        <CrossReferenceDialog open anchorEl={selectedMoleculeRef} ref={crossReferenceDialogRef} />
-      )}
+      {
+        sortDialogOpen && (
+          <DatasetFilter
+            open={sortDialogOpen}
+            anchorEl={sortDialogAnchorEl}
+            datasetID={datasetID}
+            filterProperties={filterProperties}
+            active={filterSettings && filterSettings.active}
+            predefined={filterSettings && filterSettings.predefined}
+            priorityOrder={filterSettings && filterSettings.priorityOrder}
+            setSortDialogAnchorEl={setSortDialogAnchorEl}
+          />
+        )
+      }
+      {
+        isOpenInspirationDialog && (
+          <InspirationDialog open anchorEl={selectedMoleculeRef} datasetID={datasetID} ref={inspirationDialogRef} />
+        )
+      }
+      {
+        askLockCompoundsQuestion && isLockVisibleCompoundsDialogOpenGlobal && (
+          <LockVisibleCompoundsDialog
+            open
+            ref={lockVisibleCompoundsDialogRef}
+            anchorEl={lockCompoundsDialogAnchorE1}
+            datasetId={datasetID}
+          />
+        )
+      }
+      {
+        isOpenCrossReferenceDialog && (
+          <CrossReferenceDialog open anchorEl={selectedMoleculeRef} ref={crossReferenceDialogRef} />
+        )
+      }
       <div ref={filterRef}>
         {/* TODO disable showing of filter tags for now */}
         {false && isActiveFilter && (
@@ -979,9 +987,8 @@ const DatasetMoleculeList = ({ title, datasetID, url }) => {
                     {filterSettings.priorityOrder.map(attr => (
                       <Grid item key={`Mol-Tooltip-${attr}`}>
                         <Tooltip
-                          title={`${filterProperties[attr].minValue}-${filterProperties[attr].maxValue} ${
-                            filterProperties[attr].order === 1 ? '\u2191' : '\u2193'
-                          }`}
+                          title={`${filterProperties[attr].minValue}-${filterProperties[attr].maxValue} ${filterProperties[attr].order === 1 ? '\u2191' : '\u2193'
+                            }`}
                           placement="top"
                         >
                           <Chip size="small" label={attr} className={classes.propertyChip} />
@@ -1375,7 +1382,7 @@ const DatasetMoleculeList = ({ title, datasetID, url }) => {
           </>
         )}
       </Grid>
-    </Panel>
+    </Panel >
   );
 };
 

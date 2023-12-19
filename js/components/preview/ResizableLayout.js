@@ -143,8 +143,8 @@ export const ResizableLayout = ({ gridRef, hideProjects, showHistory, onShowHist
           // min and max width
           if (actualWidth < 480) {
             return 480;
-          } else if (actualWidth > 740) {
-            return 740;
+          } else if (actualWidth > 900) {
+            return 900;
           } else {
             return actualWidth;
           }
