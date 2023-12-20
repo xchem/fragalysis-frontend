@@ -20,6 +20,7 @@ import { setTargetFilter } from '../../reducers/selection/actions';
 import { debounce } from 'lodash';
 import { compareTargetAsc } from './sortTargets/sortTargets';
 import { MOCK_LIST_OF_TARGETS } from './MOCK';
+import { getCombinedTargetList } from '../../reducers/api/selectors';
 
 const useStyles = makeStyles(theme => ({
   title: {
@@ -128,7 +129,8 @@ export const TargetListSortFilterDialog = memo(
       setInitState(init);
     }, []);
 
-    const target_id_list = useSelector(state => state.apiReducers.target_id_list);
+    // const target_id_list = useSelector(state => state.apiReducers.target_id_list);
+    const target_id_list = useSelector(state => getCombinedTargetList(state));
     const [initState, setInitState] = useState(initialize());
     //let defaultListOfTargetsWithoutSort = useSelector(state => state.targetReducers.listOfTargets);
     let defaultListOfTargetsWithoutSort = target_id_list; // remove after real data
@@ -138,12 +140,14 @@ export const TargetListSortFilterDialog = memo(
 
     const handleFilterChange = useCallback(
       filter => {
+        console.log(`handleFilterChange: start ${JSON.stringify(filter)}`);
         const filterSet = Object.assign({}, filter);
         for (let attr of TARGETS_ATTR) {
           if (filterSet.filter[attr.key].priority === undefined || filterSet.filter[attr.key].priority === '') {
             filterSet.filter[attr.key].priority = 0;
           }
         }
+        console.log(`handleFilterChange: end ${JSON.stringify(filter)}`);
         dispatch(setTargetFilter(filterSet));
       },
       [dispatch]

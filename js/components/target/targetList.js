@@ -104,6 +104,7 @@ import { MOCK_LIST_OF_TARGETS } from './MOCK';
 import { TARGETS_ATTR } from './redux/constants';
 import { getTargetProjectCombinations } from './redux/dispatchActions';
 import moment from 'moment';
+import { getCombinedTargetList } from '../../reducers/api/selectors';
 
 const useStyles = makeStyles(theme => ({
   table: {
@@ -153,7 +154,8 @@ export const TargetList = memo(() => {
   const filterClean = useSelector(state => state.targetReducers.filterClean);
   let filter = useSelector(state => state.selectionReducers.targetFilter);
 
-  const target_id_list_unsorted = useSelector(state => state.apiReducers.target_id_list);
+  // const target_id_list_unsorted = useSelector(state => state.apiReducers.target_id_list);
+  const target_id_list_unsorted = useSelector(state => getCombinedTargetList(state));
   const projectsList = useSelector(state => state.targetReducers.projects);
   let listOfTargets = useSelector(state => state.targetReducers.listOfTargets);
   let filteredListOfTargets = useSelector(state => state.targetReducers.listOfFilteredTargets);
@@ -289,7 +291,6 @@ export const TargetList = memo(() => {
           isFloat: attr.isFloat
         };
       }
-
     }
     return initObject;
   });
@@ -304,13 +305,18 @@ export const TargetList = memo(() => {
   filter = filter || initState;
 
   const render_item_method = target => {
-    const preview = `${URLS.target}${target.title}/${URL_TOKENS.target_access_string}/${target.project.target_access_string}`;
+    let preview;
+    if (target.isLegacy) {
+      preview = target.legacyUrl;
+    } else {
+      preview = `${URLS.target}${target.title}/${URL_TOKENS.target_access_string}/${target.project.target_access_string}`;
+    }
     const sgcUrl = 'https://thesgc.org/sites/default/files/XChem/' + target.title + '/html/index.html';
     const sgcUploaded = ['BRD1A', 'DCLRE1AA', 'FALZA', 'FAM83BA', 'HAO1A', 'NUDT4A', 'NUDT5A', 'NUDT7A', 'PARP14A'];
     const discourseAvailable = isDiscourseAvailable();
     // const [discourseUrl, setDiscourseUrl] = useState();
     return (
-      <TableRow hover key={target.id}>
+      <TableRow hover key={target.isLegacy ? target.title + 'Legacy' : target.title}>
         {/*<Tooltip title={`${target.id}`}>
         <TableCell
           component="th"
@@ -321,9 +327,15 @@ export const TargetList = memo(() => {
         </TableCell>
       </Tooltip> */}
         <TableCell align="left" style={{ padding: '0px 10px 0px 0px', margin: '0px', padding: '0px' }}>
-          <Link to={preview}>
-            <div style={{ wordBreak: 'break-all' }}>{target.title}</div>
-          </Link>
+          {target.isLegacy ? (
+            <a href={target.legacyUrl} target="new" style={{ wordBreak: 'break-all' }}>
+              {target.title}
+            </a>
+          ) : (
+            <Link to={preview}>
+              <div style={{ wordBreak: 'break-all' }}>{target.title}</div>
+            </Link>
+          )}
         </TableCell>
         <TableCell style={{ width: '2px', padding: '0px', margin: '0px' }}></TableCell>
         <TableCell align="left" style={{ padding: '0px 10px 0px 0px', margin: '0px', padding: '0px' }}>
@@ -1095,6 +1107,22 @@ export const TargetList = memo(() => {
       window.removeEventListener('mouseup', handleMouseUpSGC);
     }
   }, [isResizingSGC]);
+
+  const itemsToRender = () => {
+    const combinations = getTargetProjectCombinations(
+      filteredListOfTargets !== undefined
+        ? filteredListOfTargets
+        : listOfTargets !== undefined
+        ? listOfTargets
+        : target_id_list,
+      projectsList
+    );
+    const slice = combinations.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage);
+    const result = slice.map(data => render_item_method(data.updatedTarget));
+
+    return result;
+  };
+
   // END RESIZER FOR SGC COLUMN
   const targetsToUse = filteredListOfTargets ? filteredListOfTargets : listOfAllTarget;
   if (target_id_list) {
@@ -1182,10 +1210,10 @@ export const TargetList = memo(() => {
                     onClick={() => handleHeaderSort('target')}
                   >
                     <Tooltip title="Sort" className={classes.sortButton}>
-                    {filter.filter.title.order === -1 ? (
-                          <KeyboardArrowDown />
-                    ) : filter.filter.title.order === 1 ? (
-                          <KeyboardArrowUp />
+                      {filter.filter.title.order === -1 ? (
+                        <KeyboardArrowDown />
+                      ) : filter.filter.title.order === 1 ? (
+                        <KeyboardArrowUp />
                       ) : (
                         <UnfoldMore />
                       )}
@@ -1221,10 +1249,10 @@ export const TargetList = memo(() => {
                     onClick={() => handleHeaderSort('targetAccessString')}
                   >
                     <Tooltip title="Sort" className={classes.sortButton}>
-                    {filter.filter.targetAccessString.order === -1 ? (
-                          <KeyboardArrowDown />
-                    ) : filter.filter.targetAccessString.order === 1 ? (
-                          <KeyboardArrowUp />
+                      {filter.filter.targetAccessString.order === -1 ? (
+                        <KeyboardArrowDown />
+                      ) : filter.filter.targetAccessString.order === 1 ? (
+                        <KeyboardArrowUp />
                       ) : (
                         <UnfoldMore />
                       )}
@@ -1254,10 +1282,10 @@ export const TargetList = memo(() => {
                     onClick={() => handleHeaderSort('initDate')}
                   >
                     <Tooltip title="Sort" className={classes.sortButton}>
-                    {filter.filter.initDate.order === -1 ? (
-                          <KeyboardArrowDown />
-                    ) : filter.filter.initDate.order === 1 ? (
-                          <KeyboardArrowUp />
+                      {filter.filter.initDate.order === -1 ? (
+                        <KeyboardArrowDown />
+                      ) : filter.filter.initDate.order === 1 ? (
+                        <KeyboardArrowUp />
                       ) : (
                         <UnfoldMore />
                       )}
@@ -1601,18 +1629,7 @@ export const TargetList = memo(() => {
                     </TableCell>*/}
             </TableRow>
           </TableHead>
-          <TableBody>
-            {getTargetProjectCombinations(
-              filteredListOfTargets !== undefined
-                ? filteredListOfTargets
-                : listOfTargets !== undefined
-                  ? listOfTargets
-                  : target_id_list,
-              projectsList
-            )
-              .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
-              .map(data => render_item_method(data.updatedTarget))}
-          </TableBody>
+          <TableBody>{itemsToRender()}</TableBody>
           <TableFooter>
             <TableRow>
               <TablePagination
