@@ -275,8 +275,8 @@ export const DatasetFilter = memo(
               </div>
             </Grid>
           </Grid>
-          <Grid container>
-            <Grid container item className={classes.gridItemHeader}>
+          <Grid container style={{ maxHeight: 400 }}>
+            <Grid container item className={classes.gridItemHeader} wrap="nowrap">
               <Grid item className={classes.centered} style={{ width: widthCheckbox }}>
                 Is shown
               </Grid>

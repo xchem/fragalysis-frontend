@@ -85,10 +85,11 @@ import {
 } from '../preview/compounds/redux/dispatchActions';
 import { LockVisibleCompoundsDialog } from './lockVisibleCompoundsDialog';
 import { size } from 'lodash';
+import { Circle } from '@mui/icons-material';
 
 const useStyles = makeStyles(theme => ({
   container: {
-    height: '100%',
+    height: '97%',
     width: 'inherit',
     color: theme.palette.black
   },
@@ -106,7 +107,13 @@ const useStyles = makeStyles(theme => ({
   },
   gridItemList: {
     overflow: 'auto',
-    height: `calc(100% - ${theme.spacing(6)}px - ${theme.spacing(2)}px)`
+    height: `calc(97% - ${theme.spacing(6)}px - ${theme.spacing(2)}px)`,
+    width: '100%'
+  },
+  gridItemListSmallSize: {
+    overflow: 'auto',
+    height: `calc(85% - ${theme.spacing(6)}px - ${theme.spacing(2)}px)`,
+    width: '100%'
   },
   centered: {
     display: 'flex',
@@ -332,6 +339,18 @@ const useStyles = makeStyles(theme => ({
     padding: '0px',
     // color: theme.palette.primary.main
     color: 'red'
+  },
+  activeFilterIcon: {
+    color: theme.palette.success.main,
+    '&:hover': {
+      color: theme.palette.success.dark
+    }
+  },
+  dotOverlay: {
+    fontSize: 9,
+    position: 'absolute',
+    top: 1,
+    right: 3
   }
 }));
 
@@ -351,6 +370,7 @@ const DatasetMoleculeList = ({ title, datasetID, url }) => {
   const isLockVisibleCompoundsDialogOpenGlobal = useSelector(
     state => state.datasetsReducers.isLockVisibleCompoundsDialogOpenGlobal
   );
+  const rhsWidth = useSelector(state => state.selectionReducers.rhsWidth);
 
   const moleculeLists = useSelector(state => state.datasetsReducers.moleculeLists);
   const isLoadingMoleculeList = useSelector(state => state.datasetsReducers.isLoadingMoleculeList);
@@ -629,7 +649,11 @@ const DatasetMoleculeList = ({ title, datasetID, url }) => {
         disabled={isLoadingMoleculeList}
       >
         <Tooltip title="Filter/Sort">
-          <FilterList />
+          <>
+            {/* fontSize does not change font here, but it disqualifies default font size so we do not need to !important */}
+            {isActiveFilter && <Circle className={classes.dotOverlay} fontSize='9px' color={'error'} />}
+            <FilterList />
+          </>
         </Tooltip>
       </IconButton>,
       <IconButton
@@ -645,7 +669,7 @@ const DatasetMoleculeList = ({ title, datasetID, url }) => {
         </Tooltip>
       </IconButton>
     ],
-    [classes, datasetID, dispatch, filterRef, isLoadingMoleculeList, sortDialogOpen, url, searchString]
+    [classes, datasetID, dispatch, filterRef, isLoadingMoleculeList, sortDialogOpen, url, searchString, isActiveFilter]
   );
 
   // useEffectDebugger(
@@ -888,7 +912,7 @@ const DatasetMoleculeList = ({ title, datasetID, url }) => {
   };
 
   return (
-    <Panel hasHeader title={title} withTooltip headerActions={actions}>
+    <Panel hasHeader title={title} withTooltip headerActions={actions} style={{ height: '94%' }} >
       <AlertModal
         title="Are you sure?"
         description={`Loading of ${joinedMoleculeLists?.length} may take a long time`}
@@ -913,34 +937,43 @@ const DatasetMoleculeList = ({ title, datasetID, url }) => {
           setIsDeleteDatasetAlertOpen(false);
         }}
       />
-      {sortDialogOpen && (
-        <DatasetFilter
-          open={sortDialogOpen}
-          anchorEl={sortDialogAnchorEl}
-          datasetID={datasetID}
-          filterProperties={filterProperties}
-          active={filterSettings && filterSettings.active}
-          predefined={filterSettings && filterSettings.predefined}
-          priorityOrder={filterSettings && filterSettings.priorityOrder}
-          setSortDialogAnchorEl={setSortDialogAnchorEl}
-        />
-      )}
-      {isOpenInspirationDialog && (
-        <InspirationDialog open anchorEl={selectedMoleculeRef} datasetID={datasetID} ref={inspirationDialogRef} />
-      )}
-      {askLockCompoundsQuestion && isLockVisibleCompoundsDialogOpenGlobal && (
-        <LockVisibleCompoundsDialog
-          open
-          ref={lockVisibleCompoundsDialogRef}
-          anchorEl={lockCompoundsDialogAnchorE1}
-          datasetId={datasetID}
-        />
-      )}
-      {isOpenCrossReferenceDialog && (
-        <CrossReferenceDialog open anchorEl={selectedMoleculeRef} ref={crossReferenceDialogRef} />
-      )}
+      {
+        sortDialogOpen && (
+          <DatasetFilter
+            open={sortDialogOpen}
+            anchorEl={sortDialogAnchorEl}
+            datasetID={datasetID}
+            filterProperties={filterProperties}
+            active={filterSettings && filterSettings.active}
+            predefined={filterSettings && filterSettings.predefined}
+            priorityOrder={filterSettings && filterSettings.priorityOrder}
+            setSortDialogAnchorEl={setSortDialogAnchorEl}
+          />
+        )
+      }
+      {
+        isOpenInspirationDialog && (
+          <InspirationDialog open anchorEl={selectedMoleculeRef} datasetID={datasetID} ref={inspirationDialogRef} />
+        )
+      }
+      {
+        askLockCompoundsQuestion && isLockVisibleCompoundsDialogOpenGlobal && (
+          <LockVisibleCompoundsDialog
+            open
+            ref={lockVisibleCompoundsDialogRef}
+            anchorEl={lockCompoundsDialogAnchorE1}
+            datasetId={datasetID}
+          />
+        )
+      }
+      {
+        isOpenCrossReferenceDialog && (
+          <CrossReferenceDialog open anchorEl={selectedMoleculeRef} ref={crossReferenceDialogRef} />
+        )
+      }
       <div ref={filterRef}>
-        {isActiveFilter && (
+        {/* TODO disable showing of filter tags for now */}
+        {false && isActiveFilter && (
           <>
             <div className={classes.filterSection}>
               <Grid container spacing={1}>
@@ -954,9 +987,8 @@ const DatasetMoleculeList = ({ title, datasetID, url }) => {
                     {filterSettings.priorityOrder.map(attr => (
                       <Grid item key={`Mol-Tooltip-${attr}`}>
                         <Tooltip
-                          title={`${filterProperties[attr].minValue}-${filterProperties[attr].maxValue} ${
-                            filterProperties[attr].order === 1 ? '\u2191' : '\u2193'
-                          }`}
+                          title={`${filterProperties[attr].minValue}-${filterProperties[attr].maxValue} ${filterProperties[attr].order === 1 ? '\u2191' : '\u2193'
+                            }`}
                           placement="top"
                         >
                           <Chip size="small" label={attr} className={classes.propertyChip} />
@@ -972,7 +1004,7 @@ const DatasetMoleculeList = ({ title, datasetID, url }) => {
         )}
       </div>
       <Grid container direction="row" justifyContent="flex-start" className={classes.container}>
-        <Grid item>
+        <Grid item style={{ width: '100%' }}>
           {/* Selection */}
           <Grid container direction="row" alignItems="center">
             {Object.keys(compoundsColors).map(item => (
@@ -1032,7 +1064,14 @@ const DatasetMoleculeList = ({ title, datasetID, url }) => {
         <Grid item>
           {/* Header */}
           {isLoadingMoleculeList === false && (
-            <Grid container justifyContent="flex-start" direction="row" className={classes.molHeader} wrap="nowrap">
+            <Grid
+              container
+              justifyContent="flex-start"
+              direction="row"
+              className={classes.molHeader}
+              wrap="nowrap"
+              style={{ width: '100%' }}
+            >
               <Grid item container justifyContent="flex-start" direction="row">
                 <Tooltip title="Total count of compounds">
                   <Grid item className={classes.rank}>
@@ -1059,7 +1098,6 @@ const DatasetMoleculeList = ({ title, datasetID, url }) => {
                       wrap="nowrap"
                       className={classes.contButtonsMargin}
                     >
-                      {console.log('isLigandOn', isLigandOn)}
                       <Tooltip title="all ligands">
                         <Grid item>
                           <Button
@@ -1220,7 +1258,13 @@ const DatasetMoleculeList = ({ title, datasetID, url }) => {
         )}
         {isLoadingMoleculeList === false && currentMolecules.length > 0 && (
           <>
-            <Grid item className={classes.gridItemList} ref={scrollBarRef}>
+            <Grid
+              item
+              className={
+                rhsWidth > 480 || rhsWidth === undefined ? classes.gridItemList : classes.gridItemListSmallSize
+              }
+              ref={scrollBarRef}
+            >
               <InfiniteScroll
                 getScrollParent={() =>
                   dispatch(
@@ -1338,7 +1382,7 @@ const DatasetMoleculeList = ({ title, datasetID, url }) => {
           </>
         )}
       </Grid>
-    </Panel>
+    </Panel >
   );
 };
 

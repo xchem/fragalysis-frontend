@@ -10,7 +10,7 @@ import { RHS } from './rhs';
 import TagDetails from './tags/details/tagDetails';
 import TagSelector from './tags/tagSelector';
 import { ViewerControls } from './viewerControls';
-import { setResizableLayout } from '../../reducers/selection/actions';
+import { setResizableLayout, setActualRhsWidth } from '../../reducers/selection/actions';
 
 const useStyles = makeStyles(theme => ({
   root: {
@@ -32,7 +32,7 @@ const useStyles = makeStyles(theme => ({
   }
 }));
 
-const sideWidth = 500;
+const sideWidth = 505;
 let panelHeight = 0;
 const resizerSize = 20;
 let screenHeight = 0;
@@ -128,23 +128,32 @@ export const ResizableLayout = ({ gridRef, hideProjects, showHistory, onShowHist
         const gridRect = gridRef.current?.elementRef.current.firstChild.getBoundingClientRect();
 
         if (gridRect) {
+          let adjustedX = 0;
+          let containerWidth = 0;
           if (sidesOpen.LHS) {
-            const adjustedX = x - gridRect.x - (lhsWidth + resizerSize) - resizerSize / 2;
-            const containerWidth = gridRect.width - lhsWidth - resizerSize * 2;
-
-            return containerWidth - clamp(adjustedX, 0, containerWidth);
+            adjustedX = x - gridRect.x - (lhsWidth + resizerSize) - resizerSize / 2;
+            containerWidth = gridRect.width - lhsWidth - resizerSize * 2;
           } else {
-            const adjustedX = x - gridRect.x - resizerSize / 2;
-            const containerWidth = gridRect.width - resizerSize;
+            adjustedX = x - gridRect.x - resizerSize / 2;
+            containerWidth = gridRect.width - resizerSize;
+          }
+          const actualWidth = containerWidth - clamp(adjustedX, 0, containerWidth);
+          dispatch(setActualRhsWidth(actualWidth));
 
-            return containerWidth - clamp(adjustedX, 0, containerWidth);
+          // min and max width
+          if (actualWidth < 480) {
+            return 480;
+          } else if (actualWidth > 900) {
+            return 900;
+          } else {
+            return actualWidth;
           }
         } else {
           return 0;
         }
       });
     },
-    [gridRef, lhsWidth, sidesOpen.LHS]
+    [gridRef, lhsWidth, sidesOpen.LHS, dispatch]
   );
 
   if (gridRef.current !== null && gridRef.current !== undefined) {
@@ -172,7 +181,7 @@ export const ResizableLayout = ({ gridRef, hideProjects, showHistory, onShowHist
         }
       });
     },
-    [gridRef, hitNavigatorHeight]
+    [gridRef, hitNavigatorHeight, dispatch]
   );
 
   const onHitListResize = useCallback(
@@ -201,11 +210,11 @@ export const ResizableLayout = ({ gridRef, hideProjects, showHistory, onShowHist
               <TagDetails />
             </div>
             <Resizer orientation="horizontal" onResize={onTagDetailsResize} />
-            {/* hide section Hit List Filter(LHS) - task #576 
+            {/* hide section Hit List Filter(LHS) - task #576
             <div style={{ height: `calc(100% - ${tagDetailsHeight + hitNavigatorHeight + 2 * resizerSize}px)` }}>
               <TagSelector />
-             </div> 
-            <Resizer orientation="horizontal" onResize={onHitListResize} /> 
+             </div>
+            <Resizer orientation="horizontal" onResize={onHitListResize} />
             */}
             <div
               style={{

@@ -711,6 +711,12 @@ export const datasetsReducers = (state = INITIAL_STATE, action = {}) => {
       return { ...state, datasetScrolledMap: {} };
     }
 
+    case constants.SET_COMPOUND_SET:
+      return Object.assign({}, state, { expandCompoundSet: action.payload });
+
+    case constants.SET_UPDATED_DATASETS:
+      return Object.assign({}, state, { updatedDatasets: action.payload.updatedDataset });
+
     default:
       return state;
   }

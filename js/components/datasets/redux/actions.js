@@ -569,3 +569,14 @@ export const setAskLockSelectedCompoundsQuestion = askLockCompoundsQuestion => (
   type: constants.SET_ASK_LOCK_SELECTED_COMPOUNDS_QUESTION,
   askLockCompoundsQuestion: askLockCompoundsQuestion
 });
+
+export const setExpandCompoundSets = compoundSets => ({
+  type: constants.SET_COMPOUND_SET,
+  payload: { compoundSets }
+});
+
+export const setUpdatedDatasets = updatedDataset => ({
+  type: constants.SET_UPDATED_DATASETS,
+  payload: { updatedDataset }
+});
+

@@ -3,9 +3,9 @@ import PropTypes from 'prop-types';
 import { Popper, Paper } from '@material-ui/core';
 import SVGInline from 'react-svg-inline';
 
-export const SvgTooltip = memo(({ open, anchorEl, imgData, width, height }) => {
+export const SvgTooltip = memo(({ open, anchorEl, imgData, width, height, placement = "right-end" }) => {
   return (
-    <Popper open={open} anchorEl={anchorEl} placement="right-end">
+    <Popper open={open} anchorEl={anchorEl} placement={placement}>
       <Paper
         square
         style={{

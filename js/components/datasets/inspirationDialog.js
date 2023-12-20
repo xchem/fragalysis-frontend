@@ -1,6 +1,6 @@
 import React, { forwardRef, memo, useCallback, useContext, useMemo, useRef, useState } from 'react';
 import { CircularProgress, Grid, Popper, IconButton, Typography, Tooltip } from '@material-ui/core';
-import { Close } from '@material-ui/icons';
+import { Close, Link } from '@material-ui/icons';
 import { makeStyles } from '@material-ui/styles';
 import { useDispatch, useSelector } from 'react-redux';
 import {
@@ -141,6 +141,38 @@ export const InspirationDialog = memo(
     const informationList = useSelector(state => state.selectionReducers.informationList);
     const molForTagEditId = useSelector(state => state.selectionReducers.molForTagEdit);
     const moleculesToEditIds = useSelector(state => state.selectionReducers.moleculesToEdit);
+
+    const inspirationLists = useSelector(state => state.datasetsReducers.inspirationLists);
+    const moleculeLists = useSelector(state => state.datasetsReducers.moleculeLists);
+    const scoreDatasetMap = useSelector(state => state.datasetsReducers.scoreDatasetMap);
+
+    /**
+     * Get rationale as score of each individual molecule
+     * @returns {string}
+     */
+    const getRationale = useCallback(() => {
+      let rationale = '';
+      if (datasetID && inspirationLists.hasOwnProperty(datasetID) && inspirationLists[datasetID][0]) {
+        const moleculeID = inspirationLists[datasetID][0];
+        const molecule = moleculeLists[datasetID].find(molecule => molecule.id === moleculeID);
+        if (molecule !== undefined) {
+          rationale = molecule.text_scores.hasOwnProperty('rationale') ? molecule.text_scores.rationale : '';
+        }
+      }
+      return rationale;
+    }, [datasetID, inspirationLists, moleculeLists]);
+
+    /**
+     * Get ref_url as common score of all molecules
+     * @returns {string}
+     */
+    const getRefUrl = useCallback(() => {
+      let refUrl = '';
+      if (datasetID && scoreDatasetMap.hasOwnProperty(datasetID) && scoreDatasetMap[datasetID].hasOwnProperty('ref_url')) {
+        refUrl = scoreDatasetMap[datasetID].ref_url.description;
+      }
+      return refUrl;
+    }, [datasetID, scoreDatasetMap]);
 
     const dispatch = useDispatch();
 
@@ -405,7 +437,7 @@ export const InspirationDialog = memo(
                     const selected = allSelectedMolecules.some(molecule => molecule.id === data.id);
 
                     return (
-                      <GroupNglControlButtonsContext.Provider value={groupNglControlButtonsDisabledState}>
+                      <GroupNglControlButtonsContext.Provider key={index} value={groupNglControlButtonsDisabledState}>
                         <MoleculeView
                           key={index}
                           index={index}
@@ -435,6 +467,27 @@ export const InspirationDialog = memo(
                       </GroupNglControlButtonsContext.Provider>
                     );
                   })}
+                {moleculeList.length > 0 &&
+                  <Grid container justifyContent="center" alignItems="center" direction="column" className={classes.notFound}>
+                    {getRationale().length > 0 &&
+                      <Grid item>
+                        <Typography variant="body2">{getRationale()}</Typography>
+                      </Grid>}
+                    {getRefUrl().length > 0 &&
+                      <Grid container justifyContent="center" alignItems="center" direction="row">
+                        <Grid item>
+                          <Typography variant="body2">Design-set rationale URL</Typography>
+                        </Grid>
+                        <Grid item>
+                          <Tooltip title="Open">
+                            <IconButton className={classes.panelButton} color={'inherit'} onClick={() => window.open(getRefUrl(), '_blank')}>
+                              <Link />
+                            </IconButton>
+                          </Tooltip>
+                        </Grid>
+                      </Grid>}
+                  </Grid>
+                }
                 {!(moleculeList.length > 0) && (
                   <Grid container justifyContent="center" alignItems="center" direction="row" className={classes.notFound}>
                     <Grid item>

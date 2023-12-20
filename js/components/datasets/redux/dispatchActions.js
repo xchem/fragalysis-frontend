@@ -53,7 +53,7 @@ import {
   getInitialDatasetFilterSettings,
   getJoinedMoleculeLists
 } from './selectors';
-import { COUNT_OF_VISIBLE_SCORES } from './constants';
+import { COUNT_OF_VISIBLE_SCORES, DEFAULT_COUNT_OF_VISIBLE_SCORES } from './constants';
 import { colourList } from '../../preview/molecule/utils/color';
 import { appendMoleculeOrientation } from '../../../reducers/ngl/actions';
 import { isAnyInspirationTurnedOnByType } from './selectors';
@@ -255,7 +255,7 @@ export const loadDataSets = targetId => async dispatch => {
       setDataset(
         response.data.results.map(ds => ({
           id: ds.name,
-          title: ds.unique_name,
+          title: ds.name, // previously unique_name ($submitter-$method format)
           url: ds.method_url,
           version: ds.spec_version,
           submitted_sdf: ds.submitted_sdf
@@ -276,7 +276,7 @@ export const loadNewDataSets = targetId => async (dispatch, getState) => {
       if (!found) {
         const dataset = {
           id: ds.name,
-          title: ds.unique_name,
+          title: ds.name, // previously unique_name ($submitter-$method format)
           url: ds.method_url,
           version: ds.spec_version,
           submitted_sdf: ds.submitted_sdf
@@ -311,7 +311,7 @@ export const loadDatasetCompoundsWithScores = (datasetsToLoad = null) => (dispat
               dispatch(
                 updateFilterShowedScoreProperties({
                   datasetID: dataset.id,
-                  scoreList: scores?.slice(0, COUNT_OF_VISIBLE_SCORES)
+                  scoreList: scores?.slice(0, DEFAULT_COUNT_OF_VISIBLE_SCORES)
                 })
               );
               scores?.map(item => {
@@ -390,7 +390,7 @@ export const loadCompoundNumericalScoreList = (compoundID, datasetID) => (dispat
     dispatch(
       updateFilterShowedScoreProperties({
         datasetID,
-        scoreList: [...scoreSet].slice(0, COUNT_OF_VISIBLE_SCORES)
+        scoreList: [...scoreSet].slice(0, DEFAULT_COUNT_OF_VISIBLE_SCORES)
       })
     );
   });
@@ -411,7 +411,7 @@ export const loadCompoundTextScoreList = (compoundID, datasetID) => (dispatch, g
     dispatch(
       updateFilterShowedScoreProperties({
         datasetID,
-        scoreList: [...scoreSet].slice(0, COUNT_OF_VISIBLE_SCORES)
+        scoreList: [...scoreSet].slice(0, DEFAULT_COUNT_OF_VISIBLE_SCORES)
       })
     );
   });

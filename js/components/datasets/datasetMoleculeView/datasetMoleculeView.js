@@ -1216,63 +1216,79 @@ const DatasetMoleculeView = memo(
                   wrap="nowrap"
                   className={classes.fullHeight}
                 >
-                  {filteredScoreProperties &&
-                    datasetID &&
-                    filteredScoreProperties[datasetID] &&
-                    filteredScoreProperties[datasetID].map(score => {
-                      //const item = scoreCompoundMap && scoreCompoundMap[data?.compound]?.find(o => o.score.id === score.id);
-                      let value = allScores[score.name];
-                      if (!value) {
-                        value = data[score.name];
-                      }
-                      return (
-                        <Tooltip title={`${score.name} - ${score.description} : ${value}`} key={score.name}>
-                          {(value && (
-                            <Grid
-                              item
-                              className={classNames(
-                                classes.rightBorder
-                                // getValueMatchingClass(item)
+                  <Grid
+                    item
+                    container
+                    justifyContent="flex-start"
+                    direction="row"
+                    wrap="nowrap"
+                  >
+                    {filteredScoreProperties &&
+                      datasetID &&
+                      filteredScoreProperties[datasetID] &&
+                      filteredScoreProperties[datasetID].map(score => {
+                        //const item = scoreCompoundMap && scoreCompoundMap[data?.compound]?.find(o => o.score.id === score.id);
+                        let value = allScores[score.name];
+                        if (!value) {
+                          value = data[score.name];
+                        }
+                        return (
+                          <Tooltip title={`${score.name} - ${score.description} : ${value}`} key={score.name}>
+                            {(value && (
+                              <Grid
+                                item
+                                className={classNames(
+                                  classes.rightBorder
+                                  // getValueMatchingClass(item)
+                                )}
+                              >
+                                {/*{item.value && Math.round(item.value)}*/}
+                                {(value === 'N' && <ClearOutlined className={classes.cancelIcon} />) ||
+                                  (value === 'Y' && <CheckOutlined className={classes.checkIcon} />) ||
+                                  (isString(value) && value?.slice(0, 4)) ||
+                                  (!isNaN(value) && `${value}`?.slice(0, 4)) ||
+                                  null}
+                              </Grid>
+                            )) || (
+                                <Grid item className={classes.rightBorder}>
+                                  -
+                                </Grid>
                               )}
+                          </Tooltip>
+                        );
+                      })}
+                  </Grid>
+                  <Grid
+                    item
+                    container
+                    justifyContent="flex-end"
+                    direction="row"
+                    wrap="nowrap"
+                  >
+                    {Object.keys(compoundsColors).map(color => {
+                      const colorIncluded = shoppingCartColors?.includes(color);
+                      return (
+                        <Tooltip title={color} key={`${color}-${classes[data.id]}`} placement="top">
+                          <Grid>
+                            <Button
+                              id={color}
+                              className={classNames(
+                                colorIncluded ? classes[color] : classes.unselectedButton,
+                                classes[`border-${color}`],
+                                classes.colorButton
+                              )}
+                              onClick={event => {
+                                handleColorGroupButtonClick(event);
+                              }}
+                              disabled={!colorButtonsEnabled}
                             >
-                              {/*{item.value && Math.round(item.value)}*/}
-                              {(value === 'N' && <ClearOutlined className={classes.cancelIcon} />) ||
-                                (value === 'Y' && <CheckOutlined className={classes.checkIcon} />) ||
-                                (isString(value) && value?.slice(0, 4)) ||
-                                (!isNaN(value) && `${value}`?.slice(0, 4)) ||
-                                null}
-                            </Grid>
-                          )) || (
-                            <Grid item className={classes.rightBorder}>
-                              -
-                            </Grid>
-                          )}
+                              {' '}
+                            </Button>
+                          </Grid>
                         </Tooltip>
                       );
                     })}
-                  {Object.keys(compoundsColors).map(color => {
-                    const colorIncluded = shoppingCartColors?.includes(color);
-                    return (
-                      <Tooltip title={color} key={`${color}-${classes[data.id]}`} placement="top">
-                        <Grid>
-                          <Button
-                            id={color}
-                            className={classNames(
-                              colorIncluded ? classes[color] : classes.unselectedButton,
-                              classes[`border-${color}`],
-                              classes.colorButton
-                            )}
-                            onClick={event => {
-                              handleColorGroupButtonClick(event);
-                            }}
-                            disabled={!colorButtonsEnabled}
-                          >
-                            {' '}
-                          </Button>
-                        </Grid>
-                      </Tooltip>
-                    );
-                  })}
+                  </Grid>
                 </Grid>
               </Grid>
             </Grid>
@@ -1327,7 +1343,7 @@ const DatasetMoleculeView = memo(
                   </Tooltip>
                 )}
                 {moleculeTooltipOpen && !inSelectedCompoundsList && (
-                  <Tooltip>
+                  <Tooltip title={"Missing tooltip!"}>
                     <IconButton className={classes.addToShoppingCartIcon} onClick={handleShoppingCartClick}>
                       <AddShoppingCartIcon />
                     </IconButton>
@@ -1342,6 +1358,7 @@ const DatasetMoleculeView = memo(
             imgData={image}
             width={imageWidth}
             height={imageHeight}
+            placement="bottom-end"
           />
         </>
       );

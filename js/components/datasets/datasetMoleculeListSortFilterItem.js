@@ -79,7 +79,6 @@ const widthSlider = 170;
 
 export const DatasetMoleculeListSortFilter = memo(
   ({
-    key,
     scoreName,
     scoreID,
     min,
@@ -212,7 +211,7 @@ export const DatasetMoleculeListSortFilter = memo(
     // }
 
     return (
-      <Grid container item className={classes.gridItemHeader}>
+      <Grid container item className={classes.gridItemHeader} wrap="nowrap">
         <Grid item container className={classes.centered} style={{ width: widthCheckbox }}>
           <Grid item container justifyContent="center">
             <Grid item>
