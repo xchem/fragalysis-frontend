@@ -373,8 +373,6 @@ const MoleculeView = memo(
 
     const [isCopied, setCopied] = useClipboard(data.smiles, { successDuration: 5000 });
 
-    const [hasMap, setHasMap] = useState();
-
     const hasAllValuesOn = isLigandOn && isProteinOn && isComplexOn;
     const hasSomeValuesOn = !hasAllValuesOn && (isLigandOn || isProteinOn || isComplexOn);
 
@@ -412,6 +410,8 @@ const MoleculeView = memo(
     const open = tagPopoverOpen ? true : false;
 
     let proteinData = data?.proteinData;
+
+    const hasMap = proteinData?.diff_info || proteinData?.event_info || proteinData?.sigmaa_info;
 
     useEffect(() => {
       setTagEditModalOpenNew(tagEditorOpenObs);

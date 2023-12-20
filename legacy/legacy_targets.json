@@ -1,0 +1,921 @@
+{
+    "count": 50,
+    "next": null,
+    "previous": null,
+    "results": [
+        {
+            "id": 54,
+            "title": "EPB41L3A",
+            "project_id": [
+                2
+            ],
+            "default_squonk_project": null,
+            "template_protein": "/media/pdbs/EPB41L3A-x0306_1_apo.pdb",
+            "metadata": "https://fragalysis.diamond.ac.uk/media/metadata/metadata_NJuLr98.csv",
+            "zip_archive": "https://fragalysis.diamond.ac.uk/media/targets/EPB41L3A.zip",
+            "upload_status": null,
+            "sequences": [
+                {
+                    "chain": "A",
+                    "sequence": "KSMQCKVILLDGSEYTCDVEKRSRGQVLFDKVCEHLNLLEKDYFGLTYRDAENQKNWLDPAKEIKKQVRSGAWHFSFNVKFYPPDPAQLSEDITRYYLCLQLRDDIVSGRLPCSFVTLALLGSYTVQSELGDYDPDECGSDYISEFRFAPNHTKELEDKVIELHKSHRGMTPAEAEMHFLENAKKLSMYGVDLHHAKDSEGVEIMLGVCASGLLIYRDRLRINRFAWPKVLKISYKRNNFYIKIRPGEFEQFESTIGFKLPNHRAAKRLWKVCVEHHTFFRLL"
+                }
+            ]
+        },
+        {
+            "id": 35,
+            "title": "HAO1A",
+            "project_id": [
+                2
+            ],
+            "default_squonk_project": null,
+            "template_protein": "/media/pdbs/HAO1A-x0208_1_apo_MQrMrik.pdb",
+            "metadata": null,
+            "zip_archive": "https://fragalysis.diamond.ac.uk/media/targets/HAO1A.zip",
+            "upload_status": null,
+            "sequences": [
+                {
+                    "chain": "A",
+                    "sequence": "CINDYEQHAKSVLPKSIYDYYRSGANDEETLADNIAAFSRWKLYPRMLRNVAETDLSTSVLGQRVSMPICVGATAMQRMAHVDGELATVRACQSLGTGMMLSSWATSSIEEVAEAGPEALRWLQLYIYKDREVTKKLVRQAEKMGYKAIFVTVDTPYLGNRLDDVRNRFXXXXXXXXXXXXXXXXXXXXXXXXXXXXXLAAYVAKAIDPSISWEDIKWLRRLTSLPIVAKGILRGDDAREAVKHGLNGILVSNHGARQLDGVPATIDVLPEIVEAVEGKVEVFLDGGVRKGTDVLKALALGAKAVFVGRPIVWGLAFQGEKGVQDVLEILKEEFRLAMALSGCQNVKVIDKTLVRK"
+                }
+            ]
+        },
+        {
+            "id": 39,
+            "title": "NUDT4",
+            "project_id": [
+                2
+            ],
+            "default_squonk_project": null,
+            "template_protein": "/media/pdbs/NUDT4A-x0159_apo_Z09M2Hp.pdb",
+            "metadata": null,
+            "zip_archive": "https://fragalysis.diamond.ac.uk/media/targets/NUDT4.zip",
+            "upload_status": null,
+            "sequences": [
+                {
+                    "chain": "A",
+                    "sequence": "RTYDREGFKKRAACLCFRSEQEDEVLLVSSSRYPDQWIVPGGGMEPEEEPGGAAVREVYEEAGVKGKLGRLLGIFENQDRKHRTYVYVLTVTEILEDWXXXXXXXXKREWFKVEDAIKVLQCHKPVHAEYLEKLKLG"
+                }
+            ]
+        },
+        {
+            "id": 47,
+            "title": "STAG1A",
+            "project_id": [
+                2
+            ],
+            "default_squonk_project": null,
+            "template_protein": "/media/pdbs/STAG1A-x0237_1_apo_T6h9LGK.pdb",
+            "metadata": null,
+            "zip_archive": "https://fragalysis.diamond.ac.uk/media/targets/STAG1A.zip",
+            "upload_status": null,
+            "sequences": [
+                {
+                    "chain": "A",
+                    "sequence": "SPNGNLIRMLVLFFLESELHEHAAYLVDSLWESSQELLKDWECMTELLLEEPVXXXEAMSDRQESALIELMVCTIRQAAEAHPPVGRGTXXXVLTAKERKTQIDDRNKLTEHFIITLPMLLSKYSADAEKVANLLQIPQYFDLEIYSTGRMEKHLDALLKQIKFVVEKHVESDVLEACSKTYSILCSEEYTIQNRVDIARSQLIDEFVDRFNHSVEDLLQEXXXADDDDIYNVLSTLKRLTSFHNAHDLTKWDLFGNCYRLLKTGIEHGAMPEQIVVQALQCSHYSILWQLVKITDGSPSKEDLLVLRKTVKSFLAVCQQCLSNVNTPVKEQAFMLLCDLLMIFSHQLMTGGREGLQPLVFNPDTGLQSELLSFVMDHVFIDQXXXXXXXXXXXXXXANKIEALHKRRNLLAAFSKLIIYDIVDMHAAADIFKHYMKYYNDYGDIIKETLSKT"
+                }
+            ]
+        },
+        {
+            "id": 12,
+            "title": "MURD",
+            "project_id": [
+                2
+            ],
+            "default_squonk_project": null,
+            "template_protein": "/media/pdbs/MURD-x0349_apo_0Z35oUA.pdb",
+            "metadata": null,
+            "zip_archive": "https://fragalysis.diamond.ac.uk/media/targets/MURD.zip",
+            "upload_status": null,
+            "sequences": [
+                {
+                    "chain": "A",
+                    "sequence": "TTFENKKVLVLGLARSGEAAARLLAKLGAIVTVNDGKPFDENPTAQSLLEEGIKVVCGSHPLELLDEDFCYMIKNPGIPYNNPMVKKALEKQIPVLTEVELAYLVSESQLIGITGSNGKTTTTTMIAEVLNAGGQRGLLAGNIGFPASEVVQAANDKDTLVMELSSFQLMGVKEFRPHIAVITNLMPTHLDYHGSFEDYVAAKWNIQNQMSSSDFLVLNFNQGISKELAKTTKATIVPFSTTEKVDGAYVQDKQLFYKGENIMSVDDIGVPGSHNVENALATIAVAKLAGISNQVIRETLSNFGGVKHRLQSLGKVHGISFYNDSKSTNILATQKALSGFDNTKVILIAGGLDRGNEFDELIPDITGLKHMVVLGESASRVKRAAQKAGVTYSDALDVRDAVHKAYEVAQQGDVILLSPANASWDMYKNFEVRGDEFIDTFESLRGE"
+                }
+            ]
+        },
+        {
+            "id": 76,
+            "title": "NSP16",
+            "project_id": [
+                2
+            ],
+            "default_squonk_project": null,
+            "template_protein": "/media/pdbs/NSP16-x0225_0A_apo.pdb",
+            "metadata": "https://fragalysis.diamond.ac.uk/media/metadata/metadata_pJ6Vecm.csv",
+            "zip_archive": "https://fragalysis.diamond.ac.uk/media/targets/NSP16.zip",
+            "upload_status": null,
+            "sequences": [
+                {
+                    "chain": "A",
+                    "sequence": "SSQAWQPGVAMPNLYKMQRMLLEKCDLQNYGDSATLPKGIMMNVAKYTQLCQYLNTLTLAVPYNMRVIHFGAGSDKGVAPGTAVLRQWLPTGTLLVDSDLNDFVSDADSTLIGDCATVHTANKWDLIISDMYDPKTKNVTKENDSKEGFFTYICGFIQQKLALGGSVAIKITEHSWNADLYKLMGHFAWWTAFVTNVNASSSEAFLIGCNYLGKPREQIDGYVMHANYIFWRNTNPIQLSSYSLFDMSKFPLKLRGTAVMSLKEGQINDMILSLLSKGRLIIRENNRVVISSDVLVNN"
+                }
+            ]
+        },
+        {
+            "id": 71,
+            "title": "PGN_RS02895PGA",
+            "project_id": [
+                28,
+                2
+            ],
+            "default_squonk_project": null,
+            "template_protein": "/media/pdbs/PGN_RS02895PGA-x0115_0A_apo_VS73XWZ.pdb",
+            "metadata": "https://fragalysis.diamond.ac.uk/media/metadata/metadata_AERfX6c.csv",
+            "zip_archive": "https://fragalysis.diamond.ac.uk/media/targets/PGN_RS02895PGA.zip",
+            "upload_status": null,
+            "sequences": [
+                {
+                    "chain": "A",
+                    "sequence": "EGMWLMQQLGRKYAQMKERGLKMKEYDLYNPNGTSLKDAVVLFDGGCTGEVVSDRGLVLTNHHCGYDMIQAHSTLEHNYLENGFWAMREADELPNKDISVVFIDKIEDVTDYVKKELKAIKDPNSMDYLSPKYLQKLADKKAGKNFSAKNPGLSVEIKAFYGGNLYLMFTKKTYTDVRLVGAPPSSIGKFGADTDNWIWPRHTGDFSIFRIYADKNGNPAPYSEDNVPLKPKRFFNISLGGVQENDYAMIMGFPGTTHRYFTASEVDEWKSIDNDIRIRMRDIRQGVMLREMLADPQIKIMYSAKYAASQNAYKRAIGANWAIKTRGLRQNKQAMQDRLIAWGAKQGTPRYEEAVHEIDATVAKRADLRRRYWMIEEGIIRGIEFARSPIPTEDETKALQXXXASARKEAIDKIRTRYSKFANKDYSAEVDKKVAVAMLTEYLKEIPYENLPLHLRLVKDRFAGDVQAYVDDIFARSVFGSEAQFDAFAAVPSVEKLAEDPMVLFASSVFDEYRKLYNELRPYDDPILRAQRTYIAGLLEMDGDQDQFPDANLTLRFTYGQVKGYSPRDNVYYGHQTTLDGVMEKEDPDNWEFVVDPKLKAVYERKDFGRYADRSGRMPVAFCATTHTTGGNSGSPVMNANGELIGLNFDRNWEGVGGDIQYLADYQRSIIVDIRYVLLVIDKVGGCQRLLDEMNIVP"
+                }
+            ]
+        },
+        {
+            "id": 69,
+            "title": "NSP15_B",
+            "project_id": [
+                2
+            ],
+            "default_squonk_project": null,
+            "template_protein": "/media/pdbs/NSP15_B-x0422_1B_apo.pdb",
+            "metadata": "https://fragalysis.diamond.ac.uk/media/metadata/metadata.csv",
+            "zip_archive": "https://fragalysis.diamond.ac.uk/media/targets/NSP15_B.zip",
+            "upload_status": null,
+            "sequences": [
+                {
+                    "chain": "A",
+                    "sequence": ""
+                }
+            ]
+        },
+        {
+            "id": 66,
+            "title": "nsp13",
+            "project_id": [
+                2
+            ],
+            "default_squonk_project": null,
+            "template_protein": "/media/pdbs/DLS-NSP13-DF001_lA0YgdU.pdb",
+            "metadata": "https://fragalysis.diamond.ac.uk/media/metadata/metadata_k63WfMS.csv",
+            "zip_archive": "https://fragalysis.diamond.ac.uk/media/targets/nsp13.zip",
+            "upload_status": null,
+            "sequences": [
+                {
+                    "chain": "A",
+                    "sequence": ""
+                }
+            ]
+        },
+        {
+            "id": 8,
+            "title": "FAM83BA",
+            "project_id": [
+                2
+            ],
+            "default_squonk_project": null,
+            "template_protein": "/media/pdbs/FAM83BA-x0131_1_apo_G2blbbF.pdb",
+            "metadata": null,
+            "zip_archive": "https://fragalysis.diamond.ac.uk/media/targets/FAM83BA.zip",
+            "upload_status": null,
+            "sequences": [
+                {
+                    "chain": "A",
+                    "sequence": "THIDLLFHPPRAHLLTIKETIRKMIKEARKVIALVMDIFTDVDIFKEIVEASTRGVSVYILLDESNFNHFLNMTEKQGCSVQRLRNIRVRTVKGQDYLSKTGAKFHGKMEQKFLLVDCQKVMYGSYSYMWSFEKAHLSMVQIITGQLVESFDEEFRTLYARSCVPSSF"
+                }
+            ]
+        },
+        {
+            "id": 53,
+            "title": "ALAS2A",
+            "project_id": [
+                2
+            ],
+            "default_squonk_project": null,
+            "template_protein": "NOT AVAILABLE",
+            "metadata": null,
+            "zip_archive": "https://fragalysis.diamond.ac.uk/media/targets/ALAS2A.zip",
+            "upload_status": null,
+            "sequences": [
+                {
+                    "chain": "",
+                    "sequence": ""
+                }
+            ]
+        },
+        {
+            "id": 84,
+            "title": "NCS1",
+            "project_id": [
+                2
+            ],
+            "default_squonk_project": null,
+            "template_protein": "/media/pdbs/NCS1-x0086_0B_apo.pdb",
+            "metadata": "https://fragalysis.diamond.ac.uk/media/metadata/metadata_b3SOfhY.csv",
+            "zip_archive": "https://fragalysis.diamond.ac.uk/media/targets/NCS1.zip",
+            "upload_status": "SUCCESS",
+            "sequences": [
+                {
+                    "chain": "A",
+                    "sequence": "LKPEVVEELTRKTYFTEKEVQQWYKGFIKDCPSGQLDAAGFQKIYKQFFPFGDPTKFATFVFNVFDENKDGRIEFSEFIQALSVTSRGTLDEKLRWAFKLYDLDNDGYITRNEMLDIVDAIYQMVGNTVELPEEENTPEKRVDRIFAMMDKNADGKLTLQEFQEGSKADPSIVQALSLYDGL"
+                }
+            ]
+        },
+        {
+            "id": 37,
+            "title": "MUREECA",
+            "project_id": [
+                2
+            ],
+            "default_squonk_project": null,
+            "template_protein": "/media/pdbs/MUREECA-x0114_1_apo_SbbuYzF.pdb",
+            "metadata": null,
+            "zip_archive": "https://fragalysis.diamond.ac.uk/media/targets/MUREECA.zip",
+            "upload_status": null,
+            "sequences": [
+                {
+                    "chain": "A",
+                    "sequence": ""
+                },
+                {
+                    "chain": "F",
+                    "sequence": "NLRDLLAPWVPDAPSRALREMTLDSRVAAAGDLFVAVVGHQADGRRYIPQAIAQGVAAIIAEAKDEATDGEIREMHGVPVIYLSQLNERLSALAGRFYHEPSDNLRLVGVTGTNGKTTTTQLLAQWSQLLGEISAVMGTVGNGLLGKVIPXXXXXXSAVDVQHELAGLVDQGATFCAMEVSSHGLVQHRVAALKFAASVFTNLSXXXXXXXXXMEHYEAAKWLLYSEHHCGQAIINADDEVGRRWLAKLPDAVAVSMEDHINPNCHGRWLKATEVNYHDSGATIRFSSSWGDGEIESHLMGAFNVSNLLLALATLLALGYPLADLLKTAARLQPVCGRMEVFTAPGKPTVVVDYAHTPDALEKALQAARLHCAGKLWCVFGCGGDRDKGKRPLMGAIAEEFADVAVVTDDNPRTEEPRAIINDILAGMLDAGHAKVMEGRAEAVTCAVMQAKENDVVLVAGKGHEDYQIVGNQRLDYSDRVTVARLLGVIA"
+                }
+            ]
+        },
+        {
+            "id": 29,
+            "title": "ATAD2A",
+            "project_id": [
+                2
+            ],
+            "default_squonk_project": null,
+            "template_protein": "/media/pdbs/ATAD2A-x1803_1_apo_D4wOsMM.pdb",
+            "metadata": null,
+            "zip_archive": "https://fragalysis.diamond.ac.uk/media/targets/ATAD2A.zip",
+            "upload_status": null,
+            "sequences": [
+                {
+                    "chain": "A",
+                    "sequence": "MQEEDTFRELRIFLRNVTHRLAIDKRFRVFTKPVDPDEVPDYRTVIKEPMDLSSVISKIDLHKYLTVKDYLRDIDLICSNALEYNPDRDPGDRLIRHRACALRDTAYAIIKEELDEDFEQLCEEIQESR"
+                }
+            ]
+        },
+        {
+            "id": 85,
+            "title": "A71EV2A",
+            "project_id": [
+                2
+            ],
+            "default_squonk_project": null,
+            "template_protein": "/media/pdbs/A71EV2A-x0211_1A_apo.pdb",
+            "metadata": "https://fragalysis.diamond.ac.uk/media/metadata/metadata_QKR8bbd.csv",
+            "zip_archive": "https://fragalysis.diamond.ac.uk/media/targets/A71EV2A.zip",
+            "upload_status": "SUCCESS",
+            "sequences": [
+                {
+                    "chain": "A",
+                    "sequence": "GAIYVGNYRVVNRHLATHNDWANLVWEDSSRDLLVSSTTAQGCDTIARCDCQTGVYYCSSRRKHYPVSFSKPSLIFVEASEYYPARYQSHLMLAVGHSEPGDCGGILRCQHGVVGIVSTGGNGLVGFADVRDLLWLDEE"
+                }
+            ]
+        },
+        {
+            "id": 22,
+            "title": "SMTGR",
+            "project_id": [
+                2
+            ],
+            "default_squonk_project": null,
+            "template_protein": "/media/pdbs/smTGR-x2053_apo_zrHDWbw.pdb",
+            "metadata": null,
+            "zip_archive": "https://fragalysis.diamond.ac.uk/media/targets/SMTGR.zip",
+            "upload_status": null,
+            "sequences": [
+                {
+                    "chain": "A",
+                    "sequence": "TSQWLRKTVDSAAVILFSKTTCPYCKKVKDVLAEAKIKHATIELDQLSNGSAIQKCLASFSKIETVPQMFVRGKFIGDSQTVLKYYSNDELAGIVNESKYDYDLIVIGGGSGGLAAGKEAAKYGAKTAVLDYVEPTPIGTTWGLGGTCVNVGCIPKKLMHQAGLLSHALEDAEHFGWSLDRSKISHNWSTMVEGVQSHIGSLNWGYKVALRDNQVTYLNAKGRLISPHEVQITDKNQKVSTITGNKIILATGERPKYPEIPGAVEYGITSDDLFSLPYFPGKTLVIGASYVALECAGFLASLGGDVTVMVRSILLRGFDQQMAEKVGDYMENHGVKFAKLCVPDEIKQLKVVDTENNKPGLLLVKGHYTDGKKFEEEFETVIFAVGREPQLSKVLCETVGVKLDKNGRVVCTDDEQTTVSNVYAIGDINAGKPQLTPVAIQAGRYLARRLFAGATELTDYSNVATTVFTPLEYGACGLSEEDAIEKYGDKDIEVYHSNFKPLEWTVAHREDNVCYMKLVCRKSDNMRVLGLHVLGPNAGEITQGYAVAIKMGATKADFDRTIGIHPTCSETFTTLHVTKKSGVSPIV"
+                }
+            ]
+        },
+        {
+            "id": 50,
+            "title": "VIM2",
+            "project_id": [
+                2
+            ],
+            "default_squonk_project": null,
+            "template_protein": "/media/pdbs/VIM2-MB-105_1_apo_SBlf6ub.pdb",
+            "metadata": null,
+            "zip_archive": "https://fragalysis.diamond.ac.uk/media/targets/VIM2.zip",
+            "upload_status": null,
+            "sequences": [
+                {
+                    "chain": "A",
+                    "sequence": "YPTVSEIPVGEVRLYQIADGVWSHIATQSFDGAVYPSNGLIVRDGDELLLIDTAWGAKNTAALLAEIEKQIGLPVTRAVSTHFHDDRVGGVDVLRAAGVATYASPSTRRLAEVEGNEIPTHSLEGLSSSGDAVRFGPVELFYPGAAHSTDNLVVYVPSASVLYGGCAIYELSRTSAGNVADADLAEWPTSIERIQQHYPEAQFVIPGHGLPGGLDLLKHTTNVVKAHTNRS"
+                }
+            ]
+        },
+        {
+            "id": 17,
+            "title": "OXA10OTA",
+            "project_id": [
+                2
+            ],
+            "default_squonk_project": null,
+            "template_protein": "/media/pdbs/OXA10OTA-x0038_1_apo_b0APxOF.pdb",
+            "metadata": null,
+            "zip_archive": "https://fragalysis.diamond.ac.uk/media/targets/OXA10OTA.zip",
+            "upload_status": null,
+            "sequences": [
+                {
+                    "chain": "A",
+                    "sequence": "GSITENTSWNKEFSAEAVNGVFVLCKSSSKSCATNDLARASKEYLPASTFKIPNAIIGLETGVIKNEHQVFKWDGKPRAMKQWERDLTLRGAIQVSAVPVFQQIAREVGEVRMQKYLKKFSYGNQNISGGIDKFWLEGQLRISAVNQVEFLESLYLNKLSASKENQLIVKEALVTEAAPEYLVHSKTGFSGVGTESNPGVAWWVGWVEKETEVYFFAFNMDIDNESKLPLRKSIPTKIMESEGII"
+                }
+            ]
+        },
+        {
+            "id": 74,
+            "title": "Nprot",
+            "project_id": [
+                31,
+                32
+            ],
+            "default_squonk_project": null,
+            "template_protein": "/media/pdbs/Nprot-x0616_0A_apo.pdb",
+            "metadata": "https://fragalysis.diamond.ac.uk/media/metadata/metadata_x0jksDv.csv",
+            "zip_archive": "https://fragalysis.diamond.ac.uk/media/targets/Nprot.zip",
+            "upload_status": null,
+            "sequences": [
+                {
+                    "chain": "A",
+                    "sequence": "SAAEASKKPRQKRTATKAYNVTQAFGRRGPEQTQGNFGDQELIRQGTDYKHWPQIAQFAPSASAFFGMSRIGMEVTPSGTWLTYTGAIKLDDKDPNFKDQVILLNKHIDAYKTFP"
+                }
+            ]
+        },
+        {
+            "id": 28,
+            "title": "ACVR1A",
+            "project_id": [
+                2
+            ],
+            "default_squonk_project": null,
+            "template_protein": "/media/pdbs/x1344_0B.pdb",
+            "metadata": "https://fragalysis.diamond.ac.uk/media/metadata/metadata_N8VXsqR.csv",
+            "zip_archive": "https://fragalysis.diamond.ac.uk/media/targets/ACVR1A.zip",
+            "upload_status": null,
+            "sequences": [
+                {
+                    "chain": "A",
+                    "sequence": ""
+                }
+            ]
+        },
+        {
+            "id": 18,
+            "title": "PARP14A",
+            "project_id": [
+                2
+            ],
+            "default_squonk_project": null,
+            "template_protein": "/media/pdbs/PARP14A-x0202_1_apo_lxT66gw.pdb",
+            "metadata": null,
+            "zip_archive": "https://fragalysis.diamond.ac.uk/media/targets/PARP14A.zip",
+            "upload_status": null,
+            "sequences": [
+                {
+                    "chain": "A",
+                    "sequence": "FYGTVSSPDSGVYEMKIGSIIFQVASGDITKEEADVIVNSTSNSFNLKAGVSKAILECAGQNVERECSQQAQQRKNDYIITGGGFLRCKNIIHVIGGNDVKSSVSSVLQECEKKNYSSICLPAIGTGNAKQHPDKVAEAIIDAIEDFVQKGSAQSVKKVKVVIFLPQVLDVFYANMKKREG"
+                }
+            ]
+        },
+        {
+            "id": 41,
+            "title": "NUDT7A_CRUDE",
+            "project_id": [
+                2
+            ],
+            "default_squonk_project": null,
+            "template_protein": "/media/pdbs/NUDT7A_Crude-x0005_1_apo_by2s3Tn.pdb",
+            "metadata": null,
+            "zip_archive": "https://fragalysis.diamond.ac.uk/media/targets/NUDT7A_CRUDE.zip",
+            "upload_status": null,
+            "sequences": [
+                {
+                    "chain": "A",
+                    "sequence": "MLDDAKARLRKYDIGGKYSHLPYNKYSVLLPLVAKEGKLHLLFTVRSEKLRRAPGEVCFPGGKRDPTDMDDAATALREAQEEVGLRPHQVEVVCCLVPCLIDTDTLITPFVGLIDHNFQAQPNPAEVKDVFLVPLAYFLHPQVHDQXXXXXXXXXXXNHIFEYTNPEDGVTYQIKGMTANLAVLVAFIILEKKPT"
+                }
+            ]
+        },
+        {
+            "id": 51,
+            "title": "XX02KALRNA",
+            "project_id": [
+                2
+            ],
+            "default_squonk_project": null,
+            "template_protein": "/media/pdbs/XX02KALRNA-x1376_1_apo_9VSCvR8.pdb",
+            "metadata": null,
+            "zip_archive": "https://fragalysis.diamond.ac.uk/media/targets/XX02KALRNA.zip",
+            "upload_status": null,
+            "sequences": [
+                {
+                    "chain": "A",
+                    "sequence": "MQAIKCVVVGDGAVGKTCLLISYTTNAFPGEYIPTVFDNYSANVMVDGKPVNLGLWDTAGQEDYDRLRPLSYPQTDVFLICFSLVSPASFENVRAKWYPEVRHHCPNTPIILVGTKLDLRDDKDTIEKLKEKKLTPITYPQGLAMAKEIGAVKYLECSALTQRGLKTVFDEAIRAVL"
+                }
+            ]
+        },
+        {
+            "id": 30,
+            "title": "CAMK1DA",
+            "project_id": [
+                2
+            ],
+            "default_squonk_project": null,
+            "template_protein": "/media/pdbs/CAMK1DA-x0049_1_apo_Xd3Xer3.pdb",
+            "metadata": null,
+            "zip_archive": "https://fragalysis.diamond.ac.uk/media/targets/CAMK1DA.zip",
+            "upload_status": null,
+            "sequences": [
+                {
+                    "chain": "A",
+                    "sequence": "KKQAEDIKKIFEFKETLGTGAXXEVVLAEEKATGKLFAVKCIPKKALXXXESSIENEIAVLRKIKHENIVALEDIYESPNHLYLVMQLVSGGELFDRIVEKGFYTEKDASTLIRQVLDAVYYLHRMGIVHRDLKPENLLYYSQDEESKIMISDFGXXXXXXXXXXXXXXXXXXGYVAPEVLAQKPYSKAVDCWSIGVIAYILLCGYPPFYXXXXXKLFEQILKAEYEFDSPYWDDISDSAKDFIRNLMEKDPNKRYTCEQAARHPWIAGDTALNKNIHESVSAQIRKNFA"
+                }
+            ]
+        },
+        {
+            "id": 4,
+            "title": "ATAD",
+            "project_id": [
+                2
+            ],
+            "default_squonk_project": null,
+            "template_protein": "/media/pdbs/ATAD2A-x1712_1_apo_QcCBCZx.pdb",
+            "metadata": null,
+            "zip_archive": "https://fragalysis.diamond.ac.uk/media/targets/ATAD.zip",
+            "upload_status": null,
+            "sequences": [
+                {
+                    "chain": "A",
+                    "sequence": "MQEEDTFRELRIFLRNVTHRLAIDKRFRVFTKPVDPDEVPDYRTVIKEPMDLSSVISKIDLHKYLTVKDYLRDIDLICSNALEYNPDRDPGDRLIRHRACALRDTAYAIIKEELDEDFEQLCEEIQESR"
+                }
+            ]
+        },
+        {
+            "id": 7,
+            "title": "DCP2B",
+            "project_id": [
+                2
+            ],
+            "default_squonk_project": null,
+            "template_protein": "/media/pdbs/DCP2B-x0020_1_apo_5td9srg.pdb",
+            "metadata": null,
+            "zip_archive": "https://fragalysis.diamond.ac.uk/media/targets/DCP2B.zip",
+            "upload_status": null,
+            "sequences": [
+                {
+                    "chain": "A",
+                    "sequence": "VPTYGAIILDETLENVLLVQGYLAKSGWGFPKGKVNKEEAPHDCAAREVFEETGFDIKDYICKDDYIELRINDQLARLYIIPGIPKDTKFNPKTRREIRNIEWFSIEKLPCHRNDMTPKSKLGLAPNKFFMAIPFIRPLRDWLSRRFG"
+                }
+            ]
+        },
+        {
+            "id": 5,
+            "title": "BRD1A",
+            "project_id": [
+                2
+            ],
+            "default_squonk_project": null,
+            "template_protein": "/media/pdbs/BRD1A-x0900_1_apo_X36iTCu.pdb",
+            "metadata": null,
+            "zip_archive": "https://fragalysis.diamond.ac.uk/media/targets/BRD1A.zip",
+            "upload_status": null,
+            "sequences": [
+                {
+                    "chain": "A",
+                    "sequence": "MEQVAMELRLTELTRLLRSVLDQLQDKDPARIFAQPVSLKEVPDYLDHIKHPMDFATMRKRLEAQGYKNLHEFEEDFDLIIDNCMKYNARDTVFYRAAVRLRDQGGVVLRQARREVDSIG"
+                }
+            ]
+        },
+        {
+            "id": 79,
+            "title": "SOS3ATA",
+            "project_id": [
+                2
+            ],
+            "default_squonk_project": null,
+            "template_protein": "/media/pdbs/SOS3ATA-x1131_0A_apo_qmxlTzH.pdb",
+            "metadata": "https://fragalysis.diamond.ac.uk/media/metadata/metadata_cWLOzfW.csv",
+            "zip_archive": "https://fragalysis.diamond.ac.uk/media/targets/SOS3ATA.zip",
+            "upload_status": "SUCCESS",
+            "sequences": [
+                {
+                    "chain": "A",
+                    "sequence": "RPPGYEDPELLASVTPFTVEEVEALYELFKKLSSSIIDDGLIHKEEFQLALFRNRTRRNLFADRIFDVFDVKRNGVIEFGEFVRSLGVFHPSAPVHEKVKFAFKLYDLRQTGFIEREELKEMVVALLHESELVLSEDMIEVMVDKAFVQADRKNDGKIDIDEWKDFVSLNPSLIKNMTLPYLKDINRTFPSF"
+                }
+            ]
+        },
+        {
+            "id": 61,
+            "title": "mArh",
+            "project_id": [
+                2
+            ],
+            "default_squonk_project": null,
+            "template_protein": "/media/pdbs/mArh-x0685_0A_apo.pdb",
+            "metadata": "https://fragalysis.diamond.ac.uk/media/metadata/metadata_7AuLXgA.csv",
+            "zip_archive": "https://fragalysis.diamond.ac.uk/media/targets/mArh.zip",
+            "upload_status": null,
+            "sequences": [
+                {
+                    "chain": "A",
+                    "sequence": "FSGYLKLTDNVYIKNADIVEEAKKVKPTVVVNAANVYLKHGGGVAGALNKATNNAMQVESDDYIATNGPLKVGGSCVLSGHNLAKHCLHVVGPNVNKGEDIQLLKSAYENFNQHEVLLAPLLSAGIFGADPIHSLRVCVDTVRTNVYLAVFDKNLYDKLVSSFL"
+                }
+            ]
+        },
+        {
+            "id": 48,
+            "title": "TBXTA",
+            "project_id": [
+                2
+            ],
+            "default_squonk_project": null,
+            "template_protein": "/media/pdbs/TBXTA-x0024_1_apo_kFHAPSk.pdb",
+            "metadata": null,
+            "zip_archive": "https://fragalysis.diamond.ac.uk/media/targets/TBXTA.zip",
+            "upload_status": null,
+            "sequences": [
+                {
+                    "chain": "A",
+                    "sequence": "LRVGLEESELWLRFKELTNEMIVTKNGRRMFPVLKVNVSGLDPNAMYSFLLDFVAADNHRWKYVNGEWVPGGKPEPQAPSCVYIHPDSPNFGAHWMKAPVSFSKVKLTNKLNGGGQIMLNSLHKYEPRIHIVRVGGPQRMITSHCFPETQFIAVTAYQNEEITALKIKYN"
+                }
+            ]
+        },
+        {
+            "id": 2,
+            "title": "NUDT7A",
+            "project_id": [
+                2
+            ],
+            "default_squonk_project": null,
+            "template_protein": "/media/pdbs/NUDT7A-x0140_1_apo_hYaNUGN.pdb",
+            "metadata": null,
+            "zip_archive": "https://fragalysis.diamond.ac.uk/media/targets/NUDT7A.zip",
+            "upload_status": null,
+            "sequences": [
+                {
+                    "chain": "A",
+                    "sequence": "MLDDAKARLRKYDIGGKYSHLPYNKYSVLLPLVAKEGKLHLLFTVRSEKLRRAPGEVCFPGGKRDPTDMDDAATALREAQEEVGLRPHQVEVVCCLVPCLIDTDTLITPFVGLIDHNFQAQPNPAEVKDVFLVPLAYFLHPQVHDQXXXXXXXXXXXNHIFEYTNPEDGVTYQIKGMTANLAVLVAFIILEKKPT"
+                }
+            ]
+        },
+        {
+            "id": 81,
+            "title": "D68EV3CPROA",
+            "project_id": [
+                2
+            ],
+            "default_squonk_project": null,
+            "template_protein": "/media/pdbs/D68EV3CPROA_apo%2367aac56ae9a24ca58937210d994fc0b9.pdb",
+            "metadata": "https://fragalysis.diamond.ac.uk/media/metadata/metadata_PUiOif6.csv",
+            "zip_archive": "https://fragalysis.diamond.ac.uk/media/targets/D68EV3CPROA.zip",
+            "upload_status": "SUCCESS",
+            "sequences": [
+                {
+                    "chain": "A",
+                    "sequence": "GPGFDFAQAIMKKNTVIARTEKGEFTMLGVYDRVAVIPTHASVGEIIYINDVETRVLDACALRDLTDTNLEITIVKLDRNQKFRDIRHFLPRCEDDYNDAVLSVHTSKFPNMYIPVGQVTNYGFLNLGGTPTHRILMYNFPTRAGQCGGVVTTTGKVIGIHVGGNGAQGFAAMLLHSYFTD"
+                }
+            ]
+        },
+        {
+            "id": 75,
+            "title": "macro-combi",
+            "project_id": [
+                2
+            ],
+            "default_squonk_project": null,
+            "template_protein": "/media/pdbs/Combi88%231e8abaf47c26416db806a9c18bede8f9.pdb",
+            "metadata": "https://fragalysis.diamond.ac.uk/media/metadata/metadata_LnpGBB8.csv",
+            "zip_archive": "https://fragalysis.diamond.ac.uk/media/targets/macro-combi.zip",
+            "upload_status": null,
+            "sequences": [
+                {
+                    "chain": "A",
+                    "sequence": "FSGYLKLTDNVYIKNADIVEEAKKVKPTVVVNAANVYLKHGGGVAGALNKATNNAMQVESDDYIATNGPLKVGGSCVLSGHNLAKHCLHVVGPNVNKGEDIQLLKSAYENFNQHEVLLAPLLSAGIFGADPIHSLRVCVDTVRTNVYLAVFDKNLYDKLVSSF"
+                }
+            ]
+        },
+        {
+            "id": 32,
+            "title": "FALZA",
+            "project_id": [
+                2
+            ],
+            "default_squonk_project": null,
+            "template_protein": "/media/pdbs/FALZA-x0079_1_apo_pDzqSU5.pdb",
+            "metadata": null,
+            "zip_archive": "https://fragalysis.diamond.ac.uk/media/targets/FALZA.zip",
+            "upload_status": null,
+            "sequences": [
+                {
+                    "chain": "A",
+                    "sequence": "DAMTVLTPLTEKDYEGLKRVLRSLQAHKMAWPFLEPVDPNDAPDYYGVIKEPMDLATMEERVQRRYYEKLTEFVADMTKIFDNCRYYNPSDSPFYQCAEVLESFFVQKLKGFKASRSH"
+                }
+            ]
+        },
+        {
+            "id": 77,
+            "title": "NSP14",
+            "project_id": [
+                2
+            ],
+            "default_squonk_project": null,
+            "template_protein": "/media/pdbs/NSP14-x1172_0D_apo.pdb",
+            "metadata": "https://fragalysis.diamond.ac.uk/media/metadata/metadata_4FbSHal.csv",
+            "zip_archive": "https://fragalysis.diamond.ac.uk/media/targets/NSP14.zip",
+            "upload_status": null,
+            "sequences": [
+                {
+                    "chain": "A",
+                    "sequence": ""
+                }
+            ]
+        },
+        {
+            "id": 72,
+            "title": "CD44MMA",
+            "project_id": [
+                2
+            ],
+            "default_squonk_project": null,
+            "template_protein": "/media/pdbs/CD44MMA-x0017_0A_apo.pdb",
+            "metadata": "https://fragalysis.diamond.ac.uk/media/metadata/metadata_toYkuCZ.csv",
+            "zip_archive": "https://fragalysis.diamond.ac.uk/media/targets/CD44MMA.zip",
+            "upload_status": null,
+            "sequences": [
+                {
+                    "chain": "A",
+                    "sequence": "QIDLNVTCRYAGVFHVEKNGRYSISRTEAADLCQAFNSTLPTMDQMKLALSKGFETCRYGFIEGNVVIPRIHPNAICAANHTGVYILVTSNTSHYDTYCFNASAPPEEDCTSVTDLPNSFDGPVTITIVNRDGTRYSKKGEYRTHQEDI"
+                }
+            ]
+        },
+        {
+            "id": 52,
+            "title": "TNCA",
+            "project_id": [
+                2
+            ],
+            "default_squonk_project": null,
+            "template_protein": "/media/pdbs/TNCA-x0062_1_apo_Vc9bxy2.pdb",
+            "metadata": null,
+            "zip_archive": "https://fragalysis.diamond.ac.uk/media/targets/TNCA.zip",
+            "upload_status": null,
+            "sequences": [
+                {
+                    "chain": "A",
+                    "sequence": "MFPKDCSQAMLNGDTTSGLYTIYLNGDKAQALEVFCDMTSDGGGWIVFLRRKNGRENFYQNWKAYAAGFGDRREEFWLGLDNLNKITAQGQYELRVDLRDHGETAFAVYDKFSVGDAKTRYKLKVEGYSGTAGDSMAYHNGRSFSTFDKXXXXXXXXCALSYKGAFWYRNCHRVNLMGRYGDNNHSQGVNWFHWKGHEHSIQFAEMKLRPSNFRNL"
+                }
+            ]
+        },
+        {
+            "id": 46,
+            "title": "smTGRNEW",
+            "project_id": [
+                2
+            ],
+            "default_squonk_project": null,
+            "template_protein": "/media/pdbs/smTGR-x20531_apo_ddCGiaP.pdb",
+            "metadata": null,
+            "zip_archive": "https://fragalysis.diamond.ac.uk/media/targets/smTGRNEW.zip",
+            "upload_status": null,
+            "sequences": [
+                {
+                    "chain": "A",
+                    "sequence": "TSQWLRKTVDSAAVILFSKTTCPYCKKVKDVLAEAKIKHATIELDQLSNGSAIQKCLASFSKIETVPQMFVRGKFIGDSQTVLKYYSNDELAGIVNESKYDYDLIVIGGGSGGLAAGKEAAKYGAKTAVLDYVEPTPIGTTWGLGGTCVNVGCIPKKLMHQAGLLSHALEDAEHFGWSLDRSKISHNWSTMVEGVQSHIGSLNWGYKVALRDNQVTYLNAKGRLISPHEVQITDKNQKVSTITGNKIILATGERPKYPEIPGAVEYGITSDDLFSLPYFPGKTLVIGASYVALECAGFLASLGGDVTVMVRSILLRGFDQQMAEKVGDYMENHGVKFAKLCVPDEIKQLKVVDTENNKPGLLLVKGHYTDGKKFEEEFETVIFAVGREPQLSKVLCETVGVKLDKNGRVVCTDDEQTTVSNVYAIGDINAGKPQLTPVAIQAGRYLARRLFAGATELTDYSNVATTVFTPLEYGACGLSEEDAIEKYGDKDIEVYHSNFKPLEWTVAHREDNVCYMKLVCRKSDNMRVLGLHVLGPNAGEITQGYAVAIKMGATKADFDRTIGIHPTCSETFTTLHVTKKSGVSPIV"
+                }
+            ]
+        },
+        {
+            "id": 20,
+            "title": "PTP1B",
+            "project_id": [
+                2
+            ],
+            "default_squonk_project": null,
+            "template_protein": "/media/pdbs/PTP1B-y0049_apo_N9naW4T.pdb",
+            "metadata": null,
+            "zip_archive": "https://fragalysis.diamond.ac.uk/media/targets/PTP1B.zip",
+            "upload_status": null,
+            "sequences": [
+                {
+                    "chain": "A",
+                    "sequence": "MEMEKEFEQIDKSGSWAAIYQDIRHEASDFPSRVAKLPKNKNRNRYRDVSPFDHSRIKLHQEDNDYINASLIKMEEAQRSYILTQGPLPNTVGHFWEMVWEQKSRGVVMLNRVMEKGSLKCAQYWPQKEEKEMIFEDTNLKLTLISEDIKSYYTVRQLELENLTTQETREILHFHYTTWPDFGVPESPASFLNFLFKVRESGSLSPEHGPVVVHCSAGIGRSGTFCLADTCLLLMDKRKDPSSVDIKKVLLEMRKFRMGLIQTADQLRFSYLAVIEGAKFI"
+                }
+            ]
+        },
+        {
+            "id": 15,
+            "title": "NUDT4A",
+            "project_id": [
+                2
+            ],
+            "default_squonk_project": null,
+            "template_protein": "/media/pdbs/NUDT4A-x0159_1_apo_MptlW5D.pdb",
+            "metadata": null,
+            "zip_archive": "https://fragalysis.diamond.ac.uk/media/targets/NUDT4A.zip",
+            "upload_status": null,
+            "sequences": [
+                {
+                    "chain": "A",
+                    "sequence": "RTYDREGFKKRAACLCFRSEQEDEVLLVSSSRYPDQWIVPGGGMEPEEEPGGAAVREVYEEAGVKGKLGRLLGIFENQDRKHRTYVYVLTVTEILEDWXXXXXXXXKREWFKVEDAIKVLQCHKPVHAEYLEKLKLG"
+                }
+            ]
+        },
+        {
+            "id": 68,
+            "title": "Mpro",
+            "project_id": [
+                2
+            ],
+            "default_squonk_project": null,
+            "template_protein": "/media/pdbs/Mpro-x12171_0A_apo.pdb",
+            "metadata": "https://fragalysis.diamond.ac.uk/media/metadata/metadata_iEWD64x.csv",
+            "zip_archive": "https://fragalysis.diamond.ac.uk/media/targets/Mpro.zip",
+            "upload_status": null,
+            "sequences": [
+                {
+                    "chain": "A",
+                    "sequence": "SGFRKMAFPSGKVEGCMVQVTCGTTTLNGLWLDDVVYCPRHVICTSEDMLNPNYEDLLIRKSNHNFLVQAGNVQLRVIGHSMQNCVLKLKVDTANPKTPKYKFVRIQPGQTFSVLACYNGSPSGVYQCAMRPNFTIKGSFLNGSCGSVGFNIDYDCVSFCYMHHMELPTGVHAGTDLEGNFYGPFVDRQTAQAAGTDTTITVNVLAWLYAAVINGDRWFLNRFTTTLNDFNLVAMKYNYEPLTQDHVDILGPLSAQTGIAVLDMCASLKELLQNGMNGRTILGSALLEDEFTPFDVVRQCSGVT"
+                }
+            ]
+        },
+        {
+            "id": 78,
+            "title": "MID2A",
+            "project_id": [
+                2
+            ],
+            "default_squonk_project": null,
+            "template_protein": "/media/pdbs/MID2A-x0041_0B_apo_shjr9wY.pdb",
+            "metadata": "https://fragalysis.diamond.ac.uk/media/metadata/metadata_e9G010l.csv",
+            "zip_archive": "https://fragalysis.diamond.ac.uk/media/targets/MID2A.zip",
+            "upload_status": null,
+            "sequences": [
+                {
+                    "chain": "A",
+                    "sequence": "MNSQPFKLDPKMTHKKLKISNDGLQMEKDXXXXXXXXXXXXXXXXXCYGAAGNIFIDSGCHYWEVVMGSSTWYAIGIAYKSAPKNEWIGKNASSWVFSRCNSNFVVRHNNKEMLVDVPPHLKRLGVLLDYDNNMLSFYDPANSLHLHTFDVTFILPVCPTFTIWNKSLMILSGLPAPDFI"
+                }
+            ]
+        },
+        {
+            "id": 70,
+            "title": "MUREECOLI",
+            "project_id": [
+                2
+            ],
+            "default_squonk_project": null,
+            "template_protein": "/media/pdbs/MUREECOLI-7B61_0B_apo_QRs2Wwd.pdb",
+            "metadata": "https://fragalysis.diamond.ac.uk/media/metadata/metadata_GdyxtUF.csv",
+            "zip_archive": "https://fragalysis.diamond.ac.uk/media/targets/MUREECOLI.zip",
+            "upload_status": null,
+            "sequences": [
+                {
+                    "chain": "A",
+                    "sequence": ""
+                }
+            ]
+        },
+        {
+            "id": 38,
+            "title": "NUDT21A",
+            "project_id": [
+                2
+            ],
+            "default_squonk_project": null,
+            "template_protein": "/media/pdbs/NUDT21A-x0159_1_apo_VSKfMPI.pdb",
+            "metadata": null,
+            "zip_archive": "https://fragalysis.diamond.ac.uk/media/targets/NUDT21A.zip",
+            "upload_status": null,
+            "sequences": [
+                {
+                    "chain": "A",
+                    "sequence": "MLERTINLYPLTNYTFGTKEPLYEKDSSVAARFQRMREEFDKIGMRRTVEGVLIVHEHRLPHVLLLQLGTTFFKLPGGELNPGEDEVEGLKRLMTEILGRQDGVLDNWVIDDCIGNWWRPNFEPPQYPYIPAHITKPKEHKKLFLVQLQEKALFAVPKNYKLVAAPLFELYDNAPGYGPIISSLPQLLSRFNFIYN"
+                }
+            ]
+        },
+        {
+            "id": 67,
+            "title": "Mac1",
+            "project_id": [
+                2
+            ],
+            "default_squonk_project": null,
+            "template_protein": "/media/pdbs/Mac1-J1042_0A_apo_iFo4f34.pdb",
+            "metadata": "https://fragalysis.diamond.ac.uk/media/metadata/metadata_l7fs8GS.csv",
+            "zip_archive": "https://fragalysis.diamond.ac.uk/media/targets/Mac1.zip",
+            "upload_status": null,
+            "sequences": [
+                {
+                    "chain": "A",
+                    "sequence": "FSGYLKLTDNVYIKNADIVEEAKKVKPTVVVNAANVYLKHGGGVAGALNKATNNAMQVESDDYIATNGPLKVGGSCVLSGHNLAKHCLHVVGPNVNKGEDIQLLKSAYENFNQHEVLLAPLLSAGIFGADPIHSLRVCVDTVRTNVYLAVFDKNLYDKLVSSFL"
+                }
+            ]
+        },
+        {
+            "id": 31,
+            "title": "DCLRE1AA",
+            "project_id": [
+                2
+            ],
+            "default_squonk_project": null,
+            "template_protein": "/media/pdbs/DCLRE1AA-x0128_1_apo_SgxAg9F.pdb",
+            "metadata": null,
+            "zip_archive": "https://fragalysis.diamond.ac.uk/media/targets/DCLRE1AA.zip",
+            "upload_status": null,
+            "sequences": [
+                {
+                    "chain": "A",
+                    "sequence": "CPFYKKIPGTGFTVDAFQYGVVEGCTAYFLTHFHSDHYAGLSKHFTFPVYCSEITGNLLKNKLHVQEQYIHPLPLDTECIVNGVKVVLLDANHCPGAVMILFYLPNGTVILHTGDFRADPSMERSLLADQKVHMLYLDTTYCSPEYTFPSQQEVIRFAINTAFEAVTLNPHALVVCGTYSIGKEKVFLAIADVLGSKVGMSQEKYKTLQCLNIPEINSLITTDMCSSLVHLLPMMQINFKGLQSHLKKCGGKYNQILAFRPTGWTHSNKFTRIADVIPQTKGNISIYGIPYSEHSSYLEMKRFVQWLKPQKIIPTVNVGTWKSRSTMEKYFREWKLEAGY"
+                }
+            ]
+        },
+        {
+            "id": 82,
+            "title": "XX01ZVNS2B",
+            "project_id": [
+                2
+            ],
+            "default_squonk_project": null,
+            "template_protein": "/media/pdbs/XX01ZVNS2B-x0945_0B_apo.pdb",
+            "metadata": "https://fragalysis.diamond.ac.uk/media/metadata/metadata_vB4bHbx.csv",
+            "zip_archive": "https://fragalysis.diamond.ac.uk/media/targets/XX01ZVNS2B.zip",
+            "upload_status": "SUCCESS",
+            "sequences": [
+                {
+                    "chain": "A",
+                    "sequence": "MYIERAGDITWEKDAEVTGNSPRLDVALDESGDFSLVE"
+                }
+            ]
+        },
+        {
+            "id": 65,
+            "title": "INPP5DA",
+            "project_id": [
+                2
+            ],
+            "default_squonk_project": null,
+            "template_protein": "/media/pdbs/INPP5DA-x0058_2_apo.pdb",
+            "metadata": "https://fragalysis.diamond.ac.uk/media/metadata/metadata_MR1dz1c.csv",
+            "zip_archive": "https://fragalysis.diamond.ac.uk/media/targets/INPP5DA.zip",
+            "upload_status": null,
+            "sequences": [
+                {
+                    "chain": "A",
+                    "sequence": "PEPDMITIFIGTWNMGNAPPPKKITSWFLSKGQGKTRDDSADYIPHDIYVIGTQEDPLSEKEWLEILKHSLQEITSVTFKTVAIHTLWNIRIVVLAKPEHENRISHICTDNVKTGIANTLGNKGAVGVSFMFNGTSLGFVNSHLTSGSEKKLRRNQNYMNILRFLALGDKKLSPFNITHRFTHLFWFGDLNYRVDLPTWEAETIIQKIKQQQYADLLSHDQLLTERREQKVFLHFEEEEITFAPTYRFERLTRDKYAYTKQKATGMKYNLPSWCDRVLWKSYPLVHVVCQSYGSTSDIMTSDHSPVFATFEAGVTSQFVSKNGPGTVDSQGQIEFLRCYATLKTKSQTKFYLEFHSSCLESFVKSQEGENEEGSEGELVVKFGETLPKLKPIISDPEYLLDQHILISIKSSDSDESYGEGCIALRLEATETQLPIYTPLTHHGELTGHFQGEIKLQTSQ"
+                }
+            ]
+        },
+        {
+            "id": 40,
+            "title": "NUDT5A",
+            "project_id": [
+                2
+            ],
+            "default_squonk_project": null,
+            "template_protein": "/media/pdbs/NUDT5A-x0114_1_apo_lZ7GhcD.pdb",
+            "metadata": null,
+            "zip_archive": "https://fragalysis.diamond.ac.uk/media/targets/NUDT5A.zip",
+            "upload_status": null,
+            "sequences": [
+                {
+                    "chain": "A",
+                    "sequence": "QYIISEELISEGKWVKLEKTTYMDPTGKTRTWESVKRTTRKEQTADGVAVIPVLQRTLHYECIVLVKQFRPPMGGYCIEFPAGLIDDGETPEAAALRELEEETGYKGDIAECSPAVCMDPGLSNCTIHIVTVTINGDDAENARPKPKPGDGEFVEVISLPKNDLLQRLDALVAEEHLTVDARVYSYALALKHA"
+                },
+                {
+                    "chain": "B",
+                    "sequence": "QYIISEELISEGKWVKLEKTTYMDPTGKTRTWESVKRTTRKXXTADGVAVIPVLQRTLHYECIVLVKQFRPPMGGYCIEFPAGLIDDGETPEAAALRELEEETGYKGDIAECSPAVCMDPGLSNCTIHIVTVTINGDDAENARPKPKPGDGEFVEVISLPKNDLLQRLDALVAEEHLTVDARVYSYALALKHAN"
+                },
+                {
+                    "chain": "C",
+                    "sequence": "YIISEELISEGKWVKLEKTTYMDPTGKTRTWESVKRTTRKXXTADGVAVIPVLQRTLHYECIVLVKQFRPPMGGYCIEFPAGLIDDGETPEAAALRELEEETGYKGDIAECSPAVCMDPGLSNCTIHIVTVTINGDDAENARPKPKPGDGEFVEVISLPKNDLLQRLDALVAEEHLTVDARVYSYALALKHA"
+                }
+            ]
+        },
+        {
+            "id": 19,
+            "title": "PHIPA",
+            "project_id": [
+                2
+            ],
+            "default_squonk_project": null,
+            "template_protein": "/media/pdbs/F710-Su-366_bound_zQNtUAa.pdb",
+            "metadata": "https://fragalysis.diamond.ac.uk/media/metadata/metadata_CpKV9Zd.csv",
+            "zip_archive": "https://fragalysis.diamond.ac.uk/media/targets/PHIPA.zip",
+            "upload_status": null,
+            "sequences": [
+                {
+                    "chain": "A",
+                    "sequence": ""
+                }
+            ]
+        }
+    ]
+}

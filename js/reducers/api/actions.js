@@ -14,6 +14,13 @@ export const setTargetIdList = function(input_json) {
   };
 };
 
+export const setLegacyTargetIdList = input_json => {
+  return {
+    type: constants.SET_LEGACY_TARGET_ID_LIST,
+    legacy_target_id_list: input_json
+  };
+};
+
 export const setDuckYankData = function(input_json) {
   return {
     type: constants.SET_DUCK_YANK_DATA,
