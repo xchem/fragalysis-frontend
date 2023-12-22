@@ -250,6 +250,7 @@ export const DownloadStructureDialog = memo(({}) => {
   };
 
   const prepareDownloadClicked = () => async (dispatch, getState) => {
+    const options = { link: { linkAction: downloadStructuresZip, linkText: 'Click to Download', linkParams: [] } };
     if (selectedDownload !== newDownload) {
       const donwloadTag = findDownload(selectedDownload);
       if (donwloadTag) {
@@ -274,9 +275,11 @@ export const DownloadStructureDialog = memo(({}) => {
             if (resp) {
               const fileSizeInBytes = resp.headers['content-length'];
               setFileSize(getFileSizeString(fileSizeInBytes));
-              setDownloadTagUrl(generateUrlFromTagName(donwloadTag.tag));
+              const url = generateUrlFromTagName(donwloadTag.tag);
+              options.link.linkParams = [url];
+              setDownloadTagUrl(url);
               setZipPreparing(false);
-              toastSuccess('Download is ready!');
+              toastSuccess('Download is ready!', options);
             }
           });
       }
@@ -315,6 +318,7 @@ export const DownloadStructureDialog = memo(({}) => {
             } else {
               //everything is fine and we got the URL
               setDownloadUrl(resp.data.file_url);
+              options.link.linkParams = [resp.data.file_url];
               if (isStaticDownload()) {
                 tagData.requestObject.file_url = resp.data.file_url;
               }
@@ -324,7 +328,9 @@ export const DownloadStructureDialog = memo(({}) => {
           .then(resp => {
             if (resp && !inProgress) {
               const fileSizeInBytes = resp.headers['content-length'];
-              setFileSize(getFileSizeString(fileSizeInBytes));
+              const fileSizeString = getFileSizeString(fileSizeInBytes);
+              options.link.linkText = `Click to Download - ${fileSizeString}`;
+              setFileSize(fileSizeString);
             }
           })
           .then(resp => {
@@ -337,8 +343,9 @@ export const DownloadStructureDialog = memo(({}) => {
           .then(molTag => {
             if (molTag && !inProgress) {
               dispatch(appendToDownloadTags(molTag));
-              setDownloadTagUrl(generateUrl(molTag));
-              toastSuccess('Download is ready!');
+              const url = generateUrl(molTag);
+              setDownloadTagUrl(url);
+              toastSuccess('Download is ready!', options);
             }
             setZipPreparing(false);
           })
