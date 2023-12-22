@@ -287,7 +287,7 @@ export const DownloadStructureDialog = memo(({}) => {
       let inProgress = false;
 
       // for testing purposes - preparation is way to fast
-      await new Promise(r => setTimeout(r, 120000));
+      // await new Promise(r => setTimeout(r, 120000));
 
       const requestObject = prepareRequestObject();
       if (requestObject) {
