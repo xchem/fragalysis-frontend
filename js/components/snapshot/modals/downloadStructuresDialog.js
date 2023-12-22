@@ -38,6 +38,7 @@ import moment from 'moment-timezone';
 import { appendToDownloadTags } from '../../../reducers/api/actions';
 import { getTagByName } from '../../preview/tags/api/tagsApi';
 import { withStyles } from '@material-ui/core/styles';
+import { ToastContext } from '../../toast';
 
 const useStyles = makeStyles(theme => ({
   root: {
@@ -170,6 +171,8 @@ export const DownloadStructureDialog = memo(({}) => {
   const [error, setError] = useState(false);
   const [alreadyInProgress, setAlreadyInProgress] = useState(false);
 
+  const { toastSuccess, toastError, toastInfo } = useContext(ToastContext);
+
   useEffect(() => {
     if (currentSnapshot && currentSnapshot.data && currentSnapshot.data !== '[]') {
       const dataObj = JSON.parse(currentSnapshot.data);
@@ -246,7 +249,7 @@ export const DownloadStructureDialog = memo(({}) => {
     return requestObject;
   };
 
-  const prepareDownloadClicked = () => (dispatch, getState) => {
+  const prepareDownloadClicked = () => async (dispatch, getState) => {
     if (selectedDownload !== newDownload) {
       const donwloadTag = findDownload(selectedDownload);
       if (donwloadTag) {
@@ -258,10 +261,12 @@ export const DownloadStructureDialog = memo(({}) => {
             if (resp.status === 208) {
               //same download is already preparing for someone else
               setAlreadyInProgress(true);
+              toastInfo('Same download is already preparing for someone else. Try again in a minute.');
               return null;
             } else {
               //everything is fine and we got the URL
               setDownloadUrl(resp.data.file_url);
+
               return getDownloadFileSize(resp.data.file_url);
             }
           })
@@ -271,6 +276,7 @@ export const DownloadStructureDialog = memo(({}) => {
               setFileSize(getFileSizeString(fileSizeInBytes));
               setDownloadTagUrl(generateUrlFromTagName(donwloadTag.tag));
               setZipPreparing(false);
+              toastSuccess('Download is ready!');
             }
           });
       }
@@ -279,6 +285,9 @@ export const DownloadStructureDialog = memo(({}) => {
       setZipPreparing(true);
       setAlreadyInProgress(false);
       let inProgress = false;
+
+      // for testing purposes - preparation is way to fast
+      // await new Promise(r => setTimeout(r, 120000));
 
       const requestObject = prepareRequestObject();
       if (requestObject) {
@@ -300,6 +309,7 @@ export const DownloadStructureDialog = memo(({}) => {
             if (resp.status === 208) {
               //same download is already preparing for someone else
               setAlreadyInProgress(true);
+              toastInfo('Same download is already preparing for someone else. Try again in a minute.');
               inProgress = true;
               return null;
             } else {
@@ -330,11 +340,13 @@ export const DownloadStructureDialog = memo(({}) => {
               setDownloadTagUrl(generateUrl(molTag));
             }
             setZipPreparing(false);
+            toastSuccess('Download is ready!');
           })
           .catch(e => {
             setZipPreparing(false);
             setError(true);
             console.log(e);
+            toastError('Download failed!!!');
           });
       } else {
         setZipPreparing(false);
