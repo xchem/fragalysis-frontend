@@ -341,6 +341,7 @@ export const DownloadStructureDialog = memo(({}) => {
               toastSuccess('Download is ready!');
             }
             setZipPreparing(false);
+            toastSuccess('Download is ready!');
           })
           .catch(e => {
             setZipPreparing(false);
