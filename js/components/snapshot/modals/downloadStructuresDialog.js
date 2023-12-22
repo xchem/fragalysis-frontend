@@ -287,7 +287,7 @@ export const DownloadStructureDialog = memo(({}) => {
       let inProgress = false;
 
       // for testing purposes - preparation is way to fast
-      // await new Promise(r => setTimeout(r, 120000));
+      await new Promise(r => setTimeout(r, 120000));
 
       const requestObject = prepareRequestObject();
       if (requestObject) {
@@ -485,7 +485,7 @@ export const DownloadStructureDialog = memo(({}) => {
             </Box>
             {!error && (
               <DialogTitle id="form-dialog-structures-title" disableTypography>
-                <Typography variant="h5">{'Preparing download...'}</Typography>
+                <Typography variant="h5">{'Preparing download... You can safely close this dialog'}</Typography>
               </DialogTitle>
             )}
           </>
