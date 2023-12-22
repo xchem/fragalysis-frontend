@@ -287,7 +287,7 @@ export const DownloadStructureDialog = memo(({}) => {
       let inProgress = false;
 
       // for testing purposes - preparation is way to fast
-      await new Promise(r => setTimeout(r, 120000));
+      // await new Promise(r => setTimeout(r, 120000));
 
       const requestObject = prepareRequestObject();
       if (requestObject) {
@@ -338,6 +338,7 @@ export const DownloadStructureDialog = memo(({}) => {
             if (molTag && !inProgress) {
               dispatch(appendToDownloadTags(molTag));
               setDownloadTagUrl(generateUrl(molTag));
+              toastSuccess('Download is ready!');
             }
             setZipPreparing(false);
             toastSuccess('Download is ready!');
