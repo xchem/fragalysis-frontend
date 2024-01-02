@@ -428,9 +428,14 @@ const DatasetMoleculeList = ({ title, datasetID, url }) => {
   );
 
   const ligandList = useSelector(state => state.datasetsReducers.ligandLists[datasetID]);
-  const proteinList = useSelector(state => state.datasetsReducers.proteinLists[datasetID]);
-  const complexList = useSelector(state => state.datasetsReducers.complexLists[datasetID]);
-  const surfaceList = useSelector(state => state.datasetsReducers.surfaceLists[datasetID]);
+  // const proteinList = useSelector(state => state.datasetsReducers.proteinLists[datasetID]);
+  // const complexList = useSelector(state => state.datasetsReducers.complexLists[datasetID]);
+  // const surfaceList = useSelector(state => state.datasetsReducers.surfaceLists[datasetID]);
+  // #1249 dataset molecules currently could use side observation molecule for some renders
+  const proteinList = useSelector(state => state.selectionReducers.proteinList);
+  const complexList = useSelector(state => state.selectionReducers.complexList);
+  const surfaceList = useSelector(state => state.selectionReducers.surfaceList);
+  const allMoleculesList = useSelector(state => state.apiReducers.all_mol_lists);
 
   // const [selectedMolecules, setSelectedMolecules] = useState([]);
 
@@ -1308,6 +1313,15 @@ const DatasetMoleculeList = ({ title, datasetID, url }) => {
                         }
                         // }
 
+                        // #1249 dataset molecules currently could use side observation molecule for some renders
+                        let idToFind = data.id;
+                        if (data.site_observation_code) {
+                          const molecule = allMoleculesList.find(mol => mol.code === data.site_observation_code);
+                          if (molecule) {
+                            idToFind = molecule.id;
+                          }
+                        }
+
                         return (
                           <DatasetMoleculeView
                             ref={addMoleculeViewRef}
@@ -1322,9 +1336,9 @@ const DatasetMoleculeList = ({ title, datasetID, url }) => {
                             previousItemData={index > 0 && array[index - 1]}
                             nextItemData={index < array?.length && array[index + 1]}
                             L={ligandList?.includes(data.id)}
-                            P={proteinList?.includes(data.id)}
-                            C={complexList?.includes(data.id)}
-                            S={surfaceList?.includes(data.id)}
+                            P={proteinList?.includes(idToFind)}
+                            C={complexList?.includes(idToFind)}
+                            S={surfaceList?.includes(idToFind)}
                             V={false}
                             moveMolecule={moveMolecule}
                             isLocked={locked}

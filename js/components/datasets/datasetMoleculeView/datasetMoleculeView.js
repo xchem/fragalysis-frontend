@@ -63,7 +63,7 @@ import { centerOnLigandByMoleculeID } from '../../../reducers/ngl/dispatchAction
 import { ArrowDownward, ArrowUpward, MyLocation } from '@material-ui/icons';
 import { isString } from 'lodash';
 import { SvgTooltip } from '../../common';
-import { getMolImage } from '../../preview/molecule/redux/dispatchActions';
+import { addComplex, addHitProtein, addSurface, getMolImage, removeComplex, removeHitProtein, removeSurface } from '../../preview/molecule/redux/dispatchActions';
 import { MOL_TYPE } from '../../preview/molecule/redux/constants';
 import {
   deselectVectorCompound,
@@ -450,7 +450,21 @@ const DatasetMoleculeView = memo(
 
       const colourToggle = getRandomColor(data);
 
-      const isPdbAvailable = !!(data && data.pdb_info);
+      // #1249 dataset molecules currently could use side observation molecule for some renders
+      const allMolecules = useSelector(state => state.apiReducers.all_mol_lists);
+      const [pdbData, setPdbData] = useState(null);
+      const isPdbAvailable = !!(data && (data.pdb_info || pdbData));
+
+      useEffect(() => {
+        if (data.site_observation_code) {
+          const molecule = allMolecules.find(mol => mol.code === data.site_observation_code);
+          if (molecule) {
+            setPdbData(molecule);
+          }
+        } else {
+          setPdbData(data.pdb_info);
+        }
+      }, [data, allMolecules]);
 
       const [moleculeTooltipOpen, setMoleculeTooltipOpen] = useState(false);
       const moleculeImgRef = useRef(null);
@@ -522,14 +536,16 @@ const DatasetMoleculeView = memo(
       };
 
       const removeSelectedProtein = (skipTracking = false) => {
-        dispatch(removeDatasetHitProtein(stage, data, colourToggle, datasetID, skipTracking));
+        // dispatch(removeDatasetHitProtein(stage, data, colourToggle, datasetID, skipTracking));
+        dispatch(removeHitProtein(stage, pdbData, colourToggle, skipTracking));
         selectedAll.current = false;
       };
 
       const addNewProtein = (skipTracking = false) => {
         dispatch(
-          withDisabledDatasetMoleculeNglControlButton(datasetID, currentID, 'protein', async () => {
-            await dispatch(addDatasetHitProtein(stage, data, colourToggle, datasetID, skipTracking));
+          withDisabledDatasetMoleculeNglControlButton(datasetID, currentID, 'protein', () => {
+            dispatch(addHitProtein(stage, pdbData, colourToggle, true, skipTracking));
+            // await dispatch(addDatasetHitProtein(stage, data, colourToggle, datasetID, skipTracking));
           })
         );
       };
@@ -554,14 +570,16 @@ const DatasetMoleculeView = memo(
       };
 
       const removeSelectedComplex = (skipTracking = false) => {
-        dispatch(removeDatasetComplex(stage, data, colourToggle, datasetID, skipTracking));
+        // dispatch(removeDatasetComplex(stage, data, colourToggle, datasetID, skipTracking));
+        dispatch(removeComplex(stage, pdbData, colourToggle, skipTracking));
         selectedAll.current = false;
       };
 
       const addNewComplex = (skipTracking = false) => {
         dispatch(
-          withDisabledDatasetMoleculeNglControlButton(datasetID, currentID, 'complex', async () => {
-            await dispatch(addDatasetComplex(stage, data, colourToggle, datasetID, skipTracking));
+          withDisabledDatasetMoleculeNglControlButton(datasetID, currentID, 'complex', () => {
+            // await dispatch(addDatasetComplex(stage, data, colourToggle, datasetID, skipTracking));
+            dispatch(addComplex(stage, pdbData, colourToggle, skipTracking));
           })
         );
       };
@@ -586,14 +604,16 @@ const DatasetMoleculeView = memo(
       };
 
       const removeSelectedSurface = () => {
-        dispatch(removeDatasetSurface(stage, data, colourToggle, datasetID));
+        // dispatch(removeDatasetSurface(stage, data, colourToggle, datasetID));
+        dispatch(removeSurface(stage, pdbData, colourToggle));
         selectedAll.current = false;
       };
 
       const addNewSurface = async () => {
         dispatch(
-          withDisabledDatasetMoleculeNglControlButton(datasetID, currentID, 'surface', async () => {
-            await dispatch(addDatasetSurface(stage, data, colourToggle, datasetID));
+          withDisabledDatasetMoleculeNglControlButton(datasetID, currentID, 'surface', () => {
+            dispatch(addSurface(stage, pdbData, colourToggle));
+            // await dispatch(addDatasetSurface(stage, data, colourToggle, datasetID));
           })
         );
       };

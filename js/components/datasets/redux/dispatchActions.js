@@ -295,7 +295,17 @@ export const loadDatasetCompoundsWithScores = (datasetsToLoad = null) => (dispat
     datasets.map(dataset =>
       // Hint for develop purposes add param &limit=20
       api({ url: `${base_url}/api/compound-mols-scores/?computed_set=${dataset.id}` })
-        .then(response => {
+        .then(async response => {
+          // -----> add 'site_observation_code' to molecules whereas '/compound-molecules' has more molecule info so far, can be removed later
+          const compondMolecules = await api({ url: `${base_url}/api/compound-molecules/?compound_set=${dataset.id}` });
+          const compondMoleculesMap = {};
+          compondMolecules.data.results.forEach(molecule => compondMoleculesMap[molecule.name] = molecule.site_observation_code);
+          response.data.results.forEach(molecule => {
+            if (compondMoleculesMap.hasOwnProperty(molecule.name)) {
+              molecule['site_observation_code'] = compondMoleculesMap[molecule.name];
+            }
+          });
+          // <-----
           dispatch(
             addMoleculeList(
               dataset.id,
