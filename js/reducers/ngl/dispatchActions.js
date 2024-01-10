@@ -47,7 +47,8 @@ export const loadObject = ({
   orientationMatrix,
   markAsRightSideLigand,
   loadQuality,
-  quality
+  quality,
+  preserveColour = false
 }) => async (dispatch, getState) => {
   if (stage) {
     const state = getState();
@@ -65,6 +66,13 @@ export const loadObject = ({
       // get stashed object representations to be loaded next
       const stashedObjects = tempObjectsInViewStash[versionFixedTarget.name];
       previousRepresentations = stashedObjects.representations;
+    }
+
+    // override previous representations colour with original colour
+    if (preserveColour === true && previousRepresentations) {
+      previousRepresentations.forEach(representation => {
+        representation.params.colorValue = versionFixedTarget.colour;
+      });
     }
 
     console.count(`Before object is loaded`);

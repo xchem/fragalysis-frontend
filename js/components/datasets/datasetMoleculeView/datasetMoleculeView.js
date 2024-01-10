@@ -498,8 +498,8 @@ const DatasetMoleculeView = memo(
 
       const addNewLigand = (skipTracking = false) => {
         dispatch(
-          withDisabledDatasetMoleculeNglControlButton(datasetID, currentID, 'ligand', async () => {
-            await dispatch(addDatasetLigand(stage, data, colourToggle, datasetID, skipTracking));
+          withDisabledDatasetMoleculeNglControlButton(datasetID, currentID, 'ligand', () => {
+            dispatch(addDatasetLigand(stage, data, colourToggle, datasetID, skipTracking));
           })
         );
       };
@@ -544,8 +544,8 @@ const DatasetMoleculeView = memo(
       const addNewProtein = (skipTracking = false) => {
         dispatch(
           withDisabledDatasetMoleculeNglControlButton(datasetID, currentID, 'protein', () => {
-            dispatch(addHitProtein(stage, pdbData, colourToggle, true, skipTracking));
-            // await dispatch(addDatasetHitProtein(stage, data, colourToggle, datasetID, skipTracking));
+            dispatch(addHitProtein(stage, pdbData, colourToggle, true, skipTracking, undefined, true));
+            // dispatch(addDatasetHitProtein(stage, data, colourToggle, datasetID, skipTracking));
           })
         );
       };
@@ -578,8 +578,8 @@ const DatasetMoleculeView = memo(
       const addNewComplex = (skipTracking = false) => {
         dispatch(
           withDisabledDatasetMoleculeNglControlButton(datasetID, currentID, 'complex', () => {
-            // await dispatch(addDatasetComplex(stage, data, colourToggle, datasetID, skipTracking));
-            dispatch(addComplex(stage, pdbData, colourToggle, skipTracking));
+            // dispatch(addDatasetComplex(stage, data, colourToggle, datasetID, skipTracking));
+            dispatch(addComplex(stage, pdbData, colourToggle, skipTracking, undefined, true));
           })
         );
       };
@@ -612,8 +612,8 @@ const DatasetMoleculeView = memo(
       const addNewSurface = async () => {
         dispatch(
           withDisabledDatasetMoleculeNglControlButton(datasetID, currentID, 'surface', () => {
-            dispatch(addSurface(stage, pdbData, colourToggle));
-            // await dispatch(addDatasetSurface(stage, data, colourToggle, datasetID));
+            dispatch(addSurface(stage, pdbData, colourToggle, false, undefined, true));
+            // dispatch(addDatasetSurface(stage, data, colourToggle, datasetID));
           })
         );
       };
