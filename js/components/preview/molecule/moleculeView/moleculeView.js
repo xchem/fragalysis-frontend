@@ -1017,20 +1017,6 @@ const MoleculeView = memo(
                 wrap="nowrap"
                 className={classes.contButtonsMargin}
               >
-                <Tooltip title="centre on">
-                  <Grid item>
-                    <Button
-                      variant="outlined"
-                      className={classes.myLocationButton}
-                      onClick={() => {
-                        dispatch(centerOnLigandByMoleculeID(stage, data?.id));
-                      }}
-                      disabled={false || !isLigandOn}
-                    >
-                      <MyLocation className={classes.myLocation} />
-                    </Button>
-                  </Grid>
-                </Tooltip>
                 <Tooltip title="all">
                   <Grid item>
                     <Button

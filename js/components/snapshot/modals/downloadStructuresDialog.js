@@ -98,9 +98,9 @@ const SUBSET_SELECTION = [
 ];
 
 const MAP_FILES = [
-  { flag: 'event_info', text: 'PanDDA Event maps - primary evidence', defaultValue: false },
-  { flag: 'sigmaa_info', text: 'Conventional inspection maps ("2FoFc")', defaultValue: false },
-  { flag: 'diff_info', text: 'Conventional residual maps ("FoFc")', defaultValue: false },
+  { flag: 'event_file', text: 'PanDDA Event maps - primary evidence', defaultValue: false },
+  { flag: 'sigmaa_file', text: 'Conventional inspection maps ("2FoFc")', defaultValue: false },
+  { flag: 'diff_file', text: 'Conventional residual maps ("FoFc")', defaultValue: false },
   { flag: 'trans_matrix_info', text: 'Transformations applied for alignments', defaultValue: false }
 ];
 
@@ -237,8 +237,8 @@ export const DownloadStructureDialog = memo(({}) => {
         ...mapFiles,
         ...crystallographicFiles,
         ...other,
-        pdb_info: pdb,
-        bound_info: bound,
+        apo_file: pdb,
+        bound_file: bound,
         metadata_info: metadata,
         smiles_info: smiles,
         static_link: isStaticDownload(),
@@ -597,7 +597,6 @@ export const DownloadStructureDialog = memo(({}) => {
                         />
                       }
                       label={text}
-                      disabled
                     />
                   );
                 })}

@@ -688,7 +688,14 @@ export const getFirstTag = () => (dispatch, getState) => {
 export const getFirstTagAlphabetically = () => (dispatch, getState) => {
   const state = getState();
   const tagsList = state.apiReducers.tagList;
-  const sortedTags = tagsList.sort(compareTagsAsc);
+  const newTagList = tagsList.filter(t => {
+    if (t.additional_info?.downloadName) {
+      return false;
+    } else {
+      return true;
+    }
+  });
+  const sortedTags = newTagList.sort(compareTagsAsc);
   return sortedTags && sortedTags.length > 0 ? sortedTags[0] : null;
 };
 

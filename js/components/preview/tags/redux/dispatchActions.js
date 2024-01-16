@@ -195,9 +195,9 @@ export const loadMoleculesAndTagsNew = targetId => async (dispatch, getState) =>
     }
 
     const maps = {};
-    maps.diff_info = mol.xmap_fofc_file;
+    maps.diff_info = mol.diff_file;
     maps.event_info = mol.event_file;
-    maps.sigmaa_info = mol.xmap_2fofc_file;
+    maps.sigmaa_info = mol.sigmaa_file;
     newObject['proteinData'] = maps;
 
     allMolecules.push(newObject);
@@ -224,6 +224,7 @@ export const loadMoleculesAndTagsNew = targetId => async (dispatch, getState) =>
     compounds?.forEach(c => {
       const siteObs = allMolecules.find(m => m.cmpd === c.id);
       c['smiles'] = siteObs ? siteObs.smiles : '';
+      c['code'] = siteObs ? `${siteObs.code}/${siteObs.canon_site_conf}` : '';
     });
     compounds.sort((a, b) => {
       if (a.smiles < b.smiles) {

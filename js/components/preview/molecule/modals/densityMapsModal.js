@@ -1,4 +1,4 @@
-import React, { memo, useLayoutEffect, useState } from 'react';
+import React, { memo, useEffect, useLayoutEffect, useState } from 'react';
 import Modal from '../../../common/Modal';
 import { useDispatch } from 'react-redux';
 import { Grid, makeStyles, Checkbox, Typography, FormControlLabel } from '@material-ui/core';
@@ -26,6 +26,12 @@ export const DensityMapsModal = memo(({ openDialog, setOpenDialog, data, setDens
   const [valueEvent, setValueEvent] = useState(false);
   const [valueAtomQuality, setValueAtomQuality] = useState(isQualityOn);
   const proteinData = data.proteinData;
+
+  useEffect(() => {
+    proteinData.render_sigmaa = valueSigmaa;
+    proteinData.render_diff = valueDiff;
+    proteinData.render_event = valueEvent;
+  }, []);
 
   // In case quality gets turned on from elsewhere
   useLayoutEffect(() => {
