@@ -958,7 +958,10 @@ const MoleculeView = memo(
       });
     };
 
-    let moleculeTitle = data?.code.replace(new RegExp(`${target_on_name}-`, 'i'), '');
+    // let moleculeTitle = data?.code.replace(new RegExp(`${target_on_name}-`, 'i'), '');
+    // let moleculeTitle = data?.code;
+    let moleculeTitle = data?.code.replaceAll(`${target_on_name}-`, '');
+    const [isNameCopied, setNameCopied] = useClipboard(moleculeTitle, { successDuration: 5000 });
 
     const moleculeLPCControlButtonDisabled = ['ligand', 'protein', 'complex'].some(
       type => disableMoleculeNglControlButtons[type]
@@ -1003,7 +1006,15 @@ const MoleculeView = memo(
             {/* Title label */}
             <Grid item xs={7}>
               <Tooltip title={moleculeTitle} placement="bottom-start">
-                <div className={classes.moleculeTitleLabel}>{moleculeTitle}</div>
+                <div
+                  onCopy={e => {
+                    e.preventDefault();
+                    setNameCopied(moleculeTitle);
+                  }}
+                  className={classes.moleculeTitleLabel}
+                >
+                  {moleculeTitle}
+                </div>
               </Tooltip>
               {generateTagPopover()}
             </Grid>
