@@ -1320,34 +1320,34 @@ export const moveSelectedMoleculeSettings = (
   const promises = [];
   if (newItem && data) {
     if (data.isLigandOn) {
-      let representations = getRepresentationsByType(data.objectsInView, item, OBJECT_TYPE.LIGAND, datasetID);
+      let representations = getRepresentationsByType(data.objectsInView, newItem, OBJECT_TYPE.LIGAND, datasetID);
       promises.push(
         dispatch(
-          addDatasetLigand(stage, newItem, data.colourToggle, datasetIdOfMolecule, skipTracking, representations)
+          addDatasetLigand(stage, newItem, getRandomColor(newItem), datasetIdOfMolecule, skipTracking, representations)
         )
       );
     }
     if (data.isProteinOn) {
-      let representations = getRepresentationsByType(data.objectsInView, item, OBJECT_TYPE.PROTEIN, datasetID);
+      let representations = getRepresentationsByType(data.objectsInView, newItem, OBJECT_TYPE.PROTEIN, datasetID);
       promises.push(
         dispatch(
-          addDatasetHitProtein(stage, newItem, data.colourToggle, datasetIdOfMolecule, skipTracking, representations)
+          addDatasetHitProtein(stage, newItem, getRandomColor(newItem), datasetIdOfMolecule, skipTracking, representations)
         )
       );
     }
     if (data.isComplexOn) {
-      let representations = getRepresentationsByType(data.objectsInView, item, OBJECT_TYPE.COMPLEX, datasetID);
+      let representations = getRepresentationsByType(data.objectsInView, newItem, OBJECT_TYPE.COMPLEX, datasetID);
       promises.push(
         dispatch(
-          addDatasetComplex(stage, newItem, data.colourToggle, datasetIdOfMolecule, skipTracking, representations)
+          addDatasetComplex(stage, newItem, getRandomColor(newItem), datasetIdOfMolecule, skipTracking, representations)
         )
       );
     }
     if (data.isSurfaceOn) {
-      let representations = getRepresentationsByType(data.objectsInView, item, OBJECT_TYPE.SURFACE, datasetID);
+      let representations = getRepresentationsByType(data.objectsInView, newItem, OBJECT_TYPE.SURFACE, datasetID);
       promises.push(
         dispatch(
-          addDatasetSurface(stage, newItem, data.colourToggle, datasetIdOfMolecule, skipTracking, representations)
+          addDatasetSurface(stage, newItem, getRandomColor(newItem), datasetIdOfMolecule, skipTracking, representations)
         )
       );
     }

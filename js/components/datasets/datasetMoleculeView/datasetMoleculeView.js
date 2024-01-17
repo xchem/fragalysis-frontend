@@ -734,7 +734,7 @@ const DatasetMoleculeView = memo(
           }
           const moleculeTitleNext = nextItem && nextItem.name;
 
-          let dataValue = { colourToggle, isLigandOn, isProteinOn, isComplexOn, isSurfaceOn };
+          let dataValue = { isLigandOn, isProteinOn, isComplexOn, isSurfaceOn };
 
           dispatch(setCrossReferenceCompoundName(moleculeTitleNext));
           if (setRef && ref.current) {
@@ -778,7 +778,7 @@ const DatasetMoleculeView = memo(
             }
             const moleculeTitleNext = nextItem && nextItem.name;
 
-            let dataValue = { colourToggle, isLigandOn, isProteinOn, isComplexOn, isSurfaceOn };
+            let dataValue = { isLigandOn, isProteinOn, isComplexOn, isSurfaceOn };
 
             dispatch(setCrossReferenceCompoundName(moleculeTitleNext));
             if (setRef && ref.current) {
@@ -819,7 +819,7 @@ const DatasetMoleculeView = memo(
           }
           const moleculeTitlePrev = previousItem && previousDatasetID.name;
 
-          let dataValue = { colourToggle, isLigandOn, isProteinOn, isComplexOn, isSurfaceOn };
+          let dataValue = { isLigandOn, isProteinOn, isComplexOn, isSurfaceOn };
 
           dispatch(setCrossReferenceCompoundName(moleculeTitlePrev));
           if (setRef && ref.current) {
@@ -865,7 +865,7 @@ const DatasetMoleculeView = memo(
             }
             const moleculeTitlePrev = previousItem && previousItem.name;
 
-            let dataValue = { colourToggle, isLigandOn, isProteinOn, isComplexOn, isSurfaceOn };
+            let dataValue = { isLigandOn, isProteinOn, isComplexOn, isSurfaceOn };
 
             dispatch(setCrossReferenceCompoundName(moleculeTitlePrev));
             if (setRef && ref.current) {
