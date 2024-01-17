@@ -180,7 +180,14 @@ const TagDetails = memo(() => {
   }, [searchString, tagList]);
 
   useEffect(() => {
-    setTagList([...preTagList].sort(compareTagsAsc));
+    const newTagList = preTagList.filter(t => {
+      if (t.additional_info?.downloadName) {
+        return false;
+      } else {
+        return true;
+      }
+    });
+    setTagList([...newTagList].sort(compareTagsAsc));
     return () => {
       setTagList([]);
     };

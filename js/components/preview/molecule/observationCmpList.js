@@ -55,7 +55,9 @@ import {
   setFilter,
   setMolListToEdit,
   setNextXMolecules,
-  setMoleculeForTagEdit
+  setMoleculeForTagEdit,
+  setObservationsForLHSCmp,
+  setOpenObservationsDialog
 } from '../../../reducers/selection/actions';
 import { initializeFilter } from '../../../reducers/selection/dispatchActions';
 import * as listType from '../../../constants/listTypes';
@@ -302,6 +304,8 @@ export const ObservationCmpList = memo(({ hideProjects }) => {
   const tags = useSelector(state => state.apiReducers.tagList);
   const noTagsReceived = useSelector(state => state.apiReducers.noTagsReceived);
   const categories = useSelector(state => state.apiReducers.categoryList);
+
+  const observationsForLHSCmp = useSelector(state => state.selectionReducers.observationsForLHSCmp);
 
   const lhsCompoundsList = useSelector(state => getLHSCompoundsList(state));
   const visibleObservations = useSelector(state => selectJoinedMoleculeList(state));
@@ -744,6 +748,17 @@ export const ObservationCmpList = memo(({ hideProjects }) => {
 
     return compoundMolecules;
   }, [filteredLHSCompoundsList, allMoleculesList]);
+
+  useEffect(() => {
+    if (isObservationDialogOpen && observationsForLHSCmp?.length > 0) {
+      const cmpId = observationsForLHSCmp[0].cmpd;
+      const cmp = filteredLHSCompoundsList.find(c => c.id === cmpId);
+      if (!cmp) {
+        dispatch(setObservationsForLHSCmp([]));
+        dispatch(setOpenObservationsDialog(false));
+      }
+    }
+  }, [isObservationDialogOpen, filteredLHSCompoundsList, observationsForLHSCmp, dispatch]);
 
   const isLigandOn = changeButtonClassname(fragmentDisplayList, joinedLigandMatchLength);
   const isProteinOn = changeButtonClassname(proteinList, joinedProteinMatchLength);

@@ -1,4 +1,4 @@
-import React, { forwardRef, memo, useCallback, useContext, useMemo, useRef, useState } from 'react';
+import React, { forwardRef, memo, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
 import { CircularProgress, Grid, Popper, IconButton, Typography, Tooltip } from '@material-ui/core';
 import { Close } from '@material-ui/icons';
 import { makeStyles } from '@material-ui/styles';
@@ -117,6 +117,8 @@ const useStyles = makeStyles(theme => ({
 
 export const ObservationsDialog = memo(
   forwardRef(({ open = false, anchorEl }, ref) => {
+    const dispatch = useDispatch();
+
     const id = open ? 'simple-popover-compound-inspirations' : undefined;
     const imgHeight = 49;
     const imgWidth = 150;
@@ -147,8 +149,6 @@ export const ObservationsDialog = memo(
     const isTagEditorOpenObs = useSelector(state => state.selectionReducers.tagEditorOpenedObs);
 
     const tagEditorRef = useRef();
-
-    const dispatch = useDispatch();
 
     const [tagEditorAnchorEl, setTagEditorAnchorEl] = useState(null);
 
@@ -313,7 +313,7 @@ export const ObservationsDialog = memo(
         <Panel
           hasHeader
           secondaryBackground
-          title="Inspirations"
+          title="Observations"
           className={classes.paper}
           headerActions={[
             <SearchField
@@ -324,7 +324,7 @@ export const ObservationsDialog = memo(
               onChange={setSearchString}
               disabled={!(isLoadingInspirationListOfMolecules === false && moleculeList)}
             />,
-            <Tooltip title="Close inspirations">
+            <Tooltip title="Close observations">
               <IconButton
                 color="inherit"
                 className={classes.headerButton}

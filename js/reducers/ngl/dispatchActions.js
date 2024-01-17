@@ -51,6 +51,7 @@ export const loadObject = ({
 }) => async (dispatch, getState) => {
   if (stage) {
     const state = getState();
+    const actionRestoring = state.trackingReducers.isActionRestoring;
     dispatch(incrementCountOfPendingNglObjects(target.display_div));
 
     const versionFixedTarget = JSON.parse(JSON.stringify(target));
@@ -60,10 +61,10 @@ export const loadObject = ({
 
     // at first check if object was already used and has stashed state
     const tempObjectsInViewStash = state.nglReducers.objectsInViewStash || {};
-    if (tempObjectsInViewStash.hasOwnProperty(versionFixedTarget.name)) {
+    if (tempObjectsInViewStash.hasOwnProperty(versionFixedTarget.name) && actionRestoring) {
       // get stashed object representations to be loaded next
-      const stashedObject = tempObjectsInViewStash[versionFixedTarget.name];
-      previousRepresentations = stashedObject.representations;
+      const stashedObjects = tempObjectsInViewStash[versionFixedTarget.name];
+      previousRepresentations = stashedObjects.representations;
     }
 
     console.count(`Before object is loaded`);

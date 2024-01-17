@@ -75,6 +75,34 @@ const useStyles = makeStyles(theme => ({
     width: 'inherit',
     marginTop: 0
   },
+  contColButtonMenu: {
+    minWidth: '20px',
+    paddingLeft: theme.spacing(1) / 4,
+    paddingRight: theme.spacing(1) / 4,
+    paddingBottom: 0,
+    paddingTop: 0,
+    fontWeight: 'bold',
+    fontSize: 9,
+    borderRadius: 0,
+    borderColor: theme.palette.primary.main,
+    backgroundColor: 'orange',
+    '&:hover': {
+      backgroundColor: 'orange'
+      // color: theme.palette.primary.contrastText
+    },
+    '&:disabled': {
+      borderRadius: 0,
+      borderColor: 'darkorange'
+    }
+  },
+  contColButtonMenuSelected: {
+    backgroundColor: 'darkorange',
+    color: theme.palette.primary.contrastText,
+    '&:hover': {
+      backgroundColor: 'darkorange'
+      // color: theme.palette.black
+    }
+  },
   contColButton: {
     minWidth: 'fit-content',
     paddingLeft: theme.spacing(1) / 4,
@@ -1088,7 +1116,7 @@ const ObservationCmpView = memo(
       });
     };
 
-    let moleculeTitle = data.smiles;
+    let moleculeTitle = data.code;
     const moleculeTitleTruncated = moleculeTitle.substring(0, 20) + (moleculeTitle.length > 20 ? '...' : '');
 
     const moleculeLPCControlButtonDisabled = ['ligand', 'protein', 'complex'].some(
@@ -1160,7 +1188,7 @@ const ObservationCmpView = memo(
                       variant="outlined"
                       className={classes.myLocationButton}
                       onClick={() => {
-                        dispatch(centerOnLigandByMoleculeID(stage, data?.id));
+                        dispatch(centerOnLigandByMoleculeID(stage, getFirstObservation()?.id));
                       }}
                       disabled={false || !isLigandOn}
                     >
@@ -1338,12 +1366,14 @@ const ObservationCmpView = memo(
                     </Button>
                   </Grid>
                 </Tooltip>
-                <Tooltip title="observations">
+                <Tooltip
+                  title={<div style={{ whiteSpace: 'pre-line' }}>{observations?.map(o => o.code)?.join('\n')}</div>}
+                >
                   <Grid item>
                     <Button
                       variant="outlined"
-                      className={classNames(classes.contColButton, {
-                        [classes.contColButtonSelected]: isAnyObservationOn
+                      className={classNames(classes.contColButtonMenu, {
+                        [classes.contColButtonMenuSelected]: isAnyObservationOn && observations.length > 1
                       })}
                       onClick={() => {
                         // setLoadingInspiration(true);
@@ -1358,7 +1388,7 @@ const ObservationCmpView = memo(
                         }
                         // setLoadingInspiration(false);
                       }}
-                      disabled={false}
+                      disabled={observations.length < 2}
                     >
                       O
                     </Button>
