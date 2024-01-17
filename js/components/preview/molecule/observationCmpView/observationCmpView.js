@@ -1116,8 +1116,12 @@ const ObservationCmpView = memo(
       });
     };
 
-    let moleculeTitle = data.code;
+    // let moleculeTitle = data?.code.replace(new RegExp(`${target_on_name}-`, 'i'), '');
+    // let moleculeTitle = data.code;
+    let moleculeTitle = data?.code.replaceAll(`${target_on_name}-`, '');
     const moleculeTitleTruncated = moleculeTitle.substring(0, 20) + (moleculeTitle.length > 20 ? '...' : '');
+
+    const [isNameCopied, setNameCopied] = useClipboard(moleculeTitle, { successDuration: 5000 });
 
     const moleculeLPCControlButtonDisabled = ['ligand', 'protein', 'complex'].some(
       type => disableMoleculeNglControlButtons[type]
@@ -1168,7 +1172,15 @@ const ObservationCmpView = memo(
             {/* Title label */}
             <Grid item xs={7}>
               <Tooltip title={moleculeTitle} placement="bottom-start">
-                <div className={classes.moleculeTitleLabel}>{moleculeTitleTruncated}</div>
+                <div
+                  onCopy={e => {
+                    e.preventDefault();
+                    setNameCopied(moleculeTitle);
+                  }}
+                  className={classes.moleculeTitleLabel}
+                >
+                  {moleculeTitleTruncated}
+                </div>
               </Tooltip>
               {generateTagPopover()}
             </Grid>
