@@ -482,7 +482,7 @@ const ObservationCmpView = memo(
     const disableMoleculeNglControlButtons =
       useSelector(state => state.previewReducers.molecule.disableNglControlButtons[currentID]) || {};
 
-    const colourToggle = getRandomColor(data);
+    const colourToggle = getRandomColor(getFirstObservation());
 
     const getCalculatedProps = useCallback(
       () => [

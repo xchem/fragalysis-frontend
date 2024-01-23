@@ -295,7 +295,17 @@ export const loadDatasetCompoundsWithScores = (datasetsToLoad = null) => (dispat
     datasets.map(dataset =>
       // Hint for develop purposes add param &limit=20
       api({ url: `${base_url}/api/compound-mols-scores/?computed_set=${dataset.id}` })
-        .then(response => {
+        .then(async response => {
+          // -----> add 'site_observation_code' to molecules whereas '/compound-molecules' has more molecule info so far, can be removed later
+          const compondMolecules = await api({ url: `${base_url}/api/compound-molecules/?compound_set=${dataset.id}` });
+          const compondMoleculesMap = {};
+          compondMolecules.data.results.forEach(molecule => compondMoleculesMap[molecule.name] = molecule.site_observation_code);
+          response.data.results.forEach(molecule => {
+            if (compondMoleculesMap.hasOwnProperty(molecule.name)) {
+              molecule['site_observation_code'] = compondMoleculesMap[molecule.name];
+            }
+          });
+          // <-----
           dispatch(
             addMoleculeList(
               dataset.id,
@@ -1310,34 +1320,34 @@ export const moveSelectedMoleculeSettings = (
   const promises = [];
   if (newItem && data) {
     if (data.isLigandOn) {
-      let representations = getRepresentationsByType(data.objectsInView, item, OBJECT_TYPE.LIGAND, datasetID);
+      let representations = getRepresentationsByType(data.objectsInView, newItem, OBJECT_TYPE.LIGAND, datasetID);
       promises.push(
         dispatch(
-          addDatasetLigand(stage, newItem, data.colourToggle, datasetIdOfMolecule, skipTracking, representations)
+          addDatasetLigand(stage, newItem, getRandomColor(newItem), datasetIdOfMolecule, skipTracking, representations)
         )
       );
     }
     if (data.isProteinOn) {
-      let representations = getRepresentationsByType(data.objectsInView, item, OBJECT_TYPE.PROTEIN, datasetID);
+      let representations = getRepresentationsByType(data.objectsInView, newItem, OBJECT_TYPE.PROTEIN, datasetID);
       promises.push(
         dispatch(
-          addDatasetHitProtein(stage, newItem, data.colourToggle, datasetIdOfMolecule, skipTracking, representations)
+          addDatasetHitProtein(stage, newItem, getRandomColor(newItem), datasetIdOfMolecule, skipTracking, representations)
         )
       );
     }
     if (data.isComplexOn) {
-      let representations = getRepresentationsByType(data.objectsInView, item, OBJECT_TYPE.COMPLEX, datasetID);
+      let representations = getRepresentationsByType(data.objectsInView, newItem, OBJECT_TYPE.COMPLEX, datasetID);
       promises.push(
         dispatch(
-          addDatasetComplex(stage, newItem, data.colourToggle, datasetIdOfMolecule, skipTracking, representations)
+          addDatasetComplex(stage, newItem, getRandomColor(newItem), datasetIdOfMolecule, skipTracking, representations)
         )
       );
     }
     if (data.isSurfaceOn) {
-      let representations = getRepresentationsByType(data.objectsInView, item, OBJECT_TYPE.SURFACE, datasetID);
+      let representations = getRepresentationsByType(data.objectsInView, newItem, OBJECT_TYPE.SURFACE, datasetID);
       promises.push(
         dispatch(
-          addDatasetSurface(stage, newItem, data.colourToggle, datasetIdOfMolecule, skipTracking, representations)
+          addDatasetSurface(stage, newItem, getRandomColor(newItem), datasetIdOfMolecule, skipTracking, representations)
         )
       );
     }

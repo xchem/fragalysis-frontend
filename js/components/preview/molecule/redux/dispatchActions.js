@@ -238,7 +238,8 @@ export const addComplex = (
   data,
   colourToggle,
   skipTracking = false,
-  representations = undefined
+  representations = undefined,
+  preserveColour = false
 ) => async dispatch => {
   dispatch(appendComplexList(generateMoleculeId(data), skipTracking));
   return dispatch(
@@ -246,7 +247,8 @@ export const addComplex = (
       target: Object.assign({ display_div: VIEWS.MAJOR_VIEW }, generateComplexObject(data, colourToggle, base_url)),
       stage,
       previousRepresentations: representations,
-      orientationMatrix: null
+      orientationMatrix: null,
+      preserveColour
     })
   ).finally(() => {
     const currentOrientation = stage.viewerControls.getOrientation();
@@ -269,7 +271,8 @@ export const addSurface = (
   data,
   colourToggle,
   skipTracking = false,
-  representations = undefined
+  representations = undefined,
+  preserveColour = false
 ) => async dispatch => {
   dispatch(appendSurfaceList(generateMoleculeId(data), skipTracking));
   return dispatch(
@@ -277,7 +280,8 @@ export const addSurface = (
       target: Object.assign({ display_div: VIEWS.MAJOR_VIEW }, generateSurfaceObject(data, colourToggle, base_url)),
       stage,
       previousRepresentations: representations,
-      orientationMatrix: null
+      orientationMatrix: null,
+      preserveColour
     })
   ).finally(() => {
     const currentOrientation = stage.viewerControls.getOrientation();
@@ -519,7 +523,8 @@ export const addHitProtein = (
   colourToggle,
   withQuality = false,
   skipTracking = false,
-  representations = undefined
+  representations = undefined,
+  preserveColour = false
 ) => async dispatch => {
   // data.sdf_info = molFile;
   dispatch(appendProteinList(generateMoleculeId(data), skipTracking));
@@ -542,7 +547,8 @@ export const addHitProtein = (
       previousRepresentations: representations,
       orientationMatrix: null,
       loadQuality: hasAdditionalInformation,
-      quality: qualityInformation
+      quality: qualityInformation,
+      preserveColour
     })
   ).finally(() => {
     const currentOrientation = stage.viewerControls.getOrientation();
@@ -1173,7 +1179,7 @@ export const loadMolImage = (molId, molType, width, height) => {
     return Promise.resolve();
   }
 
-  let onCancel = () => {};
+  let onCancel = () => { };
   return api({
     url,
     onCancel

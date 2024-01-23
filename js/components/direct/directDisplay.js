@@ -33,7 +33,8 @@ export const DirectDisplay = memo(props => {
 
   useEffect(() => {
     // example url http://127.0.0.1:8080/viewer/react/preview/direct/target/MID2A/tas/lb00000/mols/X0301_0A/L/P/S/X0393_0B/L/P
-    // based on the issue #431
+    // example url with 'exact' https://fragalysis-tibor-default.xchem-dev.diamond.ac.uk/viewer/react/preview/direct/target/NUDT7A_CRUDE/mols/NUDT7A_CRUDE-X0156_1/exact/L/P
+    // based on the issues #431, #448, #447
     const param = match.params[0];
     if (!directAccessProcessed && param && param.startsWith(URL_TOKENS.target)) {
       let withoutKeyword = param.split(URL_TOKENS.target);
