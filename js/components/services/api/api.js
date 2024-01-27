@@ -1,7 +1,7 @@
 import { api, METHOD } from '../../../utils/api';
 import { base_url } from '../../routes/constants';
 
-export const getServiceStatus = async () => {
+export const getServicesStatus = async () => {
   return api({
     url: `${base_url}/viewer/service_state/`,
     method: METHOD.GET

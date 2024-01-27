@@ -1,28 +1,30 @@
 import { Grid } from "@material-ui/core";
-import React, { memo, useState } from "react";
+import React, { memo, useEffect, useState } from "react";
 import { ServicesStatus } from "./ServicesStatus";
-import { getServiceStatus } from "./api/api";
+import { getServicesStatus } from "./api/api";
 
 export const ServicesStatusWrapper = memo(() => {
     const [services, setServices] = useState([]);
 
-    /**
-     * Fetch status of services every 30 seconds
-     */
-    const fetchServiceStatus = () => {
-        setTimeout(() => new Promise(async () => {
-            const temp = await getServiceStatus();
+    const fetchServicesStatus = async () => {
+        const temp = await getServicesStatus();
+        if (!!!temp || temp.length === 0) {
+            setServices([{ id: 'services', name: 'Status of services', state: 'NOT_AVAILABLE' }]);
+        } else {
             setServices(temp);
-        }), 30000);
+        }
     }
 
-    fetchServiceStatus();
+    useEffect(() => {
+        fetchServicesStatus();
+        // fetch status of services every 30 seconds
+        const interval = setInterval(fetchServicesStatus, 30000);
+        return () => {
+            clearInterval(interval);
+        }
+    }, []);
 
-    if (services.length > 0) {
-        return <Grid item>
-            <ServicesStatus services={services} />
-        </Grid>;
-    } else {
-        return null;
-    }
+    return <Grid item>
+        <ServicesStatus services={services} />
+    </Grid>;
 });
