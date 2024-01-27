@@ -24,8 +24,13 @@ export const ServicesStatusWrapper = memo(() => {
     const fetchServicesStatus = useCallback(async () => {
         const temp = await getServicesStatus();
         if (!!!temp || temp.length === 0) {
-            toastError('Status of services is not available');
-            setServices([{ id: 'services', name: 'Status of services', state: 'NOT_AVAILABLE' }]);
+            setServices((prevState) => {
+                // do not spam same message
+                if (!(prevState.length === 1 && prevState[0]?.id === 'services')) {
+                    toastError('Status of services is not available');
+                }
+                return [{ id: 'services', name: 'Status of services', state: 'NOT_AVAILABLE' }];
+            });
         } else {
             setServices((prevState) => {
                 checkServices(prevState, temp);
