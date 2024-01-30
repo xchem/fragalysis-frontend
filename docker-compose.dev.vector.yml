@@ -105,6 +105,7 @@ services:
       DEBUG_FRAGALYSIS: 'True'
       PROXY_FORWARDED_PROTO_HEADER: 'http'
       LEGACY_URL: 'https://fragalysis.diamond.ac.uk'
+      DEPLOYMENT_MODE: 'development'
     depends_on:
       database:
         condition: service_healthy

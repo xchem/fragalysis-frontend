@@ -657,16 +657,6 @@ export const ObservationCmpList = memo(({ hideProjects }) => {
   });
   const uniqueSelectedMoleculeForHitNavigator = [...new Set(selectedMolecule)];
 
-  const newMolsToEdit = [];
-  currentMolecules.forEach(cm => {
-    if (moleculesToEditIds.includes(cm.id)) {
-      newMolsToEdit.push(cm.id);
-    }
-  });
-  if (newMolsToEdit.length !== moleculesToEditIds.length) {
-    dispatch(setMolListToEdit(newMolsToEdit));
-  }
-
   const changePredefinedFilter = event => {
     let newFilter = Object.assign({}, filter);
 
@@ -722,43 +712,34 @@ export const ObservationCmpList = memo(({ hideProjects }) => {
   let filteredLHSCompoundsList = useMemo(() => {
     const compounds = [];
     lhsCompoundsList.forEach(compound => {
-      const molsForCmp = joinedMoleculeLists.filter(molecule => molecule.cmpd === compound.id);
-      if (molsForCmp.length > 0) {
+      const molsForCmp = joinedMoleculeLists.filter(molecule => molecule.cmpd === compound.origId);
+      if (molsForCmp?.length > 0) {
         compounds.push(compound);
       }
     });
     return compounds;
-  }, [lhsCompoundsList, joinedMoleculeLists]);
-
-  let compoundMolecules = useMemo(() => {
-    const compoundMolecules = {};
-
-    filteredLHSCompoundsList.forEach(compound => {
-      const molsForCmp = allMoleculesList.filter(molecule => molecule.cmpd === compound.id);
-      compoundMolecules[compound.id] = molsForCmp.sort((a, b) => {
-        if (a.code < b.code) {
-          return -1;
-        }
-        if (a.code > b.code) {
-          return 1;
-        }
-        return 0;
-      });
-    });
-
-    return compoundMolecules;
-  }, [filteredLHSCompoundsList, allMoleculesList]);
+  }, [joinedMoleculeLists, lhsCompoundsList]);
 
   useEffect(() => {
     if (isObservationDialogOpen && observationsForLHSCmp?.length > 0) {
       const cmpId = observationsForLHSCmp[0].cmpd;
-      const cmp = filteredLHSCompoundsList.find(c => c.id === cmpId);
+      const cmp = filteredLHSCompoundsList.find(c => c.origId === cmpId);
       if (!cmp) {
         dispatch(setObservationsForLHSCmp([]));
         dispatch(setOpenObservationsDialog(false));
       }
     }
   }, [isObservationDialogOpen, filteredLHSCompoundsList, observationsForLHSCmp, dispatch]);
+
+  const newMolsToEdit = [];
+  allMoleculesList.forEach(cm => {
+    if (moleculesToEditIds.includes(cm.id)) {
+      newMolsToEdit.push(cm.id);
+    }
+  });
+  if (newMolsToEdit.length !== moleculesToEditIds.length) {
+    dispatch(setMolListToEdit(newMolsToEdit));
+  }
 
   const isLigandOn = changeButtonClassname(fragmentDisplayList, joinedLigandMatchLength);
   const isProteinOn = changeButtonClassname(proteinList, joinedProteinMatchLength);
@@ -1243,9 +1224,8 @@ export const ObservationCmpList = memo(({ hideProjects }) => {
                 useWindow={false}
               >
                 {filteredLHSCompoundsList.map((data, index, array) => {
-                  const molsForCmp = compoundMolecules[data.id];
-                  // const selected = allSelectedLHSCmps.some(molecule => molecule.id === data.id);
-                  const selected = allSelectedMolecules.some(molecule => molecule.cmpd === data.id);
+                  const molsForCmp = data.associatedObs;
+                  const selected = allSelectedMolecules.some(molecule => molecule.cmpd === data.origId);
 
                   return (
                     <ObservationCmpView
@@ -1277,7 +1257,9 @@ export const ObservationCmpList = memo(({ hideProjects }) => {
             <Grid item>
               <Grid container spacing={1} justifyContent="space-between" alignItems="center" direction="row">
                 <Grid item>
-                  <span className={classes.total}>{`Total ${joinedMoleculeLists?.length}`}</span>
+                  <span
+                    className={classes.total}
+                  >{`Total cmps/obs ${filteredLHSCompoundsList?.length}/${joinedMoleculeLists?.length}`}</span>
                 </Grid>
                 <Grid item>
                   <ButtonGroup variant="text" size="medium" color="primary" aria-label="contained primary button group">

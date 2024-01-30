@@ -710,10 +710,8 @@ export const getFirstMolOfFirstCompound = () => (dispatch, getState) => {
   const compoundsList = state.apiReducers.lhs_compounds_list;
   const firstCompound = compoundsList[0];
   if (firstCompound) {
-    const molList = state.apiReducers.all_mol_lists;
-    const firstMols = molList?.filter(m => m.cmpd === firstCompound.id);
-    if (firstMols && firstMols.length > 0) {
-      return firstMols[0];
+    if (firstCompound.associatedObs?.length > 0) {
+      return firstCompound.associatedObs[0];
     } else {
       return null;
     }
@@ -1179,7 +1177,7 @@ export const loadMolImage = (molId, molType, width, height) => {
     return Promise.resolve();
   }
 
-  let onCancel = () => { };
+  let onCancel = () => {};
   return api({
     url,
     onCancel

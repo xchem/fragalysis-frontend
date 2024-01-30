@@ -1157,7 +1157,7 @@ const ObservationCmpView = memo(
                     // dispatch(appendToObsCmpListToEdit(currentID));
                   } else {
                     observations?.forEach(obs => {
-                      dispatch(appendToMolListToEdit(obs.id));
+                      dispatch(removeFromMolListToEdit(obs.id));
                     });
                     // dispatch(removeFromObsCmpListToEdit(currentID));
                   }

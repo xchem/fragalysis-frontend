@@ -108,8 +108,7 @@ const CRYSTALLOGRAPHIC_FILES = [
   { flag: 'NAN', text: 'Coordinate files (not re-aligned) (.pdb)', defaultValue: false },
   { flag: 'mtz_info', text: 'Reflections and map coefficients (.mtz)', defaultValue: false },
   { flag: 'cif_info', text: 'Ligand definitions and geometry restrains (.cif)', defaultValue: false },
-  { flag: 'NAN2', text: 'Coordinate files (not re-aligned) (.pdb)', defaultValue: false },
-  { flag: 'map_info', text: 'Real-space map files (VERY BIG!!) (.map)', defaultValue: false }
+  { flag: 'map_info', text: 'Real-space map files (VERY BIG!!) (.map)', defaultValue: false, disabled: true }
 ];
 
 const PERMALINK_OPTIONS = [
@@ -287,6 +286,9 @@ export const DownloadStructureDialog = memo(({}) => {
       setError(false);
       setZipPreparing(true);
       setAlreadyInProgress(false);
+      setDownloadTagUrl(null);
+      setFileSize(null);
+      setDownloadUrl(null);
       let inProgress = false;
 
       // for testing purposes - preparation is way to fast
@@ -581,7 +583,7 @@ export const DownloadStructureDialog = memo(({}) => {
                 })}
               </div>
               <div>
-                {CRYSTALLOGRAPHIC_FILES.map(({ flag, text }) => {
+                {CRYSTALLOGRAPHIC_FILES.map(({ flag, text, disabled }) => {
                   return (
                     <FormControlLabel
                       key={flag}
@@ -593,7 +595,7 @@ export const DownloadStructureDialog = memo(({}) => {
                               return { ...prevState, [flag]: !prevState[flag] };
                             })
                           }
-                          disabled={zipPreparing}
+                          disabled={zipPreparing || disabled}
                         />
                       }
                       label={text}

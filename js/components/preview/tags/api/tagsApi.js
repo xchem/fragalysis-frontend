@@ -35,6 +35,22 @@ export const getAllDataNew = async targetId => {
   });
 };
 
+export const getCanonSites = async targetId => {
+  return api({ url: `${base_url}/api/canon_sites/?target=${targetId}` }).then(response => {
+    if (response?.data) {
+      return response.data?.results;
+    }
+  });
+};
+
+export const getCanonConformSites = async targetId => {
+  return api({ url: `${base_url}/api/canon_site_confs/?target=${targetId}` }).then(response => {
+    if (response?.data) {
+      return response.data?.results;
+    }
+  });
+};
+
 export const getCompoundsLHS = async targetId => {
   return api({ url: `${base_url}/api/cmpdimg/?target=${targetId}` }).then(response => {
     if (response?.data) {

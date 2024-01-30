@@ -1680,7 +1680,7 @@ export const restoreRepresentationActions = (moleculesActions, stages) => async 
   let defaultStructuresMap = {};
   // fetch representations created by default of restored object
   for (const [objectId, object] of Object.entries(objectsInView)) {
-    if (object.hasOwnProperty('representations') && object.representations.length === 1) {
+    if (object.hasOwnProperty('representations') && object.representations?.length === 1) {
       defaultStructuresMap[objectId] = object.representations[0].uuid;
     }
   }
