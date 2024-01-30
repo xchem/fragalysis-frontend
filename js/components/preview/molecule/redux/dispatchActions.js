@@ -1177,7 +1177,7 @@ export const loadMolImage = (molId, molType, width, height) => {
     return Promise.resolve();
   }
 
-  let onCancel = () => {};
+  let onCancel = () => { };
   return api({
     url,
     onCancel
