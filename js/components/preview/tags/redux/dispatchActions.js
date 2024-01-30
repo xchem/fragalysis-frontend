@@ -32,7 +32,15 @@ import {
 } from '../../../../reducers/api/actions';
 import { setSortDialogOpen } from '../../molecule/redux/actions';
 import { resetCurrentCompoundsSettings } from '../../compounds/redux/actions';
-import { updateExistingTag, getTags, getAllDataNew, getTagCategories, getCompoundsLHS } from '../api/tagsApi';
+import {
+  updateExistingTag,
+  getTags,
+  getAllDataNew,
+  getTagCategories,
+  getCompoundsLHS,
+  getCanonSites,
+  getCanonConformSites
+} from '../api/tagsApi';
 import {
   getMoleculeTagForTag,
   createMoleculeTagObject,
@@ -182,6 +190,8 @@ export const loadMoleculesAndTagsNew = targetId => async (dispatch, getState) =>
     dispatch(setNoTagsReceived(false));
   }
   const tagCategories = await getTagCategories();
+  // const canonSitesList = await getCanonSites(targetId);
+  const canonConformSitest = await getCanonConformSites(targetId);
 
   const data = await getAllDataNew(targetId);
   let allMolecules = [];
@@ -221,20 +231,65 @@ export const loadMoleculesAndTagsNew = targetId => async (dispatch, getState) =>
   dispatch(setAllDataLoaded(true));
 
   return getCompoundsLHS(targetId).then(compounds => {
+    const expandedCompounds = [];
+    let newIdStart = Math.max(...compounds?.map(c => c.id)) + 1;
     compounds?.forEach(c => {
-      const siteObs = allMolecules.find(m => m.cmpd === c.id);
-      c['smiles'] = siteObs ? siteObs.smiles : '';
-      c['code'] = siteObs ? `${siteObs.code}/${siteObs.canon_site_conf}` : '';
+      const siteObs = allMolecules.filter(m => m.cmpd === c.id);
+      const canonConformSites = siteObs?.map(so => {
+        return {
+          smiles: so.smiles,
+          code: so.code,
+          canon_site_conf: so.canon_site_conf,
+          canon_site: canonConformSitest.find(ccf => ccf.id === so.canon_site_conf)?.canon_site
+        };
+      });
+      canonConformSites?.forEach(cs => {
+        let newObject = { ...c };
+
+        newObject['smiles'] = cs.smiles;
+        newObject['code'] = `${cs.code}/${cs.canon_site}`;
+        newObject['origId'] = c.id;
+        newObject['id'] = newIdStart++;
+        newObject['canonSiteConf'] = cs.canon_site_conf;
+        newObject['canonSite'] = cs.canon_site;
+
+        const associatedObs = siteObs
+          .filter(
+            so =>
+              canonConformSitest.find(ccf => ccf.id === so.canon_site_conf)?.canon_site === newObject.canonSite &&
+              so.cmpd === c.id
+          )
+          .map(so => {
+            return {
+              ...so,
+              canon_site: canonConformSitest.find(ccf => ccf.id === so.canon_site_conf)?.canon_site
+            };
+          })
+          .sort((a, b) => {
+            if (a.code < b.code) {
+              return -1;
+            }
+            if (a.code > b.code) {
+              return 1;
+            }
+            return 0;
+          });
+        newObject['associatedObs'] = associatedObs;
+
+        if (!expandedCompounds.find(ec => ec.origId === newObject.origId && ec.canonSite === newObject.canonSite)) {
+          expandedCompounds.push(newObject);
+        }
+      });
     });
-    compounds.sort((a, b) => {
-      if (a.smiles < b.smiles) {
+    expandedCompounds.sort((a, b) => {
+      if (a.code < b.code) {
         return -1;
       }
-      if (a.smiles > b.smiles) {
+      if (a.code > b.code) {
         return 1;
       }
       return 0;
     });
-    dispatch(setLHSCompoundsLIst([...compounds]));
+    dispatch(setLHSCompoundsLIst(expandedCompounds));
   });
 };

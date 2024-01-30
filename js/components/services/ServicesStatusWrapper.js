@@ -1,28 +1,54 @@
 import { Grid } from "@material-ui/core";
-import React, { memo, useState } from "react";
+import React, { memo, useCallback, useContext, useEffect, useState } from "react";
 import { ServicesStatus } from "./ServicesStatus";
-import { getServiceStatus } from "./api/api";
+import { getServicesStatus } from "./api/api";
+import { ToastContext } from "../toast";
 
 export const ServicesStatusWrapper = memo(() => {
     const [services, setServices] = useState([]);
+    const { toastError, toastInfo } = useContext(ToastContext);
 
-    /**
-     * Fetch status of services every 30 seconds
-     */
-    const fetchServiceStatus = () => {
-        setTimeout(() => new Promise(async () => {
-            const temp = await getServiceStatus();
-            setServices(temp);
-        }), 30000);
-    }
+    const checkServices = useCallback((previous, current) => {
+        if (previous.length > 0) {
+            const changedServices = current.filter(newService => {
+                const currentService = previous.find(previousService => previousService.id === newService.id);
+                if (currentService && currentService.state !== newService.state) {
+                    return true;
+                }
+                return false;
+            });
+            changedServices.forEach(service => toastInfo(`Status of ${service.name} changed to ${service.state}`));
+        }
+    }, [toastInfo]);
 
-    fetchServiceStatus();
+    const fetchServicesStatus = useCallback(async () => {
+        const temp = await getServicesStatus();
+        if (!!!temp || temp.length === 0) {
+            setServices((prevState) => {
+                // do not spam same message
+                if (!(prevState.length === 1 && prevState[0]?.id === 'services')) {
+                    toastError('Status of services is not available');
+                }
+                return [{ id: 'services', name: 'Status of services', state: 'NOT_AVAILABLE' }];
+            });
+        } else {
+            setServices((prevState) => {
+                checkServices(prevState, temp);
+                return temp;
+            });
+        }
+    }, [checkServices, toastError]);
 
-    if (services.length > 0) {
-        return <Grid item>
-            <ServicesStatus services={services} />
-        </Grid>;
-    } else {
-        return null;
-    }
+    useEffect(() => {
+        fetchServicesStatus();
+        // fetch status of services every 30 seconds
+        const interval = setInterval(fetchServicesStatus, 30000);
+        return () => {
+            clearInterval(interval);
+        }
+    }, [fetchServicesStatus]);
+
+    return <Grid item>
+        <ServicesStatus services={services} />
+    </Grid>;
 });
