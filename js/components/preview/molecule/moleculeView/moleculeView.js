@@ -514,10 +514,10 @@ const MoleculeView = memo(
                           if (tagEditModalOpenNew) {
                             setTagEditModalOpenNew(false);
                             dispatch(setTagEditorOpenObs(!tagEditModalOpenNew));
-                            dispatch(setMoleculeForTagEdit(null));
+                            dispatch(setMoleculeForTagEdit([]));
                           } else {
                             setTagEditModalOpenNew(true);
-                            dispatch(setMoleculeForTagEdit(data.id));
+                            dispatch(setMoleculeForTagEdit([data.id]));
                             dispatch(setTagEditorOpenObs(true));
                             if (setRef) {
                               setRef(ref.current);
@@ -576,10 +576,10 @@ const MoleculeView = memo(
                         if (tagEditModalOpenNew) {
                           setTagEditModalOpenNew(false);
                           dispatch(setTagEditorOpenObs(!tagEditModalOpenNew));
-                          dispatch(setMoleculeForTagEdit(null));
+                          dispatch(setMoleculeForTagEdit([]));
                         } else {
                           setTagEditModalOpenNew(true);
-                          dispatch(setMoleculeForTagEdit(data.id));
+                          dispatch(setMoleculeForTagEdit([data.id]));
                           dispatch(setTagEditorOpenObs(true));
                           if (setRef) {
                             setRef(ref.current);
@@ -651,10 +651,10 @@ const MoleculeView = memo(
             if (tagEditModalOpenNew) {
               setTagEditModalOpenNew(false);
               dispatch(setTagEditorOpenObs(!tagEditModalOpenNew));
-              dispatch(setMoleculeForTagEdit(null));
+              dispatch(setMoleculeForTagEdit([]));
             } else {
               setTagEditModalOpenNew(true);
-              dispatch(setMoleculeForTagEdit(data.id));
+              dispatch(setMoleculeForTagEdit([data.id]));
               dispatch(setTagEditorOpenObs(true));
               if (setRef) {
                 setRef(ref.current);

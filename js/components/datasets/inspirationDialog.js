@@ -168,7 +168,11 @@ export const InspirationDialog = memo(
      */
     const getRefUrl = useCallback(() => {
       let refUrl = '';
-      if (datasetID && scoreDatasetMap.hasOwnProperty(datasetID) && scoreDatasetMap[datasetID].hasOwnProperty('ref_url')) {
+      if (
+        datasetID &&
+        scoreDatasetMap.hasOwnProperty(datasetID) &&
+        scoreDatasetMap[datasetID].hasOwnProperty('ref_url')
+      ) {
         refUrl = scoreDatasetMap[datasetID].ref_url.description;
       }
       return refUrl;
@@ -188,7 +192,7 @@ export const InspirationDialog = memo(
     }, [inspirationMoleculeDataList, searchString]);
 
     const allSelectedMolecules = inspirationMoleculeDataList.filter(
-      molecule => moleculesToEditIds.includes(molecule.id) || molecule.id === molForTagEditId
+      molecule => moleculesToEditIds.includes(molecule.id) /* || molForTagEditId.some(mid => molecule.id === mid)*/
     );
 
     // TODO: refactor from this line (duplicity in datasetMoleculeList.js)
@@ -458,7 +462,7 @@ export const InspirationDialog = memo(
                           V={vectorOnList.includes(molecule.id)}
                           I={informationList.includes(data.id)}
                           selected={selected}
-                          isTagEditorInvokedByMolecule={data.id === molForTagEditId}
+                          isTagEditorInvokedByMolecule={molForTagEditId.some(mid => data.id === mid)}
                           disableL={selected && groupNglControlButtonsDisabledState.ligand}
                           disableP={selected && groupNglControlButtonsDisabledState.protein}
                           disableC={selected && groupNglControlButtonsDisabledState.complex}
@@ -467,29 +471,47 @@ export const InspirationDialog = memo(
                       </GroupNglControlButtonsContext.Provider>
                     );
                   })}
-                {moleculeList.length > 0 &&
-                  <Grid container justifyContent="center" alignItems="center" direction="column" className={classes.notFound}>
-                    {getRationale().length > 0 &&
+                {moleculeList.length > 0 && (
+                  <Grid
+                    container
+                    justifyContent="center"
+                    alignItems="center"
+                    direction="column"
+                    className={classes.notFound}
+                  >
+                    {getRationale().length > 0 && (
                       <Grid item>
                         <Typography variant="body2">{getRationale()}</Typography>
-                      </Grid>}
-                    {getRefUrl().length > 0 &&
+                      </Grid>
+                    )}
+                    {getRefUrl().length > 0 && (
                       <Grid container justifyContent="center" alignItems="center" direction="row">
                         <Grid item>
                           <Typography variant="body2">Design-set rationale URL</Typography>
                         </Grid>
                         <Grid item>
                           <Tooltip title="Open">
-                            <IconButton className={classes.panelButton} color={'inherit'} onClick={() => window.open(getRefUrl(), '_blank')}>
+                            <IconButton
+                              className={classes.panelButton}
+                              color={'inherit'}
+                              onClick={() => window.open(getRefUrl(), '_blank')}
+                            >
                               <Link />
                             </IconButton>
                           </Tooltip>
                         </Grid>
-                      </Grid>}
+                      </Grid>
+                    )}
                   </Grid>
-                }
+                )}
                 {!(moleculeList.length > 0) && (
-                  <Grid container justifyContent="center" alignItems="center" direction="row" className={classes.notFound}>
+                  <Grid
+                    container
+                    justifyContent="center"
+                    alignItems="center"
+                    direction="row"
+                    className={classes.notFound}
+                  >
                     <Grid item>
                       <Typography variant="body2">No molecules found!</Typography>
                     </Grid>

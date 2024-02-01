@@ -40,33 +40,23 @@ const TagCategoryGridView = memo(({ name, tags, specialTags, clickCallback, disa
 
   const allMolecules = useSelector(state => state.apiReducers.all_mol_lists);
   const isLHSCmpTagEdit = useSelector(state => state.selectionReducers.isLHSCmpTagEdit);
-  let cmpObsToEdit = useSelector(state => state.selectionReducers.obsCmpsToEdit);
+
+  const moleculesToEditIdsSt = useSelector(state => state.selectionReducers.moleculesToEdit) || [];
 
   let moleculesToEditIds = [];
-  if (isLHSCmpTagEdit) {
-    cmpObsToEdit = [];
-    cmpObsToEdit.push(molId);
-  }
-  if (!isTagGlobalEdit) {
-    if (isLHSCmpTagEdit) {
-      cmpObsToEdit.forEach(cmpId => {
-        const molIds = allMolecules.filter(m => m.cmpd === cmpId).map(m => m.id);
-        moleculesToEditIds = [...moleculesToEditIds, ...molIds];
-      });
-    } else {
-      moleculesToEditIds.push(molId);
-    }
+  if (moleculesToEditIdsSt.length === 0) {
+    moleculesToEditIds.push(...molId);
   } else {
-    cmpObsToEdit.forEach(cmpId => {
-      const molIds = allMolecules.filter(m => m.cmpd === cmpId).map(m => m.id);
-      moleculesToEditIds = [...moleculesToEditIds, ...molIds];
-    });
+    moleculesToEditIds = [...moleculesToEditIdsSt];
   }
+
   const moleculesToEdit =
     moleculesToEditIds &&
     moleculesToEditIds.length > 0 &&
     !(moleculesToEditIds.length === 1 && moleculesToEditIds[0] === null)
-      ? moleculesToEditIds.map(id => dispatch(getMoleculeForId(id)))
+      ? moleculesToEditIds.map(id => {
+          return dispatch(getMoleculeForId(id));
+        })
       : [];
 
   const handleTagClick = (selected, tag, allTags) => {
