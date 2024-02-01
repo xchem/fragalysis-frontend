@@ -426,10 +426,17 @@ export const setObservationsForLHSCmp = observations => {
   };
 };
 
-export const setMoleculeForTagEdit = molId => {
+export const setMoleculeForTagEdit = molIds => {
   return {
     type: constants.SET_MOLECULE_FOR_TAG_EDIT,
-    molId: molId
+    molIds: molIds
+  };
+};
+
+export const setLHSCompoundsInitialized = isInitialized => {
+  return {
+    type: constants.SET_LHS_COMPOUNDS_INITIALIZED,
+    isInitialized: isInitialized
   };
 };
 
@@ -472,27 +479,6 @@ export const removeFromMolListToEdit = molId => {
   return {
     type: constants.REMOVE_FROM_MOL_LIST_TO_EDIT,
     molId: molId
-  };
-};
-
-export const setObsCmpListToEdit = list => {
-  return {
-    type: constants.SET_OBS_MOL_LIST_TO_EDIT,
-    list: list
-  };
-};
-
-export const appendToObsCmpListToEdit = cmpId => {
-  return {
-    type: constants.APPEND_TO_OBS_MOL_LIST_TO_EDIT,
-    cmpId: cmpId
-  };
-};
-
-export const removeFromObsCmpListToEdit = cmpId => {
-  return {
-    type: constants.REMOVE_FROM_OBS_MOL_LIST_TO_EDIT,
-    cmpId: cmpId
   };
 };
 

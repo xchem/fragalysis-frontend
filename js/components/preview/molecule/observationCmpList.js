@@ -57,7 +57,8 @@ import {
   setNextXMolecules,
   setMoleculeForTagEdit,
   setObservationsForLHSCmp,
-  setOpenObservationsDialog
+  setOpenObservationsDialog,
+  setLHSCompoundsInitialized
 } from '../../../reducers/selection/actions';
 import { initializeFilter } from '../../../reducers/selection/dispatchActions';
 import * as listType from '../../../constants/listTypes';
@@ -291,7 +292,6 @@ export const ObservationCmpList = memo(({ hideProjects }) => {
   const isTagEditorOpen = useSelector(state => state.selectionReducers.tagEditorOpened);
   const molForTagEditId = useSelector(state => state.selectionReducers.molForTagEdit);
   const moleculesToEditIds = useSelector(state => state.selectionReducers.moleculesToEdit);
-  const obsCmpsToEditIds = useSelector(state => state.selectionReducers.obsCmpsToEdit);
   const isGlobalEdit = useSelector(state => state.selectionReducers.isGlobalEdit);
 
   const isObservationDialogOpen = useSelector(state => state.selectionReducers.isObservationDialogOpen);
@@ -324,6 +324,8 @@ export const ObservationCmpList = memo(({ hideProjects }) => {
   const tagEditorRef = useRef();
   const scrollBarRef = useRef();
   const [tagEditorAnchorEl, setTagEditorAnchorEl] = useState(null);
+
+  const areLSHCompoundsInitialized = useSelector(state => state.selectionReducers.areLSHCompoundsInitialized);
 
   if (directDisplay && directDisplay.target) {
     target = directDisplay.target;
@@ -379,7 +381,7 @@ export const ObservationCmpList = memo(({ hideProjects }) => {
     proteinList,
     molForTagEditId,
     isTagEditorOpen,
-    obsCmpsToEditIds
+    moleculesToEditIds
   ]);
   // eslint-disable-next-line react-hooks/exhaustive-deps
   joinedMoleculeLists = useMemo(() => addSelectedMoleculesFromUnselectedSites(joinedMoleculeLists, complexList), [
@@ -388,7 +390,7 @@ export const ObservationCmpList = memo(({ hideProjects }) => {
     complexList,
     molForTagEditId,
     isTagEditorOpen,
-    obsCmpsToEditIds
+    moleculesToEditIds
   ]);
   joinedMoleculeLists = useMemo(
     () => addSelectedMoleculesFromUnselectedSites(joinedMoleculeLists, fragmentDisplayList),
@@ -399,7 +401,7 @@ export const ObservationCmpList = memo(({ hideProjects }) => {
       fragmentDisplayList,
       molForTagEditId,
       isTagEditorOpen,
-      obsCmpsToEditIds
+      moleculesToEditIds
     ]
   );
   // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -409,7 +411,7 @@ export const ObservationCmpList = memo(({ hideProjects }) => {
     surfaceList,
     molForTagEditId,
     isTagEditorOpen,
-    obsCmpsToEditIds
+    moleculesToEditIds
   ]);
   // eslint-disable-next-line react-hooks/exhaustive-deps
   joinedMoleculeLists = useMemo(() => addSelectedMoleculesFromUnselectedSites(joinedMoleculeLists, densityList), [
@@ -418,7 +420,7 @@ export const ObservationCmpList = memo(({ hideProjects }) => {
     densityList,
     molForTagEditId,
     isTagEditorOpen,
-    obsCmpsToEditIds
+    moleculesToEditIds
   ]);
   // eslint-disable-next-line react-hooks/exhaustive-deps
   joinedMoleculeLists = useMemo(() => addSelectedMoleculesFromUnselectedSites(joinedMoleculeLists, vectorOnList), [
@@ -427,7 +429,7 @@ export const ObservationCmpList = memo(({ hideProjects }) => {
     vectorOnList,
     molForTagEditId,
     isTagEditorOpen,
-    obsCmpsToEditIds
+    moleculesToEditIds
   ]);
 
   if (isActiveFilter) {
@@ -438,25 +440,27 @@ export const ObservationCmpList = memo(({ hideProjects }) => {
     setCurrentPage(currentPage + 1);
   };
 
-  if (molForTagEditId && !joinedMoleculeLists.some(m => m.id === molForTagEditId)) {
-    const tagEditMol = dispatch(getMoleculeForId(molForTagEditId));
-    if (tagEditMol) {
-      // joinedMoleculeLists = [tagEditMol, ...joinedMoleculeLists];
-      joinedMoleculeLists.push(tagEditMol);
-      joinedMoleculeLists.sort((a, b) => {
-        if (a.code < b.code) {
-          return -1;
-        }
-        if (a.code > b.code) {
-          return 1;
-        }
-        return 0;
-      });
-    }
+  if (molForTagEditId && !joinedMoleculeLists.some(m => m.id === molForTagEditId.some(mid => mid === m.id))) {
+    molForTagEditId.forEach(mid => {
+      const tagEditMol = dispatch(getMoleculeForId(molForTagEditId));
+      if (tagEditMol) {
+        joinedMoleculeLists.push(tagEditMol);
+      }
+    });
+    // joinedMoleculeLists = [tagEditMol, ...joinedMoleculeLists];
+    joinedMoleculeLists.sort((a, b) => {
+      if (a.code < b.code) {
+        return -1;
+      }
+      if (a.code > b.code) {
+        return 1;
+      }
+      return 0;
+    });
   }
 
-  if (obsCmpsToEditIds && obsCmpsToEditIds.length > 0 && isGlobalEdit) {
-    obsCmpsToEditIds.forEach(mid => {
+  if (moleculesToEditIds && moleculesToEditIds.length > 0 && isGlobalEdit) {
+    moleculesToEditIds.forEach(mid => {
       if (!joinedMoleculeLists.some(m => m.id === mid)) {
         const tagEditMol = dispatch(getMoleculeForId(mid));
         if (tagEditMol) {
@@ -478,8 +482,6 @@ export const ObservationCmpList = memo(({ hideProjects }) => {
   const listItemOffset = (currentPage + 1) * moleculesPerPage + nextXMolecules;
   const canLoadMore = listItemOffset < joinedMoleculeLists.length;
 
-  const wereMoleculesInitialized = useRef(false);
-
   useEffect(() => {
     if (
       (proteinsHasLoaded === true || proteinsHasLoaded === null) &&
@@ -488,14 +490,14 @@ export const ObservationCmpList = memo(({ hideProjects }) => {
     ) {
       if (!directAccessProcessed && directDisplay && directDisplay.molecules && directDisplay.molecules.length > 0) {
         dispatch(applyDirectSelection(majorViewStage));
-        wereMoleculesInitialized.current = true;
+        dispatch(setLHSCompoundsInitialized(true));
       }
       if (
         majorViewStage &&
         all_mol_lists &&
         hideProjects &&
         target !== undefined &&
-        wereMoleculesInitialized.current === false &&
+        !areLSHCompoundsInitialized &&
         tags &&
         tags.length > 0 &&
         categories &&
@@ -503,18 +505,12 @@ export const ObservationCmpList = memo(({ hideProjects }) => {
       ) {
         dispatch(initializeFilter(object_selection, joinedMoleculeLists));
         dispatch(initializeMolecules(majorViewStage));
-        wereMoleculesInitialized.current = true;
+        dispatch(setLHSCompoundsInitialized(true));
       }
-      if (
-        majorViewStage &&
-        all_mol_lists &&
-        target !== undefined &&
-        wereMoleculesInitialized.current === false &&
-        noTagsReceived
-      ) {
+      if (majorViewStage && all_mol_lists && target !== undefined && !areLSHCompoundsInitialized && noTagsReceived) {
         dispatch(initializeFilter(object_selection, joinedMoleculeLists));
         dispatch(initializeMolecules(majorViewStage));
-        wereMoleculesInitialized.current = true;
+        dispatch(setLHSCompoundsInitialized(true));
       }
     }
   }, [
@@ -532,7 +528,8 @@ export const ObservationCmpList = memo(({ hideProjects }) => {
     object_selection,
     tags,
     categories,
-    noTagsReceived
+    noTagsReceived,
+    areLSHCompoundsInitialized
   ]);
 
   const joinedMoleculeListsCopy = useMemo(() => [...joinedMoleculeLists], [joinedMoleculeLists]);
@@ -554,16 +551,8 @@ export const ObservationCmpList = memo(({ hideProjects }) => {
   };
 
   const allSelectedMolecules = useMemo(
-    () =>
-      allMoleculesList.filter(
-        molecule => moleculesToEditIds.includes(molecule.id) /* || molecule.id === molForTagEditId*/
-      ),
-    [allMoleculesList, moleculesToEditIds, molForTagEditId]
-  );
-
-  const allSelectedLHSCmps = useMemo(
-    () => lhsCompoundsList.filter(cmp => obsCmpsToEditIds.includes(cmp.id) /* || molecule.id === molForTagEditId*/),
-    [lhsCompoundsList, obsCmpsToEditIds, molForTagEditId]
+    () => allMoleculesList.filter(molecule => moleculesToEditIds.includes(molecule.id)),
+    [allMoleculesList, moleculesToEditIds]
   );
 
   let currentMolecules = joinedMoleculeLists.slice(0, listItemOffset);
@@ -1197,14 +1186,14 @@ export const ObservationCmpList = memo(({ hideProjects }) => {
           <>
             <Grid item className={classes.gridItemList} ref={scrollBarRef}>
               <InfiniteScroll
-                getScrollParent={() =>
-                  dispatch(
-                    autoHideTagEditorDialogsOnScroll({
-                      tagEditorRef,
-                      scrollBarRef
-                    })
-                  )
-                }
+                // getScrollParent={() =>
+                //   dispatch(
+                //     autoHideTagEditorDialogsOnScroll({
+                //       tagEditorRef,
+                //       scrollBarRef
+                //     })
+                //   )
+                // }
                 pageStart={0}
                 loadMore={loadNextMolecules}
                 hasMore={canLoadMore}

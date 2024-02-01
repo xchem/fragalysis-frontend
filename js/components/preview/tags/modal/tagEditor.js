@@ -126,32 +126,21 @@ export const TagEditor = memo(
     const isTagGlobalEdit = useSelector(state => state.selectionReducers.isGlobalEdit);
     const isLHSCmpTagEdit = useSelector(state => state.selectionReducers.isLHSCmpTagEdit);
     const molId = useSelector(state => state.selectionReducers.molForTagEdit);
-    let cmpObsToEdit = useSelector(state => state.selectionReducers.obsCmpsToEdit);
     const targetId = useSelector(state => state.apiReducers.target_on);
+
+    const moleculesToEditIdsSt = useSelector(state => state.selectionReducers.moleculesToEdit) || [];
 
     const [taggingInProgress, setTaggingInProgress] = useState(false);
     const [isError, setIsError] = useState(false);
     const [molsLeftForTagging, setMolsLeftForTagging] = useState(0);
+
     let moleculesToEditIds = [];
-    if (isLHSCmpTagEdit) {
-      cmpObsToEdit = [];
-      cmpObsToEdit.push(molId);
-    }
-    if (!isTagGlobalEdit) {
-      if (isLHSCmpTagEdit) {
-        cmpObsToEdit.forEach(cmpId => {
-          const molIds = allMolecules.filter(m => m.cmpd === cmpId).map(m => m.id);
-          moleculesToEditIds = [...moleculesToEditIds, ...molIds];
-        });
-      } else {
-        moleculesToEditIds.push(molId);
-      }
+    if (moleculesToEditIdsSt.length === 0) {
+      moleculesToEditIds.push(...molId);
     } else {
-      cmpObsToEdit.forEach(cmpId => {
-        const molIds = allMolecules.filter(m => m.cmpd === cmpId).map(m => m.id);
-        moleculesToEditIds = [...moleculesToEditIds, ...molIds];
-      });
+      moleculesToEditIds = [...moleculesToEditIdsSt];
     }
+
     const moleculesToEdit = moleculesToEditIds.map(id => dispatch(getMoleculeForId(id)));
     moleculeTags = moleculeTags.sort(compareTagsAsc);
     const assignTagEditorOpen = useSelector(state => state.selectionReducers.tagEditorOpened);
@@ -167,7 +156,7 @@ export const TagEditor = memo(
 
     const handleOutsideClick = e => {
       if (refForOutsideClick.current && !refForOutsideClick.current.contains(e.target)) {
-        assignTagEditorOpen === true ? (dispatch(setTagEditorOpen(false)), dispatch(setMoleculeForTagEdit(null))) : '';
+        assignTagEditorOpen === true ? (dispatch(setTagEditorOpen(false)), dispatch(setMoleculeForTagEdit([]))) : '';
       }
     };
 
@@ -175,7 +164,7 @@ export const TagEditor = memo(
       if (open) {
         dispatch(setAssignTagView(false));
         dispatch(setOpenDialog(false));
-        dispatch(setMoleculeForTagEdit(null));
+        dispatch(setMoleculeForTagEdit([]));
         dispatch(setIsTagGlobalEdit(false));
         dispatch(setIsLHSCmpTagEdit(false));
       }

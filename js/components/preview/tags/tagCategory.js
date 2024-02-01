@@ -17,7 +17,15 @@ const TagCategory = memo(({ tagClickCallback, disabled = false }) => {
 
   const categoryList = useSelector(state => state.apiReducers.categoryList);
   let tagList = useSelector(state => state.apiReducers.tagList);
-  tagList = tagList.sort(compareTagsAsc);
+  tagList = tagList
+    .filter(t => {
+      if (t.additional_info?.downloadName) {
+        return false;
+      } else {
+        return true;
+      }
+    })
+    .sort(compareTagsAsc);
 
   const assignTagView = useSelector(state => state.selectionReducers.assignTagView);
 

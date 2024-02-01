@@ -43,8 +43,6 @@ import {
   removeFromMolListToEdit,
   setOpenObservationsDialog,
   setObservationsForLHSCmp,
-  appendToObsCmpListToEdit,
-  removeFromObsCmpListToEdit,
   setIsLHSCmpTagEdit
 } from '../../../../reducers/selection/actions';
 import { moleculeProperty } from '../helperConstants';
@@ -614,12 +612,12 @@ const ObservationCmpView = memo(
                           if (tagEditModalOpenNew) {
                             setTagEditModalOpenNew(false);
                             dispatch(setTagEditorOpen(!tagEditModalOpenNew));
-                            dispatch(setMoleculeForTagEdit(null));
+                            dispatch(setMoleculeForTagEdit([]));
                             dispatch(setIsLHSCmpTagEdit(false));
                           } else {
                             dispatch(setIsLHSCmpTagEdit(true));
                             setTagEditModalOpenNew(true);
-                            dispatch(setMoleculeForTagEdit(data.id));
+                            dispatch(setMoleculeForTagEdit(observations.map(obs => obs.id)));
                             dispatch(setTagEditorOpen(true));
                             if (setRef) {
                               setRef(ref.current);
@@ -678,12 +676,12 @@ const ObservationCmpView = memo(
                         if (tagEditModalOpenNew) {
                           setTagEditModalOpenNew(false);
                           dispatch(setTagEditorOpen(!tagEditModalOpenNew));
-                          dispatch(setMoleculeForTagEdit(null));
+                          dispatch(setMoleculeForTagEdit([]));
                           dispatch(setIsLHSCmpTagEdit(false));
                         } else {
                           dispatch(setIsLHSCmpTagEdit(true));
                           setTagEditModalOpenNew(true);
-                          dispatch(setMoleculeForTagEdit(data.id));
+                          dispatch(setMoleculeForTagEdit(observations.map(obs => obs.id)));
                           dispatch(setTagEditorOpen(true));
                           if (setRef) {
                             setRef(ref.current);
@@ -755,12 +753,12 @@ const ObservationCmpView = memo(
             if (tagEditModalOpenNew) {
               setTagEditModalOpenNew(false);
               dispatch(setTagEditorOpen(!tagEditModalOpenNew));
-              dispatch(setMoleculeForTagEdit(null));
+              dispatch(setMoleculeForTagEdit([]));
               dispatch(setIsLHSCmpTagEdit(false));
             } else {
               dispatch(setIsLHSCmpTagEdit(true));
               setTagEditModalOpenNew(true);
-              dispatch(setMoleculeForTagEdit(data.id));
+              dispatch(setMoleculeForTagEdit(observations.map(obs => obs.id)));
               dispatch(setTagEditorOpen(true));
               if (setRef) {
                 setRef(ref.current);

@@ -134,7 +134,7 @@ export const autoHideTagEditorDialogsOnScroll = ({ tagEditorRef, scrollBarRef })
       Math.abs(scrollBarBoundingClientRect.bottom - currentBoundingClientRectTagEdit.top) < 42
     ) {
       dispatch(setTagEditorOpen(false));
-      dispatch(setMoleculeForTagEdit(null));
+      dispatch(setMoleculeForTagEdit([]));
     }
   }
 };
@@ -1177,7 +1177,7 @@ export const loadMolImage = (molId, molType, width, height) => {
     return Promise.resolve();
   }
 
-  let onCancel = () => { };
+  let onCancel = () => {};
   return api({
     url,
     onCancel

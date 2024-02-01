@@ -167,7 +167,9 @@ export const DownloadStructureDialog = memo(({}) => {
   const [zipPreparing, setZipPreparing] = useState(false);
   const [downloadTagUrl, setDownloadTagUrl] = useState(null);
   const [selectedDownload, setSelectedDownload] = useState(newDownload);
-  const [error, setError] = useState(false);
+  const [generalError, setGeneralError] = useState(false);
+  const [backendError, setBackendError] = useState(false);
+  const [errorMessage, setErrorMessage] = useState('');
   const [alreadyInProgress, setAlreadyInProgress] = useState(false);
 
   const { toastSuccess, toastError, toastInfo } = useContext(ToastContext);
@@ -253,7 +255,7 @@ export const DownloadStructureDialog = memo(({}) => {
     if (selectedDownload !== newDownload) {
       const donwloadTag = findDownload(selectedDownload);
       if (donwloadTag) {
-        setError(false);
+        setGeneralError(false);
         setZipPreparing(true);
         setAlreadyInProgress(false);
         getDownloadStructuresUrl(donwloadTag.additional_info.requestObject)
@@ -283,7 +285,7 @@ export const DownloadStructureDialog = memo(({}) => {
           });
       }
     } else {
-      setError(false);
+      setGeneralError(false);
       setZipPreparing(true);
       setAlreadyInProgress(false);
       setDownloadTagUrl(null);
@@ -353,9 +355,18 @@ export const DownloadStructureDialog = memo(({}) => {
           })
           .catch(e => {
             setZipPreparing(false);
-            setError(true);
+            console.log(JSON.stringify(e?.response?.data));
+            let errorMessage = '';
+            if (e?.response?.data?.error) {
+              setBackendError(true);
+              errorMessage = `Download failed, with backend error ${e.response.data[0].error}. Please contact administrator.`;
+            } else {
+              setGeneralError(true);
+              errorMessage = 'Downoad failed, please try again later. If error persists, contact administrator';
+            }
+            setErrorMessage(errorMessage);
             console.log(e);
-            toastError('Download failed!!!');
+            toastError(errorMessage);
           });
       } else {
         setZipPreparing(false);
@@ -482,7 +493,7 @@ export const DownloadStructureDialog = memo(({}) => {
   return (
     <Modal open={isOpen} noPadding>
       <div className={classes.root}>
-        {!zipPreparing && !error && (
+        {!zipPreparing && !(generalError || backendError) && (
           <DialogTitle id="form-dialog-structures-title" disableTypography>
             <Typography variant="h5">{`Download structures and data for target ${targetName}`}</Typography>
           </DialogTitle>
@@ -492,16 +503,16 @@ export const DownloadStructureDialog = memo(({}) => {
             <Box sx={{ width: '100%' }}>
               <LinearProgress />
             </Box>
-            {!error && (
+            {!(generalError || backendError) && (
               <DialogTitle id="form-dialog-structures-title" disableTypography>
                 <Typography variant="h5">{'Preparing download... You can safely close this dialog'}</Typography>
               </DialogTitle>
             )}
           </>
         )}
-        {error && (
+        {(generalError || backendError) && (
           <DialogTitle id="form-dialog-structures-title" disableTypography>
-            <ErrorMsg variant="h4">{'Download failed!!!'}</ErrorMsg>
+            <ErrorMsg variant="h4">{errorMessage}</ErrorMsg>
           </DialogTitle>
         )}
         {alreadyInProgress && (

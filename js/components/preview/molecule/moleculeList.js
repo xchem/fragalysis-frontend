@@ -423,21 +423,23 @@ export const MoleculeList = memo(({ hideProjects }) => {
     setCurrentPage(currentPage + 1);
   };
 
-  if (molForTagEditId && !joinedMoleculeLists.some(m => m.id === molForTagEditId)) {
-    const tagEditMol = dispatch(getMoleculeForId(molForTagEditId));
-    if (tagEditMol) {
-      // joinedMoleculeLists = [tagEditMol, ...joinedMoleculeLists];
-      joinedMoleculeLists.push(tagEditMol);
-      joinedMoleculeLists.sort((a, b) => {
-        if (a.code < b.code) {
-          return -1;
-        }
-        if (a.code > b.code) {
-          return 1;
-        }
-        return 0;
-      });
-    }
+  if (molForTagEditId && !joinedMoleculeLists.some(m => m.id === molForTagEditId.some(mid => m.id === mid))) {
+    molForTagEditId.forEach(mid => {
+      const tagEditMol = dispatch(getMoleculeForId(mid));
+      if (tagEditMol) {
+        joinedMoleculeLists.push(tagEditMol);
+      }
+    });
+    // joinedMoleculeLists = [tagEditMol, ...joinedMoleculeLists];
+    joinedMoleculeLists.sort((a, b) => {
+      if (a.code < b.code) {
+        return -1;
+      }
+      if (a.code > b.code) {
+        return 1;
+      }
+      return 0;
+    });
   }
 
   if (moleculesToEditIds && moleculesToEditIds.length > 0 && isGlobalEdit) {
@@ -535,8 +537,10 @@ export const MoleculeList = memo(({ hideProjects }) => {
 
   const allSelectedMolecules = useMemo(
     () =>
-      allMoleculesList.filter(molecule => moleculesToEditIds.includes(molecule.id) || molecule.id === molForTagEditId),
-    [allMoleculesList, moleculesToEditIds, molForTagEditId]
+      allMoleculesList.filter(
+        molecule => moleculesToEditIds.includes(molecule.id) /*|| molForTagEditId.some(mid => molecule.id === mid)*/
+      ),
+    [allMoleculesList, moleculesToEditIds /*, molForTagEditId*/]
   );
 
   let currentMolecules = joinedMoleculeLists.slice(0, listItemOffset);
@@ -1199,7 +1203,7 @@ export const MoleculeList = memo(({ hideProjects }) => {
                 <GroupNglControlButtonsContext.Provider value={groupNglControlButtonsDisabledState}>
                   {currentMolecules.map((data, index, array) => {
                     const selected = allSelectedMolecules.some(molecule => molecule.id === data.id);
-                    const isTagEditorInvokedByMolecule = data.id === molForTagEditId;
+                    const isTagEditorInvokedByMolecule = molForTagEditId.some(mid => data.id === mid);
 
                     return (
                       <MoleculeView

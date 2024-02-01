@@ -23,7 +23,7 @@ export const INITIAL_STATE = {
   moleculeAllTypeSelection: [],
   tagEditorOpened: false,
   tagEditorOpenedObs: false,
-  molForTagEdit: null,
+  molForTagEdit: [],
   tagFilteringMode: false,
 
   selectedTagList: [],
@@ -41,8 +41,6 @@ export const INITIAL_STATE = {
   currentVector: null, // selected vector smile (ID) of compoundsOfVectors
   moleculesToEdit: [],
 
-  obsCmpsToEdit: [],
-
   // tags
   tagToEdit: null,
   //display all molecules in hit navigator regardless of the tag selection
@@ -51,7 +49,9 @@ export const INITIAL_STATE = {
   nextXMolecules: 0,
 
   isObservationDialogOpen: false,
-  observationsForLHSCmp: []
+  observationsForLHSCmp: [],
+
+  areLSHCompoundsInitialized: false
 };
 
 export function selectionReducers(state = INITIAL_STATE, action = {}) {
@@ -247,10 +247,13 @@ export function selectionReducers(state = INITIAL_STATE, action = {}) {
       return { ...state, tagEditorOpenedObs: action.isOpen };
 
     case constants.SET_MOLECULE_FOR_TAG_EDIT:
-      return { ...state, molForTagEdit: action.molId };
+      return { ...state, molForTagEdit: [...action.molIds] };
 
     case constants.SWITCH_TAG_FILTERING_MODE:
       return { ...state, tagFilteringMode: action.mode };
+
+    case constants.SET_LHS_COMPOUNDS_INITIALIZED:
+      return { ...state, areLSHCompoundsInitialized: action.isInitialized };
 
     case constants.SET_VECTOR_ON_LIST:
       let newVectorOnList = new Set();
@@ -441,16 +444,6 @@ export function selectionReducers(state = INITIAL_STATE, action = {}) {
       let reducedMolListToEdit = state.moleculesToEdit.filter(mid => mid !== action.molId);
       return { ...state, moleculesToEdit: [...reducedMolListToEdit] };
 
-    case constants.SET_OBS_MOL_LIST_TO_EDIT:
-      return { ...state, obsCmpsToEdit: [...action.list] };
-
-    case constants.APPEND_TO_OBS_MOL_LIST_TO_EDIT:
-      return { ...state, obsCmpsToEdit: [...state.obsCmpsToEdit, action.cmpId] };
-
-    case constants.REMOVE_FROM_OBS_MOL_LIST_TO_EDIT:
-      let reducedObsCmpListToEdit = state.obsCmpsToEdit.filter(cid => cid !== action.cmpId);
-      return { ...state, obsCmpsToEdit: [...reducedObsCmpListToEdit] };
-
     case constants.SET_TAG_TO_EDIT: {
       return Object.assign({}, state, {
         tagToEdit: action.tagToEdit
@@ -480,9 +473,8 @@ export function selectionReducers(state = INITIAL_STATE, action = {}) {
     case constants.SET_IS_LHS_CMP_TAG_EDIT:
       return { ...state, isLHSCmpTagEdit: action.isLHSCmpTagEdit };
 
-      case constants.SET_RHS_WIDTH:
-        return Object.assign({}, state, { rhsWidth: action.payload });
-  
+    case constants.SET_RHS_WIDTH:
+      return Object.assign({}, state, { rhsWidth: action.payload });
 
     // Cases like: @@redux/INIT
     default:
