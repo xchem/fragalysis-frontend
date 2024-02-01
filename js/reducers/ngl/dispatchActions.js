@@ -50,6 +50,7 @@ export const loadObject = ({
   quality,
   preserveColour = false
 }) => async (dispatch, getState) => {
+  console.log('loadObject - entry');
   if (stage) {
     const state = getState();
     const actionRestoring = state.trackingReducers.isActionRestoring;
@@ -93,12 +94,14 @@ export const loadObject = ({
         if (representations && representations.length > 0) {
           if (versionFixedTarget.OBJECT_TYPE === OBJECT_TYPE.DENSITY) {
             representations.forEach(repr => {
-              let newTarget = Object.assign({
-                ...versionFixedTarget,
-                name: repr.name,
-                defaultName: versionFixedTarget.name
-              });
-              dispatch(loadNglObject(newTarget, repr.repr));
+              if (typeof repr === 'object') {
+                let newTarget = Object.assign({
+                  ...versionFixedTarget,
+                  name: repr.name,
+                  defaultName: versionFixedTarget.name
+                });
+                dispatch(loadNglObject(newTarget, repr.repr));
+              }
             });
           } else {
             dispatch(loadNglObject(versionFixedTarget, representations));
