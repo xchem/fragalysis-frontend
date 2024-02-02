@@ -357,9 +357,9 @@ export const DownloadStructureDialog = memo(({}) => {
             setZipPreparing(false);
             console.log(JSON.stringify(e?.response?.data));
             let errorMessage = '';
-            if (e?.response?.data?.error) {
+            if (e?.response?.data?.message) {
               setBackendError(true);
-              errorMessage = `Download failed, with backend error ${e.response.data[0].error}. Please contact administrator.`;
+              errorMessage = `Download failed, with backend error '${e?.response?.data?.message}'. Please contact administrator.`;
             } else {
               setGeneralError(true);
               errorMessage = 'Downoad failed, please try again later. If error persists, contact administrator';

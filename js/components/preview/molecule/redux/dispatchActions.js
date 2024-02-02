@@ -428,10 +428,10 @@ export const addDensityCustomView = (
     // dispatch(setNglViewParams(NGL_PARAMS.contour_DENSITY, invertedWireframe));
     // dispatch(setNglViewParams(NGL_PARAMS.contour_DENSITY_MAP_sigmaa, invertedWireframe));
     // dispatch(setNglViewParams(NGL_PARAMS.contour_DENSITY_MAP_diff, invertedWireframe));
+  } else {
+    await dispatch(getDensityMapData(data));
+    return dispatch(setDensityCustom(stage, data, colourToggle, isWireframeStyle, skipTracking, representations));
   }
-
-  await dispatch(getDensityMapData(data));
-  return dispatch(setDensityCustom(stage, data, colourToggle, isWireframeStyle, skipTracking, representations));
   // dispatch(setNglViewParams(NGL_PARAMS.contour_DENSITY, invertedWireframe));
   // dispatch(setNglViewParams(NGL_PARAMS.contour_DENSITY_MAP_sigmaa, invertedWireframe));
   // dispatch(setNglViewParams(NGL_PARAMS.contour_DENSITY_MAP_diff, invertedWireframe));

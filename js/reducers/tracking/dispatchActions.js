@@ -336,7 +336,7 @@ const saveActionsList = (project, snapshot, actionList, nglViewList) => async (d
     //   getCollection(currentQualities),
     //   currentActions
     // );
-    getCurrentActionList(
+    getCurrentActionListDensity(
       orderedActionList,
       actionType.DENSITY_TURNED_ON,
       getCollection(currentDensities),
@@ -348,8 +348,8 @@ const saveActionsList = (project, snapshot, actionList, nglViewList) => async (d
       getCollection(selectedMolecules),
       currentActions
     );
-    getCurrentActionList(orderedActionList, actionType.DENSITY_TYPE_ON, currentDensitiesType, currentActions);
-    getCurrentActionList(
+    getCurrentActionListDensity(orderedActionList, actionType.DENSITY_TYPE_ON, currentDensitiesType, currentActions);
+    getCurrentActionListDensity(
       orderedActionList,
       actionType.DENSITY_CUSTOM_TURNED_ON,
       getCollection(currentDensitiesCustom),
@@ -627,6 +627,20 @@ const getCurrentActionList = (orderedActionList, type, collection, currentAction
 
       if (actions.length > 0) {
         actions.forEach(action => currentActions.push(Object.assign({ ...action })));
+      }
+    });
+  }
+};
+
+const getCurrentActionListDensity = (orderedActionList, type, collection, currentActions) => {
+  let actionList = orderedActionList.filter(action => action.type === type);
+
+  if (collection) {
+    collection.forEach(data => {
+      const action = actionList.find(a => a.object_id === data.id && a.dataset_id === data.datasetId);
+
+      if (action) {
+        currentActions.push({ ...action });
       }
     });
   }
@@ -1964,11 +1978,15 @@ const removeTypeCompound = {
   surface: removeDatasetSurface
 };
 
-const addNewType = (moleculesAction, actionType, type, stage, state, skipTracking = false) => async dispatch => {
+const addNewType = (moleculesAction, actionType, type, stage, state, skipTracking = false) => async (
+  dispatch,
+  getState
+) => {
   let actions = moleculesAction.filter(action => action.type === actionType);
   if (actions) {
     for (const action of actions) {
-      let data = getMolecule(action.object_name, state);
+      const freshState = getState();
+      let data = getMolecule(action.object_name, freshState);
       if (data) {
         if (type === 'ligand') {
           await dispatch(addType[type](stage, data, colourList[data.id % colourList.length], true, true, skipTracking));
@@ -1980,19 +1998,31 @@ const addNewType = (moleculesAction, actionType, type, stage, state, skipTrackin
           if (!data.proteinData) {
             await dispatch(getProteinData(data)).then(i => {
               const proteinData = i;
-              data.proteinData = proteinData;
+              if (type === 'density') {
+                data.proteinData = proteinData;
+                data.proteinData.render_event = !!action.render_event;
+                data.proteinData.render_diff = !!action.render_diff;
+                data.proteinData.render_sigmaa = !!action.render_sigmaa;
+                data.proteinData.render_quality = !!action.render_quality;
+              }
+            });
+            if (type === 'density') {
+              await dispatch(addType[type](stage, data, colourList[data.id % colourList.length], true, skipTracking));
+            } else {
+              await dispatch(addType[type](stage, data, colourList[data.id % colourList.length], true, skipTracking));
+            }
+          } else {
+            if (type === 'density') {
               data.proteinData.render_event = !!action.render_event;
               data.proteinData.render_diff = !!action.render_diff;
               data.proteinData.render_sigmaa = !!action.render_sigmaa;
               data.proteinData.render_quality = !!action.render_quality;
-            });
-            await dispatch(addType[type](stage, data, colourList[data.id % colourList.length], true, skipTracking));
-          } else {
-            data.proteinData.render_event = !!action.render_event;
-            data.proteinData.render_diff = !!action.render_diff;
-            data.proteinData.render_sigmaa = !!action.render_sigmaa;
-            data.proteinData.render_quality = !!action.render_quality;
-            await dispatch(addType[type](stage, data, colourList[data.id % colourList.length], true, skipTracking));
+            }
+            if (type === 'density') {
+              await dispatch(addType[type](stage, data, colourList[data.id % colourList.length], true, skipTracking));
+            } else {
+              await dispatch(addType[type](stage, data, colourList[data.id % colourList.length], true, skipTracking));
+            }
           }
         } else if (type === 'quality') {
           await dispatch(removeType[type](stage, data, colourList[data.id % colourList.length], skipTracking));
