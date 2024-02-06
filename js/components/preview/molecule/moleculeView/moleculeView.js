@@ -49,7 +49,7 @@ import { SvgTooltip } from '../../../common';
 import { MOL_TYPE } from '../redux/constants';
 import { DensityMapsModal } from '../modals/densityMapsModal';
 import { getRandomColor } from '../utils/color';
-import { DEFAULT_TAG_COLOR, getAllTagsForMol } from '../../tags/utils/tagUtils';
+import { DEFAULT_TAG_COLOR, getAllTagsForMol, getAllTagsForObservation } from '../../tags/utils/tagUtils';
 import MoleculeSelectCheckbox from './moleculeSelectCheckbox';
 import useClipboard from 'react-use-clipboard';
 import Popover from '@mui/material/Popover';
@@ -451,11 +451,11 @@ const MoleculeView = memo(
     };
 
     const generateTagPopover = () => {
-      const allData = getAllTagsForMol(data, tagList);
-      const sortedData = [...allData].sort((a, b) => a.tag.localeCompare(b.tag));
+      const allData = getAllTagsForObservation(data, tagList, tagCategories);
+      // const sortedData = [...allData].sort((a, b) => a.tag.localeCompare(b.tag));
 
-      const modifiedObjects = sortedData.map(obj => {
-        const tagNameShortLength = 2;
+      const modifiedObjects = allData.map(obj => {
+        const tagNameShortLength = 3;
         if (obj.tag.length > tagNameShortLength) {
           return { ...obj, tag: obj.tag.slice(0, tagNameShortLength) };
         }
@@ -616,18 +616,18 @@ const MoleculeView = memo(
                   }}
                 >
                   <Grid alignItems="center" direction="row" container>
-                    {sortedData.map((item, index) => (
+                    {allData.map((item, index) => (
                       <Grid
                         style={{
-                          backgroundColor: resolveTagBackgroundColor(sortedData[index]),
-                          color: resolveTagForegroundColor(sortedData[index]),
-                          border: `${resolveTagBackgroundColor(sortedData[index])} solid 1px`,
+                          backgroundColor: resolveTagBackgroundColor(allData[index]),
+                          color: resolveTagForegroundColor(allData[index]),
+                          border: `${resolveTagBackgroundColor(allData[index])} solid 1px`,
                           display: 'grid',
                           placeItems: 'center'
                         }}
                         className={classes.popover}
                         item
-                        xs={sortedData.length === 1 ? 12 : sortedData.length === 2 ? 6 : 4}
+                        xs={allData.length === 1 ? 12 : allData.length === 2 ? 6 : 4}
                         key={index}
                       >
                         <div>{item.tag}</div>
