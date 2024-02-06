@@ -375,6 +375,7 @@ const ObservationCmpView = memo(
 
     const viewParams = useSelector(state => state.nglReducers.viewParams);
     const tagList = useSelector(state => state.apiReducers.tagList);
+    const tagCategories = useSelector(state => state.apiReducers.categoryList);
     const tagEditorOpen = useSelector(state => state.selectionReducers.tagEditorOpened);
 
     const isObservationDialogOpen = useSelector(state => state.selectionReducers.isObservationDialogOpen);
@@ -511,11 +512,6 @@ const ObservationCmpView = memo(
 
     const open = tagPopoverOpen ? true : false;
 
-    const getDataForTagsTooltip = () => {
-      const assignedTags = getAllTagsForLHSCmp(observations, tagList);
-      return assignedTags;
-    };
-
     useEffect(() => {
       setTagEditModalOpenNew(tagEditorOpen);
     }, [tagEditorOpen]);
@@ -549,13 +545,17 @@ const ObservationCmpView = memo(
     };
 
     const generateTagPopover = () => {
-      const allData = getDataForTagsTooltip();
-      const sortedData = [...allData].sort((a, b) => a.tag.localeCompare(b.tag));
+      const allData = getAllTagsForLHSCmp(observations, tagList, tagCategories);
+      // const sortedData = [...allData].sort((a, b) => a.tag.localeCompare(b.tag));
 
-      const modifiedObjects = sortedData.map(obj => {
-        const tagNameShortLength = 2;
+      const modifiedObjects = allData.map((obj, index) => {
+        const tagNameShortLength = 3;
         if (obj.tag.length > tagNameShortLength) {
-          return { ...obj, tag: obj.tag.slice(0, tagNameShortLength) };
+          let shortened = { ...obj, tag: obj.tag.slice(0, tagNameShortLength) };
+          if (index === 0) {
+            shortened = { ...shortened, tag: shortened.tag.replace('-', '') };
+          }
+          return shortened;
         }
         return obj;
       });
@@ -718,18 +718,18 @@ const ObservationCmpView = memo(
                   }}
                 >
                   <Grid alignItems="center" direction="row" container>
-                    {sortedData.map((item, index) => (
+                    {allData.map((item, index) => (
                       <Grid
                         style={{
-                          backgroundColor: resolveTagBackgroundColor(sortedData[index]),
-                          color: resolveTagForegroundColor(sortedData[index]),
-                          border: `${resolveTagBackgroundColor(sortedData[index])} solid 1px`,
+                          backgroundColor: resolveTagBackgroundColor(allData[index]),
+                          color: resolveTagForegroundColor(allData[index]),
+                          border: `${resolveTagBackgroundColor(allData[index])} solid 1px`,
                           display: 'grid',
                           placeItems: 'center'
                         }}
                         className={classes.popover}
                         item
-                        xs={sortedData.length === 1 ? 12 : sortedData.length === 2 ? 6 : 4}
+                        xs={allData.length === 1 ? 12 : allData.length === 2 ? 6 : 4}
                         key={index}
                       >
                         <div>{item.tag}</div>
@@ -1117,6 +1117,9 @@ const ObservationCmpView = memo(
     // let moleculeTitle = data?.code.replace(new RegExp(`${target_on_name}-`, 'i'), '');
     // let moleculeTitle = data.code;
     let moleculeTitle = data?.code.replaceAll(`${target_on_name}-`, '');
+    if (observations?.length > 0 && observations[0].compound_code) {
+      moleculeTitle += ` - ${observations[0].compound_code}`;
+    }
     const moleculeTitleTruncated = moleculeTitle.substring(0, 20) + (moleculeTitle.length > 20 ? '...' : '');
 
     const [isNameCopied, setNameCopied] = useClipboard(moleculeTitle, { successDuration: 5000 });
@@ -1398,9 +1401,9 @@ const ObservationCmpView = memo(
                         }
                         // setLoadingInspiration(false);
                       }}
-                      disabled={observations.length < 2}
+                      disabled={observations.length <= 0}
                     >
-                      O
+                      {observations?.length}
                     </Button>
                   </Grid>
                 </Tooltip>

@@ -247,7 +247,8 @@ export const loadMoleculesAndTagsNew = targetId => async (dispatch, getState) =>
         let newObject = { ...c };
 
         newObject['smiles'] = cs.smiles;
-        newObject['code'] = `${cs.code}/${cs.canon_site}`;
+        // newObject['code'] = `${cs.code}/${cs.canon_site}`;
+        newObject['code'] = `${cs.code}`;
         newObject['origId'] = c.id;
         newObject['id'] = newIdStart++;
         newObject['canonSiteConf'] = cs.canon_site_conf;
