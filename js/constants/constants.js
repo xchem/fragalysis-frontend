@@ -52,7 +52,7 @@ export const CATEGORY_TYPE_BY_ID = {
   4: CATEGORY_TYPE.OTHER
 };
 
-export const OBSERVATION_TAG_CATEGORIES = ['ConformerSites', 'XtalformSites', 'Quatassemblies', 'Xtalforms'];
+export const OBSERVATION_TAG_CATEGORIES = ['ConformerSites', 'CrystalformSites', 'Quatassemblies', 'Crystalforms'];
 export const COMPOUND_PRIO_TAG_CATEGORIES = ['CanonSites'];
 
 export const TAG_TYPE = {
