@@ -76,9 +76,10 @@ export const ResizableLayout = ({ gridRef, hideProjects, showHistory, onShowHist
         : twoRowHeight
       : oneRowHeight;
 
-  const tagDetailListHeight = preTagList.length * listTagHeight + tagDetailListLayoutHeight;
+  // limit default tag panel height to not overflow screen by showing of area of max 10 tags
+  const tagDetailListHeight = (preTagList.length > 10 ? 10 : preTagList.length) * listTagHeight + tagDetailListLayoutHeight;
   const tagDetailGridHeight =
-    Math.ceil(preTagList.length / defaultTagDetailColumnNumber) * absoluteMaxTagLength + tagDetailGridLayoutHeight;
+    Math.ceil((preTagList.length > 10 ? 10 : preTagList.length) / defaultTagDetailColumnNumber) * absoluteMaxTagLength + tagDetailGridLayoutHeight;
 
   useEffect(() => {
     if (sidesOpen.LHS) {
@@ -201,12 +202,20 @@ export const ResizableLayout = ({ gridRef, hideProjects, showHistory, onShowHist
     },
     [gridRef, tagDetailsHeight]
   );
+
   return (
     <div className={classes.root}>
       {sidesOpen.LHS && (
         <>
           <div className={classes.lhs} style={{ width: lhsWidth }}>
-            <div style={{ height: tagDetailsHeight, overflow: 'auto' }}>
+            <div style={{
+              overflow: 'auto',
+              height: tagDetailsHeight === undefined
+                ? tagDetailView?.tagDetailView === true || tagDetailView === true
+                  ? tagDetailGridHeight
+                  : tagDetailListHeight
+                : tagDetailsHeight
+            }}>
               <TagDetails />
             </div>
             <Resizer orientation="horizontal" onResize={onTagDetailsResize} />
@@ -221,9 +230,9 @@ export const ResizableLayout = ({ gridRef, hideProjects, showHistory, onShowHist
                 height:
                   tagDetailsHeight === undefined
                     ? tagDetailView?.tagDetailView === true || tagDetailView === true
-                      ? screenHeight - tagDetailGridHeight + 'px'
-                      : screenHeight - tagDetailListHeight + 'px'
-                    : screenHeight - tagDetailsHeight - 20 + 'px'
+                      ? screenHeight - tagDetailGridHeight - 20
+                      : screenHeight - tagDetailListHeight - 20
+                    : screenHeight - tagDetailsHeight - 20
               }}
             >
               <HitNavigator hideProjects={hideProjects} />
