@@ -170,6 +170,12 @@ export const getTargetProjectCombinations = (targets, projects) => {
         result.push({ updatedTarget: { ...target, project: { target_access_string: 'Legacy' } } });
       }
     });
+  } else if (targetItems.length > 0) {
+    targetItems.forEach(([targetId, target]) => {
+      if (target.isLegacy) {
+        result.push({ updatedTarget: { ...target, project: { target_access_string: 'Legacy' } } });
+      }
+    });
   }
 
   return result;
