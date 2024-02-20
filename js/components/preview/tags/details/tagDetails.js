@@ -22,7 +22,8 @@ import {
   compareTagsByCreatorAsc,
   compareTagsByCreatorDesc,
   compareTagsByDateAsc,
-  compareTagsByDateDesc
+  compareTagsByDateDesc,
+  getCategoriesToBeRemovedFromTagDetails
 } from '../utils/tagUtils';
 import { UnfoldMore, KeyboardArrowDown, KeyboardArrowUp } from '@material-ui/icons';
 import { getMoleculeForId } from '../redux/dispatchActions';
@@ -165,6 +166,7 @@ const TagDetails = memo(() => {
   const displayUntaggedMolecules = useSelector(state => state.selectionReducers.displayUntaggedMolecules);
   let tagDetailView = useSelector(state => state.selectionReducers.tagDetailView);
   const resizableLayout = useSelector(state => state.selectionReducers.resizableLayout);
+  const tagCategories = useSelector(state => state.apiReducers.categoryList);
 
   const [tagList, setTagList] = useState([]);
   const [selectAll, setSelectAll] = useState(true);
@@ -180,8 +182,9 @@ const TagDetails = memo(() => {
   }, [searchString, tagList]);
 
   useEffect(() => {
+    const categoriesToRemove = getCategoriesToBeRemovedFromTagDetails(tagCategories);
     const newTagList = preTagList.filter(t => {
-      if (t.additional_info?.downloadName) {
+      if (t.additional_info?.downloadName || categoriesToRemove.some(c => c.id === t.category)) {
         return false;
       } else {
         return true;
@@ -191,7 +194,7 @@ const TagDetails = memo(() => {
     return () => {
       setTagList([]);
     };
-  }, [preTagList]);
+  }, [preTagList, tagCategories]);
 
   const moleculesToEditIds = useSelector(state => state.selectionReducers.moleculesToEdit);
   const moleculesToEdit =

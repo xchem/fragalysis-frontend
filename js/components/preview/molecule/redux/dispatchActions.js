@@ -667,7 +667,7 @@ export const initializeMolecules = majorView => (dispatch, getState) => {
       } else if (noTagsReceived) {
         // firstMolecule = dispatch(getFirstMolecule());
       }
-      firstMolecule = dispatch(getFirstMolOfFirstCompound());
+      firstMolecule = dispatch(getFirstMolOfFirstCompound(firstTag));
       if (firstMolecule) {
         dispatch(addHitProtein(majorView, firstMolecule, colourList[firstMolecule.id % colourList.length], true)).then(
           () => {
@@ -705,16 +705,15 @@ export const getFirstTagAlphabetically = () => (dispatch, getState) => {
   return sortedTags && sortedTags.length > 0 ? sortedTags[0] : null;
 };
 
-export const getFirstMolOfFirstCompound = () => (dispatch, getState) => {
+export const getFirstMolOfFirstCompound = tag => (dispatch, getState) => {
   const state = getState();
   const compoundsList = state.apiReducers.lhs_compounds_list;
-  const firstCompound = compoundsList[0];
+  const firstCompound = compoundsList?.find(c => c.associatedObs.some(obs => obs.tags_set.includes(tag.id)));
   if (firstCompound) {
-    if (firstCompound.associatedObs?.length > 0) {
-      return firstCompound.associatedObs[0];
-    } else {
-      return null;
-    }
+    let firstObs = null;
+    firstObs = firstCompound.associatedObs.find(obs => obs.tags_set.includes(tag.id));
+
+    return firstObs;
   } else {
     return null;
   }

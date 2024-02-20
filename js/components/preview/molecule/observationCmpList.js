@@ -701,8 +701,8 @@ export const ObservationCmpList = memo(({ hideProjects }) => {
   let filteredLHSCompoundsList = useMemo(() => {
     const compounds = [];
     lhsCompoundsList.forEach(compound => {
-      const molsForCmp = joinedMoleculeLists.filter(molecule => molecule.cmpd === compound.origId);
-      if (molsForCmp?.length > 0) {
+      const molsForCmp = joinedMoleculeLists.some(molecule => molecule.cmpd === compound.origId);
+      if (molsForCmp && compound.associatedObs.some(obs => joinedMoleculeLists.some(mol => mol.id === obs.id))) {
         compounds.push(compound);
       }
     });

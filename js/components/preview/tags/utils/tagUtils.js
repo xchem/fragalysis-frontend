@@ -2,7 +2,8 @@ import { is } from 'date-fns/locale';
 import {
   CATEGORY_TYPE_BY_ID,
   OBSERVATION_TAG_CATEGORIES,
-  COMPOUND_PRIO_TAG_CATEGORIES
+  COMPOUND_PRIO_TAG_CATEGORIES,
+  TAG_DETAILS_REMOVED_CATEGORIES
 } from '../../../../constants/constants';
 
 export const DEFAULT_TAG_COLOR = '#E0E0E0';
@@ -161,6 +162,19 @@ export const getAllTagsForObservation = (obs, tagList, tagCategoryList) => {
         result.push(tag);
       }
     });
+  });
+
+  return result;
+};
+
+export const getCategoriesToBeRemovedFromTagDetails = tagCategoryList => {
+  const result = [];
+
+  TAG_DETAILS_REMOVED_CATEGORIES.forEach(categName => {
+    const categ = tagCategoryList.find(c => c.category === categName);
+    if (categ) {
+      result.push({ ...categ });
+    }
   });
 
   return result;

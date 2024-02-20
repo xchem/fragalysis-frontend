@@ -54,6 +54,7 @@ export const CATEGORY_TYPE_BY_ID = {
 
 export const OBSERVATION_TAG_CATEGORIES = ['ConformerSites', 'CrystalformSites', 'Quatassemblies', 'Crystalforms'];
 export const COMPOUND_PRIO_TAG_CATEGORIES = ['CanonSites'];
+export const TAG_DETAILS_REMOVED_CATEGORIES = ['CrystalformSites', 'ConformerSites'];
 
 export const TAG_TYPE = {
   ALL: 'ALL',
