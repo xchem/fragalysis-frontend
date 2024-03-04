@@ -524,28 +524,41 @@ const ObservationCmpView = memo(
       setTagPopoverOpen(null);
     };
 
-    const resolveTagBackgroundColor = tag => {
-      let color = DEFAULT_TAG_COLOR;
+    const resolveTagBackgroundColor = useCallback(
+      tag => {
+        let color = DEFAULT_TAG_COLOR;
 
-      if (tag.colour && tag.colour !== '') {
-        color = tag.colour;
-      } else {
-        const category = dispatch(getCategoryById(tag.category));
-        if (category) {
-          color = `#${category.colour}`;
+        if (tag.colour && tag.colour !== '') {
+          color = tag.colour;
+        } else {
+          const category = dispatch(getCategoryById(tag.category));
+          if (category) {
+            color = `#${category.colour}`;
+          }
         }
-      }
 
-      return color;
-    };
+        return color;
+      },
+      [dispatch]
+    );
 
-    const resolveTagForegroundColor = tag => {
-      const bgColor = resolveTagBackgroundColor(tag);
-      return getFontColorByBackgroundColor(bgColor);
-    };
+    const resolveTagForegroundColor = useCallback(
+      tag => {
+        const bgColor = resolveTagBackgroundColor(tag);
+        return getFontColorByBackgroundColor(bgColor);
+      },
+      [resolveTagBackgroundColor]
+    );
 
-    const generateTagPopover = () => {
+    const generateTagPopover = useCallback(() => {
+      // console.log('generateTagPopover');
       const allData = getAllTagsForLHSCmp(observations, tagList, tagCategories);
+      // console.log(
+      //   `generateTagPopover ${observations[0].compound_code} assigned tags: ${observations[0].tags_set} count: ` +
+      //     allData?.length +
+      //     ' ' +
+      //     JSON.stringify(allData)
+      // );
       // const sortedData = [...allData].sort((a, b) => a.tag.localeCompare(b.tag));
 
       const modifiedObjects = allData.map((obj, index) => {
@@ -772,7 +785,23 @@ const ObservationCmpView = memo(
           </Tooltip>
         </IconButton>
       );
-    };
+    }, [
+      classes.editButtonIcon,
+      classes.paper,
+      classes.popover,
+      classes.tagPopover,
+      dispatch,
+      observations,
+      open,
+      resolveTagBackgroundColor,
+      resolveTagForegroundColor,
+      setRef,
+      tagCategories,
+      tagEditModalOpenNew,
+      tagEditorOpen,
+      tagList,
+      tagPopoverOpen
+    ]);
 
     // componentDidMount
     useEffect(() => {
