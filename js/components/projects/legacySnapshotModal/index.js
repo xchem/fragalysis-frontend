@@ -1,4 +1,4 @@
-import React, { Fragment, useState } from 'react';
+import React, { useState } from 'react';
 import { Modal } from '../../common';
 import { DJANGO_CONTEXT } from '../../../utils/djangoContext';
 
