@@ -130,9 +130,11 @@ const TagView = memo(
       if (tagCategory) {
         if (!tag.colour || tag.colour === '') {
           setBgColor(`#${tagCategory.colour}`);
+        } else {
+          setBgColor(`${tag.colour}`);
         }
       }
-    }, [tagCategory]);
+    }, [tagCategory, tag.colour, tagCategories]);
 
     useEffect(() => {
       if (assignTagView === undefined) {

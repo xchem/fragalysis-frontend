@@ -3,7 +3,7 @@ import { Grid, Popper, IconButton, Tooltip, makeStyles, FormControlLabel, Switch
 import { Panel } from '../../../common';
 import { Close } from '@material-ui/icons';
 import { useDispatch, useSelector } from 'react-redux';
-import { updateMoleculeInMolLists, updateMoleculeTag } from '../../../../reducers/api/actions';
+import { updateLHSCompound, updateMoleculeInMolLists, updateMoleculeTag } from '../../../../reducers/api/actions';
 import { getMoleculeForId } from '../redux/dispatchActions';
 import {
   setMoleculeForTagEdit,
@@ -130,6 +130,8 @@ export const TagEditor = memo(
 
     const moleculesToEditIdsSt = useSelector(state => state.selectionReducers.moleculesToEdit) || [];
 
+    const lhsCompounds = useSelector(state => state.apiReducers.lhs_compounds_list);
+
     const [taggingInProgress, setTaggingInProgress] = useState(false);
     const [isError, setIsError] = useState(false);
     const [molsLeftForTagging, setMolsLeftForTagging] = useState(0);
@@ -142,6 +144,12 @@ export const TagEditor = memo(
     }
 
     const moleculesToEdit = moleculesToEditIds.map(id => dispatch(getMoleculeForId(id)));
+    let lhsCmp = null;
+    if (moleculesToEdit?.length > 0) {
+      const firstMolToEdit = moleculesToEdit[0];
+      const cmpId = firstMolToEdit.cmpd;
+      lhsCmp = lhsCompounds?.find(c => c.origId === cmpId && firstMolToEdit.canon_site_conf === c.canonSiteConf);
+    }
     moleculeTags = moleculeTags.sort(compareTagsAsc);
     const assignTagEditorOpen = useSelector(state => state.selectionReducers.tagEditorOpened);
 
@@ -170,6 +178,15 @@ export const TagEditor = memo(
       }
     };
 
+    const updateCmp = (cmp, obs) => {
+      let newCmp = { ...cmp };
+      const index = newCmp.associatedObs.findIndex(o => o.id === obs.id);
+      if (index >= 0) {
+        newCmp.associatedObs[index] = obs;
+        dispatch(updateLHSCompound(newCmp));
+      }
+    };
+
     const handleTagClick = async (selected, tag) => {
       try {
         setTaggingInProgress(true);
@@ -189,6 +206,7 @@ export const TagEditor = memo(
           moleculesToEdit.forEach(m => {
             let newMol = { ...m };
             newMol.tags_set = newMol.tags_set.filter(id => id !== tag.id);
+            updateCmp(lhsCmp, newMol);
             dispatch(updateMoleculeInMolLists(newMol));
             const moleculeTag = getMoleculeTagForTag(moleculeTags, tag.id);
 
@@ -217,6 +235,7 @@ export const TagEditor = memo(
             if (!m.tags_set.some(id => id === tag.id)) {
               let newMol = { ...m };
               newMol.tags_set.push(tag.id);
+              updateCmp(lhsCmp, newMol);
               dispatch(updateMoleculeInMolLists(newMol));
               const moleculeTag = getMoleculeTagForTag(moleculeTags, tag.id);
               let mtObject = molTagObjects.find(mto => mto.tag === tag.tag);

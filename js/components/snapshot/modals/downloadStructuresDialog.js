@@ -105,7 +105,7 @@ const MAP_FILES = [
 ];
 
 const CRYSTALLOGRAPHIC_FILES = [
-  { flag: 'NAN', text: 'Coordinate files (not re-aligned) (.pdb)', defaultValue: false },
+  { flag: 'pdb_info', text: 'Coordinate files (not re-aligned) (.pdb)', defaultValue: false },
   { flag: 'mtz_info', text: 'Reflections and map coefficients (.mtz)', defaultValue: false },
   { flag: 'cif_info', text: 'Ligand definitions and geometry restrains (.cif)', defaultValue: false },
   { flag: 'map_info', text: 'Real-space map files (VERY BIG!!) (.map)', defaultValue: false, disabled: true }
@@ -117,8 +117,8 @@ const PERMALINK_OPTIONS = [
 ];
 
 const OTHERS = [
-  { flag: 'single_sdf_file', text: 'Single SDF of all ligands', defaultValue: true },
-  { flag: 'sdf_info', text: 'Separate SDFs in subdirectory', defaultValue: false }
+  { flag: 'single_sdf_file', text: 'Single SDF of all ligands', defaultValue: true }
+  // { flag: 'sdf_info', text: 'Separate SDFs in subdirectory', defaultValue: false }
 ];
 
 // Creates an object with flag as keys with boolean values
@@ -238,10 +238,8 @@ export const DownloadStructureDialog = memo(({}) => {
         ...mapFiles,
         ...crystallographicFiles,
         ...other,
-        apo_file: pdb,
-        bound_file: bound,
+        all_aligned_structures: true,
         metadata_info: metadata,
-        smiles_info: smiles,
         static_link: isStaticDownload(),
         file_url: ''
       };
