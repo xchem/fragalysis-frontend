@@ -4,7 +4,7 @@ import { useSelector } from 'react-redux';
 import TagCategoryView from './tagCategoryListView';
 import TagCategoryGridView from './tagCategoryGridView';
 import { CATEGORY_TYPE } from '../../../constants/constants';
-import { compareTagsAsc } from './utils/tagUtils';
+import { compareTagsAsc, getProhibitedCategoriesForEditIds } from './utils/tagUtils';
 
 const useStyles = makeStyles(theme => ({
   category: {
@@ -16,10 +16,11 @@ const TagCategory = memo(({ tagClickCallback, disabled = false }) => {
   const classes = useStyles();
 
   const categoryList = useSelector(state => state.apiReducers.categoryList);
+  const listOfProhibitedCategories = getProhibitedCategoriesForEditIds(categoryList);
   let tagList = useSelector(state => state.apiReducers.tagList);
   tagList = tagList
     .filter(t => {
-      if (t.additional_info?.downloadName) {
+      if (t.additional_info?.downloadName || listOfProhibitedCategories.some(cid => cid === t.category)) {
         return false;
       } else {
         return true;
