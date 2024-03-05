@@ -12,10 +12,11 @@ export const LegacySnapshotModal = ({ open, project, snapshot }) => {
   return (
     <Modal open={open}>
       <h3>
-        Snapshot is not recognized. Maybe it is available in the legacy system. Please try link below. <br />
+        Project/Snapshot could not be resolved. It's possible that this is legacy URL and you may try to visit URL
+        below. <br />
       </h3>
       <a href={legacyLink} target="_blank">
-        Legacy link
+        Legacy URL
       </a>
     </Modal>
   );
