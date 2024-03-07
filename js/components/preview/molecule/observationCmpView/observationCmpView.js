@@ -1184,9 +1184,9 @@ const ObservationCmpView = memo(
                 onChange={e => {
                   const result = e.target.checked;
                   if (result) {
-                    observations?.forEach(obs => {
-                      dispatch(appendToMolListToEdit(obs.id));
-                    });
+                    if (observations?.length > 0) {
+                      dispatch(appendToMolListToEdit(observations[0].id));
+                    }
                     // dispatch(appendToObsCmpListToEdit(currentID));
                   } else {
                     observations?.forEach(obs => {
