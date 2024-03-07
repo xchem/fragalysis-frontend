@@ -470,6 +470,13 @@ export const DownloadStructureDialog = memo(({}) => {
     }
   };
 
+  const resetDownloadOnChange = () => {
+    setSelectedDownload(newDownload);
+    setDownloadTagUrl(null);
+    setFileSize(null);
+    setDownloadUrl(null);
+  };
+
   const copyPOSTJson = () => {
     const requestObject = prepareRequestObject();
     const jsonString = JSON.stringify(requestObject);
@@ -563,7 +570,14 @@ export const DownloadStructureDialog = memo(({}) => {
                       <FormControlLabel
                         key={flag}
                         value={flag}
-                        control={<Radio disabled={zipPreparing} />}
+                        control={
+                          <Radio
+                            disabled={zipPreparing}
+                            onChange={() => {
+                              resetDownloadOnChange();
+                            }}
+                          />
+                        }
                         label={text}
                       />
                     );
@@ -578,11 +592,12 @@ export const DownloadStructureDialog = memo(({}) => {
                       control={
                         <Checkbox
                           checked={mapFiles[flag]}
-                          onChange={() =>
+                          onChange={() => {
                             setMapFiles(prevState => {
                               return { ...prevState, [flag]: !prevState[flag] };
-                            })
-                          }
+                            });
+                            resetDownloadOnChange();
+                          }}
                           disabled={zipPreparing}
                         />
                       }
@@ -599,11 +614,12 @@ export const DownloadStructureDialog = memo(({}) => {
                       control={
                         <Checkbox
                           checked={crystallographicFiles[flag]}
-                          onChange={() =>
+                          onChange={() => {
                             setCrystallographicFiles(prevState => {
                               return { ...prevState, [flag]: !prevState[flag] };
-                            })
-                          }
+                            });
+                            resetDownloadOnChange();
+                          }}
                           disabled={zipPreparing || disabled}
                         />
                       }
@@ -626,6 +642,7 @@ export const DownloadStructureDialog = memo(({}) => {
                   name="radio-group-download-type"
                   onChange={event => {
                     setLinkType(event.currentTarget.value);
+                    resetDownloadOnChange();
                   }}
                 >
                   {PERMALINK_OPTIONS.map(({ flag, text }) => {
@@ -633,7 +650,14 @@ export const DownloadStructureDialog = memo(({}) => {
                       <FormControlLabel
                         key={flag}
                         value={flag}
-                        control={<Radio disabled={zipPreparing} />}
+                        control={
+                          <Radio
+                            disabled={zipPreparing}
+                            onChange={() => {
+                              resetDownloadOnChange();
+                            }}
+                          />
+                        }
                         label={text}
                       />
                     );
@@ -648,11 +672,12 @@ export const DownloadStructureDialog = memo(({}) => {
                       control={
                         <Checkbox
                           checked={other[flag]}
-                          onChange={() =>
+                          onChange={() => {
                             setOthers(prevState => {
                               return { ...prevState, [flag]: !prevState[flag] };
-                            })
-                          }
+                            });
+                            resetDownloadOnChange();
+                          }}
                           disabled={zipPreparing}
                         />
                       }
