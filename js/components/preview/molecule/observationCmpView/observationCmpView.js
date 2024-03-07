@@ -562,15 +562,18 @@ const ObservationCmpView = memo(
       // const sortedData = [...allData].sort((a, b) => a.tag.localeCompare(b.tag));
 
       const modifiedObjects = allData.map((obj, index) => {
-        const tagNameShortLength = 3;
-        if (obj.tag.length > tagNameShortLength) {
-          let shortened = { ...obj, tag: obj.tag.slice(0, tagNameShortLength) };
-          if (index === 0) {
-            shortened = { ...shortened, tag: shortened.tag.replace('-', '') };
+        let result = obj;
+
+        if (obj.tag_prefix) {
+          result = { ...obj, tag: obj.tag_prefix };
+        } else {
+          const tagNameShortLength = 3;
+          if (obj.tag.length > tagNameShortLength) {
+            result = { ...obj, tag: obj.tag.slice(0, tagNameShortLength) };
           }
-          return shortened;
         }
-        return obj;
+
+        return result;
       });
 
       const allTagsLength = allData.length > 9 ? 9 : allData.length;
@@ -745,7 +748,7 @@ const ObservationCmpView = memo(
                         xs={allData.length === 1 ? 12 : allData.length === 2 ? 6 : 4}
                         key={index}
                       >
-                        <div>{item.tag}</div>
+                        <div>{item.tag_prefix ? `${item.tag_prefix} - ${item.tag}` : item.tag}</div>
                       </Grid>
                     ))}
                   </Grid>

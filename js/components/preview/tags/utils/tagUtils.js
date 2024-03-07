@@ -38,20 +38,26 @@ export const createMoleculeTagObject = (
 };
 
 export const compareTagsAsc = (a, b) => {
-  if (a.tag < b.tag) {
+  const aName = a.tag_prefix ? `${a.tag_prefix} - ${a.tag}` : a.tag;
+  const bName = b.tag_prefix ? `${b.tag_prefix} - ${b.tag}` : b.tag;
+
+  if (aName < bName) {
     return -1;
   }
-  if (a.tag > b.tag) {
+  if (aName > bName) {
     return 1;
   }
   return 0;
 };
 
 export const compareTagsDesc = (a, b) => {
-  if (a.tag > b.tag) {
+  const aName = a.tag_prefix ? `${a.tag_prefix} - ${a.tag}` : a.tag;
+  const bName = b.tag_prefix ? `${b.tag_prefix} - ${b.tag}` : b.tag;
+
+  if (aName > bName) {
     return -1;
   }
-  if (a.tag < b.tag) {
+  if (aName < bName) {
     return 1;
   }
   return 0;

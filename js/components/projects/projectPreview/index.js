@@ -8,8 +8,9 @@ import { restoreCurrentActionsList } from '../../../reducers/tracking/dispatchAc
 import { setIsSnapshotDirty } from '../../../reducers/tracking/actions';
 import { setDownloadStructuresDialogOpen } from '../../snapshot/redux/actions';
 import { ToastContext } from '../../toast';
+import { LegacySnapshotModal } from '../legacySnapshotModal';
 
-export const ProjectPreview = memo(({ }) => {
+export const ProjectPreview = memo(({}) => {
   const { toast } = useContext(ToastContext);
   const [canShow, setCanShow] = useState(undefined);
   const isSnapshotLoaded = useRef(undefined);
@@ -22,6 +23,8 @@ export const ProjectPreview = memo(({ }) => {
   const currentSessionProject = useSelector(state => state.projectReducers.currentProject);
   const isActionRestoring = useSelector(state => state.trackingReducers.isActionRestoring);
   const isActionRestored = useSelector(state => state.trackingReducers.isActionRestored);
+
+  const [showLegacySnapshotModal, setShowLegacySnapshotModal] = useState(false);
 
   useEffect(() => {
     if (!snapshotId && currentSnapshotID === null) {
@@ -49,6 +52,7 @@ export const ProjectPreview = memo(({ }) => {
                   setCanShow(true);
                 } else {
                   setCanShow(false);
+                  setShowLegacySnapshotModal(true);
                 }
                 if (response.data) {
                   const dataObj = JSON.parse(response.data);
@@ -59,6 +63,7 @@ export const ProjectPreview = memo(({ }) => {
               } else {
                 isSnapshotLoaded.current = response;
                 setCanShow(false);
+                setShowLegacySnapshotModal(true);
               }
             }
           })
@@ -96,5 +101,7 @@ export const ProjectPreview = memo(({ }) => {
           (currentSessionProject.projectID === null || currentSessionProject.authorID === null))
       }
     />
-  ) : null;
+  ) : (
+    <LegacySnapshotModal open={showLegacySnapshotModal} project={projectId} snapshot={snapshotId} />
+  );
 });

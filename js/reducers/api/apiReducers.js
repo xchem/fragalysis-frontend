@@ -266,8 +266,8 @@ export default function apiReducers(state = INITIAL_STATE, action = {}) {
       return { ...state, downloadTags: [...action.downloadTags] };
 
     case constants.APPEND_TO_DOWNLOAD_TAGS:
-      if (!state.downloadTags.find(dt => action.tag.tag)) {
-        return { ...state, downloadTags: [...state.downloadTags, action.tag] };
+      if (!state.downloadTags.find(dt => dt.tag === action.tag.tag)) {
+        return { ...state, downloadTags: [...state.downloadTags, { ...action.tag }] };
       } else {
         return state;
       }
