@@ -524,40 +524,56 @@ const ObservationCmpView = memo(
       setTagPopoverOpen(null);
     };
 
-    const resolveTagBackgroundColor = tag => {
-      let color = DEFAULT_TAG_COLOR;
+    const resolveTagBackgroundColor = useCallback(
+      tag => {
+        let color = DEFAULT_TAG_COLOR;
 
-      if (tag.colour && tag.colour !== '') {
-        color = tag.colour;
-      } else {
-        const category = dispatch(getCategoryById(tag.category));
-        if (category) {
-          color = `#${category.colour}`;
+        if (tag.colour && tag.colour !== '') {
+          color = tag.colour;
+        } else {
+          const category = dispatch(getCategoryById(tag.category));
+          if (category) {
+            color = `#${category.colour}`;
+          }
         }
-      }
 
-      return color;
-    };
+        return color;
+      },
+      [dispatch]
+    );
 
-    const resolveTagForegroundColor = tag => {
-      const bgColor = resolveTagBackgroundColor(tag);
-      return getFontColorByBackgroundColor(bgColor);
-    };
+    const resolveTagForegroundColor = useCallback(
+      tag => {
+        const bgColor = resolveTagBackgroundColor(tag);
+        return getFontColorByBackgroundColor(bgColor);
+      },
+      [resolveTagBackgroundColor]
+    );
 
-    const generateTagPopover = () => {
+    const generateTagPopover = useCallback(() => {
+      // console.log('generateTagPopover');
       const allData = getAllTagsForLHSCmp(observations, tagList, tagCategories);
+      // console.log(
+      //   `generateTagPopover ${observations[0].compound_code} assigned tags: ${observations[0].tags_set} count: ` +
+      //     allData?.length +
+      //     ' ' +
+      //     JSON.stringify(allData)
+      // );
       // const sortedData = [...allData].sort((a, b) => a.tag.localeCompare(b.tag));
 
       const modifiedObjects = allData.map((obj, index) => {
-        const tagNameShortLength = 3;
-        if (obj.tag.length > tagNameShortLength) {
-          let shortened = { ...obj, tag: obj.tag.slice(0, tagNameShortLength) };
-          if (index === 0) {
-            shortened = { ...shortened, tag: shortened.tag.replace('-', '') };
+        let result = obj;
+
+        if (obj.tag_prefix) {
+          result = { ...obj, tag: obj.tag_prefix };
+        } else {
+          const tagNameShortLength = 3;
+          if (obj.tag.length > tagNameShortLength) {
+            result = { ...obj, tag: obj.tag.slice(0, tagNameShortLength) };
           }
-          return shortened;
         }
-        return obj;
+
+        return result;
       });
 
       const allTagsLength = allData.length > 9 ? 9 : allData.length;
@@ -732,7 +748,7 @@ const ObservationCmpView = memo(
                         xs={allData.length === 1 ? 12 : allData.length === 2 ? 6 : 4}
                         key={index}
                       >
-                        <div>{item.tag}</div>
+                        <div>{item.tag_prefix ? `${item.tag_prefix} - ${item.tag}` : item.tag}</div>
                       </Grid>
                     ))}
                   </Grid>
@@ -772,7 +788,23 @@ const ObservationCmpView = memo(
           </Tooltip>
         </IconButton>
       );
-    };
+    }, [
+      classes.editButtonIcon,
+      classes.paper,
+      classes.popover,
+      classes.tagPopover,
+      dispatch,
+      observations,
+      open,
+      resolveTagBackgroundColor,
+      resolveTagForegroundColor,
+      setRef,
+      tagCategories,
+      tagEditModalOpenNew,
+      tagEditorOpen,
+      tagList,
+      tagPopoverOpen
+    ]);
 
     // componentDidMount
     useEffect(() => {
@@ -1152,9 +1184,9 @@ const ObservationCmpView = memo(
                 onChange={e => {
                   const result = e.target.checked;
                   if (result) {
-                    observations?.forEach(obs => {
-                      dispatch(appendToMolListToEdit(obs.id));
-                    });
+                    if (observations?.length > 0) {
+                      dispatch(appendToMolListToEdit(observations[0].id));
+                    }
                     // dispatch(appendToObsCmpListToEdit(currentID));
                   } else {
                     observations?.forEach(obs => {

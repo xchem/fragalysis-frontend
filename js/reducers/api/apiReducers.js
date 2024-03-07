@@ -176,13 +176,24 @@ export default function apiReducers(state = INITIAL_STATE, action = {}) {
       const indexOfMol = newList.findIndex(m => m.id === action.mol.id);
       if (indexOfMol >= 0) {
         newList[indexOfMol] = { ...action.mol };
-        return { ...state, all_mol_lists: newList };
+        return { ...state, all_mol_lists: [...newList] };
       } else {
         return state;
       }
 
     case constants.SET_LHS_COMPOUNDS_LIST:
       return { ...state, lhs_compounds_list: action.lhs_compounds_list };
+
+    case constants.UPDATE_LHS_COMPOUND: {
+      let newList = [...state.lhs_compounds_list];
+      const indexOfCmp = newList.findIndex(c => c.id === action.cmp.id);
+      if (indexOfCmp >= 0) {
+        newList[indexOfCmp] = { ...action.cmp };
+        return { ...state, lhs_compounds_list: [...newList] };
+      } else {
+        return state;
+      }
+    }
 
     case constants.SET_PANNDA_EVENT_LIST:
       return Object.assign({}, state, {
@@ -255,8 +266,8 @@ export default function apiReducers(state = INITIAL_STATE, action = {}) {
       return { ...state, downloadTags: [...action.downloadTags] };
 
     case constants.APPEND_TO_DOWNLOAD_TAGS:
-      if (!state.downloadTags.find(dt => action.tag.tag)) {
-        return { ...state, downloadTags: [...state.downloadTags, action.tag] };
+      if (!state.downloadTags.find(dt => dt.tag === action.tag.tag)) {
+        return { ...state, downloadTags: [...state.downloadTags, { ...action.tag }] };
       } else {
         return state;
       }

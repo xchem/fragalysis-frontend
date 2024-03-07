@@ -1,4 +1,4 @@
-import React, { memo, useState, useEffect } from 'react';
+import React, { memo, useState, useEffect, useMemo } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { CATEGORY_TYPE, CATEGORY_ID, CATEGORY_TYPE_BY_ID } from '../../../../constants/constants';
 import { ColorPicker } from '../../../common/Components/ColorPicker';
@@ -6,7 +6,8 @@ import {
   DEFAULT_CATEGORY,
   DEFAULT_TAG_COLOR,
   augumentTagObjectWithId,
-  createMoleculeTagObject
+  createMoleculeTagObject,
+  getEditNewTagCategories
 } from '../utils/tagUtils';
 import { DJANGO_CONTEXT } from '../../../../utils/djangoContext';
 import { updateTagProp, removeSelectedTag } from '../redux/dispatchActions';
@@ -73,10 +74,14 @@ const NewTagDetailRow = memo(({ moleculesToEditIds, moleculesToEdit }) => {
   const allMolList = useSelector(state => state.apiReducers.all_mol_lists);
   const categoriesList = useSelector(state => state.apiReducers.categoryList);
 
-  const [newTagCategory, setNewTagCategory] = useState(1);
+  const [newTagCategory, setNewTagCategory] = useState(DEFAULT_CATEGORY);
   const [newTagColor, setNewTagColor] = useState(DEFAULT_TAG_COLOR);
   const [newTagName, setNewTagName] = useState('');
   const [newTagLink, setNewTagLink] = useState('');
+
+  const comboCategories = useMemo(() => {
+    return getEditNewTagCategories(categoriesList);
+  }, [categoriesList]);
 
   useEffect(() => {
     const category = dispatch(getCategoryById(DEFAULT_CATEGORY));
@@ -160,18 +165,32 @@ const NewTagDetailRow = memo(({ moleculesToEditIds, moleculesToEdit }) => {
   const updateTag = () => {
     if (tagToEdit && newTagCategory && newTagName) {
       // update all props at once
-      dispatch(
-        updateTagProp(
-          Object.assign({}, tagToEdit, {
-            category: newTagCategory,
-            colour: newTagColor,
-            tag: newTagName,
-            discourse_url: newTagLink
-          }),
-          newTagName,
-          'tag'
-        )
-      );
+      if (newTagCategory) {
+        dispatch(
+          updateTagProp(
+            Object.assign({}, tagToEdit, {
+              category: newTagCategory,
+              colour: newTagColor,
+              tag: newTagName,
+              discourse_url: newTagLink
+            }),
+            newTagName,
+            'tag'
+          )
+        );
+      } else {
+        dispatch(
+          updateTagProp(
+            Object.assign({}, tagToEdit, {
+              colour: newTagColor,
+              tag: newTagName,
+              discourse_url: newTagLink
+            }),
+            newTagName,
+            'tag'
+          )
+        );
+      }
       // reset tag/fields after updating selected one
       resetTagToEditState();
     }
@@ -240,7 +259,7 @@ const NewTagDetailRow = memo(({ moleculesToEditIds, moleculesToEdit }) => {
         onChange={onCategoryForNewTagChange}
         disabled={!DJANGO_CONTEXT.pk}
       >
-        {categoriesList?.map(c => (
+        {comboCategories?.map(c => (
           <MenuItem key={`tag-editor-new-category-${c.id}`} value={c.id}>
             {c.category}
           </MenuItem>

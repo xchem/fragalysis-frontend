@@ -1107,7 +1107,7 @@ export const ObservationCmpList = memo(({ hideProjects }) => {
                   [classes.contColButtonHalfSelected]: false
                 })}
                 onClick={() => {
-                  dispatch(selectAllHits(joinedMoleculeLists, setNextXMolecules, selectAllHitsPressed));
+                  dispatch(selectAllHits(filteredLHSCompoundsList, setNextXMolecules, selectAllHitsPressed));
                   setSelectAllHitsPressed(!selectAllHitsPressed);
                 }}
                 disabled={false}
@@ -1214,7 +1214,12 @@ export const ObservationCmpList = memo(({ hideProjects }) => {
               >
                 {filteredLHSCompoundsList.map((data, index, array) => {
                   const molsForCmp = data.associatedObs;
-                  const selected = allSelectedMolecules.some(molecule => molecule.cmpd === data.origId);
+                  // const selected = allSelectedMolecules.some(
+                  //   molecule => molecule.cmpd === data.origId && molecule.canon_site_conf === data.canonSiteConf
+                  // );
+                  const selected = allSelectedMolecules.some(molecule =>
+                    data.associatedObs.some(obs => obs.id === molecule.id)
+                  );
 
                   return (
                     <ObservationCmpView

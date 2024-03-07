@@ -3,11 +3,12 @@ import {
   CATEGORY_TYPE_BY_ID,
   OBSERVATION_TAG_CATEGORIES,
   COMPOUND_PRIO_TAG_CATEGORIES,
-  TAG_DETAILS_REMOVED_CATEGORIES
+  TAG_DETAILS_REMOVED_CATEGORIES,
+  NON_ASSIGNABLE_CATEGORIES
 } from '../../../../constants/constants';
 
 export const DEFAULT_TAG_COLOR = '#E0E0E0';
-export const DEFAULT_CATEGORY = 1;
+export const DEFAULT_CATEGORY = 8;
 
 export const createMoleculeTagObject = (
   tagName,
@@ -37,20 +38,26 @@ export const createMoleculeTagObject = (
 };
 
 export const compareTagsAsc = (a, b) => {
-  if (a.tag < b.tag) {
+  const aName = a.tag_prefix ? `${a.tag_prefix} - ${a.tag}` : a.tag;
+  const bName = b.tag_prefix ? `${b.tag_prefix} - ${b.tag}` : b.tag;
+
+  if (aName < bName) {
     return -1;
   }
-  if (a.tag > b.tag) {
+  if (aName > bName) {
     return 1;
   }
   return 0;
 };
 
 export const compareTagsDesc = (a, b) => {
-  if (a.tag > b.tag) {
+  const aName = a.tag_prefix ? `${a.tag_prefix} - ${a.tag}` : a.tag;
+  const bName = b.tag_prefix ? `${b.tag_prefix} - ${b.tag}` : b.tag;
+
+  if (aName > bName) {
     return -1;
   }
-  if (a.tag < b.tag) {
+  if (aName < bName) {
     return 1;
   }
   return 0;
@@ -246,4 +253,24 @@ export const getAllTagsForLHSCmp = (observations, tagList, tagCategoryList) => {
 
 export const getDefaultTagDiscoursePostText = tag => {
   return `This post for tag ${tag.tag} is here to discuss its contents.`;
+};
+
+export const getEditNewTagCategories = tagCategoryList => {
+  let result = [];
+
+  result = tagCategoryList?.filter(categ => !NON_ASSIGNABLE_CATEGORIES.some(c => c === categ.category)) || [];
+
+  return result;
+};
+
+export const getProhibitedCategoriesForEdit = tagCategoryList => {
+  let result = [];
+
+  result = tagCategoryList?.filter(categ => NON_ASSIGNABLE_CATEGORIES.some(c => c === categ.category)) || [];
+
+  return result;
+};
+
+export const getProhibitedCategoriesForEditIds = tagCategoryList => {
+  return getProhibitedCategoriesForEdit(tagCategoryList).map(c => c.id);
 };

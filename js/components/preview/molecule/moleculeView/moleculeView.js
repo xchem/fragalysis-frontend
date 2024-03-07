@@ -455,11 +455,18 @@ const MoleculeView = memo(
       // const sortedData = [...allData].sort((a, b) => a.tag.localeCompare(b.tag));
 
       const modifiedObjects = allData.map(obj => {
-        const tagNameShortLength = 3;
-        if (obj.tag.length > tagNameShortLength) {
-          return { ...obj, tag: obj.tag.slice(0, tagNameShortLength) };
+        let result = obj;
+
+        if (obj.tag_prefix) {
+          result = { ...obj, tag: obj.tag_prefix };
+        } else {
+          const tagNameShortLength = 3;
+          if (obj.tag.length > tagNameShortLength) {
+            result = { ...obj, tag: obj.tag.slice(0, tagNameShortLength) };
+          }
         }
-        return obj;
+
+        return result;
       });
 
       const allTagsLength = allData.length > 9 ? 9 : allData.length;
@@ -630,7 +637,7 @@ const MoleculeView = memo(
                         xs={allData.length === 1 ? 12 : allData.length === 2 ? 6 : 4}
                         key={index}
                       >
-                        <div>{item.tag}</div>
+                        <div>{item.tag_prefix ? `${item.tag_prefix} - ${item.tag}` : item.tag}</div>
                       </Grid>
                     ))}
                   </Grid>

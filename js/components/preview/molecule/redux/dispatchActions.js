@@ -1232,16 +1232,21 @@ export const withDisabledMoleculesNglControlButtons = (moleculeIds, type, callba
   });
 };
 
-export const selectAllHits = (allFilteredMolecules, setNextXMolecules, unselect) => (dispatch, getState) => {
+export const selectAllHits = (allFilteredLhsCompounds, setNextXMolecules, unselect) => (dispatch, getState) => {
   if (setNextXMolecules) {
-    dispatch(setNextXMolecules(allFilteredMolecules?.length || 0));
+    dispatch(setNextXMolecules(allFilteredLhsCompounds?.length || 0));
   }
-  const listOfIds = allFilteredMolecules.map(m => m.id);
+  const listOfIds = [];
+  allFilteredLhsCompounds.forEach(cmp => {
+    if (cmp.associatedObs?.length > 0) {
+      listOfIds.push(cmp.associatedObs[0].id);
+    }
+  });
   if (!unselect) {
     dispatch(setMolListToEdit(listOfIds));
-    dispatch(setSelectAllMolecules(allFilteredMolecules));
+    dispatch(setSelectAllMolecules(allFilteredLhsCompounds));
   } else {
     dispatch(setMolListToEdit([]));
-    dispatch(setUnselectAllMolecules(allFilteredMolecules));
+    dispatch(setUnselectAllMolecules(allFilteredLhsCompounds));
   }
 };
