@@ -66,19 +66,13 @@ jobs:
       push: ${{ steps.vars.outputs.push }}
     steps:
     - name: Inject slug/short variables
-      uses: rlespinasse/github-slug-action@v3.x
+      uses: rlespinasse/github-slug-action@v4
     - name: Initialise workflow variables
       id: vars
       env:
         DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
         TRIGGER_DOWNSTREAM: ${{ secrets.TRIGGER_DOWNSTREAM }}
       run: |
-        # BE_IMAGE_TAG
-        BE_IMAGE_TAG="${{ env.BE_IMAGE_TAG }}"
-        if [ -n "${{ secrets.BE_IMAGE_TAG }}" ]; then BE_IMAGE_TAG="${{ secrets.BE_IMAGE_TAG }}"; fi
-        echo BE_IMAGE_TAG=${BE_IMAGE_TAG}
-        echo "BE_IMAGE_TAG=${BE_IMAGE_TAG}" >> $GITHUB_OUTPUT
-
         # BE_NAMESPACE
         BE_NAMESPACE="${{ env.BE_NAMESPACE }}"
         if [ -n "${{ secrets.BE_NAMESPACE }}" ]; then BE_NAMESPACE="${{ secrets.BE_NAMESPACE }}"; fi
@@ -88,7 +82,7 @@ jobs:
         # FE_IMAGE_TAG
         FE_IMAGE_TAG="${{ env.FE_IMAGE_TAG }}"
         if [ -n "${{ secrets.FE_IMAGE_TAG }}" ]; then FE_IMAGE_TAG="${{ secrets.FE_IMAGE_TAG }}"; fi
-        echo FE_IMAGE_TAG={FE_IMAGE_TAG}
+        echo FE_IMAGE_TAG=${FE_IMAGE_TAG}
         echo "FE_IMAGE_TAG=${FE_IMAGE_TAG}" >> $GITHUB_OUTPUT
 
         # FE_NAMESPACE
@@ -115,6 +109,12 @@ jobs:
         echo STACK_NAMESPACE=${STACK_NAMESPACE}
         echo "STACK_NAMESPACE=${STACK_NAMESPACE}" >> $GITHUB_OUTPUT
 
+        # What image tag are we using? 'latest' (if not tagged) or a GitHub tag?
+        TAG="latest"
+        if [[ "${{ github.ref }}" =~ ^refs/tags/ ]]; then TAG="${{ env.GITHUB_REF_SLUG }}"; fi
+        echo tag=${TAG}
+        echo "tag=${TAG}" >> $GITHUB_OUTPUT
+
         # Do we push, i.e. is DOCKERHUB_USERNAME defined?
         echo push=${{ env.DOCKERHUB_USERNAME != '' }}
         echo "push=${{ env.DOCKERHUB_USERNAME != '' }}" >> $GITHUB_OUTPUT
@@ -124,12 +124,19 @@ jobs:
         echo "trigger=${{ env.TRIGGER_DOWNSTREAM == 'yes' }}" >> $GITHUB_OUTPUT
 
     - name: Checkout
-      uses: actions/checkout@v3
-    - name: Build
-      uses: docker/build-push-action@v4
+      uses: actions/checkout@v4
+    - name: Lint Dockerfile
+      uses: hadolint/hadolint-action@v3.1.0
       with:
-        tags: ${{ steps.vars.outputs.FE_NAMESPACE }}/fragalysis-frontend:${{ steps.vars.outputs.FE_IMAGE_TAG }}
-    - name: Login to Docker Hub
+        dockerfile: Dockerfile
+    - name: Build
+      uses: docker/build-push-action@v5
+      with:
+        context: .
+        tags: |
+          ${{ steps.vars.outputs.FE_NAMESPACE }}/fragalysis-frontend:${{ steps.vars.outputs.tag }}
+          ${{ steps.vars.outputs.FE_NAMESPACE }}/fragalysis-frontend:stable
+    - name: Login to DockerHub
       if: steps.vars.outputs.push == 'true'
       uses: docker/login-action@v3
       with:
@@ -138,7 +145,8 @@ jobs:
     - name: Push
       if: steps.vars.outputs.push == 'true'
       run: |
-        docker push ${{ steps.vars.outputs.FE_NAMESPACE }}/fragalysis-frontend:${{ steps.vars.outputs.FE_IMAGE_TAG }}
+        docker push ${{ steps.vars.outputs.FE_NAMESPACE }}/fragalysis-frontend:${{ steps.vars.outputs.tag }}
+        docker push ${{ steps.vars.outputs.FE_NAMESPACE }}/fragalysis-frontend:stable
 
     # Trigger the stack for this build,
     # identifying the 'stable' backend (or whatever BE_IMAGE_TAG was used)
