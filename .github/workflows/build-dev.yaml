@@ -39,7 +39,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Inject slug/short variables
-        uses: rlespinasse/github-slug-action@v3.x
+        uses: rlespinasse/github-slug-action@v4
       - name: Initialise workflow variables
         id: vars
         run: |
@@ -49,8 +49,8 @@ jobs:
           echo FE_NAMESPACE=${FE_NAMESPACE}
           echo "FE_NAMESPACE=${FE_NAMESPACE}" >> $GITHUB_OUTPUT
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
       - name: Build
-        uses: docker/build-push-action@v4
+        uses: docker/build-push-action@v5
         with:
           tags: ${{ steps.vars.outputs.FE_NAMESPACE }}/fragalysis-frontend:${{ env.GITHUB_REF_SLUG }}
