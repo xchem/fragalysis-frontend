@@ -198,8 +198,8 @@ const TagDetails = memo(() => {
   const moleculesToEditIds = useSelector(state => state.selectionReducers.moleculesToEdit);
   const moleculesToEdit =
     moleculesToEditIds &&
-      moleculesToEditIds.length > 0 &&
-      !(moleculesToEditIds.length === 1 && moleculesToEditIds[0] === null)
+    moleculesToEditIds.length > 0 &&
+    !(moleculesToEditIds.length === 1 && moleculesToEditIds[0] === null)
       ? moleculesToEditIds.map(id => dispatch(getMoleculeForId(id)))
       : [];
 
@@ -441,7 +441,7 @@ const TagDetails = memo(() => {
           </Grid>
         </Grid>
       </div>
-      <div ref={elementRef} className={classes.containerExpanded} style={{ height: tagDetailView ? "80%" : "87%" }}>
+      <div ref={elementRef} className={classes.containerExpanded} style={{ height: tagDetailView ? '80%' : '87%' }}>
         {tagDetailView ? (
           <>
             <div className={classes.container} id="tagName">
