@@ -63,7 +63,15 @@ import { centerOnLigandByMoleculeID } from '../../../reducers/ngl/dispatchAction
 import { ArrowDownward, ArrowUpward, MyLocation } from '@material-ui/icons';
 import { isString } from 'lodash';
 import { SvgTooltip } from '../../common';
-import { addComplex, addHitProtein, addSurface, getMolImage, removeComplex, removeHitProtein, removeSurface } from '../../preview/molecule/redux/dispatchActions';
+import {
+  addComplex,
+  addHitProtein,
+  addSurface,
+  getMolImage,
+  removeComplex,
+  removeHitProtein,
+  removeSurface
+} from '../../preview/molecule/redux/dispatchActions';
 import { MOL_TYPE } from '../../preview/molecule/redux/constants';
 import {
   deselectVectorCompound,
@@ -1236,13 +1244,7 @@ const DatasetMoleculeView = memo(
                   wrap="nowrap"
                   className={classes.fullHeight}
                 >
-                  <Grid
-                    item
-                    container
-                    justifyContent="flex-start"
-                    direction="row"
-                    wrap="nowrap"
-                  >
+                  <Grid item container justifyContent="flex-start" direction="row" wrap="nowrap">
                     {filteredScoreProperties &&
                       datasetID &&
                       filteredScoreProperties[datasetID] &&
@@ -1270,21 +1272,15 @@ const DatasetMoleculeView = memo(
                                   null}
                               </Grid>
                             )) || (
-                                <Grid item className={classes.rightBorder}>
-                                  -
-                                </Grid>
-                              )}
+                              <Grid item className={classes.rightBorder}>
+                                -
+                              </Grid>
+                            )}
                           </Tooltip>
                         );
                       })}
                   </Grid>
-                  <Grid
-                    item
-                    container
-                    justifyContent="flex-end"
-                    direction="row"
-                    wrap="nowrap"
-                  >
+                  <Grid item container justifyContent="flex-end" direction="row" wrap="nowrap">
                     {Object.keys(compoundsColors).map(color => {
                       const colorIncluded = shoppingCartColors?.includes(color);
                       return (
@@ -1363,7 +1359,7 @@ const DatasetMoleculeView = memo(
                   </Tooltip>
                 )}
                 {moleculeTooltipOpen && !inSelectedCompoundsList && (
-                  <Tooltip title={"Missing tooltip!"}>
+                  <Tooltip title={'Missing tooltip!'}>
                     <IconButton className={classes.addToShoppingCartIcon} onClick={handleShoppingCartClick}>
                       <AddShoppingCartIcon />
                     </IconButton>
