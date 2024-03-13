@@ -441,7 +441,7 @@ const TagDetails = memo(() => {
           </Grid>
         </Grid>
       </div>
-      <div ref={elementRef} className={classes.containerExpanded} style={{ height: tagDetailView ? "80%" : "87%" }}>
+      <div ref={elementRef} className={classes.containerExpanded} style={{ height: tagDetailView ? '80%' : '87%' }}>
         {tagDetailView ? (
           <>
             <div className={classes.container} id="tagName">

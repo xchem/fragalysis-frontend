@@ -282,7 +282,7 @@ const NewTagDetailRow = memo(({ moleculesToEditIds, moleculesToEdit }) => {
               onClick={() => deleteTag()}
               color="secondary"
               variant="contained"
-              disabled={!DJANGO_CONTEXT.pk}
+              disabled={!DJANGO_CONTEXT.pk || !comboCategories.some(cc => cc.id === tagToEdit.category)}
               size="small"
             >
               Delete
