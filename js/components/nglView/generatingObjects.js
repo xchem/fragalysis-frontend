@@ -25,7 +25,7 @@ export const assignRepresentationArrayToComp = (representations, comp) => {
 
 export const generateProteinObject = data => {
   // Now deal with this target
-  const prot_to_load = window.location.protocol + '//' + window.location.host + data.template_protein;
+  const prot_to_load = data.template_protein;
   if (JSON.stringify(prot_to_load) !== JSON.stringify(undefined)) {
     return {
       name: OBJECT_TYPE.PROTEIN + '_' + data.id.toString(),

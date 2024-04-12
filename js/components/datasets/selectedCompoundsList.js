@@ -297,8 +297,9 @@ export const SelectedCompoundList = memo(() => {
     };
   }, [dispatch]);
 
-  const getSetOfProps = usedDatasets => {
+  const getSetOfProps = filteredCompounds => {
     const unionOfProps = new Set();
+    const usedDatasets = {};
 
     unionOfProps.add('smiles');
 
@@ -310,6 +311,26 @@ export const SelectedCompoundList = memo(() => {
             unionOfProps.add(prop.name);
           }
         });
+      }
+    });
+
+    filteredCompounds.forEach(compound => {
+      const datasetName = compound.datasetID;
+      if (!usedDatasets.hasOwnProperty(datasetName)) {
+        const mol = compound.molecule;
+        if (mol.hasOwnProperty('numerical_scores')) {
+          const numericalScores = mol['numerical_scores'];
+          Object.keys(numericalScores).forEach(key => {
+            unionOfProps.add(key);
+          });
+        }
+        if (mol.hasOwnProperty('text_scores')) {
+          const textScores = mol['text_scores'];
+          Object.keys(textScores).forEach(key => {
+            unionOfProps.add(key);
+          });
+        }
+        usedDatasets[datasetName] = true;
       }
     });
 
@@ -417,17 +438,6 @@ export const SelectedCompoundList = memo(() => {
     return result;
   };
 
-  const getUsedDatasets = mols => {
-    const setOfDataSets = {};
-    mols.forEach(mol => {
-      if (!setOfDataSets.hasOwnProperty(mol.datasetID)) {
-        setOfDataSets[mol.datasetID] = mol.datasetID;
-      }
-    });
-
-    return setOfDataSets;
-  };
-
   const getEmptyMolObject = (props, ids) => {
     let molObj = {};
 
@@ -470,8 +480,7 @@ export const SelectedCompoundList = memo(() => {
         return isVisible;
       });
 
-      const usedDatasets = getUsedDatasets(filteredCompounds);
-      const props = getSetOfProps(usedDatasets);
+      const props = getSetOfProps(filteredCompounds);
       const ids = getCompoundIds(filteredCompounds);
 
       const listOfMols = [];
@@ -520,7 +529,7 @@ export const SelectedCompoundList = memo(() => {
           const inspirations = getInspirationsForMol(allInspirations, compound.datasetID, compound.molecule.id);
           for (let i = 0; i < maxNumOfInspirations; i++) {
             if (inspirations?.[i]) {
-              molObj[`inspiration_${i + 1}`] = inspirations[i].protein_code;
+              molObj[`inspiration_${i + 1}`] = inspirations[i].code;
             } else {
               molObj[`inspiration_${i + 1}`] = '';
             }
@@ -534,11 +543,9 @@ export const SelectedCompoundList = memo(() => {
           const cmpColorsForDataset = compoundColors[compound.datasetID];
           shoppingCartColors = cmpColorsForDataset[compound.molecule.id];
         }
-        // let colorTagsToDisplay = '';
         let colorsTemplateCopy = { ...colorsTemplate };
         shoppingCartColors.forEach(color => {
           colorsTemplateCopy[color] = true;
-          // colorTagsToDisplay = colorTagsToDisplay + `${color}: ${inputs[color] || ''}|`;
         });
 
         Object.keys(colorsTemplateCopy)
@@ -550,7 +557,6 @@ export const SelectedCompoundList = memo(() => {
             }
           });
 
-        // molObj['color_groups'] = colorTagsToDisplay;
         molObj = { ...molObj, ...colorsTemplateCopy };
 
         listOfMols.push(molObj);
