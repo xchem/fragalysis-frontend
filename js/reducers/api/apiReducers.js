@@ -364,6 +364,7 @@ export default function apiReducers(state = INITIAL_STATE, action = {}) {
         foundTag.colour = action.item.colour;
         foundTag.category = action.item.category;
         foundTag.discourse_url = action.item.discourse_url;
+        foundTag.hidden = action.item.hidden;
 
         return { ...state, tagList: [...listWithUpdatedTag] };
       } else {

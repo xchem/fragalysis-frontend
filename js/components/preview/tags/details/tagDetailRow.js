@@ -162,12 +162,14 @@ const TagDetailRow = memo(({ tag, moleculesToEditIds, moleculesToEdit }) => {
         isEdit={true}
         isTagEditor={true}
       ></TagView>
+
       {/* category */}
       <Tooltip title={dispatch(getCategoryById(tag.category))?.category}>
         <Typography className={classes.text} variant="body2" noWrap>
           {dispatch(getCategoryById(tag.category))?.category}
         </Typography>
       </Tooltip>
+
       {/* select hits button */}
       <Tooltip title="Select hits">
         <Button
@@ -182,6 +184,7 @@ const TagDetailRow = memo(({ tag, moleculesToEditIds, moleculesToEdit }) => {
           {hasSelectedMolecule() ? 'Unselect hits' : 'Select hits'}
         </Button>
       </Tooltip>
+
       {/* discourse button */}
       <Tooltip title="Discourse link">
         {/* Tooltip should not have disabled element as a direct child */}
@@ -213,18 +216,23 @@ const TagDetailRow = memo(({ tag, moleculesToEditIds, moleculesToEdit }) => {
           </Fab>
         </>
       </Tooltip>
+
       {/* user */}
       <Typography className={classes.text} variant="body2">
         {tag.user_id}
       </Typography>
+
       {/* date */}
       <Typography className={classes.text} variant="body2" noWrap>
         {navigator.language
           ? new Date(tag.create_date).toLocaleDateString(navigator.language)
           : new Date(tag.create_date).toLocaleDateString()}
       </Typography>
+      {/* </TableCell> */}
+
       {/* edit button */}
-      <IconButton
+      <div></div>
+      {/* <IconButton
         variant="contained"
         className={classes.editButton}
         size="small"
@@ -235,7 +243,7 @@ const TagDetailRow = memo(({ tag, moleculesToEditIds, moleculesToEdit }) => {
         <Tooltip title="Edit" className={classes.editButtonIcon}>
           <Edit />
         </Tooltip>
-      </IconButton>
+      </IconButton> */}
     </>
   );
 });

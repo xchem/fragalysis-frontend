@@ -20,7 +20,8 @@ export const createMoleculeTagObject = (
   molecules,
   createDate = new Date(),
   additionalInfo = null,
-  molGroup = null
+  molGroup = null,
+  hidden = false
 ) => {
   return {
     tag: tagName,
@@ -33,7 +34,8 @@ export const createMoleculeTagObject = (
     create_date: createDate,
     help_text: tagName,
     additional_info: additionalInfo,
-    mol_group: molGroup
+    mol_group: molGroup,
+    hidden: hidden
   };
 };
 

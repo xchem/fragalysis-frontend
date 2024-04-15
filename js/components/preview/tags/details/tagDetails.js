@@ -44,6 +44,8 @@ import {
 import { selectAllTags, clearAllTags } from '../redux/dispatchActions';
 import { Button } from '../../../common/Inputs/Button';
 import { LoadingContext } from '../../../loading';
+import { EditTagsModal } from '../modal/editTagsModal';
+import { DJANGO_CONTEXT } from '../../../../utils/djangoContext';
 
 export const heightOfBody = '172px';
 export const defaultHeaderPadding = 15;
@@ -169,6 +171,7 @@ const TagDetails = memo(() => {
 
   const [tagList, setTagList] = useState([]);
   const [selectAll, setSelectAll] = useState(true);
+  const [showEditTagsModal, setShowEditTagsModal] = useState(false);
   const [searchString, setSearchString] = useState(null);
 
   tagDetailView = tagDetailView?.tagDetailView === undefined ? tagDetailView : tagDetailView.tagDetailView;
@@ -198,8 +201,8 @@ const TagDetails = memo(() => {
   const moleculesToEditIds = useSelector(state => state.selectionReducers.moleculesToEdit);
   const moleculesToEdit =
     moleculesToEditIds &&
-    moleculesToEditIds.length > 0 &&
-    !(moleculesToEditIds.length === 1 && moleculesToEditIds[0] === null)
+      moleculesToEditIds.length > 0 &&
+      !(moleculesToEditIds.length === 1 && moleculesToEditIds[0] === null)
       ? moleculesToEditIds.map(id => dispatch(getMoleculeForId(id)))
       : [];
 
@@ -337,6 +340,10 @@ const TagDetails = memo(() => {
     setSelectAll(!selectAll);
   };
 
+  const handleEditTagsButton = () => {
+    setShowEditTagsModal(!showEditTagsModal);
+  };
+
   return (
     <Panel
       ref={ref}
@@ -439,9 +446,25 @@ const TagDetails = memo(() => {
               Select all tags
             </Button>
           </Grid>
+          {DJANGO_CONTEXT.pk && ([
+            <Grid item>
+              <Button
+                onClick={() => handleEditTagsButton()}
+                disabled={false}
+                color="inherit"
+                variant="text"
+                size="small"
+                data-id="editTagsButton"
+                className={classes.contColButton}
+              >
+                Edit tags
+              </Button>
+            </Grid>,
+            <EditTagsModal open={showEditTagsModal} setOpenDialog={setShowEditTagsModal} anchorEl={ref?.current} />
+          ])}
         </Grid>
       </div>
-      <div ref={elementRef} className={classes.containerExpanded} style={{ height: tagDetailView ? '80%' : '87%' }}>
+      <div ref={elementRef} className={classes.containerExpanded} style={{ height: tagDetailView ? '89%' : '93%' }}>
         {tagDetailView ? (
           <>
             <div className={classes.container} id="tagName">
@@ -581,7 +604,7 @@ const TagDetails = memo(() => {
                 </Tooltip>
               </IconButton>
             </div>
-            <div />
+            <div></div>
 
             {filteredTagList &&
               filteredTagList.map((tag, idx) => {
@@ -604,9 +627,9 @@ const TagDetails = memo(() => {
           </div>
         )}
       </div>
-      <div style={{ paddingBottom: resizableLayout === true ? '17px' : '0px' }}>
+      {/* <div style={{ paddingBottom: resizableLayout === true ? '17px' : '0px' }}>
         <NewTagDetailRow moleculesToEditIds={moleculesToEditIds} moleculesToEdit={moleculesToEdit} />
-      </div>
+      </div> */}
     </Panel>
   );
 });
