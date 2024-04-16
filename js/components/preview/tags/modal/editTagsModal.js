@@ -258,13 +258,13 @@ export const EditTagsModal = ({ open, anchorEl, setOpenDialog }) => {
     };
 
     const leftSide = text => {
-        return <Grid item xs={4} className={classes.leftSide}>
+        return <Grid item xs={3} className={classes.leftSide}>
             <InputLabel>{text}</InputLabel>
         </Grid>;
     };
 
     const rightSide = child => {
-        return <Grid item xs={8}>
+        return <Grid item xs={9}>
             {child}
         </Grid>;
     };
