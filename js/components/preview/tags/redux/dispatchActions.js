@@ -126,7 +126,7 @@ export const storeData = data => (dispatch, getState) => {
   dispatch(setTagSelectorData(categories, tags));
 
   let allMolecules = [];
-  data.molecules.forEach(mol => {});
+  data.molecules.forEach(mol => { });
 };
 
 export const updateTagProp = (tag, value, prop) => (dispatch, getState) => {
@@ -148,7 +148,8 @@ export const updateTagProp = (tag, value, prop) => (dispatch, getState) => {
       [...moleculeTag.site_observations],
       newTag.create_date,
       newTag.additional_info,
-      moleculeTag.mol_group
+      moleculeTag.mol_group,
+      newTag.hidden
     );
     let augMolTagObject = augumentTagObjectWithId(newMolTag, tag.id);
     dispatch(updateMoleculeTag(augMolTagObject));

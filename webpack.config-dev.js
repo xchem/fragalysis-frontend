@@ -1,6 +1,6 @@
 const path = require('path');
 const webpack = require('webpack');
-// const ReactRefreshWebpackPlugin = require('@pmmmwh/react-refresh-webpack-plugin');
+const ReactRefreshWebpackPlugin = require('@pmmmwh/react-refresh-webpack-plugin');
 const BundleTracker = require('webpack-bundle-tracker');
 const ErrorOverlayPlugin = require('error-overlay-webpack-plugin');
 const Dotenv = require('dotenv-webpack');
@@ -42,8 +42,8 @@ module.exports = {
     new webpack.NamedModulesPlugin(),
     new webpack.HotModuleReplacementPlugin(),
     new webpack.NoEmitOnErrorsPlugin(), // don't reload if there is an error
-    new Dotenv()
-    // new ReactRefreshWebpackPlugin()
+    new Dotenv(),
+    new ReactRefreshWebpackPlugin()
   ],
 
   module: {
@@ -53,10 +53,10 @@ module.exports = {
         enforce: 'pre',
         exclude: /node_modules/,
         use: {
-          loader: require.resolve('babel-loader')
-          // options: {
-          //   plugins: [require.resolve('react-refresh/babel')].filter(Boolean)
-          // }
+          loader: require.resolve('babel-loader'),
+          options: {
+            plugins: [require.resolve('react-refresh/babel')].filter(Boolean)
+          }
         }
       },
       { test: /\.css$/, loader: 'style-loader!css-loader' },

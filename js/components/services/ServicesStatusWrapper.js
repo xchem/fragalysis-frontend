@@ -3,23 +3,39 @@ import React, { memo, useCallback, useContext, useEffect, useState } from "react
 import { ServicesStatus } from "./ServicesStatus";
 import { getServicesStatus } from "./api/api";
 import { ToastContext } from "../toast";
+import { SERVICE_STATUSES } from "./constants";
 
 export const ServicesStatusWrapper = memo(() => {
     const [services, setServices] = useState([]);
-    const { toastError, toastInfo } = useContext(ToastContext);
+    const { toastError } = useContext(ToastContext);
 
     const checkServices = useCallback((previous, current) => {
         if (previous.length > 0) {
-            const changedServices = current.filter(newService => {
+            // update timestamps for services
+            current.forEach(newService => {
                 const currentService = previous.find(previousService => previousService.id === newService.id);
+                // remember previous value
+                newService.timestamp = currentService.timestamp;
                 if (currentService && currentService.state !== newService.state) {
-                    return true;
+                    if (![SERVICE_STATUSES.OK, SERVICE_STATUSES.DEGRADED].includes(newService.state)) {
+                        newService.timestamp = Date.now();
+                    } else {
+                        // clear timestamp
+                        newService.timestamp = null;
+                    }
                 }
-                return false;
             });
-            changedServices.forEach(service => toastInfo(`Status of ${service.name} changed to ${service.state}`));
+        } else {
+            // initial set
+            current.forEach(service => {
+                if (![SERVICE_STATUSES.OK, SERVICE_STATUSES.DEGRADED].includes(service.state)) {
+                    service.timestamp = Date.now();
+                } else {
+                    service.timestamp = null;
+                }
+            });
         }
-    }, [toastInfo]);
+    }, []);
 
     const fetchServicesStatus = useCallback(async () => {
         const temp = await getServicesStatus();
@@ -29,7 +45,7 @@ export const ServicesStatusWrapper = memo(() => {
                 if (!(prevState.length === 1 && prevState[0]?.id === 'services')) {
                     toastError('Status of services is not available');
                 }
-                return [{ id: 'services', name: 'Status of services', state: 'NOT_AVAILABLE' }];
+                return [{ id: 'services', name: 'Status of services', state: 'NOT_AVAILABLE', timestamp: Date.now() }];
             });
         } else {
             setServices((prevState) => {

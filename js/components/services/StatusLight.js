@@ -1,5 +1,6 @@
 import { makeStyles } from "@material-ui/core";
 import React, { memo } from "react";
+import { SERVICE_STATUSES, SERVICE_STATUS_COLORS } from "./constants";
 
 const useStyles = makeStyles(theme => ({
     circle: {
@@ -7,17 +8,6 @@ const useStyles = makeStyles(theme => ({
         flex: 1
     }
 }));
-
-export const SERVICE_STATUSES = {
-    OK: 'OK',
-    DEGRADED: 'DEGRADED'
-}
-
-export const SERVICE_STATUS_COLORS = {
-    OK: 'green',
-    DEGRADED: 'orange',
-    OTHER: 'red'
-}
 
 export const StatusLight = memo(({ service }) => {
     const getColor = (status) => {
