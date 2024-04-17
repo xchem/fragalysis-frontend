@@ -71,7 +71,7 @@ jobs:
       push: ${{ steps.vars.outputs.push }}
     steps:
       - name: Inject slug/short variables
-        uses: rlespinasse/github-slug-action@v3.x
+        uses: rlespinasse/github-slug-action@v4
       - name: Initialise workflow variables
         id: vars
         env:
@@ -120,6 +120,12 @@ jobs:
           echo STACK_NAMESPACE=${STACK_NAMESPACE}
           echo "STACK_NAMESPACE=${STACK_NAMESPACE}" >> $GITHUB_OUTPUT
 
+          # What image tag are we using? 'latest' (if not tagged) or a GitHub tag?
+          TAG="latest"
+          if [[ "${{ github.ref }}" =~ ^refs/tags/ ]]; then TAG="${{ env.GITHUB_REF_SLUG }}"; fi
+          echo tag=${TAG}
+          echo "tag=${TAG}" >> $GITHUB_OUTPUT
+
           # Do we push, i.e. is DOCKERHUB_USERNAME defined?
           echo push=${{ env.DOCKERHUB_USERNAME != '' }}
           echo "push=${{ env.DOCKERHUB_USERNAME != '' }}" >> $GITHUB_OUTPUT
@@ -129,11 +135,12 @@ jobs:
           echo "trigger=${{ env.TRIGGER_DOWNSTREAM == 'yes' }}" >> $GITHUB_OUTPUT
 
       - name: Checkout
-        uses: actions/checkout@v3
-      - name: Build
-        uses: docker/build-push-action@v4
+        uses: actions/checkout@v4
+      - name: Docker build
+        uses: docker/build-push-action@v5
         with:
-          tags: ${{ steps.vars.outputs.FE_NAMESPACE }}/fragalysis-frontend:${{ steps.vars.outputs.FE_IMAGE_TAG }}
+          context: .
+          tags: ${{ steps.vars.outputs.FE_NAMESPACE }}/fragalysis-frontend:${{ steps.vars.outputs.tag }}
       - name: Login to Docker Hub
         if: steps.vars.outputs.push == 'true'
         uses: docker/login-action@v3
@@ -142,8 +149,7 @@ jobs:
           password: ${{ secrets.DOCKERHUB_TOKEN }}
       - name: Push
         if: steps.vars.outputs.push == 'true'
-        run: |
-          docker push ${{ steps.vars.outputs.FE_NAMESPACE }}/fragalysis-frontend:${{ steps.vars.outputs.FE_IMAGE_TAG }}
+        run: docker push ${{ steps.vars.outputs.FE_NAMESPACE }}/fragalysis-frontend:${{ steps.vars.outputs.tag }}
 
       # Trigger the stack for this build,
       # identifying the 'stable' backend (or whatever BE_IMAGE_TAG has been set)

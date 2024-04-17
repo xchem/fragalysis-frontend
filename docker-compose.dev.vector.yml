@@ -53,10 +53,10 @@ services:
       start_period: 10s
   web:
     container_name: web_dock
-    image: xchem/fragalysis-stack:latest
+    # image: xchem/fragalysis-stack:latest
     # image: alanbchristie/fragalysis-backend:1187.3
     # image: boriskovarm2ms/fragalysis-stack:experiment2
-    # image: kaliif/fragalysis-backend:latest
+    image: kaliif/fragalysis-backend:latest
     command: /bin/bash /code/launch-stack.sh
     volumes:
       - ../data/logs:/code/logs/
