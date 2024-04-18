@@ -20,7 +20,7 @@ const TagCategory = memo(({ tagClickCallback, disabled = false }) => {
   let tagList = useSelector(state => state.apiReducers.tagList);
   tagList = tagList
     .filter(t => {
-      if (t.additional_info?.downloadName || listOfProhibitedCategories.some(cid => cid === t.category)) {
+      if (t.hidden || t.additional_info?.downloadName || listOfProhibitedCategories.some(cid => cid === t.category)) {
         return false;
       } else {
         return true;

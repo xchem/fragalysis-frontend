@@ -186,7 +186,7 @@ const TagDetails = memo(() => {
   useEffect(() => {
     const categoriesToRemove = getCategoriesToBeRemovedFromTagDetails(tagCategories);
     const newTagList = preTagList.filter(t => {
-      if (t.additional_info?.downloadName || categoriesToRemove.some(c => c.id === t.category)) {
+      if (t.hidden === true || t.additional_info?.downloadName || categoriesToRemove.some(c => c.id === t.category)) {
         return false;
       } else {
         return true;
@@ -201,8 +201,8 @@ const TagDetails = memo(() => {
   const moleculesToEditIds = useSelector(state => state.selectionReducers.moleculesToEdit);
   const moleculesToEdit =
     moleculesToEditIds &&
-    moleculesToEditIds.length > 0 &&
-    !(moleculesToEditIds.length === 1 && moleculesToEditIds[0] === null)
+      moleculesToEditIds.length > 0 &&
+      !(moleculesToEditIds.length === 1 && moleculesToEditIds[0] === null)
       ? moleculesToEditIds.map(id => dispatch(getMoleculeForId(id)))
       : [];
 

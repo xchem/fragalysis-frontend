@@ -184,7 +184,7 @@ export const EditTagsModal = ({ open, anchorEl, setOpenDialog }) => {
                 dispatch(appendTagList(augMolTagObject));
                 dispatch(appendMoleculeTag(molTag));
                 dispatch(setNoTagsReceived(false));
-                toastInfo('Tag was created');
+                toastInfo('Tag was created', { autoHideDuration: 5000 });
             });
             // reset tag/fields after creating new one
             resetTagToEditState();
@@ -222,7 +222,7 @@ export const EditTagsModal = ({ open, anchorEl, setOpenDialog }) => {
                     )
                 );
             }
-            toastInfo('Tag was updated');
+            toastInfo('Tag was updated', { autoHideDuration: 5000 });
             // reset tag/fields after updating selected one
             resetTagToEditState();
         }
@@ -245,7 +245,7 @@ export const EditTagsModal = ({ open, anchorEl, setOpenDialog }) => {
                 });
             }
             deleteExistingTag(tag, tag.id);
-            toastInfo('Tag was deleted');
+            toastInfo('Tag was deleted', { autoHideDuration: 5000 });
             // reset tag/fields after removing selected tag
             resetTagToEditState();
         }
