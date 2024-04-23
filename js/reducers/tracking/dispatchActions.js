@@ -3485,7 +3485,7 @@ const handleArrowNavigationActionOfCompound = (action, isSelected, majorViewStag
     const qualityListMolecule = data.qualityList;
 
     dispatch(hideAllSelectedMolecules(majorViewStage, molecules, false, true));
-    dispatch(removeSelectedDatasetMolecules(majorViewStage, true));
+    dispatch(removeSelectedDatasetMolecules(majorViewStage, true, newItem));
 
     const newDatasetID = (newItem.hasOwnProperty('datasetID') && newItem.datasetID) || datasetID;
     const moleculeTitlePrev = newItem && newItem.name;
