@@ -32,14 +32,15 @@ import {
   moveDatasetMoleculeUpDown,
   getFirstUnlockedCompoundAfter,
   getFirstUnlockedCompoundBefore,
-  isDatasetCompoundIterrable,
   isDatasetCompoundLocked,
   getAllVisibleButNotLockedCompounds,
   getAllVisibleButNotLockedSelectedCompounds,
   isCompoundLocked,
   getFirstUnlockedSelectedCompoundAfter,
   moveSelectedDatasetMoleculeUpDown,
-  getFirstUnlockedSelectedCompoundBefore
+  getFirstUnlockedSelectedCompoundBefore,
+  resetSelectedCompoundIterator,
+  resetDatasetIterator
 } from '../redux/dispatchActions';
 
 import { isAnyInspirationTurnedOn, getFilteredDatasetMoleculeList } from '../redux/selectors';
@@ -87,6 +88,7 @@ import RemoveShoppingCartIcon from '@mui/icons-material/RemoveShoppingCart';
 import { compoundsColors } from '../../preview/compounds/redux/constants';
 import { LockVisibleCompoundsDialog } from '../lockVisibleCompoundsDialog';
 import { fabClasses } from '@mui/material';
+import useClipboard from 'react-use-clipboard';
 
 const useStyles = makeStyles(theme => ({
   container: {
@@ -461,7 +463,7 @@ const DatasetMoleculeView = memo(
       // #1249 dataset molecules currently could use side observation molecule for some renders
       const allMolecules = useSelector(state => state.apiReducers.all_mol_lists);
       const [pdbData, setPdbData] = useState(null);
-      const isPdbAvailable = !!(data && (data.pdb_info || pdbData));
+      const isPdbAvailable = !!(data && (data.pdb_info || data.site_observation_code));
 
       useEffect(() => {
         if (data.site_observation_code) {
@@ -470,7 +472,7 @@ const DatasetMoleculeView = memo(
             setPdbData(molecule);
           }
         } else {
-          setPdbData(data.pdb_info);
+          setPdbData(data);
         }
       }, [data, allMolecules]);
 
@@ -504,6 +506,14 @@ const DatasetMoleculeView = memo(
       const current_style =
         isLigandOn || isProteinOn || isComplexOn || isSurfaceOn ? selected_style : not_selected_style;
 
+      const resetIterator = () => {
+        if (inSelectedCompoundsList) {
+          dispatch(resetSelectedCompoundIterator());
+        } else {
+          dispatch(resetDatasetIterator(datasetID));
+        }
+      };
+
       const addNewLigand = (skipTracking = false) => {
         dispatch(
           withDisabledDatasetMoleculeNglControlButton(datasetID, currentID, 'ligand', () => {
@@ -522,6 +532,7 @@ const DatasetMoleculeView = memo(
       const [loadingAll, setLoadingAll] = useState(false);
       const [loadingLigand, setLoadingLigand] = useState(false);
       const onLigand = calledFromSelectAll => {
+        resetIterator();
         setLoadingLigand(true);
         if (calledFromSelectAll === true && selectedAll.current === true) {
           if (isLigandOn === false) {
@@ -544,22 +555,29 @@ const DatasetMoleculeView = memo(
       };
 
       const removeSelectedProtein = (skipTracking = false) => {
-        // dispatch(removeDatasetHitProtein(stage, data, colourToggle, datasetID, skipTracking));
-        dispatch(removeHitProtein(stage, pdbData, colourToggle, skipTracking));
+        if (data.isCustomPdb) {
+          dispatch(removeDatasetHitProtein(stage, data, colourToggle, datasetID, skipTracking));
+        } else {
+          dispatch(removeHitProtein(stage, pdbData, colourToggle, skipTracking));
+        }
         selectedAll.current = false;
       };
 
       const addNewProtein = (skipTracking = false) => {
         dispatch(
           withDisabledDatasetMoleculeNglControlButton(datasetID, currentID, 'protein', () => {
-            dispatch(addHitProtein(stage, pdbData, colourToggle, true, skipTracking, undefined, true));
-            // dispatch(addDatasetHitProtein(stage, data, colourToggle, datasetID, skipTracking));
+            if (data.isCustomPdb) {
+              dispatch(addDatasetHitProtein(stage, data, colourToggle, datasetID, skipTracking));
+            } else {
+              dispatch(addHitProtein(stage, pdbData, colourToggle, true, skipTracking, undefined, true));
+            }
           })
         );
       };
 
       const [loadingProtein, setLoadingProtein] = useState(false);
       const onProtein = calledFromSelectAll => {
+        resetIterator();
         setLoadingProtein(true);
         if (calledFromSelectAll === true && selectedAll.current === true) {
           if (isProteinOn === false) {
@@ -578,22 +596,29 @@ const DatasetMoleculeView = memo(
       };
 
       const removeSelectedComplex = (skipTracking = false) => {
-        // dispatch(removeDatasetComplex(stage, data, colourToggle, datasetID, skipTracking));
-        dispatch(removeComplex(stage, pdbData, colourToggle, skipTracking));
+        if (data.isCustomPdb) {
+          dispatch(removeDatasetComplex(stage, data, colourToggle, datasetID, skipTracking));
+        } else {
+          dispatch(removeComplex(stage, pdbData, colourToggle, skipTracking));
+        }
         selectedAll.current = false;
       };
 
       const addNewComplex = (skipTracking = false) => {
         dispatch(
           withDisabledDatasetMoleculeNglControlButton(datasetID, currentID, 'complex', () => {
-            // dispatch(addDatasetComplex(stage, data, colourToggle, datasetID, skipTracking));
-            dispatch(addComplex(stage, pdbData, colourToggle, skipTracking, undefined, true));
+            if (data.isCustomPdb) {
+              dispatch(addDatasetComplex(stage, data, colourToggle, datasetID, skipTracking));
+            } else {
+              dispatch(addComplex(stage, pdbData, colourToggle, skipTracking, undefined, true));
+            }
           })
         );
       };
 
       const [loadingComplex, setLoadingComplex] = useState(false);
       const onComplex = calledFromSelectAll => {
+        resetIterator();
         setLoadingComplex(true);
         if (calledFromSelectAll === true && selectedAll.current === true) {
           if (isComplexOn === false) {
@@ -612,22 +637,29 @@ const DatasetMoleculeView = memo(
       };
 
       const removeSelectedSurface = () => {
-        // dispatch(removeDatasetSurface(stage, data, colourToggle, datasetID));
-        dispatch(removeSurface(stage, pdbData, colourToggle));
+        if (data.isCustomPdb) {
+          dispatch(removeDatasetSurface(stage, data, colourToggle, datasetID));
+        } else {
+          dispatch(removeSurface(stage, pdbData, colourToggle));
+        }
         selectedAll.current = false;
       };
 
       const addNewSurface = async () => {
         dispatch(
           withDisabledDatasetMoleculeNglControlButton(datasetID, currentID, 'surface', () => {
-            dispatch(addSurface(stage, pdbData, colourToggle, false, undefined, true));
-            // dispatch(addDatasetSurface(stage, data, colourToggle, datasetID));
+            if (data.isCustomPdb) {
+              dispatch(addDatasetSurface(stage, data, colourToggle, datasetID));
+            } else {
+              dispatch(addSurface(stage, pdbData, colourToggle, false, undefined, true));
+            }
           })
         );
       };
 
       const [loadingSurface, setLoadingSurface] = useState(false);
       const onSurface = calledFromSelectAll => {
+        resetIterator();
         setLoadingSurface(true);
         if (calledFromSelectAll === true && selectedAll.current === true) {
           if (isSurfaceOn === false) {
@@ -896,6 +928,7 @@ const DatasetMoleculeView = memo(
       };
 
       const moleculeTitle = data && data.name;
+      const [isNameCopied, setNameCopied] = useClipboard(moleculeTitle, { successDuration: 5000 });
       const datasetTitle = datasets?.find(item => `${item.id}` === `${datasetID}`)?.title;
 
       const allScores = { ...data?.numerical_scores, ...data?.text_scores };
@@ -974,7 +1007,13 @@ const DatasetMoleculeView = memo(
               >
                 <Grid item className={classes.inheritWidth}>
                   <Tooltip title={moleculeTitle} placement="bottom-start">
-                    <div className={classNames(classes.moleculeTitleLabel, isLocked && classes.selectedMolecule)}>
+                    <div
+                      className={classNames(classes.moleculeTitleLabel, isLocked && classes.selectedMolecule)}
+                      onCopy={e => {
+                        e.preventDefault();
+                        setNameCopied(moleculeTitle);
+                      }}
+                    >
                       {moleculeTitle}
                     </div>
                   </Tooltip>

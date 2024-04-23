@@ -35,7 +35,9 @@ import {
   enableDatasetMoleculeNglControlButton,
   setArrowUpDown,
   removeDataset,
-  appendCompoundToSelectedCompoundsByDataset
+  appendCompoundToSelectedCompoundsByDataset,
+  setDatasetIterator,
+  setSelectedCompoundsIterator
 } from './actions';
 import { base_url } from '../../routes/constants';
 import {
@@ -66,7 +68,10 @@ import {
   addLigand,
   addDensity,
   addDensityCustomView,
-  hideAllSelectedMolecules
+  hideAllSelectedMolecules,
+  removeHitProtein,
+  removeComplex,
+  removeSurface
 } from '../../preview/molecule/redux/dispatchActions';
 import { OBJECT_TYPE } from '../../nglView/constants';
 import { getRepresentationsByType } from '../../nglView/generatingObjects';
@@ -299,10 +304,18 @@ export const loadDatasetCompoundsWithScores = (datasetsToLoad = null) => (dispat
           // -----> add 'site_observation_code' to molecules whereas '/compound-molecules' has more molecule info so far, can be removed later
           const compondMolecules = await api({ url: `${base_url}/api/compound-molecules/?compound_set=${dataset.id}` });
           const compondMoleculesMap = {};
-          compondMolecules.data.results.forEach(molecule => compondMoleculesMap[molecule.name] = molecule.site_observation_code);
+          compondMolecules.data.results.forEach(
+            molecule =>
+              (compondMoleculesMap[molecule.name] = {
+                site_observation_code: molecule.site_observation_code,
+                pdb_info: molecule.pdb_info
+              })
+          );
           response.data.results.forEach(molecule => {
             if (compondMoleculesMap.hasOwnProperty(molecule.name)) {
-              molecule['site_observation_code'] = compondMoleculesMap[molecule.name];
+              molecule['site_observation_code'] = compondMoleculesMap[molecule.name].site_observation_code;
+              molecule['pdb_info'] = compondMoleculesMap[molecule.name].pdb_info;
+              molecule['isCustomPdb'] = !!!compondMoleculesMap[molecule.name].site_observation_code;
             }
           });
           // <-----
@@ -578,42 +591,112 @@ export const autoHideDatasetDialogsOnScroll = ({ inspirationDialogRef, crossRefe
   }
 };
 
+export const getObservationForLHSReference = rhsCompound => (dispatch, getState) => {
+  let result = null;
+
+  if (!rhsCompound?.isCustomPdb && rhsCompound.site_observation_code) {
+    const state = getState();
+    const allLHSMols = state.apiReducers.all_mol_lists;
+    result = allLHSMols.find(mol => mol.code === rhsCompound.site_observation_code);
+  }
+
+  return result;
+};
+
+export const getRHSCmpReferencingLHSObservation = (obsId, obsReferenceToSkip = null) => (dispatch, getState) => {
+  let result = { obs: null, cmp: null };
+
+  const state = getState();
+  const lhsObservations = state.apiReducers.all_mol_lists;
+  const obs = lhsObservations.find(mol => mol.id === obsId);
+
+  if (obs?.code !== obsReferenceToSkip) {
+    const currentMolecules = state.datasetsReducers.moleculeLists;
+    const datasetIds = Object.keys(currentMolecules);
+    for (let i = 0; i < datasetIds.length; i++) {
+      const datasetID = datasetIds[i];
+      const molecules = currentMolecules[datasetID];
+      const found = molecules.find(mol => mol.site_observation_code === obs.code);
+      if (found) {
+        result = { obs: obs, cmp: found };
+        break;
+      }
+    }
+  }
+
+  return result;
+};
+
 export const clearCompoundView = (cmp, datasetID, stage, skipTracking) => (dispatch, getState) => {
   const state = getState();
 
-  const ligandList = state.datasetsReducers.ligandLists[datasetID];
-  const proteinList = state.datasetsReducers.proteinLists[datasetID];
-  const complexList = state.datasetsReducers.complexLists[datasetID];
-  const surfaceList = state.datasetsReducers.surfaceLists[datasetID];
+  let dataToUse = null;
 
-  if (ligandList?.includes(cmp.id)) {
+  let ligandList = state.datasetsReducers.ligandLists[datasetID];
+  let proteinList = [];
+  let complexList = [];
+  let surfaceList = [];
+
+  if (cmp.isCustomPdb) {
+    dataToUse = cmp;
+
+    proteinList = state.datasetsReducers.proteinLists[datasetID];
+    complexList = state.datasetsReducers.complexLists[datasetID];
+    surfaceList = state.datasetsReducers.surfaceLists[datasetID];
+  } else {
+    dataToUse = dispatch(getObservationForLHSReference(cmp));
+
+    proteinList = state.selectionReducers.proteinList;
+    complexList = state.selectionReducers.complexList;
+    surfaceList = state.selectionReducers.surfaceList;
+  }
+
+  if (ligandList?.includes(dataToUse.id)) {
     dispatch(removeDatasetLigand(stage, cmp, getRandomColor(cmp), datasetID, skipTracking));
   }
 
-  if (proteinList?.includes(cmp.id)) {
-    dispatch(removeDatasetHitProtein(stage, cmp, getRandomColor(cmp), datasetID, skipTracking));
+  if (proteinList?.includes(dataToUse.id)) {
+    if (dataToUse.isCustomPdb) {
+      dispatch(removeDatasetHitProtein(stage, cmp, getRandomColor(cmp), datasetID, skipTracking));
+    } else {
+      dispatch(removeHitProtein(stage, dataToUse, getRandomColor(cmp), skipTracking));
+    }
   }
 
-  if (complexList?.includes(cmp.id)) {
-    dispatch(removeDatasetComplex(stage, cmp, getRandomColor(cmp), datasetID, skipTracking));
+  if (complexList?.includes(dataToUse.id)) {
+    if (dataToUse.isCustomPdb) {
+      dispatch(removeDatasetComplex(stage, cmp, getRandomColor(cmp), datasetID, skipTracking));
+    } else {
+      dispatch(removeComplex(stage, dataToUse, getRandomColor(cmp), skipTracking));
+    }
   }
 
-  if (surfaceList?.includes(cmp.id)) {
-    dispatch(removeDatasetSurface(stage, cmp, getRandomColor(cmp), datasetID, skipTracking));
+  if (surfaceList?.includes(dataToUse.id)) {
+    if (dataToUse.isCustomPdb) {
+      dispatch(removeDatasetSurface(stage, cmp, getRandomColor(cmp), datasetID, skipTracking));
+    } else {
+      dispatch(removeSurface(stage, dataToUse, getRandomColor(cmp)));
+    }
   }
 };
 
-export const removeSelectedDatasetMolecules = (stage, skipTracking, skipMolecules = {}) => (dispatch, getState) => {
+export const removeSelectedDatasetMolecules = (stage, skipTracking, currentCmp = null, skipMolecules = {}) => (
+  dispatch,
+  getState
+) => {
   const state = getState();
   const datasets = state.datasetsReducers.datasets;
   const currentMolecules = state.datasetsReducers.moleculeLists;
   if (datasets) {
+    let proteinList = [];
+    let complexList = [];
+    let surfaceList = [];
     datasets.forEach(dataset => {
       const datasetID = dataset.id;
       const ligandList = state.datasetsReducers.ligandLists[datasetID];
-      const proteinList = state.datasetsReducers.proteinLists[datasetID];
-      const complexList = state.datasetsReducers.complexLists[datasetID];
-      const surfaceList = state.datasetsReducers.surfaceLists[datasetID];
+      proteinList = state.datasetsReducers.proteinLists[datasetID];
+      complexList = state.datasetsReducers.complexLists[datasetID];
+      surfaceList = state.datasetsReducers.surfaceLists[datasetID];
 
       const molecules = currentMolecules[datasetID].filter(molecule => {
         return !skipMolecules[datasetID]?.includes(molecule.id);
@@ -652,6 +735,33 @@ export const removeSelectedDatasetMolecules = (stage, skipTracking, skipMolecule
         }
       });
     });
+
+    proteinList = state.selectionReducers.proteinList;
+    complexList = state.selectionReducers.complexList;
+    surfaceList = state.selectionReducers.surfaceList;
+
+    const obsReferenceToSkip = currentCmp ? currentCmp.site_observation_code : '';
+
+    proteinList.forEach(obsId => {
+      const { obs, cmp } = dispatch(getRHSCmpReferencingLHSObservation(obsId, obsReferenceToSkip));
+      if (obs) {
+        dispatch(removeHitProtein(stage, obs, getRandomColor(cmp), skipTracking));
+      }
+    });
+
+    complexList.forEach(obsId => {
+      const { obs, cmp } = dispatch(getRHSCmpReferencingLHSObservation(obsId, obsReferenceToSkip));
+      if (obs) {
+        dispatch(removeComplex(stage, obs, getRandomColor(cmp), skipTracking));
+      }
+    });
+
+    surfaceList.forEach(obsId => {
+      const { obs, cmp } = dispatch(getRHSCmpReferencingLHSObservation(obsId, obsReferenceToSkip));
+      if (obs) {
+        dispatch(removeSurface(stage, obs, getRandomColor(cmp)));
+      }
+    });
   }
 };
 
@@ -666,11 +776,6 @@ const flattenInspirationsList = (inspirations, skipMolecules) => {
       }
     });
   });
-  // skipMolecules.forEach(molecule => {
-  //   if (!inspirationsToSkip.hasOwnProperty(molecule.id)) {
-  //     inspirationsToSkip[molecule.id] = molecule;
-  //   }
-  // });
 
   Object.keys(inspirations).forEach(molId => {
     const molecules = inspirations[molId];
@@ -744,10 +849,16 @@ const moveSelectedDatasetMoleculeInspirationsSettings = (data, newItemData, stag
   );
 };
 
-export const lockSelectedCompounds = (selectedCompounds, skipCmpId = 0) => (dispatch, getState) => {
+export const lockSelectedCompounds = (selectedCompounds, skipCmp = null) => (dispatch, getState) => {
   let filteredCompounds = [...selectedCompounds];
-  if (skipCmpId) {
-    filteredCompounds = selectedCompounds.filter(item => item.molecule.id !== skipCmpId);
+  if (skipCmp) {
+    filteredCompounds = selectedCompounds.filter(item => {
+      let result = true;
+      if (item.molecule.id === skipCmp.molecule.id && item.datasetID === skipCmp.datasetID) {
+        result = false;
+      }
+      return result;
+    });
   }
 
   filteredCompounds?.forEach(item => {
@@ -759,22 +870,22 @@ export const lockSelectedCompounds = (selectedCompounds, skipCmpId = 0) => (disp
   });
 };
 
-export const lockCompounds = (datasetID, compoundIds, skipCmpId = 0) => (dispatch, getState) => {
+export const lockCompounds = (datasetID, compoundsToLock, skipCmp = null) => (dispatch, getState) => {
   const state = getState();
   const compounds = state.datasetsReducers.moleculeLists[datasetID];
 
-  let filteredCompounds = [...compoundIds];
-  if (skipCmpId) {
-    filteredCompounds = compoundIds.filter(item => item !== skipCmpId);
+  let filteredCompounds = [...compoundsToLock];
+  if (skipCmp) {
+    filteredCompounds = compoundsToLock.filter(item => item.id !== skipCmp.id);
   }
 
-  filteredCompounds?.forEach(compoundID => {
-    const filteredCIds = compounds.filter(cmp => cmp.id === compoundID);
+  filteredCompounds?.forEach(compound => {
+    const filteredCmps = compounds.filter(cmp => cmp.id === compound.id);
     let molName = '';
-    if (filteredCIds && filteredCIds.length > 0) {
-      molName = filteredCIds[0].name;
+    if (filteredCmps && filteredCmps.length > 0) {
+      molName = filteredCmps[0].name;
     }
-    dispatch(appendCompoundToSelectedCompoundsByDataset(datasetID, compoundID, molName));
+    dispatch(appendCompoundToSelectedCompoundsByDataset(datasetID, compound.id, molName));
   });
 };
 
@@ -809,11 +920,7 @@ export const getAllVisibleButNotLockedSelectedCompounds = (skipDatasetID = '', s
     if (datasetID !== skipDatasetID || skipCmpId !== molecule.id) {
       const isLocked = dispatch(isCompoundLocked(datasetID, molecule));
       if (!isLocked) {
-        let isVisible = dispatch(isCompoundVisible(datasetID, molecule.id));
-        // isVisible |= state.datasetsReducers.ligandLists[datasetID].includes(molecule.id);
-        // isVisible |= state.datasetsReducers.proteinLists[datasetID].includes(molecule.id);
-        // isVisible |= state.datasetsReducers.complexLists[datasetID].includes(molecule.id);
-        // isVisible |= state.datasetsReducers.surfaceLists[datasetID].includes(molecule.id);
+        let isVisible = dispatch(isCompoundVisible(item));
 
         if (isVisible) {
           result.push(item);
@@ -825,15 +932,27 @@ export const getAllVisibleButNotLockedSelectedCompounds = (skipDatasetID = '', s
   return result;
 };
 
-export const isCompoundVisible = (datasetID, compoundId) => (dispatch, getState) => {
+export const isCompoundVisible = cmp => (dispatch, getState) => {
   let isVisible = false;
 
   const state = getState();
 
+  const datasetID = cmp.datasetID;
+  const compoundId = cmp.molecule.id;
+  const isCustomPdb = cmp.molecule.isCustomPdb;
+
+  let itemIdToUse = isCustomPdb ? cmp.molecule.id : dispatch(getObservationForLHSReference(cmp.molecule))?.id;
+
   isVisible |= state.datasetsReducers.ligandLists[datasetID]?.includes(compoundId);
-  isVisible |= state.datasetsReducers.proteinLists[datasetID]?.includes(compoundId);
-  isVisible |= state.datasetsReducers.complexLists[datasetID]?.includes(compoundId);
-  isVisible |= state.datasetsReducers.surfaceLists[datasetID]?.includes(compoundId);
+  isVisible |= isCustomPdb
+    ? state.datasetsReducers.proteinLists[datasetID]?.includes(itemIdToUse)
+    : state.selectionReducers.proteinList.includes(itemIdToUse);
+  isVisible |= isCustomPdb
+    ? state.datasetsReducers.complexLists[datasetID]?.includes(itemIdToUse)
+    : state.selectionReducers.complexList.includes(itemIdToUse);
+  isVisible |= isCustomPdb
+    ? state.datasetsReducers.surfaceLists[datasetID]?.includes(itemIdToUse)
+    : state.selectionReducers.surfaceList.includes(itemIdToUse);
 
   return isVisible;
 };
@@ -842,36 +961,31 @@ export const getAllVisibleButNotLockedCompounds = (datasetID, skipCmpId = 0) => 
   let result = [];
 
   const state = getState();
-  const lockedCmps = state.datasetsReducers.selectedCompoundsByDataset[datasetID] || [];
+  // const lockedCmps = state.datasetsReducers.selectedCompoundsByDataset[datasetID] || [];
+  const datasetCmps = state.datasetsReducers.moleculeLists[datasetID];
 
-  result = mergeCompoundIdsList(result, state.datasetsReducers.ligandLists[datasetID]);
-  result = mergeCompoundIdsList(result, state.datasetsReducers.proteinLists[datasetID]);
-  result = mergeCompoundIdsList(result, state.datasetsReducers.complexLists[datasetID]);
-  result = mergeCompoundIdsList(result, state.datasetsReducers.surfaceLists[datasetID]);
+  datasetCmps.forEach(cmp => {
+    if (skipCmpId !== cmp.id) {
+      const isLocked = dispatch(isCompoundLocked(datasetID, cmp));
+      if (!isLocked) {
+        let isVisible = dispatch(isCompoundVisible({ datasetID, molecule: cmp }));
 
-  result = result.filter(item => !lockedCmps.includes(item));
-  if (skipCmpId) {
-    result = result.filter(item => item !== skipCmpId);
-  }
+        if (isVisible) {
+          result.push(cmp);
+        }
+      }
+    }
+  });
 
-  return result;
-};
+  // result = mergeCompoundIdsList(result, state.datasetsReducers.ligandLists[datasetID]);
+  // result = mergeCompoundIdsList(result, state.datasetsReducers.proteinLists[datasetID]);
+  // result = mergeCompoundIdsList(result, state.datasetsReducers.complexLists[datasetID]);
+  // result = mergeCompoundIdsList(result, state.datasetsReducers.surfaceLists[datasetID]);
 
-export const isDatasetCompoundIterrable = (datasetID, compoundID) => (dispatch, getState) => {
-  let result = false;
-
-  if (dispatch(isDatasetCompoundLocked(datasetID, compoundID))) {
-    const state = getState();
-
-    const L = state.datasetsReducers.ligandLists[datasetID].includes(compoundID);
-    const P = state.datasetsReducers.proteinLists[datasetID].includes(compoundID);
-    const C = state.datasetsReducers.complexLists[datasetID].includes(compoundID);
-    const S = state.datasetsReducers.surfaceLists[datasetID].includes(compoundID);
-
-    result = !(L || P || C || S);
-  } else {
-    result = true;
-  }
+  // result = result.filter(item => !lockedCmps.includes(item));
+  // if (skipCmpId) {
+  //   result = result.filter(item => item !== skipCmpId);
+  // }
 
   return result;
 };
@@ -1002,8 +1116,10 @@ export const moveSelectedDatasetMoleculeUpDown = (
     dispatch(moveSelectedDatasetMoleculeInspirationsSettings(item, newItem, stage, true))
   ]);
 
-  dispatch(removeSelectedDatasetMolecules(stage, true, { ...lockedCompounds }));
+  dispatch(removeSelectedDatasetMolecules(stage, true, newItem, { ...lockedCompounds }));
   dispatch(removeSelectedTypesOfDatasetInspirations([newItem], stage, true, datasetID));
+
+  dispatch(setSelectedCompoundsIterator(newItemDatasetID, newItem));
 };
 
 /**
@@ -1028,13 +1144,18 @@ export const moveDatasetMoleculeUpDown = (stage, datasetID, item, newItemDataset
   const inspirations = getInspirationsForMol(allInspirations, datasetID, newItem.id);
   dispatch(setInspirationMoleculeDataList(inspirations));
   dispatch(clearCompoundView(newItem, datasetID, stage, true));
+  console.log('moveDatasetMoleculeUpDown - compounds cleared');
   await Promise.all([
     dispatch(moveSelectedMoleculeSettings(stage, item, newItem, newItemDatasetID, datasetID, dataValue, true)),
     dispatch(moveSelectedDatasetMoleculeInspirationsSettings(item, newItem, stage, true))
   ]);
 
-  dispatch(removeSelectedDatasetMolecules(stage, true, { [newItemDatasetID]: [newItem.id, ...lockedCompounds] }));
+  dispatch(
+    removeSelectedDatasetMolecules(stage, true, newItem, { [newItemDatasetID]: [newItem.id, ...lockedCompounds] })
+  );
   dispatch(removeSelectedTypesOfDatasetInspirations([newItem], stage, true, datasetID));
+
+  dispatch(setDatasetIterator(newItemDatasetID, newItem));
 };
 
 export const getInspirationsForMol = (allInspirations, datasetId, molId) => {
@@ -1319,6 +1440,10 @@ export const moveSelectedMoleculeSettings = (
 ) => (dispatch, getState) => {
   const promises = [];
   if (newItem && data) {
+    let customPdbData = null;
+    if (!newItem.isCustomPdb) {
+      customPdbData = dispatch(getObservationForLHSReference(newItem));
+    }
     if (data.isLigandOn) {
       let representations = getRepresentationsByType(data.objectsInView, newItem, OBJECT_TYPE.LIGAND, datasetID);
       promises.push(
@@ -1329,27 +1454,59 @@ export const moveSelectedMoleculeSettings = (
     }
     if (data.isProteinOn) {
       let representations = getRepresentationsByType(data.objectsInView, newItem, OBJECT_TYPE.PROTEIN, datasetID);
-      promises.push(
-        dispatch(
-          addDatasetHitProtein(stage, newItem, getRandomColor(newItem), datasetIdOfMolecule, skipTracking, representations)
-        )
-      );
+      if (newItem.isCustomPdb) {
+        promises.push(
+          dispatch(
+            addDatasetHitProtein(
+              stage,
+              newItem,
+              getRandomColor(newItem),
+              datasetIdOfMolecule,
+              skipTracking,
+              representations
+            )
+          )
+        );
+      } else {
+        promises.push(
+          dispatch(
+            addHitProtein(stage, customPdbData, getRandomColor(newItem), true, skipTracking, representations, true)
+          )
+        );
+      }
     }
     if (data.isComplexOn) {
       let representations = getRepresentationsByType(data.objectsInView, newItem, OBJECT_TYPE.COMPLEX, datasetID);
-      promises.push(
-        dispatch(
-          addDatasetComplex(stage, newItem, getRandomColor(newItem), datasetIdOfMolecule, skipTracking, representations)
-        )
-      );
+      if (newItem.isCustomPdb) {
+        promises.push(
+          dispatch(
+            addDatasetComplex(
+              stage,
+              newItem,
+              getRandomColor(newItem),
+              datasetIdOfMolecule,
+              skipTracking,
+              representations
+            )
+          )
+        );
+      } else {
+        promises.push(
+          dispatch(addComplex(stage, customPdbData, getRandomColor(newItem), skipTracking, representations, true))
+        );
+      }
     }
     if (data.isSurfaceOn) {
       let representations = getRepresentationsByType(data.objectsInView, newItem, OBJECT_TYPE.SURFACE, datasetID);
-      promises.push(
-        dispatch(
-          addDatasetSurface(stage, newItem, getRandomColor(newItem), datasetIdOfMolecule, skipTracking, representations)
-        )
-      );
+      if (newItem.isCustomPdb) {
+        promises.push(
+          dispatch(addDatasetSurface(stage, newItem, getRandomColor(newItem), datasetIdOfMolecule, representations))
+        );
+      } else {
+        promises.push(
+          dispatch(addSurface(stage, customPdbData, getRandomColor(newItem), false, representations, true))
+        );
+      }
     }
   }
   return Promise.all(promises);
@@ -1477,4 +1634,33 @@ export const deleteDataset = (datasetID, stage) => async (dispatch, getState) =>
   //remove dataset from redux store
   dispatch(removeDataset(datasetID));
   console.log('dataset removed from redux store');
+};
+
+export const getCurrentDatasetIterator = datasetID => (dispatch, getState) => {
+  let result = null;
+
+  const state = getState();
+  const datasetIterators = state.datasetsReducers.iteratorDatasets;
+  if (datasetIterators.hasOwnProperty(datasetID)) {
+    result = datasetIterators[datasetID];
+  }
+
+  return result;
+};
+
+export const getCurrentSelectedCompoundIterator = () => (dispatch, getState) => {
+  let result = null;
+
+  const state = getState();
+  result = state.datasetsReducers.iteratorSelectedCompounds;
+
+  return result;
+};
+
+export const resetDatasetIterator = datasetID => (dispatch, getState) => {
+  dispatch(setDatasetIterator(datasetID, null));
+};
+
+export const resetSelectedCompoundIterator = () => (dispatch, getState) => {
+  dispatch(setSelectedCompoundsIterator(null, null));
 };

@@ -43,7 +43,10 @@ import {
   deleteDataset,
   getTrackingActions,
   moveDatasetMoleculeUpDown,
-  getAllVisibleButNotLockedCompounds
+  getAllVisibleButNotLockedCompounds,
+  getObservationForLHSReference,
+  getCurrentDatasetIterator,
+  resetDatasetIterator
 } from './redux/dispatchActions';
 import {
   setAskLockCompoundsQuestion,
@@ -57,11 +60,12 @@ import {
   appendCompoundColorOfDataset,
   appendColorToAllCompoundsOfDataset,
   removeCompoundColorOfDataset,
-  removeColorFromAllCompoundsOfDataset
+  removeColorFromAllCompoundsOfDataset,
+  setDatasetIterator
 } from './redux/actions';
 import { DatasetFilter } from './datasetFilter';
 import { FilterList, Link, DeleteForever, ArrowUpward, ArrowDownward, Edit } from '@material-ui/icons';
-import { getJoinedMoleculeLists } from './redux/selectors';
+import { getJoinedMoleculeLists, getLHSVisibleListsForRHS } from './redux/selectors';
 import { InspirationDialog } from './inspirationDialog';
 import { CrossReferenceDialog } from './crossReferenceDialog';
 import { AlertModal } from '../common/Modal/AlertModal';
@@ -86,6 +90,14 @@ import {
 import { LockVisibleCompoundsDialog } from './lockVisibleCompoundsDialog';
 import { size } from 'lodash';
 import { Circle } from '@mui/icons-material';
+import {
+  addComplex,
+  addHitProtein,
+  addSurface,
+  removeComplex,
+  removeHitProtein,
+  removeSurface
+} from '../preview/molecule/redux/dispatchActions';
 
 const useStyles = makeStyles(theme => ({
   container: {
@@ -428,10 +440,12 @@ const DatasetMoleculeList = ({ title, datasetID, url }) => {
   );
 
   const ligandList = useSelector(state => state.datasetsReducers.ligandLists[datasetID]);
-  // const proteinList = useSelector(state => state.datasetsReducers.proteinLists[datasetID]);
-  // const complexList = useSelector(state => state.datasetsReducers.complexLists[datasetID]);
-  // const surfaceList = useSelector(state => state.datasetsReducers.surfaceLists[datasetID]);
+  const proteinListDataset = useSelector(state => state.datasetsReducers.proteinLists[datasetID]);
+  const complexListDataset = useSelector(state => state.datasetsReducers.complexLists[datasetID]);
+  const surfaceListDataset = useSelector(state => state.datasetsReducers.surfaceLists[datasetID]);
   // #1249 dataset molecules currently could use side observation molecule for some renders
+
+  // const { proteinList, complexList, surfaceList } = useSelector(state => getLHSVisibleListsForRHS(state, datasetID));
   const proteinList = useSelector(state => state.selectionReducers.proteinList);
   const complexList = useSelector(state => state.selectionReducers.complexList);
   const surfaceList = useSelector(state => state.selectionReducers.surfaceList);
@@ -473,9 +487,18 @@ const DatasetMoleculeList = ({ title, datasetID, url }) => {
 
   const compoundColors = useSelector(state => state.datasetsReducers.compoundColorByDataset[datasetID]) ?? {};
 
-  const isSelectedTypeOn = typeList => {
+  const isSelectedTypeOn = (typeList, isLHSReference) => {
     if (typeList) {
-      return typeList.some(molId => allMolecules.some(mol => mol.id === molId));
+      if (!isLHSReference) {
+        return typeList.some(molId => allMolecules.some(mol => mol.id === molId));
+      } else {
+        const molsWithLHSReference = allMolecules.filter(mol => mol.site_observation_code);
+        return typeList.some(molId =>
+          molsWithLHSReference.some(
+            mol => mol.site_observation_code === allMoleculesList.find(m => m.id === molId)?.code
+          )
+        );
+      }
     }
     return false;
   };
@@ -484,12 +507,12 @@ const DatasetMoleculeList = ({ title, datasetID, url }) => {
     return typeList && typeList.length > 0;
   };
 
-  let isLigandOn = isSelectedTypeOn(ligandList);
-  let isProteinOn = isSelectedTypeOn(proteinList);
-  let isComplexOn = isSelectedTypeOn(complexList);
+  let isLigandOn = isSelectedTypeOn(ligandList, false);
+  let isProteinOn = isSelectedTypeOn(proteinList, true) || isSelectedTypeOn(proteinListDataset, false);
+  let isComplexOn = isSelectedTypeOn(complexList, true) || isSelectedTypeOn(complexListDataset, false);
+  let isSurfaceOn = isSelectedTypeOn(surfaceList, true) || isSelectedTypeOn(surfaceListDataset, false);
 
-  let areArrowsVisible =
-    isTypeOn(ligandList) || isTypeOn(proteinList) || isTypeOn(complexList) || isTypeOn(surfaceList);
+  let areArrowsVisible = isLigandOn || isProteinOn || isComplexOn || isSurfaceOn;
 
   const addType = {
     ligand: addDatasetLigand,
@@ -505,6 +528,20 @@ const DatasetMoleculeList = ({ title, datasetID, url }) => {
     surface: removeDatasetSurface
   };
 
+  const addLHSType = {
+    ligand: addDatasetLigand,
+    protein: addHitProtein,
+    complex: addComplex,
+    surface: addSurface
+  };
+
+  const removeLHSType = {
+    ligand: removeDatasetLigand,
+    protein: removeHitProtein,
+    complex: removeComplex,
+    surface: removeSurface
+  };
+
   // TODO: "currentMolecules" do not need to correspondent to selections in {type}List
   // TODO: so this could lead to inconsistend behaviour while scrolling
   // TODO: maybe change "currentMolecules.forEach" to "{type}List.forEach"
@@ -516,12 +553,24 @@ const DatasetMoleculeList = ({ title, datasetID, url }) => {
       if ((type === 'protein' || type === 'complex') && !molecule.pdb_info) {
         continue;
       }
-      dispatch(removeType[type](stage, molecule, colourList[molecule.id % colourList.length], datasetID, skipTracking));
+      if (type === 'ligand') {
+        dispatch(
+          removeType[type](stage, molecule, colourList[molecule.id % colourList.length], datasetID, skipTracking)
+        );
+      } else {
+        if (molecule.site_observation_code) {
+          const lhsMol = allMoleculesList.find(mol => mol.code === molecule.site_observation_code);
+          if (lhsMol) {
+            dispatch(removeLHSType[type](stage, lhsMol, colourList[molecule.id % colourList.length], skipTracking));
+          }
+        } else if (molecule.isCustomPdb) {
+          dispatch(
+            removeType[type](stage, molecule, colourList[molecule.id % colourList.length], datasetID, skipTracking)
+          );
+        }
+      }
     }
-    // lockedMolecules.forEach(cid => {
-    //   let molecule = getCompoundForId(cid);
-    //   dispatch(removeType[type](stage, molecule, colourList[molecule.id % colourList.length], datasetID, skipTracking));
-    // });
+
     selectedAll.current = false;
   };
 
@@ -536,20 +585,54 @@ const DatasetMoleculeList = ({ title, datasetID, url }) => {
           if ((type === 'protein' || type === 'complex') && !molecule.pdb_info) {
             continue;
           }
-          promises.push(
-            dispatch(
-              addType[type](stage, molecule, colourList[molecule.id % colourList.length], datasetID, skipTracking)
-            )
-          );
+          if (type === 'ligand') {
+            promises.push(
+              dispatch(
+                addType[type](stage, molecule, colourList[molecule.id % colourList.length], datasetID, skipTracking)
+              )
+            );
+          } else {
+            if (molecule.site_observation_code) {
+              const lhsMol = allMoleculesList.find(mol => mol.code === molecule.site_observation_code);
+              if (lhsMol) {
+                if (type === 'protein') {
+                  promises.push(
+                    dispatch(
+                      addLHSType[type](
+                        stage,
+                        lhsMol,
+                        colourList[molecule.id % colourList.length],
+                        true,
+                        skipTracking,
+                        undefined,
+                        true
+                      )
+                    )
+                  );
+                } else if (type === 'complex') {
+                  promises.push(
+                    dispatch(
+                      addLHSType[type](
+                        stage,
+                        lhsMol,
+                        colourList[molecule.id % colourList.length],
+                        skipTracking,
+                        undefined,
+                        true
+                      )
+                    )
+                  );
+                }
+              }
+            } else if (molecule.isCustomPdb) {
+              promises.push(
+                dispatch(
+                  addType[type](stage, molecule, colourList[molecule.id % colourList.length], datasetID, skipTracking)
+                )
+              );
+            }
+          }
         }
-        // lockedMolecules.forEach(cid => {
-        //   let molecule = getCompoundForId(cid);
-        //   promises.push(
-        //     dispatch(
-        //       addType[type](stage, molecule, colourList[molecule.id % colourList.length], datasetID, skipTracking)
-        //     )
-        //   );
-        // });
 
         await Promise.all(promises);
       })
@@ -561,6 +644,7 @@ const DatasetMoleculeList = ({ title, datasetID, url }) => {
   };
 
   const onButtonToggle = (type, calledFromSelectAll = false) => {
+    resetIterator();
     if (calledFromSelectAll === true && selectedAll.current === true) {
       // REDO
       if (eval('is' + ucfirst(type) + 'On') === false) {
@@ -656,7 +740,7 @@ const DatasetMoleculeList = ({ title, datasetID, url }) => {
         <Tooltip title="Filter/Sort">
           <>
             {/* fontSize does not change font here, but it disqualifies default font size so we do not need to !important */}
-            {isActiveFilter && <Circle className={classes.dotOverlay} fontSize='9px' color={'error'} />}
+            {isActiveFilter && <Circle className={classes.dotOverlay} fontSize="9px" color={'error'} />}
             <FilterList />
           </>
         </Tooltip>
@@ -707,6 +791,10 @@ const DatasetMoleculeList = ({ title, datasetID, url }) => {
   const groupDatasetsNglControlButtonsDisabledState = useDisableDatasetNglControlButtons(
     lockedMolecules.map(cid => ({ datasetID, molecule: getCompoundForId(cid) }))
   );
+
+  const resetIterator = () => {
+    dispatch(resetDatasetIterator(datasetID));
+  };
 
   // useEffectDebugger(
   //   () => {},
@@ -775,14 +863,36 @@ const DatasetMoleculeList = ({ title, datasetID, url }) => {
   // );
 
   const getFirstItemForIterationStart = () => {
-    const firstItem = joinedMoleculeLists.find(
-      mol =>
-        (ligandList.includes(mol.id) ||
-          proteinList.includes(mol.id) ||
-          complexList.includes(mol.id) ||
-          surfaceList.includes(mol.id)) &&
-        !lockedMolecules.includes(mol.id)
-    );
+    let firstItem = dispatch(getCurrentDatasetIterator(datasetID));
+    if (!firstItem) {
+      firstItem = joinedMoleculeLists.find(mol => {
+        if (!mol.isCustomPdb) {
+          const obs = dispatch(getObservationForLHSReference(mol));
+          if (obs) {
+            return (
+              (ligandList.includes(mol.id) ||
+                proteinList.includes(obs.id) ||
+                complexList.includes(obs.id) ||
+                surfaceList.includes(obs.id)) &&
+              !lockedMolecules.includes(mol.id)
+            );
+          } else {
+            return false;
+          }
+        } else {
+          return (
+            (ligandList.includes(mol.id) ||
+              proteinListDataset.includes(mol.id) ||
+              complexListDataset.includes(mol.id) ||
+              surfaceListDataset.includes(mol.id)) &&
+            !lockedMolecules.includes(mol.id)
+          );
+        }
+      });
+      // if (firstItem) {
+      //   dispatch(setDatasetIterator(datasetID, firstItem));
+      // }
+    }
 
     return firstItem;
   };
@@ -816,12 +926,28 @@ const DatasetMoleculeList = ({ title, datasetID, url }) => {
         const node = getNode(nextItem.id);
         setScrollToMoleculeId(nextItem.id);
 
+        let firstItemIdToUse = firstItem.id;
+        let isCustomPdb = true;
+        if (!firstItem.isCustomPdb) {
+          isCustomPdb = false;
+          const obs = dispatch(getObservationForLHSReference(firstItem));
+          if (obs) {
+            firstItemIdToUse = obs.id;
+          }
+        }
+
         let dataValue = {
           colourToggle: getRandomColor(firstItem),
           isLigandOn: ligandList.includes(firstItem.id),
-          isProteinOn: proteinList.includes(firstItem.id),
-          isComplexOn: complexList.includes(firstItem.id),
-          isSurfaceOn: surfaceList.includes(firstItem.id)
+          isProteinOn: isCustomPdb
+            ? proteinListDataset.includes(firstItemIdToUse)
+            : proteinList.includes(firstItemIdToUse),
+          isComplexOn: isCustomPdb
+            ? complexListDataset.includes(firstItemIdToUse)
+            : complexList.includes(firstItemIdToUse),
+          isSurfaceOn: isCustomPdb
+            ? surfaceListDataset.includes(firstItemIdToUse)
+            : surfaceList.includes(firstItemIdToUse)
         };
 
         dispatch(setCrossReferenceCompoundName(moleculeTitleNext));
@@ -851,12 +977,28 @@ const DatasetMoleculeList = ({ title, datasetID, url }) => {
         const node = getNode(prevItem.id);
         setScrollToMoleculeId(prevItem.id);
 
+        let firstItemIdToUse = firstItem.id;
+        let isCustomPdb = true;
+        if (!firstItem.isCustomPdb) {
+          isCustomPdb = false;
+          const obs = dispatch(getObservationForLHSReference(firstItem));
+          if (obs) {
+            firstItemIdToUse = obs.id;
+          }
+        }
+
         let dataValue = {
           colourToggle: getRandomColor(firstItem),
           isLigandOn: ligandList.includes(firstItem.id),
-          isProteinOn: proteinList.includes(firstItem.id),
-          isComplexOn: complexList.includes(firstItem.id),
-          isSurfaceOn: surfaceList.includes(firstItem.id)
+          isProteinOn: isCustomPdb
+            ? proteinListDataset.includes(firstItemIdToUse)
+            : proteinList.includes(firstItemIdToUse),
+          isComplexOn: isCustomPdb
+            ? complexListDataset.includes(firstItemIdToUse)
+            : complexList.includes(firstItemIdToUse),
+          isSurfaceOn: isCustomPdb
+            ? surfaceListDataset.includes(firstItemIdToUse)
+            : surfaceList.includes(firstItemIdToUse)
         };
 
         dispatch(setCrossReferenceCompoundName(moleculeTitlePrev));
@@ -917,7 +1059,7 @@ const DatasetMoleculeList = ({ title, datasetID, url }) => {
   };
 
   return (
-    <Panel hasHeader title={title} withTooltip headerActions={actions} style={{ height: '94%' }} >
+    <Panel hasHeader title={title} withTooltip headerActions={actions} style={{ height: '94%' }}>
       <AlertModal
         title="Are you sure?"
         description={`Loading of ${joinedMoleculeLists?.length} may take a long time`}
@@ -942,40 +1084,32 @@ const DatasetMoleculeList = ({ title, datasetID, url }) => {
           setIsDeleteDatasetAlertOpen(false);
         }}
       />
-      {
-        sortDialogOpen && (
-          <DatasetFilter
-            open={sortDialogOpen}
-            anchorEl={sortDialogAnchorEl}
-            datasetID={datasetID}
-            filterProperties={filterProperties}
-            active={filterSettings && filterSettings.active}
-            predefined={filterSettings && filterSettings.predefined}
-            priorityOrder={filterSettings && filterSettings.priorityOrder}
-            setSortDialogAnchorEl={setSortDialogAnchorEl}
-          />
-        )
-      }
-      {
-        isOpenInspirationDialog && (
-          <InspirationDialog open anchorEl={selectedMoleculeRef} datasetID={datasetID} ref={inspirationDialogRef} />
-        )
-      }
-      {
-        askLockCompoundsQuestion && isLockVisibleCompoundsDialogOpenGlobal && (
-          <LockVisibleCompoundsDialog
-            open
-            ref={lockVisibleCompoundsDialogRef}
-            anchorEl={lockCompoundsDialogAnchorE1}
-            datasetId={datasetID}
-          />
-        )
-      }
-      {
-        isOpenCrossReferenceDialog && (
-          <CrossReferenceDialog open anchorEl={selectedMoleculeRef} ref={crossReferenceDialogRef} />
-        )
-      }
+      {sortDialogOpen && (
+        <DatasetFilter
+          open={sortDialogOpen}
+          anchorEl={sortDialogAnchorEl}
+          datasetID={datasetID}
+          filterProperties={filterProperties}
+          active={filterSettings && filterSettings.active}
+          predefined={filterSettings && filterSettings.predefined}
+          priorityOrder={filterSettings && filterSettings.priorityOrder}
+          setSortDialogAnchorEl={setSortDialogAnchorEl}
+        />
+      )}
+      {isOpenInspirationDialog && (
+        <InspirationDialog open anchorEl={selectedMoleculeRef} datasetID={datasetID} ref={inspirationDialogRef} />
+      )}
+      {askLockCompoundsQuestion && isLockVisibleCompoundsDialogOpenGlobal && (
+        <LockVisibleCompoundsDialog
+          open
+          ref={lockVisibleCompoundsDialogRef}
+          anchorEl={lockCompoundsDialogAnchorE1}
+          datasetId={datasetID}
+        />
+      )}
+      {isOpenCrossReferenceDialog && (
+        <CrossReferenceDialog open anchorEl={selectedMoleculeRef} ref={crossReferenceDialogRef} />
+      )}
       <div ref={filterRef}>
         {/* TODO disable showing of filter tags for now */}
         {false && isActiveFilter && (
@@ -992,8 +1126,9 @@ const DatasetMoleculeList = ({ title, datasetID, url }) => {
                     {filterSettings.priorityOrder.map(attr => (
                       <Grid item key={`Mol-Tooltip-${attr}`}>
                         <Tooltip
-                          title={`${filterProperties[attr].minValue}-${filterProperties[attr].maxValue} ${filterProperties[attr].order === 1 ? '\u2191' : '\u2193'
-                            }`}
+                          title={`${filterProperties[attr].minValue}-${filterProperties[attr].maxValue} ${
+                            filterProperties[attr].order === 1 ? '\u2191' : '\u2193'
+                          }`}
                           placement="top"
                         >
                           <Chip size="small" label={attr} className={classes.propertyChip} />
@@ -1336,9 +1471,21 @@ const DatasetMoleculeList = ({ title, datasetID, url }) => {
                             previousItemData={index > 0 && array[index - 1]}
                             nextItemData={index < array?.length && array[index + 1]}
                             L={ligandList?.includes(data.id)}
-                            P={proteinList?.includes(idToFind)}
-                            C={complexList?.includes(idToFind)}
-                            S={surfaceList?.includes(idToFind)}
+                            P={
+                              data.isCustomPdb
+                                ? proteinListDataset?.includes(idToFind)
+                                : proteinList?.includes(idToFind)
+                            }
+                            C={
+                              data.isCustomPdb
+                                ? complexListDataset?.includes(idToFind)
+                                : complexList?.includes(idToFind)
+                            }
+                            S={
+                              data.isCustomPdb
+                                ? surfaceListDataset?.includes(idToFind)
+                                : surfaceList?.includes(idToFind)
+                            }
                             V={false}
                             moveMolecule={moveMolecule}
                             isLocked={locked}
@@ -1347,7 +1494,7 @@ const DatasetMoleculeList = ({ title, datasetID, url }) => {
                             disableL={locked && groupDatasetsNglControlButtonsDisabledState.ligand}
                             disableP={locked && groupDatasetsNglControlButtonsDisabledState.protein}
                             disableC={locked && groupDatasetsNglControlButtonsDisabledState.complex}
-                            dragDropEnabled
+                            dragDropEnabled={false}
                             getNode={getNode}
                           />
                         );
@@ -1396,7 +1543,7 @@ const DatasetMoleculeList = ({ title, datasetID, url }) => {
           </>
         )}
       </Grid>
-    </Panel >
+    </Panel>
   );
 };
 

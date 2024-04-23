@@ -45,7 +45,9 @@ export const ServicesStatusWrapper = memo(() => {
                 if (!(prevState.length === 1 && prevState[0]?.id === 'services')) {
                     toastError('Status of services is not available');
                 }
-                return [{ id: 'services', name: 'Status of services', state: 'NOT_AVAILABLE', timestamp: Date.now() }];
+                const newTemp = [{ id: 'services', name: 'Status of services', state: 'NOT_AVAILABLE', timestamp: Date.now() }];
+                checkServices(prevState, newTemp);
+                return newTemp;
             });
         } else {
             setServices((prevState) => {

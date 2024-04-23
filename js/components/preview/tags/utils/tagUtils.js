@@ -236,7 +236,7 @@ export const getAllTagsForLHSCmp = (observations, tagList, tagCategoryList) => {
     obs?.tags_set.forEach(tagId => {
       let tag = tagList.find(t => t.id === tagId);
       if (
-        tag &&
+        tag && !tag.hidden &&
         !restOfTheTags.some(t => t.id === tag.id) &&
         !prioTags.some(t => t.id === tag.id) &&
         !obsPrioTags.some(t => t.id === tag.id)

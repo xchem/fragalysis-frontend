@@ -62,6 +62,16 @@ export const setFilterDialogOpen = filterDialogOpen => ({
   payload: filterDialogOpen
 });
 
+export const setDatasetIterator = (datasetID, currentCmp) => ({
+  type: constants.SET_DATASET_ITERATOR,
+  payload: { datasetID, currentCmp }
+});
+
+export const setSelectedCompoundsIterator = (datasetID, molecule) => ({
+  type: constants.SET_SELECTED_COMPOUNDS_ITERATOR,
+  payload: { datasetID, molecule }
+});
+
 export const setLigandList = function(datsetID, ligandList) {
   return {
     type: constants.SET_LIGAND_LIST,
@@ -579,4 +589,3 @@ export const setUpdatedDatasets = updatedDataset => ({
   type: constants.SET_UPDATED_DATASETS,
   payload: { updatedDataset }
 });
-

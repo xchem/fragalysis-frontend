@@ -478,3 +478,43 @@ export const getJoinedMoleculeLists = (datasetID, state) => {
 
   return moleculeList;
 };
+
+export const getLHSVisibleListsForRHS = createSelector(
+  (_, datasetID) => datasetID,
+  moleculeLists,
+  proteinList,
+  complexList,
+  surfaceList,
+  (datasetID, molecules, proteins, complexes, surfaces) => {
+    const result = { proteinList: [], complexList: [], surfaceList: [] };
+
+    const rhsCompoundsWithLHSReference = {};
+    const moleculesOfDataset = molecules[datasetID] || [];
+
+    moleculesOfDataset.forEach(molecule => {
+      if (molecule.site_observation_code) {
+        rhsCompoundsWithLHSReference[molecule.id] = molecule;
+      }
+    });
+
+    proteins.forEach(id => {
+      if (rhsCompoundsWithLHSReference[id]) {
+        result.proteinList.push(rhsCompoundsWithLHSReference[id].id);
+      }
+    });
+
+    complexes.forEach(id => {
+      if (rhsCompoundsWithLHSReference[id]) {
+        result.complexList.push(rhsCompoundsWithLHSReference[id].id);
+      }
+    });
+
+    surfaces.forEach(id => {
+      if (rhsCompoundsWithLHSReference[id]) {
+        result.surfaceList.push(rhsCompoundsWithLHSReference[id].id);
+      }
+    });
+
+    return result;
+  }
+);

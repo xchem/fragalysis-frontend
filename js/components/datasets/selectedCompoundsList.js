@@ -33,7 +33,9 @@ import { CrossReferenceDialog } from './crossReferenceDialog';
 import {
   autoHideDatasetDialogsOnScroll,
   getAllVisibleButNotLockedSelectedCompounds,
+  getCurrentSelectedCompoundIterator,
   getInspirationsForMol,
+  getObservationForLHSReference,
   isCompoundLocked,
   isCompoundVisible,
   moveDatasetMoleculeUpDown,
@@ -192,15 +194,22 @@ export const SelectedCompoundList = memo(() => {
   const canLoadMore = listItemOffset < moleculesObjectIDListOfCompoundsToBuy.length;
 
   const ligandList = useSelector(state => getListOfSelectedLigandOfAllDatasets(state));
-  const proteinList = useSelector(state => getListOfSelectedProteinOfAllDatasets(state));
-  const complexList = useSelector(state => getListOfSelectedComplexOfAllDatasets(state));
-  const surfaceList = useSelector(state => getListOfSelectedSurfaceOfAllDatasets(state));
+  const proteinList = useSelector(state => state.selectionReducers.proteinList);
+  const complexList = useSelector(state => state.selectionReducers.complexList);
+  const surfaceList = useSelector(state => state.selectionReducers.surfaceList);
+
+  const proteinListDataset = useSelector(state => getListOfSelectedProteinOfAllDatasets(state));
+  const complexListDataset = useSelector(state => getListOfSelectedComplexOfAllDatasets(state));
+  const surfaceListDataset = useSelector(state => getListOfSelectedSurfaceOfAllDatasets(state));
 
   const showedCompoundList = useSelector(state => state.previewReducers.compounds.showedCompoundList);
   const filteredScoreProperties = useSelector(state => state.datasetsReducers.filteredScoreProperties);
 
   const moleculeLists = useSelector(state => state.datasetsReducers.moleculeLists);
+  const allMoleculesList = useSelector(state => state.apiReducers.all_mol_lists);
+
   const compoundsToBuyList = useSelector(state => state.datasetsReducers.compoundsToBuyDatasetMap);
+
   let selectedMolecules = [];
   Object.keys(compoundsToBuyList).forEach(datasetId => {
     const datasetCmpsToBuy = compoundsToBuyList[datasetId] || [];
@@ -266,9 +275,7 @@ export const SelectedCompoundList = memo(() => {
     if (moleculesObjectIDListOfCompoundsToBuy) {
       for (let i = 0; i < moleculesObjectIDListOfCompoundsToBuy.length; i++) {
         const cmp = moleculesObjectIDListOfCompoundsToBuy[i];
-        const dataset = cmp.datasetID;
-        const molecule = cmp.molecule;
-        const isVisible = dispatch(isCompoundVisible(dataset, molecule.id));
+        const isVisible = dispatch(isCompoundVisible(cmp));
         if (isVisible) {
           result = true;
           break;
@@ -276,19 +283,17 @@ export const SelectedCompoundList = memo(() => {
       }
     }
     return result;
-  }, [dispatch, moleculesObjectIDListOfCompoundsToBuy]);
-  // if (!moleculesObjectIDListOfCompoundsToBuy) {
-  //   for (let i = 0; i < moleculesObjectIDListOfCompoundsToBuy.length; i++) {
-  //     const cmp = moleculesObjectIDListOfCompoundsToBuy[i];
-  //     const dataset = cmp.datasetID;
-  //     const molecule = cmp.molecule;
-  //     const isVisible = dispatch(isCompoundVisible(dataset, molecule.id));
-  //     if (isVisible) {
-  //       areArrowsVisible = true;
-  //       break;
-  //     }
-  //   }
-  // }
+  }, [
+    dispatch,
+    moleculesObjectIDListOfCompoundsToBuy,
+    ligandList,
+    proteinList,
+    complexList,
+    surfaceList,
+    proteinListDataset,
+    complexListDataset,
+    surfaceListDataset
+  ]);
 
   useEffect(() => {
     return () => {
@@ -601,13 +606,18 @@ export const SelectedCompoundList = memo(() => {
 
   const getFirstItemForIterationStart = () => {
     let result = null;
-    for (let i = 0; i < moleculesObjectIDListOfCompoundsToBuy.length; i++) {
-      const cmp = moleculesObjectIDListOfCompoundsToBuy[i];
-      if (!dispatch(isCompoundLocked(cmp.datasetID, cmp.molecule)) && !isCompoundFromVectorSelector(cmp.molecule)) {
-        const isVisible = dispatch(isCompoundVisible(cmp.datasetID, cmp.molecule.id));
-        if (isVisible) {
-          result = cmp;
-          break;
+
+    result = dispatch(getCurrentSelectedCompoundIterator());
+
+    if (!(result.datasetID && result.molecule)) {
+      for (let i = 0; i < moleculesObjectIDListOfCompoundsToBuy.length; i++) {
+        const cmp = moleculesObjectIDListOfCompoundsToBuy[i];
+        if (!dispatch(isCompoundLocked(cmp.datasetID, cmp.molecule)) && !isCompoundFromVectorSelector(cmp.molecule)) {
+          const isVisible = dispatch(isCompoundVisible(cmp));
+          if (isVisible) {
+            result = cmp;
+            break;
+          }
         }
       }
     }
@@ -664,12 +674,28 @@ export const SelectedCompoundList = memo(() => {
         const node = getNode(nextItem.molecule?.id);
         setScrollToMoleculeId(nextItem.molecule?.id);
 
+        let firstItemIdToUse = firstItem.molecule?.id;
+        let isCustomPdb = true;
+        if (!firstItem.molecule?.isCustomPdb) {
+          isCustomPdb = false;
+          const obs = dispatch(getObservationForLHSReference(firstItem.molecule));
+          if (obs) {
+            firstItemIdToUse = obs.id;
+          }
+        }
+
         let dataValue = {
           colourToggle: getRandomColor(firstItem.molecule),
           isLigandOn: ligandList.includes(firstItem.molecule?.id),
-          isProteinOn: proteinList.includes(firstItem.molecule?.id),
-          isComplexOn: complexList.includes(firstItem.molecule?.id),
-          isSurfaceOn: surfaceList.includes(firstItem.molecule?.id)
+          isProteinOn: isCustomPdb
+            ? proteinListDataset.includes(firstItemIdToUse)
+            : proteinList.includes(firstItemIdToUse),
+          isComplexOn: isCustomPdb
+            ? complexListDataset.includes(firstItemIdToUse)
+            : complexList.includes(firstItemIdToUse),
+          isSurfaceOn: isCustomPdb
+            ? surfaceListDataset.includes(firstItemIdToUse)
+            : surfaceList.includes(firstItemIdToUse)
         };
 
         dispatch(setCrossReferenceCompoundName(moleculeTitleNext));
@@ -707,12 +733,28 @@ export const SelectedCompoundList = memo(() => {
         const node = getNode(prevItem.molecule?.id);
         setScrollToMoleculeId(prevItem.molecule?.id);
 
+        let firstItemIdToUse = firstItem.molecule?.id;
+        let isCustomPdb = true;
+        if (!firstItem.molecule?.isCustomPdb) {
+          isCustomPdb = false;
+          const obs = dispatch(getObservationForLHSReference(firstItem?.molecule));
+          if (obs) {
+            firstItemIdToUse = obs.id;
+          }
+        }
+
         let dataValue = {
           colourToggle: getRandomColor(firstItem.molecule),
           isLigandOn: ligandList.includes(firstItem.molecule?.id),
-          isProteinOn: proteinList.includes(firstItem.molecule?.id),
-          isComplexOn: complexList.includes(firstItem.molecule?.id),
-          isSurfaceOn: surfaceList.includes(firstItem.molecule?.id)
+          isProteinOn: isCustomPdb
+            ? proteinListDataset.includes(firstItemIdToUse)
+            : proteinList.includes(firstItemIdToUse),
+          isComplexOn: isCustomPdb
+            ? complexListDataset.includes(firstItemIdToUse)
+            : complexList.includes(firstItemIdToUse),
+          isSurfaceOn: isCustomPdb
+            ? surfaceListDataset.includes(firstItemIdToUse)
+            : surfaceList.includes(firstItemIdToUse)
         };
 
         dispatch(setCrossReferenceCompoundName(moleculeTitleNext));
@@ -936,6 +978,11 @@ export const SelectedCompoundList = memo(() => {
                   }
 
                   const isLocked = dispatch(isCompoundLocked(data.datasetID, data.molecule));
+                  const isCustomPdb = data.molecule.isCustomPdb;
+
+                  const itemIdToUse = isCustomPdb
+                    ? data.molecule.id
+                    : dispatch(getObservationForLHSReference(data.molecule))?.id;
                   // }
                   return (
                     isVisible && (
@@ -952,12 +999,12 @@ export const SelectedCompoundList = memo(() => {
                         previousItemData={index > 0 && array[index - 1]}
                         nextItemData={index < array?.length && array[index + 1]}
                         L={isLigandOn}
-                        P={proteinList.includes(data.molecule.id)}
-                        C={complexList.includes(data.molecule.id)}
-                        S={surfaceList.includes(data.molecule.id)}
+                        P={isCustomPdb ? proteinListDataset.includes(itemIdToUse) : proteinList.includes(itemIdToUse)}
+                        C={isCustomPdb ? complexListDataset.includes(itemIdToUse) : complexList.includes(itemIdToUse)}
+                        S={isCustomPdb ? surfaceListDataset.includes(itemIdToUse) : surfaceList.includes(itemIdToUse)}
                         V={false}
                         arrowsHidden={false}
-                        dragDropEnabled
+                        dragDropEnabled={false}
                         shoppingCartColors={shoppingCartColors}
                         isAddedToShoppingCart={isAddedToShoppingCart}
                         inSelectedCompoundsList
