@@ -189,10 +189,31 @@ export default function apiReducers(state = INITIAL_STATE, action = {}) {
       const indexOfCmp = newList.findIndex(c => c.id === action.cmp.id);
       if (indexOfCmp >= 0) {
         newList[indexOfCmp] = { ...action.cmp };
-        return { ...state, lhs_compounds_list: [...newList] };
       } else {
-        return state;
+        newList.push(action.cmp);
       }
+
+      newList.sort((a, b) => {
+        if (a.code < b.code) {
+          return -1;
+        }
+        if (a.code > b.code) {
+          return 1;
+        }
+        return 0;
+      });
+
+      return { ...state, lhs_compounds_list: [...newList] };
+    }
+
+    case constants.REMOVE_LHS_COMPOUND: {
+      let newList = [...state.lhs_compounds_list];
+      const indexOfCmp = newList.findIndex(c => c.id === action.cmp.id);
+      if (indexOfCmp >= 0) {
+        newList.splice(indexOfCmp, 1);
+      }
+
+      return { ...state, lhs_compounds_list: [...newList] };
     }
 
     case constants.SET_PANNDA_EVENT_LIST:

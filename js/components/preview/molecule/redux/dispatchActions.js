@@ -56,7 +56,12 @@ import { noCompoundImage } from '../../summary/redux/reducer';
 import { getMoleculeOfCurrentVector } from '../../../../reducers/selection/selectors';
 import { resetCurrentCompoundSettingsWithoutSelection } from '../../compounds/redux/actions';
 import { selectMoleculeGroup } from '../../moleculeGroups/redux/dispatchActions';
-import { setDirectAccessProcessed } from '../../../../reducers/api/actions';
+import {
+  removeLHSCompound,
+  setDirectAccessProcessed,
+  updateLHSCompound,
+  updateMoleculeInMolLists
+} from '../../../../reducers/api/actions';
 import { MOL_TYPE } from './constants';
 import {
   addImageToCache,
@@ -71,6 +76,7 @@ import { addSelectedTag } from '../../tags/redux/dispatchActions';
 import { CATEGORY_TYPE } from '../../../../constants/constants';
 import { selectJoinedMoleculeList } from './selectors';
 import { compareTagsAsc } from '../../tags/utils/tagUtils';
+import { createPoseApi, updatePoseApi } from '../api/poseApi';
 // import { molFile, pdbApo } from './testData';
 
 /**
@@ -1238,8 +1244,9 @@ export const selectAllHits = (allFilteredLhsCompounds, setNextXMolecules, unsele
   }
   const listOfIds = [];
   allFilteredLhsCompounds.forEach(cmp => {
-    if (cmp.associatedObs?.length > 0) {
-      listOfIds.push(cmp.associatedObs[0].id);
+    if (cmp.associatedObs?.length > 0 && cmp.main_site_observation) {
+      const mainObs = cmp.associatedObs.find(obs => obs.id === cmp.main_site_observation);
+      mainObs && listOfIds.push(mainObs.id);
     }
   });
   if (!unselect) {
@@ -1249,4 +1256,155 @@ export const selectAllHits = (allFilteredLhsCompounds, setNextXMolecules, unsele
     dispatch(setMolListToEdit([]));
     dispatch(setUnselectAllMolecules(allFilteredLhsCompounds));
   }
+};
+
+export const getAllCompatiblePoses = (compoundId, canonSite, poseToSkip = 0) => (dispatch, getState) => {
+  let result = [];
+  const state = getState();
+
+  const poses = state.apiReducers.lhs_compounds_list;
+  result = poses?.filter(
+    pose => pose.compound === compoundId && pose.canon_site === canonSite && pose.id !== poseToSkip
+  );
+
+  return result;
+};
+
+export const prepareEmptyPoseDTO = () => {
+  return {
+    // id: null,
+    display_name: null,
+    canon_site: null,
+    compound: null,
+    main_site_observation: null,
+    site_observations: [],
+    main_site_observation_cmpd_code: null
+  };
+};
+
+export const copyPoseToPoseDTO = pose => {
+  return {
+    id: pose.id,
+    display_name: pose.display_name,
+    canon_site: pose.canon_site,
+    compound: pose.compound,
+    main_site_observation: pose.main_site_observation,
+    site_observations: [...pose.site_observations],
+    main_site_observation_cmpd_code: pose.main_site_observation_cmpd_code
+  };
+};
+
+export const removeObservationsFromPose = (pose, observationIds) => (dispatch, getState) => {
+  const newPose = { ...pose };
+  const newObsList = newPose.site_observations.filter(obs => !observationIds.includes(obs));
+  let associatedObs = newPose.associatedObs?.filter(obs => !observationIds.includes(obs.id));
+  if (associatedObs) {
+    newPose.associatedObs = [...associatedObs];
+  }
+  if (newObsList) {
+    newPose.site_observations = newObsList;
+  }
+  // const poseDTO = copyPoseToPoseDTO(newPose);
+  // await dispatch(updatePose(poseDTO));
+  if (newPose.site_observations.length > 0) {
+    dispatch(updateLHSCompound(newPose));
+  } else {
+    dispatch(removeLHSCompound(newPose));
+  }
+
+  return newPose;
+};
+
+export const addObservationsToPose = (pose, observationIds) => async (dispatch, getState) => {
+  const state = getState();
+  const allObservations = state.apiReducers.all_mol_lists;
+  const observationsToAdd = allObservations.filter(obs => observationIds.includes(obs.id));
+  const newPose = { ...pose };
+  const newObsList = [...newPose.site_observations, ...observationIds];
+  newPose.site_observations = newObsList;
+  if (observationsToAdd?.length > 0) {
+    newPose.associatedObs = [...newPose.associatedObs, ...observationsToAdd];
+    newPose.associatedObs.forEach(obs => {
+      obs.pose = newPose.id;
+    });
+    newPose.associatedObs = newPose.associatedObs.sort((a, b) => {
+      if (a.code < b.code) {
+        return -1;
+      }
+      if (a.code > b.code) {
+        return 1;
+      }
+      return 0;
+    });
+  }
+  const poseDTO = copyPoseToPoseDTO(newPose);
+  await dispatch(updatePose(poseDTO));
+  dispatch(updateLHSCompound(newPose));
+
+  return newPose;
+};
+
+export const updateObservationsInPose = (pose, observationIds) => async (dispatch, getState) => {
+  const state = getState();
+  const allObservations = state.apiReducers.all_mol_lists;
+  const observationsToUpdate = allObservations.filter(obs => observationIds.includes(obs.id));
+  observationsToUpdate?.forEach(obs => {
+    obs.pose = pose.id;
+    dispatch(updateMoleculeInMolLists(obs));
+  });
+  pose?.associatedObs?.forEach(obs => {
+    obs.pose = pose.id;
+  });
+};
+
+export const createNewPose = (canonSiteId, observationIds) => async (dispatch, getState) => {
+  let result = null;
+
+  const state = getState();
+  const allPoses = state.apiReducers.lhs_compounds_list;
+  const allObservations = state.apiReducers.all_mol_lists;
+
+  const newPose = prepareEmptyPoseDTO();
+
+  const observationsToUse = allObservations.filter(obs => observationIds.includes(obs.id));
+  if (observationsToUse && observationsToUse.length > 0) {
+    const firstObs = observationsToUse[0];
+
+    newPose.display_name = firstObs.code;
+    newPose.canon_site = canonSiteId;
+    newPose.compound = firstObs.cmpd;
+    newPose.main_site_observation = firstObs.id;
+    newPose.site_observations = [...observationIds];
+    newPose.main_site_observation_cmpd_code = firstObs.compound_code;
+
+    const createdPose = await dispatch(createPose(newPose));
+    createdPose.smiles = firstObs.smiles;
+    createdPose.code = `${createdPose.display_name}`;
+    createdPose.canonSiteConf = firstObs.canon_site_conf;
+    createdPose.canonSite = createdPose.canon_site;
+    createdPose.associatedObs = observationsToUse.sort((a, b) => {
+      if (a.code < b.code) {
+        return -1;
+      }
+      if (a.code > b.code) {
+        return 1;
+      }
+      return 0;
+    });
+
+    dispatch(updateLHSCompound(createdPose));
+    await dispatch(updateObservationsInPose(createdPose, observationIds));
+
+    result = createdPose;
+  }
+
+  return result;
+};
+
+export const updatePose = newPose => async (dispatch, getState) => {
+  await updatePoseApi(newPose);
+};
+
+export const createPose = newPose => async (dispatch, getState) => {
+  return createPoseApi(newPose);
 };

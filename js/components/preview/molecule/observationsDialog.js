@@ -1,6 +1,6 @@
 import React, { forwardRef, memo, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
 import { CircularProgress, Grid, Popper, IconButton, Typography, Tooltip } from '@material-ui/core';
-import { Close } from '@material-ui/icons';
+import { Close, KeyboardArrowDown } from '@material-ui/icons';
 import { makeStyles } from '@material-ui/styles';
 import { useDispatch, useSelector } from 'react-redux';
 import classNames from 'classnames';
@@ -11,12 +11,20 @@ import {
   addComplex,
   addHitProtein,
   addLigand,
+  addObservationsToPose,
   addSurface,
+  copyPoseToPoseDTO,
+  createNewPose,
+  getAllCompatiblePoses,
+  prepareEmptyPoseDTO,
   removeComplex,
   removeHitProtein,
   removeLigand,
+  removeObservationsFromPose,
   removeSelectedMolTypes,
   removeSurface,
+  updateObservationsInPose,
+  updatePose,
   withDisabledMoleculesNglControlButtons
 } from './redux/dispatchActions';
 import { colourList } from './utils/color';
@@ -32,11 +40,15 @@ import SearchField from '../../common/Components/SearchField';
 import GroupNglControlButtonsContext from './groupNglControlButtonsContext';
 import MoleculeView from './moleculeView';
 import { TagEditor } from '../tags/modal/tagEditor';
+import { ToastContext } from '../../toast';
+import { DJANGO_CONTEXT } from '../../../utils/djangoContext';
+import { updateLHSCompound } from '../../../reducers/api/actions';
+import { createPoseErrorMessage } from './api/poseApi';
 
 const useStyles = makeStyles(theme => ({
   paper: {
     width: 472,
-    height: 294,
+    // minHeight: 294,
     overflowY: 'hidden'
   },
   molHeader: {
@@ -112,6 +124,39 @@ const useStyles = makeStyles(theme => ({
       backgroundColor: theme.palette.primary.semidark
       //color: theme.palette.black
     }
+  },
+  contColButtonBottomRow: {
+    border: '1px solid'
+  },
+  bottomRow: {
+    marginTop: theme.spacing(1) / 4
+  },
+  dropdownContent: {
+    display: 'none',
+    position: 'absolute',
+    backgroundColor: theme.palette.primary.contrastText,
+    maxWidth: 150,
+    marginTop: -1,
+    border: '1px solid',
+    borderColor: theme.palette.primary.main,
+    // color: theme.palette.primary.contrastText,
+    // boxShadow: '0px 8px 16px 0px rgba(0, 0, 0, 0.2)',
+    zIndex: 1
+  },
+  dropdownItem: {
+    fontSize: 12,
+    // fontWeight: 'bold',
+    paddingLeft: theme.spacing(1) / 4,
+    paddingRight: theme.spacing(1) / 4,
+    '&:hover': {
+      cursor: 'pointer',
+      backgroundColor: theme.palette.primary.light
+    }
+  },
+  dropdown: {
+    '&:hover $dropdownContent': {
+      display: 'flex'
+    }
   }
 }));
 
@@ -127,6 +172,7 @@ export const ObservationsDialog = memo(
     const selectedAll = useRef(false);
 
     const { getNglView } = useContext(NglContext);
+    const { toastInfo, toastError, toastWarning } = useContext(ToastContext);
     const stage = getNglView(VIEWS.MAJOR_VIEW) && getNglView(VIEWS.MAJOR_VIEW).stage;
 
     const isLoadingInspirationListOfMolecules = useSelector(
@@ -146,6 +192,20 @@ export const ObservationsDialog = memo(
     const molForTagEditId = useSelector(state => state.selectionReducers.molForTagEdit);
     const moleculesToEditIds = useSelector(state => state.selectionReducers.moleculesToEdit);
 
+    const poses = useSelector(state => state.apiReducers.lhs_compounds_list);
+    const compatiblePoses = useMemo(() => {
+      const someObservation = observationsDataList[0];
+      if (someObservation) {
+        const pose = poses.find(pose => pose.id === someObservation.pose);
+        if (pose) {
+          const result = dispatch(getAllCompatiblePoses(pose.compound, pose.canon_site, pose.id));
+          return result;
+        }
+      } else {
+        return [];
+      }
+    }, [dispatch, observationsDataList, poses]);
+
     const isTagEditorOpenObs = useSelector(state => state.selectionReducers.tagEditorOpenedObs);
 
     const tagEditorRef = useRef();
@@ -161,7 +221,10 @@ export const ObservationsDialog = memo(
       return observationsDataList;
     }, [observationsDataList, searchString]);
 
-    const allSelectedMolecules = observationsDataList.filter(molecule => moleculesToEditIds.includes(molecule.id));
+    const allSelectedMolecules = useMemo(
+      () => observationsDataList.filter(molecule => moleculesToEditIds.includes(molecule.id)),
+      [moleculesToEditIds, observationsDataList]
+    );
 
     // TODO: refactor from this line (duplicity in datasetMoleculeList.js)
     const isLigandOn = changeButtonClassname(
@@ -303,6 +366,132 @@ export const ObservationsDialog = memo(
     const anyControlButtonDisabled = Object.values(groupNglControlButtonsDisabledState).some(
       buttonState => buttonState
     );
+
+    const handleSetAsGroupName = () => {
+      const firstSelectedObs = observationsDataList.find(molecule => moleculesToEditIds.includes(molecule.id));
+      if (firstSelectedObs) {
+        const pose = poses.find(pose => pose.id === firstSelectedObs.pose);
+        pose.display_name = firstSelectedObs.code;
+        pose.code = pose.display_name;
+        const poseDTO = copyPoseToPoseDTO(pose);
+        dispatch(updatePose(poseDTO))
+          .then(resp => {
+            dispatch(updateLHSCompound(pose));
+            toastInfo(`Group name was changed to ${pose.display_name}`, { autoHideDuration: 5000 });
+          })
+          .catch(err => {
+            console.log(err);
+            const errorMessage = createPoseErrorMessage(err);
+            if (errorMessage) {
+              toastError(errorMessage, { autoHideDuration: 600000 });
+            } else {
+              toastError(err, { autoHideDuration: 600000 });
+            }
+          });
+      }
+    };
+
+    const handleSetMainObservation = () => {
+      const firstSelectedObs = observationsDataList.find(molecule => moleculesToEditIds.includes(molecule.id));
+      if (firstSelectedObs) {
+        const pose = poses.find(pose => pose.id === firstSelectedObs.pose);
+        pose.main_site_observation = firstSelectedObs.id;
+        const poseDTO = copyPoseToPoseDTO(pose);
+        dispatch(updatePose(poseDTO))
+          .then(resp => {
+            dispatch(updateLHSCompound(pose));
+            toastInfo(`Main observation was set to ${firstSelectedObs.code} with id ${pose.main_site_observation}`, {
+              autoHideDuration: 5000
+            });
+          })
+          .catch(err => {
+            console.log(err);
+            const errorMessage = createPoseErrorMessage(err);
+            if (errorMessage) {
+              toastError(errorMessage, { autoHideDuration: 600000 });
+            } else {
+              toastError(err, { autoHideDuration: 600000 });
+            }
+          });
+      }
+    };
+
+    const isMovingMainObservation = pose => {
+      let result = false;
+
+      moleculesToEditIds.includes(pose.main_site_observation) && pose.site_observations.length > 1 && (result = true);
+
+      return result;
+    };
+
+    const isTryingToMoveAllObservations = pose => {
+      let result = false;
+
+      pose.site_observations.length > 1 &&
+        pose.site_observations.length === moleculesToEditIds.length &&
+        (result = true);
+
+      return result;
+    };
+
+    const handleManageGrouping = async poseId => {
+      const firstSelectedObs = observationsDataList.find(molecule => moleculesToEditIds.includes(molecule.id));
+      if (firstSelectedObs) {
+        let sourcePose = poses.find(pose => pose.id === firstSelectedObs.pose);
+        if (!isMovingMainObservation(sourcePose)) {
+          if (!isTryingToMoveAllObservations(sourcePose)) {
+            let destinationPose = poses.find(pose => pose.id === poseId);
+            try {
+              if (poseId === 0) {
+                if (sourcePose.site_observations.length > 1) {
+                  sourcePose = dispatch(removeObservationsFromPose(sourcePose, moleculesToEditIds));
+                  dispatch(createNewPose(sourcePose.canon_site, moleculesToEditIds)).then(newPose => {
+                    destinationPose = newPose;
+                    toastInfo(`Observations were successfully moved to new pose ${destinationPose.display_name}`, {
+                      autoHideDuration: 5000
+                    });
+                  });
+                } else {
+                  toastWarning(
+                    `You are trying to create a new observation from a observation which is alone in its observation. In this case you can move it only to already existing pose.`,
+                    { autoHideDuration: 600000 }
+                  );
+                }
+              } else {
+                if (sourcePose.site_observations.length === 1) {
+                  dispatch(setOpenObservationsDialog(false));
+                }
+                sourcePose = dispatch(removeObservationsFromPose(sourcePose, moleculesToEditIds));
+                destinationPose = await dispatch(addObservationsToPose(destinationPose, moleculesToEditIds));
+                dispatch(updateObservationsInPose(destinationPose, moleculesToEditIds));
+
+                toastInfo(`Observations were successfully moved to pose ${destinationPose.display_name}`, {
+                  autoHideDuration: 5000
+                });
+              }
+            } catch (error) {
+              console.log(error);
+              const errorMessage = createPoseErrorMessage(error);
+              if (errorMessage) {
+                toastError(errorMessage, { autoHideDuration: 600000 });
+              } else {
+                toastError(error, { autoHideDuration: 600000 });
+              }
+            }
+          } else {
+            toastWarning(
+              `You are trying to move all observations to different pose. Please select less observations and try again.`,
+              { autoHideDuration: 600000 }
+            );
+          }
+        } else {
+          toastWarning(
+            `You are trying to move main observation to different pose. Please assing new main observation first and then try again.`,
+            { autoHideDuration: 600000 }
+          );
+        }
+      }
+    };
 
     //  TODO refactor to this line
 
@@ -465,6 +654,66 @@ export const ObservationsDialog = memo(
                   </Grid>
                 )}
               </div>
+              {DJANGO_CONTEXT.pk && (
+                <Grid
+                  container
+                  direction="row"
+                  justifyContent="space-evenly"
+                  alignItems="center"
+                  className={classes.bottomRow}
+                >
+                  <Grid item>
+                    <Button
+                      onClick={handleSetAsGroupName}
+                      disabled={allSelectedMolecules.length !== 1}
+                      color="inherit"
+                      variant="text"
+                      size="small"
+                      data-id="setAsGroupName"
+                      className={classNames(classes.contColButton, classes.contColButtonBottomRow)}
+                    >
+                      Set as group name
+                    </Button>
+                  </Grid>
+                  <Grid item>
+                    <Button
+                      onClick={handleSetMainObservation}
+                      disabled={allSelectedMolecules.length !== 1}
+                      color="inherit"
+                      variant="text"
+                      size="small"
+                      data-id="setMainObservation"
+                      className={classNames(classes.contColButton, classes.contColButtonBottomRow)}
+                    >
+                      Set main observation
+                    </Button>
+                  </Grid>
+                  <Grid item className={classes.dropdown}>
+                    <Button
+                      disabled={allSelectedMolecules.length < 1}
+                      color="inherit"
+                      variant="text"
+                      size="small"
+                      data-id="manageGrouping"
+                      endIcon={<KeyboardArrowDown />}
+                      className={classNames(classes.contColButton, classes.contColButtonBottomRow)}
+                    >
+                      Manage grouping
+                    </Button>
+                    <Grid container direction="column" className={classes.dropdownContent}>
+                      <Grid item className={classes.dropdownItem} onClick={() => handleManageGrouping(0)}>
+                        new group from selection
+                      </Grid>
+                      {/* TODO just a placeholder for poses here */}
+                      {compatiblePoses?.map(pose => (
+                        <Grid item className={classes.dropdownItem} onClick={() => handleManageGrouping(pose.id)}>
+                          move selection to {pose.display_name}
+                        </Grid>
+                      ))}
+                    </Grid>
+                  </Grid>
+                </Grid>
+              )}
             </>
           )}
           {isLoadingInspirationListOfMolecules === true && (

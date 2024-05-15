@@ -701,7 +701,7 @@ export const ObservationCmpList = memo(({ hideProjects }) => {
   let filteredLHSCompoundsList = useMemo(() => {
     const compounds = [];
     lhsCompoundsList.forEach(compound => {
-      const molsForCmp = joinedMoleculeLists.some(molecule => molecule.cmpd === compound.origId);
+      const molsForCmp = joinedMoleculeLists.some(molecule => molecule.cmpd === compound.compound);
       if (molsForCmp && compound.associatedObs.some(obs => joinedMoleculeLists.some(mol => mol.id === obs.id))) {
         compounds.push(compound);
       }
@@ -712,7 +712,7 @@ export const ObservationCmpList = memo(({ hideProjects }) => {
   useEffect(() => {
     if (isObservationDialogOpen && observationsForLHSCmp?.length > 0) {
       const cmpId = observationsForLHSCmp[0].cmpd;
-      const cmp = filteredLHSCompoundsList.find(c => c.origId === cmpId);
+      const cmp = filteredLHSCompoundsList.find(c => c.compound === cmpId);
       if (!cmp) {
         dispatch(setObservationsForLHSCmp([]));
         dispatch(setOpenObservationsDialog(false));
@@ -1214,9 +1214,6 @@ export const ObservationCmpList = memo(({ hideProjects }) => {
               >
                 {filteredLHSCompoundsList.map((data, index, array) => {
                   const molsForCmp = data.associatedObs;
-                  // const selected = allSelectedMolecules.some(
-                  //   molecule => molecule.cmpd === data.origId && molecule.canon_site_conf === data.canonSiteConf
-                  // );
                   const selected = allSelectedMolecules.some(molecule =>
                     data.associatedObs.some(obs => obs.id === molecule.id)
                   );
