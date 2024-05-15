@@ -43,7 +43,8 @@ import {
   removeFromMolListToEdit,
   setOpenObservationsDialog,
   setObservationsForLHSCmp,
-  setIsLHSCmpTagEdit
+  setIsLHSCmpTagEdit,
+  setPoseIdForObservationsDialog
 } from '../../../../reducers/selection/actions';
 import { moleculeProperty } from '../helperConstants';
 import { centerOnLigandByMoleculeID } from '../../../../reducers/ngl/dispatchActions';
@@ -387,15 +388,23 @@ const ObservationCmpView = memo(
     const { getNglView } = useContext(NglContext);
     const stage = getNglView(VIEWS.MAJOR_VIEW) && getNglView(VIEWS.MAJOR_VIEW).stage;
 
-    const getFirstObservation = useCallback(() => {
+    const poseIdForObservationsDialog = useSelector(state => state.selectionReducers.poseIdForObservationsDialog);
+
+    useEffect(() => {
+      if (isObservationDialogOpen && poseIdForObservationsDialog === currentID) {
+        dispatch(setObservationsForLHSCmp(observations));
+      }
+    }, [observations, isObservationDialogOpen, dispatch, poseIdForObservationsDialog, currentID]);
+
+    const getMainObservation = useCallback(() => {
       let result = null;
 
-      if (observations && observations.length > 0) {
-        result = observations[0];
+      if (observations && observations.length > 0 && data.main_site_observation) {
+        result = observations.find(o => o.id === data.main_site_observation);
       }
 
       return result;
-    }, [observations]);
+    }, [data, observations]);
 
     const getAllObservationsSelectedInList = list => {
       let result = [];
@@ -481,7 +490,7 @@ const ObservationCmpView = memo(
     const disableMoleculeNglControlButtons =
       useSelector(state => state.previewReducers.molecule.disableNglControlButtons[currentID]) || {};
 
-    const colourToggle = getRandomColor(getFirstObservation());
+    const colourToggle = getRandomColor(getMainObservation());
 
     const getCalculatedProps = useCallback(
       () => [
@@ -808,11 +817,11 @@ const ObservationCmpView = memo(
 
     // componentDidMount
     useEffect(() => {
-      const obs = getFirstObservation();
+      const obs = getMainObservation();
       dispatch(getMolImage(obs.id, MOL_TYPE.HIT, imageWidth, imageHeight)).then(i => {
         setImg_data(i);
       });
-    }, [data.id, data.smiles, imageHeight, imageWidth, dispatch, getFirstObservation]);
+    }, [data.id, data.smiles, imageHeight, imageWidth, dispatch, getMainObservation]);
 
     useEffect(() => {
       dispatch(getQualityInformation(data));
@@ -846,7 +855,7 @@ const ObservationCmpView = memo(
       // }
       dispatch(
         withDisabledMoleculeNglControlButton(currentID, 'ligand', async () => {
-          const firstObs = getFirstObservation();
+          const firstObs = getMainObservation();
           if (firstObs) {
             const color = getRandomColor(firstObs);
             await dispatch(addLigand(stage, firstObs, color, false, true, skipTracking));
@@ -898,7 +907,7 @@ const ObservationCmpView = memo(
       // }
       dispatch(
         withDisabledMoleculeNglControlButton(currentID, 'protein', async () => {
-          const firstObs = getFirstObservation();
+          const firstObs = getMainObservation();
           if (firstObs) {
             const color = getRandomColor(firstObs);
             await dispatch(addHitProtein(stage, firstObs, color, true, skipTracking));
@@ -938,7 +947,7 @@ const ObservationCmpView = memo(
     const addNewComplex = (skipTracking = false) => {
       dispatch(
         withDisabledMoleculeNglControlButton(currentID, 'complex', async () => {
-          const firstObs = getFirstObservation();
+          const firstObs = getMainObservation();
           if (firstObs) {
             const color = getRandomColor(firstObs);
             await dispatch(addComplex(stage, firstObs, color, skipTracking));
@@ -977,7 +986,7 @@ const ObservationCmpView = memo(
     const addNewSurface = () => {
       dispatch(
         withDisabledMoleculeNglControlButton(currentID, 'surface', async () => {
-          const firstObs = getFirstObservation();
+          const firstObs = getMainObservation();
           if (firstObs) {
             const color = getRandomColor(firstObs);
             await dispatch(addSurface(stage, firstObs, color));
@@ -1056,7 +1065,7 @@ const ObservationCmpView = memo(
     const addNewQuality = () => {
       dispatch(
         withDisabledMoleculeNglControlButton(currentID, 'ligand', async () => {
-          const firstObs = getFirstObservation();
+          const firstObs = getMainObservation();
           if (firstObs) {
             const color = getRandomColor(firstObs);
             await dispatch(addQuality(stage, firstObs, color));
@@ -1083,7 +1092,7 @@ const ObservationCmpView = memo(
     const addNewVector = () => {
       dispatch(
         withDisabledMoleculeNglControlButton(currentID, 'vector', async () => {
-          const firstObs = getFirstObservation();
+          const firstObs = getMainObservation();
           if (firstObs) {
             await dispatch(addVector(stage, firstObs));
           }
@@ -1185,7 +1194,8 @@ const ObservationCmpView = memo(
                   const result = e.target.checked;
                   if (result) {
                     if (observations?.length > 0) {
-                      dispatch(appendToMolListToEdit(observations[0].id));
+                      const mainObs = getMainObservation();
+                      mainObs && dispatch(appendToMolListToEdit(mainObs.id));
                     }
                     // dispatch(appendToObsCmpListToEdit(currentID));
                   } else {
@@ -1233,7 +1243,7 @@ const ObservationCmpView = memo(
                       variant="outlined"
                       className={classes.myLocationButton}
                       onClick={() => {
-                        dispatch(centerOnLigandByMoleculeID(stage, getFirstObservation()?.id));
+                        dispatch(centerOnLigandByMoleculeID(stage, getMainObservation()?.id));
                       }}
                       disabled={false || !isLigandOn}
                     >
@@ -1427,6 +1437,7 @@ const ObservationCmpView = memo(
                           dispatch(setObservationsForLHSCmp(observations));
                         }
                         dispatch(setOpenObservationsDialog(!isObservationDialogOpen));
+                        dispatch(setPoseIdForObservationsDialog(data.id));
 
                         if (setRef) {
                           setRef(ref.current);

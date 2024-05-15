@@ -39,7 +39,8 @@ import {
   getTagCategories,
   getCompoundsLHS,
   getCanonSites,
-  getCanonConformSites
+  getCanonConformSites,
+  getPoses
 } from '../api/tagsApi';
 import {
   getMoleculeTagForTag,
@@ -126,7 +127,7 @@ export const storeData = data => (dispatch, getState) => {
   dispatch(setTagSelectorData(categories, tags));
 
   let allMolecules = [];
-  data.molecules.forEach(mol => { });
+  data.molecules.forEach(mol => {});
 };
 
 export const updateTagProp = (tag, value, prop) => (dispatch, getState) => {
@@ -192,7 +193,7 @@ export const loadMoleculesAndTagsNew = targetId => async (dispatch, getState) =>
   }
   const tagCategories = await getTagCategories();
   // const canonSitesList = await getCanonSites(targetId);
-  const canonConformSitest = await getCanonConformSites(targetId);
+  // const canonConformSitest = await getCanonConformSites(targetId);
 
   const data = await getAllDataNew(targetId);
   let allMolecules = [];
@@ -231,59 +232,42 @@ export const loadMoleculesAndTagsNew = targetId => async (dispatch, getState) =>
   dispatch(setTagSelectorData(tagCategories, tags));
   dispatch(setAllDataLoaded(true));
 
-  return getCompoundsLHS(targetId).then(compounds => {
-    const expandedCompounds = [];
-    let newIdStart = Math.max(...compounds?.map(c => c.id)) + 1;
-    compounds?.forEach(c => {
-      const siteObs = allMolecules.filter(m => m.cmpd === c.id);
-      const canonConformSites = siteObs?.map(so => {
-        return {
-          smiles: so.smiles,
-          code: so.code,
-          canon_site_conf: so.canon_site_conf,
-          canon_site: canonConformSitest.find(ccf => ccf.id === so.canon_site_conf)?.canon_site
-        };
-      });
-      canonConformSites?.forEach(cs => {
-        let newObject = { ...c };
+  return getPoses(targetId).then(poses => {
+    const modifiedPoses = [];
+    // let newIdStart = Math.max(...poses?.map(c => c.id)) + 1;
+    poses?.forEach(pose => {
+      const siteObs = allMolecules.filter(m => pose.site_observations.includes(m.id));
+      const firstObs = siteObs[0];
+      // const canonConformSites = siteObs?.map(so => {
+      //   return {
+      //     smiles: so.smiles,
+      //     code: so.code,
+      //     canon_site_conf: so.canon_site_conf,
+      //     canon_site: canonConformSitest.find(ccf => ccf.id === so.canon_site_conf)?.canon_site
+      //   };
+      // });
+      let newObject = { ...pose };
+      newObject['smiles'] = firstObs?.smiles;
+      newObject['code'] = `${pose.display_name}`;
+      // newObject['id'] = newIdStart++;
+      // newObject['origId'] = pose.id;
+      newObject['canonSiteConf'] = firstObs?.canon_site_conf;
+      newObject['canonSite'] = pose.canon_site;
 
-        newObject['smiles'] = cs.smiles;
-        // newObject['code'] = `${cs.code}/${cs.canon_site}`;
-        newObject['code'] = `${cs.code}`;
-        newObject['origId'] = c.id;
-        newObject['id'] = newIdStart++;
-        newObject['canonSiteConf'] = cs.canon_site_conf;
-        newObject['canonSite'] = cs.canon_site;
-
-        const associatedObs = siteObs
-          .filter(
-            so =>
-              canonConformSitest.find(ccf => ccf.id === so.canon_site_conf)?.canon_site === newObject.canonSite &&
-              so.cmpd === c.id
-          )
-          .map(so => {
-            return {
-              ...so,
-              canon_site: canonConformSitest.find(ccf => ccf.id === so.canon_site_conf)?.canon_site
-            };
-          })
-          .sort((a, b) => {
-            if (a.code < b.code) {
-              return -1;
-            }
-            if (a.code > b.code) {
-              return 1;
-            }
-            return 0;
-          });
-        newObject['associatedObs'] = associatedObs;
-
-        if (!expandedCompounds.find(ec => ec.origId === newObject.origId && ec.canonSite === newObject.canonSite)) {
-          expandedCompounds.push(newObject);
+      const associatedObs = siteObs.sort((a, b) => {
+        if (a.code < b.code) {
+          return -1;
         }
+        if (a.code > b.code) {
+          return 1;
+        }
+        return 0;
       });
+      newObject['associatedObs'] = associatedObs;
+
+      modifiedPoses.push(newObject);
     });
-    expandedCompounds.sort((a, b) => {
+    modifiedPoses.sort((a, b) => {
       if (a.code < b.code) {
         return -1;
       }
@@ -292,6 +276,6 @@ export const loadMoleculesAndTagsNew = targetId => async (dispatch, getState) =>
       }
       return 0;
     });
-    dispatch(setLHSCompoundsLIst(expandedCompounds));
+    dispatch(setLHSCompoundsLIst(modifiedPoses));
   });
 };

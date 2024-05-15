@@ -1,6 +1,7 @@
 /**
  * Created by abradley on 15/03/2018.
  */
+import { setPoseIdForObservationsDialog } from './actions';
 import { constants } from './constants';
 
 export const INITIAL_STATE = {
@@ -50,6 +51,7 @@ export const INITIAL_STATE = {
 
   isObservationDialogOpen: false,
   observationsForLHSCmp: [],
+  poseIdForObservationsDialog: 0,
 
   areLSHCompoundsInitialized: false
 };
@@ -159,6 +161,9 @@ export function selectionReducers(state = INITIAL_STATE, action = {}) {
 
     case constants.SET_OPEN_OBSERVATIONS_DIALOG:
       return { ...state, isObservationDialogOpen: action.isOpen };
+
+    case constants.SET_POSE_ID_FOR_OBSERVATIONS_DIALOG:
+      return { ...state, poseIdForObservationsDialog: action.poseId };
 
     case constants.SET_OBSERVATIONS_FOR_LHS_CMP:
       return { ...state, observationsForLHSCmp: [...action.observations] };

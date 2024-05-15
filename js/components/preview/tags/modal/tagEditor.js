@@ -144,12 +144,18 @@ export const TagEditor = memo(
     }
 
     const moleculesToEdit = moleculesToEditIds.map(id => dispatch(getMoleculeForId(id)));
-    let lhsCmp = null;
-    if (moleculesToEdit?.length > 0) {
-      const firstMolToEdit = moleculesToEdit[0];
-      const cmpId = firstMolToEdit.cmpd;
-      lhsCmp = lhsCompounds?.find(c => c.origId === cmpId && firstMolToEdit.canon_site_conf === c.canonSiteConf);
-    }
+    let poses = [];
+    moleculesToEdit?.forEach(m => {
+      const pose = lhsCompounds.find(p => p.site_observations.includes(m.id));
+      if (pose && !poses.find(p => p.id === pose.id)) {
+        poses.push(pose);
+      }
+    });
+    // if (moleculesToEdit?.length > 0) {
+    //   const firstMolToEdit = moleculesToEdit[0];
+    //   const cmpId = firstMolToEdit.cmpd;
+    //   lhsCmp = lhsCompounds?.find(c => c.compound === cmpId && firstMolToEdit.canon_site_conf === c.canonSiteConf);
+    // }
     moleculeTags = moleculeTags.sort(compareTagsAsc);
     const assignTagEditorOpen = useSelector(state => state.selectionReducers.tagEditorOpened);
 
@@ -206,7 +212,8 @@ export const TagEditor = memo(
           moleculesToEdit.forEach(m => {
             let newMol = { ...m };
             newMol.tags_set = newMol.tags_set.filter(id => id !== tag.id);
-            updateCmp(lhsCmp, newMol);
+            const pose = poses.find(p => p.site_observations.includes(m.id));
+            updateCmp(pose, newMol);
             dispatch(updateMoleculeInMolLists(newMol));
             const moleculeTag = getMoleculeTagForTag(moleculeTags, tag.id);
 
@@ -235,7 +242,8 @@ export const TagEditor = memo(
             if (!m.tags_set.some(id => id === tag.id)) {
               let newMol = { ...m };
               newMol.tags_set.push(tag.id);
-              updateCmp(lhsCmp, newMol);
+              const pose = poses.find(p => p.site_observations.includes(m.id));
+              updateCmp(pose, newMol);
               dispatch(updateMoleculeInMolLists(newMol));
               const moleculeTag = getMoleculeTagForTag(moleculeTags, tag.id);
               let mtObject = molTagObjects.find(mto => mto.tag === tag.tag);

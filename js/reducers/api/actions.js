@@ -168,6 +168,13 @@ export const updateLHSCompound = cmp => {
   };
 };
 
+export const removeLHSCompound = cmp => {
+  return {
+    type: constants.REMOVE_LHS_COMPOUND,
+    cmp: cmp
+  };
+};
+
 export const setSavingState = function(savingState) {
   return {
     type: constants.SET_SAVING_STATE,

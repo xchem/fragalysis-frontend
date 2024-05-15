@@ -164,6 +164,15 @@ const useStyles = makeStyles(theme => ({
     textOverflow: 'ellipsis',
     lineHeight: '1.45'
   },
+  moleculeTitleLabelMainObs: {
+    ...theme.typography.button,
+    overflow: 'hidden',
+    whiteSpace: 'nowrap',
+    textOverflow: 'ellipsis',
+    lineHeight: '1.45',
+    fontWeight: '900',
+    fontStyle: 'italic'
+  },
   checkbox: {
     padding: 0
   },
@@ -367,6 +376,7 @@ const MoleculeView = memo(
     const hasAdditionalInformation = I;
 
     const allMolecules = useSelector(state => state.apiReducers.all_mol_lists);
+    const allPoses = useSelector(state => state.apiReducers.lhs_compounds_list);
 
     //for some reason when tags are changed for this molecule the data are stale so I need to retrieve them from list of all molecules
     data = allMolecules.filter(mol => mol.id === data.id)[0];
@@ -383,6 +393,8 @@ const MoleculeView = memo(
       useSelector(state => state.previewReducers.molecule.disableNglControlButtons[currentID]) || {};
 
     const colourToggle = getRandomColor(data);
+
+    const pose = useMemo(() => allPoses.find(p => p.id === data.pose), [allPoses, data]);
 
     const getCalculatedProps = useCallback(
       () => [
@@ -1020,7 +1032,11 @@ const MoleculeView = memo(
                     e.preventDefault();
                     setNameCopied(moleculeTitle);
                   }}
-                  className={classes.moleculeTitleLabel}
+                  className={
+                    data.id === pose?.main_site_observation
+                      ? classes.moleculeTitleLabelMainObs
+                      : classes.moleculeTitleLabel
+                  }
                 >
                   {moleculeTitleTruncated}
                 </div>

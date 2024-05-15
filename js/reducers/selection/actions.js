@@ -419,6 +419,13 @@ export const setOpenObservationsDialog = isOpen => {
   };
 };
 
+export const setPoseIdForObservationsDialog = poseId => {
+  return {
+    type: constants.SET_POSE_ID_FOR_OBSERVATIONS_DIALOG,
+    poseId: poseId
+  };
+};
+
 export const setObservationsForLHSCmp = observations => {
   return {
     type: constants.SET_OBSERVATIONS_FOR_LHS_CMP,
