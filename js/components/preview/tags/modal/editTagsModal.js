@@ -72,7 +72,7 @@ export const EditTagsModal = ({ open, anchorEl, setOpenDialog }) => {
         });
         setTags([NEW_TAG, ...newTagList].sort(compareTagsAsc));
         return () => {
-            setTag(NEW_TAG);
+            setTag(null);
             setTags([NEW_TAG]);
         };
     }, [preTagList, tagCategories]);
@@ -123,7 +123,7 @@ export const EditTagsModal = ({ open, anchorEl, setOpenDialog }) => {
     }, [allMolList, tag]);
 
     const resetTagToEditState = () => {
-        setNewTagCategory(1);
+        setNewTagCategory(DEFAULT_CATEGORY);
         setNewTagColor(DEFAULT_TAG_COLOR);
         setNewTagName('');
         setNewTagLink('');
