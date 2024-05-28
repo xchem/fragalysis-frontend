@@ -87,7 +87,7 @@ export const shouldLoadProtein = ({
       (!routeSnapshotID || routeSnapshotID === currentSnapshotID.toString()) &&
       isRestoring === true
     ) {
-      dispatch(restoreAfterTargetActions(nglViewList, routeProjectID));
+      dispatch(restoreAfterTargetActions(nglViewList, routeProjectID, currentSnapshotID));
     }
 
     if (targetOnName !== undefined) {
