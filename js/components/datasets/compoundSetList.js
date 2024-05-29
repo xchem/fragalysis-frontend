@@ -195,7 +195,7 @@ export const CompoundSetList = () => {
       listOfMols.push(molObj);
     });
 
-    const fileName = `${targetName}-RHS-selection.csv`;
+    const fileName = `${datasetID}.csv`;
     const reqObj = { title: datasetID, filename: fileName, dict: listOfMols };
     const jsonString = JSON.stringify(reqObj);
 
