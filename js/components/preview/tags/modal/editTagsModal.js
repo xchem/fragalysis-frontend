@@ -28,7 +28,7 @@ const useStyles = makeStyles(theme => ({
     }
 }));
 
-const NEW_TAG = { id: -1, tag: '-- new tag --' };
+const NEW_TAG = { id: -1, tag: '-- new tag --', category: DEFAULT_CATEGORY, colour: DEFAULT_TAG_COLOR };
 
 export const EditTagsModal = ({ open, anchorEl, setOpenDialog }) => {
     const classes = useStyles();
@@ -79,7 +79,9 @@ export const EditTagsModal = ({ open, anchorEl, setOpenDialog }) => {
 
     useEffect(() => {
         if (tag) {
-            setNewTagCategory(tag.category);
+            if (tag.category) {
+                setNewTagCategory(tag.category);
+            }
             if (tag.colour) {
                 setNewTagColor(tag.colour);
             } else {
@@ -123,7 +125,7 @@ export const EditTagsModal = ({ open, anchorEl, setOpenDialog }) => {
     }, [allMolList, tag]);
 
     const resetTagToEditState = () => {
-        setNewTagCategory(1);
+        setNewTagCategory(DEFAULT_CATEGORY);
         setNewTagColor(DEFAULT_TAG_COLOR);
         setNewTagName('');
         setNewTagLink('');
