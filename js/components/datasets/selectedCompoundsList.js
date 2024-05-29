@@ -208,6 +208,8 @@ export const SelectedCompoundList = memo(() => {
   const moleculeLists = useSelector(state => state.datasetsReducers.moleculeLists);
   const allMoleculesList = useSelector(state => state.apiReducers.all_mol_lists);
 
+  const targetName = useSelector(state => state.apiReducers.target_on_name);
+
   const compoundsToBuyList = useSelector(state => state.datasetsReducers.compoundsToBuyDatasetMap);
 
   let selectedMolecules = [];
@@ -567,7 +569,9 @@ export const SelectedCompoundList = memo(() => {
         listOfMols.push(molObj);
       });
 
-      const reqObj = { title: sharedSnapshot.url, dict: listOfMols };
+      const fileName = `${targetName}-RHS-selection.csv`;
+      // console.log(`href - ${fileName}`);
+      const reqObj = { title: sharedSnapshot.url, filename: fileName, dict: listOfMols };
       const jsonString = JSON.stringify(reqObj);
 
       api({
@@ -577,8 +581,9 @@ export const SelectedCompoundList = memo(() => {
       }).then(resp => {
         var anchor = document.createElement('a');
         anchor.href = `${base_url}/api/dicttocsv/?file_url=${resp.data['file_url']}`;
+        // console.log(`href - ${base_url}/api/dicttocsv/?file_url=${resp.data['file_url']}`);
         anchor.target = '_blank';
-        anchor.download = 'download';
+        anchor.download = `${fileName}`; //'download';
         anchor.click();
       });
     });

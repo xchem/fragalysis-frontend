@@ -72,6 +72,7 @@ export const CompoundSetList = () => {
   const greenInput = useSelector(state => state.previewReducers.compounds[compoundsColors.green.key]);
   const purpleInput = useSelector(state => state.previewReducers.compounds[compoundsColors.purple.key]);
   const apricotInput = useSelector(state => state.previewReducers.compounds[compoundsColors.apricot.key]);
+  const targetName = useSelector(state => state.apiReducers.target_on_name);
 
   const inputs = {
     [compoundsColors.blue.key]: blueInput,
@@ -130,7 +131,7 @@ export const CompoundSetList = () => {
       const cmpColorsForDataset = compoundColors[datasetID];
       if (cmpColorsForDataset) {
         shoppingCartColors = cmpColorsForDataset[compound.id];
-        shoppingCartColors.forEach(color => {
+        shoppingCartColors?.forEach(color => {
           if (!colorsTemplate.hasOwnProperty(color)) {
             colorsTemplate[color] = '';
             if (inputs.hasOwnProperty(color) && inputs[color]) {
@@ -175,7 +176,7 @@ export const CompoundSetList = () => {
       if (cmpColorsForDataset) {
         shoppingCartColors = cmpColorsForDataset[molecule.id];
         let colorsTemplateCopy = { ...colorsTemplate };
-        shoppingCartColors.forEach(color => {
+        shoppingCartColors?.forEach(color => {
           colorsTemplateCopy[color] = true;
         });
 
@@ -194,7 +195,8 @@ export const CompoundSetList = () => {
       listOfMols.push(molObj);
     });
 
-    const reqObj = { title: datasetID, dict: listOfMols };
+    const fileName = `${targetName}-RHS-selection.csv`;
+    const reqObj = { title: datasetID, filename: fileName, dict: listOfMols };
     const jsonString = JSON.stringify(reqObj);
 
     api({
@@ -205,7 +207,7 @@ export const CompoundSetList = () => {
       var anchor = document.createElement('a');
       anchor.href = `${base_url}/api/dicttocsv/?file_url=${resp.data['file_url']}`;
       anchor.target = '_blank';
-      anchor.download = 'download';
+      anchor.download = `${fileName}`; //'download';
       anchor.click();
     });
   };
