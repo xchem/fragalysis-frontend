@@ -1250,7 +1250,7 @@ export const ObservationCmpList = memo(({ hideProjects }) => {
                 <Grid item>
                   <span
                     className={classes.total}
-                  >{`Total cmps/obs ${filteredLHSCompoundsList?.length}/${joinedMoleculeLists?.length}`}</span>
+                  >{`#Poses=${filteredLHSCompoundsList?.length}, #Obs=${joinedMoleculeLists?.length}`}</span>
                 </Grid>
                 <Grid item>
                   <ButtonGroup variant="text" size="medium" color="primary" aria-label="contained primary button group">
