@@ -21,7 +21,8 @@ export const INITIAL_STATE = {
   trackingImageSource: '',
   isProjectActionListLoaded: false,
   skipOrientationChange: false,
-  isSnapshotDirty: false
+  isSnapshotDirty: false,
+  areSnapshotActionsDownloaded: false
 };
 
 export function trackingReducers(state = INITIAL_STATE, action = {}) {
@@ -30,6 +31,13 @@ export function trackingReducers(state = INITIAL_STATE, action = {}) {
       return Object.assign({}, state, {
         track_actions_list: action.track_actions_list
       });
+
+    case constants.SET_SNAPSHOT_ACTIONS_DOWNLOADED: {
+      return {
+        ...state,
+        areSnapshotActionsDownloaded: action.isDownloaded
+      };
+    }
 
     case constants.APPEND_ACTIONS_LIST:
       return Object.assign({}, state, {

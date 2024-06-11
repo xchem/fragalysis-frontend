@@ -4,7 +4,8 @@ import {
   setIsTrackingCompoundsRestoring,
   setIsUndoRedoAction,
   setProjectActionListLoaded,
-  setIsSnapshotDirty
+  setIsSnapshotDirty,
+  setSnapshotActionsDownloaded
 } from './actions';
 import { createInitAction } from './trackingActions';
 import { actionType, actionObjectType, NUM_OF_SECONDS_TO_IGNORE_MERGE, mapTypesStrings } from './constants';
@@ -169,6 +170,7 @@ import {
 import { turnSide } from '../../components/preview/viewerControls/redux/actions';
 import { getQualityOffActions } from './utils';
 import { compoundsColors } from '../../components/preview/compounds/redux/constants';
+import { isEqual, uniqWith } from 'lodash';
 
 export const addCurrentActionsListToSnapshot = (snapshot, project, nglViewList) => async (dispatch, getState) => {
   let projectID = project && project.projectID;
@@ -177,19 +179,27 @@ export const addCurrentActionsListToSnapshot = (snapshot, project, nglViewList) 
   await dispatch(setSnapshotToActions(actionList, snapshot, projectID, project, nglViewList, true));
 };
 
-export const saveCurrentActionsList = (snapshot, project, nglViewList, all = false) => async (dispatch, getState) => {
+export const saveCurrentActionsList = (snapshot, project, nglViewList, all, isAnonymousSnapshot = false) => async (
+  dispatch,
+  getState
+) => {
   let projectID = project && project.projectID;
-  let actionList = await dispatch(getTrackingActions(projectID));
+  let actionList = await dispatch(getTrackingActions(isAnonymousSnapshot ? null : projectID));
 
-  if (all === false) {
-    dispatch(setSnapshotToActions(actionList, snapshot, projectID, project, nglViewList, false));
-  } else {
-    dispatch(setSnapshotToAllActions(actionList, snapshot, projectID));
+  if (!isAnonymousSnapshot) {
+    if (all === false) {
+      dispatch(setSnapshotToActions(actionList, snapshot, projectID, project, nglViewList, false));
+    } else {
+      dispatch(setSnapshotToAllActions(actionList, snapshot, projectID));
+    }
   }
-  await dispatch(saveActionsList(project, snapshot, actionList, nglViewList));
+  await dispatch(saveActionsList(project, snapshot, actionList, nglViewList /*, isAnonymousSnapshot*/));
 };
 
-const saveActionsList = (project, snapshot, actionList, nglViewList) => async (dispatch, getState) => {
+const saveActionsList = (project, snapshot, actionList, nglViewList, isAnonymousSnapshot = false) => async (
+  dispatch,
+  getState
+) => {
   const state = getState();
   const snapshotID = snapshot && snapshot.id;
   if (snapshotID) {
@@ -526,7 +536,9 @@ const saveActionsList = (project, snapshot, actionList, nglViewList) => async (d
       currentActions.push(Object.assign({ ...trackAction }));
     }
 
-    await dispatch(saveSnapshotAction(snapshot, project, currentActions));
+    if (!isAnonymousSnapshot) {
+      await dispatch(saveSnapshotAction(snapshot, project, currentActions));
+    }
     await dispatch(saveTrackingActions(currentActions, snapshotID));
     dispatch(setCurrentActionsList(currentActions));
   }
@@ -905,8 +917,10 @@ export const restoreCurrentActionsList = snapshotID => async (dispatch, getState
 };
 
 const restoreTrackingActions = snapshotID => async (dispatch, getState) => {
+  const state = getState();
+  const areSnapshotActionsDownloaded = state.trackingReducers.areSnapshotActionsDownloaded;
   // console.log(`snapshotDebug - restoreTrackingActions - start`);
-  if (snapshotID) {
+  if (snapshotID && !areSnapshotActionsDownloaded) {
     try {
       // console.log(`snapshotDebug - restoreTrackingActions - before getting actions`);
       return api({
@@ -923,6 +937,7 @@ const restoreTrackingActions = snapshotID => async (dispatch, getState) => {
 
         let snapshotActions = [...listToSet];
         dispatch(setCurrentActionsList(snapshotActions));
+        dispatch(setSnapshotActionsDownloaded(true));
         // console.log(`snapshotDebug - restoreTrackingActions - end - success`);
         return Promise.resolve(snapshotActions);
         // return Promise.resolve();
@@ -969,9 +984,15 @@ const restoreTargetActions = orderedActionList => (dispatch, getState) => {
 };
 
 export const restoreAfterTargetActions = (stages, projectId, snapshotId) => async (dispatch, getState) => {
-  const currentActionList = await dispatch(restoreTrackingActions(snapshotId));
-
   const state = getState();
+
+  const areSnapshotActionsDownloaded = state.trackingReducers.areSnapshotActionsDownloaded;
+  let currentActionList = [];
+  if (!areSnapshotActionsDownloaded) {
+    currentActionList = await dispatch(restoreTrackingActions(snapshotId));
+  } else {
+    currentActionList = state.trackingReducers.current_actions_list;
+  }
 
   // const currentActionList = state.trackingReducers.current_actions_list;
   const orderedActionList = currentActionList.sort((a, b) => a.timestamp - b.timestamp);
@@ -3739,7 +3760,7 @@ export const checkSendTrackingActions = (save = false) => async (dispatch, getSt
   const sendActions = state.trackingReducers.send_actions_list;
   const length = sendActions.length;
 
-  if (length >= CONSTANTS.COUNT_SEND_TRACK_ACTIONS || save) {
+  if (/*length >= CONSTANTS.COUNT_SEND_TRACK_ACTIONS || */ save) {
     await dispatch(sendTrackingActions(sendActions, currentProject, true));
   }
 };
@@ -3797,6 +3818,8 @@ const getTrackingActions = (projectID, withTreeSeparation) => (dispatch, getStat
   const currentProject = state.projectReducers.currentProject;
   const currentProjectID = currentProject && currentProject.projectID;
   const sendActions = state.trackingReducers.send_actions_list;
+  const currentActionList = state.trackingReducers.current_actions_list;
+  const trackActionsList = state.trackingReducers.track_actions_list;
 
   if (projectID) {
     dispatch(setIsActionsLoading(true));
@@ -3837,7 +3860,10 @@ const getTrackingActions = (projectID, withTreeSeparation) => (dispatch, getStat
         dispatch(setIsActionsLoading(false));
       });
   } else {
-    let projectActions = [...sendActions];
+    // let projectActions = [...sendActions];
+    // const projectActions = [];
+    let projectActions = [...currentActionList, ...sendActions, ...trackActionsList];
+    projectActions = uniqWith(projectActions, isEqual);
     dispatch(setProjectActionList(projectActions));
     return Promise.resolve(projectActions);
   }
@@ -3906,14 +3932,14 @@ const copyActionsToProject = (toProject, setActionList = true, clear = false) =>
   }
 };
 
-export const sendTrackingActionsByProjectId = (projectID, authorID) => async (dispatch, getState) => {
+export const sendTrackingActionsByProjectId = (projectID, authorID, offline = false) => async (dispatch, getState) => {
   const state = getState();
   const currentProject = state.projectReducers.currentProject;
   const currentProjectID = currentProject && currentProject.projectID;
 
   const project = { projectID, authorID };
 
-  await dispatch(getTrackingActions(currentProjectID));
+  await dispatch(getTrackingActions(offline ? null : currentProjectID));
   await dispatch(copyActionsToProject(project, false, currentProjectID && currentProjectID != null ? true : false));
 };
 

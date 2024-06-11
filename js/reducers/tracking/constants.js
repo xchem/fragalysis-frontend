@@ -22,7 +22,8 @@ export const constants = {
   SET_UNDO_REDO_ACTIONS_LIST: prefix + 'SET_UNDO_REDO_ACTIONS_LIST',
   SET_PROJECT_ACTIONS_LIST_LOADED: prefix + 'SET_PROJECT_ACTIONS_LIST_LOADED',
   SET_SKIP_ORIENTATION_CHANGE: prefix + 'SET_SKIP_ORIENTATION_CHANGE', //when snapshot is switched we want to skip orientation change so it doesn't blink through multiple states
-  SET_IS_SNAPSHOT_DIRTY: prefix + 'SET_IS_SNAPSHOT_DIRTY'
+  SET_IS_SNAPSHOT_DIRTY: prefix + 'SET_IS_SNAPSHOT_DIRTY',
+  SET_SNAPSHOT_ACTIONS_DOWNLOADED: prefix + 'SET_SNAPSHOT_ACTIONS_DOWNLOADED'
 };
 
 export const actionType = {
