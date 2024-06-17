@@ -34,7 +34,7 @@ export const EditTagsModal = ({ open, anchorEl, setOpenDialog }) => {
     const classes = useStyles();
     const dispatch = useDispatch();
 
-    const { toastInfo } = useContext(ToastContext);
+    const { toastInfo, toastWarning, toastError } = useContext(ToastContext);
 
     const targetName = useSelector(state => state.apiReducers.target_on_name);
     const targetId = useSelector(state => state.apiReducers.target_on);
@@ -42,6 +42,7 @@ export const EditTagsModal = ({ open, anchorEl, setOpenDialog }) => {
     const tagCategories = useSelector(state => state.apiReducers.categoryList);
     const allMolList = useSelector(state => state.apiReducers.all_mol_lists);
     const moleculesToEditIds = useSelector(state => state.selectionReducers.moleculesToEdit);
+    const selectedTagList = useSelector(state => state.selectionReducers.selectedTagList);
 
     const id = open ? 'simple-popover-tags-editor' : undefined;
     const [tag, setTag] = useState(null);
@@ -151,8 +152,17 @@ export const EditTagsModal = ({ open, anchorEl, setOpenDialog }) => {
         setNewHidden(event.target.checked);
     };
 
+    const validateTag = () => {
+        let valid = true;
+        if (newTagName === NEW_TAG.tag) {
+            toastError('Tag name cannot be same as new tag placeholder name', { autoHideDuration: 5000 });
+            valid = false;
+        }
+        return valid;
+    }
+
     const createTag = () => {
-        if (newTagName && newTagCategory) {
+        if (validateTag() && newTagName && newTagCategory) {
             const tagObject = createMoleculeTagObject(
                 newTagName,
                 targetId,
@@ -194,7 +204,11 @@ export const EditTagsModal = ({ open, anchorEl, setOpenDialog }) => {
     };
 
     const updateTag = () => {
-        if (tag && newTagCategory && newTagName) {
+        if (validateTag() && tag && newTagCategory && newTagName) {
+            if (!tag.hidden && newHidden && selectedTagList.some(selectedTag => selectedTag.id === tag.id)) {
+                dispatch(removeSelectedTag(tag));
+                toastWarning('Tag was automatically deselected because of becoming hidden', { autoHideDuration: 5000 });
+            }
             // update all props at once
             if (newTagCategory) {
                 dispatch(
