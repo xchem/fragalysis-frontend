@@ -247,6 +247,9 @@ const useStyles = makeStyles(theme => ({
     ...theme.typography.button,
     color: theme.palette.primary.main,
     fontStyle: 'italic'
+  },
+  footerButton: {
+    padding: '6px 7px'
   }
 }));
 let selectedDisplayHits = false;
@@ -1021,9 +1024,8 @@ export const ObservationCmpList = memo(({ hideProjects }) => {
                     {filter.priorityOrder.map(attr => (
                       <Grid item key={`Mol-Tooltip-${attr}`}>
                         <Tooltip
-                          title={`${filter.filter[attr].minValue}-${filter.filter[attr].maxValue} ${
-                            filter.filter[attr].order === 1 ? '\u2191' : '\u2193'
-                          }`}
+                          title={`${filter.filter[attr].minValue}-${filter.filter[attr].maxValue} ${filter.filter[attr].order === 1 ? '\u2191' : '\u2193'
+                            }`}
                           placement="top"
                         >
                           <Chip size="small" label={attr} style={{ backgroundColor: getAttrDefinition(attr).color }} />
@@ -1157,9 +1159,8 @@ export const ObservationCmpList = memo(({ hideProjects }) => {
           </Tooltip>
         )}
         <Grid style={{ marginTop: '4px' }}>
-          <Typography variant="caption" className={classes.noOfSelectedHits}>{`Selected: ${
-            allSelectedMolecules ? allSelectedMolecules.length : 0
-          }`}</Typography>
+          <Typography variant="caption" className={classes.noOfSelectedHits}>{`Selected: ${allSelectedMolecules ? allSelectedMolecules.length : 0
+            }`}</Typography>
         </Grid>
       </Grid>
       <Grid container spacing={1} direction="column" justifyContent="flex-start" className={classes.container}>
@@ -1246,7 +1247,7 @@ export const ObservationCmpList = memo(({ hideProjects }) => {
               </InfiniteScroll>
             </Grid>
             <Grid item>
-              <Grid container spacing={1} justifyContent="space-between" alignItems="center" direction="row">
+              <Grid container justifyContent="space-between" alignItems="center" direction="row">
                 <Grid item>
                   <span
                     className={classes.total}
@@ -1255,6 +1256,7 @@ export const ObservationCmpList = memo(({ hideProjects }) => {
                 <Grid item>
                   <ButtonGroup variant="text" size="medium" color="primary" aria-label="contained primary button group">
                     <Button
+                      className={classes.footerButton}
                       onClick={() => {
                         dispatch(setNextXMolecules(30));
                       }}
@@ -1262,6 +1264,7 @@ export const ObservationCmpList = memo(({ hideProjects }) => {
                       Load next 30
                     </Button>
                     <Button
+                      className={classes.footerButton}
                       onClick={() => {
                         dispatch(setNextXMolecules(100));
                       }}
@@ -1269,6 +1272,7 @@ export const ObservationCmpList = memo(({ hideProjects }) => {
                       Load next 100
                     </Button>
                     <Button
+                      className={classes.footerButton}
                       onClick={() => {
                         if (joinedMoleculeLists?.length > 300) {
                           setIsOpenAlert(true);
