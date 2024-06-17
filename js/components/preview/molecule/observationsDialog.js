@@ -47,7 +47,7 @@ import { createPoseErrorMessage } from './api/poseApi';
 
 const useStyles = makeStyles(theme => ({
   paper: {
-    width: 472,
+    width: 358,
     // minHeight: 294,
     overflowY: 'hidden'
   },
@@ -610,7 +610,7 @@ export const ObservationsDialog = memo(
                     const selected = allSelectedMolecules.some(molecule => molecule.id === data.id);
 
                     return (
-                      <GroupNglControlButtonsContext.Provider value={groupNglControlButtonsDisabledState}>
+                      <GroupNglControlButtonsContext.Provider key={index} value={groupNglControlButtonsDisabledState}>
                         <MoleculeView
                           key={index}
                           index={index}
@@ -636,6 +636,7 @@ export const ObservationsDialog = memo(
                           disableP={selected && groupNglControlButtonsDisabledState.protein}
                           disableC={selected && groupNglControlButtonsDisabledState.complex}
                           setRef={setTagEditorAnchorEl}
+                          hideImage={true}
                         />
                       </GroupNglControlButtonsContext.Provider>
                     );
@@ -688,7 +689,7 @@ export const ObservationsDialog = memo(
                       Set main observation
                     </Button>
                   </Grid>
-                  <Grid item className={classes.dropdown}>
+                  <Grid item className={classNames({ [classes.dropdown]: allSelectedMolecules.length > 0 })}>
                     <Button
                       disabled={allSelectedMolecules.length < 1}
                       color="inherit"
