@@ -69,24 +69,45 @@ const useStyles = makeStyles(theme => ({
     color: 'black',
     height: 54
   },
+  buttonsRow: {
+    lineHeight: '1'
+  },
   contButtonsMargin: {
     margin: theme.spacing(1) / 2,
     width: 'inherit',
     marginTop: 0
+    // border: 'solid 1px',
+    // borderColor: theme.palette.background.divider,
+    // borderStyle: 'solid none none none'
+  },
+  buttonsTagsWrapper: {
+    border: 'solid 1px',
+    borderColor: theme.palette.background.divider,
+    borderStyle: 'solid solid solid none'
+  },
+  contColMenu: {
+    // ...theme.typography.button,
+    border: '1px solid',
+    borderLeft: 0,
+    alignContent: 'center',
+    textAlign: 'center'
   },
   contColButtonMenu: {
-    minWidth: '20px',
+    height: '100%',
+    // width: '100%',
+    minWidth: 20,
+    width: 22,
     paddingLeft: theme.spacing(1) / 4,
     paddingRight: theme.spacing(1) / 4,
     paddingBottom: 0,
     paddingTop: 0,
     fontWeight: 'bold',
-    fontSize: 9,
+    fontSize: 14,
     borderRadius: 0,
-    borderColor: theme.palette.primary.main,
-    backgroundColor: 'orange',
+    borderColor: theme.palette.background.divider,
+    // backgroundColor: 'orange',
     '&:hover': {
-      backgroundColor: 'orange'
+      // backgroundColor: 'orange'
       // color: theme.palette.primary.contrastText
     },
     '&:disabled': {
@@ -103,7 +124,9 @@ const useStyles = makeStyles(theme => ({
     }
   },
   contColButton: {
+    lineHeight: '1.62',
     minWidth: 'fit-content',
+    width: 13,
     paddingLeft: theme.spacing(1) / 4,
     paddingRight: theme.spacing(1) / 4,
     paddingBottom: 0,
@@ -191,11 +214,14 @@ const useStyles = makeStyles(theme => ({
     backgroundColor: theme.palette.error.lighter
   },
   moleculeTitleLabel: {
-    ...theme.typography.button,
+    paddingLeft: 2,
+    fontWeight: 500,
     overflow: 'hidden',
     whiteSpace: 'nowrap',
     textOverflow: 'ellipsis',
-    lineHeight: '1.45'
+    lineHeight: '1.45',
+    fontSize: '0.9rem',
+    letterSpacing: '0.02em'
   },
   checkbox: {
     padding: 0
@@ -276,7 +302,7 @@ const useStyles = makeStyles(theme => ({
   },
   tagPopover: {
     height: '10px',
-    width: '220px',
+    // width: '220px',
     padding: '0px',
     fontSize: '9px',
     borderRadius: '6px',
@@ -298,7 +324,8 @@ const useStyles = makeStyles(theme => ({
   },
   popover: {
     paddingLeft: '5px',
-    fontSize: '10px',
+    fontSize: '14px',
+    fontWeight: 'bold',
     borderRadius: '5px',
     border: '0px black solid',
     paddingRight: '5px',
@@ -332,6 +359,14 @@ const useStyles = makeStyles(theme => ({
   },
   buttonSelectedLoadingOverlay: {
     color: theme.palette.primary.contrastText
+  },
+  smallConformerSite: {
+    height: 16,
+    lineHeight: 1
+  },
+  editIcon: {
+    padding: 0, paddingBottom: 3, paddingRight: 3, cursor: 'pointer',
+    marginRight: 5, position: 'right'
   }
 }));
 
@@ -471,6 +506,7 @@ const ObservationCmpView = memo(
 
     const isLigandOn = isAtLeastOneObservationOnInList(fragmentDisplayList);
     const isProteinOn = isAtLeastOneObservationOnInList(proteinList);
+    // C stands for contacts now
     const isComplexOn = isAtLeastOneObservationOnInList(complexList);
     const isSurfaceOn = isAtLeastOneObservationOnInList(surfaceList);
     const isDensityOn = isAtLeastOneObservationOnInList(densityList);
@@ -559,9 +595,44 @@ const ObservationCmpView = memo(
       [resolveTagBackgroundColor]
     );
 
+    const getConformerSitesTagCategory = useCallback(() => {
+      const conformerSitesTag = tagCategories.find(tag => tag.category === 'ConformerSites');
+      return conformerSitesTag ? conformerSitesTag : null;
+    }, [tagCategories]);
+
+    const getCanonSitesTagCategory = useCallback(() => {
+      const canonSitesTag = tagCategories.find(tag => tag.category === 'CanonSites');
+      return canonSitesTag ? canonSitesTag : null;
+    }, [tagCategories]);
+
+    /**
+     * Get ConformerSites tags for render and modify for larger set
+     */
+    const getConformerSites = useCallback(() => {
+      const conformerSitesCategory = getConformerSitesTagCategory();
+      let conformerSites = conformerSitesCategory ? getAllTagsForLHSCmp(observations, tagList, []).filter(tag => tag.category === conformerSitesCategory.id) : [];
+
+      if (conformerSites.length > 3) {
+        conformerSites = conformerSites.slice(0, 2);
+        conformerSites.push({ tag_prefix: '3+', color: 'orange' });
+      }
+      return conformerSites;
+    }, [getConformerSitesTagCategory, observations, tagList]);
+
+    /**
+     * Get ConformerSites tag for render
+     */
+    const getCanonSitesTag = useCallback(() => {
+      const canonSitesCategory = getCanonSitesTagCategory();
+      const canonSites = canonSitesCategory ? getAllTagsForLHSCmp(observations, tagList, []).filter(tag => tag.category === canonSitesCategory.id) : [];
+      return canonSites.length > 0 ? canonSites[0] : {};
+    }, [getCanonSitesTagCategory, observations, tagList]);
+
     const generateTagPopover = useCallback(() => {
       // console.log('generateTagPopover');
-      const allData = getAllTagsForLHSCmp(observations, tagList, tagCategories);
+      const allTagsData = getAllTagsForLHSCmp(observations, tagList, tagCategories);
+      const allData = allTagsData.filter(tagData => !tagData.hidden && ![getConformerSitesTagCategory()?.id, getCanonSitesTagCategory()?.id].includes(tagData.category));
+
       // console.log(
       //   `generateTagPopover ${observations[0].compound_code} assigned tags: ${observations[0].tags_set} count: ` +
       //     allData?.length +
@@ -586,10 +657,10 @@ const ObservationCmpView = memo(
       });
 
       const allTagsLength = allData.length > 9 ? 9 : allData.length;
-      const popperPadding = allTagsLength > 1 ? 250 : 420;
+      const popperPadding = 250; // allTagsLength > 1 ? 250 : 420;
 
       return modifiedObjects?.length > 0 ? (
-        <div>
+        <Grid item>
           <Typography
             aria-owns={open ? 'mouse-over-popover' : undefined}
             aria-haspopup="true"
@@ -649,7 +720,8 @@ const ObservationCmpView = memo(
                             }
                           }
                         }}
-                        style={{ padding: '0px', paddingBottom: '3px', marginRight: '5px', position: 'right' }}
+                        style={{ padding: 0, paddingBottom: 3, marginRight: 5, position: 'right' }}
+                      // className={classes.editIcon}
                       >
                         <Tooltip title="Edit tag" className={classes.editButtonIcon}>
                           <Edit />
@@ -713,7 +785,8 @@ const ObservationCmpView = memo(
                           }
                         }
                       }}
-                      style={{ padding: '0px', paddingBottom: '3px', cursor: 'pointer' }}
+                      style={{ padding: 0, paddingBottom: 3, paddingRight: 5, cursor: 'pointer' }}
+                    // className={classes.editIcon}
                     >
                       <Tooltip title="Edit tags" className={classes.editButtonIcon}>
                         <Edit />
@@ -767,42 +840,48 @@ const ObservationCmpView = memo(
           ) : (
             <div> </div>
           )}
-        </div>
+        </Grid>
       ) : DJANGO_CONTEXT['username'] === 'NOT_LOGGED_IN' ? (
-        <div></div>
+        <></>
       ) : (
-        <IconButton
-          color={'inherit'}
-          disabled={!modifiedObjects}
-          onClick={() => {
-            if (tagEditModalOpenNew) {
-              setTagEditModalOpenNew(false);
-              dispatch(setTagEditorOpen(!tagEditModalOpenNew));
-              dispatch(setMoleculeForTagEdit([]));
-              dispatch(setIsLHSCmpTagEdit(false));
-            } else {
-              dispatch(setIsLHSCmpTagEdit(true));
-              setTagEditModalOpenNew(true);
-              dispatch(setMoleculeForTagEdit(observations.map(obs => obs.id)));
-              dispatch(setTagEditorOpen(true));
-              if (setRef) {
-                setRef(ref.current);
+        <Grid item>
+          <IconButton
+            color={'inherit'}
+            disabled={!modifiedObjects}
+            onClick={() => {
+              if (tagEditModalOpenNew) {
+                setTagEditModalOpenNew(false);
+                dispatch(setTagEditorOpen(!tagEditModalOpenNew));
+                dispatch(setMoleculeForTagEdit([]));
+                dispatch(setIsLHSCmpTagEdit(false));
+              } else {
+                dispatch(setIsLHSCmpTagEdit(true));
+                setTagEditModalOpenNew(true);
+                dispatch(setMoleculeForTagEdit(observations.map(obs => obs.id)));
+                dispatch(setTagEditorOpen(true));
+                if (setRef) {
+                  setRef(ref.current);
+                }
               }
-            }
-          }}
-          style={{ padding: '0px', paddingBottom: '3px', cursor: 'pointer' }}
-        >
-          <Tooltip title="Edit tags" className={classes.editButtonIcon}>
-            <Edit />
-          </Tooltip>
-        </IconButton>
+            }}
+            style={{ padding: 0, paddingBottom: 8, paddingRight: 5, cursor: 'pointer' }}
+          // className={classes.editIcon}
+          >
+            <Tooltip title="Edit tags" className={classes.editButtonIcon}>
+              <Edit />
+            </Tooltip>
+          </IconButton>
+        </Grid>
       );
     }, [
+      // classes.editIcon,
       classes.editButtonIcon,
       classes.paper,
       classes.popover,
       classes.tagPopover,
       dispatch,
+      getCanonSitesTagCategory,
+      getConformerSitesTagCategory,
       observations,
       open,
       resolveTagBackgroundColor,
@@ -1211,28 +1290,58 @@ const ObservationCmpView = memo(
               {index + 1}.
             </Grid>
           </Grid>
-          <Grid item container className={classes.detailsCol} justifyContent="space-between" direction="row">
+          <Grid item container className={classes.detailsCol} justifyContent="space-evenly" direction="column" xs={2}>
             {/* Title label */}
-            <Grid item xs={7}>
-              <Tooltip title={moleculeTitle} placement="bottom-start">
-                <div
-                  onCopy={e => {
-                    e.preventDefault();
-                    setNameCopied(moleculeTitle);
-                  }}
-                  className={classes.moleculeTitleLabel}
-                >
-                  {moleculeTitleTruncated}
-                </div>
-              </Tooltip>
-              {generateTagPopover()}
-            </Grid>
+            <Tooltip title={moleculeTitle} placement="bottom-start">
+              <Grid item
+                onCopy={e => {
+                  e.preventDefault();
+                  setNameCopied(moleculeTitle);
+                }}
+                className={classes.moleculeTitleLabel}
+              >
+
+                {data?.code.replaceAll(`${target_on_name}-`, '')}
+                <br>
+                </br>
+                {data?.main_site_observation_cmpd_code}
+              </Grid>
+            </Tooltip>
+            {/* "Filtered"/calculated props
+            <Grid item>
+              <Grid
+                item
+                container
+                justifyContent="flex-start"
+                alignItems="flex-end"
+                direction="row"
+                wrap="nowrap"
+                className={classes.fullHeight}
+              >
+                {getCalculatedProps().map(item => (
+                  <Tooltip title={item.name} key={item.name}>
+                    <Grid item className={classNames(classes.rightBorder, getValueMatchingClass(item))}>
+                      {item.name === moleculeProperty.mw && Math.round(item.value)}
+                      {item.name === moleculeProperty.logP && Math.round(item.value)}
+                      {item.name === moleculeProperty.tpsa && Math.round(item.value)}
+                      {item.name !== moleculeProperty.mw &&
+                        item.name !== moleculeProperty.logP &&
+                        item.name !== moleculeProperty.tpsa &&
+                        item.value}
+                    </Grid>
+                  </Tooltip>
+                ))}
+              </Grid>
+            </Grid> */}
+          </Grid>
+          {/* Tags */}
+          <Grid item container justifyContent="flex-start" alignItems="flex-end" direction="column" className={classes.buttonsTagsWrapper}>
             {/* Control Buttons A, L, C, V */}
-            <Grid item xs={4}>
+            <Grid item>
               <Grid
                 container
                 direction="row"
-                justifyContent="flex-end"
+                justifyContent="flex-start"
                 alignItems="center"
                 wrap="nowrap"
                 className={classes.contButtonsMargin}
@@ -1421,62 +1530,9 @@ const ObservationCmpView = memo(
                     </Button>
                   </Grid>
                 </Tooltip>
-                <Tooltip
-                  title={<div style={{ whiteSpace: 'pre-line' }}>{observations?.map(o => o.code)?.join('\n')}</div>}
-                >
-                  <Grid item>
-                    <Button
-                      variant="outlined"
-                      className={classNames(classes.contColButtonMenu, {
-                        [classes.contColButtonMenuSelected]: isAnyObservationOn && observations.length > 1
-                      })}
-                      onClick={() => {
-                        // setLoadingInspiration(true);
-
-                        if (!isObservationDialogOpen) {
-                          dispatch(setObservationsForLHSCmp(observations));
-                        }
-                        dispatch(setOpenObservationsDialog(!isObservationDialogOpen));
-                        dispatch(setPoseIdForObservationsDialog(data.id));
-
-                        if (setRef) {
-                          setRef(ref.current);
-                        }
-                        // setLoadingInspiration(false);
-                      }}
-                      disabled={observations.length <= 0}
-                    >
-                      {observations?.length}
-                    </Button>
-                  </Grid>
-                </Tooltip>
               </Grid>
             </Grid>
-            <Grid item xs={12}>
-              <Grid
-                item
-                container
-                justifyContent="flex-start"
-                alignItems="flex-end"
-                direction="row"
-                wrap="nowrap"
-                className={classes.fullHeight}
-              >
-                {getCalculatedProps().map(item => (
-                  <Tooltip title={item.name} key={item.name}>
-                    <Grid item className={classNames(classes.rightBorder, getValueMatchingClass(item))}>
-                      {item.name === moleculeProperty.mw && Math.round(item.value)}
-                      {item.name === moleculeProperty.logP && Math.round(item.value)}
-                      {item.name === moleculeProperty.tpsa && Math.round(item.value)}
-                      {item.name !== moleculeProperty.mw &&
-                        item.name !== moleculeProperty.logP &&
-                        item.name !== moleculeProperty.tpsa &&
-                        item.value}
-                    </Grid>
-                  </Tooltip>
-                ))}
-              </Grid>
-            </Grid>
+            {generateTagPopover()}
           </Grid>
           {/* Image */}
           <div
@@ -1507,7 +1563,106 @@ const ObservationCmpView = memo(
               )}
             </div>
           </div>
-        </Grid>
+
+          {/* CanonSites */}
+          <Grid
+            item
+            xs
+            container
+            direction="column"
+            justifyContent="center"
+            alignItems="stretch"
+            wrap="nowrap">
+
+            <Tooltip
+              title={<div style={{ whiteSpace: 'pre-line' }}>CanonSites</div>}
+            >
+              <Grid item xs
+                className={classNames(classes.contColMenu, classes.contColButtonMenu)}
+                style={{
+                  backgroundColor: resolveTagBackgroundColor(getCanonSitesTag()),
+                  color: resolveTagForegroundColor(getCanonSitesTag())
+                }}
+              >
+
+                {getCanonSitesTag().tag_prefix}
+              </Grid>
+            </Tooltip>
+          </Grid>
+          {/* ConformerSites */}
+          <Grid
+            item
+            xs
+            container
+            direction="column"
+            justifyContent="flex-start"
+            alignItems="stretch"
+            wrap="nowrap">
+
+            {getConformerSites().map((conformerSite, i, sites) =>
+              <Tooltip
+                key={conformerSite.id + i}
+                title={<div style={{ whiteSpace: 'pre-line' }}>ConformerSites</div>}
+              >
+                <Grid item xs className={classNames(classes.contColMenu, classes.contColButtonMenu, {
+                  [classes.smallConformerSite]: sites.length >= 3
+                })}
+                  style={{
+                    backgroundColor: resolveTagBackgroundColor(conformerSite),
+                    color: resolveTagForegroundColor(conformerSite),
+                    borderBottom: i === sites.length - 1 ? 1 : 0,
+                    borderRight: 0
+                  }}>
+
+                  {conformerSite.tag_prefix.replace(getCanonSitesTag().tag_prefix, '')}
+                </Grid>
+              </Tooltip>
+            )}
+          </Grid>
+          {/* Observations*/}
+          <Grid
+            item
+            xs
+            container
+            direction="column"
+            justifyContent="center"
+            alignItems="stretch"
+            wrap="nowrap">
+
+            <Grid item xs >
+              <Tooltip
+                title={<div style={{ whiteSpace: 'pre-line' }}>Show Observations</div>}
+              >
+                <Button
+                  variant="outlined"
+                  className={classNames(classes.contColButtonMenu, {
+                    [classes.contColButtonMenuSelected]: isAnyObservationOn && observations.length > 1
+                  })}
+                  style={{
+                    backgroundColor: `color-mix(in lch, lightgrey, orange ${(observations.length > 10 ? 10 : observations.length) * 10}%)`
+                  }}
+                  onClick={() => {
+                    // setLoadingInspiration(true);
+
+                    if (!isObservationDialogOpen) {
+                      dispatch(setObservationsForLHSCmp(observations));
+                    }
+                    dispatch(setOpenObservationsDialog(!isObservationDialogOpen));
+                    dispatch(setPoseIdForObservationsDialog(data.id));
+
+                    if (setRef) {
+                      setRef(ref.current);
+                    }
+                    // setLoadingInspiration(false);
+                  }}
+                  disabled={observations.length <= 0}
+                >
+                  {observations?.length}
+                </Button>
+              </Tooltip>
+            </Grid>
+          </Grid>
+        </Grid >
         <SvgTooltip
           open={moleculeTooltipOpen}
           anchorEl={moleculeImgRef.current}

@@ -4,7 +4,8 @@ import {
   OBSERVATION_TAG_CATEGORIES,
   COMPOUND_PRIO_TAG_CATEGORIES,
   TAG_DETAILS_REMOVED_CATEGORIES,
-  NON_ASSIGNABLE_CATEGORIES
+  NON_ASSIGNABLE_CATEGORIES,
+  CATEGORY_TYPE
 } from '../../../../constants/constants';
 
 export const DEFAULT_TAG_COLOR = '#E0E0E0';
@@ -160,6 +161,21 @@ export const getObservationTagConfig = tagCategoryList => {
   return result;
 };
 
+export const getAllTagsForCategories = (obs, tagList, tagCategoryList) => {
+  const result = [];
+
+  tagCategoryList.forEach(categ => {
+    obs?.tags_set.find(tagId => {
+      const tag = tagList.find(t => t.id === tagId);
+      if (tag?.category === categ.id) {
+        result.push(tag);
+      }
+    });
+  });
+
+  return result;
+};
+
 export const getAllTagsForObservation = (obs, tagList, tagCategoryList) => {
   const result = [];
 
@@ -168,6 +184,36 @@ export const getAllTagsForObservation = (obs, tagList, tagCategoryList) => {
     obs?.tags_set.find(tagId => {
       const tag = tagList.find(t => t.id === tagId);
       if (tag?.category === categ.id) {
+        result.push(tag);
+      }
+    });
+  });
+
+  return result;
+};
+
+/**
+ * Get only "other"/curator tags
+ *
+ * @param {*} obs
+ * @param {*} tagList
+ * @param {*} tagCategoryList
+ * @returns
+ */
+export const getAllTagsForObservationPopover = (obs, tagList, tagCategoryList) => {
+  const result = [];
+  const categories = [];
+
+  tagCategoryList.forEach(c => {
+    if (!NON_ASSIGNABLE_CATEGORIES.includes(c.category)) {
+      categories.push({ ...c });
+    }
+  });
+
+  categories.forEach(categ => {
+    obs?.tags_set.find(tagId => {
+      const tag = tagList.find(t => t.id === tagId);
+      if (!tag.hidden && tag?.category === categ.id) {
         result.push(tag);
       }
     });
@@ -236,7 +282,7 @@ export const getAllTagsForLHSCmp = (observations, tagList, tagCategoryList) => {
     obs?.tags_set.forEach(tagId => {
       let tag = tagList.find(t => t.id === tagId);
       if (
-        tag && !tag.hidden &&
+        tag &&
         !restOfTheTags.some(t => t.id === tag.id) &&
         !prioTags.some(t => t.id === tag.id) &&
         !obsPrioTags.some(t => t.id === tag.id)

@@ -415,7 +415,7 @@ const TagDetails = memo(() => {
               variant="text"
               size="small"
               data-id="showUntaggedHitsButton"
-              className={displayUntaggedMolecules ? classes.contColButton : classes.contColButtonSelected}
+              className={displayUntaggedMolecules ? classes.contColButtonSelected : classes.contColButton}
             >
               Show untagged hits
             </Button>
@@ -428,7 +428,7 @@ const TagDetails = memo(() => {
               variant="text"
               size="small"
               data-id="showAllHitsButton"
-              className={displayAllMolecules ? classes.contColButton : classes.contColButtonSelected}
+              className={displayAllMolecules ? classes.contColButtonSelected : classes.contColButton}
             >
               Show all hits
             </Button>
@@ -441,6 +441,7 @@ const TagDetails = memo(() => {
               variant="text"
               size="small"
               data-id="tagSelectionButton"
+              // selectAll represents future state
               className={selectAll ? classes.contColButton : classes.contColButtonSelected}
             >
               Select all tags
