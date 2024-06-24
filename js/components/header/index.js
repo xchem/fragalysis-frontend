@@ -66,6 +66,7 @@ import { setAddButton, setProjectModalIsLoading } from '../projects/redux/action
 import { getVersions } from '../../utils/version';
 import { AddProjectDetail } from '../projects/addProjectDetail';
 import { ServicesStatus, ServicesStatusWrapper } from '../services';
+import { COMPANIES, get_logo } from '../funders/constants';
 
 const useStyles = makeStyles(theme => ({
   padding: {
@@ -149,29 +150,8 @@ export default memo(
         .catch(err => console.log(err));
     }, []);
 
-    const openXchem = () => {
-      // window.location.href = 'https://www.diamond.ac.uk/Instruments/Mx/Fragment-Screening.html';
-      window.open('https://www.diamond.ac.uk/Instruments/Mx/Fragment-Screening.html', '_blank');
-    };
-
-    const openDiamond = () => {
-      // window.location.href = 'https://www.diamond.ac.uk/Home.html';
-      window.open('https://www.diamond.ac.uk/Home.html', '_blank');
-    };
-
-    const openSgc = () => {
-      // window.location.href = 'https://www.sgc.ox.ac.uk/';
-      window.open('https://www.sgc.ox.ac.uk/', '_blank');
-    };
-
-    const openJanssen = () => {
-      // window.location.href = 'https://www.janssen.com/';
-      window.open('https://www.janssen.com/', '_blank');
-    };
-
-    const openCovidMoonshot = () => {
-      // window.location.href = 'https://covid.postera.ai/covid';
-      window.open('https://covid.postera.ai/covid', '_blank');
+    const openLink = link => {
+      window.open(link, '_blank');
     };
 
     const openDiscourseLink = url => {
@@ -291,8 +271,8 @@ export default memo(
                   targetName !== undefined ? (
                     <>
                       {currentProject.authorID === null ||
-                      currentProject.projectID === null ||
-                      currentProject.authorID === userId ? (
+                        currentProject.projectID === null ||
+                        currentProject.authorID === userId ? (
                         <Button
                           onClick={() => {
                             isProjectModalLoading === false
@@ -458,42 +438,42 @@ export default memo(
                 </Grid>
                 <Grid item>
                   <img
-                    src={require('../../img/xchemLogo.png')}
+                    src={get_logo(COMPANIES.xchem.image)}
                     height="20"
                     className={classes.clickableImage}
-                    onClick={openXchem}
+                    onClick={() => openLink(COMPANIES.xchem.link)}
                   />
                 </Grid>
                 <Grid item>
                   <img
-                    src={require('../../img/dlsLogo.png')}
+                    src={get_logo(COMPANIES.diamond.image)}
                     height="20"
                     className={classes.clickableImage}
-                    onClick={openDiamond}
+                    onClick={() => openLink(COMPANIES.diamond.link)}
                   />
                 </Grid>
                 <Grid item>
                   <img
-                    src={require('../../img/sgcLogo.png')}
+                    src={get_logo(COMPANIES.asap.image)}
                     height="20"
                     className={classes.clickableImage}
-                    onClick={openSgc}
+                    onClick={() => openLink(COMPANIES.asap.link)}
                   />
                 </Grid>
                 <Grid item>
                   <img
-                    src={require('../../img/janssenLogo.png')}
+                    src={get_logo(COMPANIES.fragmentScreen.image)}
                     height="20"
                     className={classes.clickableImage}
-                    onClick={openJanssen}
+                    onClick={() => openLink(COMPANIES.fragmentScreen.link)}
                   />
                 </Grid>
                 <Grid item>
                   <img
-                    src={require('../../img/covidMoonshotLogo.png')}
+                    src={get_logo(COMPANIES.cmd.image)}
                     height="20"
                     className={classes.clickableImage}
-                    onClick={openCovidMoonshot}
+                    onClick={() => openLink(COMPANIES.cmd.link)}
                   />
                 </Grid>
                 <Grid item>
