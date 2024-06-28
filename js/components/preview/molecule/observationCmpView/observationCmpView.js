@@ -1575,7 +1575,7 @@ const ObservationCmpView = memo(
             wrap="nowrap">
 
             <Tooltip
-              title={<div style={{ whiteSpace: 'pre-line' }}>CanonSites</div>}
+              title={<div style={{ whiteSpace: 'pre-line' }}>CanonSites - {getCanonSitesTag().upload_name}</div>}
             >
               <Grid item xs
                 className={classNames(classes.contColMenu, classes.contColButtonMenu)}
@@ -1602,7 +1602,7 @@ const ObservationCmpView = memo(
             {getConformerSites().map((conformerSite, i, sites) =>
               <Tooltip
                 key={conformerSite.id + i}
-                title={<div style={{ whiteSpace: 'pre-line' }}>ConformerSites</div>}
+                title={<div style={{ whiteSpace: 'pre-line' }}>ConformerSites - {conformerSite.upload_name}</div>}
               >
                 <Grid item xs className={classNames(classes.contColMenu, classes.contColButtonMenu, {
                   [classes.smallConformerSite]: sites.length >= 3

@@ -1357,17 +1357,18 @@ const MoleculeView = memo(
                   alignItems="center"
                   // wrap="nowrap"
                   style={{ height: "100%" }}>
-                  {['CanonSites', 'ConformerSites', 'CrystalformSites', 'Crystalforms', 'Quatassemblies'].map(tagType => {
-                    const tagLabel = tagType === 'ConformerSites' ? getTagType(tagType).tag_prefix.replace(getTagType('CanonSites')?.tag_prefix, '') : getTagType(tagType)?.tag_prefix;
+                  {['CanonSites', 'ConformerSites', 'CrystalformSites', 'Crystalforms', 'Quatassemblies'].map(tagCategory => {
+                    const tagTypeObject = getTagType(tagCategory);
+                    const tagLabel = tagCategory === 'ConformerSites' ? tagTypeObject.tag_prefix.replace(getTagType('CanonSites')?.tag_prefix, '') : tagTypeObject?.tag_prefix;
                     return <Tooltip
-                      key={`tag-category-${tagType}`}
-                      title={<div style={{ whiteSpace: 'pre-line' }}>{tagType}</div>}
+                      key={`tag-category-${tagCategory}`}
+                      title={<div style={{ whiteSpace: 'pre-line' }}>{tagCategory} - {tagTypeObject.upload_name}</div>}
                     >
                       <Grid item xs
                         className={classNames(classes.contColButtonMenu)}
                         style={{
-                          backgroundColor: resolveTagBackgroundColor(getTagType(tagType)),
-                          color: resolveTagForegroundColor(getTagType(tagType)),
+                          backgroundColor: resolveTagBackgroundColor(tagTypeObject),
+                          color: resolveTagForegroundColor(tagTypeObject),
                           fontSize: getFontSize(tagLabel)
                         }}
                       >
