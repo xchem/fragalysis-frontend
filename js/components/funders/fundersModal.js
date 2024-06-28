@@ -9,7 +9,7 @@ import { CONTRIBUTORS, FUNDING, get_logo } from './constants';
 import { Tooltip } from '@mui/material';
 
 const COLUMNS = 5;
-const IMAGE_SIZE = 90;
+const MAX_IMAGE_HEIGHT = 90;
 
 const useStyles = makeStyles(theme => ({
   imageItem: {
@@ -26,13 +26,13 @@ const useStyles = makeStyles(theme => ({
     margin: 'auto',
     display: 'block',
     maxWidth: 200,
-    maxHeight: IMAGE_SIZE
+    maxHeight: MAX_IMAGE_HEIGHT
   },
   customModal: {
     width: '80%'
   },
   contributors: {
-    marginTop: IMAGE_SIZE
+    marginTop: MAX_IMAGE_HEIGHT
   }
 }));
 
