@@ -20,7 +20,7 @@ export const COMPANIES = {
     asap: {
         title: 'AI-driven Structure-enabled Antiviral Platform',
         link: 'https://asapdiscovery.org/',
-        image: 'asapLogo.jpg'
+        image: 'asapLogo.png'
     },
     xchem: {
         title: 'XChem',
@@ -45,7 +45,7 @@ export const COMPANIES = {
     niaid: {
         title: 'National Institute of Allergy and Infectious Diseases',
         link: 'https://www.niaid.nih.gov/',
-        image: 'niaidLogo.png'
+        image: 'niaidLogo.svg'
     },
     iEric: {
         title: 'Instruct-ERIC',
@@ -64,8 +64,8 @@ export const COMPANIES = {
     },
     inext: {
         title: 'iNEXT-Discovery',
-        link: 'http://www.inext-eu.org/',
-        image: 'inextLogo.png'
+        link: 'https://inext-discovery.eu/',
+        image: 'inextLogo2.png'
     },
     jff: {
         title: 'John Fell Fund',
@@ -85,7 +85,7 @@ export const COMPANIES = {
     wellcome: {
         title: 'Wellcome',
         link: 'https://wellcome.org',
-        image: 'welcomeLogo.jpg'
+        image: 'welcomeLogo.png'
     },
     ultradd: {
         title: 'Unrestricted Leveraging of Targets for Research Advancement and Drug Discovery',
@@ -100,7 +100,7 @@ export const COMPANIES = {
     ukRIstfc: {
         title: 'Science and Technology Facilities Council',
         link: 'https://www.ukri.org/councils/stfc/',
-        image: 'ukRIstfcLogo.jpg'
+        image: 'ukRIstfcLogo.png'
     },
     rosetrees: {
         title: 'Rosetrees',
@@ -155,7 +155,7 @@ export const COMPANIES = {
     informaticsmatters: {
         title: 'Informatics Matters',
         link: 'https://www.informaticsmatters.com/',
-        image: 'informaticsLogo.png'
+        image: 'informaticsLogo.svg'
     },
     // company: {
     //   link: 'https://www.acellera.com/',

@@ -65,7 +65,7 @@ import { activateSnapshotDialog } from '../snapshot/redux/dispatchActions';
 import { setAddButton, setProjectModalIsLoading } from '../projects/redux/actions';
 import { getVersions } from '../../utils/version';
 import { AddProjectDetail } from '../projects/addProjectDetail';
-import { ServicesStatus, ServicesStatusWrapper } from '../services';
+import { ServicesStatusWrapper } from '../services';
 import { COMPANIES, get_logo } from '../funders/constants';
 
 const useStyles = makeStyles(theme => ({
@@ -152,10 +152,6 @@ export default memo(
 
     const openLink = link => {
       window.open(link, '_blank');
-    };
-
-    const openDiscourseLink = url => {
-      window.open(url, '_blank');
     };
 
     let authListItem;
@@ -437,44 +433,54 @@ export default memo(
                   <IssueReport />
                 </Grid>
                 <Grid item>
-                  <img
-                    src={get_logo(COMPANIES.xchem.image)}
-                    height="20"
-                    className={classes.clickableImage}
-                    onClick={() => openLink(COMPANIES.xchem.link)}
-                  />
+                  <Tooltip title={COMPANIES.xchem.title}>
+                    <img
+                      src={get_logo(COMPANIES.xchem.image)}
+                      height="20"
+                      className={classes.clickableImage}
+                      onClick={() => openLink(COMPANIES.xchem.link)}
+                    />
+                  </Tooltip>
                 </Grid>
                 <Grid item>
-                  <img
-                    src={get_logo(COMPANIES.diamond.image)}
-                    height="20"
-                    className={classes.clickableImage}
-                    onClick={() => openLink(COMPANIES.diamond.link)}
-                  />
+                  <Tooltip title={COMPANIES.diamond.title}>
+                    <img
+                      src={get_logo(COMPANIES.diamond.image)}
+                      height="20"
+                      className={classes.clickableImage}
+                      onClick={() => openLink(COMPANIES.diamond.link)}
+                    />
+                  </Tooltip>
                 </Grid>
                 <Grid item>
-                  <img
-                    src={get_logo(COMPANIES.asap.image)}
-                    height="20"
-                    className={classes.clickableImage}
-                    onClick={() => openLink(COMPANIES.asap.link)}
-                  />
+                  <Tooltip title={COMPANIES.asap.title}>
+                    <img
+                      src={get_logo(COMPANIES.asap.image)}
+                      height="20"
+                      className={classes.clickableImage}
+                      onClick={() => openLink(COMPANIES.asap.link)}
+                    />
+                  </Tooltip>
                 </Grid>
                 <Grid item>
-                  <img
-                    src={get_logo(COMPANIES.fragmentScreen.image)}
-                    height="20"
-                    className={classes.clickableImage}
-                    onClick={() => openLink(COMPANIES.fragmentScreen.link)}
-                  />
+                  <Tooltip title={COMPANIES.fragmentScreen.title}>
+                    <img
+                      src={get_logo(COMPANIES.fragmentScreen.image)}
+                      height="20"
+                      className={classes.clickableImage}
+                      onClick={() => openLink(COMPANIES.fragmentScreen.link)}
+                    />
+                  </Tooltip>
                 </Grid>
                 <Grid item>
-                  <img
-                    src={get_logo(COMPANIES.cmd.image)}
-                    height="20"
-                    className={classes.clickableImage}
-                    onClick={() => openLink(COMPANIES.cmd.link)}
-                  />
+                  <Tooltip title={COMPANIES.cmd.title}>
+                    <img
+                      src={get_logo(COMPANIES.cmd.image)}
+                      height="20"
+                      className={classes.clickableImage}
+                      onClick={() => openLink(COMPANIES.cmd.link)}
+                    />
+                  </Tooltip>
                 </Grid>
                 <Grid item>
                   <Button
