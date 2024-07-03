@@ -116,10 +116,13 @@ export const Projects = memo(({ }) => {
 
   // window height for showing rows per page
   const [windowHeight, setWindowHeight] = useState(window.innerHeight);
+  const defaultRowsPerPageOptions = [20, 30, 40, 50, 100];
   let projectListWindowHeight = windowHeight / 26 - 6;
   let projectListWindowHeightFinal = parseInt(projectListWindowHeight.toFixed(0), 10);
+  if (defaultRowsPerPageOptions.indexOf(projectListWindowHeightFinal) === -1) {
+    defaultRowsPerPageOptions.unshift(projectListWindowHeightFinal);
+  }
   const [rowsPerPage, setRowsPerPage] = useState(projectListWindowHeightFinal);
-  const [rowsPerPagePerPageSize, setRowsPerPagePerPageSize] = useState(projectListWindowHeightFinal);
 
   const projectItems = filteredListOfProjects ?? listOfAllProjects;
 
@@ -840,7 +843,7 @@ export const Projects = memo(({ }) => {
             <TableFooter>
               <TableRow>
                 <TablePagination
-                  rowsPerPageOptions={[rowsPerPagePerPageSize, 20, 30, 40, 50, 100]}
+                  rowsPerPageOptions={defaultRowsPerPageOptions}
                   count={listOfAllProjects.length}
                   rowsPerPage={rowsPerPage}
                   page={page}

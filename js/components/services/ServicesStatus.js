@@ -15,11 +15,11 @@ export const ServicesStatus = memo(({ services }) => {
     });
 
     return <NoMaxWidthTooltip title={<Table><TableBody>
-        {services.map((service) => <ServiceStatusRow key={service.id} service={service} />)}
+        {services.map((service, i) => <ServiceStatusRow key={`${service.id}-${i}`} service={service} />)}
     </TableBody></Table>}>
         <Grid container direction="row" justifyContent="flex-start" alignItems="center" spacing={1}>
-            {services.map((service) =>
-                <ServiceStatus key={`status-${service.id}`} service={service} />
+            {services.map((service, i) =>
+                <ServiceStatus key={`status-${service.id}-${i}`} service={service} />
             )}
         </Grid>
     </NoMaxWidthTooltip>

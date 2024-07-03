@@ -15,7 +15,7 @@ export const ServicesStatusWrapper = memo(() => {
             current.forEach(newService => {
                 const currentService = previous.find(previousService => previousService.id === newService.id);
                 // remember previous value
-                newService.timestamp = currentService.timestamp;
+                newService.timestamp = currentService?.timestamp;
                 if (currentService && currentService.state !== newService.state) {
                     if (![SERVICE_STATUSES.OK, SERVICE_STATUSES.DEGRADED].includes(newService.state)) {
                         newService.timestamp = Date.now();
