@@ -2,7 +2,7 @@
  * Created by ricgillams on 21/06/2018.
  */
 import { Grid, Link, makeStyles } from '@material-ui/core';
-import React, { memo, useContext, useEffect, useState } from 'react';
+import React, { memo, useCallback, useContext, useEffect, useState } from 'react';
 import { TargetList } from '../target/targetList';
 import { connect } from 'react-redux';
 import * as apiActions from '../../reducers/api/actions';
@@ -13,7 +13,6 @@ import { resetCurrentCompoundsSettings } from '../preview/compounds/redux/action
 import { resetProjectsReducer } from '../projects/redux/actions';
 import { withLoadingProjects } from '../target/withLoadingProjects';
 import { ToastContext } from '../toast';
-import { HeaderContext } from '../header/headerContext';
 
 const useStyles = makeStyles(theme => ({
   root: {
@@ -33,7 +32,6 @@ const Landing = memo(
     const [targetListWidth, setTargetListWidth] = useState(450);
     const [projectListWidth, setProjectListWidth] = useState(projectWidth);
 
-    const { setSnackBarTitle } = useContext(HeaderContext);
     const { toast } = useContext(ToastContext);
     const [loginText, setLoginText] = useState(
       DJANGO_CONTEXT['username'] === 'NOT_LOGGED_IN' ? '' : "You're logged in as " + DJANGO_CONTEXT['username']
@@ -69,19 +67,19 @@ const Landing = memo(
       setIsResizing(true);
     };
 
-    const handleMouseMove = e => {
+    const handleMouseMove = useCallback(e => {
       if (!isResizing) return;
       const targetListWidth = e.clientX;
       const projectListWidth = window.innerWidth - targetListWidth;
       setTargetListWidth(targetListWidth);
       setProjectListWidth(projectListWidth);
-    };
+    }, [isResizing]);
 
-    const handleMouseUp = () => {
+    const handleMouseUp = useCallback(() => {
       setIsResizing(false);
       window.removeEventListener('mousemove', handleMouseMove);
       window.removeEventListener('mouseup', handleMouseUp);
-    };
+    }, [handleMouseMove]);
 
     useEffect(() => {
       if (isResizing) {
@@ -91,7 +89,7 @@ const Landing = memo(
         window.removeEventListener('mousemove', handleMouseMove);
         window.removeEventListener('mouseup', handleMouseUp);
       }
-    }, [isResizing]);
+    }, [isResizing, handleMouseMove, handleMouseUp]);
 
     return (
       <Grid container className={classes.root}>
