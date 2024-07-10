@@ -16,7 +16,6 @@ import {
   copyPoseToPoseDTO,
   createNewPose,
   getAllCompatiblePoses,
-  prepareEmptyPoseDTO,
   removeComplex,
   removeHitProtein,
   removeLigand,
@@ -367,30 +366,6 @@ export const ObservationsDialog = memo(
       buttonState => buttonState
     );
 
-    const handleSetAsGroupName = () => {
-      const firstSelectedObs = observationsDataList.find(molecule => moleculesToEditIds.includes(molecule.id));
-      if (firstSelectedObs) {
-        const pose = poses.find(pose => pose.id === firstSelectedObs.pose);
-        pose.display_name = firstSelectedObs.code;
-        pose.code = pose.display_name;
-        const poseDTO = copyPoseToPoseDTO(pose);
-        dispatch(updatePose(poseDTO))
-          .then(resp => {
-            dispatch(updateLHSCompound(pose));
-            toastInfo(`Group name was changed to ${pose.display_name}`, { autoHideDuration: 5000 });
-          })
-          .catch(err => {
-            console.log(err);
-            const errorMessage = createPoseErrorMessage(err);
-            if (errorMessage) {
-              toastError(errorMessage, { autoHideDuration: 600000 });
-            } else {
-              toastError(err, { autoHideDuration: 600000 });
-            }
-          });
-      }
-    };
-
     const handleSetMainObservation = () => {
       const firstSelectedObs = observationsDataList.find(molecule => moleculesToEditIds.includes(molecule.id));
       if (firstSelectedObs) {
@@ -663,19 +638,6 @@ export const ObservationsDialog = memo(
                   alignItems="center"
                   className={classes.bottomRow}
                 >
-                  <Grid item>
-                    <Button
-                      onClick={handleSetAsGroupName}
-                      disabled={allSelectedMolecules.length !== 1}
-                      color="inherit"
-                      variant="text"
-                      size="small"
-                      data-id="setAsGroupName"
-                      className={classNames(classes.contColButton, classes.contColButtonBottomRow)}
-                    >
-                      Set as group name
-                    </Button>
-                  </Grid>
                   <Grid item>
                     <Button
                       onClick={handleSetMainObservation}
