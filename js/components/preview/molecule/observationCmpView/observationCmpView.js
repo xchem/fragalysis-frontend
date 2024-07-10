@@ -1,5 +1,5 @@
 /**
- * Created by abradley on 14/03/2018.
+ * Row in Hit navigator
  */
 
 import React, { memo, useEffect, useState, useRef, useContext, useCallback } from 'react';
@@ -215,13 +215,17 @@ const useStyles = makeStyles(theme => ({
   },
   moleculeTitleLabel: {
     paddingLeft: 2,
-    fontWeight: 500,
+    // fontWeight: 400,
     overflow: 'hidden',
     whiteSpace: 'nowrap',
     textOverflow: 'ellipsis',
     lineHeight: '1.45',
-    fontSize: '0.9rem',
+    fontSize: '0.8rem',
     letterSpacing: '0.02em'
+  },
+  moleculeTitleLabelMain: {
+    fontWeight: 'bold',
+    fontSize: '0.9rem'
   },
   checkbox: {
     padding: 0
@@ -1300,10 +1304,8 @@ const ObservationCmpView = memo(
                 }}
                 className={classes.moleculeTitleLabel}
               >
-
-                {data?.code.replaceAll(`${target_on_name}-`, '')}
-                <br>
-                </br>
+                <span className={classes.moleculeTitleLabelMain}>{data?.code.replaceAll(`${target_on_name}-`, '')}</span>
+                <br />
                 {data?.main_site_observation_cmpd_code}
               </Grid>
             </Tooltip>
@@ -1644,10 +1646,15 @@ const ObservationCmpView = memo(
                   onClick={() => {
                     // setLoadingInspiration(true);
 
-                    if (!isObservationDialogOpen) {
+                    // do not close modal on pose change
+                    if (!isObservationDialogOpen || poseIdForObservationsDialog !== data.id) {
                       dispatch(setObservationsForLHSCmp(observations));
                     }
-                    dispatch(setOpenObservationsDialog(!isObservationDialogOpen));
+                    if (poseIdForObservationsDialog !== data.id || poseIdForObservationsDialog === 0) {
+                      dispatch(setOpenObservationsDialog(true));
+                    } else {
+                      dispatch(setOpenObservationsDialog(false));
+                    }
                     dispatch(setPoseIdForObservationsDialog(data.id));
 
                     if (setRef) {

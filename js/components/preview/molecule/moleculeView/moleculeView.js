@@ -192,19 +192,16 @@ const useStyles = makeStyles(theme => ({
     whiteSpace: 'nowrap',
     textOverflow: 'ellipsis',
     lineHeight: '1.45',
-    fontWeight: 500,
-    fontSize: '0.9rem',
+    // fontWeight: 500,
+    fontSize: '0.8rem',
     letterSpacing: '0.02em'
   },
+  moleculeTitleLabelMain: {
+    fontWeight: 'bold',
+    fontSize: '0.9rem'
+  },
   moleculeTitleLabelMainObs: {
-    paddingLeft: 2,
-    overflow: 'hidden',
-    whiteSpace: 'nowrap',
-    textOverflow: 'ellipsis',
-    lineHeight: '1.45',
-    fontWeight: 500,
-    fontSize: '0.9rem',
-    letterSpacing: '0.02em',
+    fontWeight: 'bolder',
     // fontStyle: 'italic',
     textDecorationLine: 'underline',
     textDecorationStyle: 'dotted'
@@ -1108,13 +1105,11 @@ const MoleculeView = memo(
                         e.preventDefault();
                         setNameCopied(moleculeTitle);
                       }}
-                      className={
-                        data.id === pose?.main_site_observation
-                          ? classes.moleculeTitleLabelMainObs
-                          : classes.moleculeTitleLabel
-                      }
+                      className={classNames(classes.moleculeTitleLabel, { [classes.moleculeTitleLabelMainObs]: data.id === pose?.main_site_observation })}
                     >
-                      {moleculeTitleTruncated}
+                      <span className={classNames(classes.moleculeTitleLabelMain, { [classes.moleculeTitleLabelMainObs]: data.id === pose?.main_site_observation })}>{moleculeTitleTruncated}</span>
+                      <br />
+                      {data?.compound_code}
                     </Grid>
                   </Tooltip>
                   {/* Molecule properties */}
