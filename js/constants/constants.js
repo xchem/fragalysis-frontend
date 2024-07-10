@@ -52,6 +52,7 @@ export const CATEGORY_TYPE_BY_ID = {
   4: CATEGORY_TYPE.OTHER
 };
 
+export const XCA_TAG_CATEGORIES = ['CanonSites', 'ConformerSites', 'CrystalformSites', 'Quatassemblies'];
 export const OBSERVATION_TAG_CATEGORIES = ['ConformerSites', 'CrystalformSites', 'Quatassemblies', 'Crystalforms'];
 export const COMPOUND_PRIO_TAG_CATEGORIES = ['CanonSites'];
 export const TAG_DETAILS_REMOVED_CATEGORIES = ['CrystalformSites', 'ConformerSites'];

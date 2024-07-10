@@ -4,14 +4,14 @@
 
 import { constants } from './constants';
 
-export const setToBuyList = function(to_buy_list) {
+export const setToBuyList = function (to_buy_list) {
   return {
     type: constants.SET_TO_BUY_LIST,
     to_buy_list: to_buy_list
   };
 };
 
-export const appendToBuyList = function(item, index, skipTracking = false) {
+export const appendToBuyList = function (item, index, skipTracking = false) {
   return {
     type: constants.APPEND_TO_BUY_LIST,
     item: item,
@@ -20,7 +20,7 @@ export const appendToBuyList = function(item, index, skipTracking = false) {
   };
 };
 
-export const removeFromToBuyList = function(item, index, skipTracking = false) {
+export const removeFromToBuyList = function (item, index, skipTracking = false) {
   return {
     type: constants.REMOVE_FROM_TO_BUY_LIST,
     item: item,
@@ -29,21 +29,21 @@ export const removeFromToBuyList = function(item, index, skipTracking = false) {
   };
 };
 
-export const appendToBuyListAll = function(items) {
+export const appendToBuyListAll = function (items) {
   return {
     type: constants.APPEND_TO_BUY_LIST_ALL,
     items: items
   };
 };
 
-export const removeFromToBuyListAll = function(items) {
+export const removeFromToBuyListAll = function (items) {
   return {
     type: constants.REMOVE_FROM_BUY_LIST_ALL,
     items: items
   };
 };
 
-export const setVectorList = function(vectList) {
+export const setVectorList = function (vectList) {
   return {
     type: constants.SET_VECTOR_LIST,
     vector_list: vectList
@@ -57,7 +57,7 @@ export const setCurrentVector = vectorSmile => {
   };
 };
 
-export const setFragmentDisplayList = function(fragmentDisplayList, skipTracking = false) {
+export const setFragmentDisplayList = function (fragmentDisplayList, skipTracking = false) {
   return {
     type: constants.SET_FRAGMENT_DISPLAY_LIST,
     fragmentDisplayList: fragmentDisplayList,
@@ -65,7 +65,7 @@ export const setFragmentDisplayList = function(fragmentDisplayList, skipTracking
   };
 };
 
-export const appendFragmentDisplayList = function(item, skipTracking = false) {
+export const appendFragmentDisplayList = function (item, skipTracking = false) {
   return {
     type: constants.APPEND_FRAGMENT_DISPLAY_LIST,
     item: item,
@@ -73,7 +73,7 @@ export const appendFragmentDisplayList = function(item, skipTracking = false) {
   };
 };
 
-export const removeFromFragmentDisplayList = function(item, skipTracking = false) {
+export const removeFromFragmentDisplayList = function (item, skipTracking = false) {
   return {
     type: constants.REMOVE_FROM_FRAGMENT_DISPLAY_LIST,
     item: item,
@@ -81,7 +81,7 @@ export const removeFromFragmentDisplayList = function(item, skipTracking = false
   };
 };
 
-export const setProteinList = function(proteinList, skipTracking = false) {
+export const setProteinList = function (proteinList, skipTracking = false) {
   return {
     type: constants.SET_PROTEIN_LIST,
     proteinList: proteinList,
@@ -89,7 +89,7 @@ export const setProteinList = function(proteinList, skipTracking = false) {
   };
 };
 
-export const appendProteinList = function(item, skipTracking = false) {
+export const appendProteinList = function (item, skipTracking = false) {
   return {
     type: constants.APPEND_PROTEIN_LIST,
     item: item,
@@ -97,14 +97,14 @@ export const appendProteinList = function(item, skipTracking = false) {
   };
 };
 
-export const removeFromProteinList = function(item, skipTracking = false) {
+export const removeFromProteinList = function (item, skipTracking = false) {
   return {
     type: constants.REMOVE_FROM_PROTEIN_LIST,
     item: item,
     skipTracking: skipTracking
   };
 };
-export const setComplexList = function(complexList, skipTracking = false) {
+export const setComplexList = function (complexList, skipTracking = false) {
   return {
     type: constants.SET_COMPLEX_LIST,
     complexList: complexList,
@@ -112,7 +112,7 @@ export const setComplexList = function(complexList, skipTracking = false) {
   };
 };
 
-export const appendComplexList = function(item, skipTracking = false) {
+export const appendComplexList = function (item, skipTracking = false) {
   return {
     type: constants.APPEND_COMPLEX_LIST,
     item: item,
@@ -120,7 +120,7 @@ export const appendComplexList = function(item, skipTracking = false) {
   };
 };
 
-export const removeFromComplexList = function(item, skipTracking = false) {
+export const removeFromComplexList = function (item, skipTracking = false) {
   return {
     type: constants.REMOVE_FROM_COMPLEX_LIST,
     item: item,
@@ -128,7 +128,7 @@ export const removeFromComplexList = function(item, skipTracking = false) {
   };
 };
 
-export const setSurfaceList = function(surfaceList, skipTracking = false) {
+export const setSurfaceList = function (surfaceList, skipTracking = false) {
   return {
     type: constants.SET_SURFACE_LIST,
     surfaceList: surfaceList,
@@ -136,7 +136,7 @@ export const setSurfaceList = function(surfaceList, skipTracking = false) {
   };
 };
 
-export const appendSurfaceList = function(item, skipTracking = false) {
+export const appendSurfaceList = function (item, skipTracking = false) {
   return {
     type: constants.APPEND_SURFACE_LIST,
     item: item,
@@ -144,7 +144,7 @@ export const appendSurfaceList = function(item, skipTracking = false) {
   };
 };
 
-export const removeFromSurfaceList = function(item, skipTracking = false) {
+export const removeFromSurfaceList = function (item, skipTracking = false) {
   return {
     type: constants.REMOVE_FROM_SURFACE_LIST,
     item: item,
@@ -168,14 +168,14 @@ export const removeFromDensityListType = (item, skipTracking = false) => {
   };
 };
 
-export const setDensityList = function(densityList) {
+export const setDensityList = function (densityList) {
   return {
     type: constants.SET_DENSITY_LIST,
     densityList: densityList
   };
 };
 
-export const appendDensityList = function(item, skipTracking = false) {
+export const appendDensityList = function (item, skipTracking = false) {
   return {
     type: constants.APPEND_DENSITY_LIST,
     item: item,
@@ -183,7 +183,7 @@ export const appendDensityList = function(item, skipTracking = false) {
   };
 };
 
-export const removeFromDensityList = function(item, skipTracking = false) {
+export const removeFromDensityList = function (item, skipTracking = false) {
   return {
     type: constants.REMOVE_FROM_DENSITY_LIST,
     item: item,
@@ -191,14 +191,14 @@ export const removeFromDensityList = function(item, skipTracking = false) {
   };
 };
 
-export const setDensityListCustom = function(densityListCustom) {
+export const setDensityListCustom = function (densityListCustom) {
   return {
     type: constants.SET_DENSITY_LIST_CUSTOM,
     densityListCustom: densityListCustom
   };
 };
 
-export const appendDensityListCustom = function(item, skipTracking = false) {
+export const appendDensityListCustom = function (item, skipTracking = false) {
   return {
     type: constants.APPEND_DENSITY_LIST_CUSTOM,
     item: item,
@@ -206,7 +206,7 @@ export const appendDensityListCustom = function(item, skipTracking = false) {
   };
 };
 
-export const removeFromDensityListCustom = function(item, skipTracking = false) {
+export const removeFromDensityListCustom = function (item, skipTracking = false) {
   return {
     type: constants.REMOVE_FROM_DENSITY_LIST_CUSTOM,
     item: item,
@@ -214,7 +214,7 @@ export const removeFromDensityListCustom = function(item, skipTracking = false) 
   };
 };
 
-export const setQualityList = function(qualityList, skipTracking = false) {
+export const setQualityList = function (qualityList, skipTracking = false) {
   return {
     type: constants.SET_QUALITY_LIST,
     qualityList: qualityList,
@@ -222,21 +222,21 @@ export const setQualityList = function(qualityList, skipTracking = false) {
   };
 };
 
-export const appendInformationList = function(item) {
+export const appendInformationList = function (item) {
   return {
     type: constants.APPEND_INFORMATION_LIST,
     item: item
   };
 };
 
-export const removeFromInformationList = function(item) {
+export const removeFromInformationList = function (item) {
   return {
     type: constants.REMOVE_FROM_INFORMATION_LIST,
     item: item
   };
 };
 
-export const appendQualityList = function(item, skipTracking = false) {
+export const appendQualityList = function (item, skipTracking = false) {
   return {
     type: constants.APPEND_QUALITY_LIST,
     item: item,
@@ -244,7 +244,7 @@ export const appendQualityList = function(item, skipTracking = false) {
   };
 };
 
-export const removeFromQualityList = function(item, skipTracking = false) {
+export const removeFromQualityList = function (item, skipTracking = false) {
   return {
     type: constants.REMOVE_FROM_QUALITY_LIST,
     item: item,
@@ -252,7 +252,7 @@ export const removeFromQualityList = function(item, skipTracking = false) {
   };
 };
 
-export const setVectorOnList = function(vectorOnList, skipTracking = false) {
+export const setVectorOnList = function (vectorOnList, skipTracking = false) {
   return {
     type: constants.SET_VECTOR_ON_LIST,
     vectorOnList: vectorOnList,
@@ -260,7 +260,7 @@ export const setVectorOnList = function(vectorOnList, skipTracking = false) {
   };
 };
 
-export const appendVectorOnList = function(item, skipTracking = false) {
+export const appendVectorOnList = function (item, skipTracking = false) {
   return {
     type: constants.APPEND_VECTOR_ON_LIST,
     item: item,
@@ -268,7 +268,7 @@ export const appendVectorOnList = function(item, skipTracking = false) {
   };
 };
 
-export const removeFromVectorOnList = function(item, skipTracking = false) {
+export const removeFromVectorOnList = function (item, skipTracking = false) {
   return {
     type: constants.REMOVE_FROM_VECTOR_ON_LIST,
     item: item,
@@ -283,7 +283,7 @@ export const reloadSelectionReducer = savedSelectionReducers => {
   };
 };
 
-export const resetSelectionState = function() {
+export const resetSelectionState = function () {
   return {
     type: constants.RESET_SELECTION_STATE
   };
@@ -374,7 +374,7 @@ export const setArrowUpDown = (item, newItem, arrowType, data) => ({
   }
 });
 
-export const setSelectedTagList = function(selectedTagList, skipTracking = false) {
+export const setSelectedTagList = function (selectedTagList, skipTracking = false) {
   return {
     type: constants.SET_SELECTED_TAG_LIST,
     selectedTagList: selectedTagList,
@@ -382,7 +382,7 @@ export const setSelectedTagList = function(selectedTagList, skipTracking = false
   };
 };
 
-export const appendSelectedTagList = function(item, skipTracking = false) {
+export const appendSelectedTagList = function (item, skipTracking = false) {
   return {
     type: constants.APPEND_SELECTED_TAG_LIST,
     item: item,
@@ -390,7 +390,7 @@ export const appendSelectedTagList = function(item, skipTracking = false) {
   };
 };
 
-export const removeFromSelectedTagList = function(item, skipTracking = false) {
+export const removeFromSelectedTagList = function (item, skipTracking = false) {
   return {
     type: constants.REMOVE_FROM_SELECTED_TAG_LIST,
     item: item,
@@ -441,6 +441,13 @@ export const setObservationsForLHSCmp = observations => {
   return {
     type: constants.SET_OBSERVATIONS_FOR_LHS_CMP,
     observations: observations
+  };
+};
+
+export const updateMoleculeInLHSObservations = mol => {
+  return {
+    type: constants.UPDATE_MOL_IN_LHS_OBSERVATIONS,
+    mol: mol
   };
 };
 

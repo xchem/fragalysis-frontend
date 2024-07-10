@@ -5,7 +5,7 @@ import { makeStyles } from '@material-ui/styles';
 import { useDispatch, useSelector } from 'react-redux';
 import classNames from 'classnames';
 import { NglContext } from '../../nglView/nglProvider';
-import { PLURAL_TO_SINGULAR, VIEWS } from '../../../constants/constants';
+import { PLURAL_TO_SINGULAR, VIEWS, XCA_TAG_CATEGORIES } from '../../../constants/constants';
 import { changeButtonClassname } from '../../datasets/helpers';
 import {
   addComplex,
@@ -16,6 +16,8 @@ import {
   copyPoseToPoseDTO,
   createNewPose,
   getAllCompatiblePoses,
+  getCategoryById,
+  prepareEmptyPoseDTO,
   removeComplex,
   removeHitProtein,
   removeLigand,
@@ -36,7 +38,8 @@ import {
   setOpenObservationsDialog,
   setPoseIdForObservationsDialog,
   setSelectedAllByType,
-  setTagEditorOpenObs
+  setTagEditorOpenObs,
+  updateMoleculeInLHSObservations
 } from '../../../reducers/selection/actions';
 import useDisableNglControlButtons from './useDisableNglControlButtons';
 import { Button, Panel } from '../../common';
@@ -46,8 +49,10 @@ import MoleculeView from './moleculeView';
 import { TagEditor } from '../tags/modal/tagEditor';
 import { ToastContext } from '../../toast';
 import { DJANGO_CONTEXT } from '../../../utils/djangoContext';
-import { updateLHSCompound } from '../../../reducers/api/actions';
+import { updateLHSCompound, updateMoleculeInMolLists, updateMoleculeTag, updateTag } from '../../../reducers/api/actions';
 import { createPoseErrorMessage } from './api/poseApi';
+import { augumentTagObjectWithId, createMoleculeTagObject, DEFAULT_TAG_COLOR, getMoleculeTagForTag } from '../tags/utils/tagUtils';
+import { updateExistingTag } from '../tags/api/tagsApi';
 
 const MIN_PANEL_HEIGHT = 250;
 
@@ -174,8 +179,16 @@ const useStyles = makeStyles(theme => ({
       backgroundColor: theme.palette.primary.light
     }
   },
+  dropdownContentSide: {
+    left: 148,
+    marginTop: -18,
+    maxWidth: 260,
+    width: 260,
+    overflowY: 'auto',
+    maxHeight: 100
+  },
   dropdown: {
-    '&:hover $dropdownContent': {
+    '&:hover > $dropdownContent': {
       display: 'flex'
     }
   },
@@ -228,6 +241,10 @@ export const ObservationsDialog = memo(
     const informationList = useSelector(state => state.selectionReducers.informationList);
     const molForTagEditId = useSelector(state => state.selectionReducers.molForTagEdit);
     const moleculesToEditIds = useSelector(state => state.selectionReducers.moleculesToEdit);
+    const tagCategoriesList = useSelector(state => state.apiReducers.categoryList);
+    // const tagList = useSelector(state => state.apiReducers.tagList);
+    const tagList = useSelector(state => state.apiReducers.moleculeTags);
+    const targetId = useSelector(state => state.apiReducers.target_on);
 
     const poses = useSelector(state => state.apiReducers.lhs_compounds_list);
     const compatiblePoses = useMemo(() => {
@@ -600,25 +617,223 @@ export const ObservationsDialog = memo(
     const getPanelHeight = useCallback(() => {
       let height = 0;
       if (anchorEl) {
-        // available height of the window - top position of the anchor element, ie pose from hit navigator - "bottom margin"
+      // available height of the window - top position of the anchor element, ie pose from hit navigator - "bottom margin"
         const maxHeight = window.innerHeight - anchorEl?.getBoundingClientRect().top - 13;
-        const observationsApproximateHeight = moleculeList.length * 47;
-        const headerFooterApproximateHeight = 87;
-        const totalApproximateHeight = observationsApproximateHeight + headerFooterApproximateHeight;
-
-        if (totalApproximateHeight > maxHeight) {
-          height = maxHeight;
-        } else if (totalApproximateHeight < MIN_PANEL_HEIGHT) {
-          height = MIN_PANEL_HEIGHT;
-        } else {
-          height = totalApproximateHeight;
-        }
+      const observationsApproximateHeight = moleculeList.length * 47;
+      const headerFooterApproximateHeight = 87;
+      const totalApproximateHeight = observationsApproximateHeight + headerFooterApproximateHeight;
+      if (totalApproximateHeight > maxHeight) {
+        height = maxHeight;
+      } else if (totalApproximateHeight < MIN_PANEL_HEIGHT) {
+        height = MIN_PANEL_HEIGHT;
+      } else {
+        height = totalApproximateHeight;
+      }
       } else {
         height = MIN_PANEL_HEIGHT;
       }
 
       return height;
     }, [anchorEl, moleculeList.length]);
+
+    /**
+     * @param {string} category
+     * @return {array}
+     */
+    const getTagsForCategory = useCallback(category => {
+      const tagCategory = tagCategoriesList.find(tagCategory => tagCategory.category === category);
+      return tagCategory ? tagList.filter(tag => {
+        if (tag.category === tagCategory.id) {
+          // console.log('good tag', { ...tag });
+          return true;
+        } else return false;
+      }) : [];
+    }, [tagCategoriesList, tagList]);
+
+    const updateCmp = (cmp, obs) => {
+      let newCmp = { ...cmp };
+      const index = newCmp.associatedObs.findIndex(o => o.id === obs.id);
+      if (index >= 0) {
+        newCmp.associatedObs[index] = obs;
+        dispatch(updateLHSCompound(newCmp));
+      }
+    };
+
+    const tagObservations = async tag => {
+      try {
+        // setTaggingInProgress(true);
+
+        let tagColor = DEFAULT_TAG_COLOR;
+        if (tag.colour && tag.colour !== '') {
+          tagColor = tag.colour;
+        } else {
+          const tagCategory = dispatch(getCategoryById(tag.category));
+          if (tagCategory) {
+            tagColor = `#${tagCategory.colour}`;
+          }
+        }
+
+        let molTagObjects = [];
+        observationsDataList.forEach(m => {
+          if (!m.tags_set.some(id => id === tag.id)) {
+            let newMol = { ...m };
+            newMol.tags_set.push(tag.id);
+            const pose = poses.find(p => p.site_observations.includes(m.id));
+            updateCmp(pose, newMol);
+            dispatch(updateMoleculeInMolLists(newMol));
+            dispatch(updateMoleculeInLHSObservations(newMol));
+            const moleculeTag = getMoleculeTagForTag(tagList, tag.id);
+            let mtObject = molTagObjects.find(mto => mto.tag === tag.tag);
+            if (mtObject) {
+              mtObject.site_observations.push(newMol.id);
+            } else {
+              mtObject = createMoleculeTagObject(
+                tag.tag,
+                targetId,
+                tag.category,
+                DJANGO_CONTEXT.pk,
+                tagColor,
+                tag.discourse_url,
+                [...moleculeTag.site_observations, newMol.id],
+                tag.create_date,
+                tag.additional_info,
+                tag.mol_group,
+                tag.hidden,
+                tag.tag_prefix,
+                tag.upload_name
+              );
+              molTagObjects.push(mtObject);
+            }
+          }
+        });
+        if (molTagObjects) {
+          for (const mto of molTagObjects) {
+            let molTagObject = { ...mto };
+            let augMolTagObject = augumentTagObjectWithId(molTagObject, tag.id);
+            await updateExistingTag(molTagObject, tag.id);
+            dispatch(updateMoleculeTag(augMolTagObject));
+            dispatch(updateTag(augMolTagObject));
+          }
+        }
+      } catch (e) {
+        console.log(e);
+        //dispatch(setIsErrorDuringTagging(true));
+      } finally {
+        // setTaggingInProgress(false);
+      }
+    };
+
+    const untagObservations = async tag => {
+      try {
+        // setTaggingInProgress(true);
+
+        let tagColor = DEFAULT_TAG_COLOR;
+        if (tag.colour && tag.colour !== '') {
+          tagColor = tag.colour;
+        } else {
+          const tagCategory = dispatch(getCategoryById(tag.category));
+          if (tagCategory) {
+            tagColor = `#${tagCategory.colour}`;
+          }
+        }
+
+        let molTagObjects = [];
+        observationsDataList.forEach(m => {
+          let newMol = { ...m };
+          newMol.tags_set = newMol.tags_set.filter(id => id !== tag.id);
+          const pose = poses.find(p => p.site_observations.includes(m.id));
+          updateCmp(pose, newMol);
+          dispatch(updateMoleculeInMolLists(newMol));
+          dispatch(updateMoleculeInLHSObservations(newMol));
+          const moleculeTag = getMoleculeTagForTag(tagList, tag.id);
+
+          let mtObject = molTagObjects.find(mto => mto.tag === tag.tag);
+          if (mtObject) {
+            mtObject.site_observations = mtObject.site_observations.filter(id => id !== m.id);
+          } else {
+            let newMolList = [...moleculeTag.site_observations];
+            newMolList = newMolList.filter(id => id !== m.id);
+            mtObject = createMoleculeTagObject(
+              tag.tag,
+              targetId,
+              tag.category,
+              DJANGO_CONTEXT.pk,
+              tagColor,
+              tag.discourse_url,
+              newMolList,
+              tag.create_date,
+              tag.additional_info,
+              tag.mol_group,
+              tag.hidden,
+              tag.tag_prefix,
+              tag.upload_name
+            );
+            molTagObjects.push(mtObject);
+          }
+        });
+        if (molTagObjects) {
+          for (const mto of molTagObjects) {
+            let molTagObject = { ...mto };
+            let augMolTagObject = augumentTagObjectWithId(molTagObject, tag.id);
+            await updateExistingTag(molTagObject, tag.id);
+            dispatch(updateMoleculeTag(augMolTagObject));
+            dispatch(updateTag(augMolTagObject));
+          }
+        }
+      } catch (e) {
+        console.log(e);
+        //dispatch(setIsErrorDuringTagging(true));
+      } finally {
+        // setTaggingInProgress(false);
+      }
+    };
+
+    const getMainTagByCategory = categoryId => {
+      const firstSelectedObs = observationsDataList[0];
+      if (firstSelectedObs) {
+        // console.log('firstSelectedObs?', { ...firstSelectedObs });
+        const pose = poses.find(pose => pose.id === firstSelectedObs.pose);
+        const mainObservation = observationsDataList.find(observation => observation.id === pose.main_site_observation);
+        console.log('pose?', { ...pose });
+        console.log('mainObservation?', { ...mainObservation });
+        if (mainObservation) {
+          // tagList.filter(tag => {
+
+          //   if (tag.category === categoryId && mainObservation.tags_set.includes(tag.id)) {
+          //     console.log('tag.category', tag.category)
+          //     console.log('categoryId', categoryId)
+          //     console.log('mainObservation.tags_set', mainObservation.tags_set)
+          //     console.log('tag.id', tag.id)
+          //     return true;
+          //   } else {
+          //     return false;
+          //   }
+          // }).forEach(tag => console.log('in list', { ...tag }));
+          return tagList.find(tag => tag.category === categoryId && mainObservation.tags_set.includes(tag.id));
+        }
+      }
+      return null;
+    };
+
+    /**
+     * Change the generated tags for all observations in a pose
+     *
+     * @param {*} tag
+     */
+    const handleChangeXCAtag = async tag => {
+      console.log('tag', { ...tag });
+      console.log('untagging');
+      // untag first
+      const mainObservationTag = getMainTagByCategory(tag.category);
+      if (mainObservationTag) {
+        console.log('main tag', { ...mainObservationTag });
+        await untagObservations(mainObservationTag);
+      }
+      // then tag
+      // await tagObservations(tag);
+      console.log('tagging');
+      toastInfo(`Tag for observations was changed from "${mainObservationTag.upload_name}" to "${tag.upload_name}". They could disappear based on your tag selection`, { autoHideDuration: 5000 });
+    };
 
     return (
       <Popper id={id} open={open} anchorEl={anchorEl} placement="left-start" ref={ref}>
@@ -777,8 +992,8 @@ export const ObservationsDialog = memo(
                             {['CanonSites', 'ConformerSites', 'CrystalformSites', 'Crystalforms', 'Quatassemblies'].map(
                               (tagCategory, index) => (
                                 <Grid item align="center" key={index} className={classes.headerCell} style={{ minWidth: headerWidths[tagCategory] }}>
-                                  {PLURAL_TO_SINGULAR[tagCategory]}
-                                </Grid>
+                              {PLURAL_TO_SINGULAR[tagCategory]}
+                            </Grid>
                               )
                             )}
                             <Grid item align="center" className={classes.headerCell} style={{ minWidth: headerWidths.CentroidRes }}>
@@ -904,10 +1119,35 @@ export const ObservationsDialog = memo(
                         ))}
                       </Grid>
                     </Grid>
-                  </Grid>
+                  {/* <Grid item className={classNames({ [classes.dropdown]: true })}>
+                    <Button
+                      color="inherit"
+                      variant="text"
+                      size="small"
+                      data-id="manageGrouping"
+                      endIcon={<KeyboardArrowDown />}
+                      className={classNames(classes.contColButton, classes.contColButtonBottomRow)}
+                    >
+                      Change XCA tags
+                    </Button>
+                    <Grid container direction="column" className={classes.dropdownContent}>
+                      {XCA_TAG_CATEGORIES.map(category =>
+                        <Grid key={category} item className={classNames(classes.dropdown, classes.dropdownItem)}>
+                          Change {category}
+                          <Grid container direction="row" className={classNames(classes.dropdownContent, classes.dropdownContentSide)}>
+                            {getTagsForCategory(category)?.map(tag => (
+                              <Grid key={tag.id} item className={classes.dropdownItem} onClick={() => handleChangeXCAtag(tag)}>
+                                {tag.upload_name}
+                              </Grid>
+                            ))}
+                          </Grid>
+                        </Grid>
+              )}
+                    </Grid>
+                  </Grid> */}
                 </Grid>
               )}
-            </Grid>
+            </>
           )}
           {isLoadingInspirationListOfMolecules === true && (
             <Grid container alignItems="center" justifyContent="center">

@@ -385,14 +385,18 @@ export default function apiReducers(state = INITIAL_STATE, action = {}) {
 
     case constants.UPDATE_TAG:
       let listWithUpdatedTag = [...state.tagList];
-      let foundTags = listWithUpdatedTag.filter(t => t.id === action.item.id);
-      if (foundTags && foundTags.length > 0) {
-        let foundTag = foundTags[0];
-        foundTag.tag = action.item.tag;
-        foundTag.colour = action.item.colour;
-        foundTag.category = action.item.category;
-        foundTag.discourse_url = action.item.discourse_url;
-        foundTag.hidden = action.item.hidden;
+      // let foundTags = listWithUpdatedTag.filter(t => t.id === action.item.id);
+      const foundTagIndex = listWithUpdatedTag.findIndex(t => t.id === action.item.id);
+      if (foundTagIndex >= 0) {
+        listWithUpdatedTag[foundTagIndex] = { ...action.item };
+        // if (foundTags && foundTags.length > 0) {
+        //   let foundTag = foundTags[0];
+        //   foundTag.tag = action.item.tag;
+        //   foundTag.colour = action.item.colour;
+        //   foundTag.category = action.item.category;
+        //   foundTag.discourse_url = action.item.discourse_url;
+        //   foundTag.hidden = action.item.hidden;
+        //   foundTag.upload_name = action.item.upload_name;
 
         return { ...state, tagList: [...listWithUpdatedTag] };
       } else {
