@@ -105,7 +105,8 @@ const useStyles = makeStyles(theme => ({
     },
     '&:disabled': {
       borderRadius: 0,
-      borderColor: 'white'
+      borderColor: 'white',
+      backgroundColor: '#c5cae9'
     }
   },
   contColButtonSelected: {
@@ -515,65 +516,63 @@ export const ObservationsDialog = memo(
                       {moleculeProperty[key]}
                     </Grid>
                   ))} */}
-                  {allSelectedMolecules.length > 0 && (
-                    <Grid item>
-                      <Grid
-                        container
-                        direction="row"
-                        justifyContent="flex-start"
-                        alignItems="center"
-                        wrap="nowrap"
-                        className={classes.contButtonsMargin}
-                      >
-                        <Tooltip title="all ligands">
-                          <Grid item>
-                            <Button
-                              variant="outlined"
-                              className={classNames(classes.contColButton, {
-                                [classes.contColButtonSelected]: isLigandOn,
-                                [classes.contColButtonHalfSelected]: isLigandOn === null
-                              })}
-                              onClick={() => onButtonToggle('ligand')}
-                              disabled={groupNglControlButtonsDisabledState.ligand}
-                            >
-                              L
-                            </Button>
-                          </Grid>
-                        </Tooltip>
-                        <Tooltip title="all sidechains">
-                          <Grid item>
-                            <Button
-                              variant="outlined"
-                              className={classNames(classes.contColButton, {
-                                [classes.contColButtonSelected]: isProteinOn,
-                                [classes.contColButtonHalfSelected]: isProteinOn === null
-                              })}
-                              onClick={() => onButtonToggle('protein')}
-                              disabled={groupNglControlButtonsDisabledState.protein}
-                            >
-                              P
-                            </Button>
-                          </Grid>
-                        </Tooltip>
-                        <Tooltip title="all interactions">
-                          <Grid item>
-                            {/* C stands for contacts now */}
-                            <Button
-                              variant="outlined"
-                              className={classNames(classes.contColButton, {
-                                [classes.contColButtonSelected]: isComplexOn,
-                                [classes.contColButtonHalfSelected]: isComplexOn === null
-                              })}
-                              onClick={() => onButtonToggle('complex')}
-                              disabled={groupNglControlButtonsDisabledState.complex}
-                            >
-                              C
-                            </Button>
-                          </Grid>
-                        </Tooltip>
-                      </Grid>
+                  <Grid item>
+                    <Grid
+                      container
+                      direction="row"
+                      justifyContent="flex-start"
+                      alignItems="center"
+                      wrap="nowrap"
+                      className={classes.contButtonsMargin}
+                    >
+                      <Tooltip title="all ligands">
+                        <Grid item>
+                          <Button
+                            variant="outlined"
+                            className={classNames(classes.contColButton, {
+                              [classes.contColButtonSelected]: isLigandOn,
+                              [classes.contColButtonHalfSelected]: isLigandOn === null
+                            })}
+                            onClick={() => onButtonToggle('ligand')}
+                            disabled={groupNglControlButtonsDisabledState.ligand || allSelectedMolecules.length < 1}
+                          >
+                            L
+                          </Button>
+                        </Grid>
+                      </Tooltip>
+                      <Tooltip title="all sidechains">
+                        <Grid item>
+                          <Button
+                            variant="outlined"
+                            className={classNames(classes.contColButton, {
+                              [classes.contColButtonSelected]: isProteinOn,
+                              [classes.contColButtonHalfSelected]: isProteinOn === null
+                            })}
+                            onClick={() => onButtonToggle('protein')}
+                            disabled={groupNglControlButtonsDisabledState.protein || allSelectedMolecules.length < 1}
+                          >
+                            P
+                          </Button>
+                        </Grid>
+                      </Tooltip>
+                      <Tooltip title="all interactions">
+                        <Grid item>
+                          {/* C stands for contacts now */}
+                          <Button
+                            variant="outlined"
+                            className={classNames(classes.contColButton, {
+                              [classes.contColButtonSelected]: isComplexOn,
+                              [classes.contColButtonHalfSelected]: isComplexOn === null
+                            })}
+                            onClick={() => onButtonToggle('complex')}
+                            disabled={groupNglControlButtonsDisabledState.complex || allSelectedMolecules.length < 1}
+                          >
+                            C
+                          </Button>
+                        </Grid>
+                      </Tooltip>
                     </Grid>
-                  )}
+                  </Grid>
                 </Grid>
               </Grid>
               <div className={classes.content}>
@@ -661,11 +660,11 @@ export const ObservationsDialog = memo(
                       endIcon={<KeyboardArrowDown />}
                       className={classNames(classes.contColButton, classes.contColButtonBottomRow)}
                     >
-                      Manage grouping
+                      Manage poses
                     </Button>
                     <Grid container direction="column" className={classes.dropdownContent}>
                       <Grid item className={classes.dropdownItem} onClick={() => handleManageGrouping(0)}>
-                        new group from selection
+                        new pose from selection
                       </Grid>
                       {/* TODO just a placeholder for poses here */}
                       {compatiblePoses?.map(pose => (
