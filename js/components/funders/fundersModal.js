@@ -2,16 +2,24 @@
  * This is a modal window wrapper for funders.
  */
 
-import React, { memo } from 'react';
+import React, { memo, useContext } from 'react';
 import Modal from '../common/Modal';
-import { Grid, makeStyles, Typography } from '@material-ui/core';
+import { Grid, IconButton, makeStyles, Typography } from '@material-ui/core';
 import { CONTRIBUTORS, FUNDING, get_logo } from './constants';
 import { Tooltip } from '@mui/material';
+import { URLS } from '../routes/constants';
+import { ContentCopyRounded } from '@mui/icons-material';
+import { ToastContext } from '../toast';
 
 const COLUMNS = 5;
 const MAX_IMAGE_HEIGHT = 90;
 
 const useStyles = makeStyles(theme => ({
+  copyButton: {
+    position: 'absolute',
+    top: 0,
+    right: 0
+  },
   imageItem: {
     paddingTop: '3px',
     paddingBottom: '3px',
@@ -39,6 +47,8 @@ const useStyles = makeStyles(theme => ({
 export const FundersModal = memo(({ openModal, onModalClose }) => {
   const classes = useStyles();
 
+  const { toastInfo } = useContext(ToastContext);
+
   if (openModal === undefined) {
     console.log('undefined openModal');
     onModalClose();
@@ -49,8 +59,18 @@ export const FundersModal = memo(({ openModal, onModalClose }) => {
     window.open(link, 'blank');
   };
 
+  const copyFundersLink = async () => {
+    await navigator.clipboard.writeText(window.location.hostname + URLS.funders);
+    toastInfo('Link was copied to the clipboard', { autoHideDuration: 5000 });
+  };
+
   return (
     <Modal otherClasses={classes.customModal} open={openModal} onClose={() => onModalClose()}>
+      <Tooltip title={'Click to copy link to this window'} >
+        <IconButton color="inherit" onClick={copyFundersLink} className={classes.copyButton}>
+          <ContentCopyRounded />
+        </IconButton>
+      </Tooltip>
       <Typography variant="h5">Funding and support:</Typography>
       <Grid container direction="row" justifyContent="center" alignItems="center" columns={5}>
         {FUNDING.map((company, i) =>

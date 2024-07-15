@@ -491,8 +491,7 @@ export default memo(
                     startIcon={<SupervisorAccount />}
                     variant="text"
                     size="small"
-                    onClick={() => history.push(URLS.funders)}
-                  // onClick={() => setOpenFunders(true)}
+                    onClick={() => setOpenFunders(true)}
                   >
                     Contributors
                   </Button>
