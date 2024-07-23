@@ -72,6 +72,7 @@ import { ARROW_TYPE, VIEWS } from '../../constants/constants';
 import { useScrollToCompound } from './useScrollToCompound';
 import useDisableNglControlButtons from '../preview/molecule/useDisableNglControlButtons';
 import useDisableDatasetNglControlButtons from './useDisableDatasetNglControlButtons';
+import { downloadRHSCSVExport } from '../../utils/csv';
 
 const useStyles = makeStyles(theme => ({
   container: {
@@ -572,20 +573,20 @@ export const SelectedCompoundList = memo(() => {
       const fileName = `${targetName}-RHS-selection.csv`;
       // console.log(`href - ${fileName}`);
       const reqObj = { title: sharedSnapshot.url, filename: fileName, dict: listOfMols };
-      const jsonString = JSON.stringify(reqObj);
+      downloadRHSCSVExport(reqObj);
+      // const jsonString = JSON.stringify(reqObj);
 
-      api({
-        url: `${base_url}/api/dicttocsv/`,
-        method: METHOD.POST,
-        data: jsonString
-      }).then(resp => {
-        var anchor = document.createElement('a');
-        anchor.href = `${base_url}/api/dicttocsv/?file_url=${resp.data['file_url']}`;
-        // console.log(`href - ${base_url}/api/dicttocsv/?file_url=${resp.data['file_url']}`);
-        anchor.target = '_blank';
-        anchor.download = `${fileName}`; //'download';
-        anchor.click();
-      });
+      // api({
+      //   url: `${base_url}/api/dicttocsv/`,
+      //   method: METHOD.POST,
+      //   data: jsonString
+      // }).then(resp => {
+      //   var anchor = document.createElement('a');
+      //   anchor.href = `${base_url}/api/dicttocsv/?file_url=${resp.data['file_url']}`;
+      //   anchor.target = '_blank';
+      //   anchor.download = `${fileName}`; //'download';
+      //   anchor.click();
+      // });
     });
   };
 
