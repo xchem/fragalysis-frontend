@@ -14,6 +14,7 @@ import SearchField from '../common/Components/SearchField';
 import { base_url } from '../routes/constants';
 import { METHOD, api } from '../../utils/api';
 import { compoundsColors } from '../preview/compounds/redux/constants';
+import { downloadRHSCSVExport } from '../../utils/csv';
 
 const useStyles = makeStyles(theme => ({
   table: {
@@ -197,19 +198,20 @@ export const CompoundSetList = () => {
 
     const fileName = `${datasetID}.csv`;
     const reqObj = { title: datasetID, filename: fileName, dict: listOfMols };
-    const jsonString = JSON.stringify(reqObj);
+    downloadRHSCSVExport(reqObj);
+    // const jsonString = JSON.stringify(reqObj);
 
-    api({
-      url: `${base_url}/api/dicttocsv/`,
-      method: METHOD.POST,
-      data: jsonString
-    }).then(resp => {
-      var anchor = document.createElement('a');
-      anchor.href = `${base_url}/api/dicttocsv/?file_url=${resp.data['file_url']}`;
-      anchor.target = '_blank';
-      anchor.download = `${fileName}`; //'download';
-      anchor.click();
-    });
+    // api({
+    //   url: `${base_url}/api/dicttocsv/`,
+    //   method: METHOD.POST,
+    //   data: jsonString
+    // }).then(resp => {
+    //   var anchor = document.createElement('a');
+    //   anchor.href = `${base_url}/api/dicttocsv/?file_url=${resp.data['file_url']}`;
+    //   anchor.target = '_blank';
+    //   anchor.download = `${fileName}`; //'download';
+    //   anchor.click();
+    // });
   };
 
   useEffect(() => {
