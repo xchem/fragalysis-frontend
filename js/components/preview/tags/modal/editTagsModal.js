@@ -1,9 +1,9 @@
-import React, { useContext, useEffect, useMemo, useState } from "react";
-import { Button, Checkbox, Grid, IconButton, InputLabel, MenuItem, Popper, Select, TextField, Tooltip, makeStyles, withStyles } from "@material-ui/core"
+import React, { memo, useCallback, useContext, useEffect, useMemo, useState } from "react";
+import { Button, Checkbox, Grid, IconButton, InputLabel, MenuItem, Popper, Select, TextField, Toolbar, Tooltip, makeStyles, withStyles } from "@material-ui/core"
 import { Panel } from "../../../common";
 import { Close } from "@material-ui/icons";
 import { useDispatch, useSelector } from "react-redux";
-import { DEFAULT_CATEGORY, DEFAULT_TAG_COLOR, augumentTagObjectWithId, compareTagsAsc, createMoleculeTagObject, getCategoriesToBeRemovedFromTagDetails, getEditNewTagCategories } from "../utils/tagUtils";
+import { DEFAULT_CATEGORY, DEFAULT_TAG_COLOR, augumentTagObjectWithId, compareTagsByCategoryAndNameAsc, createMoleculeTagObject, getCategoriesToBeRemovedFromTagDetails, getEditNewTagCategories } from "../utils/tagUtils";
 import { ColorPicker } from "../../../common/Components/ColorPicker";
 import { DJANGO_CONTEXT } from "../../../../utils/djangoContext";
 import { createNewTag, deleteExistingTag } from "../api/tagsApi";
@@ -11,6 +11,7 @@ import { appendMoleculeTag, appendTagList, removeFromTagList, setNoTagsReceived,
 import { removeSelectedTag, updateTagProp } from "../redux/dispatchActions";
 import { getCategoryById } from "../../molecule/redux/dispatchActions";
 import { ToastContext } from "../../../toast";
+import { TAG_DETAILS_REMOVED_CATEGORIES } from "../../../../constants/constants";
 
 const useStyles = makeStyles(theme => ({
     leftSide: {
@@ -30,7 +31,7 @@ const useStyles = makeStyles(theme => ({
 
 const NEW_TAG = { id: -1, tag: '-- new tag --', category: DEFAULT_CATEGORY, colour: DEFAULT_TAG_COLOR };
 
-export const EditTagsModal = ({ open, anchorEl, setOpenDialog }) => {
+export const EditTagsModal = memo(({ open, anchorEl, setOpenDialog }) => {
     const classes = useStyles();
     const dispatch = useDispatch();
 
@@ -62,16 +63,32 @@ export const EditTagsModal = ({ open, anchorEl, setOpenDialog }) => {
         return tagCategory?.category || '';
     }
 
+    const isRestricted = tag => {
+        return tagCategories.some(category => TAG_DETAILS_REMOVED_CATEGORIES.includes(category.category) && category.id === tag?.category);
+    }
+
+    const getColourForTag = useCallback(tag => {
+        if (tag.colour) {
+            return tag.colour;
+        } else {
+            const category = dispatch(getCategoryById(tag.category));
+            if (category) {
+                return category.colour ? `#${category.colour}` : DEFAULT_TAG_COLOR;
+            } else {
+                return DEFAULT_TAG_COLOR;
+            }
+        }
+    }, [dispatch]);
+
     useEffect(() => {
-        const categoriesToRemove = getCategoriesToBeRemovedFromTagDetails(tagCategories);
         const newTagList = preTagList.filter(t => {
-            if (t.additional_info?.downloadName || categoriesToRemove.some(c => c.id === t.category)) {
+            if (t.additional_info?.downloadName) {
                 return false;
             } else {
                 return true;
             }
         });
-        setTags([NEW_TAG, ...newTagList].sort(compareTagsAsc));
+        setTags([NEW_TAG, ...newTagList.sort(compareTagsByCategoryAndNameAsc)]);
         return () => {
             setTag(null);
             setTags([NEW_TAG]);
@@ -83,21 +100,12 @@ export const EditTagsModal = ({ open, anchorEl, setOpenDialog }) => {
             if (tag.category) {
                 setNewTagCategory(tag.category);
             }
-            if (tag.colour) {
-                setNewTagColor(tag.colour);
-            } else {
-                const category = dispatch(getCategoryById(tag.category));
-                if (category) {
-                    setNewTagColor(category.colour ? `#${category.colour}` : DEFAULT_TAG_COLOR);
-                } else {
-                    setNewTagColor(DEFAULT_TAG_COLOR);
-                }
-            }
+            setNewTagColor(getColourForTag(tag));
             setNewTagName(tag.tag);
             setNewTagLink(tag.discourse_url);
             setNewHidden(tag.hidden || false);
         }
-    }, [dispatch, tag]);
+    }, [dispatch, getColourForTag, tag]);
 
     const comboCategories = useMemo(() => {
         return getEditNewTagCategories(tagCategories);
@@ -148,9 +156,9 @@ export const EditTagsModal = ({ open, anchorEl, setOpenDialog }) => {
         setNewTagName(event.target.value);
     };
 
-    const onHiddenForNewTagChange = event => {
+    const onHiddenForNewTagChange = useCallback(event => {
         setNewHidden(event.target.checked);
-    };
+    }, []);
 
     const validateTag = () => {
         let valid = true;
@@ -273,17 +281,17 @@ export const EditTagsModal = ({ open, anchorEl, setOpenDialog }) => {
         }
     };
 
-    const leftSide = text => {
+    const leftSide = useCallback(text => {
         return <Grid item xs={3} className={classes.leftSide}>
             <InputLabel>{text}</InputLabel>
         </Grid>;
-    };
+    }, [classes.leftSide]);
 
-    const rightSide = child => {
+    const rightSide = useCallback(child => {
         return <Grid item xs={9}>
             {child}
         </Grid>;
-    };
+    }, []);
 
     const CreateButton = withStyles(theme => ({
         root: {
@@ -323,7 +331,14 @@ export const EditTagsModal = ({ open, anchorEl, setOpenDialog }) => {
                         >
                             {tags?.map(tag => (
                                 <MenuItem key={`tag-editor-new-category-${tag.id}`} value={tag.id}>
-                                    {getTagLabel(tag)}
+                                    <Grid container alignItems="center" spacing={1}>
+                                        <ColorPicker
+                                            selectedColor={getColourForTag(tag)}
+                                            disabled={true}
+                                        />
+                                        <Grid item>{getTagCategory(tag)}</Grid>
+                                        <Grid item>{getTagLabel(tag)}</Grid>
+                                    </Grid>
                                 </MenuItem>
                             ))}
                         </Select>
@@ -370,10 +385,12 @@ export const EditTagsModal = ({ open, anchorEl, setOpenDialog }) => {
                                 <InputLabel>Upload name</InputLabel>
                             </Grid>
                             <Grid item xs>
-                                <TextField
-                                    disabled={true}
-                                    value={tag?.upload_name || ""}
-                                />
+                                <Tooltip title={tag?.upload_name || ""}>
+                                    <TextField
+                                        disabled={true}
+                                        value={tag?.upload_name || ""}
+                                    />
+                                </Tooltip>
                             </Grid>
                         </Grid>
                     )}
@@ -409,6 +426,7 @@ export const EditTagsModal = ({ open, anchorEl, setOpenDialog }) => {
                             // className = { classes.checkboxHeader }
                             checked={newHidden}
                             onChange={onHiddenForNewTagChange}
+                            disabled={isRestricted(tag)}
                         />
                     )}
                 </Grid>
@@ -466,4 +484,4 @@ export const EditTagsModal = ({ open, anchorEl, setOpenDialog }) => {
             </Grid>
         </Panel>
     </Popper>;
-}
+});

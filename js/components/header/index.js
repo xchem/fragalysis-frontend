@@ -111,7 +111,7 @@ const useStyles = makeStyles(theme => ({
 }));
 
 export default memo(
-  forwardRef(({ headerHeight = 0, setHeaderHeight }, ref) => {
+  forwardRef(({ headerHeight = 0, setHeaderHeight, isFundersLink = false }, ref) => {
     const dispatch = useDispatch();
     let history = useHistory();
     const classes = useStyles();
@@ -140,6 +140,10 @@ export default memo(
     const discourseAvailable = isDiscourseAvailable();
     const targetDiscourseVisible = discourseAvailable && targetName;
     const projectDiscourseVisible = discourseAvailable && currentProject && currentProject.title;
+
+    useEffect(() => {
+      setOpenFunders(isFundersLink);
+    }, [isFundersLink]);
 
     useEffect(() => {
       getVersions()

@@ -1,6 +1,6 @@
 import React, { memo, useState, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { CATEGORY_TYPE_BY_ID } from '../../../../constants/constants';
+import { CATEGORY_TYPE_BY_ID, PLURAL_TO_SINGULAR } from '../../../../constants/constants';
 import TagView from '../tagView';
 import { getDefaultTagDiscoursePostText } from '../utils/tagUtils';
 import { DJANGO_CONTEXT } from '../../../../utils/djangoContext';
@@ -148,6 +148,11 @@ const TagDetailRow = memo(({ tag, moleculesToEditIds, moleculesToEdit }) => {
     dispatch(setTagToEdit(tag));
   };
 
+  const getTagCategoryName = () => {
+    const category = dispatch(getCategoryById(tag.category))?.category;
+    return PLURAL_TO_SINGULAR.hasOwnProperty(category) ? PLURAL_TO_SINGULAR[category] : category;
+  };
+
   return (
     <>
       {/* TagView Chip */}
@@ -164,9 +169,9 @@ const TagDetailRow = memo(({ tag, moleculesToEditIds, moleculesToEdit }) => {
       ></TagView>
 
       {/* category */}
-      <Tooltip title={dispatch(getCategoryById(tag.category))?.category}>
+      <Tooltip title={getTagCategoryName()}>
         <Typography className={classes.text} variant="body2" noWrap>
-          {dispatch(getCategoryById(tag.category))?.category}
+          {getTagCategoryName()}
         </Typography>
       </Tooltip>
 

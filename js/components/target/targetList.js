@@ -321,12 +321,12 @@ export const TargetList = memo(() => {
         <TableCell
           component="th"
           scope="row"
-          style={{ minWidth: '150px', padding: '0px 10px 0px 0px', margin: '0px', padding: '0px' }}
+          style={{ minWidth: '150px', padding: '0px 10px 0px 0px', margin: '0px' }}
             >
           <div>{target.id}</div>
         </TableCell>
       </Tooltip> */}
-        <TableCell align="left" style={{ padding: '0px 10px 0px 0px', margin: '0px', padding: '0px' }}>
+        <TableCell align="left" style={{ padding: '0px 10px 0px 0px', margin: '0px' }}>
           {target.isLegacy ? (
             <a href={target.legacyUrl} target="new" style={{ wordBreak: 'break-all' }}>
               {target.title}
@@ -338,15 +338,15 @@ export const TargetList = memo(() => {
           )}
         </TableCell>
         <TableCell style={{ width: '2px', padding: '0px', margin: '0px' }}></TableCell>
-        <TableCell align="left" style={{ padding: '0px 10px 0px 0px', margin: '0px', padding: '0px' }}>
+        <TableCell align="left" style={{ padding: '0px 10px 0px 0px', margin: '0px' }}>
           <div>{target.project.target_access_string} </div>
         </TableCell>
         <TableCell style={{ width: '2px', padding: '0px', margin: '0px' }}></TableCell>
-        <TableCell align="left" style={{ padding: '0px 10px 0px 0px', margin: '0px', padding: '0px' }}>
+        <TableCell align="left" style={{ padding: '0px 10px 0px 0px', margin: '0px' }}>
           <div>{moment(target.project.init_date).format('YYYY-MM-DD')} </div>
         </TableCell>
         <TableCell style={{ width: '2px', padding: '0px', margin: '0px' }}></TableCell>
-        <TableCell align="left" style={{ padding: '0px 10px 0px 0px', margin: '0px', padding: '0px' }}>
+        <TableCell align="left" style={{ padding: '0px 10px 0px 0px', margin: '0px' }}>
           {sgcUploaded.includes(target.title) && (
             <a href={sgcUrl} target="new">
               SGC summary
@@ -509,10 +509,13 @@ export const TargetList = memo(() => {
 
   // window height for showing rows per page
   const [windowHeight, setWindowHeight] = useState(window.innerHeight);
+  const defaultRowsPerPageOptions = [20, 30, 40, 50, 100];
   let targetListWindowHeight = windowHeight / 22.5;
   let targetListWindowHeightFinal = parseInt(targetListWindowHeight.toFixed(0), 10);
+  if (defaultRowsPerPageOptions.indexOf(targetListWindowHeightFinal) === -1) {
+    defaultRowsPerPageOptions.unshift(targetListWindowHeightFinal);
+  }
   const [rowsPerPage, setRowsPerPage] = useState(targetListWindowHeightFinal);
-  const [rowsPerPagePerPageSize, setRowsPerPagePerPageSize] = useState(targetListWindowHeightFinal);
 
   const handleChangePage = (event, newPage) => {
     setPage(newPage);
@@ -1113,8 +1116,8 @@ export const TargetList = memo(() => {
       filteredListOfTargets !== undefined
         ? filteredListOfTargets
         : listOfTargets !== undefined
-        ? listOfTargets
-        : target_id_list,
+          ? listOfTargets
+          : target_id_list,
       projectsList
     );
     const slice = combinations.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage);
@@ -1633,7 +1636,7 @@ export const TargetList = memo(() => {
           <TableFooter>
             <TableRow>
               <TablePagination
-                rowsPerPageOptions={[rowsPerPagePerPageSize, 20, 30, 40, 50, 100]}
+                rowsPerPageOptions={defaultRowsPerPageOptions}
                 count={listOfAllTarget.length}
                 rowsPerPage={rowsPerPage}
                 page={page}

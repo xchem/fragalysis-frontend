@@ -1,10 +1,10 @@
 /**
- * Created by abradley on 14/03/2018.
+ * Row in Hit navigator
  */
 
 import React, { memo, useEffect, useState, useRef, useContext, useCallback } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { Button, Grid, makeStyles, Tooltip, IconButton, Popper, Item, CircularProgress } from '@material-ui/core';
+import { Button, Grid, makeStyles, Tooltip, IconButton, Popper, CircularProgress } from '@material-ui/core';
 import { Panel } from '../../../common';
 import { MyLocation, Warning, Assignment, AssignmentTurnedIn } from '@material-ui/icons';
 import SVGInline from 'react-svg-inline';
@@ -68,6 +68,10 @@ const useStyles = makeStyles(theme => ({
     padding: theme.spacing(1) / 4,
     color: 'black',
     height: 54
+  },
+  siteOpenObservations: {
+    // instead of coloring every specific part of border, just use inner shadow to fake it
+    boxShadow: 'inset 0 0 0 2px ' + theme.palette.primary.main
   },
   buttonsRow: {
     lineHeight: '1'
@@ -215,13 +219,17 @@ const useStyles = makeStyles(theme => ({
   },
   moleculeTitleLabel: {
     paddingLeft: 2,
-    fontWeight: 500,
+    // fontWeight: 400,
     overflow: 'hidden',
     whiteSpace: 'nowrap',
     textOverflow: 'ellipsis',
     lineHeight: '1.45',
-    fontSize: '0.9rem',
+    fontSize: '0.8rem',
     letterSpacing: '0.02em'
+  },
+  moleculeTitleLabelMain: {
+    fontWeight: 'bold',
+    fontSize: '0.9rem'
   },
   checkbox: {
     padding: 0
@@ -1256,7 +1264,7 @@ const ObservationCmpView = memo(
           container
           justifyContent="space-between"
           direction="row"
-          className={classes.container}
+          className={classNames(classes.container, { [classes.siteOpenObservations]: poseIdForObservationsDialog === data.id && isObservationDialogOpen })}
           wrap="nowrap"
           ref={ref}
         >
@@ -1300,10 +1308,8 @@ const ObservationCmpView = memo(
                 }}
                 className={classes.moleculeTitleLabel}
               >
-
-                {data?.code.replaceAll(`${target_on_name}-`, '')}
-                <br>
-                </br>
+                <span className={classes.moleculeTitleLabelMain}>{getMainObservation()?.code.replaceAll(`${target_on_name}-`, '')}</span>
+                <br />
                 {data?.main_site_observation_cmpd_code}
               </Grid>
             </Tooltip>
@@ -1575,7 +1581,7 @@ const ObservationCmpView = memo(
             wrap="nowrap">
 
             <Tooltip
-              title={<div style={{ whiteSpace: 'pre-line' }}>CanonSites - {getCanonSitesTag().upload_name}</div>}
+              title={<div style={{ whiteSpace: 'pre-line' }}>CanonSite - {getCanonSitesTag().upload_name}</div>}
             >
               <Grid item xs
                 className={classNames(classes.contColMenu, classes.contColButtonMenu)}
@@ -1602,7 +1608,7 @@ const ObservationCmpView = memo(
             {getConformerSites().map((conformerSite, i, sites) =>
               <Tooltip
                 key={conformerSite.id + i}
-                title={<div style={{ whiteSpace: 'pre-line' }}>ConformerSites - {conformerSite.upload_name}</div>}
+                title={<div style={{ whiteSpace: 'pre-line' }}>ConformerSite - {conformerSite.upload_name}</div>}
               >
                 <Grid item xs className={classNames(classes.contColMenu, classes.contColButtonMenu, {
                   [classes.smallConformerSite]: sites.length >= 3
@@ -1644,10 +1650,15 @@ const ObservationCmpView = memo(
                   onClick={() => {
                     // setLoadingInspiration(true);
 
-                    if (!isObservationDialogOpen) {
+                    // do not close modal on pose change
+                    if (!isObservationDialogOpen || poseIdForObservationsDialog !== data.id) {
                       dispatch(setObservationsForLHSCmp(observations));
                     }
-                    dispatch(setOpenObservationsDialog(!isObservationDialogOpen));
+                    if (poseIdForObservationsDialog !== data.id || poseIdForObservationsDialog === 0 || (poseIdForObservationsDialog === data.id && !isObservationDialogOpen)) {
+                      dispatch(setOpenObservationsDialog(true));
+                    } else {
+                      dispatch(setOpenObservationsDialog(false));
+                    }
                     dispatch(setPoseIdForObservationsDialog(data.id));
 
                     if (setRef) {

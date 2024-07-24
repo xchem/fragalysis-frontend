@@ -63,6 +63,14 @@ export const NON_ASSIGNABLE_CATEGORIES = [
   'Crystalforms'
 ];
 
+export const PLURAL_TO_SINGULAR = {
+  ConformerSites: 'ConformerSite',
+  CanonSites: 'CanonSite',
+  CrystalformSites: 'CrystalformSite',
+  Quatassemblies: 'Quatassembly',
+  Crystalforms: 'Crystalform'
+};
+
 export const TAG_TYPE = {
   ALL: 'ALL',
   UNTAGGED: 'UNTAGGED'

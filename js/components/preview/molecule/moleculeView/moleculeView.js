@@ -9,7 +9,7 @@ import { Panel } from '../../../common';
 import { MyLocation, Warning, Assignment, AssignmentTurnedIn } from '@material-ui/icons';
 import SVGInline from 'react-svg-inline';
 import classNames from 'classnames';
-import { VIEWS } from '../../../../constants/constants';
+import { PLURAL_TO_SINGULAR, VIEWS } from '../../../../constants/constants';
 import { NGL_PARAMS, COMMON_PARAMS } from '../../../nglView/constants';
 import { NglContext } from '../../../nglView/nglProvider';
 import {
@@ -52,7 +52,6 @@ import { getRandomColor } from '../utils/color';
 import { DEFAULT_TAG_COLOR, getAllTagsForCategories, getAllTagsForLHSCmp, getAllTagsForMol, getAllTagsForObservation, getAllTagsForObservationPopover } from '../../tags/utils/tagUtils';
 import MoleculeSelectCheckbox from './moleculeSelectCheckbox';
 import useClipboard from 'react-use-clipboard';
-import Popover from '@mui/material/Popover';
 import Typography from '@mui/material/Typography';
 import { Edit } from '@material-ui/icons';
 import { DJANGO_CONTEXT } from '../../../../utils/djangoContext';
@@ -138,7 +137,8 @@ const useStyles = makeStyles(theme => ({
     border: 'solid 1px',
     borderColor: theme.palette.background.divider,
     borderStyle: 'solid solid solid solid',
-    width: 'inherit'
+    minWidth: 327
+    // width: 'inherit'
   },
   image: {
     border: 'solid 1px',
@@ -192,19 +192,16 @@ const useStyles = makeStyles(theme => ({
     whiteSpace: 'nowrap',
     textOverflow: 'ellipsis',
     lineHeight: '1.45',
-    fontWeight: 500,
-    fontSize: '0.9rem',
+    // fontWeight: 500,
+    fontSize: '0.8rem',
     letterSpacing: '0.02em'
   },
+  moleculeTitleLabelMain: {
+    fontWeight: 'bold',
+    fontSize: '0.9rem'
+  },
   moleculeTitleLabelMainObs: {
-    paddingLeft: 2,
-    overflow: 'hidden',
-    whiteSpace: 'nowrap',
-    textOverflow: 'ellipsis',
-    lineHeight: '1.45',
-    fontWeight: 500,
-    fontSize: '0.9rem',
-    letterSpacing: '0.02em',
+    fontWeight: 'bolder',
     // fontStyle: 'italic',
     textDecorationLine: 'underline',
     textDecorationStyle: 'dotted'
@@ -345,6 +342,11 @@ const useStyles = makeStyles(theme => ({
   },
   buttonSelectedLoadingOverlay: {
     color: theme.palette.primary.contrastText
+  },
+  categoryCell: {
+    padding: '4px 8px',
+    fontWeight: 'bold',
+    textWrap: 'nowrap'
   }
 }));
 
@@ -379,7 +381,8 @@ const MoleculeView = memo(
     disableL,
     disableP,
     disableC,
-    hideImage
+    hideImage,
+    showExpandedView
   }) => {
     // const [countOfVectors, setCountOfVectors] = useState('-');
     // const [cmpds, setCmpds] = useState('-');
@@ -1108,13 +1111,11 @@ const MoleculeView = memo(
                         e.preventDefault();
                         setNameCopied(moleculeTitle);
                       }}
-                      className={
-                        data.id === pose?.main_site_observation
-                          ? classes.moleculeTitleLabelMainObs
-                          : classes.moleculeTitleLabel
-                      }
+                      className={classNames(classes.moleculeTitleLabel, { [classes.moleculeTitleLabelMainObs]: data.id === pose?.main_site_observation })}
                     >
-                      {moleculeTitleTruncated}
+                      <span className={classNames(classes.moleculeTitleLabelMain, { [classes.moleculeTitleLabelMainObs]: data.id === pose?.main_site_observation })}>{moleculeTitleTruncated}</span>
+                      <br />
+                      {data?.compound_code}
                     </Grid>
                   </Tooltip>
                   {/* Molecule properties */}
@@ -1356,13 +1357,14 @@ const MoleculeView = memo(
                   justifyContent="center"
                   alignItems="center"
                   // wrap="nowrap"
-                  style={{ height: "100%" }}>
+                  style={{ height: "100%" }}
+                >
                   {['CanonSites', 'ConformerSites', 'CrystalformSites', 'Crystalforms', 'Quatassemblies'].map(tagCategory => {
                     const tagTypeObject = getTagType(tagCategory);
                     const tagLabel = tagCategory === 'ConformerSites' ? tagTypeObject.tag_prefix.replace(getTagType('CanonSites')?.tag_prefix, '') : tagTypeObject?.tag_prefix;
                     return <Tooltip
                       key={`tag-category-${tagCategory}`}
-                      title={<div style={{ whiteSpace: 'pre-line' }}>{tagCategory} - {tagTypeObject.upload_name}</div>}
+                      title={<div style={{ whiteSpace: 'pre-line' }}>{PLURAL_TO_SINGULAR[tagCategory]} - {tagTypeObject.upload_name}</div>}
                     >
                       <Grid item xs
                         className={classNames(classes.contColButtonMenu)}
@@ -1411,6 +1413,26 @@ const MoleculeView = memo(
                 </div>
               </div>}
           </Grid>
+          {showExpandedView && <Grid item container alignItems='center' wrap="nowrap">
+            {['CanonSites', 'ConformerSites', 'CrystalformSites', 'Crystalforms', 'Quatassemblies'].map((tagCategory, index) => {
+              const tagTypeObject = getTagType(tagCategory);
+              let tagLabel = '';
+              if (tagTypeObject) {
+                if (tagCategory === 'CrystalformSites') {
+                  // "chop" more of CrystalformSites name
+                  tagLabel = tagTypeObject.upload_name.substring(tagTypeObject.upload_name.indexOf('-') + 1);
+                  tagLabel = tagLabel.substring(tagLabel.indexOf('-') + 1);
+                } else {
+                  tagLabel = tagTypeObject.upload_name.substring(tagTypeObject.upload_name.indexOf('-') + 1);
+                }
+              }
+              return <Tooltip title={PLURAL_TO_SINGULAR[tagCategory]} key={index}>
+                <Grid item align="center" className={classes.categoryCell} style={{ fontSize: 12 }}>
+                  {tagLabel}
+                </Grid>
+              </Tooltip>
+            })}
+          </Grid>}
         </Grid >
         <SvgTooltip
           open={moleculeTooltipOpen}

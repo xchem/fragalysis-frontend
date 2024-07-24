@@ -40,6 +40,20 @@ export const createMoleculeTagObject = (
   };
 };
 
+export const compareTagsByCategoryAndNameAsc = (a, b) => {
+  // by category first
+  if (a.category < b.category) {
+    return -1;
+  }
+  if (a.category > b.category) {
+    return 1;
+  }
+  // then by name
+  const aName = a.tag_prefix ? `${a.tag_prefix} - ${a.tag}` : a.tag;
+  const bName = b.tag_prefix ? `${b.tag_prefix} - ${b.tag}` : b.tag;
+  return aName.localeCompare(bName, undefined, { numeric: true, sensitivity: 'base' });
+};
+
 export const compareTagsAsc = (a, b) => {
   const aName = a.tag_prefix ? `${a.tag_prefix} - ${a.tag}` : a.tag;
   const bName = b.tag_prefix ? `${b.tag_prefix} - ${b.tag}` : b.tag;

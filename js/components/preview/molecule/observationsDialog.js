@@ -1,11 +1,11 @@
-import React, { forwardRef, memo, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
+import React, { forwardRef, memo, useCallback, useContext, useMemo, useRef, useState } from 'react';
 import { CircularProgress, Grid, Popper, IconButton, Typography, Tooltip } from '@material-ui/core';
-import { Close, KeyboardArrowDown } from '@material-ui/icons';
+import { ArrowLeft, ArrowRight, Close, KeyboardArrowDown } from '@material-ui/icons';
 import { makeStyles } from '@material-ui/styles';
 import { useDispatch, useSelector } from 'react-redux';
 import classNames from 'classnames';
 import { NglContext } from '../../nglView/nglProvider';
-import { VIEWS } from '../../../constants/constants';
+import { PLURAL_TO_SINGULAR, VIEWS } from '../../../constants/constants';
 import { changeButtonClassname } from '../../datasets/helpers';
 import {
   addComplex,
@@ -16,7 +16,6 @@ import {
   copyPoseToPoseDTO,
   createNewPose,
   getAllCompatiblePoses,
-  prepareEmptyPoseDTO,
   removeComplex,
   removeHitProtein,
   removeLigand,
@@ -29,6 +28,8 @@ import {
 } from './redux/dispatchActions';
 import { colourList } from './utils/color';
 import {
+  appendToMolListToEdit,
+  removeFromMolListToEdit,
   setDeselectedAllByType,
   setOpenObservationsDialog,
   setSelectedAllByType,
@@ -45,15 +46,18 @@ import { DJANGO_CONTEXT } from '../../../utils/djangoContext';
 import { updateLHSCompound } from '../../../reducers/api/actions';
 import { createPoseErrorMessage } from './api/poseApi';
 
+const MIN_PANEL_HEIGHT = 250;
+
 const useStyles = makeStyles(theme => ({
   paper: {
-    width: 358,
-    // minHeight: 294,
-    overflowY: 'hidden'
+    minWidth: 372,
+    minHeight: MIN_PANEL_HEIGHT,
+    overflowY: 'hidden',
+    resize: 'vertical'
   },
   molHeader: {
-    marginLeft: 19,
-    width: 'calc(100% - 19px)'
+    marginLeft: 19
+    // width: 'calc(100% - 19px)'
   },
   rightBorder: {
     borderRight: '1px solid',
@@ -74,20 +78,27 @@ const useStyles = makeStyles(theme => ({
   headerButton: {
     paddingTop: 10
   },
+  container: {
+    // minHeight: '100px',
+    height: '100%'
+    // width: 'inherit',
+    // color: theme.palette.black
+  },
   content: {
     overflowY: 'auto',
-    height: 214
+    width: '100%',
+    // height: 214
+    // minHeight: '77%',
+    // height: '77%'
+    // minHeight: 200,
+    // marginBottom: -43
+    height: `calc(99% - ${theme.spacing(6)}px - ${theme.spacing(2)}px)`
   },
   search: {
     width: 140
   },
   notFound: {
     paddingTop: theme.spacing(2)
-  },
-  contButtonsMargin: {
-    marginTop: theme.spacing(1) / 2,
-    marginBottom: theme.spacing(1) / 2,
-    marginLeft: theme.spacing(2)
   },
   contColButton: {
     minWidth: 'fit-content',
@@ -106,7 +117,8 @@ const useStyles = makeStyles(theme => ({
     },
     '&:disabled': {
       borderRadius: 0,
-      borderColor: 'white'
+      borderColor: 'white',
+      backgroundColor: '#c5cae9'
     }
   },
   contColButtonSelected: {
@@ -128,8 +140,14 @@ const useStyles = makeStyles(theme => ({
   contColButtonBottomRow: {
     border: '1px solid'
   },
+  topRow: {
+    marginBottom: theme.spacing(1) / 4
+  },
   bottomRow: {
-    marginTop: theme.spacing(1) / 4
+    marginTop: theme.spacing(1) / 4,
+    '& > div': {
+      marginLeft: 12
+    }
   },
   dropdownContent: {
     display: 'none',
@@ -157,6 +175,21 @@ const useStyles = makeStyles(theme => ({
     '&:hover $dropdownContent': {
       display: 'flex'
     }
+  },
+  popoutIcon: {
+    position: 'absolute',
+    top: 30,
+    left: 334,
+    backgroundColor: theme.palette.white,
+    borderRadius: 5,
+    '& > *': {
+      paddingRight: 0
+    }
+  },
+  headerCell: {
+    padding: '0px 12px',
+    borderColor: 'black',
+    fontSize: 12
   }
 }));
 
@@ -211,6 +244,7 @@ export const ObservationsDialog = memo(
     const tagEditorRef = useRef();
 
     const [tagEditorAnchorEl, setTagEditorAnchorEl] = useState(null);
+    const [expandView, setExpandView] = useState(null);
 
     const moleculeList = useMemo(() => {
       if (searchString !== null) {
@@ -226,16 +260,20 @@ export const ObservationsDialog = memo(
       [moleculesToEditIds, observationsDataList]
     );
 
+    const isLigandOn = ligandList.some(moleculeID => moleculeList.some(molecule => molecule.id === moleculeID));
+    const isProteinOn = proteinList.some(moleculeID => moleculeList.some(molecule => molecule.id === moleculeID));
+    const isComplexOn = complexList.some(moleculeID => moleculeList.some(molecule => molecule.id === moleculeID));
+
     // TODO: refactor from this line (duplicity in datasetMoleculeList.js)
-    const isLigandOn = changeButtonClassname(
+    const isLigandOnForClassname = changeButtonClassname(
       ligandList.filter(moleculeID => allSelectedMolecules.find(molecule => molecule.id === moleculeID) !== undefined),
       allSelectedMolecules
     );
-    const isProteinOn = changeButtonClassname(
+    const isProteinOnForClassname = changeButtonClassname(
       proteinList.filter(moleculeID => allSelectedMolecules.find(molecule => molecule.id === moleculeID) !== undefined),
       allSelectedMolecules
     );
-    const isComplexOn = changeButtonClassname(
+    const isComplexOnForClassname = changeButtonClassname(
       complexList.filter(moleculeID => allSelectedMolecules.find(molecule => molecule.id === moleculeID) !== undefined),
       allSelectedMolecules
     );
@@ -338,6 +376,33 @@ export const ObservationsDialog = memo(
       }
     };
 
+    const areAllMoleculesSelected = allSelectedMolecules.length === moleculeList.length;
+
+    const handleSelectAllObservations = () => {
+      if (areAllMoleculesSelected) {
+        allSelectedMolecules.forEach(molecule => dispatch(removeFromMolListToEdit(molecule.id)));
+      } else {
+        moleculeList.filter(molecule => !moleculesToEditIds.includes(molecule.id)).forEach(molecule => dispatch(appendToMolListToEdit(molecule.id)));
+      }
+    }
+
+    /**
+     * Select all displayed observations, i.e. have displayed some of their L, P, C
+     */
+    const handleSelectAllDisplayedObservations = () => {
+      // get all displayed but filter out already selected and duplicates
+      // lists of IDs
+      let displayedObservations = ligandList.filter(moleculeID => moleculeList.some(molecule => molecule.id === moleculeID) && !allSelectedMolecules.some(molecule => molecule.id === moleculeID));
+
+      const displayedProteins = proteinList.filter(moleculeID => moleculeList.some(molecule => molecule.id === moleculeID) && !allSelectedMolecules.some(molecule => molecule.id === moleculeID) && !displayedObservations.some(molecule => molecule === moleculeID));
+      displayedObservations = displayedObservations.concat(displayedProteins);
+
+      const displayedComplexes = complexList.filter(moleculeID => moleculeList.some(molecule => molecule.id === moleculeID) && !allSelectedMolecules.some(molecule => molecule.id === moleculeID) && !displayedObservations.some(molecule => molecule === moleculeID));
+      displayedObservations = displayedObservations.concat(displayedComplexes);
+
+      displayedObservations.forEach(moleculeID => dispatch(appendToMolListToEdit(moleculeID)));
+    }
+
     const getSelectedMoleculesByType = (type, isAdd) => {
       switch (type) {
         case 'ligand':
@@ -366,30 +431,6 @@ export const ObservationsDialog = memo(
     const anyControlButtonDisabled = Object.values(groupNglControlButtonsDisabledState).some(
       buttonState => buttonState
     );
-
-    const handleSetAsGroupName = () => {
-      const firstSelectedObs = observationsDataList.find(molecule => moleculesToEditIds.includes(molecule.id));
-      if (firstSelectedObs) {
-        const pose = poses.find(pose => pose.id === firstSelectedObs.pose);
-        pose.display_name = firstSelectedObs.code;
-        pose.code = pose.display_name;
-        const poseDTO = copyPoseToPoseDTO(pose);
-        dispatch(updatePose(poseDTO))
-          .then(resp => {
-            dispatch(updateLHSCompound(pose));
-            toastInfo(`Group name was changed to ${pose.display_name}`, { autoHideDuration: 5000 });
-          })
-          .catch(err => {
-            console.log(err);
-            const errorMessage = createPoseErrorMessage(err);
-            if (errorMessage) {
-              toastError(errorMessage, { autoHideDuration: 600000 });
-            } else {
-              toastError(err, { autoHideDuration: 600000 });
-            }
-          });
-      }
-    };
 
     const handleSetMainObservation = () => {
       const firstSelectedObs = observationsDataList.find(molecule => moleculesToEditIds.includes(molecule.id));
@@ -493,7 +534,29 @@ export const ObservationsDialog = memo(
       }
     };
 
-    //  TODO refactor to this line
+    /**
+     * Calculate available height for dialog window
+     *
+     * @returns {Number}
+     */
+    const getPanelHeight = () => {
+      let height = 0;
+      // available height of the window - top position of the anchor element, ie pose from hit navigator - "bottom margin"
+      const maxHeight = window.innerHeight - anchorEl.getBoundingClientRect().top - 13;
+      const observationsApproximateHeight = moleculeList.length * 47;
+      const headerFooterApproximateHeight = 87;
+      const totalApproximateHeight = observationsApproximateHeight + headerFooterApproximateHeight;
+
+      if (totalApproximateHeight > maxHeight) {
+        height = maxHeight;
+      } else if (totalApproximateHeight < MIN_PANEL_HEIGHT) {
+        height = MIN_PANEL_HEIGHT;
+      } else {
+        height = totalApproximateHeight;
+      }
+
+      return height;
+    }
 
     return (
       <Popper id={id} open={open} anchorEl={anchorEl} placement="left-start" ref={ref}>
@@ -502,6 +565,7 @@ export const ObservationsDialog = memo(
           secondaryBackground
           title="Observations"
           className={classes.paper}
+          style={{ height: getPanelHeight() }}
           headerActions={[
             <SearchField
               className={classes.search}
@@ -532,76 +596,128 @@ export const ObservationsDialog = memo(
             />
           )}
           {isLoadingInspirationListOfMolecules === false && moleculeList && (
-            <>
-              <Grid container justifyContent="flex-start" direction="row" className={classes.molHeader} wrap="nowrap">
-                <Grid item container justifyContent="flex-start" direction="row">
-                  {/* {Object.keys(moleculeProperty).map(key => (
-                    <Grid item key={key} className={classes.rightBorder}>
-                      {moleculeProperty[key]}
-                    </Grid>
-                  ))} */}
-                  {allSelectedMolecules.length > 0 && (
-                    <Grid item>
+            <Grid container direction="column" justifyContent="flex-start" className={classes.container}>
+              <Grid item>
+                <Grid container justifyContent="flex-start" direction="row" className={classes.molHeader} wrap="nowrap">
+                  <Grid item container justifyContent="flex-start" direction="row" className={classes.topRow}>
+                    {/* {Object.keys(moleculeProperty).map(key => (
+                      <Grid item key={key} className={classes.rightBorder}>
+                        {moleculeProperty[key]}
+                      </Grid>
+                    ))} */}
+                    <Grid item xs>
                       <Grid
                         container
                         direction="row"
                         justifyContent="flex-start"
                         alignItems="center"
-                        wrap="nowrap"
-                        className={classes.contButtonsMargin}
+                        className={classes.bottomRow}
                       >
-                        <Tooltip title="all ligands">
-                          <Grid item>
-                            <Button
-                              variant="outlined"
-                              className={classNames(classes.contColButton, {
-                                [classes.contColButtonSelected]: isLigandOn,
-                                [classes.contColButtonHalfSelected]: isLigandOn === null
-                              })}
-                              onClick={() => onButtonToggle('ligand')}
-                              disabled={groupNglControlButtonsDisabledState.ligand}
-                            >
-                              L
-                            </Button>
+                        <Grid item>
+                          <Grid
+                            container
+                            direction="row"
+                            justifyContent="flex-start"
+                            alignItems="center"
+                            wrap="nowrap"
+                          >
+                            <Tooltip title="all ligands">
+                              <Grid item>
+                                <Button
+                                  variant="outlined"
+                                  className={classNames(classes.contColButton, {
+                                    [classes.contColButtonSelected]: isLigandOnForClassname,
+                                    [classes.contColButtonHalfSelected]: isLigandOnForClassname === null
+                                  })}
+                                  onClick={() => onButtonToggle('ligand')}
+                                  disabled={groupNglControlButtonsDisabledState.ligand || allSelectedMolecules.length < 1}
+                                >
+                                  L
+                                </Button>
+                              </Grid>
+                            </Tooltip>
+                            <Tooltip title="all sidechains">
+                              <Grid item>
+                                <Button
+                                  variant="outlined"
+                                  className={classNames(classes.contColButton, {
+                                    [classes.contColButtonSelected]: isProteinOnForClassname,
+                                    [classes.contColButtonHalfSelected]: isProteinOnForClassname === null
+                                  })}
+                                  onClick={() => onButtonToggle('protein')}
+                                  disabled={groupNglControlButtonsDisabledState.protein || allSelectedMolecules.length < 1}
+                                >
+                                  P
+                                </Button>
+                              </Grid>
+                            </Tooltip>
+                            <Tooltip title="all interactions">
+                              <Grid item>
+                                {/* C stands for contacts now */}
+                                <Button
+                                  variant="outlined"
+                                  className={classNames(classes.contColButton, {
+                                    [classes.contColButtonSelected]: isComplexOnForClassname,
+                                    [classes.contColButtonHalfSelected]: isComplexOnForClassname === null
+                                  })}
+                                  onClick={() => onButtonToggle('complex')}
+                                  disabled={groupNglControlButtonsDisabledState.complex || allSelectedMolecules.length < 1}
+                                >
+                                  C
+                                </Button>
+                              </Grid>
+                            </Tooltip>
                           </Grid>
-                        </Tooltip>
-                        <Tooltip title="all sidechains">
-                          <Grid item>
-                            <Button
-                              variant="outlined"
-                              className={classNames(classes.contColButton, {
-                                [classes.contColButtonSelected]: isProteinOn,
-                                [classes.contColButtonHalfSelected]: isProteinOn === null
-                              })}
-                              onClick={() => onButtonToggle('protein')}
-                              disabled={groupNglControlButtonsDisabledState.protein}
-                            >
-                              P
-                            </Button>
-                          </Grid>
-                        </Tooltip>
-                        <Tooltip title="all interactions">
-                          <Grid item>
-                            {/* C stands for contacts now */}
-                            <Button
-                              variant="outlined"
-                              className={classNames(classes.contColButton, {
-                                [classes.contColButtonSelected]: isComplexOn,
-                                [classes.contColButtonHalfSelected]: isComplexOn === null
-                              })}
-                              onClick={() => onButtonToggle('complex')}
-                              disabled={groupNglControlButtonsDisabledState.complex}
-                            >
-                              C
-                            </Button>
-                          </Grid>
-                        </Tooltip>
+                        </Grid>
+                        <Grid item>
+                          <Button
+                            onClick={handleSelectAllObservations}
+                            color="inherit"
+                            variant="text"
+                            size="small"
+                            data-id="selectAllObservations"
+                            className={classNames(classes.contColButton, classes.contColButtonBottomRow)}
+                          >
+                            {areAllMoleculesSelected ? 'Unselect all' : 'Select all'}
+                          </Button>
+                        </Grid>
+                        <Grid item>
+                          <Button
+                            onClick={handleSelectAllDisplayedObservations}
+                            disabled={!(isLigandOn || isProteinOn || isComplexOn)}
+                            color="inherit"
+                            variant="text"
+                            size="small"
+                            data-id="selectAllDisplayedObservations"
+                            className={classNames(classes.contColButton, classes.contColButtonBottomRow)}
+                          >
+                            Select all displayed
+                          </Button>
+                        </Grid>
+                        {expandView && <Grid item xs container justifyContent='space-around' style={{ maxWidth: '63%', marginLeft: 95 }}>
+                          {['CanonSites', 'ConformerSites', 'CrystalformSites', 'Crystalforms', 'Quatassemblies'].map((tagCategory, index) => (
+                            <Grid item align="center" key={index} className={classes.headerCell}>
+                              {PLURAL_TO_SINGULAR[tagCategory]}
+                            </Grid>
+                          ))}
+                        </Grid>}
                       </Grid>
+                      <Tooltip title={expandView ? 'Show classic view' : 'Show expanded view'}>
+                        <Grid item className={classes.popoutIcon}>
+                          <IconButton
+                            color="inherit"
+                            size="small"
+                            onClick={() => setExpandView(!expandView)}
+                          >
+                            {expandView ? <ArrowLeft /> : <ArrowRight />}
+                          </IconButton>
+                        </Grid>
+                      </Tooltip>
                     </Grid>
-                  )}
+                  </Grid>
                 </Grid>
               </Grid>
-              <div className={classes.content}>
+              <Grid item className={classes.content}>
                 {moleculeList.length > 0 &&
                   moleculeList.map((molecule, index, array) => {
                     let data = molecule;
@@ -637,6 +753,7 @@ export const ObservationsDialog = memo(
                           disableC={selected && groupNglControlButtonsDisabledState.complex}
                           setRef={setTagEditorAnchorEl}
                           hideImage={true}
+                          showExpandedView={expandView}
                         />
                       </GroupNglControlButtonsContext.Provider>
                     );
@@ -654,68 +771,57 @@ export const ObservationsDialog = memo(
                     </Grid>
                   </Grid>
                 )}
-              </div>
+              </Grid>
               {DJANGO_CONTEXT.pk && (
-                <Grid
-                  container
-                  direction="row"
-                  justifyContent="space-evenly"
-                  alignItems="center"
-                  className={classes.bottomRow}
-                >
-                  <Grid item>
-                    <Button
-                      onClick={handleSetAsGroupName}
-                      disabled={allSelectedMolecules.length !== 1}
-                      color="inherit"
-                      variant="text"
-                      size="small"
-                      data-id="setAsGroupName"
-                      className={classNames(classes.contColButton, classes.contColButtonBottomRow)}
-                    >
-                      Set as group name
-                    </Button>
-                  </Grid>
-                  <Grid item>
-                    <Button
-                      onClick={handleSetMainObservation}
-                      disabled={allSelectedMolecules.length !== 1}
-                      color="inherit"
-                      variant="text"
-                      size="small"
-                      data-id="setMainObservation"
-                      className={classNames(classes.contColButton, classes.contColButtonBottomRow)}
-                    >
-                      Set main observation
-                    </Button>
-                  </Grid>
-                  <Grid item className={classNames({ [classes.dropdown]: allSelectedMolecules.length > 0 })}>
-                    <Button
-                      disabled={allSelectedMolecules.length < 1}
-                      color="inherit"
-                      variant="text"
-                      size="small"
-                      data-id="manageGrouping"
-                      endIcon={<KeyboardArrowDown />}
-                      className={classNames(classes.contColButton, classes.contColButtonBottomRow)}
-                    >
-                      Manage grouping
-                    </Button>
-                    <Grid container direction="column" className={classes.dropdownContent}>
-                      <Grid item className={classes.dropdownItem} onClick={() => handleManageGrouping(0)}>
-                        new group from selection
-                      </Grid>
-                      {/* TODO just a placeholder for poses here */}
-                      {compatiblePoses?.map(pose => (
-                        <Grid item className={classes.dropdownItem} onClick={() => handleManageGrouping(pose.id)}>
-                          move selection to {pose.display_name}
+                <Grid item>
+                  <Grid
+                    container
+                    direction="row"
+                    justifyContent="flex-start"
+                    alignItems="center"
+                    className={classNames(classes.bottomRow, classes.molHeader)}
+                  >
+                    <Grid item>
+                      <Button
+                        onClick={handleSetMainObservation}
+                        disabled={allSelectedMolecules.length !== 1}
+                        color="inherit"
+                        variant="text"
+                        size="small"
+                        data-id="setMainObservation"
+                        className={classNames(classes.contColButton, classes.contColButtonBottomRow)}
+                      >
+                        Set main observation
+                      </Button>
+                    </Grid>
+                    <Grid item className={classNames({ [classes.dropdown]: allSelectedMolecules.length > 0 })}>
+                      <Button
+                        disabled={allSelectedMolecules.length < 1}
+                        color="inherit"
+                        variant="text"
+                        size="small"
+                        data-id="manageGrouping"
+                        endIcon={<KeyboardArrowDown />}
+                        className={classNames(classes.contColButton, classes.contColButtonBottomRow)}
+                      >
+                        Manage poses
+                      </Button>
+                      <Grid container direction="column" className={classes.dropdownContent}>
+                        <Grid item className={classes.dropdownItem} onClick={() => handleManageGrouping(0)}>
+                          new pose from selection
                         </Grid>
-                      ))}
+                        {/* TODO just a placeholder for poses here */}
+                        {compatiblePoses?.map(pose => (
+                          <Grid item className={classes.dropdownItem} onClick={() => handleManageGrouping(pose.id)}>
+                            move selection to {pose.display_name}
+                          </Grid>
+                        ))}
+                      </Grid>
                     </Grid>
                   </Grid>
                 </Grid>
               )}
-            </>
+            </Grid>
           )}
           {isLoadingInspirationListOfMolecules === true && (
             <Grid container alignItems="center" justifyContent="center">

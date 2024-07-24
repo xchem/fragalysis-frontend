@@ -46,6 +46,7 @@ import { Button } from '../../../common/Inputs/Button';
 import { LoadingContext } from '../../../loading';
 import { EditTagsModal } from '../modal/editTagsModal';
 import { DJANGO_CONTEXT } from '../../../../utils/djangoContext';
+import v4 from 'uuid/v4';
 
 export const heightOfBody = '172px';
 export const defaultHeaderPadding = 15;
@@ -448,7 +449,7 @@ const TagDetails = memo(() => {
             </Button>
           </Grid>
           {DJANGO_CONTEXT.pk && ([
-            <Grid item>
+            <Grid key={v4()} item>
               <Button
                 onClick={() => handleEditTagsButton()}
                 disabled={false}
@@ -461,7 +462,7 @@ const TagDetails = memo(() => {
                 Edit tags
               </Button>
             </Grid>,
-            <EditTagsModal open={showEditTagsModal} setOpenDialog={setShowEditTagsModal} anchorEl={ref?.current} />
+            <EditTagsModal key={v4()} open={showEditTagsModal} setOpenDialog={setShowEditTagsModal} anchorEl={ref?.current} />
           ])}
         </Grid>
       </div>
@@ -631,7 +632,7 @@ const TagDetails = memo(() => {
       {/* <div style={{ paddingBottom: resizableLayout === true ? '17px' : '0px' }}>
         <NewTagDetailRow moleculesToEditIds={moleculesToEditIds} moleculesToEdit={moleculesToEdit} />
       </div> */}
-    </Panel>
+    </Panel >
   );
 });
 
