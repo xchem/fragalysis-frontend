@@ -42,4 +42,3 @@ export const compoundsColors = {
 };
 
 export const AUX_VECTOR_SELECTOR_DATASET_ID = 'vector_selector';
-

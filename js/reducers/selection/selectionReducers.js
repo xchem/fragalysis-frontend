@@ -54,11 +54,15 @@ export const INITIAL_STATE = {
   poseIdForObservationsDialog: 0,
 
   areLSHCompoundsInitialized: false,
-  toastMessages: []
+  toastMessages: [],
+  isScrollFiredForLHS: false
 };
 
 export function selectionReducers(state = INITIAL_STATE, action = {}) {
   switch (action.type) {
+    case constants.SET_SCROLL_FIRED_FOR_LHS: {
+      return { ...state, isScrollFiredForLHS: action.isFired };
+    }
     case constants.SET_TO_BUY_LIST:
       return Object.assign({}, state, {
         to_buy_list: action.to_buy_list
@@ -164,7 +168,10 @@ export function selectionReducers(state = INITIAL_STATE, action = {}) {
       return { ...state, isObservationDialogOpen: action.isOpen };
 
     case constants.SET_POSE_ID_FOR_OBSERVATIONS_DIALOG:
-      return { ...state, poseIdForObservationsDialog: action.poseId };
+      return {
+        ...state,
+        poseIdForObservationsDialog: action.poseId
+      };
 
     case constants.SET_OBSERVATIONS_FOR_LHS_CMP:
       return { ...state, observationsForLHSCmp: [...action.observations] };

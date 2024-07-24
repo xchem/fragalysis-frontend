@@ -83,7 +83,11 @@ export const INITIAL_STATE = {
 
   //iterator functionality for dataset tabs and also selected compounds tab
   iteratorDatasets: {},
-  iteratorSelectedCompounds: null
+  iteratorSelectedCompounds: null,
+
+  inspirationsDialogOpenedForSelectedCompound: false,
+
+  isSelectedDatasetScrolled: false
 };
 
 /**
@@ -219,6 +223,9 @@ export const datasetsReducers = (state = INITIAL_STATE, action = {}) => {
 
     case constants.SET_IS_LOADING_MOLECULE_LIST:
       return Object.assign({}, state, { isLoadingMoleculeList: action.payload });
+
+    case constants.SET_INSPIRATION_DIALOG_OPENED_FOR_SELECTED_COMPOUND:
+      return { ...state, inspirationsDialogOpenedForSelectedCompound: action.isOpen };
 
     case constants.SET_SELECTED_DATASET_INDEX:
       return Object.assign({}, state, { selectedDatasetIndex: action.payload.value });
@@ -735,6 +742,10 @@ export const datasetsReducers = (state = INITIAL_STATE, action = {}) => {
 
     case constants.RESET_DATASET_SCROLLED_MAP: {
       return { ...state, datasetScrolledMap: {} };
+    }
+
+    case constants.SET_SELECTED_DATASET_SCROLLED: {
+      return { ...state, isSelectedDatasetScrolled: action.payload };
     }
 
     case constants.SET_COMPOUND_SET:

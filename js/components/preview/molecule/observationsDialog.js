@@ -31,7 +31,10 @@ import {
   appendToMolListToEdit,
   removeFromMolListToEdit,
   setDeselectedAllByType,
+  setObservationDialogAction,
+  setObservationsForLHSCmp,
   setOpenObservationsDialog,
+  setPoseIdForObservationsDialog,
   setSelectedAllByType,
   setTagEditorOpenObs
 } from '../../../reducers/selection/actions';
@@ -212,6 +215,7 @@ export const ObservationsDialog = memo(
       state => state.datasetsReducers.isLoadingInspirationListOfMolecules
     );
     const observationsDataList = useSelector(state => state.selectionReducers.observationsForLHSCmp);
+    const poseIdForDialog = useSelector(state => state.selectionReducers.poseIdForObservationsDialog);
 
     const ligandList = useSelector(state => state.selectionReducers.fragmentDisplayList);
     const proteinList = useSelector(state => state.selectionReducers.proteinList);
@@ -382,9 +386,11 @@ export const ObservationsDialog = memo(
       if (areAllMoleculesSelected) {
         allSelectedMolecules.forEach(molecule => dispatch(removeFromMolListToEdit(molecule.id)));
       } else {
-        moleculeList.filter(molecule => !moleculesToEditIds.includes(molecule.id)).forEach(molecule => dispatch(appendToMolListToEdit(molecule.id)));
+        moleculeList
+          .filter(molecule => !moleculesToEditIds.includes(molecule.id))
+          .forEach(molecule => dispatch(appendToMolListToEdit(molecule.id)));
       }
-    }
+    };
 
     /**
      * Select all displayed observations, i.e. have displayed some of their L, P, C
@@ -392,16 +398,30 @@ export const ObservationsDialog = memo(
     const handleSelectAllDisplayedObservations = () => {
       // get all displayed but filter out already selected and duplicates
       // lists of IDs
-      let displayedObservations = ligandList.filter(moleculeID => moleculeList.some(molecule => molecule.id === moleculeID) && !allSelectedMolecules.some(molecule => molecule.id === moleculeID));
+      let displayedObservations = ligandList.filter(
+        moleculeID =>
+          moleculeList.some(molecule => molecule.id === moleculeID) &&
+          !allSelectedMolecules.some(molecule => molecule.id === moleculeID)
+      );
 
-      const displayedProteins = proteinList.filter(moleculeID => moleculeList.some(molecule => molecule.id === moleculeID) && !allSelectedMolecules.some(molecule => molecule.id === moleculeID) && !displayedObservations.some(molecule => molecule === moleculeID));
+      const displayedProteins = proteinList.filter(
+        moleculeID =>
+          moleculeList.some(molecule => molecule.id === moleculeID) &&
+          !allSelectedMolecules.some(molecule => molecule.id === moleculeID) &&
+          !displayedObservations.some(molecule => molecule === moleculeID)
+      );
       displayedObservations = displayedObservations.concat(displayedProteins);
 
-      const displayedComplexes = complexList.filter(moleculeID => moleculeList.some(molecule => molecule.id === moleculeID) && !allSelectedMolecules.some(molecule => molecule.id === moleculeID) && !displayedObservations.some(molecule => molecule === moleculeID));
+      const displayedComplexes = complexList.filter(
+        moleculeID =>
+          moleculeList.some(molecule => molecule.id === moleculeID) &&
+          !allSelectedMolecules.some(molecule => molecule.id === moleculeID) &&
+          !displayedObservations.some(molecule => molecule === moleculeID)
+      );
       displayedObservations = displayedObservations.concat(displayedComplexes);
 
       displayedObservations.forEach(moleculeID => dispatch(appendToMolListToEdit(moleculeID)));
-    }
+    };
 
     const getSelectedMoleculesByType = (type, isAdd) => {
       switch (type) {
@@ -501,6 +521,10 @@ export const ObservationsDialog = memo(
               } else {
                 if (sourcePose.site_observations.length === 1) {
                   dispatch(setOpenObservationsDialog(false));
+                  dispatch(setObservationsForLHSCmp([]));
+                  dispatch(setPoseIdForObservationsDialog(0));
+
+                  // dispatch(setObservationDialogAction(0, [], false));
                 }
                 sourcePose = dispatch(removeObservationsFromPose(sourcePose, moleculesToEditIds));
                 destinationPose = await dispatch(addObservationsToPose(destinationPose, moleculesToEditIds));
@@ -539,24 +563,28 @@ export const ObservationsDialog = memo(
      *
      * @returns {Number}
      */
-    const getPanelHeight = () => {
+    const getPanelHeight = useCallback(() => {
       let height = 0;
-      // available height of the window - top position of the anchor element, ie pose from hit navigator - "bottom margin"
-      const maxHeight = window.innerHeight - anchorEl.getBoundingClientRect().top - 13;
-      const observationsApproximateHeight = moleculeList.length * 47;
-      const headerFooterApproximateHeight = 87;
-      const totalApproximateHeight = observationsApproximateHeight + headerFooterApproximateHeight;
+      if (anchorEl) {
+        // available height of the window - top position of the anchor element, ie pose from hit navigator - "bottom margin"
+        const maxHeight = window.innerHeight - anchorEl?.getBoundingClientRect().top - 13;
+        const observationsApproximateHeight = moleculeList.length * 47;
+        const headerFooterApproximateHeight = 87;
+        const totalApproximateHeight = observationsApproximateHeight + headerFooterApproximateHeight;
 
-      if (totalApproximateHeight > maxHeight) {
-        height = maxHeight;
-      } else if (totalApproximateHeight < MIN_PANEL_HEIGHT) {
-        height = MIN_PANEL_HEIGHT;
+        if (totalApproximateHeight > maxHeight) {
+          height = maxHeight;
+        } else if (totalApproximateHeight < MIN_PANEL_HEIGHT) {
+          height = MIN_PANEL_HEIGHT;
+        } else {
+          height = totalApproximateHeight;
+        }
       } else {
-        height = totalApproximateHeight;
+        height = MIN_PANEL_HEIGHT;
       }
 
       return height;
-    }
+    }, [anchorEl, moleculeList.length]);
 
     return (
       <Popper id={id} open={open} anchorEl={anchorEl} placement="left-start" ref={ref}>
@@ -579,7 +607,13 @@ export const ObservationsDialog = memo(
               <IconButton
                 color="inherit"
                 className={classes.headerButton}
-                onClick={() => dispatch(setOpenObservationsDialog(false))}
+                onClick={() => {
+                  dispatch(setOpenObservationsDialog(false));
+                  dispatch(setObservationsForLHSCmp([]));
+                  dispatch(setPoseIdForObservationsDialog(0));
+
+                  dispatch(setObservationDialogAction(0, [], false, poseIdForDialog, observationsDataList));
+                }}
               >
                 <Close />
               </IconButton>
@@ -614,13 +648,7 @@ export const ObservationsDialog = memo(
                         className={classes.bottomRow}
                       >
                         <Grid item>
-                          <Grid
-                            container
-                            direction="row"
-                            justifyContent="flex-start"
-                            alignItems="center"
-                            wrap="nowrap"
-                          >
+                          <Grid container direction="row" justifyContent="flex-start" alignItems="center" wrap="nowrap">
                             <Tooltip title="all ligands">
                               <Grid item>
                                 <Button
@@ -630,7 +658,9 @@ export const ObservationsDialog = memo(
                                     [classes.contColButtonHalfSelected]: isLigandOnForClassname === null
                                   })}
                                   onClick={() => onButtonToggle('ligand')}
-                                  disabled={groupNglControlButtonsDisabledState.ligand || allSelectedMolecules.length < 1}
+                                  disabled={
+                                    groupNglControlButtonsDisabledState.ligand || allSelectedMolecules.length < 1
+                                  }
                                 >
                                   L
                                 </Button>
@@ -645,7 +675,9 @@ export const ObservationsDialog = memo(
                                     [classes.contColButtonHalfSelected]: isProteinOnForClassname === null
                                   })}
                                   onClick={() => onButtonToggle('protein')}
-                                  disabled={groupNglControlButtonsDisabledState.protein || allSelectedMolecules.length < 1}
+                                  disabled={
+                                    groupNglControlButtonsDisabledState.protein || allSelectedMolecules.length < 1
+                                  }
                                 >
                                   P
                                 </Button>
@@ -661,7 +693,9 @@ export const ObservationsDialog = memo(
                                     [classes.contColButtonHalfSelected]: isComplexOnForClassname === null
                                   })}
                                   onClick={() => onButtonToggle('complex')}
-                                  disabled={groupNglControlButtonsDisabledState.complex || allSelectedMolecules.length < 1}
+                                  disabled={
+                                    groupNglControlButtonsDisabledState.complex || allSelectedMolecules.length < 1
+                                  }
                                 >
                                   C
                                 </Button>
@@ -694,21 +728,27 @@ export const ObservationsDialog = memo(
                             Select all displayed
                           </Button>
                         </Grid>
-                        {expandView && <Grid item xs container justifyContent='space-around' style={{ maxWidth: '63%', marginLeft: 95 }}>
-                          {['CanonSites', 'ConformerSites', 'CrystalformSites', 'Crystalforms', 'Quatassemblies'].map((tagCategory, index) => (
-                            <Grid item align="center" key={index} className={classes.headerCell}>
-                              {PLURAL_TO_SINGULAR[tagCategory]}
-                            </Grid>
-                          ))}
-                        </Grid>}
+                        {expandView && (
+                          <Grid
+                            item
+                            xs
+                            container
+                            justifyContent="space-around"
+                            style={{ maxWidth: '63%', marginLeft: 95 }}
+                          >
+                            {['CanonSites', 'ConformerSites', 'CrystalformSites', 'Crystalforms', 'Quatassemblies'].map(
+                              (tagCategory, index) => (
+                                <Grid item align="center" key={index} className={classes.headerCell}>
+                                  {PLURAL_TO_SINGULAR[tagCategory]}
+                                </Grid>
+                              )
+                            )}
+                          </Grid>
+                        )}
                       </Grid>
                       <Tooltip title={expandView ? 'Show classic view' : 'Show expanded view'}>
                         <Grid item className={classes.popoutIcon}>
-                          <IconButton
-                            color="inherit"
-                            size="small"
-                            onClick={() => setExpandView(!expandView)}
-                          >
+                          <IconButton color="inherit" size="small" onClick={() => setExpandView(!expandView)}>
                             {expandView ? <ArrowLeft /> : <ArrowRight />}
                           </IconButton>
                         </Grid>

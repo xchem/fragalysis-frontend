@@ -63,9 +63,9 @@ export const removeSelectedTag = tagItem => dispatch => {
   dispatch(removeFromSelectedTagList(tagItem));
 };
 
-export const selectAllTags = () => (dispatch, getState) => {
+export const selectAllTags = (tagsToSelect = null) => (dispatch, getState) => {
   const state = getState();
-  let tagList = state.apiReducers.tagList;
+  let tagList = tagsToSelect ? tagsToSelect : state.apiReducers.tagList;
   tagList.forEach(t => dispatch(appendSelectedTagList(t)));
 };
 

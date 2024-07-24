@@ -58,7 +58,10 @@ import {
   setIsOpenLockVisibleCompoundsDialogLocal,
   setCmpForLocalLockVisibleCompoundsDialog,
   setAskLockCompoundsQuestion,
-  setCompoundToSelectedCompoundsByDataset
+  setCompoundToSelectedCompoundsByDataset,
+  setInspirationDialogAction,
+  setInspirationMoleculeDataList,
+  setIsOpenInspirationDialog
 } from '../redux/actions';
 import { centerOnLigandByMoleculeID } from '../../../reducers/ngl/dispatchActions';
 import { ArrowDownward, ArrowUpward, MyLocation } from '@material-ui/icons';
@@ -465,6 +468,36 @@ const DatasetMoleculeView = memo(
       const [pdbData, setPdbData] = useState(null);
       const isPdbAvailable = !!(data && (data.pdb_info || data.site_observation_code));
 
+      const isInspirationsDialogOpened = useSelector(state => state.datasetsReducers.isOpenInspirationDialog);
+      const inspirationLists = useSelector(state => state.datasetsReducers.inspirationLists);
+
+      const dialogOpenedForInspirationWithId =
+        inspirationLists.hasOwnProperty(datasetID) && inspirationLists[datasetID]?.length > 0
+          ? inspirationLists[datasetID][0]
+          : 0;
+
+      const allInspirations = useSelector(state => state.datasetsReducers.allInspirations);
+
+      useEffect(() => {
+        if (isInspirationsDialogOpened && dialogOpenedForInspirationWithId === currentID) {
+          dispatch(setInspirationMoleculeDataList(getInspirationsForMol(allInspirations, datasetID, currentID)));
+          if (setRef) {
+            setRef(ref.current);
+            // dispatch(setIsOpenInspirationDialog(true));
+            // console.log(`After setting the ref for ${currentID}`);
+          }
+        }
+      }, [
+        allInspirations,
+        currentID,
+        datasetID,
+        dialogOpenedForInspirationWithId,
+        dispatch,
+        isInspirationsDialogOpened,
+        inspirationLists,
+        setRef
+      ]);
+
       useEffect(() => {
         if (data.site_observation_code) {
           const molecule = allMolecules.find(mol => mol.code === data.site_observation_code);
@@ -782,6 +815,18 @@ const DatasetMoleculeView = memo(
           }
 
           dispatch(
+            setInspirationDialogAction(
+              nextDatasetID,
+              nextItem.id,
+              getInspirationsForMol(allInspirations, nextDatasetID, nextItem.id),
+              true,
+              0,
+              [],
+              true
+            )
+          );
+
+          dispatch(
             moveSelectedDatasetMoleculeUpDown(
               stage,
               datasetID,
@@ -826,6 +871,17 @@ const DatasetMoleculeView = memo(
             }
 
             dispatch(
+              setInspirationDialogAction(
+                nextDatasetID,
+                nextItem.id,
+                getInspirationsForMol(allInspirations, nextDatasetID, nextItem.id),
+                true,
+                0,
+                []
+              )
+            );
+
+            dispatch(
               moveDatasetMoleculeUpDown(stage, datasetID, data, nextDatasetID, nextItem, dataValue, ARROW_TYPE.DOWN)
             );
           }
@@ -865,6 +921,18 @@ const DatasetMoleculeView = memo(
           if (setRef && ref.current) {
             setRef(refPrevious);
           }
+
+          dispatch(
+            setInspirationDialogAction(
+              previousDatasetID,
+              previousItem.id,
+              getInspirationsForMol(allInspirations, previousDatasetID, previousItem.id),
+              true,
+              0,
+              [],
+              true
+            )
+          );
 
           dispatch(
             moveSelectedDatasetMoleculeUpDown(
@@ -913,6 +981,17 @@ const DatasetMoleculeView = memo(
             }
 
             dispatch(
+              setInspirationDialogAction(
+                previousDatasetID,
+                previousItem.id,
+                getInspirationsForMol(allInspirations, previousDatasetID, previousItem.id),
+                true,
+                0,
+                []
+              )
+            );
+
+            dispatch(
               moveDatasetMoleculeUpDown(
                 stage,
                 datasetID,
@@ -948,12 +1027,10 @@ const DatasetMoleculeView = memo(
             className={classNames(classes.container, dragDropEnabled ? classes.dragDropCursor : undefined)}
             wrap="nowrap"
             ref={node => {
-              if (dragDropEnabled) {
-                ref.current = node;
-              }
               if (outsideRef) {
                 outsideRef(data.id, node);
               }
+              ref.current = node;
             }}
             data-handler-id={dragDropEnabled ? handlerId : undefined}
             style={{ opacity }}
@@ -1210,14 +1287,23 @@ const DatasetMoleculeView = memo(
                           onClick={() => {
                             setLoadingInspiration(true);
                             dispatch((dispatch, getState) => {
-                              const allInspirations = getState().datasetsReducers.allInspirations;
-
                               dispatch(
                                 clickOnInspirations({
                                   datasetID,
                                   currentID,
                                   computed_inspirations: getInspirationsForMol(allInspirations, datasetID, currentID)
                                 })
+                              );
+                              dispatch(
+                                setInspirationDialogAction(
+                                  datasetID,
+                                  currentID,
+                                  getInspirationsForMol(allInspirations, datasetID, currentID),
+                                  true,
+                                  0,
+                                  [],
+                                  inSelectedCompoundsList
+                                )
                               );
                             });
                             if (setRef) {

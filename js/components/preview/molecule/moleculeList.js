@@ -72,6 +72,7 @@ import GroupNglControlButtonsContext from './groupNglControlButtonsContext';
 import { extractTargetFromURLParam } from '../utils';
 import { LoadingContext } from '../../loading';
 import { DJANGO_CONTEXT } from '../../../utils/djangoContext';
+import { useScrollToSelectedPose } from './useScrollToSelectedPose';
 
 const useStyles = makeStyles(theme => ({
   container: {
@@ -1173,14 +1174,14 @@ export const MoleculeList = memo(({ hideProjects }) => {
           <>
             <Grid item className={classes.gridItemList} ref={scrollBarRef}>
               <InfiniteScroll
-                getScrollParent={() =>
-                  dispatch(
-                    autoHideTagEditorDialogsOnScroll({
-                      tagEditorRef,
-                      scrollBarRef
-                    })
-                  )
-                }
+                // getScrollParent={() =>
+                //   dispatch(
+                //     autoHideTagEditorDialogsOnScroll({
+                //       tagEditorRef,
+                //       scrollBarRef
+                //     })
+                //   )
+                // }
                 pageStart={0}
                 loadMore={loadNextMolecules}
                 hasMore={canLoadMore}
