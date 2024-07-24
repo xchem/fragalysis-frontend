@@ -16,7 +16,8 @@ import {
   appendToMolListToEdit,
   removeFromMolListToEdit,
   setNextXMolecules,
-  setTagDetailView
+  setTagDetailView,
+  addToastMessage
 } from '../selection/actions';
 import {
   resetReducersForRestoringActions,
@@ -171,6 +172,7 @@ import { turnSide } from '../../components/preview/viewerControls/redux/actions'
 import { getQualityOffActions } from './utils';
 import { compoundsColors } from '../../components/preview/compounds/redux/constants';
 import { isEqual, uniqWith } from 'lodash';
+import { TOAST_LEVELS } from '../../components/toast/constants';
 
 export const addCurrentActionsListToSnapshot = (snapshot, project, nglViewList) => async (dispatch, getState) => {
   let projectID = project && project.projectID;
@@ -1455,6 +1457,9 @@ export const restoreSitesActions = orderedActionList => (dispatch, getState) => 
       const tag = getTag(action.object_id, state);
       if (tag) {
         dispatch(addSelectedTag(tag));
+        if (tag.hidden) {
+          dispatch(addToastMessage({ level: TOAST_LEVELS.WARNING, text: `Tag ${tag.tag} is selected in the snapshot but it's hidden.` }));
+        }
       }
     });
   }
@@ -1470,6 +1475,9 @@ export const restoreTagActions = orderedActionList => (dispatch, getState) => {
       const tag = getTag(action.object_id, state);
       if (tag) {
         dispatch(addSelectedTag(tag));
+        if (tag.hidden) {
+          dispatch(addToastMessage({ level: TOAST_LEVELS.WARNING, text: `Tag ${tag.tag} is selected in the snapshot but it's hidden.` }));
+        }
       }
     });
   }
