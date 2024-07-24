@@ -701,7 +701,7 @@ export const getFirstTagAlphabetically = () => (dispatch, getState) => {
   const state = getState();
   const tagsList = state.apiReducers.tagList;
   const newTagList = tagsList.filter(t => {
-    if (t.additional_info?.downloadName) {
+    if (t.additional_info?.downloadName || t.hidden) {
       return false;
     } else {
       return true;

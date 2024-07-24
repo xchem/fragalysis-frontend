@@ -53,7 +53,8 @@ export const INITIAL_STATE = {
   observationsForLHSCmp: [],
   poseIdForObservationsDialog: 0,
 
-  areLSHCompoundsInitialized: false
+  areLSHCompoundsInitialized: false,
+  toastMessages: []
 };
 
 export function selectionReducers(state = INITIAL_STATE, action = {}) {
@@ -480,6 +481,12 @@ export function selectionReducers(state = INITIAL_STATE, action = {}) {
 
     case constants.SET_RHS_WIDTH:
       return Object.assign({}, state, { rhsWidth: action.payload });
+
+    case constants.ADD_TOAST_MESSAGE:
+      return { ...state, toastMessages: [...state.toastMessages, { ...action.toastMessage }] };
+
+    case constants.SET_TOAST_MESSAGES:
+      return { ...state, toastMessages: [...action.toastMessages] };
 
     // Cases like: @@redux/INIT
     default:

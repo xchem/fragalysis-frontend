@@ -560,3 +560,17 @@ export const setActualRhsWidth = rhsWidth => {
     payload: rhsWidth
   };
 };
+
+export const setToastMessages = toastMessages => {
+  return {
+    type: constants.SET_TOAST_MESSAGES,
+    toastMessages: toastMessages
+  };
+};
+
+export const addToastMessage = toastMessage => {
+  return {
+    type: constants.ADD_TOAST_MESSAGE,
+    toastMessage: toastMessage
+  };
+};
