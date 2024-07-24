@@ -4,7 +4,7 @@
 
 import React, { memo, useContext } from 'react';
 import Modal from '../common/Modal';
-import { Grid, IconButton, makeStyles, Typography } from '@material-ui/core';
+import { Button, Grid, IconButton, makeStyles, Typography } from '@material-ui/core';
 import { CONTRIBUTORS, FUNDING, get_logo } from './constants';
 import { Tooltip } from '@mui/material';
 import { URLS } from '../routes/constants';
@@ -67,9 +67,9 @@ export const FundersModal = memo(({ openModal, onModalClose }) => {
   return (
     <Modal otherClasses={classes.customModal} open={openModal} onClose={() => onModalClose()}>
       <Tooltip title={'Click to copy link to this window'} >
-        <IconButton color="inherit" onClick={copyFundersLink} className={classes.copyButton}>
-          <ContentCopyRounded />
-        </IconButton>
+        <Button color="inherit" endIcon={<ContentCopyRounded />} onClick={copyFundersLink} className={classes.copyButton}>
+          Copy URL
+        </Button>
       </Tooltip>
       <Typography variant="h5">Funding and support:</Typography>
       <Grid container direction="row" justifyContent="center" alignItems="center" columns={5}>
