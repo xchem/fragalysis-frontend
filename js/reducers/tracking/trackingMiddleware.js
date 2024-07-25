@@ -10,13 +10,15 @@ const trackingMiddleware = ({ dispatch, getState }) => next => action => {
     const state = getState();
     if (action && action.type && !action.type.includes(constants.APPEND_ACTIONS_LIST)) {
       let trackAction = dispatch(findTrackAction(action, state));
-      if (trackAction && trackAction != null) {
+      if (trackAction && trackAction != null && Object.keys(trackAction).length > 0) {
         const isSnapshotDirty = state.trackingReducers.isSnapshotDirty;
         const snapshotLoadingInProgress = state.apiReducers.snapshotLoadingInProgress;
         if (!isSnapshotDirty && !snapshotLoadingInProgress) {
           dispatch(setIsSnapshotDirty(true));
         }
         dispatch(appendAndSendTrackingActions(trackAction));
+      } else if (trackAction && trackAction != null && Object.keys(trackAction).length === 0) {
+        console.error(`Track action is empty for action: ${JSON.stringify(action)}`);
       }
     }
 

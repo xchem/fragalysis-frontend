@@ -32,7 +32,9 @@ import {
   setSelectAllMolecules,
   setUnselectAllMolecules,
   setTagEditorOpen,
-  setMoleculeForTagEdit
+  setMoleculeForTagEdit,
+  setSelectVisiblePoses,
+  setUnselectVisiblePoses
 } from '../../../../reducers/selection/actions';
 import { base_url } from '../../../routes/constants';
 import {
@@ -1255,6 +1257,20 @@ export const selectAllHits = (allFilteredLhsCompounds, setNextXMolecules, unsele
   } else {
     dispatch(setMolListToEdit([]));
     dispatch(setUnselectAllMolecules(allFilteredLhsCompounds));
+  }
+};
+
+export const selectAllVisibleObservations = (visibleObservations, setNextXMolecules, unselect) => (dispatch, getState) => {
+  if (setNextXMolecules) {
+    dispatch(setNextXMolecules(visibleObservations?.length || 0));
+  }
+  const listOfIds = visibleObservations.map(o => o.id);
+  if (!unselect) {
+    dispatch(setMolListToEdit(listOfIds));
+    dispatch(setSelectVisiblePoses(visibleObservations));
+  } else {
+    dispatch(setMolListToEdit([]));
+    dispatch(setUnselectVisiblePoses(visibleObservations));
   }
 };
 

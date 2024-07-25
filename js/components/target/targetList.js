@@ -321,12 +321,12 @@ export const TargetList = memo(() => {
         <TableCell
           component="th"
           scope="row"
-          style={{ minWidth: '150px', padding: '0px 10px 0px 0px', margin: '0px' }}
+          style={{ minWidth: '150px', padding: '0px', margin: '0px' }}
             >
           <div>{target.id}</div>
         </TableCell>
       </Tooltip> */}
-        <TableCell align="left" style={{ padding: '0px 10px 0px 0px', margin: '0px' }}>
+        <TableCell align="left" style={{ padding: '0px', margin: '0px' }}>
           {target.isLegacy ? (
             <a href={target.legacyUrl} target="new" style={{ wordBreak: 'break-all' }}>
               {target.title}
@@ -338,15 +338,15 @@ export const TargetList = memo(() => {
           )}
         </TableCell>
         <TableCell style={{ width: '2px', padding: '0px', margin: '0px' }}></TableCell>
-        <TableCell align="left" style={{ padding: '0px 10px 0px 0px', margin: '0px' }}>
+        <TableCell align="left" style={{ padding: '0px', margin: '0px' }}>
           <div>{target.project.target_access_string} </div>
         </TableCell>
         <TableCell style={{ width: '2px', padding: '0px', margin: '0px' }}></TableCell>
-        <TableCell align="left" style={{ padding: '0px 10px 0px 0px', margin: '0px' }}>
+        <TableCell align="left" style={{ padding: '0px', margin: '0px' }}>
           <div>{moment(target.project.init_date).format('YYYY-MM-DD')} </div>
         </TableCell>
         <TableCell style={{ width: '2px', padding: '0px', margin: '0px' }}></TableCell>
-        <TableCell align="left" style={{ padding: '0px 10px 0px 0px', margin: '0px' }}>
+        <TableCell align="left" style={{ padding: '0px', margin: '0px' }}>
           {sgcUploaded.includes(target.title) && (
             <a href={sgcUrl} target="new">
               SGC summary

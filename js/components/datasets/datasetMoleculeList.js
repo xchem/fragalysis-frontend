@@ -46,7 +46,8 @@ import {
   getAllVisibleButNotLockedCompounds,
   getObservationForLHSReference,
   getCurrentDatasetIterator,
-  resetDatasetIterator
+  resetDatasetIterator,
+  getInspirationsForMol
 } from './redux/dispatchActions';
 import {
   setAskLockCompoundsQuestion,
@@ -61,7 +62,8 @@ import {
   appendColorToAllCompoundsOfDataset,
   removeCompoundColorOfDataset,
   removeColorFromAllCompoundsOfDataset,
-  setDatasetIterator
+  setDatasetIterator,
+  setInspirationDialogAction
 } from './redux/actions';
 import { DatasetFilter } from './datasetFilter';
 import { FilterList, Link, DeleteForever, ArrowUpward, ArrowDownward, Edit } from '@material-ui/icons';
@@ -468,6 +470,8 @@ const DatasetMoleculeList = ({ title, datasetID, url }) => {
   const greenInput = useSelector(state => state.previewReducers.compounds[compoundsColors.green.key]);
   const purpleInput = useSelector(state => state.previewReducers.compounds[compoundsColors.purple.key]);
   const apricotInput = useSelector(state => state.previewReducers.compounds[compoundsColors.apricot.key]);
+
+  const allInspirations = useSelector(state => state.datasetsReducers.allInspirations);
 
   const inputs = {
     [compoundsColors.blue.key]: blueInput,
@@ -955,6 +959,18 @@ const DatasetMoleculeList = ({ title, datasetID, url }) => {
         if (node) {
           setSelectedMoleculeRef(node);
         }
+
+        dispatch(
+          setInspirationDialogAction(
+            datasetID,
+            nextItem.id,
+            getInspirationsForMol(allInspirations, datasetID, nextItem.id),
+            true,
+            0,
+            []
+          )
+        );
+
         dispatch(
           moveDatasetMoleculeUpDown(stage, datasetID, firstItem, datasetID, nextItem, dataValue, ARROW_TYPE.DOWN)
         );
@@ -1005,6 +1021,18 @@ const DatasetMoleculeList = ({ title, datasetID, url }) => {
         if (node) {
           setSelectedMoleculeRef(node);
         }
+
+        dispatch(
+          setInspirationDialogAction(
+            datasetID,
+            prevItem.id,
+            getInspirationsForMol(allInspirations, datasetID, prevItem.id),
+            true,
+            0,
+            []
+          )
+        );
+
         dispatch(moveDatasetMoleculeUpDown(stage, datasetID, firstItem, datasetID, prevItem, dataValue, ARROW_TYPE.UP));
       }
     }
@@ -1406,15 +1434,15 @@ const DatasetMoleculeList = ({ title, datasetID, url }) => {
               ref={scrollBarRef}
             >
               <InfiniteScroll
-                getScrollParent={() =>
-                  dispatch(
-                    autoHideDatasetDialogsOnScroll({
-                      inspirationDialogRef,
-                      crossReferenceDialogRef,
-                      scrollBarRef
-                    })
-                  )
-                }
+                // getScrollParent={() =>
+                //   dispatch(
+                //     autoHideDatasetDialogsOnScroll({
+                //       inspirationDialogRef,
+                //       crossReferenceDialogRef,
+                //       scrollBarRef
+                //     })
+                //   )
+                // }
                 pageStart={0}
                 loadMore={loadNextMolecules}
                 hasMore={canLoadMore}

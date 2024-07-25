@@ -199,6 +199,33 @@ export const setInspirationList = function(datasetID, inspirationList) {
     }
   };
 };
+
+export const setInspirationDialogAction = (
+  datasetID,
+  inspirationList,
+  inpsirations,
+  open,
+  prevInspirationList,
+  prevInspirations,
+  isSelectedList = false
+) => {
+  return {
+    type: constants.SET_INSPIRATION_DIALOG_ACTION,
+    datasetID: datasetID,
+    inspirationList: inspirationList,
+    inpsirations: inpsirations,
+    open: open,
+    prevInspirationList: prevInspirationList,
+    prevInspirations: prevInspirations,
+    isSelectedList: isSelectedList
+  };
+};
+
+export const setInspirationDialogOpenedForSelectedCompounds = isOpen => ({
+  type: constants.SET_INSPIRATION_DIALOG_OPENED_FOR_SELECTED_COMPOUND,
+  isOpen: isOpen
+});
+
 export const appendInspirationList = function(datasetID, itemID) {
   return {
     type: constants.APPEND_INSPIRATION_LIST,
@@ -311,10 +338,12 @@ export const removeFromInspirationMoleculeDataList = moleculeID => ({
   payload: moleculeID
 });
 
-export const setIsOpenInspirationDialog = isOpen => ({
-  type: constants.SET_IS_OPEN_INSPIRATION_DIALOG,
-  payload: isOpen
-});
+export const setIsOpenInspirationDialog = isOpen => {
+  return {
+    type: constants.SET_IS_OPEN_INSPIRATION_DIALOG,
+    payload: isOpen
+  };
+};
 
 export const setIsOpenCrossReferenceDialog = isOpen => ({
   type: constants.SET_IS_OPEN_CROSS_REFERENCE_DIALOG,
@@ -532,6 +561,11 @@ export const resetDatasetsStateOnSnapshotChange = () => ({
 export const setDatasetScrolled = datasetId => ({
   type: constants.SET_DATASET_SCROLLED,
   payload: datasetId
+});
+
+export const setSelectedDatasetScrolled = scrolled => ({
+  type: constants.SET_SELECTED_DATASET_SCROLLED,
+  payload: scrolled
 });
 
 export const resetDatasetScrolledMap = () => ({

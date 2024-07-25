@@ -64,6 +64,42 @@ export const findTrackAction = (action, state) => (dispatch, getState) => {
           text: `${actionDescription.TAG} ${action.item.tag} ${actionDescription.TURNED_OFF}`
         };
       }
+    } else if (action.type === selectionConstants.SET_OBSERVATION_DIALOG_ACTION) {
+      if (action) {
+        trackAction = {
+          type: actionType.POSE_WINDOW_ACTION,
+          annotation: actionAnnotation.CHECK,
+          timestamp: Date.now(),
+          username: username,
+          object_type: actionObjectType.MOLECULE,
+          object_name: action.poseId,
+          object_id: action.poseId,
+          items: action?.observations?.length > 0 ? [...action.observations] : [],
+          isOpen: action.open,
+          prevPoseId: action.prevPoseId,
+          prevObservations: action.prevObservations,
+          text: action.open ? `Pose window opened` : `Pose window closed`
+        };
+      }
+    } else if (action.type === customDatasetConstants.SET_INSPIRATION_DIALOG_ACTION) {
+      if (action) {
+        trackAction = {
+          type: actionType.INSPIRATION_WINDOW_ACTION,
+          annotation: actionAnnotation.CHECK,
+          timestamp: Date.now(),
+          username: username,
+          object_type: actionObjectType.COMPOUND,
+          object_name: action.inspirationList,
+          object_id: action.inspirationList,
+          items: action?.inpsirations?.length > 0 ? [...action.inpsirations] : [],
+          datasetID: action.datasetID,
+          isOpen: action.open,
+          prevCmpdId: action.prevInspirationList?.length > 0 ? action.prevInspirationList[0] : 0,
+          prevInspirations: action.prevInspirations,
+          isSelectedList: action.isSelectedList,
+          text: action.open ? `Inspirations window opened` : `Inspirations window closed`
+        };
+      }
     } else if (action.type === apiConstants.SET_MOL_GROUP_ON) {
       if (action.mol_group_on) {
         let molGroupSelection = state.selectionReducers.mol_group_selection;
@@ -242,7 +278,7 @@ export const findTrackAction = (action, state) => (dispatch, getState) => {
           timestamp: Date.now(),
           username: username,
           object_type: objectType,
-          items: action.items,
+          items: [...action.items],
           text: `All hits were selected`
         };
       }
@@ -258,6 +294,34 @@ export const findTrackAction = (action, state) => (dispatch, getState) => {
           object_type: objectType,
           items: action.items,
           text: `All hits were unselected`
+        };
+      }
+    } else if (action.type === selectionConstants.SET_SELECT_VISIBLE_POSES) {
+      if (action && action.items) {
+        let objectType = actionObjectType.MOLECULE;
+
+        trackAction = {
+          type: actionType.ALL_VISIBLE_HITS_SELECTED,
+          annotation: actionAnnotation.CHECK,
+          timestamp: Date.now(),
+          username: username,
+          object_type: objectType,
+          items: [...action.items],
+          text: `All visible hits were selected`
+        };
+      }
+    } else if (action.type === selectionConstants.SET_UNSELECT_VISIBLE_POSES) {
+      if (action && action.items) {
+        let objectType = actionObjectType.MOLECULE;
+
+        trackAction = {
+          type: actionType.ALL_VISIBLE_HITS_UNSELECTED,
+          annotation: actionAnnotation.CHECK,
+          timestamp: Date.now(),
+          username: username,
+          object_type: objectType,
+          items: [...action.items],
+          text: `All visible hits were unselected`
         };
       }
     } else if (action.type === selectionConstants.APPEND_FRAGMENT_DISPLAY_LIST) {
@@ -736,6 +800,38 @@ export const findTrackAction = (action, state) => (dispatch, getState) => {
           object_name: objectName,
           object_id: action.payload,
           text: `${actionDescription.VECTOR} ${objectName} ${actionDescription.SELECTED}`
+        };
+      }
+    } else if (action.type === customDatasetConstants.APPEND_COLOR_TO_SELECTED_COLOR_FILTERS) {
+      if (action.payload) {
+        let objectType = actionObjectType.COMPOUND;
+
+        trackAction = {
+          type: actionType.COLOR_FILTER_TURNED_ON,
+          annotation: actionAnnotation.CHECK,
+          timestamp: Date.now(),
+          username: username,
+          object_type: objectType,
+          object_name: 'color_filter',
+          object_id: 'color_filter',
+          value: action.payload.colorClass,
+          text: `${actionDescription.CLASS} filter turned on for color: ${action.payload.colorClass} `
+        };
+      }
+    } else if (action.type === customDatasetConstants.REMOVE_COLOR_FROM_SELECTED_COLOR_FILTERS) {
+      if (action.payload) {
+        let objectType = actionObjectType.COMPOUND;
+
+        trackAction = {
+          type: actionType.COLOR_FILTER_TURNED_OFF,
+          annotation: actionAnnotation.CLEAR,
+          timestamp: Date.now(),
+          username: username,
+          object_type: objectType,
+          object_name: 'color_filter',
+          object_id: 'color_filter',
+          value: action.payload.colorClass,
+          text: `${actionDescription.CLASS} filter turned off for color: ${action.payload.colorClass} `
         };
       }
     } else if (action.type === previewCompoundConstants.SET_CURRENT_COMPOUND_CLASS) {
