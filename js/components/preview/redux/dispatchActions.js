@@ -52,7 +52,10 @@ export const shouldLoadProtein = ({
 }) => (dispatch, getState) => {
   const state = getState();
   const targetIdList = state.apiReducers.target_id_list;
-  const targetOnName = state.apiReducers.target_on_name;
+  const targetOnId = state.apiReducers.target_on;
+
+  const targetOn = targetIdList.find(target => target.id === targetOnId);
+
   const isRestoring = state.trackingReducers.isActionRestoring;
   if (
     targetIdList &&
@@ -90,8 +93,12 @@ export const shouldLoadProtein = ({
       dispatch(restoreAfterTargetActions(nglViewList, routeProjectID, currentSnapshotID));
     }
 
-    if (targetOnName !== undefined) {
-      document.title = targetOnName + ': Fragalysis';
+    if (targetOn !== undefined) {
+      document.title = targetOn?.display_name
+        ? targetOn.display_name
+        : targetOn?.title
+        ? targetOn.title
+        : 'Unknown' + ': Fragalysis';
     }
   }
 };

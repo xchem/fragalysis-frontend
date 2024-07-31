@@ -53,6 +53,11 @@ export const setSearchTarget = searchTarget => {
   };
 };
 
+export const setEditTargetDialogOpen = isOpen => ({
+  type: constants.SET_EDIT_TARGET_DIALOG_OPEN,
+  isOpen: isOpen
+});
+
 export const setSearchNumberOfChains = searchNumberOfChains => {
   return {
     type: constants.SEARCH_NUMBER_OF_CHAINS,
@@ -157,4 +162,3 @@ export const setSearchInitDateTo = searchInitDateTo => {
     payload: searchInitDateTo
   };
 };
-

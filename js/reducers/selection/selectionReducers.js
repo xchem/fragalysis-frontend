@@ -55,7 +55,8 @@ export const INITIAL_STATE = {
 
   areLSHCompoundsInitialized: false,
   toastMessages: [],
-  isScrollFiredForLHS: false
+  isScrollFiredForLHS: false,
+  targetToEdit: null
 };
 
 export function selectionReducers(state = INITIAL_STATE, action = {}) {
@@ -67,6 +68,9 @@ export function selectionReducers(state = INITIAL_STATE, action = {}) {
       return Object.assign({}, state, {
         to_buy_list: action.to_buy_list
       });
+
+    case constants.SET_TARGET_TO_EDIT:
+      return { ...state, targetToEdit: { ...action.target } };
 
     case constants.APPEND_TO_BUY_LIST:
       const current_to_buy_list = state.to_buy_list.slice();

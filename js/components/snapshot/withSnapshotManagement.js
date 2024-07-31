@@ -27,7 +27,9 @@ export const withSnapshotManagement = WrappedComponent => {
     const currentSnapshotID = useSelector(state => state.projectReducers.currentSnapshot.id);
 
     const targetIdList = useSelector(state => state.apiReducers.target_id_list);
-    const targetName = useSelector(state => state.apiReducers.target_on_name);
+    const targetId = useSelector(state => state.apiReducers.target_on);
+    const targetObj = targetIdList.find(t => t.id === targetId);
+    const targetName = targetObj?.display_name;
     const currentSessionProject = useSelector(state => state.projectReducers.currentProject);
     const currentSnapshot = useSelector(state => state.projectReducers.currentSnapshot);
     const directDisplay = useSelector(state => state.apiReducers.direct_access);

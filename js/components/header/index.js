@@ -67,6 +67,7 @@ import { getVersions } from '../../utils/version';
 import { AddProjectDetail } from '../projects/addProjectDetail';
 import { ServicesStatusWrapper } from '../services';
 import { COMPANIES, get_logo } from '../funders/constants';
+import { setEditTargetDialogOpen } from '../target/redux/actions';
 
 const useStyles = makeStyles(theme => ({
   padding: {
@@ -271,8 +272,8 @@ export default memo(
                   targetName !== undefined ? (
                     <>
                       {currentProject.authorID === null ||
-                        currentProject.projectID === null ||
-                        currentProject.authorID === userId ? (
+                      currentProject.projectID === null ||
+                      currentProject.authorID === userId ? (
                         <Button
                           onClick={() => {
                             isProjectModalLoading === false
@@ -551,6 +552,7 @@ export default memo(
                 </ListItemIcon>
                 <ListItemText primary="Home" />
               </ListItem>
+
               <Divider />
 
               <ListItem button onClick={() => history.push(URLS.projects)}>
