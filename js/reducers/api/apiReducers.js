@@ -102,6 +102,12 @@ export default function apiReducers(state = INITIAL_STATE, action = {}) {
     case constants.SET_OPEN_DISCOURSE_ERROR_MODAL:
       return Object.assign({}, state, { open_discourse_error_modal: action.payload });
 
+    case constants.REPLACE_TARGET: {
+      const newTargetIdList = state.target_id_list.filter(t => t.id !== action.target.id);
+
+      return { ...state, target_id_list: [...newTargetIdList, { ...action.target }] };
+    }
+
     case constants.SET_TARGET_ID_LIST:
       return Object.assign({}, state, {
         target_id_list: action.target_id_list
@@ -110,9 +116,9 @@ export default function apiReducers(state = INITIAL_STATE, action = {}) {
     case constants.SET_LEGACY_TARGET_ID_LIST:
       return { ...state, legacy_target_id_list: action.legacy_target_id_list };
 
-    case constants.SET_TARGET_ON:
-      var target_on_name = undefined;
-      for (var ind in state.target_id_list) {
+    case constants.SET_TARGET_ON: {
+      let target_on_name = undefined;
+      for (let ind in state.target_id_list) {
         if (state.target_id_list[ind].id === action.target_on) {
           target_on_name = state.target_id_list[ind].title;
         }
@@ -121,6 +127,7 @@ export default function apiReducers(state = INITIAL_STATE, action = {}) {
         target_on_name: target_on_name,
         target_on: action.target_on
       });
+    }
 
     case constants.SET_MOL_GROUP_LIST:
       return Object.assign({}, state, {

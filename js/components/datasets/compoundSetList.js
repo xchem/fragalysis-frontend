@@ -73,7 +73,6 @@ export const CompoundSetList = () => {
   const greenInput = useSelector(state => state.previewReducers.compounds[compoundsColors.green.key]);
   const purpleInput = useSelector(state => state.previewReducers.compounds[compoundsColors.purple.key]);
   const apricotInput = useSelector(state => state.previewReducers.compounds[compoundsColors.apricot.key]);
-  const targetName = useSelector(state => state.apiReducers.target_on_name);
 
   const inputs = {
     [compoundsColors.blue.key]: blueInput,

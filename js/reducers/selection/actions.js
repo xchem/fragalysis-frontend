@@ -610,3 +610,10 @@ export const setScrollFiredForLHS = isFired => {
     isFired: isFired
   };
 };
+
+export const setTargetToEdit = target => {
+  return {
+    type: constants.SET_TARGET_TO_EDIT,
+    target: target
+  };
+};

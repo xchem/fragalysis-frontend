@@ -10,7 +10,8 @@ export const INITIAL_STATE = {
   projects: [],
   currentProject: null,
   openPickProjectModal: false,
-  projectsLoaded: false
+  projectsLoaded: false,
+  isEditTargetDialogOpen: false
 };
 
 export const targetReducers = (state = INITIAL_STATE, action = {}) => {
@@ -24,6 +25,9 @@ export const targetReducers = (state = INITIAL_STATE, action = {}) => {
       return Object.assign({}, state, {
         isTargetLoading: action.payload
       });
+
+    case constants.SET_EDIT_TARGET_DIALOG_OPEN:
+      return { ...state, isEditTargetDialogOpen: action.isOpen };
 
     case constants.SET_TARGET_DISCOURSE_LINKS:
       return { ...state, targetDiscourseLinks: { ...action.payload } };

@@ -21,6 +21,13 @@ export const setLegacyTargetIdList = input_json => {
   };
 };
 
+export const replaceTarget = target => {
+  return {
+    type: constants.REPLACE_TARGET,
+    target: target
+  };
+};
+
 export const setDuckYankData = function(input_json) {
   return {
     type: constants.SET_DUCK_YANK_DATA,

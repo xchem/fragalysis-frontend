@@ -195,8 +195,6 @@ const JobConfigurationDialog = ({ snapshots }) => {
   const currentSnapshotSelectedCompoundsIDs = useSelector(state => state.selectionReducers.moleculesToEdit);
   const currentSnapshotVisibleCompoundsIDs = useSelector(state => state.selectionReducers.fragmentDisplayList);
 
-  const target_on_name = useSelector(state => state.apiReducers.target_on_name);
-
   const getMoleculeTitle = title => {
     return title.replace(new RegExp(':.*$', 'i'), '');
   };

@@ -55,7 +55,7 @@ const useStyles = makeStyles(theme => ({
 }));
 let currantTargetId = 1;
 
-export const ProjectModal = memo(({ }) => {
+export const ProjectModal = memo(({}) => {
   const classes = useStyles();
   const [state, setState] = useState();
   const [selectedTarget, setSelectedTarget] = useState(false);
@@ -77,7 +77,9 @@ export const ProjectModal = memo(({ }) => {
   );
   const targetList = useSelector(state => state.apiReducers.target_id_list);
   const currantProject = useSelector(state => state.targetReducers.currantProject);
-  const currantTarget = useSelector(state => state.apiReducers.target_on_name);
+  const targetId = useSelector(state => state.apiReducers.target_on);
+
+  const currentTarget = targetList.find(target => target.id === targetId);
 
   const actualDate = moment().format('-YYYY-MM-DD');
 
@@ -123,33 +125,32 @@ export const ProjectModal = memo(({ }) => {
   };
 
   let selectedValue = '';
-  if (currantTarget !== undefined) {
-    selectedValue = currantTarget;
+  if (currentTarget?.display_name !== undefined) {
+    selectedValue = currentTarget?.display_name;
   }
   targetList.map(target => {
     if (selectedValue === target.title && selectedTarget === false) {
-      currantTargetId = target.id
+      currantTargetId = target.id;
     }
-  })
+  });
 
-  const handleChangeTarget = (event) => {
+  const handleChangeTarget = event => {
     setSelectedTarget(true);
     selectedValue = event.target.value;
     targetList.map(target => {
       if (selectedValue === target.title) {
-        currantTargetId = target.id
+        currantTargetId = target.id;
       }
-    })
-  }
-
+    });
+  };
 
   return (
     <ModalNewProject open={isProjectModalOpen} onClose={handleCloseModal}>
       <Formik
         initialValues={{
           type: ProjectCreationType.NEW,
-          title: currantTarget + actualDate,
-          description: 'Project created from ' + currantTarget,
+          title: currentTarget?.display_name + actualDate,
+          description: 'Project created from ' + currentTarget?.display_name,
           targetId: currantTargetId,
           parentSnapshotId: '',
           tags: ''
@@ -307,10 +308,13 @@ export const ProjectModal = memo(({ }) => {
                         <InputLabel htmlFor="selected-target" required disabled={isProjectModalLoading}>
                           Target
                         </InputLabel>
-                        <NativeSelect defaultValue={currantTarget} onChange={() => handleChangeTarget(event)}>
+                        <NativeSelect
+                          defaultValue={currentTarget?.display_name}
+                          onChange={() => handleChangeTarget(event)}
+                        >
                           {targetList.map(data => (
-                            <option key={data.id} defaultValue={currantTarget}>
-                              {data.title}
+                            <option key={data.id} defaultValue={currentTarget?.display_name}>
+                              {data.display_name}
                             </option>
                           ))}
                         </NativeSelect>
