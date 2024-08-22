@@ -1,4 +1,4 @@
-import React, { forwardRef, memo, useCallback, useContext, useMemo, useRef, useState } from 'react';
+import React, { forwardRef, memo, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
 import { CircularProgress, Grid, Popper, IconButton, Typography, Tooltip } from '@material-ui/core';
 import { ArrowLeft, ArrowRight, Close, KeyboardArrowDown } from '@material-ui/icons';
 import { makeStyles } from '@material-ui/styles';
@@ -190,7 +190,7 @@ const useStyles = makeStyles(theme => ({
     }
   },
   headerCell: {
-    padding: '0px 12px',
+    padding: '0px 8px',
     borderColor: 'black',
     fontSize: 12
   }
@@ -247,8 +247,41 @@ export const ObservationsDialog = memo(
 
     const tagEditorRef = useRef();
 
+    const getCalculatedTagColumnWidth = (tagText, font = null) => {
+      const canvas = document.createElement("canvas");
+      const ctx = canvas.getContext("2d");
+      ctx.font = font ?? '12px';
+      const calculatedWidth = ctx.measureText(tagText).width + 16;
+      return calculatedWidth;
+    };
+
     const [tagEditorAnchorEl, setTagEditorAnchorEl] = useState(null);
     const [expandView, setExpandView] = useState(null);
+    const [headerWidths, setHeaderWidths] = useState({
+      TagName: getCalculatedTagColumnWidth('TagName'),
+      CanonSites: getCalculatedTagColumnWidth('CanonSites'),
+      ConformerSites: getCalculatedTagColumnWidth('ConformerSites'),
+      CrystalformSites: getCalculatedTagColumnWidth('CrystalformSites'),
+      Crystalforms: getCalculatedTagColumnWidth('Crystalforms'),
+      Quatassemblies: getCalculatedTagColumnWidth('Quatassemblies'),
+      CentroidRes: getCalculatedTagColumnWidth('CentroidRes')
+    });
+
+    /**
+     * Handler for setting width of expanded view columns for child rows
+     * @param {*} tagText
+     * @param {*} tagCategory
+     */
+    const setHeaderWidthsHandler = (tagText, tagCategory) => {
+      const calculatedWidth = getCalculatedTagColumnWidth(tagText, '12px bold');
+      if (headerWidths[tagCategory] < calculatedWidth) {
+        setHeaderWidths(old => {
+          const newWidths = { ...old };
+          newWidths[tagCategory] = calculatedWidth;
+          return { ...newWidths }
+        });
+      }
+    };
 
     const moleculeList = useMemo(() => {
       if (searchString !== null) {
@@ -734,15 +767,22 @@ export const ObservationsDialog = memo(
                             xs
                             container
                             justifyContent="space-around"
-                            style={{ maxWidth: '63%', marginLeft: 95 }}
+                            style={{ maxWidth: '72%', marginLeft: 95 }}
+                          // style={{ marginLeft: 95 }}
                           >
+                            <Grid item align="center" className={classes.headerCell} style={{ minWidth: headerWidths.TagName }} >
+                              TagName
+                            </Grid>
                             {['CanonSites', 'ConformerSites', 'CrystalformSites', 'Crystalforms', 'Quatassemblies'].map(
                               (tagCategory, index) => (
-                                <Grid item align="center" key={index} className={classes.headerCell}>
+                                <Grid item align="center" key={index} className={classes.headerCell} style={{ minWidth: headerWidths[tagCategory] }}>
                                   {PLURAL_TO_SINGULAR[tagCategory]}
                                 </Grid>
                               )
                             )}
+                            <Grid item align="center" className={classes.headerCell} style={{ minWidth: headerWidths.CentroidRes }}>
+                              CentroidRes
+                            </Grid>
                           </Grid>
                         )}
                       </Grid>
@@ -794,6 +834,8 @@ export const ObservationsDialog = memo(
                           setRef={setTagEditorAnchorEl}
                           hideImage={true}
                           showExpandedView={expandView}
+                          headerWidths={headerWidths}
+                          setHeaderWidthsHandler={setHeaderWidthsHandler}
                         />
                       </GroupNglControlButtonsContext.Provider>
                     );
