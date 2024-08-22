@@ -56,6 +56,8 @@ import Typography from '@mui/material/Typography';
 import { Edit } from '@material-ui/icons';
 import { DJANGO_CONTEXT } from '../../../../utils/djangoContext';
 import { getFontColorByBackgroundColor } from '../../../../utils/colors';
+import { api, METHOD } from '../../../../utils/api';
+import { base_url } from '../../../routes/constants';
 
 const useStyles = makeStyles(theme => ({
   container: {
@@ -346,7 +348,8 @@ const useStyles = makeStyles(theme => ({
   categoryCell: {
     padding: '4px 8px',
     fontWeight: 'bold',
-    textWrap: 'nowrap'
+    textWrap: 'nowrap',
+    fontSize: 12
   }
 }));
 
@@ -382,7 +385,9 @@ const MoleculeView = memo(
     disableP,
     disableC,
     hideImage,
-    showExpandedView
+    showExpandedView,
+    headerWidths,
+    setHeaderWidthsHandler
   }) => {
     // const [countOfVectors, setCountOfVectors] = useState('-');
     // const [cmpds, setCmpds] = useState('-');
@@ -457,6 +462,7 @@ const MoleculeView = memo(
     const [densityModalOpen, setDensityModalOpen] = useState(false);
     const [moleculeTooltipOpen, setMoleculeTooltipOpen] = useState(false);
     const [tagPopoverOpen, setTagPopoverOpen] = useState(null);
+    const [centroidRes, setCentroidRes] = useState('');
 
     const moleculeImgRef = useRef(null);
 
@@ -469,6 +475,33 @@ const MoleculeView = memo(
     useEffect(() => {
       setTagEditModalOpenNew(tagEditorOpenObs);
     }, [tagEditorOpenObs]);
+
+    const XCA_TAGS_CATEGORIES = ['CanonSites', 'ConformerSites', 'CrystalformSites', 'Crystalforms', 'Quatassemblies'];
+
+    useEffect(() => {
+      api({
+        url: `${base_url}/api/canon_sites/`,
+        method: METHOD.GET
+      })
+        .then(resp => {
+          const canonSite = resp.data.results.find(canonSite => canonSite.id === data.canon_site_conf);
+          setCentroidRes(canonSite ? canonSite.centroid_res : '');
+        })
+        .catch(err => {
+          console.log('error fetching centroid_res from canon_sites', err);
+          setCentroidRes('');
+        });
+    }, [data.canon_site_conf]);
+
+    useEffect(() => {
+      if (showExpandedView) {
+        setHeaderWidthsHandler(getTagType('CanonSites')?.tag, 'TagName');
+        setHeaderWidthsHandler(centroidRes, 'CentroidRes');
+        XCA_TAGS_CATEGORIES.forEach(tagCategory => {
+          setHeaderWidthsHandler(getTagLabel(tagCategory), tagCategory);
+        })
+      }
+    }, [showExpandedView, getTagType, getTagLabel, centroidRes, setHeaderWidthsHandler, XCA_TAGS_CATEGORIES]);
 
     const handlePopoverOpen = event => {
       setTagPopoverOpen(event.currentTarget);
@@ -1061,6 +1094,21 @@ const MoleculeView = memo(
       return fontSize;
     };
 
+    const getTagLabel = useCallback(tagCategory => {
+      const tagTypeObject = getTagType(tagCategory);
+      let tagLabel = '';
+      if (tagTypeObject) {
+        if (tagCategory === 'CrystalformSites') {
+          // "chop" more of CrystalformSites name
+          tagLabel = tagTypeObject.upload_name.substring(tagTypeObject.upload_name.indexOf('-') + 1).trim();
+          tagLabel = tagLabel.substring(tagLabel.indexOf('-') + 1).trim();
+        } else {
+          tagLabel = tagTypeObject.upload_name.substring(tagTypeObject.upload_name.indexOf('-') + 1).trim();
+        }
+      }
+      return tagLabel;
+    }, [getTagType]);
+
     return (
       <>
         <Grid
@@ -1359,7 +1407,7 @@ const MoleculeView = memo(
                   // wrap="nowrap"
                   style={{ height: "100%" }}
                 >
-                  {['CanonSites', 'ConformerSites', 'CrystalformSites', 'Crystalforms', 'Quatassemblies'].map(tagCategory => {
+                  {XCA_TAGS_CATEGORIES.map(tagCategory => {
                     const tagTypeObject = getTagType(tagCategory);
                     const tagLabel = tagCategory === 'ConformerSites' ? tagTypeObject.tag_prefix.replace(getTagType('CanonSites')?.tag_prefix, '') : tagTypeObject?.tag_prefix;
                     return <Tooltip
@@ -1414,24 +1462,23 @@ const MoleculeView = memo(
               </div>}
           </Grid>
           {showExpandedView && <Grid item container alignItems='center' wrap="nowrap">
-            {['CanonSites', 'ConformerSites', 'CrystalformSites', 'Crystalforms', 'Quatassemblies'].map((tagCategory, index) => {
-              const tagTypeObject = getTagType(tagCategory);
-              let tagLabel = '';
-              if (tagTypeObject) {
-                if (tagCategory === 'CrystalformSites') {
-                  // "chop" more of CrystalformSites name
-                  tagLabel = tagTypeObject.upload_name.substring(tagTypeObject.upload_name.indexOf('-') + 1);
-                  tagLabel = tagLabel.substring(tagLabel.indexOf('-') + 1);
-                } else {
-                  tagLabel = tagTypeObject.upload_name.substring(tagTypeObject.upload_name.indexOf('-') + 1);
-                }
-              }
+            <Tooltip title={"CanonSite TagName"}>
+              <Grid item align="center" className={classes.categoryCell} style={{ minWidth: headerWidths.TagName }}>
+                {getTagType('CanonSites')?.tag}
+              </Grid>
+            </Tooltip>
+            {XCA_TAGS_CATEGORIES.map((tagCategory, index) => {
               return <Tooltip title={PLURAL_TO_SINGULAR[tagCategory]} key={index}>
-                <Grid item align="center" className={classes.categoryCell} style={{ fontSize: 12 }}>
-                  {tagLabel}
+                <Grid item align="center" className={classes.categoryCell} style={{ minWidth: headerWidths[tagCategory] }}>
+                  {getTagLabel(tagCategory)}
                 </Grid>
               </Tooltip>
             })}
+            <Tooltip title={"CentroidRes"}>
+              <Grid item align="center" className={classes.categoryCell} style={{ minWidth: headerWidths.CentroidRes }}>
+                {centroidRes}
+              </Grid>
+            </Tooltip>
           </Grid>}
         </Grid >
         <SvgTooltip
