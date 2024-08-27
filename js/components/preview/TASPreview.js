@@ -1,4 +1,4 @@
-import React, { memo, useEffect } from 'react';
+import React, { memo, useContext, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useHistory, useRouteMatch } from 'react-router-dom';
 import { URLS } from '../routes/constants';
@@ -6,6 +6,8 @@ import { setCurrentProject, setOpenPickProjectModal } from '../target/redux/acti
 import Preview from './Preview';
 import { getProjectForProjectName, getProjectsForSelectedTarget } from './redux/dispatchActions';
 import { extractProjectFromURLParam } from './utils';
+import { ToastContext } from '../toast';
+import { DJANGO_CONTEXT } from '../../utils/djangoContext';
 
 export const TASPreview = memo(props => {
   let match = useRouteMatch();
@@ -16,6 +18,8 @@ export const TASPreview = memo(props => {
   const currentTarget = useSelector(state => state.apiReducers.target_on);
   const targetList = useSelector(state => state.apiReducers.target_id_list);
   const projectsLoaded = useSelector(state => state.targetReducers.projectsLoaded);
+
+  const { toastWarning } = useContext(ToastContext);
 
   useEffect(() => {
     let project = null;
@@ -48,6 +52,12 @@ export const TASPreview = memo(props => {
       }
     }
   }, [dispatch, currentPorject, match, history, currentTarget, targetList, projectsLoaded]);
+
+  useEffect(() => {
+    if (DJANGO_CONTEXT.target_warning_message && DJANGO_CONTEXT.target_warning_message.length > 0) {
+      toastWarning(DJANGO_CONTEXT.target_warning_message);
+    }
+  }, [toastWarning]);
 
   return <Preview isStateLoaded={false} hideProjects={true} {...props} />;
 });
