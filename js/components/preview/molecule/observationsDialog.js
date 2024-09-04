@@ -171,6 +171,7 @@ const useStyles = makeStyles(theme => ({
   },
   dropdownItem: {
     fontSize: 12,
+    width: '100%',
     // fontWeight: 'bold',
     paddingLeft: theme.spacing(1) / 4,
     paddingRight: theme.spacing(1) / 4,
@@ -617,18 +618,18 @@ export const ObservationsDialog = memo(
     const getPanelHeight = useCallback(() => {
       let height = 0;
       if (anchorEl) {
-      // available height of the window - top position of the anchor element, ie pose from hit navigator - "bottom margin"
+        // available height of the window - top position of the anchor element, ie pose from hit navigator - "bottom margin"
         const maxHeight = window.innerHeight - anchorEl?.getBoundingClientRect().top - 13;
-      const observationsApproximateHeight = moleculeList.length * 47;
-      const headerFooterApproximateHeight = 87;
-      const totalApproximateHeight = observationsApproximateHeight + headerFooterApproximateHeight;
-      if (totalApproximateHeight > maxHeight) {
-        height = maxHeight;
-      } else if (totalApproximateHeight < MIN_PANEL_HEIGHT) {
-        height = MIN_PANEL_HEIGHT;
-      } else {
-        height = totalApproximateHeight;
-      }
+        const observationsApproximateHeight = moleculeList.length * 47;
+        const headerFooterApproximateHeight = 87;
+        const totalApproximateHeight = observationsApproximateHeight + headerFooterApproximateHeight;
+        if (totalApproximateHeight > maxHeight) {
+          height = maxHeight;
+        } else if (totalApproximateHeight < MIN_PANEL_HEIGHT) {
+          height = MIN_PANEL_HEIGHT;
+        } else {
+          height = totalApproximateHeight;
+        }
       } else {
         height = MIN_PANEL_HEIGHT;
       }
@@ -659,7 +660,7 @@ export const ObservationsDialog = memo(
       }
     };
 
-    const tagObservations = async tag => {
+    const tagObservations = async (tag, tagToExclude) => {
       try {
         // setTaggingInProgress(true);
 
@@ -678,12 +679,16 @@ export const ObservationsDialog = memo(
           if (!m.tags_set.some(id => id === tag.id)) {
             let newMol = { ...m };
             newMol.tags_set.push(tag.id);
+            // due to same cycle of tag and untag operations we need to exclude untagged tag because of "old" data
+            newMol.tags_set = newMol.tags_set.filter(id => id !== tagToExclude.id);
+
             const pose = poses.find(p => p.site_observations.includes(m.id));
             updateCmp(pose, newMol);
             dispatch(updateMoleculeInMolLists(newMol));
             dispatch(updateMoleculeInLHSObservations(newMol));
             const moleculeTag = getMoleculeTagForTag(tagList, tag.id);
             let mtObject = molTagObjects.find(mto => mto.tag === tag.tag);
+
             if (mtObject) {
               mtObject.site_observations.push(newMol.id);
             } else {
@@ -694,7 +699,7 @@ export const ObservationsDialog = memo(
                 DJANGO_CONTEXT.pk,
                 tagColor,
                 tag.discourse_url,
-                [...moleculeTag.site_observations, newMol.id],
+                [...moleculeTag.site_observations, newMol.id], // molecules:
                 tag.create_date,
                 tag.additional_info,
                 tag.mol_group,
@@ -741,13 +746,14 @@ export const ObservationsDialog = memo(
         observationsDataList.forEach(m => {
           let newMol = { ...m };
           newMol.tags_set = newMol.tags_set.filter(id => id !== tag.id);
+
           const pose = poses.find(p => p.site_observations.includes(m.id));
           updateCmp(pose, newMol);
           dispatch(updateMoleculeInMolLists(newMol));
           dispatch(updateMoleculeInLHSObservations(newMol));
           const moleculeTag = getMoleculeTagForTag(tagList, tag.id);
-
           let mtObject = molTagObjects.find(mto => mto.tag === tag.tag);
+
           if (mtObject) {
             mtObject.site_observations = mtObject.site_observations.filter(id => id !== m.id);
           } else {
@@ -760,7 +766,7 @@ export const ObservationsDialog = memo(
               DJANGO_CONTEXT.pk,
               tagColor,
               tag.discourse_url,
-              newMolList,
+              newMolList, // molecules:
               tag.create_date,
               tag.additional_info,
               tag.mol_group,
@@ -794,8 +800,6 @@ export const ObservationsDialog = memo(
         // console.log('firstSelectedObs?', { ...firstSelectedObs });
         const pose = poses.find(pose => pose.id === firstSelectedObs.pose);
         const mainObservation = observationsDataList.find(observation => observation.id === pose.main_site_observation);
-        console.log('pose?', { ...pose });
-        console.log('mainObservation?', { ...mainObservation });
         if (mainObservation) {
           // tagList.filter(tag => {
 
@@ -820,18 +824,16 @@ export const ObservationsDialog = memo(
      *
      * @param {*} tag
      */
-    const handleChangeXCAtag = async tag => {
-      console.log('tag', { ...tag });
-      console.log('untagging');
-      // untag first
+    const handleXCAtagChange = async tag => {
       const mainObservationTag = getMainTagByCategory(tag.category);
+      // do not retag same tag
+      if (mainObservationTag && mainObservationTag.id === tag.id) return;
+      // untag first
       if (mainObservationTag) {
-        console.log('main tag', { ...mainObservationTag });
         await untagObservations(mainObservationTag);
       }
       // then tag
-      // await tagObservations(tag);
-      console.log('tagging');
+      await tagObservations(tag, mainObservationTag);
       toastInfo(`Tag for observations was changed from "${mainObservationTag.upload_name}" to "${tag.upload_name}". They could disappear based on your tag selection`, { autoHideDuration: 5000 });
     };
 
@@ -992,8 +994,8 @@ export const ObservationsDialog = memo(
                             {['CanonSites', 'ConformerSites', 'CrystalformSites', 'Crystalforms', 'Quatassemblies'].map(
                               (tagCategory, index) => (
                                 <Grid item align="center" key={index} className={classes.headerCell} style={{ minWidth: headerWidths[tagCategory] }}>
-                              {PLURAL_TO_SINGULAR[tagCategory]}
-                            </Grid>
+                                  {PLURAL_TO_SINGULAR[tagCategory]}
+                                </Grid>
                               )
                             )}
                             <Grid item align="center" className={classes.headerCell} style={{ minWidth: headerWidths.CentroidRes }}>
@@ -1119,35 +1121,36 @@ export const ObservationsDialog = memo(
                         ))}
                       </Grid>
                     </Grid>
-                  {/* <Grid item className={classNames({ [classes.dropdown]: true })}>
-                    <Button
-                      color="inherit"
-                      variant="text"
-                      size="small"
-                      data-id="manageGrouping"
-                      endIcon={<KeyboardArrowDown />}
-                      className={classNames(classes.contColButton, classes.contColButtonBottomRow)}
-                    >
-                      Change XCA tags
-                    </Button>
-                    <Grid container direction="column" className={classes.dropdownContent}>
-                      {XCA_TAG_CATEGORIES.map(category =>
-                        <Grid key={category} item className={classNames(classes.dropdown, classes.dropdownItem)}>
-                          Change {category}
-                          <Grid container direction="row" className={classNames(classes.dropdownContent, classes.dropdownContentSide)}>
-                            {getTagsForCategory(category)?.map(tag => (
-                              <Grid key={tag.id} item className={classes.dropdownItem} onClick={() => handleChangeXCAtag(tag)}>
-                                {tag.upload_name}
-                              </Grid>
-                            ))}
+                    <Grid item className={classNames({ [classes.dropdown]: true })} style={{ marginRight: 9 }}>
+                      <Button
+                        color="inherit"
+                        variant="text"
+                        size="small"
+                        data-id="manageGrouping"
+                        endIcon={<KeyboardArrowDown />}
+                        className={classNames(classes.contColButton, classes.contColButtonBottomRow)}
+                      >
+                        Change XCA tags
+                      </Button>
+                      <Grid container direction="row" className={classes.dropdownContent}>
+                        {XCA_TAG_CATEGORIES.map(category =>
+                          <Grid key={category} item className={classNames(classes.dropdown, classes.dropdownItem)}>
+                            Change {PLURAL_TO_SINGULAR[category]}
+                            <Grid container direction="row" className={classNames(classes.dropdownContent, classes.dropdownContentSide)}>
+                              {getTagsForCategory(category)?.map(tag => (
+                                <Grid key={tag.id} item className={classes.dropdownItem} onClick={() => handleXCAtagChange(tag)}>
+                                  {tag.upload_name}
+                                </Grid>
+                              ))}
+                            </Grid>
                           </Grid>
-                        </Grid>
-              )}
+                        )}
+                      </Grid>
                     </Grid>
-                  </Grid> */}
+                  </Grid>
                 </Grid>
               )}
-            </>
+            </Grid>
           )}
           {isLoadingInspirationListOfMolecules === true && (
             <Grid container alignItems="center" justifyContent="center">
