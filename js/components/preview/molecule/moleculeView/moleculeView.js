@@ -497,11 +497,12 @@ const MoleculeView = memo(
       if (showExpandedView) {
         setHeaderWidthsHandler(getTagType('CanonSites')?.tag, 'TagName');
         setHeaderWidthsHandler(centroidRes, 'CentroidRes');
+        setHeaderWidthsHandler(data.longcode, 'LongCode');
         XCA_TAGS_CATEGORIES.forEach(tagCategory => {
           setHeaderWidthsHandler(getTagLabel(tagCategory), tagCategory);
         })
       }
-    }, [showExpandedView, getTagType, getTagLabel, centroidRes, setHeaderWidthsHandler, XCA_TAGS_CATEGORIES]);
+    }, [showExpandedView, getTagType, getTagLabel, centroidRes, data.longcode, setHeaderWidthsHandler, XCA_TAGS_CATEGORIES]);
 
     const handlePopoverOpen = event => {
       setTagPopoverOpen(event.currentTarget);
@@ -1477,6 +1478,11 @@ const MoleculeView = memo(
             <Tooltip title={"CentroidRes"}>
               <Grid item align="center" className={classes.categoryCell} style={{ minWidth: headerWidths.CentroidRes }}>
                 {centroidRes}
+              </Grid>
+            </Tooltip>
+            <Tooltip title={"LongCode"}>
+              <Grid item align="center" className={classes.categoryCell} style={{ minWidth: headerWidths.LongCode }}>
+                {data.longcode}
               </Grid>
             </Tooltip>
           </Grid>}

@@ -264,7 +264,8 @@ export const ObservationsDialog = memo(
       CrystalformSites: getCalculatedTagColumnWidth('CrystalformSites'),
       Crystalforms: getCalculatedTagColumnWidth('Crystalforms'),
       Quatassemblies: getCalculatedTagColumnWidth('Quatassemblies'),
-      CentroidRes: getCalculatedTagColumnWidth('CentroidRes')
+      CentroidRes: getCalculatedTagColumnWidth('CentroidRes'),
+      LongCode: getCalculatedTagColumnWidth('LongCode')
     });
 
     /**
@@ -767,8 +768,8 @@ export const ObservationsDialog = memo(
                             xs
                             container
                             justifyContent="space-around"
-                            style={{ maxWidth: '72%', marginLeft: 95 }}
-                          // style={{ marginLeft: 95 }}
+                            // adjust maxWidth if headers are a bit misplaced
+                            style={{ maxWidth: '77%', marginLeft: 95 }}
                           >
                             <Grid item align="center" className={classes.headerCell} style={{ minWidth: headerWidths.TagName }} >
                               TagName
@@ -782,6 +783,9 @@ export const ObservationsDialog = memo(
                             )}
                             <Grid item align="center" className={classes.headerCell} style={{ minWidth: headerWidths.CentroidRes }}>
                               CentroidRes
+                            </Grid>
+                            <Grid item align="center" className={classes.headerCell} style={{ minWidth: headerWidths.LongCode }}>
+                              LongCode
                             </Grid>
                           </Grid>
                         )}
