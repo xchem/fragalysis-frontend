@@ -40,7 +40,15 @@ export const createMoleculeTagObject = (
   };
 };
 
-export const compareTagsByCategoryAndNameAsc = (a, b) => {
+/**
+ * Compare tags, first by category and then by name
+ *
+ * @param {TagObject} a
+ * @param {TagObject} b
+ * @param {boolean} asc true for asc, false for desc
+ * @returns
+ */
+export const compareTagsByCategoryAndName = (a, b, asc = true) => {
   // by category first
   if (a.category < b.category) {
     return -1;
@@ -51,33 +59,20 @@ export const compareTagsByCategoryAndNameAsc = (a, b) => {
   // then by name
   const aName = a.tag_prefix ? `${a.tag_prefix} - ${a.tag}` : a.tag;
   const bName = b.tag_prefix ? `${b.tag_prefix} - ${b.tag}` : b.tag;
-  return aName.localeCompare(bName, undefined, { numeric: true, sensitivity: 'base' });
+  return asc ? aName.localeCompare(bName, undefined, { numeric: true, sensitivity: 'base' })
+    : bName.localeCompare(aName, undefined, { numeric: true, sensitivity: 'base' });
 };
 
-export const compareTagsAsc = (a, b) => {
-  const aName = a.tag_prefix ? `${a.tag_prefix} - ${a.tag}` : a.tag;
-  const bName = b.tag_prefix ? `${b.tag_prefix} - ${b.tag}` : b.tag;
+export const compareTagsByCategoryAndNameAsc = (a, b) => {
+  compareTagsByCategoryAndName(a, b, true);
+}
 
-  if (aName < bName) {
-    return -1;
-  }
-  if (aName > bName) {
-    return 1;
-  }
-  return 0;
+export const compareTagsAsc = (a, b) => {
+  return compareTagsByCategoryAndName(a, b, true);
 };
 
 export const compareTagsDesc = (a, b) => {
-  const aName = a.tag_prefix ? `${a.tag_prefix} - ${a.tag}` : a.tag;
-  const bName = b.tag_prefix ? `${b.tag_prefix} - ${b.tag}` : b.tag;
-
-  if (aName > bName) {
-    return -1;
-  }
-  if (aName < bName) {
-    return 1;
-  }
-  return 0;
+  return compareTagsByCategoryAndName(a, b, false);
 };
 
 export const compareTagsByCategoryAsc = (a, b) => {
