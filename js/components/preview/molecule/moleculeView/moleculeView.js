@@ -480,12 +480,33 @@ const MoleculeView = memo(
 
     useEffect(() => {
       api({
-        url: `${base_url}/api/canon_sites/`,
+        url: `${base_url}/api/canon_site_confs/`,
         method: METHOD.GET
       })
         .then(resp => {
-          const canonSite = resp.data.results.find(canonSite => canonSite.id === data.canon_site_conf);
-          setCentroidRes(canonSite ? canonSite.centroid_res : '');
+          const canonSiteConf = resp.data.results.find(canonSiteConf => canonSiteConf.id === data.canon_site_conf);
+          if (canonSiteConf) {
+            api({
+              url: `${base_url}/api/canon_sites/`,
+              method: METHOD.GET
+            })
+              .then(resp => {
+                const canonSite = resp.data.results.find(canonSite => canonSite.id === canonSiteConf.canon_site);
+                if (canonSite) {
+                  setCentroidRes(canonSite.centroid_res);
+                } else {
+                  console.log('there is not any matching canonSite object with ' + canonSiteConf.canon_site + ' id');
+                  setCentroidRes('');
+                }
+              })
+              .catch(err => {
+                console.log('error fetching centroid_res from canon_sites', err);
+                setCentroidRes('');
+              });
+          } else {
+            console.log('there is not any matching canonSiteConf object with ' + data.canon_site_conf + ' id');
+            setCentroidRes('');
+          }
         })
         .catch(err => {
           console.log('error fetching centroid_res from canon_sites', err);
