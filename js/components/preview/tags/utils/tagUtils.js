@@ -22,7 +22,9 @@ export const createMoleculeTagObject = (
   createDate = new Date(),
   additionalInfo = null,
   molGroup = null,
-  hidden = false
+  hidden = false,
+  tag_prefix = null,
+  upload_name = null
 ) => {
   return {
     tag: tagName,
@@ -36,7 +38,9 @@ export const createMoleculeTagObject = (
     help_text: tagName,
     additional_info: additionalInfo,
     mol_group: molGroup,
-    hidden: hidden
+    hidden: hidden,
+    tag_prefix: tag_prefix,
+    upload_name: upload_name
   };
 };
 

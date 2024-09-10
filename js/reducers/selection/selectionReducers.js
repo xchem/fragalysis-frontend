@@ -180,6 +180,16 @@ export function selectionReducers(state = INITIAL_STATE, action = {}) {
     case constants.SET_OBSERVATIONS_FOR_LHS_CMP:
       return { ...state, observationsForLHSCmp: [...action.observations] };
 
+    case constants.UPDATE_MOL_IN_LHS_OBSERVATIONS:
+      let newList = [...state.observationsForLHSCmp];
+      const indexOfMol = newList.findIndex(m => m.id === action.mol.id);
+      if (indexOfMol >= 0) {
+        newList[indexOfMol] = { ...action.mol };
+        return { ...state, observationsForLHSCmp: [...newList] };
+      } else {
+        return state;
+      }
+
     case constants.SET_SURFACE_LIST:
       let newSurfaceList = new Set();
       action.surfaceList.forEach(f => {

@@ -3,14 +3,15 @@ import { Grid, Popper, IconButton, Tooltip, makeStyles, FormControlLabel, Switch
 import { Panel } from '../../../common';
 import { Close } from '@material-ui/icons';
 import { useDispatch, useSelector } from 'react-redux';
-import { updateLHSCompound, updateMoleculeInMolLists, updateMoleculeTag } from '../../../../reducers/api/actions';
+import { updateLHSCompound, updateMoleculeInMolLists, updateMoleculeTag, updateTag } from '../../../../reducers/api/actions';
 import { getMoleculeForId } from '../redux/dispatchActions';
 import {
   setMoleculeForTagEdit,
   setIsTagGlobalEdit,
   setAssignTagView,
   setTagEditorOpen,
-  setIsLHSCmpTagEdit
+  setIsLHSCmpTagEdit,
+  updateMoleculeInLHSObservations
 } from '../../../../reducers/selection/actions';
 import { updateExistingTag } from '../api/tagsApi';
 import { DJANGO_CONTEXT } from '../../../../utils/djangoContext';
@@ -215,6 +216,7 @@ export const TagEditor = memo(
             const pose = poses.find(p => p.site_observations.includes(m.id));
             updateCmp(pose, newMol);
             dispatch(updateMoleculeInMolLists(newMol));
+            dispatch(updateMoleculeInLHSObservations(newMol));
             const moleculeTag = getMoleculeTagForTag(moleculeTags, tag.id);
 
             let mtObject = molTagObjects.find(mto => mto.tag === tag.tag);
@@ -232,7 +234,11 @@ export const TagEditor = memo(
                 tag.discourse_url,
                 newMolList,
                 tag.create_date,
-                tag.additional_info
+                tag.additional_info,
+                tag.mol_group,
+                tag.hidden,
+                tag.tag_prefix,
+                tag.upload_name
               );
               molTagObjects.push(mtObject);
             }
@@ -245,6 +251,7 @@ export const TagEditor = memo(
               const pose = poses.find(p => p.site_observations.includes(m.id));
               updateCmp(pose, newMol);
               dispatch(updateMoleculeInMolLists(newMol));
+              dispatch(updateMoleculeInLHSObservations(newMol));
               const moleculeTag = getMoleculeTagForTag(moleculeTags, tag.id);
               let mtObject = molTagObjects.find(mto => mto.tag === tag.tag);
               if (mtObject) {
@@ -259,7 +266,11 @@ export const TagEditor = memo(
                   tag.discourse_url,
                   [...moleculeTag.site_observations, newMol.id],
                   tag.create_date,
-                  tag.additional_info
+                  tag.additional_info,
+                  tag.mol_group,
+                  tag.hidden,
+                  tag.tag_prefix,
+                  tag.upload_name
                 );
                 molTagObjects.push(mtObject);
               }
@@ -274,6 +285,7 @@ export const TagEditor = memo(
             let augMolTagObject = augumentTagObjectWithId(molTagObject, tag.id);
             await updateExistingTag(molTagObject, tag.id);
             dispatch(updateMoleculeTag(augMolTagObject));
+            dispatch(updateTag(augMolTagObject));
             molsLeft = molsLeft - 1;
             setMolsLeftForTagging(molsLeft);
           }

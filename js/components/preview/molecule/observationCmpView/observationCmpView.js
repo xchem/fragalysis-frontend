@@ -642,7 +642,7 @@ const ObservationCmpView = memo(
       }, [getConformerSitesTagCategory, observations, tagList]);
 
       /**
-       * Get ConformerSites tag for render
+       * Get CanonSites tag for render
        */
       const getCanonSitesTag = useCallback(() => {
         const canonSitesCategory = getCanonSitesTagCategory();
@@ -749,7 +749,7 @@ const ObservationCmpView = memo(
                             }
                           }}
                           style={{ padding: 0, paddingBottom: 3, marginRight: 5, position: 'right' }}
-                          // className={classes.editIcon}
+                        // className={classes.editIcon}
                         >
                           <Tooltip title="Edit tag" className={classes.editButtonIcon}>
                             <Edit />
@@ -814,7 +814,7 @@ const ObservationCmpView = memo(
                           }
                         }}
                         style={{ padding: 0, paddingBottom: 3, paddingRight: 5, cursor: 'pointer' }}
-                        // className={classes.editIcon}
+                      // className={classes.editIcon}
                       >
                         <Tooltip title="Edit tags" className={classes.editButtonIcon}>
                           <Edit />
@@ -893,7 +893,7 @@ const ObservationCmpView = memo(
                 }
               }}
               style={{ padding: 0, paddingBottom: 8, paddingRight: 5, cursor: 'pointer' }}
-              // className={classes.editIcon}
+            // className={classes.editIcon}
             >
               <Tooltip title="Edit tags" className={classes.editButtonIcon}>
                 <Edit />
@@ -1294,7 +1294,7 @@ const ObservationCmpView = memo(
               [classes.siteOpenObservations]: poseIdForObservationsDialog === data.id && isObservationDialogOpen
             })}
             wrap="nowrap"
-            // ref={ref}
+          // ref={ref}
           >
             {/* Site number */}
             <Grid item container justifyContent="space-between" direction="column" className={classes.site}>

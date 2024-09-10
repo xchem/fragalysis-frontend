@@ -564,7 +564,8 @@ const MoleculeView = memo(
      * Get tag for render
      */
     const getTagType = useCallback((type) => {
-      const defaultTagObject = { tag_prefix: '-', color: 'orange' };
+      // TODO change this to null maybe?
+      const defaultTagObject = { tag_prefix: '-', color: 'orange', upload_name: '-' };
       const tagCategory = tagCategories.find(tag => tag.category === type);
       const tagObject = tagCategory ? getAllTags().find(tag => tag.category === tagCategory.id) : defaultTagObject;
       return tagObject ?? defaultTagObject;
