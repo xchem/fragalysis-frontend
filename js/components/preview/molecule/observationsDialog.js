@@ -268,7 +268,8 @@ export const ObservationsDialog = memo(
     const getCalculatedTagColumnWidth = (tagText, font = null) => {
       const canvas = document.createElement("canvas");
       const ctx = canvas.getContext("2d");
-      ctx.font = font ?? '12px';
+      ctx.font = `${(font ?? '12px')} "Roboto", "Helvetica", "Arial", sans-serif`;
+      // 16 as padding buffer
       const calculatedWidth = ctx.measureText(tagText).width + 16;
       return calculatedWidth;
     };
@@ -276,14 +277,13 @@ export const ObservationsDialog = memo(
     const [tagEditorAnchorEl, setTagEditorAnchorEl] = useState(null);
     const [expandView, setExpandView] = useState(null);
     const [headerWidths, setHeaderWidths] = useState({
-      TagName: getCalculatedTagColumnWidth('TagName'),
-      CanonSites: getCalculatedTagColumnWidth('CanonSites'),
-      ConformerSites: getCalculatedTagColumnWidth('ConformerSites'),
-      CrystalformSites: getCalculatedTagColumnWidth('CrystalformSites'),
-      Crystalforms: getCalculatedTagColumnWidth('Crystalforms'),
       Quatassemblies: getCalculatedTagColumnWidth('Quatassemblies'),
+      ConformerSites: getCalculatedTagColumnWidth('ConformerSites'),
+      Crystalforms: getCalculatedTagColumnWidth('Crystalforms'),
+      CrystalformSites: getCalculatedTagColumnWidth('CrystalformSites'),
+      CanonSites: getCalculatedTagColumnWidth('CanonSites'),
       CentroidRes: getCalculatedTagColumnWidth('CentroidRes'),
-      LongCode: getCalculatedTagColumnWidth('LongCode')
+      LongCode: getCalculatedTagColumnWidth('LongCode'),
     });
 
     /**
@@ -619,13 +619,13 @@ export const ObservationsDialog = memo(
       let height = 0;
       if (anchorEl) {
         // available height of the window - top position of the anchor element, ie pose from hit navigator - "bottom margin"
-        const maxHeight = window.innerHeight - anchorEl?.getBoundingClientRect().top - 13;
+        // const maxHeight = window.innerHeight - anchorEl?.getBoundingClientRect().top - 13;
         const observationsApproximateHeight = moleculeList.length * 47;
         const headerFooterApproximateHeight = 87;
         const totalApproximateHeight = observationsApproximateHeight + headerFooterApproximateHeight;
-        if (totalApproximateHeight > maxHeight) {
+        /*if (totalApproximateHeight > maxHeight) {
           height = maxHeight;
-        } else if (totalApproximateHeight < MIN_PANEL_HEIGHT) {
+        } else*/ if (totalApproximateHeight < MIN_PANEL_HEIGHT) {
           height = MIN_PANEL_HEIGHT;
         } else {
           height = totalApproximateHeight;
@@ -986,12 +986,9 @@ export const ObservationsDialog = memo(
                             container
                             justifyContent="space-around"
                             // adjust maxWidth if headers are a bit misplaced
-                            style={{ maxWidth: '77%', marginLeft: 95 }}
+                            style={{ maxWidth: '74%', marginLeft: 95 }}
                           >
-                            <Grid item align="center" className={classes.headerCell} style={{ minWidth: headerWidths.TagName }} >
-                              TagName
-                            </Grid>
-                            {['CanonSites', 'ConformerSites', 'CrystalformSites', 'Crystalforms', 'Quatassemblies'].map(
+                            {['Quatassemblies', 'ConformerSites', 'Crystalforms', 'CrystalformSites', 'CanonSites'].map(
                               (tagCategory, index) => (
                                 <Grid item align="center" key={index} className={classes.headerCell} style={{ minWidth: headerWidths[tagCategory] }}>
                                   {PLURAL_TO_SINGULAR[tagCategory]}

@@ -476,7 +476,8 @@ const MoleculeView = memo(
       setTagEditModalOpenNew(tagEditorOpenObs);
     }, [tagEditorOpenObs]);
 
-    const XCA_TAGS_CATEGORIES = ['CanonSites', 'ConformerSites', 'CrystalformSites', 'Crystalforms', 'Quatassemblies'];
+    const XCA_TAGS_CATEGORIES = ['CanonSites', 'ConformerSites', 'Quatassemblies', 'Crystalforms', 'CrystalformSites'];
+    const XCA_TAGS_CATEGORIES_EXPANDED = ['Quatassemblies', 'ConformerSites', 'Crystalforms', 'CrystalformSites', 'CanonSites'];
 
     useEffect(() => {
       api({
@@ -516,7 +517,6 @@ const MoleculeView = memo(
 
     useEffect(() => {
       if (showExpandedView) {
-        setHeaderWidthsHandler(getTagType('CanonSites')?.tag, 'TagName');
         setHeaderWidthsHandler(centroidRes, 'CentroidRes');
         setHeaderWidthsHandler(data.longcode, 'LongCode');
         XCA_TAGS_CATEGORIES.forEach(tagCategory => {
@@ -1121,15 +1121,18 @@ const MoleculeView = memo(
       const tagTypeObject = getTagType(tagCategory);
       let tagLabel = '';
       if (tagTypeObject) {
-        if (tagCategory === 'CrystalformSites') {
-          // "chop" more of CrystalformSites name
-          tagLabel = tagTypeObject.upload_name.substring(tagTypeObject.upload_name.indexOf('-') + 1).trim();
-          tagLabel = tagLabel.substring(tagLabel.indexOf('-') + 1).trim();
-        } else {
-          tagLabel = tagTypeObject.upload_name.substring(tagTypeObject.upload_name.indexOf('-') + 1).trim();
-        }
+        tagLabel = tagTypeObject.tag;
       }
       return tagLabel;
+    }, [getTagType]);
+
+    const getTagTooltip = useCallback(tagCategory => {
+      const tagTypeObject = getTagType(tagCategory);
+      let tagTooltip = '';
+      if (tagTypeObject) {
+        tagTooltip = tagTypeObject.upload_name;
+      }
+      return tagTooltip;
     }, [getTagType]);
 
     return (
@@ -1175,7 +1178,7 @@ const MoleculeView = memo(
               <Grid item container justifyContent="flex-start" alignItems="center" direction="row">
                 <Grid item container justifyContent="space-between" direction="column" xs={3}>
                   {/* Title label */}
-                  <Tooltip title={moleculeTitle + (data.id === pose?.main_site_observation ? " - main observation" : "")} placement="bottom-start">
+                  <Tooltip title={data.prefix_tooltip ?? '-' + (data.id === pose?.main_site_observation ? " - main observation" : "")} placement="bottom-start">
                     <Grid
                       item
                       onCopy={e => {
@@ -1435,7 +1438,7 @@ const MoleculeView = memo(
                     const tagLabel = tagCategory === 'ConformerSites' ? tagTypeObject.tag_prefix.replace(getTagType('CanonSites')?.tag_prefix, '') : tagTypeObject?.tag_prefix;
                     return <Tooltip
                       key={`tag-category-${tagCategory}`}
-                      title={<div style={{ whiteSpace: 'pre-line' }}>{PLURAL_TO_SINGULAR[tagCategory]} - {tagTypeObject.upload_name}</div>}
+                      title={<div style={{ whiteSpace: 'pre-line' }}>{PLURAL_TO_SINGULAR[tagCategory]} - {tagTypeObject.tag}</div>}
                     >
                       <Grid item xs
                         className={classNames(classes.contColButtonMenu)}
@@ -1485,13 +1488,8 @@ const MoleculeView = memo(
               </div>}
           </Grid>
           {showExpandedView && <Grid item container alignItems='center' wrap="nowrap">
-            <Tooltip title={"CanonSite TagName"}>
-              <Grid item align="center" className={classes.categoryCell} style={{ minWidth: headerWidths.TagName }}>
-                {getTagType('CanonSites')?.tag}
-              </Grid>
-            </Tooltip>
-            {XCA_TAGS_CATEGORIES.map((tagCategory, index) => {
-              return <Tooltip title={PLURAL_TO_SINGULAR[tagCategory]} key={index}>
+            {XCA_TAGS_CATEGORIES_EXPANDED.map((tagCategory, index) => {
+              return <Tooltip title={`${PLURAL_TO_SINGULAR[tagCategory]} - ${getTagTooltip(tagCategory)}`} key={index}>
                 <Grid item align="center" className={classes.categoryCell} style={{ minWidth: headerWidths[tagCategory] }}>
                   {getTagLabel(tagCategory)}
                 </Grid>
