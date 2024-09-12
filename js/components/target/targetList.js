@@ -296,7 +296,7 @@ export const TargetList = memo(() => {
       }
     }
     return initObject;
-  });
+  }, []);
 
   useEffect(() => {
     const init = initialize();
@@ -1145,8 +1145,8 @@ export const TargetList = memo(() => {
       filteredListOfTargets !== undefined
         ? filteredListOfTargets
         : listOfTargets !== undefined
-        ? listOfTargets
-        : target_id_list,
+          ? listOfTargets
+          : target_id_list,
       projectsList
     );
     const slice = combinations.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage);

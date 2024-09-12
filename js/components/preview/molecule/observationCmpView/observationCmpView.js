@@ -1328,7 +1328,7 @@ const ObservationCmpView = memo(
             </Grid>
             <Grid item container className={classes.detailsCol} justifyContent="space-evenly" direction="column" xs={2}>
               {/* Title label */}
-              <Tooltip title={moleculeTitle} placement="bottom-start">
+              <Tooltip title={getMainObservation()?.prefix_tooltip ?? '-'} placement="bottom-start">
                 <Grid
                   item
                   onCopy={e => {
