@@ -284,7 +284,7 @@ export const ObservationsDialog = memo(
       Crystalforms: getCalculatedTagColumnWidth('Crystalforms'),
       CrystalformSites: getCalculatedTagColumnWidth('CrystalformSites'),
       CentroidRes: getCalculatedTagColumnWidth('CentroidRes'),
-      LongCode: getCalculatedTagColumnWidth('LongCode')
+      LongCode: getCalculatedTagColumnWidth('LongCode'),
     });
 
     /**
