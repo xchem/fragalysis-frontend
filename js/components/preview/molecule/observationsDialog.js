@@ -53,6 +53,7 @@ import { updateLHSCompound, updateMoleculeInMolLists, updateMoleculeTag, updateT
 import { createPoseErrorMessage } from './api/poseApi';
 import { augumentTagObjectWithId, createMoleculeTagObject, DEFAULT_TAG_COLOR, getMoleculeTagForTag } from '../tags/utils/tagUtils';
 import { updateExistingTag } from '../tags/api/tagsApi';
+import { XCA_TAGS_CATEGORIES } from './moleculeView/moleculeView';
 
 const MIN_PANEL_HEIGHT = 250;
 
@@ -277,13 +278,13 @@ export const ObservationsDialog = memo(
     const [tagEditorAnchorEl, setTagEditorAnchorEl] = useState(null);
     const [expandView, setExpandView] = useState(null);
     const [headerWidths, setHeaderWidths] = useState({
-      Quatassemblies: getCalculatedTagColumnWidth('Quatassemblies'),
+      CanonSites: getCalculatedTagColumnWidth('CanonSites'),
       ConformerSites: getCalculatedTagColumnWidth('ConformerSites'),
+      Quatassemblies: getCalculatedTagColumnWidth('Quatassemblies'),
       Crystalforms: getCalculatedTagColumnWidth('Crystalforms'),
       CrystalformSites: getCalculatedTagColumnWidth('CrystalformSites'),
-      CanonSites: getCalculatedTagColumnWidth('CanonSites'),
       CentroidRes: getCalculatedTagColumnWidth('CentroidRes'),
-      LongCode: getCalculatedTagColumnWidth('LongCode'),
+      LongCode: getCalculatedTagColumnWidth('LongCode')
     });
 
     /**
@@ -292,7 +293,7 @@ export const ObservationsDialog = memo(
      * @param {*} tagCategory
      */
     const setHeaderWidthsHandler = (tagText, tagCategory) => {
-      const calculatedWidth = getCalculatedTagColumnWidth(tagText, '12px bold');
+      const calculatedWidth = getCalculatedTagColumnWidth(tagText, 'bold 12px');
       if (headerWidths[tagCategory] < calculatedWidth) {
         setHeaderWidths(old => {
           const newWidths = { ...old };
@@ -984,11 +985,10 @@ export const ObservationsDialog = memo(
                             item
                             xs
                             container
-                            justifyContent="space-around"
-                            // adjust maxWidth if headers are a bit misplaced
-                            style={{ maxWidth: '74%', marginLeft: 95 }}
+                            alignItems="center"
+                            style={{ marginLeft: 95 }}
                           >
-                            {['Quatassemblies', 'ConformerSites', 'Crystalforms', 'CrystalformSites', 'CanonSites'].map(
+                            {XCA_TAGS_CATEGORIES.map(
                               (tagCategory, index) => (
                                 <Grid item align="center" key={index} className={classes.headerCell} style={{ minWidth: headerWidths[tagCategory] }}>
                                   {PLURAL_TO_SINGULAR[tagCategory]}

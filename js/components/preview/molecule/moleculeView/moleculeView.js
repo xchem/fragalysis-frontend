@@ -358,6 +358,8 @@ export const img_data_init = `<svg xmlns="http://www.w3.org/2000/svg" version="1
     <animateTransform attributeName="transform" type="rotate" repeatCount="indefinite" dur="0.689655172413793s" values="0 50 50;360 50 50" keyTimes="0;1"></animateTransform>
   </circle>  '</svg>`;
 
+export const XCA_TAGS_CATEGORIES = ['CanonSites', 'ConformerSites', 'Quatassemblies', 'Crystalforms', 'CrystalformSites'];
+
 const MoleculeView = memo(
   ({
     imageHeight,
@@ -476,9 +478,6 @@ const MoleculeView = memo(
       setTagEditModalOpenNew(tagEditorOpenObs);
     }, [tagEditorOpenObs]);
 
-    const XCA_TAGS_CATEGORIES = ['CanonSites', 'ConformerSites', 'Quatassemblies', 'Crystalforms', 'CrystalformSites'];
-    const XCA_TAGS_CATEGORIES_EXPANDED = ['Quatassemblies', 'ConformerSites', 'Crystalforms', 'CrystalformSites', 'CanonSites'];
-
     useEffect(() => {
       api({
         url: `${base_url}/api/canon_site_confs/`,
@@ -523,7 +522,7 @@ const MoleculeView = memo(
           setHeaderWidthsHandler(getTagLabel(tagCategory), tagCategory);
         })
       }
-    }, [showExpandedView, getTagType, getTagLabel, centroidRes, data.longcode, setHeaderWidthsHandler, XCA_TAGS_CATEGORIES]);
+    }, [showExpandedView, getTagType, getTagLabel, centroidRes, data.longcode, setHeaderWidthsHandler]);
 
     const handlePopoverOpen = event => {
       setTagPopoverOpen(event.currentTarget);
@@ -1428,7 +1427,6 @@ const MoleculeView = memo(
                   xs={5}
                   container
                   direction="row"
-                  justifyContent="center"
                   alignItems="center"
                   // wrap="nowrap"
                   style={{ height: "100%" }}
@@ -1488,7 +1486,7 @@ const MoleculeView = memo(
               </div>}
           </Grid>
           {showExpandedView && <Grid item container alignItems='center' wrap="nowrap">
-            {XCA_TAGS_CATEGORIES_EXPANDED.map((tagCategory, index) => {
+            {XCA_TAGS_CATEGORIES.map((tagCategory, index) => {
               return <Tooltip title={`${PLURAL_TO_SINGULAR[tagCategory]} - ${getTagTooltip(tagCategory)}`} key={index}>
                 <Grid item align="center" className={classes.categoryCell} style={{ minWidth: headerWidths[tagCategory] }}>
                   {getTagLabel(tagCategory)}
