@@ -18,7 +18,8 @@ const useStyles = makeStyles(theme => ({
     height: '100%'
   },
   lhs: {
-    height: '100%'
+    height: '100%',
+    minWidth: 470
   },
   nglColumn: {
     display: 'flex',
@@ -32,7 +33,7 @@ const useStyles = makeStyles(theme => ({
   }
 }));
 
-const sideWidth = 505;
+const sideWidth = 492;
 let panelHeight = 0;
 const resizerSize = 20;
 let screenHeight = 0;

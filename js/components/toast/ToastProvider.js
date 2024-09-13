@@ -52,7 +52,7 @@ export const ToastProvider = memo(props => {
     ) : (
       { text }
     );
-    toast(message, { ...successOptions, ...options });
+    options.link ? toast(message, { ...successOptions, ...options }) : toast(text, { ...successOptions, ...options });
     // toast(text, { ...successOptions, ...options });
   };
 

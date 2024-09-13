@@ -77,6 +77,7 @@ export const loadObject = ({
     }
 
     console.count(`Before object is loaded`);
+    // versionFixedTarget can cause "Error: TypeError: path is null" in stage.loadFile
     return nglObjectDictionary[versionFixedTarget.OBJECT_TYPE]({
       stage,
       input_dict: versionFixedTarget,

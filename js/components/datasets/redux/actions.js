@@ -62,6 +62,16 @@ export const setFilterDialogOpen = filterDialogOpen => ({
   payload: filterDialogOpen
 });
 
+export const setDatasetIterator = (datasetID, currentCmp) => ({
+  type: constants.SET_DATASET_ITERATOR,
+  payload: { datasetID, currentCmp }
+});
+
+export const setSelectedCompoundsIterator = (datasetID, molecule) => ({
+  type: constants.SET_SELECTED_COMPOUNDS_ITERATOR,
+  payload: { datasetID, molecule }
+});
+
 export const setLigandList = function(datsetID, ligandList) {
   return {
     type: constants.SET_LIGAND_LIST,
@@ -189,6 +199,33 @@ export const setInspirationList = function(datasetID, inspirationList) {
     }
   };
 };
+
+export const setInspirationDialogAction = (
+  datasetID,
+  inspirationList,
+  inpsirations,
+  open,
+  prevInspirationList,
+  prevInspirations,
+  isSelectedList = false
+) => {
+  return {
+    type: constants.SET_INSPIRATION_DIALOG_ACTION,
+    datasetID: datasetID,
+    inspirationList: inspirationList,
+    inpsirations: inpsirations,
+    open: open,
+    prevInspirationList: prevInspirationList,
+    prevInspirations: prevInspirations,
+    isSelectedList: isSelectedList
+  };
+};
+
+export const setInspirationDialogOpenedForSelectedCompounds = isOpen => ({
+  type: constants.SET_INSPIRATION_DIALOG_OPENED_FOR_SELECTED_COMPOUND,
+  isOpen: isOpen
+});
+
 export const appendInspirationList = function(datasetID, itemID) {
   return {
     type: constants.APPEND_INSPIRATION_LIST,
@@ -301,10 +338,12 @@ export const removeFromInspirationMoleculeDataList = moleculeID => ({
   payload: moleculeID
 });
 
-export const setIsOpenInspirationDialog = isOpen => ({
-  type: constants.SET_IS_OPEN_INSPIRATION_DIALOG,
-  payload: isOpen
-});
+export const setIsOpenInspirationDialog = isOpen => {
+  return {
+    type: constants.SET_IS_OPEN_INSPIRATION_DIALOG,
+    payload: isOpen
+  };
+};
 
 export const setIsOpenCrossReferenceDialog = isOpen => ({
   type: constants.SET_IS_OPEN_CROSS_REFERENCE_DIALOG,
@@ -524,6 +563,11 @@ export const setDatasetScrolled = datasetId => ({
   payload: datasetId
 });
 
+export const setSelectedDatasetScrolled = scrolled => ({
+  type: constants.SET_SELECTED_DATASET_SCROLLED,
+  payload: scrolled
+});
+
 export const resetDatasetScrolledMap = () => ({
   type: constants.RESET_DATASET_SCROLLED_MAP
 });
@@ -579,4 +623,3 @@ export const setUpdatedDatasets = updatedDataset => ({
   type: constants.SET_UPDATED_DATASETS,
   payload: { updatedDataset }
 });
-

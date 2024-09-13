@@ -4,7 +4,8 @@ import {
   setIsTrackingCompoundsRestoring,
   setIsUndoRedoAction,
   setProjectActionListLoaded,
-  setIsSnapshotDirty
+  setIsSnapshotDirty,
+  setSnapshotActionsDownloaded
 } from './actions';
 import { createInitAction } from './trackingActions';
 import { actionType, actionObjectType, NUM_OF_SECONDS_TO_IGNORE_MERGE, mapTypesStrings } from './constants';
@@ -15,7 +16,9 @@ import {
   appendToMolListToEdit,
   removeFromMolListToEdit,
   setNextXMolecules,
-  setTagDetailView
+  setTagDetailView,
+  addToastMessage,
+  setScrollFiredForLHS
 } from '../selection/actions';
 import {
   resetReducersForRestoringActions,
@@ -47,7 +50,8 @@ import {
   addDensityCustomView,
   removeDensity,
   getProteinData,
-  selectAllHits
+  selectAllHits,
+  selectAllVisibleObservations
 } from '../../components/preview/molecule/redux/dispatchActions';
 import { setSortDialogOpen, setSearchStringOfHitNavigator } from '../../components/preview/molecule/redux/actions';
 import {
@@ -94,7 +98,13 @@ import {
   appendCompoundColorOfDataset,
   removeCompoundColorOfDataset,
   setCompoundToSelectedCompoundsByDataset,
-  setSelectAllButtonForDataset
+  setSelectAllButtonForDataset,
+  appendColorToSelectedColorFilter,
+  removeColorFromSelectedColorFilter,
+  setIsOpenInspirationDialog,
+  setInspirationList,
+  setInspirationDialogOpenedForSelectedCompounds,
+  setSelectedDatasetScrolled
 } from '../../components/datasets/redux/actions';
 import {
   removeComponentRepresentation,
@@ -146,7 +156,10 @@ import {
   setSelectedAll,
   setDeselectedAll,
   setSelectedAllByType,
-  setDeselectedAllByType
+  setDeselectedAllByType,
+  setObservationsForLHSCmp,
+  setOpenObservationsDialog,
+  setPoseIdForObservationsDialog
 } from '../../../js/reducers/selection/actions';
 import {
   setSelectedAll as setSelectedAllOfDataset,
@@ -169,6 +182,8 @@ import {
 import { turnSide } from '../../components/preview/viewerControls/redux/actions';
 import { getQualityOffActions } from './utils';
 import { compoundsColors } from '../../components/preview/compounds/redux/constants';
+import { isEqual, uniqWith } from 'lodash';
+import { TOAST_LEVELS } from '../../components/toast/constants';
 
 export const addCurrentActionsListToSnapshot = (snapshot, project, nglViewList) => async (dispatch, getState) => {
   let projectID = project && project.projectID;
@@ -177,19 +192,27 @@ export const addCurrentActionsListToSnapshot = (snapshot, project, nglViewList) 
   await dispatch(setSnapshotToActions(actionList, snapshot, projectID, project, nglViewList, true));
 };
 
-export const saveCurrentActionsList = (snapshot, project, nglViewList, all = false) => async (dispatch, getState) => {
+export const saveCurrentActionsList = (snapshot, project, nglViewList, all, isAnonymousSnapshot = false) => async (
+  dispatch,
+  getState
+) => {
   let projectID = project && project.projectID;
-  let actionList = await dispatch(getTrackingActions(projectID));
+  let actionList = await dispatch(getTrackingActions(isAnonymousSnapshot ? null : projectID));
 
-  if (all === false) {
-    dispatch(setSnapshotToActions(actionList, snapshot, projectID, project, nglViewList, false));
-  } else {
-    dispatch(setSnapshotToAllActions(actionList, snapshot, projectID));
+  if (!isAnonymousSnapshot) {
+    if (all === false) {
+      dispatch(setSnapshotToActions(actionList, snapshot, projectID, project, nglViewList, false));
+    } else {
+      dispatch(setSnapshotToAllActions(actionList, snapshot, projectID));
+    }
   }
-  await dispatch(saveActionsList(project, snapshot, actionList, nglViewList));
+  await dispatch(saveActionsList(project, snapshot, actionList, nglViewList /*, isAnonymousSnapshot*/));
 };
 
-const saveActionsList = (project, snapshot, actionList, nglViewList) => async (dispatch, getState) => {
+const saveActionsList = (project, snapshot, actionList, nglViewList, isAnonymousSnapshot = false) => async (
+  dispatch,
+  getState
+) => {
   const state = getState();
   const snapshotID = snapshot && snapshot.id;
   if (snapshotID) {
@@ -226,7 +249,10 @@ const saveActionsList = (project, snapshot, actionList, nglViewList) => async (d
     const currentTargets = (currentTargetOn && [currentTargetOn]) || [];
     const currentVectorSmiles = (currentVector && [currentVector]) || [];
 
-    let orderedActionList = actionList.reverse((a, b) => a.timestamp - b.timestamp);
+    //filter out empty actions - don't know why but they sometimes appear in between activating ligand and protein...
+    const filteredActionList = actionList.filter(a => Object.keys(a).length > 0);
+
+    let orderedActionList = filteredActionList.reverse((a, b) => a.timestamp - b.timestamp);
 
     let currentActions = [];
 
@@ -306,6 +332,13 @@ const saveActionsList = (project, snapshot, actionList, nglViewList) => async (d
     getCurrentActionListOfSelectAllMolecules(
       orderedActionList,
       actionType.ALL_MOLECULES_SELECTED,
+      getCollection(selectedMolecules),
+      currentActions
+    );
+
+    getCurrentActionListOfSelectAllVisibleHits(
+      orderedActionList,
+      actionType.ALL_VISIBLE_HITS_SELECTED,
       getCollection(selectedMolecules),
       currentActions
     );
@@ -466,11 +499,13 @@ const saveActionsList = (project, snapshot, actionList, nglViewList) => async (d
       currentActions
     );
 
+    getCommonLastActionByType(orderedActionList, actionType.POSE_WINDOW_ACTION, currentActions);
+    getCommonLastActionByType(orderedActionList, actionType.INSPIRATION_WINDOW_ACTION, currentActions);
     getCommonLastActionByType(orderedActionList, actionType.TAB, currentActions);
     getCommonLastActionByType(orderedActionList, actionType.DATASET_INDEX, currentActions);
     getCommonLastActionByType(orderedActionList, actionType.DATASET_FILTER, currentActions);
     getCommonLastActionByType(orderedActionList, actionType.DATASET_FILTER_SCORE, currentActions);
-    getCommonLastActionByType(orderedActionList, actionType.CLASS_SELECTED, currentActions);
+    getLastColorFilterActions(orderedActionList, actionType.COLOR_FILTER_TURNED_OFF, currentActions);
     getCommonLastActionByType(orderedActionList, actionType.CLASS_UPDATED, currentActions);
     getCommonLastActionByType(orderedActionList, actionType.ISO_LEVEL_EVENT, currentActions);
     getCommonLastActionByType(orderedActionList, actionType.BOX_SIZE_EVENT, currentActions);
@@ -526,7 +561,9 @@ const saveActionsList = (project, snapshot, actionList, nglViewList) => async (d
       currentActions.push(Object.assign({ ...trackAction }));
     }
 
-    await dispatch(saveSnapshotAction(snapshot, project, currentActions));
+    if (!isAnonymousSnapshot) {
+      await dispatch(saveSnapshotAction(snapshot, project, currentActions));
+    }
     await dispatch(saveTrackingActions(currentActions, snapshotID));
     dispatch(setCurrentActionsList(currentActions));
   }
@@ -646,6 +683,16 @@ const getCurrentActionListDensity = (orderedActionList, type, collection, curren
   }
 };
 
+const getLastColorFilterActions = (orderedActionList, type, currentActions) => {
+  let actionList = orderedActionList.filter(action => action.type === type);
+  Object.keys(compoundsColors).forEach(color => {
+    let action = actionList.find(action => action.value === color);
+    if (action) {
+      currentActions.push({ ...action });
+    }
+  });
+};
+
 const getCommonLastActionByType = (orderedActionList, type, currentActions) => {
   let action = orderedActionList.find(action => action.type === type);
   if (action) {
@@ -747,17 +794,23 @@ const getCurrentActionListOfAllSelectionByTypeOfDataset = (
 
 const getCurrentActionListOfSelectAllMolecules = (orderedActionList, type, collection, currentActions) => {
   let action = orderedActionList.find(action => action.type === type);
-  if (action && collection) {
+  if (action) {
     let actionItems = action.items;
     let items = [];
-    collection.forEach(data => {
-      let item = actionItems.find(ai => ai.id === data.id);
-      if (item) {
-        items.push(item);
+    actionItems?.forEach(ai => {
+      if (ai.associatedObs && ai.associatedObs.length > 0) {
+        items.push(...ai.associatedObs);
       }
     });
 
     currentActions.push(Object.assign({ ...action, items: items }));
+  }
+};
+
+const getCurrentActionListOfSelectAllVisibleHits = (orderedActionList, type, collection, currentActions) => {
+  let action = orderedActionList.find(action => action.type === type);
+  if (action) {
+    currentActions.push(Object.assign({ ...action }));
   }
 };
 
@@ -889,6 +942,7 @@ export const resetRestoringState = () => (dispatch, getState) => {
 };
 
 export const restoreCurrentActionsList = snapshotID => async (dispatch, getState) => {
+  const state = getState();
   dispatch(resetTrackingState());
   dispatch(resetTargetState());
   dispatch(setTargetOn(undefined));
@@ -904,25 +958,37 @@ export const restoreCurrentActionsList = snapshotID => async (dispatch, getState
 };
 
 const restoreTrackingActions = snapshotID => async (dispatch, getState) => {
-  if (snapshotID) {
+  const state = getState();
+  const areSnapshotActionsDownloaded = state.trackingReducers.areSnapshotActionsDownloaded;
+  // console.log(`snapshotDebug - restoreTrackingActions - start`);
+  if (snapshotID && !areSnapshotActionsDownloaded) {
     try {
-      const response = await api({
+      // console.log(`snapshotDebug - restoreTrackingActions - before getting actions`);
+      return api({
         url: `${base_url}/api/snapshot-actions/?snapshot=${snapshotID}`
-      });
-      let results = response.data.results;
-      let listToSet = [];
-      results.forEach(r => {
-        let resultActions = JSON.parse(r.actions);
-        listToSet.push(...resultActions);
-      });
+      }).then(response => {
+        // console.log(`snapshotDebug - restoreTrackingActions - after getting actions`);
+        let results = response.data.results;
+        // console.log(`snapshotDebug - restoreTrackingActions - no. of actions: ${results.length}`);
+        let listToSet = [];
+        results.forEach(r => {
+          let resultActions = JSON.parse(r.actions);
+          listToSet.push(...resultActions);
+        });
 
-      let snapshotActions = [...listToSet];
-      dispatch(setCurrentActionsList(snapshotActions));
+        let snapshotActions = [...listToSet];
+        dispatch(setCurrentActionsList(snapshotActions));
+        dispatch(setSnapshotActionsDownloaded(true));
+        // console.log(`snapshotDebug - restoreTrackingActions - end - success`);
+        return Promise.resolve(snapshotActions);
+        // return Promise.resolve();
+      });
     } catch (error) {
       throw new Error(error);
     }
   } else {
-    return Promise.resolve();
+    // console.log(`snapshotDebug - restoreTrackingActions - end - no snapshot`);
+    return Promise.resolve([]);
   }
 };
 
@@ -958,11 +1024,23 @@ const restoreTargetActions = orderedActionList => (dispatch, getState) => {
   }
 };
 
-export const restoreAfterTargetActions = (stages, projectId) => async (dispatch, getState) => {
+export const restoreAfterTargetActions = (stages, projectId, snapshotId) => async (dispatch, getState) => {
   const state = getState();
 
-  const currentActionList = state.trackingReducers.current_actions_list;
-  const orderedActionList = currentActionList.sort((a, b) => a.timestamp - b.timestamp);
+  const areSnapshotActionsDownloaded = state.trackingReducers.areSnapshotActionsDownloaded;
+  let currentActionList = [];
+  if (!areSnapshotActionsDownloaded) {
+    currentActionList = await dispatch(restoreTrackingActions(snapshotId));
+  } else {
+    currentActionList = state.trackingReducers.current_actions_list;
+  }
+
+  //for some reason we have empty actions here... sometimes
+  currentActionList = currentActionList.filter(a => Object.keys(a).length > 0);
+
+  // const currentActionList = state.trackingReducers.current_actions_list;
+  let orderedActionList = currentActionList.sort((a, b) => a.timestamp - b.timestamp);
+  // console.log(`snapshotDebug - restoreAfterTargetActions - no. of actions: ${orderedActionList.length}`);
   const targetId = state.apiReducers.target_on;
 
   if (targetId && stages && stages.length > 0) {
@@ -983,8 +1061,12 @@ export const restoreAfterTargetActions = (stages, projectId) => async (dispatch,
       .finally(() => {});
 
     await dispatch(restoreSitesActions(orderedActionList));
+    // console.log(`snapshotDebug - restoreAfterTargetActions - before loadData`);
     await dispatch(loadData(orderedActionList, targetId, majorView));
+    // console.log(`snapshotDebug - restoreAfterTargetActions - after loadData`);
+    // console.log(`snapshotDebug - restoreAfterTargetActions - before restoreTagActions`);
     await dispatch(restoreTagActions(orderedActionList));
+    // console.log(`snapshotDebug - restoreAfterTargetActions - after restoreTagActions`);
     await dispatch(restoreMoleculesActions(orderedActionList, majorView.stage));
     await dispatch(restoreRepresentationActions(orderedActionList, stages));
     await dispatch(restoreProject(projectId));
@@ -994,9 +1076,11 @@ export const restoreAfterTargetActions = (stages, projectId) => async (dispatch,
     dispatch(restoreSnapshotImageActions(projectId));
     dispatch(restoreNglStateAction(orderedActionList, stages));
     dispatch(restoreNglSettingsAction(orderedActionList, majorView.stage));
-    dispatch(setIsActionsRestoring(false, true));
     dispatch(restoreViewerControlActions(orderedActionList));
+    dispatch(setIsActionsRestoring(false, true));
     dispatch(resetDatasetScrolledMap()); // Have a look at useScrollToSelected.js
+    dispatch(setScrollFiredForLHS(false));
+    dispatch(setSelectedDatasetScrolled(false));
     dispatch(setIsSnapshotDirty(false));
     dispatch(restoreSearchString(orderedActionList));
     dispatch(restoreSearchStringHitNavigator(orderedActionList));
@@ -1385,8 +1469,12 @@ export const restoreNglOrientationAnim = (orderedActionList, stages) => async (d
 };
 
 const loadData = (orderedActionList, targetId, majorView) => async (dispatch, getState) => {
+  // console.log(`snapshotDebug - loadData - before loadAllMolecules`);
   await dispatch(loadAllMolecules(targetId));
+  // console.log(`snapshotDebug - loadData - after loadAllMolecules`);
+  // console.log(`snapshotDebug - loadData - before loadAllDatasets`);
   await dispatch(loadAllDatasets(orderedActionList, targetId, majorView.stage));
+  // console.log(`snapshotDebug - loadData - after loadAllDatasets`);
 };
 
 const loadAllDatasets = (orderedActionList, target_on, stage) => async (dispatch, getState) => {
@@ -1413,6 +1501,14 @@ export const restoreSitesActions = orderedActionList => (dispatch, getState) => 
       const tag = getTag(action.object_id, state);
       if (tag) {
         dispatch(addSelectedTag(tag));
+        if (tag.hidden) {
+          dispatch(
+            addToastMessage({
+              level: TOAST_LEVELS.WARNING,
+              text: `Tag ${tag.tag} is selected in the snapshot but it's hidden.`
+            })
+          );
+        }
       }
     });
   }
@@ -1428,6 +1524,14 @@ export const restoreTagActions = orderedActionList => (dispatch, getState) => {
       const tag = getTag(action.object_id, state);
       if (tag) {
         dispatch(addSelectedTag(tag));
+        if (tag.hidden) {
+          dispatch(
+            addToastMessage({
+              level: TOAST_LEVELS.WARNING,
+              text: `Tag ${tag.tag} is selected in the snapshot but it's hidden.`
+            })
+          );
+        }
       }
     });
   }
@@ -1450,6 +1554,8 @@ export const restoreMoleculesActions = (orderedActionList, stage) => async (disp
     await dispatch(addNewType(moleculesAction, actionType.DENSITY_TYPE_ON, 'density', stage, state));
     await dispatch(addNewType(moleculesAction, actionType.DENSITY_CUSTOM_TURNED_ON, 'densityCustom', stage, state));
     await dispatch(restoreSelectAllMolecules(moleculesAction));
+    await dispatch(restoreSelectAllVisibleHits(moleculesAction));
+    await dispatch(restorePoseWindow(moleculesAction));
   }
 
   dispatch(restoreAllSelectionActions(orderedActionList, stage, true));
@@ -1510,6 +1616,11 @@ export const restoreCartActions = (orderedActionList, majorViewStage) => async (
     value = value !== undefined ? value : '';
     dispatch(setCompoundClasses(newValue, oldValue, value, id));
   }
+
+  let colorFilterRemoveActions = orderedActionList.filter(action => action.type === actionType.COLOR_FILTER_TURNED_OFF);
+  colorFilterRemoveActions?.forEach(action => {
+    dispatch(handleColorFilterAction(action, false));
+  });
 
   let vectorCompoundActions = orderedActionList.filter(action => action.type === actionType.VECTOR_COUMPOUND_ADDED);
   if (vectorCompoundActions) {
@@ -1585,6 +1696,35 @@ const restoreSelectAllMolecules = moleculesAction => (dispatch, getState) => {
     action.items.forEach(m => {
       dispatch(handleSelectMoleculeByName(m.code, true));
     });
+  }
+};
+
+const restoreSelectAllVisibleHits = moleculesAction => (dispatch, getState) => {
+  let action = moleculesAction.find(ma => ma.type === actionType.ALL_VISIBLE_HITS_SELECTED);
+  if (action && action.items) {
+    const state = getState();
+    const allMolecules = state.apiReducers.all_mol_lists;
+    dispatch(setNextXMolecules(allMolecules.length));
+    action.items.forEach(m => {
+      dispatch(handleSelectMoleculeByName(m.code, true));
+    });
+  }
+};
+
+const restorePoseWindow = moleculesAction => (dispatch, getState) => {
+  let action = moleculesAction.find(ma => ma.type === actionType.POSE_WINDOW_ACTION);
+  if (action && action.isOpen && action.items?.length > 0) {
+    dispatch(handlePoseWindowAction(action, false));
+  }
+};
+
+const restoreInspirationsWindow = customDatasetAction => (dispatch, getState) => {
+  let action = customDatasetAction.find(ma => ma.type === actionType.INSPIRATION_WINDOW_ACTION);
+  if (action && action.isOpen && action.items?.length > 0) {
+    if (action.isSelectedList) {
+      dispatch(setInspirationDialogOpenedForSelectedCompounds(true));
+    }
+    dispatch(handleInspirationsWindowAction(action, false));
   }
 };
 
@@ -1940,6 +2080,8 @@ export const restoreCompoundsActions = (orderedActionList, stage) => (dispatch, 
 
   dispatch(restoreAllSelectionActions(orderedActionList, stage, false));
   dispatch(restoreAllSelectionByTypeActions(orderedActionList, stage, false));
+  dispatch(restoreInspirationsWindow(compoundsAction));
+
   dispatch(setIsTrackingCompoundsRestoring(false));
 };
 
@@ -2300,6 +2442,12 @@ const handleUndoAction = (action, stages) => (dispatch, getState) => {
       case actionType.ARROW_NAVIGATION:
         dispatch(handleArrowNavigationAction(action, false, majorViewStage));
         break;
+      case actionType.POSE_WINDOW_ACTION:
+        dispatch(handlePoseWindowAction(action, true));
+        break;
+      case actionType.INSPIRATION_WINDOW_ACTION:
+        dispatch(handleInspirationsWindowAction(action, true));
+        break;
       case actionType.VECTOR_SELECTED:
         dispatch(handleVectorAction(action, false));
         break;
@@ -2317,6 +2465,12 @@ const handleUndoAction = (action, stages) => (dispatch, getState) => {
         break;
       case actionType.CLASS_UPDATED:
         dispatch(handleClassUpdatedAction(action, false));
+        break;
+      case actionType.COLOR_FILTER_TURNED_ON:
+        dispatch(handleColorFilterAction(action, false));
+        break;
+      case actionType.COLOR_FILTER_TURNED_OFF:
+        dispatch(handleColorFilterAction(action, true));
         break;
       case actionType.TARGET_LOADED:
         dispatch(handleTargetAction(action, false));
@@ -2380,6 +2534,12 @@ const handleUndoAction = (action, stages) => (dispatch, getState) => {
         break;
       case actionType.ALL_MOLECULES_UNSELECTED:
         dispatch(handleSelectAllMolecules(action, true));
+        break;
+      case actionType.ALL_VISIBLE_HITS_SELECTED:
+        dispatch(handleSelectAllVisibleHits(action, false));
+        break;
+      case actionType.ALL_VISIBLE_HITS_UNSELECTED:
+        dispatch(handleSelectAllVisibleHits(action, true));
         break;
       case actionType.TAB:
         dispatch(handleTabAction(action, false));
@@ -2533,6 +2693,12 @@ const handleRedoAction = (action, stages) => (dispatch, getState) => {
       case actionType.SURFACE_TURNED_ON:
         dispatch(handleMoleculeAction(action, 'surface', true, majorViewStage, state));
         break;
+      case actionType.POSE_WINDOW_ACTION:
+        dispatch(handlePoseWindowAction(action, false));
+        break;
+      case actionType.INSPIRATION_WINDOW_ACTION:
+        dispatch(handleInspirationsWindowAction(action, false));
+        break;
       case actionType.QUALITY_TURNED_ON:
         dispatch(handleMoleculeAction(action, 'quality', true, majorViewStage, state));
         break;
@@ -2592,6 +2758,12 @@ const handleRedoAction = (action, stages) => (dispatch, getState) => {
         break;
       case actionType.CLASS_UPDATED:
         dispatch(handleClassUpdatedAction(action, true));
+        break;
+      case actionType.COLOR_FILTER_TURNED_ON:
+        dispatch(handleColorFilterAction(action, true));
+        break;
+      case actionType.COLOR_FILTER_TURNED_OFF:
+        dispatch(handleColorFilterAction(action, false));
         break;
       case actionType.TARGET_LOADED:
         dispatch(handleTargetAction(action, true));
@@ -2655,6 +2827,12 @@ const handleRedoAction = (action, stages) => (dispatch, getState) => {
         break;
       case actionType.ALL_MOLECULES_UNSELECTED:
         dispatch(handleSelectAllMolecules(action, false));
+        break;
+      case actionType.ALL_VISIBLE_HITS_SELECTED:
+        dispatch(handleSelectAllVisibleHits(action, true));
+        break;
+      case actionType.ALL_VISIBLE_HITS_UNSELECTED:
+        dispatch(handleSelectAllVisibleHits(action, false));
         break;
       case actionType.TAB:
         dispatch(handleTabAction(action, true));
@@ -2997,6 +3175,17 @@ const handleClassUpdatedAction = (action, isAdd) => (dispatch, getState) => {
   }
 };
 
+const handleColorFilterAction = (action, isSelected) => (dispatch, getState) => {
+  if (action) {
+    const color = action.value;
+    if (isSelected) {
+      dispatch(appendColorToSelectedColorFilter(color));
+    } else {
+      dispatch(removeColorFromSelectedColorFilter(color));
+    }
+  }
+};
+
 const handleTargetAction = (action, isSelected, stages) => (dispatch, getState) => {
   const state = getState();
   if (action) {
@@ -3147,6 +3336,12 @@ const handleSelectMoleculeByName = (molName, isSelected) => (dispatch, getState)
 const handleSelectAllMolecules = (action, isSelected) => (dispatch, getState) => {
   if (action && action.items) {
     dispatch(selectAllHits(action.items, setNextXMolecules, !isSelected));
+  }
+};
+
+const handleSelectAllVisibleHits = (action, isSelected) => (dispatch, getState) => {
+  if (action && action.items) {
+    dispatch(selectAllVisibleObservations(action.items, setNextXMolecules, !isSelected));
   }
 };
 
@@ -3485,7 +3680,7 @@ const handleArrowNavigationActionOfCompound = (action, isSelected, majorViewStag
     const qualityListMolecule = data.qualityList;
 
     dispatch(hideAllSelectedMolecules(majorViewStage, molecules, false, true));
-    dispatch(removeSelectedDatasetMolecules(majorViewStage, true));
+    dispatch(removeSelectedDatasetMolecules(majorViewStage, true, newItem));
 
     const newDatasetID = (newItem.hasOwnProperty('datasetID') && newItem.datasetID) || datasetID;
     const moleculeTitlePrev = newItem && newItem.name;
@@ -3559,6 +3754,68 @@ const handleTagAction = (action, isSelected) => (dispatch, getState) => {
       } else {
         dispatch(removeSelectedTag(tag));
       }
+    }
+  }
+};
+
+const handlePoseWindowAction = (action, invert) => (dispatch, getState) => {
+  if (action) {
+    const openDialog = action.isOpen;
+    if (openDialog) {
+      if (invert && action.prevPoseId && action.prevObservations?.length > 0) {
+        dispatch(setObservationsForLHSCmp(action.prevObservations));
+        dispatch(setOpenObservationsDialog(true));
+        dispatch(setPoseIdForObservationsDialog(action.prevPoseId));
+        dispatch(setScrollFiredForLHS(false));
+      } else if (invert) {
+        dispatch(setObservationsForLHSCmp([]));
+        dispatch(setOpenObservationsDialog(false));
+        dispatch(setPoseIdForObservationsDialog(0));
+        // dispatch(setScrollFiredForLHS(false));
+      } else if (action.object_id && action.items?.length > 0) {
+        dispatch(setObservationsForLHSCmp(action.items));
+        dispatch(setOpenObservationsDialog(true));
+        dispatch(setPoseIdForObservationsDialog(action.object_id));
+        dispatch(setScrollFiredForLHS(false));
+      } else {
+        console.error(`${invert ? 'Undo' : 'Redo'} failed for action: ${JSON.stringify(action)}`);
+      }
+    } else {
+      dispatch(setObservationsForLHSCmp([]));
+      dispatch(setOpenObservationsDialog(false));
+      dispatch(setPoseIdForObservationsDialog(0));
+    }
+  }
+};
+
+const handleInspirationsWindowAction = (action, invert) => (dispatch, getState) => {
+  if (action) {
+    const openDialog = action.isOpen;
+    if (openDialog) {
+      if (invert && action.prevCmpdId && action.prevInspirations?.length > 0) {
+        dispatch(setInspirationMoleculeDataList(action.prevInspirations));
+        dispatch(setIsOpenInspirationDialog(true));
+        dispatch(setInspirationList(action.datasetID, [action.prevCmpdId]));
+        dispatch(resetDatasetScrolledMap());
+        dispatch(setSelectedDatasetScrolled(false));
+      } else if (invert) {
+        dispatch(setInspirationMoleculeDataList([]));
+        dispatch(setIsOpenInspirationDialog(false));
+        dispatch(setInspirationList(action.datasetID, 0));
+        // dispatch(resetDatasetScrolledMap());
+      } else if (action.object_id && action.items?.length > 0) {
+        dispatch(setInspirationMoleculeDataList(action.items));
+        dispatch(setIsOpenInspirationDialog(true));
+        dispatch(setInspirationList(action.datasetID, [action.object_id]));
+        dispatch(resetDatasetScrolledMap());
+        dispatch(setSelectedDatasetScrolled(false));
+      } else {
+        console.error(`${invert ? 'Undo' : 'Redo'} failed for action: ${JSON.stringify(action)}`);
+      }
+    } else {
+      dispatch(setInspirationMoleculeDataList([]));
+      dispatch(setIsOpenInspirationDialog(false));
+      dispatch(setInspirationList(action.datasetID, 0));
     }
   }
 };
@@ -3718,7 +3975,7 @@ export const checkSendTrackingActions = (save = false) => async (dispatch, getSt
   const sendActions = state.trackingReducers.send_actions_list;
   const length = sendActions.length;
 
-  if (length >= CONSTANTS.COUNT_SEND_TRACK_ACTIONS || save) {
+  if (/*length >= CONSTANTS.COUNT_SEND_TRACK_ACTIONS || */ save) {
     await dispatch(sendTrackingActions(sendActions, currentProject, true));
   }
 };
@@ -3776,6 +4033,8 @@ const getTrackingActions = (projectID, withTreeSeparation) => (dispatch, getStat
   const currentProject = state.projectReducers.currentProject;
   const currentProjectID = currentProject && currentProject.projectID;
   const sendActions = state.trackingReducers.send_actions_list;
+  const currentActionList = state.trackingReducers.current_actions_list;
+  const trackActionsList = state.trackingReducers.track_actions_list;
 
   if (projectID) {
     dispatch(setIsActionsLoading(true));
@@ -3816,7 +4075,10 @@ const getTrackingActions = (projectID, withTreeSeparation) => (dispatch, getStat
         dispatch(setIsActionsLoading(false));
       });
   } else {
-    let projectActions = [...sendActions];
+    // let projectActions = [...sendActions];
+    // const projectActions = [];
+    let projectActions = [...currentActionList, ...sendActions, ...trackActionsList];
+    projectActions = uniqWith(projectActions, isEqual);
     dispatch(setProjectActionList(projectActions));
     return Promise.resolve(projectActions);
   }
@@ -3885,14 +4147,14 @@ const copyActionsToProject = (toProject, setActionList = true, clear = false) =>
   }
 };
 
-export const sendTrackingActionsByProjectId = (projectID, authorID) => async (dispatch, getState) => {
+export const sendTrackingActionsByProjectId = (projectID, authorID, offline = false) => async (dispatch, getState) => {
   const state = getState();
   const currentProject = state.projectReducers.currentProject;
   const currentProjectID = currentProject && currentProject.projectID;
 
   const project = { projectID, authorID };
 
-  await dispatch(getTrackingActions(currentProjectID));
+  await dispatch(getTrackingActions(offline ? null : currentProjectID));
   await dispatch(copyActionsToProject(project, false, currentProjectID && currentProjectID != null ? true : false));
 };
 

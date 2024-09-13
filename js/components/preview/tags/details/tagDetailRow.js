@@ -1,6 +1,6 @@
 import React, { memo, useState, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { CATEGORY_TYPE_BY_ID } from '../../../../constants/constants';
+import { CATEGORY_TYPE_BY_ID, PLURAL_TO_SINGULAR } from '../../../../constants/constants';
 import TagView from '../tagView';
 import { getDefaultTagDiscoursePostText } from '../utils/tagUtils';
 import { DJANGO_CONTEXT } from '../../../../utils/djangoContext';
@@ -148,6 +148,11 @@ const TagDetailRow = memo(({ tag, moleculesToEditIds, moleculesToEdit }) => {
     dispatch(setTagToEdit(tag));
   };
 
+  const getTagCategoryName = () => {
+    const category = dispatch(getCategoryById(tag.category))?.category;
+    return PLURAL_TO_SINGULAR.hasOwnProperty(category) ? PLURAL_TO_SINGULAR[category] : category;
+  };
+
   return (
     <>
       {/* TagView Chip */}
@@ -162,12 +167,14 @@ const TagDetailRow = memo(({ tag, moleculesToEditIds, moleculesToEdit }) => {
         isEdit={true}
         isTagEditor={true}
       ></TagView>
+
       {/* category */}
-      <Tooltip title={dispatch(getCategoryById(tag.category))?.category}>
+      <Tooltip title={getTagCategoryName()}>
         <Typography className={classes.text} variant="body2" noWrap>
-          {dispatch(getCategoryById(tag.category))?.category}
+          {getTagCategoryName()}
         </Typography>
       </Tooltip>
+
       {/* select hits button */}
       <Tooltip title="Select hits">
         <Button
@@ -182,6 +189,7 @@ const TagDetailRow = memo(({ tag, moleculesToEditIds, moleculesToEdit }) => {
           {hasSelectedMolecule() ? 'Unselect hits' : 'Select hits'}
         </Button>
       </Tooltip>
+
       {/* discourse button */}
       <Tooltip title="Discourse link">
         {/* Tooltip should not have disabled element as a direct child */}
@@ -213,18 +221,23 @@ const TagDetailRow = memo(({ tag, moleculesToEditIds, moleculesToEdit }) => {
           </Fab>
         </>
       </Tooltip>
+
       {/* user */}
       <Typography className={classes.text} variant="body2">
         {tag.user_id}
       </Typography>
+
       {/* date */}
       <Typography className={classes.text} variant="body2" noWrap>
         {navigator.language
           ? new Date(tag.create_date).toLocaleDateString(navigator.language)
           : new Date(tag.create_date).toLocaleDateString()}
       </Typography>
+      {/* </TableCell> */}
+
       {/* edit button */}
-      <IconButton
+      <div></div>
+      {/* <IconButton
         variant="contained"
         className={classes.editButton}
         size="small"
@@ -235,7 +248,7 @@ const TagDetailRow = memo(({ tag, moleculesToEditIds, moleculesToEdit }) => {
         <Tooltip title="Edit" className={classes.editButtonIcon}>
           <Edit />
         </Tooltip>
-      </IconButton>
+      </IconButton> */}
     </>
   );
 });

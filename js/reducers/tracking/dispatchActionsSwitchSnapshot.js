@@ -1,9 +1,19 @@
 import { base_url, URLS } from '../../components/routes/constants';
 import { api } from '../../../js/utils/api';
 import { setCurrentSnapshot } from '../../components/projects/redux/actions';
-import { setCurrentActionsList, setIsActionsRestoring, setSkipOrientationChange, setIsSnapshotDirty } from './actions';
-import { resetSelectionState } from '../selection/actions';
-import { resetDatasetsStateOnSnapshotChange, resetDatasetScrolledMap } from '../../components/datasets/redux/actions';
+import {
+  setCurrentActionsList,
+  setIsActionsRestoring,
+  setSkipOrientationChange,
+  setIsSnapshotDirty,
+  setSnapshotActionsDownloaded
+} from './actions';
+import { resetSelectionState, setScrollFiredForLHS } from '../selection/actions';
+import {
+  resetDatasetsStateOnSnapshotChange,
+  resetDatasetScrolledMap,
+  setSelectedDatasetScrolled
+} from '../../components/datasets/redux/actions';
 import { resetViewerControlsState } from '../../components/preview/viewerControls/redux/actions';
 import { resetNglTrackingState } from '../nglTracking/dispatchActions';
 import { removeAllNglComponents } from '../ngl/actions';
@@ -59,6 +69,7 @@ import {
 } from '../../components/datasets/redux/dispatchActions';
 import { getDifference } from './utils';
 import { setIsSnapshot, setSnapshotLoadingInProgress } from '../api/actions';
+import { isEqual, uniqWith } from 'lodash';
 
 /**
  * The goal of this method is to restore the state of the app based on the tracking
@@ -125,6 +136,8 @@ export const restoreAfterSnapshotChange = (stages, projectId) => async (dispatch
     // console.count(`AFTER restoration orientation from snapshot`);
 
     dispatch(resetDatasetScrolledMap()); // Have a look at useScrollToSelected.js
+    dispatch(setScrollFiredForLHS(false));
+    dispatch(setSelectedDatasetScrolled(false));
     dispatch(setIsActionsRestoring(false, true));
 
     console.count(`restoreAfterSnapshotChange end`);
@@ -138,6 +151,7 @@ export const restoreAfterSnapshotChange = (stages, projectId) => async (dispatch
  */
 export const changeSnapshot = (projectID, snapshotID, nglViewList, stage) => async (dispatch, getState) => {
   console.count(`Change snapshot - start`);
+  dispatch(setSnapshotActionsDownloaded(false));
   dispatch(setSnapshotLoadingInProgress(true));
   dispatch(setIsSnapshot(true));
   // A hacky way of changing the URL without triggering react-router
@@ -349,7 +363,7 @@ const handleSurfacesOfMols = (actions, stage) => async (dispatch, getState) => {
   for (const molId of instructions.toTurnOn) {
     const mol = dispatch(getMoleculeForId(molId));
     if (mol) {
-      await dispatch(addSurface(stage, mol, getRandomColor(mol), true, true));
+      await dispatch(addSurface(stage, mol, getRandomColor(mol), true));
     }
   }
 };
@@ -370,7 +384,7 @@ const handleSurfacesOfCompounds = (actions, stage) => async (dispatch, getState)
     for (const cmpId of cmpIds.toTurnOn) {
       const cmp = dispatch(getCompoundById(cmpId, datasetId));
       if (cmp) {
-        await dispatch(addDatasetSurface(stage, cmp, getRandomColor(cmp), datasetId, true));
+        await dispatch(addDatasetSurface(stage, cmp, getRandomColor(cmp), datasetId));
       }
     }
   }
@@ -563,7 +577,7 @@ const getRestoreInstructionsForCompounds = (actions, actionType, compoundsLists)
 
 const getMoleculeIdsFromActions = (actions, actionType) => (dispatch, getState) => {
   const state = getState();
-  const result = actions
+  let result = actions
     .filter(action => action.type === actionType && action.object_type === actionObjectType.MOLECULE)
     .map(action => {
       const mol = getMolecule(action.object_name, state);
@@ -571,6 +585,7 @@ const getMoleculeIdsFromActions = (actions, actionType) => (dispatch, getState) 
         return { id: mol?.id, name: mol?.code };
       }
     });
+  result = uniqWith(result, isEqual);
 
   return result;
 };

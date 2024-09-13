@@ -139,6 +139,8 @@ export const DownloadStructureDialog = memo(({}) => {
   const isOpen = useSelector(state => state.snapshotReducers.downloadStructuresDialogOpen);
   const targetId = useSelector(state => state.apiReducers.target_on);
   const targetName = useSelector(state => state.apiReducers.target_on_name);
+  const targetIdList = useSelector(state => state.apiReducers.target_id_list);
+  const target = targetIdList.find(t => t.id === targetId);
   const allMolecules = useSelector(state => state.apiReducers.all_mol_lists);
   const ligandsTurnedOnIds = useSelector(state => state.selectionReducers.fragmentDisplayList);
   const selectedMoleculesIds = useSelector(state => state.selectionReducers.moleculesToEdit);
@@ -500,7 +502,7 @@ export const DownloadStructureDialog = memo(({}) => {
       <div className={classes.root}>
         {!zipPreparing && !(generalError || backendError) && (
           <DialogTitle id="form-dialog-structures-title" disableTypography>
-            <Typography variant="h5">{`Download structures and data for target ${targetName}`}</Typography>
+            <Typography variant="h5">{`Download structures and data for target ${target?.display_name}`}</Typography>
           </DialogTitle>
         )}
         {zipPreparing && (

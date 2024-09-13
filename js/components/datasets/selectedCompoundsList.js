@@ -25,6 +25,8 @@ import DatasetMoleculeView from './datasetMoleculeView';
 import { InspirationDialog } from './inspirationDialog';
 import {
   setCrossReferenceCompoundName,
+  setInspirationDialogAction,
+  setInspirationList,
   setIsOpenInspirationDialog,
   setIsOpenLockVisibleCompoundsDialogGlobal,
   setSelectedCompoundsList
@@ -33,7 +35,9 @@ import { CrossReferenceDialog } from './crossReferenceDialog';
 import {
   autoHideDatasetDialogsOnScroll,
   getAllVisibleButNotLockedSelectedCompounds,
+  getCurrentSelectedCompoundIterator,
   getInspirationsForMol,
+  getObservationForLHSReference,
   isCompoundLocked,
   isCompoundVisible,
   moveDatasetMoleculeUpDown,
@@ -70,6 +74,7 @@ import { ARROW_TYPE, VIEWS } from '../../constants/constants';
 import { useScrollToCompound } from './useScrollToCompound';
 import useDisableNglControlButtons from '../preview/molecule/useDisableNglControlButtons';
 import useDisableDatasetNglControlButtons from './useDisableDatasetNglControlButtons';
+import { downloadRHSCSVExport } from '../../utils/csv';
 
 const useStyles = makeStyles(theme => ({
   container: {
@@ -187,26 +192,36 @@ export const SelectedCompoundList = memo(() => {
     setCurrentPage(currentPage + 1);
   };
 
-  const listItemOffset = (currentPage + 1) * moleculesPerPage;
-  const currentMolecules = moleculesObjectIDListOfCompoundsToBuy.slice(0, listItemOffset);
-  const canLoadMore = listItemOffset < moleculesObjectIDListOfCompoundsToBuy.length;
+  // const listItemOffset = (currentPage + 1) * moleculesPerPage;
+  // const currentMolecules = moleculesObjectIDListOfCompoundsToBuy.slice(0, listItemOffset);
+  const currentMolecules = moleculesObjectIDListOfCompoundsToBuy.slice(0, moleculesObjectIDListOfCompoundsToBuy.length);
+  const canLoadMore = false; //listItemOffset < moleculesObjectIDListOfCompoundsToBuy.length;
 
   const ligandList = useSelector(state => getListOfSelectedLigandOfAllDatasets(state));
-  const proteinList = useSelector(state => getListOfSelectedProteinOfAllDatasets(state));
-  const complexList = useSelector(state => getListOfSelectedComplexOfAllDatasets(state));
-  const surfaceList = useSelector(state => getListOfSelectedSurfaceOfAllDatasets(state));
+  const proteinList = useSelector(state => state.selectionReducers.proteinList);
+  const complexList = useSelector(state => state.selectionReducers.complexList);
+  const surfaceList = useSelector(state => state.selectionReducers.surfaceList);
+
+  const proteinListDataset = useSelector(state => getListOfSelectedProteinOfAllDatasets(state));
+  const complexListDataset = useSelector(state => getListOfSelectedComplexOfAllDatasets(state));
+  const surfaceListDataset = useSelector(state => getListOfSelectedSurfaceOfAllDatasets(state));
 
   const showedCompoundList = useSelector(state => state.previewReducers.compounds.showedCompoundList);
   const filteredScoreProperties = useSelector(state => state.datasetsReducers.filteredScoreProperties);
 
   const moleculeLists = useSelector(state => state.datasetsReducers.moleculeLists);
+  const allMoleculesList = useSelector(state => state.apiReducers.all_mol_lists);
+
+  const targetName = useSelector(state => state.apiReducers.target_on_name);
+
   const compoundsToBuyList = useSelector(state => state.datasetsReducers.compoundsToBuyDatasetMap);
-  let selectedMolecules = [];
-  Object.keys(compoundsToBuyList).forEach(datasetId => {
-    const datasetCmpsToBuy = compoundsToBuyList[datasetId] || [];
-    const molsOfDataset = moleculeLists[datasetId] || [];
-    selectedMolecules = [...selectedMolecules, ...molsOfDataset.filter(mol => datasetCmpsToBuy?.includes(mol.id))];
-  });
+
+  // let selectedMolecules = [];
+  // Object.keys(compoundsToBuyList).forEach(datasetId => {
+  //   const datasetCmpsToBuy = compoundsToBuyList[datasetId] || [];
+  //   const molsOfDataset = moleculeLists[datasetId] || [];
+  //   selectedMolecules = [...selectedMolecules, ...molsOfDataset.filter(mol => datasetCmpsToBuy?.includes(mol.id))];
+  // });
 
   const { addMoleculeViewRef, setScrollToMoleculeId, getNode } = useScrollToCompound();
 
@@ -254,6 +269,8 @@ export const SelectedCompoundList = memo(() => {
 
   const colorFilterSettings = useSelector(state => state.datasetsReducers.selectedColorsInFilter);
 
+  const allInspirations = useSelector(state => state.datasetsReducers.allInspirations);
+
   const [lockCompoundsDialogAnchorE1, setLockCompoundsDialogAnchorE1] = useState(null);
 
   //we need to add also lists to dependancy array because isCompoundVisible depends on them
@@ -266,9 +283,7 @@ export const SelectedCompoundList = memo(() => {
     if (moleculesObjectIDListOfCompoundsToBuy) {
       for (let i = 0; i < moleculesObjectIDListOfCompoundsToBuy.length; i++) {
         const cmp = moleculesObjectIDListOfCompoundsToBuy[i];
-        const dataset = cmp.datasetID;
-        const molecule = cmp.molecule;
-        const isVisible = dispatch(isCompoundVisible(dataset, molecule.id));
+        const isVisible = dispatch(isCompoundVisible(cmp));
         if (isVisible) {
           result = true;
           break;
@@ -276,29 +291,29 @@ export const SelectedCompoundList = memo(() => {
       }
     }
     return result;
-  }, [dispatch, moleculesObjectIDListOfCompoundsToBuy]);
-  // if (!moleculesObjectIDListOfCompoundsToBuy) {
-  //   for (let i = 0; i < moleculesObjectIDListOfCompoundsToBuy.length; i++) {
-  //     const cmp = moleculesObjectIDListOfCompoundsToBuy[i];
-  //     const dataset = cmp.datasetID;
-  //     const molecule = cmp.molecule;
-  //     const isVisible = dispatch(isCompoundVisible(dataset, molecule.id));
-  //     if (isVisible) {
-  //       areArrowsVisible = true;
-  //       break;
-  //     }
-  //   }
-  // }
+  }, [
+    dispatch,
+    moleculesObjectIDListOfCompoundsToBuy,
+    ligandList,
+    proteinList,
+    complexList,
+    surfaceList,
+    proteinListDataset,
+    complexListDataset,
+    surfaceListDataset
+  ]);
 
   useEffect(() => {
     return () => {
       dispatch(setIsOpenInspirationDialog(false));
+      // dispatch(setInspirationList(datasetID, []));
       dispatch(resetCrossReferenceDialog());
     };
   }, [dispatch]);
 
-  const getSetOfProps = usedDatasets => {
+  const getSetOfProps = filteredCompounds => {
     const unionOfProps = new Set();
+    const usedDatasets = {};
 
     unionOfProps.add('smiles');
 
@@ -310,6 +325,26 @@ export const SelectedCompoundList = memo(() => {
             unionOfProps.add(prop.name);
           }
         });
+      }
+    });
+
+    filteredCompounds.forEach(compound => {
+      const datasetName = compound.datasetID;
+      if (!usedDatasets.hasOwnProperty(datasetName)) {
+        const mol = compound.molecule;
+        if (mol.hasOwnProperty('numerical_scores')) {
+          const numericalScores = mol['numerical_scores'];
+          Object.keys(numericalScores).forEach(key => {
+            unionOfProps.add(key);
+          });
+        }
+        if (mol.hasOwnProperty('text_scores')) {
+          const textScores = mol['text_scores'];
+          Object.keys(textScores).forEach(key => {
+            unionOfProps.add(key);
+          });
+        }
+        usedDatasets[datasetName] = true;
       }
     });
 
@@ -417,17 +452,6 @@ export const SelectedCompoundList = memo(() => {
     return result;
   };
 
-  const getUsedDatasets = mols => {
-    const setOfDataSets = {};
-    mols.forEach(mol => {
-      if (!setOfDataSets.hasOwnProperty(mol.datasetID)) {
-        setOfDataSets[mol.datasetID] = mol.datasetID;
-      }
-    });
-
-    return setOfDataSets;
-  };
-
   const getEmptyMolObject = (props, ids) => {
     let molObj = {};
 
@@ -470,8 +494,7 @@ export const SelectedCompoundList = memo(() => {
         return isVisible;
       });
 
-      const usedDatasets = getUsedDatasets(filteredCompounds);
-      const props = getSetOfProps(usedDatasets);
+      const props = getSetOfProps(filteredCompounds);
       const ids = getCompoundIds(filteredCompounds);
 
       const listOfMols = [];
@@ -520,7 +543,7 @@ export const SelectedCompoundList = memo(() => {
           const inspirations = getInspirationsForMol(allInspirations, compound.datasetID, compound.molecule.id);
           for (let i = 0; i < maxNumOfInspirations; i++) {
             if (inspirations?.[i]) {
-              molObj[`inspiration_${i + 1}`] = inspirations[i].protein_code;
+              molObj[`inspiration_${i + 1}`] = inspirations[i].code;
             } else {
               molObj[`inspiration_${i + 1}`] = '';
             }
@@ -534,11 +557,9 @@ export const SelectedCompoundList = memo(() => {
           const cmpColorsForDataset = compoundColors[compound.datasetID];
           shoppingCartColors = cmpColorsForDataset[compound.molecule.id];
         }
-        // let colorTagsToDisplay = '';
         let colorsTemplateCopy = { ...colorsTemplate };
         shoppingCartColors.forEach(color => {
           colorsTemplateCopy[color] = true;
-          // colorTagsToDisplay = colorTagsToDisplay + `${color}: ${inputs[color] || ''}|`;
         });
 
         Object.keys(colorsTemplateCopy)
@@ -550,26 +571,28 @@ export const SelectedCompoundList = memo(() => {
             }
           });
 
-        // molObj['color_groups'] = colorTagsToDisplay;
         molObj = { ...molObj, ...colorsTemplateCopy };
 
         listOfMols.push(molObj);
       });
 
-      const reqObj = { title: sharedSnapshot.url, dict: listOfMols };
-      const jsonString = JSON.stringify(reqObj);
+      const fileName = `${targetName}-RHS-selection.csv`;
+      // console.log(`href - ${fileName}`);
+      const reqObj = { title: sharedSnapshot.url, filename: fileName, dict: listOfMols };
+      downloadRHSCSVExport(reqObj);
+      // const jsonString = JSON.stringify(reqObj);
 
-      api({
-        url: `${base_url}/api/dicttocsv/`,
-        method: METHOD.POST,
-        data: jsonString
-      }).then(resp => {
-        var anchor = document.createElement('a');
-        anchor.href = `${base_url}/api/dicttocsv/?file_url=${resp.data['file_url']}`;
-        anchor.target = '_blank';
-        anchor.download = 'download';
-        anchor.click();
-      });
+      // api({
+      //   url: `${base_url}/api/dicttocsv/`,
+      //   method: METHOD.POST,
+      //   data: jsonString
+      // }).then(resp => {
+      //   var anchor = document.createElement('a');
+      //   anchor.href = `${base_url}/api/dicttocsv/?file_url=${resp.data['file_url']}`;
+      //   anchor.target = '_blank';
+      //   anchor.download = `${fileName}`; //'download';
+      //   anchor.click();
+      // });
     });
   };
 
@@ -595,13 +618,18 @@ export const SelectedCompoundList = memo(() => {
 
   const getFirstItemForIterationStart = () => {
     let result = null;
-    for (let i = 0; i < moleculesObjectIDListOfCompoundsToBuy.length; i++) {
-      const cmp = moleculesObjectIDListOfCompoundsToBuy[i];
-      if (!dispatch(isCompoundLocked(cmp.datasetID, cmp.molecule)) && !isCompoundFromVectorSelector(cmp.molecule)) {
-        const isVisible = dispatch(isCompoundVisible(cmp.datasetID, cmp.molecule.id));
-        if (isVisible) {
-          result = cmp;
-          break;
+
+    result = dispatch(getCurrentSelectedCompoundIterator());
+
+    if (!(result.datasetID && result.molecule)) {
+      for (let i = 0; i < moleculesObjectIDListOfCompoundsToBuy.length; i++) {
+        const cmp = moleculesObjectIDListOfCompoundsToBuy[i];
+        if (!dispatch(isCompoundLocked(cmp.datasetID, cmp.molecule)) && !isCompoundFromVectorSelector(cmp.molecule)) {
+          const isVisible = dispatch(isCompoundVisible(cmp));
+          if (isVisible) {
+            result = cmp;
+            break;
+          }
         }
       }
     }
@@ -658,12 +686,28 @@ export const SelectedCompoundList = memo(() => {
         const node = getNode(nextItem.molecule?.id);
         setScrollToMoleculeId(nextItem.molecule?.id);
 
+        let firstItemIdToUse = firstItem.molecule?.id;
+        let isCustomPdb = true;
+        if (!firstItem.molecule?.isCustomPdb) {
+          isCustomPdb = false;
+          const obs = dispatch(getObservationForLHSReference(firstItem.molecule));
+          if (obs) {
+            firstItemIdToUse = obs.id;
+          }
+        }
+
         let dataValue = {
           colourToggle: getRandomColor(firstItem.molecule),
           isLigandOn: ligandList.includes(firstItem.molecule?.id),
-          isProteinOn: proteinList.includes(firstItem.molecule?.id),
-          isComplexOn: complexList.includes(firstItem.molecule?.id),
-          isSurfaceOn: surfaceList.includes(firstItem.molecule?.id)
+          isProteinOn: isCustomPdb
+            ? proteinListDataset.includes(firstItemIdToUse)
+            : proteinList.includes(firstItemIdToUse),
+          isComplexOn: isCustomPdb
+            ? complexListDataset.includes(firstItemIdToUse)
+            : complexList.includes(firstItemIdToUse),
+          isSurfaceOn: isCustomPdb
+            ? surfaceListDataset.includes(firstItemIdToUse)
+            : surfaceList.includes(firstItemIdToUse)
         };
 
         dispatch(setCrossReferenceCompoundName(moleculeTitleNext));
@@ -671,6 +715,19 @@ export const SelectedCompoundList = memo(() => {
         if (node) {
           setSelectedMoleculeRef(node);
         }
+
+        dispatch(
+          setInspirationDialogAction(
+            nextItem.datasetID,
+            nextItem.molecule.id,
+            getInspirationsForMol(allInspirations, nextItem.datasetID, nextItem.molecule.id),
+            true,
+            0,
+            [],
+            true
+          )
+        );
+
         dispatch(
           moveSelectedDatasetMoleculeUpDown(
             stage,
@@ -701,12 +758,28 @@ export const SelectedCompoundList = memo(() => {
         const node = getNode(prevItem.molecule?.id);
         setScrollToMoleculeId(prevItem.molecule?.id);
 
+        let firstItemIdToUse = firstItem.molecule?.id;
+        let isCustomPdb = true;
+        if (!firstItem.molecule?.isCustomPdb) {
+          isCustomPdb = false;
+          const obs = dispatch(getObservationForLHSReference(firstItem?.molecule));
+          if (obs) {
+            firstItemIdToUse = obs.id;
+          }
+        }
+
         let dataValue = {
           colourToggle: getRandomColor(firstItem.molecule),
           isLigandOn: ligandList.includes(firstItem.molecule?.id),
-          isProteinOn: proteinList.includes(firstItem.molecule?.id),
-          isComplexOn: complexList.includes(firstItem.molecule?.id),
-          isSurfaceOn: surfaceList.includes(firstItem.molecule?.id)
+          isProteinOn: isCustomPdb
+            ? proteinListDataset.includes(firstItemIdToUse)
+            : proteinList.includes(firstItemIdToUse),
+          isComplexOn: isCustomPdb
+            ? complexListDataset.includes(firstItemIdToUse)
+            : complexList.includes(firstItemIdToUse),
+          isSurfaceOn: isCustomPdb
+            ? surfaceListDataset.includes(firstItemIdToUse)
+            : surfaceList.includes(firstItemIdToUse)
         };
 
         dispatch(setCrossReferenceCompoundName(moleculeTitleNext));
@@ -714,6 +787,19 @@ export const SelectedCompoundList = memo(() => {
         if (node) {
           setSelectedMoleculeRef(node);
         }
+
+        dispatch(
+          setInspirationDialogAction(
+            prevItem.datasetID,
+            prevItem.molecule.id,
+            getInspirationsForMol(allInspirations, prevItem.datasetID, prevItem.molecule.id),
+            true,
+            0,
+            [],
+            true
+          )
+        );
+
         dispatch(
           moveSelectedDatasetMoleculeUpDown(
             stage,
@@ -869,11 +955,11 @@ export const SelectedCompoundList = memo(() => {
         {currentMolecules.length > 0 && (
           <Grid item className={classes.gridItemList} ref={scrollBarRef}>
             <InfiniteScroll
-              getScrollParent={() => {
-                dispatch(
-                  autoHideDatasetDialogsOnScroll({ inspirationDialogRef, crossReferenceDialogRef, scrollBarRef })
-                );
-              }}
+              // getScrollParent={() => {
+              //   dispatch(
+              //     autoHideDatasetDialogsOnScroll({ inspirationDialogRef, crossReferenceDialogRef, scrollBarRef })
+              //   );
+              // }}
               pageStart={0}
               loadMore={loadNextMolecules}
               hasMore={canLoadMore}
@@ -930,6 +1016,11 @@ export const SelectedCompoundList = memo(() => {
                   }
 
                   const isLocked = dispatch(isCompoundLocked(data.datasetID, data.molecule));
+                  const isCustomPdb = data.molecule.isCustomPdb;
+
+                  const itemIdToUse = isCustomPdb
+                    ? data.molecule.id
+                    : dispatch(getObservationForLHSReference(data.molecule))?.id;
                   // }
                   return (
                     isVisible && (
@@ -946,12 +1037,12 @@ export const SelectedCompoundList = memo(() => {
                         previousItemData={index > 0 && array[index - 1]}
                         nextItemData={index < array?.length && array[index + 1]}
                         L={isLigandOn}
-                        P={proteinList.includes(data.molecule.id)}
-                        C={complexList.includes(data.molecule.id)}
-                        S={surfaceList.includes(data.molecule.id)}
+                        P={isCustomPdb ? proteinListDataset.includes(itemIdToUse) : proteinList.includes(itemIdToUse)}
+                        C={isCustomPdb ? complexListDataset.includes(itemIdToUse) : complexList.includes(itemIdToUse)}
+                        S={isCustomPdb ? surfaceListDataset.includes(itemIdToUse) : surfaceList.includes(itemIdToUse)}
                         V={false}
                         arrowsHidden={false}
-                        dragDropEnabled
+                        dragDropEnabled={false}
                         shoppingCartColors={shoppingCartColors}
                         isAddedToShoppingCart={isAddedToShoppingCart}
                         inSelectedCompoundsList

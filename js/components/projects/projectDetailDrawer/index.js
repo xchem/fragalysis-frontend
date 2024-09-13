@@ -9,6 +9,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import palette from '../../../theme/palette';
 import { setIsOpenModalBeforeExit, setSelectedSnapshotToSwitch, setSharedSnapshot } from '../../snapshot/redux/actions';
 import Gallery from 'react-grid-gallery';
+import { COMPANIES, get_logo } from '../../funders/constants';
 
 const useStyles = makeStyles(theme => ({
   drawer: {
@@ -252,7 +253,7 @@ export const ProjectDetailDrawer = memo(({ showHistory, setShowHistory }) => {
         </div>
       </Drawer>
       <Modal open={open} onClose={() => setOpen(false)}>
-        <img src={require('../../../img/xchemLogo.png')} />
+        <img src={get_logo(COMPANIES.xchem.image)} />
       </Modal>
     </>
   );

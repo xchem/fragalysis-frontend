@@ -1,6 +1,7 @@
 /**
  * Created by abradley on 15/03/2018.
  */
+import { setPoseIdForObservationsDialog } from './actions';
 import { constants } from './constants';
 
 export const INITIAL_STATE = {
@@ -50,16 +51,26 @@ export const INITIAL_STATE = {
 
   isObservationDialogOpen: false,
   observationsForLHSCmp: [],
+  poseIdForObservationsDialog: 0,
 
-  areLSHCompoundsInitialized: false
+  areLSHCompoundsInitialized: false,
+  toastMessages: [],
+  isScrollFiredForLHS: false,
+  targetToEdit: null
 };
 
 export function selectionReducers(state = INITIAL_STATE, action = {}) {
   switch (action.type) {
+    case constants.SET_SCROLL_FIRED_FOR_LHS: {
+      return { ...state, isScrollFiredForLHS: action.isFired };
+    }
     case constants.SET_TO_BUY_LIST:
       return Object.assign({}, state, {
         to_buy_list: action.to_buy_list
       });
+
+    case constants.SET_TARGET_TO_EDIT:
+      return { ...state, targetToEdit: { ...action.target } };
 
     case constants.APPEND_TO_BUY_LIST:
       const current_to_buy_list = state.to_buy_list.slice();
@@ -160,8 +171,24 @@ export function selectionReducers(state = INITIAL_STATE, action = {}) {
     case constants.SET_OPEN_OBSERVATIONS_DIALOG:
       return { ...state, isObservationDialogOpen: action.isOpen };
 
+    case constants.SET_POSE_ID_FOR_OBSERVATIONS_DIALOG:
+      return {
+        ...state,
+        poseIdForObservationsDialog: action.poseId
+      };
+
     case constants.SET_OBSERVATIONS_FOR_LHS_CMP:
       return { ...state, observationsForLHSCmp: [...action.observations] };
+
+    case constants.UPDATE_MOL_IN_LHS_OBSERVATIONS:
+      let newList = [...state.observationsForLHSCmp];
+      const indexOfMol = newList.findIndex(m => m.id === action.mol.id);
+      if (indexOfMol >= 0) {
+        newList[indexOfMol] = { ...action.mol };
+        return { ...state, observationsForLHSCmp: [...newList] };
+      } else {
+        return state;
+      }
 
     case constants.SET_SURFACE_LIST:
       let newSurfaceList = new Set();
@@ -475,6 +502,12 @@ export function selectionReducers(state = INITIAL_STATE, action = {}) {
 
     case constants.SET_RHS_WIDTH:
       return Object.assign({}, state, { rhsWidth: action.payload });
+
+    case constants.ADD_TOAST_MESSAGE:
+      return { ...state, toastMessages: [...state.toastMessages, { ...action.toastMessage }] };
+
+    case constants.SET_TOAST_MESSAGES:
+      return { ...state, toastMessages: [...action.toastMessages] };
 
     // Cases like: @@redux/INIT
     default:

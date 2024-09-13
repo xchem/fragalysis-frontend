@@ -43,8 +43,10 @@ import { PickProjectModal } from './PickProjectModal';
 import { withLoadingProjects } from '../target/withLoadingProjects';
 import { setProjectModalOpen } from '../projects/redux/actions';
 import { setOpenSnapshotSavingDialog } from '../snapshot/redux/actions';
-import { setTagEditorOpen, setMoleculeForTagEdit } from '../../reducers/selection/actions';
+import { setTagEditorOpen, setMoleculeForTagEdit, setToastMessages } from '../../reducers/selection/actions';
 import { LoadingContext } from '../loading';
+import { ToastContext } from '../toast';
+import { TOAST_LEVELS } from '../toast/constants';
 
 const ReactGridLayout = WidthProvider(ResponsiveGridLayout);
 
@@ -120,6 +122,10 @@ const Preview = memo(({ isStateLoaded, hideProjects, isSnapshot = false }) => {
 
   const nglPortal = useMemo(() => createHtmlPortalNode({ attributes: { style: 'height: 100%' } }), []);
 
+  const { toastSuccess, toastError, toastInfo, toastWarning } = useContext(ToastContext);
+
+  const toastMessages = useSelector(state => state.selectionReducers.toastMessages);
+
   const { setMoleculesAndTagsAreLoading } = useContext(LoadingContext);
 
   useEffect(() => {
@@ -127,6 +133,30 @@ const Preview = memo(({ isStateLoaded, hideProjects, isSnapshot = false }) => {
       dispatch(loadMoleculesAndTagsNew(target_on));
     }
   }, [dispatch, target_on, isSnapshot, setMoleculesAndTagsAreLoading]);
+
+  useEffect(() => {
+    if (toastMessages?.length > 0) {
+      toastMessages.forEach(message => {
+        switch (message.level) {
+          case TOAST_LEVELS.SUCCESS:
+            toastSuccess(message.text);
+            break;
+          case TOAST_LEVELS.ERROR:
+            toastError(message.text);
+            break;
+          case TOAST_LEVELS.INFO:
+            toastInfo(message.text);
+            break;
+          case TOAST_LEVELS.WARNING:
+            toastWarning(message.text);
+            break;
+          default:
+            break;
+        }
+      });
+      dispatch(setToastMessages([]));
+    }
+  }, [dispatch, toastError, toastInfo, toastMessages, toastSuccess, toastWarning]);
 
   // useEffect(() => {
   //   if (target_on) {

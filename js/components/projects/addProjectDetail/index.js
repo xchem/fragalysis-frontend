@@ -44,7 +44,7 @@ const useStyles = makeStyles(theme => ({
   }
 }));
 
-export const AddProjectDetail = memo(({ }) => {
+export const AddProjectDetail = memo(({}) => {
   const classes = useStyles();
   const [state, setState] = useState();
   let [createDiscourse, setCreateDiscourse] = useState(true);
@@ -52,6 +52,7 @@ export const AddProjectDetail = memo(({ }) => {
   const dispatch = useDispatch();
   const targetId = useSelector(state => state.apiReducers.target_on);
   const targetName = useSelector(state => state.apiReducers.target_on_name);
+  const targetList = useSelector(state => state.apiReducers.target_id_list);
   const sessionProjectID = useSelector(state => state.projectReducers.currentProject.projectID);
   const isProjectModalLoading = useSelector(state => state.projectReducers.isProjectModalLoading);
   const currentProject = useSelector(state => state.targetReducers.currentProject);
@@ -70,6 +71,8 @@ export const AddProjectDetail = memo(({ }) => {
   const actualDate = moment().format('-YYYY-MM-DD');
 
   createDiscourse &= dicourseUserAvailable;
+
+  const target = targetList.find(target => target.id === targetId);
 
   const validateProjectName = async value => {
     let error;
@@ -100,8 +103,8 @@ export const AddProjectDetail = memo(({ }) => {
     <ModalNewProject open={isProjectModalLoading}>
       <Formik
         initialValues={{
-          title: targetName + actualDate,
-          description: 'Project created from ' + targetName,
+          title: target?.display_name + actualDate,
+          description: 'Project created from ' + target?.display_name,
           tags: ''
         }}
         validate={values => {

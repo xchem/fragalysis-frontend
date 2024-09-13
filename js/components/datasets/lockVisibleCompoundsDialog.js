@@ -44,27 +44,27 @@ export const LockVisibleCompoundsDialog = forwardRef(
         if (currentCmp) {
           let cmpsToLock = dispatch(getAllVisibleButNotLockedCompounds(datasetId));
           if (cmpsToLock && cmpsToLock.length > 0) {
-            dispatch(lockCompounds(datasetId, cmpsToLock, currentCmp.id));
+            dispatch(lockCompounds(datasetId, cmpsToLock, currentCmp));
           }
         } else {
           let cmpsToLock = dispatch(getAllVisibleButNotLockedCompounds(datasetId));
           //we need to skip first element if we came here from global arrows
           if (cmpsToLock && cmpsToLock.length > 0) {
-            const firstCmpId = cmpsToLock[0];
-            dispatch(lockCompounds(datasetId, cmpsToLock, firstCmpId));
+            const firstCmp = cmpsToLock[0];
+            dispatch(lockCompounds(datasetId, cmpsToLock, firstCmp));
           }
         }
       } else {
         if (currentCmp) {
           let cmpsToLock = dispatch(getAllVisibleButNotLockedSelectedCompounds());
           if (cmpsToLock && cmpsToLock.length > 0) {
-            dispatch(lockSelectedCompounds(cmpsToLock, currentCmp.id));
+            dispatch(lockSelectedCompounds(cmpsToLock, { datasetID: currentCmp.computed_set, molecule: currentCmp }));
           }
         } else {
           let cmpsToLock = dispatch(getAllVisibleButNotLockedSelectedCompounds());
           if (cmpsToLock && cmpsToLock.length > 0) {
-            const firstCmpId = cmpsToLock[0];
-            dispatch(lockSelectedCompounds(cmpsToLock, firstCmpId));
+            const firstCmp = cmpsToLock[0];
+            dispatch(lockSelectedCompounds(cmpsToLock, firstCmp));
           }
         }
       }

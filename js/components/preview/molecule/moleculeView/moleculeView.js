@@ -4,12 +4,12 @@
 
 import React, { memo, useEffect, useState, useRef, useContext, useCallback, useMemo } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { Button, Grid, makeStyles, Tooltip, IconButton, Popper, Item, CircularProgress } from '@material-ui/core';
+import { Button, Grid, makeStyles, Tooltip, IconButton, Popper, CircularProgress } from '@material-ui/core';
 import { Panel } from '../../../common';
 import { MyLocation, Warning, Assignment, AssignmentTurnedIn } from '@material-ui/icons';
 import SVGInline from 'react-svg-inline';
 import classNames from 'classnames';
-import { VIEWS } from '../../../../constants/constants';
+import { PLURAL_TO_SINGULAR, VIEWS } from '../../../../constants/constants';
 import { NGL_PARAMS, COMMON_PARAMS } from '../../../nglView/constants';
 import { NglContext } from '../../../nglView/nglProvider';
 import {
@@ -49,20 +49,50 @@ import { SvgTooltip } from '../../../common';
 import { MOL_TYPE } from '../redux/constants';
 import { DensityMapsModal } from '../modals/densityMapsModal';
 import { getRandomColor } from '../utils/color';
-import { DEFAULT_TAG_COLOR, getAllTagsForMol, getAllTagsForObservation } from '../../tags/utils/tagUtils';
+import { DEFAULT_TAG_COLOR, getAllTagsForCategories, getAllTagsForLHSCmp, getAllTagsForMol, getAllTagsForObservation, getAllTagsForObservationPopover } from '../../tags/utils/tagUtils';
 import MoleculeSelectCheckbox from './moleculeSelectCheckbox';
 import useClipboard from 'react-use-clipboard';
-import Popover from '@mui/material/Popover';
 import Typography from '@mui/material/Typography';
 import { Edit } from '@material-ui/icons';
 import { DJANGO_CONTEXT } from '../../../../utils/djangoContext';
 import { getFontColorByBackgroundColor } from '../../../../utils/colors';
+import { api, METHOD } from '../../../../utils/api';
+import { base_url } from '../../../routes/constants';
 
 const useStyles = makeStyles(theme => ({
   container: {
     padding: theme.spacing(1) / 4,
-    color: 'black',
+    color: 'black'
+    // height: 54
+  },
+  containerHeight: {
     height: 54
+  },
+  contColButtonMenu: {
+    // ...theme.typography.button,
+    height: '100%',
+    width: '100%',
+    minWidth: '20px',
+    // paddingLeft: theme.spacing(1) / 4,
+    // paddingRight: theme.spacing(1) / 4,
+    // paddingBottom: 0,
+    // paddingTop: 0,
+    fontWeight: 'bold',
+    fontSize: 12,
+    borderRadius: 0,
+    borderColor: theme.palette.background.divider,
+    borderLeft: '1px solid',
+    backgroundColor: 'orange',
+    alignContent: 'center',
+    textAlign: 'center',
+    '&:hover': {
+      // backgroundColor: 'orange'
+      // color: theme.palette.primary.contrastText
+    },
+    '&:disabled': {
+      borderRadius: 0,
+      borderColor: 'darkorange'
+    }
   },
   contButtonsMargin: {
     margin: theme.spacing(1) / 2,
@@ -108,8 +138,9 @@ const useStyles = makeStyles(theme => ({
   detailsCol: {
     border: 'solid 1px',
     borderColor: theme.palette.background.divider,
-    borderStyle: 'solid none solid solid',
-    width: 'inherit'
+    borderStyle: 'solid solid solid solid',
+    minWidth: 327
+    // width: 'inherit'
   },
   image: {
     border: 'solid 1px',
@@ -158,11 +189,24 @@ const useStyles = makeStyles(theme => ({
     backgroundColor: theme.palette.error.lighter
   },
   moleculeTitleLabel: {
-    ...theme.typography.button,
+    paddingLeft: 2,
     overflow: 'hidden',
     whiteSpace: 'nowrap',
     textOverflow: 'ellipsis',
-    lineHeight: '1.45'
+    lineHeight: '1.45',
+    // fontWeight: 500,
+    fontSize: '0.8rem',
+    letterSpacing: '0.02em'
+  },
+  moleculeTitleLabelMain: {
+    fontWeight: 'bold',
+    fontSize: '0.9rem'
+  },
+  moleculeTitleLabelMainObs: {
+    fontWeight: 'bolder',
+    // fontStyle: 'italic',
+    textDecorationLine: 'underline',
+    textDecorationStyle: 'dotted'
   },
   checkbox: {
     padding: 0
@@ -243,7 +287,7 @@ const useStyles = makeStyles(theme => ({
   },
   tagPopover: {
     height: '10px',
-    width: '220px',
+    // width: '220px',
     padding: '0px',
     fontSize: '9px',
     borderRadius: '6px',
@@ -265,7 +309,8 @@ const useStyles = makeStyles(theme => ({
   },
   popover: {
     paddingLeft: '5px',
-    fontSize: '10px',
+    fontSize: '14px',
+    fontWeight: 'bold',
     borderRadius: '5px',
     border: '0px black solid',
     paddingRight: '5px',
@@ -299,6 +344,12 @@ const useStyles = makeStyles(theme => ({
   },
   buttonSelectedLoadingOverlay: {
     color: theme.palette.primary.contrastText
+  },
+  categoryCell: {
+    padding: '4px 8px',
+    fontWeight: 'bold',
+    textWrap: 'nowrap',
+    fontSize: 12
   }
 }));
 
@@ -332,7 +383,11 @@ const MoleculeView = memo(
     selected,
     disableL,
     disableP,
-    disableC
+    disableC,
+    hideImage,
+    showExpandedView,
+    headerWidths,
+    setHeaderWidthsHandler
   }) => {
     // const [countOfVectors, setCountOfVectors] = useState('-');
     // const [cmpds, setCmpds] = useState('-');
@@ -367,6 +422,7 @@ const MoleculeView = memo(
     const hasAdditionalInformation = I;
 
     const allMolecules = useSelector(state => state.apiReducers.all_mol_lists);
+    const allPoses = useSelector(state => state.apiReducers.lhs_compounds_list);
 
     //for some reason when tags are changed for this molecule the data are stale so I need to retrieve them from list of all molecules
     data = allMolecules.filter(mol => mol.id === data.id)[0];
@@ -383,6 +439,8 @@ const MoleculeView = memo(
       useSelector(state => state.previewReducers.molecule.disableNglControlButtons[currentID]) || {};
 
     const colourToggle = getRandomColor(data);
+
+    const pose = useMemo(() => allPoses.find(p => p.id === data.pose), [allPoses, data]);
 
     const getCalculatedProps = useCallback(
       () => [
@@ -404,6 +462,7 @@ const MoleculeView = memo(
     const [densityModalOpen, setDensityModalOpen] = useState(false);
     const [moleculeTooltipOpen, setMoleculeTooltipOpen] = useState(false);
     const [tagPopoverOpen, setTagPopoverOpen] = useState(null);
+    const [centroidRes, setCentroidRes] = useState('');
 
     const moleculeImgRef = useRef(null);
 
@@ -416,6 +475,55 @@ const MoleculeView = memo(
     useEffect(() => {
       setTagEditModalOpenNew(tagEditorOpenObs);
     }, [tagEditorOpenObs]);
+
+    const XCA_TAGS_CATEGORIES = ['CanonSites', 'ConformerSites', 'Quatassemblies', 'Crystalforms', 'CrystalformSites'];
+    const XCA_TAGS_CATEGORIES_EXPANDED = ['Quatassemblies', 'ConformerSites', 'Crystalforms', 'CrystalformSites', 'CanonSites'];
+
+    useEffect(() => {
+      api({
+        url: `${base_url}/api/canon_site_confs/`,
+        method: METHOD.GET
+      })
+        .then(resp => {
+          const canonSiteConf = resp.data.results.find(canonSiteConf => canonSiteConf.id === data.canon_site_conf);
+          if (canonSiteConf) {
+            api({
+              url: `${base_url}/api/canon_sites/`,
+              method: METHOD.GET
+            })
+              .then(resp => {
+                const canonSite = resp.data.results.find(canonSite => canonSite.id === canonSiteConf.canon_site);
+                if (canonSite) {
+                  setCentroidRes(canonSite.centroid_res);
+                } else {
+                  console.log('there is not any matching canonSite object with ' + canonSiteConf.canon_site + ' id');
+                  setCentroidRes('');
+                }
+              })
+              .catch(err => {
+                console.log('error fetching centroid_res from canon_sites', err);
+                setCentroidRes('');
+              });
+          } else {
+            console.log('there is not any matching canonSiteConf object with ' + data.canon_site_conf + ' id');
+            setCentroidRes('');
+          }
+        })
+        .catch(err => {
+          console.log('error fetching centroid_res from canon_sites', err);
+          setCentroidRes('');
+        });
+    }, [data.canon_site_conf]);
+
+    useEffect(() => {
+      if (showExpandedView) {
+        setHeaderWidthsHandler(centroidRes, 'CentroidRes');
+        setHeaderWidthsHandler(data.longcode, 'LongCode');
+        XCA_TAGS_CATEGORIES.forEach(tagCategory => {
+          setHeaderWidthsHandler(getTagLabel(tagCategory), tagCategory);
+        })
+      }
+    }, [showExpandedView, getTagType, getTagLabel, centroidRes, data.longcode, setHeaderWidthsHandler, XCA_TAGS_CATEGORIES]);
 
     const handlePopoverOpen = event => {
       setTagPopoverOpen(event.currentTarget);
@@ -450,8 +558,22 @@ const MoleculeView = memo(
       return getFontColorByBackgroundColor(bgColor);
     };
 
+    const getAllTags = useCallback(() => getAllTagsForCategories(data, tagList, tagCategories), [data, tagList, tagCategories]);
+
+    /**
+     * Get tag for render
+     */
+    const getTagType = useCallback((type) => {
+      // TODO change this to null maybe?
+      const defaultTagObject = { tag_prefix: '-', color: 'orange', upload_name: '-' };
+      const tagCategory = tagCategories.find(tag => tag.category === type);
+      const tagObject = tagCategory ? getAllTags().find(tag => tag.category === tagCategory.id) : defaultTagObject;
+      return tagObject ?? defaultTagObject;
+    }, [getAllTags, tagCategories]);
+
     const generateTagPopover = () => {
-      const allData = getAllTagsForObservation(data, tagList, tagCategories);
+      // const allData = getAllTagsForObservation(data, tagList, tagCategories);
+      const allData = getAllTagsForObservationPopover(data, tagList, tagCategories);
       // const sortedData = [...allData].sort((a, b) => a.tag.localeCompare(b.tag));
 
       const modifiedObjects = allData.map(obj => {
@@ -470,10 +592,10 @@ const MoleculeView = memo(
       });
 
       const allTagsLength = allData.length > 9 ? 9 : allData.length;
-      const popperPadding = allTagsLength > 1 ? 250 : 420;
+      const popperPadding = 150; // allTagsLength > 1 ? 250 : 420;
 
       return modifiedObjects?.length > 0 ? (
-        <div>
+        <Grid item>
           <Typography
             aria-owns={open ? 'mouse-over-popover' : undefined}
             aria-haspopup="true"
@@ -485,7 +607,7 @@ const MoleculeView = memo(
                 className={classes.tagPopover}
                 container
                 direction="row"
-                style={{ width: '50px' }}
+                style={{ width: '50px', marginBottom: 3 }}
                 onMouseEnter={handlePopoverOpen}
                 onMouseLeave={handlePopoverClose}
               >
@@ -506,11 +628,11 @@ const MoleculeView = memo(
                       <div>{item.tag} </div>
                     </Grid>
                   ) : (
-                    <div></div>
+                    <></>
                   )
                 )}
                 {DJANGO_CONTEXT['username'] === 'NOT_LOGGED_IN' ? (
-                  <div></div>
+                  <></>
                 ) : (
                   <div style={{ width: '10px' }}>
                     <Grid item xs={1}>
@@ -531,7 +653,7 @@ const MoleculeView = memo(
                             }
                           }
                         }}
-                        style={{ padding: '0px', paddingBottom: '3px', marginRight: '5px', position: 'right' }}
+                        style={{ padding: 0, paddingBottom: 3, marginRight: 5, position: 'right' }}
                       >
                         <Tooltip title="Edit tag" className={classes.editButtonIcon}>
                           <Edit />
@@ -548,6 +670,7 @@ const MoleculeView = memo(
                 direction="row"
                 onMouseEnter={handlePopoverOpen}
                 onMouseLeave={handlePopoverClose}
+                style={{ marginBottom: 3 }}
               >
                 <div style={{ display: 'flex', width: `${20 * allTagsLength}` + 'px' }}>
                   {modifiedObjects.map((item, index) =>
@@ -568,39 +691,37 @@ const MoleculeView = memo(
                         <div>{item.tag} </div>
                       </Grid>
                     ) : (
-                      <div></div>
+                      <></>
                     )
                   )}
                 </div>
-                <div>
-                  {DJANGO_CONTEXT['username'] === 'NOT_LOGGED_IN' ? (
-                    <div></div>
-                  ) : (
-                    <IconButton
-                      color={'inherit'}
-                      disabled={!modifiedObjects}
-                      onClick={() => {
-                        if (tagEditModalOpenNew) {
-                          setTagEditModalOpenNew(false);
-                          dispatch(setTagEditorOpenObs(!tagEditModalOpenNew));
-                          dispatch(setMoleculeForTagEdit([]));
-                        } else {
-                          setTagEditModalOpenNew(true);
-                          dispatch(setMoleculeForTagEdit([data.id]));
-                          dispatch(setTagEditorOpenObs(true));
-                          if (setRef) {
-                            setRef(ref.current);
-                          }
+                {DJANGO_CONTEXT['username'] === 'NOT_LOGGED_IN' ? (
+                  <></>
+                ) : (
+                  <IconButton
+                    color={'inherit'}
+                    disabled={!modifiedObjects}
+                    onClick={() => {
+                      if (tagEditModalOpenNew) {
+                        setTagEditModalOpenNew(false);
+                        dispatch(setTagEditorOpenObs(!tagEditModalOpenNew));
+                        dispatch(setMoleculeForTagEdit([]));
+                      } else {
+                        setTagEditModalOpenNew(true);
+                        dispatch(setMoleculeForTagEdit([data.id]));
+                        dispatch(setTagEditorOpenObs(true));
+                        if (setRef) {
+                          setRef(ref.current);
                         }
-                      }}
-                      style={{ padding: '0px', paddingBottom: '3px', cursor: 'pointer' }}
-                    >
-                      <Tooltip title="Edit tags" className={classes.editButtonIcon}>
-                        <Edit />
-                      </Tooltip>
-                    </IconButton>
-                  )}
-                </div>
+                      }
+                    }}
+                    style={{ padding: 0, paddingBottom: 3, marginRight: 5, cursor: 'pointer' }}
+                  >
+                    <Tooltip title="Edit tags" className={classes.editButtonIcon}>
+                      <Edit />
+                    </Tooltip>
+                  </IconButton>
+                )}
               </Grid>
             )}
           </Typography>
@@ -645,35 +766,37 @@ const MoleculeView = memo(
               </Popper>
             </Typography>
           ) : (
-            <div> </div>
+            <></>
           )}
-        </div>
+        </Grid>
       ) : DJANGO_CONTEXT['username'] === 'NOT_LOGGED_IN' ? (
-        <div></div>
+        <></>
       ) : (
-        <IconButton
-          color={'inherit'}
-          disabled={!modifiedObjects}
-          onClick={() => {
-            if (tagEditModalOpenNew) {
-              setTagEditModalOpenNew(false);
-              dispatch(setTagEditorOpenObs(!tagEditModalOpenNew));
-              dispatch(setMoleculeForTagEdit([]));
-            } else {
-              setTagEditModalOpenNew(true);
-              dispatch(setMoleculeForTagEdit([data.id]));
-              dispatch(setTagEditorOpenObs(true));
-              if (setRef) {
-                setRef(ref.current);
+        <Grid item>
+          <IconButton
+            color={'inherit'}
+            disabled={!modifiedObjects}
+            onClick={() => {
+              if (tagEditModalOpenNew) {
+                setTagEditModalOpenNew(false);
+                dispatch(setTagEditorOpenObs(!tagEditModalOpenNew));
+                dispatch(setMoleculeForTagEdit([]));
+              } else {
+                setTagEditModalOpenNew(true);
+                dispatch(setMoleculeForTagEdit([data.id]));
+                dispatch(setTagEditorOpenObs(true));
+                if (setRef) {
+                  setRef(ref.current);
+                }
               }
-            }
-          }}
-          style={{ padding: '0px', paddingBottom: '3px', cursor: 'pointer' }}
-        >
-          <Tooltip title="Edit tags" className={classes.editButtonIcon}>
-            <Edit />
-          </Tooltip>
-        </IconButton>
+            }}
+            style={{ padding: 0, paddingRight: 5, marginTop: -8, cursor: 'pointer' }}
+          >
+            <Tooltip title="Edit tags" className={classes.editButtonIcon}>
+              <Edit />
+            </Tooltip>
+          </IconButton>
+        </Grid>
       );
     };
 
@@ -978,13 +1101,52 @@ const MoleculeView = memo(
 
     const groupMoleculeLPCControlButtonDisabled = disableL || disableP || disableC;
 
+    const getFontSize = string => {
+      let fontSize = 12;
+      switch (string?.length) {
+        case 1:
+        case 2:
+          fontSize = 18
+          break;
+        case 4:
+          fontSize = 10
+          break;
+        default:
+          break;
+      }
+      return fontSize;
+    };
+
+    const getTagLabel = useCallback(tagCategory => {
+      const tagTypeObject = getTagType(tagCategory);
+      let tagLabel = '';
+      if (tagTypeObject) {
+        tagLabel = tagTypeObject.tag;
+      }
+      return tagLabel;
+    }, [getTagType]);
+
+    const getTagTooltip = useCallback(tagCategory => {
+      const tagTypeObject = getTagType(tagCategory);
+      let tagTooltip = '';
+      if (tagTypeObject) {
+        tagTooltip = tagTypeObject.upload_name;
+      }
+      return tagTooltip;
+    }, [getTagType]);
+
     return (
       <>
         <Grid
           container
           justifyContent="space-between"
           direction="row"
-          className={classes.container}
+          className={classNames(
+            classes.container,
+            {
+              [classes.containerHeight]: !hideImage
+            }
+          )}
           wrap="nowrap"
           ref={ref}
         >
@@ -1012,260 +1174,339 @@ const MoleculeView = memo(
             </Grid>
           </Grid>
           <Grid item container className={classes.detailsCol} justifyContent="space-between" direction="row">
-            {/* Title label */}
-            <Grid item xs={7}>
-              <Tooltip title={moleculeTitle} placement="bottom-start">
-                <div
-                  onCopy={e => {
-                    e.preventDefault();
-                    setNameCopied(moleculeTitle);
-                  }}
-                  className={classes.moleculeTitleLabel}
-                >
-                  {moleculeTitleTruncated}
-                </div>
-              </Tooltip>
-              {generateTagPopover()}
-            </Grid>
-            {/* Control Buttons A, L, C, V */}
-            <Grid item xs={4}>
-              <Grid
-                container
-                direction="row"
-                justifyContent="flex-end"
-                alignItems="center"
-                wrap="nowrap"
-                className={classes.contButtonsMargin}
-              >
-                <Tooltip title="all">
-                  <Grid item>
-                    <Button
-                      variant="outlined"
-                      className={classNames(
-                        classes.contColButton,
-                        {
-                          [classes.contColButtonSelected]: hasAllValuesOn
-                        },
-                        {
-                          [classes.contColButtonHalfSelected]: hasSomeValuesOn
-                        }
-                      )}
-                      onClick={() => {
-                        setLoadingAll(true);
-                        // always deselect all if are selected only some of options
-                        selectedAll.current = hasSomeValuesOn || hasAllValuesOn ? false : !selectedAll.current;
-
-                        setCalledFromAll();
-                        onLigand(true);
-                        onProtein(true);
-                        onComplex(true);
-                        setLoadingAll(false);
+            <Grid item container direction="column" alignItems="center" xs>
+              <Grid item container justifyContent="flex-start" alignItems="center" direction="row">
+                <Grid item container justifyContent="space-between" direction="column" xs={3}>
+                  {/* Title label */}
+                  <Tooltip title={data.prefix_tooltip ?? '-' + (data.id === pose?.main_site_observation ? " - main observation" : "")} placement="bottom-start">
+                    <Grid
+                      item
+                      onCopy={e => {
+                        e.preventDefault();
+                        setNameCopied(moleculeTitle);
                       }}
-                      disabled={groupMoleculeLPCControlButtonDisabled || moleculeLPCControlButtonDisabled}
+                      className={classNames(classes.moleculeTitleLabel, { [classes.moleculeTitleLabelMainObs]: data.id === pose?.main_site_observation })}
                     >
-                      A
-                      {loadingAll && (
-                        <CircularProgress
-                          className={classNames(classes.buttonLoadingOverlay, {
-                            [classes.buttonSelectedLoadingOverlay]: hasAllValuesOn || hasSomeValuesOn
-                          })}
-                        />
-                      )}
-                    </Button>
-                  </Grid>
-                </Tooltip>
-                <Tooltip title="ligand">
-                  <Grid item>
-                    <Button
-                      variant="outlined"
-                      className={classNames(classes.contColButton, {
-                        [classes.contColButtonSelected]: isLigandOn
-                      })}
-                      onClick={() => onLigand()}
-                      disabled={disableL || disableMoleculeNglControlButtons.ligand}
-                    >
-                      L
-                      {loadingLigand && (
-                        <CircularProgress
-                          className={classNames(classes.buttonLoadingOverlay, {
-                            [classes.buttonSelectedLoadingOverlay]: isLigandOn
-                          })}
-                        />
-                      )}
-                    </Button>
-                  </Grid>
-                </Tooltip>
-                <Tooltip title="sidechains">
-                  <Grid item>
-                    <Button
-                      variant="outlined"
-                      className={classNames(classes.contColButton, {
-                        [classes.contColButtonSelected]: isProteinOn
-                      })}
-                      onClick={() => onProtein()}
-                      disabled={disableP || disableMoleculeNglControlButtons.protein}
-                    >
-                      P
-                      {loadingProtein && (
-                        <CircularProgress
-                          className={classNames(classes.buttonLoadingOverlay, {
-                            [classes.buttonSelectedLoadingOverlay]: isProteinOn
-                          })}
-                        />
-                      )}
-                    </Button>
-                  </Grid>
-                </Tooltip>
-                <Tooltip title="interactions">
-                  <Grid item>
-                    {/* C stands for contacts now */}
-                    <Button
-                      variant="outlined"
-                      className={classNames(classes.contColButton, {
-                        [classes.contColButtonSelected]: isComplexOn
-                      })}
-                      onClick={() => onComplex()}
-                      disabled={disableC || disableMoleculeNglControlButtons.complex}
-                    >
-                      C
-                      {loadingComplex && (
-                        <CircularProgress
-                          className={classNames(classes.buttonLoadingOverlay, {
-                            [classes.buttonSelectedLoadingOverlay]: isComplexOn
-                          })}
-                        />
-                      )}
-                    </Button>
-                  </Grid>
-                </Tooltip>
-                <Tooltip title="surface">
-                  <Grid item>
-                    <Button
-                      variant="outlined"
-                      className={classNames(classes.contColButton, {
-                        [classes.contColButtonSelected]: isSurfaceOn
-                      })}
-                      onClick={() => onSurface()}
-                      disabled={disableMoleculeNglControlButtons.surface}
-                    >
-                      S
-                      {loadingSurface && (
-                        <CircularProgress
-                          className={classNames(classes.buttonLoadingOverlay, {
-                            [classes.buttonSelectedLoadingOverlay]: isSurfaceOn
-                          })}
-                        />
-                      )}
-                    </Button>
-                  </Grid>
-                </Tooltip>
-                <Tooltip title="electron density">
-                  <Grid item>
-                    <Button
-                      variant="outlined"
-                      className={classNames(
-                        classes.contColButton,
-                        {
-                          [classes.contColButtonHalfSelected]: isDensityOn && !isDensityCustomOn
-                        },
-                        {
-                          [classes.contColButtonSelected]: isDensityCustomOn
-                        }
-                      )}
-                      onClick={() => onDensity()}
-                      disabled={!hasMap || disableMoleculeNglControlButtons.density}
-                    >
-                      D
-                      {loadingDensity && (
-                        <CircularProgress
-                          className={classNames(classes.buttonLoadingOverlay, {
-                            [classes.buttonSelectedLoadingOverlay]: isDensityOn || isDensityCustomOn
-                          })}
-                        />
-                      )}
-                    </Button>
-                  </Grid>
-                </Tooltip>
-                <Tooltip title="vectors">
-                  <Grid item>
-                    <Button
-                      variant="outlined"
-                      className={classNames(classes.contColButton, {
-                        [classes.contColButtonSelected]: isVectorOn
-                      })}
-                      onClick={() => onVector()}
-                      disabled={disableMoleculeNglControlButtons.vector}
-                    >
-                      V
-                      {loadingVector && (
-                        <CircularProgress
-                          className={classNames(classes.buttonLoadingOverlay, {
-                            [classes.buttonSelectedLoadingOverlay]: isVectorOn
-                          })}
-                        />
-                      )}
-                    </Button>
-                  </Grid>
-                </Tooltip>
-              </Grid>
-            </Grid>
-            <Grid item xs={12}>
-              {/* Molecule properties */}
-              <Grid
-                item
-                container
-                justifyContent="flex-start"
-                alignItems="flex-end"
-                direction="row"
-                wrap="nowrap"
-                className={classes.fullHeight}
-              >
-                {getCalculatedProps().map(item => (
-                  <Tooltip title={item.name} key={item.name}>
-                    <Grid item className={classNames(classes.rightBorder, getValueMatchingClass(item))}>
-                      {item.name === moleculeProperty.mw && Math.round(item.value)}
-                      {item.name === moleculeProperty.logP && Math.round(item.value) /*.toPrecision(1)*/}
-                      {item.name === moleculeProperty.tpsa && Math.round(item.value)}
-                      {item.name !== moleculeProperty.mw &&
-                        item.name !== moleculeProperty.logP &&
-                        item.name !== moleculeProperty.tpsa &&
-                        item.value}
+                      <span className={classNames(classes.moleculeTitleLabelMain, { [classes.moleculeTitleLabelMainObs]: data.id === pose?.main_site_observation })}>{moleculeTitleTruncated}</span>
+                      <br />
+                      {data?.compound_code}
                     </Grid>
                   </Tooltip>
-                ))}
+                  {/* Molecule properties */}
+                  {getCalculatedProps().length > 0 &&
+                    <Grid item container justifyContent="space-between" direction="row">
+                      {/* Molecule properties */}
+                      <Grid
+                        item
+                        container
+                        justifyContent="flex-start"
+                        alignItems="flex-end"
+                        direction="row"
+                        wrap="nowrap"
+                        className={classes.fullHeight}
+                      >
+                        {getCalculatedProps().map(item => (
+                          <Tooltip title={item.name} key={item.name}>
+                            <Grid item className={classNames(classes.rightBorder, getValueMatchingClass(item))}>
+                              {item.name === moleculeProperty.mw && Math.round(item.value)}
+                              {item.name === moleculeProperty.logP && Math.round(item.value) /*.toPrecision(1)*/}
+                              {item.name === moleculeProperty.tpsa && Math.round(item.value)}
+                              {item.name !== moleculeProperty.mw &&
+                                item.name !== moleculeProperty.logP &&
+                                item.name !== moleculeProperty.tpsa &&
+                                item.value}
+                            </Grid>
+                          </Tooltip>
+                        ))}
+                      </Grid>
+                    </Grid>
+                  }
+                </Grid>
+                <Grid item container justifyContent="flex-start" alignItems="flex-end" direction="column" xs={4}>
+                  {/* Control Buttons A, L, C, V */}
+                  <Grid item>
+                    <Grid
+                      container
+                      direction="row"
+                      justifyContent="flex-start"
+                      alignItems="center"
+                      wrap="nowrap"
+                      className={classes.contButtonsMargin}
+                    >
+                      <Tooltip title="centre on">
+                        <Grid item>
+                          <Button
+                            variant="outlined"
+                            className={classes.myLocationButton}
+                            onClick={() => {
+                              dispatch(centerOnLigandByMoleculeID(stage, data.id));
+                            }}
+                            disabled={false || !isLigandOn}
+                          >
+                            <MyLocation className={classes.myLocation} />
+                          </Button>
+                        </Grid>
+                      </Tooltip>
+                      <Tooltip title="all">
+                        <Grid item>
+                          <Button
+                            variant="outlined"
+                            className={classNames(
+                              classes.contColButton,
+                              {
+                                [classes.contColButtonSelected]: hasAllValuesOn
+                              },
+                              {
+                                [classes.contColButtonHalfSelected]: hasSomeValuesOn
+                              }
+                            )}
+                            onClick={() => {
+                              setLoadingAll(true);
+                              // always deselect all if are selected only some of options
+                              selectedAll.current = hasSomeValuesOn || hasAllValuesOn ? false : !selectedAll.current;
+
+                              setCalledFromAll();
+                              onLigand(true);
+                              onProtein(true);
+                              onComplex(true);
+                              setLoadingAll(false);
+                            }}
+                            disabled={groupMoleculeLPCControlButtonDisabled || moleculeLPCControlButtonDisabled}
+                          >
+                            A
+                            {loadingAll && (
+                              <CircularProgress
+                                className={classNames(classes.buttonLoadingOverlay, {
+                                  [classes.buttonSelectedLoadingOverlay]: hasAllValuesOn || hasSomeValuesOn
+                                })}
+                              />
+                            )}
+                          </Button>
+                        </Grid>
+                      </Tooltip>
+                      <Tooltip title="ligand">
+                        <Grid item>
+                          <Button
+                            variant="outlined"
+                            className={classNames(classes.contColButton, {
+                              [classes.contColButtonSelected]: isLigandOn
+                            })}
+                            onClick={() => onLigand()}
+                            disabled={disableL || disableMoleculeNglControlButtons.ligand}
+                          >
+                            L
+                            {loadingLigand && (
+                              <CircularProgress
+                                className={classNames(classes.buttonLoadingOverlay, {
+                                  [classes.buttonSelectedLoadingOverlay]: isLigandOn
+                                })}
+                              />
+                            )}
+                          </Button>
+                        </Grid>
+                      </Tooltip>
+                      <Tooltip title="sidechains">
+                        <Grid item>
+                          <Button
+                            variant="outlined"
+                            className={classNames(classes.contColButton, {
+                              [classes.contColButtonSelected]: isProteinOn
+                            })}
+                            onClick={() => onProtein()}
+                            disabled={disableP || disableMoleculeNglControlButtons.protein}
+                          >
+                            P
+                            {loadingProtein && (
+                              <CircularProgress
+                                className={classNames(classes.buttonLoadingOverlay, {
+                                  [classes.buttonSelectedLoadingOverlay]: isProteinOn
+                                })}
+                              />
+                            )}
+                          </Button>
+                        </Grid>
+                      </Tooltip>
+                      <Tooltip title="interactions">
+                        <Grid item>
+                          {/* C stands for contacts now */}
+                          <Button
+                            variant="outlined"
+                            className={classNames(classes.contColButton, {
+                              [classes.contColButtonSelected]: isComplexOn
+                            })}
+                            onClick={() => onComplex()}
+                            disabled={disableC || disableMoleculeNglControlButtons.complex}
+                          >
+                            C
+                            {loadingComplex && (
+                              <CircularProgress
+                                className={classNames(classes.buttonLoadingOverlay, {
+                                  [classes.buttonSelectedLoadingOverlay]: isComplexOn
+                                })}
+                              />
+                            )}
+                          </Button>
+                        </Grid>
+                      </Tooltip>
+                      <Tooltip title="surface">
+                        <Grid item>
+                          <Button
+                            variant="outlined"
+                            className={classNames(classes.contColButton, {
+                              [classes.contColButtonSelected]: isSurfaceOn
+                            })}
+                            onClick={() => onSurface()}
+                            disabled={disableMoleculeNglControlButtons.surface}
+                          >
+                            S
+                            {loadingSurface && (
+                              <CircularProgress
+                                className={classNames(classes.buttonLoadingOverlay, {
+                                  [classes.buttonSelectedLoadingOverlay]: isSurfaceOn
+                                })}
+                              />
+                            )}
+                          </Button>
+                        </Grid>
+                      </Tooltip>
+                      <Tooltip title="electron density">
+                        <Grid item>
+                          <Button
+                            variant="outlined"
+                            className={classNames(
+                              classes.contColButton,
+                              {
+                                [classes.contColButtonHalfSelected]: isDensityOn && !isDensityCustomOn
+                              },
+                              {
+                                [classes.contColButtonSelected]: isDensityCustomOn
+                              }
+                            )}
+                            onClick={() => onDensity()}
+                            disabled={!hasMap || disableMoleculeNglControlButtons.density}
+                          >
+                            D
+                            {loadingDensity && (
+                              <CircularProgress
+                                className={classNames(classes.buttonLoadingOverlay, {
+                                  [classes.buttonSelectedLoadingOverlay]: isDensityOn || isDensityCustomOn
+                                })}
+                              />
+                            )}
+                          </Button>
+                        </Grid>
+                      </Tooltip>
+                      <Tooltip title="vectors">
+                        <Grid item>
+                          <Button
+                            variant="outlined"
+                            className={classNames(classes.contColButton, {
+                              [classes.contColButtonSelected]: isVectorOn
+                            })}
+                            onClick={() => onVector()}
+                            disabled={disableMoleculeNglControlButtons.vector}
+                          >
+                            V
+                            {loadingVector && (
+                              <CircularProgress
+                                className={classNames(classes.buttonLoadingOverlay, {
+                                  [classes.buttonSelectedLoadingOverlay]: isVectorOn
+                                })}
+                              />
+                            )}
+                          </Button>
+                        </Grid>
+                      </Tooltip>
+                    </Grid>
+                  </Grid>
+                  {/* Tags */}
+                  {generateTagPopover()}
+                </Grid>
+                {/* Show specific tags */}
+                <Grid
+                  item
+                  xs={5}
+                  container
+                  direction="row"
+                  justifyContent="center"
+                  alignItems="center"
+                  // wrap="nowrap"
+                  style={{ height: "100%" }}
+                >
+                  {XCA_TAGS_CATEGORIES.map(tagCategory => {
+                    const tagTypeObject = getTagType(tagCategory);
+                    const tagLabel = tagCategory === 'ConformerSites' ? tagTypeObject.tag_prefix.replace(getTagType('CanonSites')?.tag_prefix, '') : tagTypeObject?.tag_prefix;
+                    return <Tooltip
+                      key={`tag-category-${tagCategory}`}
+                      title={<div style={{ whiteSpace: 'pre-line' }}>{PLURAL_TO_SINGULAR[tagCategory]} - {tagTypeObject.tag}</div>}
+                    >
+                      <Grid item xs
+                        className={classNames(classes.contColButtonMenu)}
+                        style={{
+                          backgroundColor: resolveTagBackgroundColor(tagTypeObject),
+                          color: resolveTagForegroundColor(tagTypeObject),
+                          fontSize: getFontSize(tagLabel)
+                        }}
+                      >
+                        {tagLabel}
+                      </Grid>
+                    </Tooltip>
+                  }
+                  )}
+                </Grid>
               </Grid>
             </Grid>
+            {/* Image */}
+            {(hideImage !== true) &&
+              <div
+                style={{
+                  ...current_style,
+                  width: imageWidth
+                }}
+                className={classes.image}
+                onMouseEnter={() => setMoleculeTooltipOpen(true)}
+                onMouseLeave={() => setMoleculeTooltipOpen(false)}
+                ref={moleculeImgRef}
+              >
+                {svg_image}
+                <div className={classes.imageActions}>
+                  {moleculeTooltipOpen && (
+                    <Tooltip title={!isCopied ? 'Copy smiles' : 'Copied'}>
+                      <IconButton className={classes.copyIcon} onClick={setCopied}>
+                        {!isCopied ? <Assignment /> : <AssignmentTurnedIn />}
+                      </IconButton>
+                    </Tooltip>
+                  )}
+                  {warningIconVisible && (
+                    <Tooltip title="Warning">
+                      <IconButton className={classes.warningIcon} onClick={() => onQuality()}>
+                        <Warning />
+                      </IconButton>
+                    </Tooltip>
+                  )}
+                </div>
+              </div>}
           </Grid>
-          {/* Image */}
-          <div
-            style={{
-              ...current_style,
-              width: imageWidth
-            }}
-            className={classes.image}
-            onMouseEnter={() => setMoleculeTooltipOpen(true)}
-            onMouseLeave={() => setMoleculeTooltipOpen(false)}
-            ref={moleculeImgRef}
-          >
-            {svg_image}
-            <div className={classes.imageActions}>
-              {moleculeTooltipOpen && (
-                <Tooltip title={!isCopied ? 'Copy smiles' : 'Copied'}>
-                  <IconButton className={classes.copyIcon} onClick={setCopied}>
-                    {!isCopied ? <Assignment /> : <AssignmentTurnedIn />}
-                  </IconButton>
-                </Tooltip>
-              )}
-              {warningIconVisible && (
-                <Tooltip title="Warning">
-                  <IconButton className={classes.warningIcon} onClick={() => onQuality()}>
-                    <Warning />
-                  </IconButton>
-                </Tooltip>
-              )}
-            </div>
-          </div>
-        </Grid>
+          {showExpandedView && <Grid item container alignItems='center' wrap="nowrap">
+            {XCA_TAGS_CATEGORIES_EXPANDED.map((tagCategory, index) => {
+              return <Tooltip title={`${PLURAL_TO_SINGULAR[tagCategory]} - ${getTagTooltip(tagCategory)}`} key={index}>
+                <Grid item align="center" className={classes.categoryCell} style={{ minWidth: headerWidths[tagCategory] }}>
+                  {getTagLabel(tagCategory)}
+                </Grid>
+              </Tooltip>
+            })}
+            <Tooltip title={"CentroidRes"}>
+              <Grid item align="center" className={classes.categoryCell} style={{ minWidth: headerWidths.CentroidRes }}>
+                {centroidRes}
+              </Grid>
+            </Tooltip>
+            <Tooltip title={"LongCode"}>
+              <Grid item align="center" className={classes.categoryCell} style={{ minWidth: headerWidths.LongCode }}>
+                {data.longcode}
+              </Grid>
+            </Tooltip>
+          </Grid>}
+        </Grid >
         <SvgTooltip
           open={moleculeTooltipOpen}
           anchorEl={moleculeImgRef.current}

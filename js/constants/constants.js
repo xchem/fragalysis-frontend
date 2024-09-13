@@ -52,6 +52,7 @@ export const CATEGORY_TYPE_BY_ID = {
   4: CATEGORY_TYPE.OTHER
 };
 
+export const XCA_TAG_CATEGORIES = ['CanonSites', 'ConformerSites', 'CrystalformSites', 'Quatassemblies'];
 export const OBSERVATION_TAG_CATEGORIES = ['ConformerSites', 'CrystalformSites', 'Quatassemblies', 'Crystalforms'];
 export const COMPOUND_PRIO_TAG_CATEGORIES = ['CanonSites'];
 export const TAG_DETAILS_REMOVED_CATEGORIES = ['CrystalformSites', 'ConformerSites'];
@@ -62,6 +63,14 @@ export const NON_ASSIGNABLE_CATEGORIES = [
   'Quatassemblies',
   'Crystalforms'
 ];
+
+export const PLURAL_TO_SINGULAR = {
+  ConformerSites: 'ConformerSite',
+  CanonSites: 'CanonSite',
+  CrystalformSites: 'CrystalformSite',
+  Quatassemblies: 'Quatassembly',
+  Crystalforms: 'Crystalform'
+};
 
 export const TAG_TYPE = {
   ALL: 'ALL',

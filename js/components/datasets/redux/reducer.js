@@ -79,7 +79,15 @@ export const INITIAL_STATE = {
   cmpForLocalLockVisibleCompoundsDialog: null,
   askLockCompoundsQuestion: true,
   editedColorGroup: null,
-  askLockSelectedCompoundsQuestion: true
+  askLockSelectedCompoundsQuestion: true,
+
+  //iterator functionality for dataset tabs and also selected compounds tab
+  iteratorDatasets: {},
+  iteratorSelectedCompounds: null,
+
+  inspirationsDialogOpenedForSelectedCompound: false,
+
+  isSelectedDatasetScrolled: false
 };
 
 /**
@@ -216,6 +224,9 @@ export const datasetsReducers = (state = INITIAL_STATE, action = {}) => {
     case constants.SET_IS_LOADING_MOLECULE_LIST:
       return Object.assign({}, state, { isLoadingMoleculeList: action.payload });
 
+    case constants.SET_INSPIRATION_DIALOG_OPENED_FOR_SELECTED_COMPOUND:
+      return { ...state, inspirationsDialogOpenedForSelectedCompound: action.isOpen };
+
     case constants.SET_SELECTED_DATASET_INDEX:
       return Object.assign({}, state, { selectedDatasetIndex: action.payload.value });
 
@@ -282,6 +293,28 @@ export const datasetsReducers = (state = INITIAL_STATE, action = {}) => {
 
     case constants.REMOVE_FROM_INSPIRATION_LIST:
       return removeFromList(state, 'inspirationLists', action.payload.datasetID, action.payload.itemID);
+
+    case constants.SET_DATASET_ITERATOR: {
+      if (action.payload.currentCmp) {
+        return {
+          ...state,
+          iteratorDatasets: { ...state.iteratorDatasets, [action.payload.datasetID]: { ...action.payload.currentCmp } }
+        };
+      } else {
+        return {
+          ...state,
+          iteratorDatasets: { ...state.iteratorDatasets, [action.payload.datasetID]: null }
+        };
+      }
+    }
+
+    case constants.SET_SELECTED_COMPOUNDS_ITERATOR: {
+      if (action.payload) {
+        return { ...state, iteratorSelectedCompounds: { ...action.payload } };
+      } else {
+        return { ...state, iteratorSelectedCompounds: null };
+      }
+    }
 
     case constants.APPEND_TO_SCORE_DATASET_MAP:
       return Object.assign({}, state, {
@@ -709,6 +742,10 @@ export const datasetsReducers = (state = INITIAL_STATE, action = {}) => {
 
     case constants.RESET_DATASET_SCROLLED_MAP: {
       return { ...state, datasetScrolledMap: {} };
+    }
+
+    case constants.SET_SELECTED_DATASET_SCROLLED: {
+      return { ...state, isSelectedDatasetScrolled: action.payload };
     }
 
     case constants.SET_COMPOUND_SET:

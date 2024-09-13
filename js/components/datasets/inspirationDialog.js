@@ -17,7 +17,7 @@ import {
 } from '../preview/molecule/redux/dispatchActions';
 import MoleculeView from '../preview/molecule/moleculeView';
 import { moleculeProperty } from '../preview/molecule/helperConstants';
-import { setIsOpenInspirationDialog } from './redux/actions';
+import { setInspirationDialogAction, setInspirationList, setIsOpenInspirationDialog } from './redux/actions';
 import { Button } from '../common/Inputs/Button';
 import classNames from 'classnames';
 import { colourList } from '../preview/molecule/utils/color';
@@ -145,6 +145,8 @@ export const InspirationDialog = memo(
     const inspirationLists = useSelector(state => state.datasetsReducers.inspirationLists);
     const moleculeLists = useSelector(state => state.datasetsReducers.moleculeLists);
     const scoreDatasetMap = useSelector(state => state.datasetsReducers.scoreDatasetMap);
+
+    const compoundId = useSelector(state => state.datasetsReducers);
 
     /**
      * Get rationale as score of each individual molecule
@@ -354,7 +356,22 @@ export const InspirationDialog = memo(
               <IconButton
                 color="inherit"
                 className={classes.headerButton}
-                onClick={() => dispatch(setIsOpenInspirationDialog(false))}
+                onClick={() => {
+                  dispatch(setIsOpenInspirationDialog(false));
+                  dispatch(setInspirationList(datasetID, []));
+                  dispatch(
+                    setInspirationDialogAction(
+                      datasetID,
+                      0,
+                      [],
+                      false,
+                      inspirationLists.hasOwnProperty(datasetID) && inspirationLists[datasetID].length > 0
+                        ? inspirationLists[datasetID][0]
+                        : 0,
+                      inspirationMoleculeDataList
+                    )
+                  );
+                }}
               >
                 <Close />
               </IconButton>

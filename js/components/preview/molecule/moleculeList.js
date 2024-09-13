@@ -72,6 +72,7 @@ import GroupNglControlButtonsContext from './groupNglControlButtonsContext';
 import { extractTargetFromURLParam } from '../utils';
 import { LoadingContext } from '../../loading';
 import { DJANGO_CONTEXT } from '../../../utils/djangoContext';
+import { useScrollToSelectedPose } from './useScrollToSelectedPose';
 
 const useStyles = makeStyles(theme => ({
   container: {
@@ -295,7 +296,6 @@ export const MoleculeList = memo(({ hideProjects }) => {
   const categories = useSelector(state => state.apiReducers.categoryList);
 
   const proteinsHasLoaded = useSelector(state => state.nglReducers.proteinsHasLoaded);
-  const currentActionList = useSelector(state => state.trackingReducers.current_actions_list);
 
   const [predefinedFilter, setPredefinedFilter] = useState(filter !== undefined ? filter.predefined : DEFAULT_FILTER);
 
@@ -1174,14 +1174,14 @@ export const MoleculeList = memo(({ hideProjects }) => {
           <>
             <Grid item className={classes.gridItemList} ref={scrollBarRef}>
               <InfiniteScroll
-                getScrollParent={() =>
-                  dispatch(
-                    autoHideTagEditorDialogsOnScroll({
-                      tagEditorRef,
-                      scrollBarRef
-                    })
-                  )
-                }
+                // getScrollParent={() =>
+                //   dispatch(
+                //     autoHideTagEditorDialogsOnScroll({
+                //       tagEditorRef,
+                //       scrollBarRef
+                //     })
+                //   )
+                // }
                 pageStart={0}
                 loadMore={loadNextMolecules}
                 hasMore={canLoadMore}

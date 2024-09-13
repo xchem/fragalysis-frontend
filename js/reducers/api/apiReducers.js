@@ -102,6 +102,12 @@ export default function apiReducers(state = INITIAL_STATE, action = {}) {
     case constants.SET_OPEN_DISCOURSE_ERROR_MODAL:
       return Object.assign({}, state, { open_discourse_error_modal: action.payload });
 
+    case constants.REPLACE_TARGET: {
+      const newTargetIdList = state.target_id_list.filter(t => t.id !== action.target.id);
+
+      return { ...state, target_id_list: [...newTargetIdList, { ...action.target }] };
+    }
+
     case constants.SET_TARGET_ID_LIST:
       return Object.assign({}, state, {
         target_id_list: action.target_id_list
@@ -110,9 +116,9 @@ export default function apiReducers(state = INITIAL_STATE, action = {}) {
     case constants.SET_LEGACY_TARGET_ID_LIST:
       return { ...state, legacy_target_id_list: action.legacy_target_id_list };
 
-    case constants.SET_TARGET_ON:
-      var target_on_name = undefined;
-      for (var ind in state.target_id_list) {
+    case constants.SET_TARGET_ON: {
+      let target_on_name = undefined;
+      for (let ind in state.target_id_list) {
         if (state.target_id_list[ind].id === action.target_on) {
           target_on_name = state.target_id_list[ind].title;
         }
@@ -121,6 +127,7 @@ export default function apiReducers(state = INITIAL_STATE, action = {}) {
         target_on_name: target_on_name,
         target_on: action.target_on
       });
+    }
 
     case constants.SET_MOL_GROUP_LIST:
       return Object.assign({}, state, {
@@ -189,10 +196,31 @@ export default function apiReducers(state = INITIAL_STATE, action = {}) {
       const indexOfCmp = newList.findIndex(c => c.id === action.cmp.id);
       if (indexOfCmp >= 0) {
         newList[indexOfCmp] = { ...action.cmp };
-        return { ...state, lhs_compounds_list: [...newList] };
       } else {
-        return state;
+        newList.push(action.cmp);
       }
+
+      newList.sort((a, b) => {
+        if (a.code < b.code) {
+          return -1;
+        }
+        if (a.code > b.code) {
+          return 1;
+        }
+        return 0;
+      });
+
+      return { ...state, lhs_compounds_list: [...newList] };
+    }
+
+    case constants.REMOVE_LHS_COMPOUND: {
+      let newList = [...state.lhs_compounds_list];
+      const indexOfCmp = newList.findIndex(c => c.id === action.cmp.id);
+      if (indexOfCmp >= 0) {
+        newList.splice(indexOfCmp, 1);
+      }
+
+      return { ...state, lhs_compounds_list: [...newList] };
     }
 
     case constants.SET_PANNDA_EVENT_LIST:
@@ -357,13 +385,18 @@ export default function apiReducers(state = INITIAL_STATE, action = {}) {
 
     case constants.UPDATE_TAG:
       let listWithUpdatedTag = [...state.tagList];
-      let foundTags = listWithUpdatedTag.filter(t => t.id === action.item.id);
-      if (foundTags && foundTags.length > 0) {
-        let foundTag = foundTags[0];
-        foundTag.tag = action.item.tag;
-        foundTag.colour = action.item.colour;
-        foundTag.category = action.item.category;
-        foundTag.discourse_url = action.item.discourse_url;
+      // let foundTags = listWithUpdatedTag.filter(t => t.id === action.item.id);
+      const foundTagIndex = listWithUpdatedTag.findIndex(t => t.id === action.item.id);
+      if (foundTagIndex >= 0) {
+        listWithUpdatedTag[foundTagIndex] = { ...action.item };
+        // if (foundTags && foundTags.length > 0) {
+        //   let foundTag = foundTags[0];
+        //   foundTag.tag = action.item.tag;
+        //   foundTag.colour = action.item.colour;
+        //   foundTag.category = action.item.category;
+        //   foundTag.discourse_url = action.item.discourse_url;
+        //   foundTag.hidden = action.item.hidden;
+        //   foundTag.upload_name = action.item.upload_name;
 
         return { ...state, tagList: [...listWithUpdatedTag] };
       } else {

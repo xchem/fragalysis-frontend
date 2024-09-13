@@ -1,0 +1,6 @@
+export const TOAST_LEVELS = {
+  SUCCESS: 'SUCCESS',
+  ERROR: 'ERROR',
+  WARNING: 'WARNING',
+  INFO: 'INFO'
+};

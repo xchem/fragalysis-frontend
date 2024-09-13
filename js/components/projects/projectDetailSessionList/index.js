@@ -6,6 +6,7 @@ import moment from 'moment';
 import { Gitgraph, templateExtend, TemplateName } from '@gitgraph/react';
 import Modal from '../../common/Modal';
 import { URLS } from '../../routes/constants';
+import { COMPANIES, get_logo } from '../../funders/constants';
 
 const useStyles = makeStyles(theme => ({
   root: {
@@ -79,7 +80,7 @@ export const ProjectDetailSessionList = memo(({ history }) => {
     subject: `${moment().format('LLL')}: ${title}`,
     body: (
       <>
-        <img src={require('../../../img/xchemLogo.png')} className={classes.thumbnail} onClick={() => setOpen(true)} />
+        <img src={get_logo(COMPANIES.xchem.image)} className={classes.thumbnail} onClick={() => setOpen(true)} />
         {description}
         <IconButton>
           <Share />
@@ -188,7 +189,7 @@ export const ProjectDetailSessionList = memo(({ history }) => {
         }}
       </Gitgraph>
       <Modal open={open} onClose={() => setOpen(false)}>
-        <img src={require('../../../img/xchemLogo.png')} />
+        <img src={get_logo(COMPANIES.xchem.image)} />
       </Modal>
     </Panel>
   );

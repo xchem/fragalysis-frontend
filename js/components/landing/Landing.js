@@ -2,9 +2,9 @@
  * Created by ricgillams on 21/06/2018.
  */
 import { Grid, Link, makeStyles } from '@material-ui/core';
-import React, { memo, useContext, useEffect, useState } from 'react';
+import React, { memo, useCallback, useContext, useEffect, useState } from 'react';
 import { TargetList } from '../target/targetList';
-import { connect } from 'react-redux';
+import { connect, useDispatch, useSelector } from 'react-redux';
 import * as apiActions from '../../reducers/api/actions';
 import * as selectionActions from '../../reducers/selection/actions';
 import { DJANGO_CONTEXT } from '../../utils/djangoContext';
@@ -13,7 +13,8 @@ import { resetCurrentCompoundsSettings } from '../preview/compounds/redux/action
 import { resetProjectsReducer } from '../projects/redux/actions';
 import { withLoadingProjects } from '../target/withLoadingProjects';
 import { ToastContext } from '../toast';
-import { HeaderContext } from '../header/headerContext';
+import { EditTargetDialog } from '../target/editTargetDialog';
+import { TOAST_LEVELS } from '../toast/constants';
 
 const useStyles = makeStyles(theme => ({
   root: {
@@ -26,6 +27,7 @@ const useStyles = makeStyles(theme => ({
 
 const Landing = memo(
   ({ resetSelectionState, resetTargetState, resetCurrentCompoundsSettings, resetProjectsReducer }) => {
+    const dispatch = useDispatch();
     const classes = useStyles();
 
     const projectWidth = window.innerWidth;
@@ -33,11 +35,35 @@ const Landing = memo(
     const [targetListWidth, setTargetListWidth] = useState(450);
     const [projectListWidth, setProjectListWidth] = useState(projectWidth);
 
-    const { setSnackBarTitle } = useContext(HeaderContext);
-    const { toast } = useContext(ToastContext);
+    const { toast, toastSuccess, toastError, toastInfo, toastWarning } = useContext(ToastContext);
     const [loginText, setLoginText] = useState(
       DJANGO_CONTEXT['username'] === 'NOT_LOGGED_IN' ? '' : "You're logged in as " + DJANGO_CONTEXT['username']
     );
+    const toastMessages = useSelector(state => state.selectionReducers.toastMessages);
+
+    useEffect(() => {
+      if (toastMessages?.length > 0) {
+        toastMessages.forEach(message => {
+          switch (message.level) {
+            case TOAST_LEVELS.SUCCESS:
+              toastSuccess(message.text);
+              break;
+            case TOAST_LEVELS.ERROR:
+              toastError(message.text);
+              break;
+            case TOAST_LEVELS.INFO:
+              toastInfo(message.text);
+              break;
+            case TOAST_LEVELS.WARNING:
+              toastWarning(message.text);
+              break;
+            default:
+              break;
+          }
+        });
+        dispatch(selectionActions.setToastMessages([]));
+      }
+    }, [dispatch, toastError, toastInfo, toastMessages, toastSuccess, toastWarning]);
 
     useEffect(() => {
       if (DJANGO_CONTEXT['authenticated'] !== true) {
@@ -69,19 +95,22 @@ const Landing = memo(
       setIsResizing(true);
     };
 
-    const handleMouseMove = e => {
-      if (!isResizing) return;
-      const targetListWidth = e.clientX;
-      const projectListWidth = window.innerWidth - targetListWidth;
-      setTargetListWidth(targetListWidth);
-      setProjectListWidth(projectListWidth);
-    };
+    const handleMouseMove = useCallback(
+      e => {
+        if (!isResizing) return;
+        const targetListWidth = e.clientX;
+        const projectListWidth = window.innerWidth - targetListWidth;
+        setTargetListWidth(targetListWidth);
+        setProjectListWidth(projectListWidth);
+      },
+      [isResizing]
+    );
 
-    const handleMouseUp = () => {
+    const handleMouseUp = useCallback(() => {
       setIsResizing(false);
       window.removeEventListener('mousemove', handleMouseMove);
       window.removeEventListener('mouseup', handleMouseUp);
-    };
+    }, [handleMouseMove]);
 
     useEffect(() => {
       if (isResizing) {
@@ -91,27 +120,30 @@ const Landing = memo(
         window.removeEventListener('mousemove', handleMouseMove);
         window.removeEventListener('mouseup', handleMouseUp);
       }
-    }, [isResizing]);
+    }, [isResizing, handleMouseMove, handleMouseUp]);
 
     return (
-      <Grid container className={classes.root}>
-        <Grid item style={{ width: targetListWidth }}>
-          <TargetList />
+      <>
+        <Grid container className={classes.root}>
+          <Grid item style={{ width: targetListWidth }}>
+            <TargetList />
+          </Grid>
+          <div
+            style={{
+              cursor: 'col-resize',
+              width: 3,
+              height: '100%',
+              backgroundColor: '#eeeeee',
+              borderRadius: '3px'
+            }}
+            onMouseDown={handleMouseDownResizer}
+          ></div>
+          <Grid item style={{ width: projectListWidth }}>
+            <Projects />
+          </Grid>
         </Grid>
-        <div
-          style={{
-            cursor: 'col-resize',
-            width: 3,
-            height: '100%',
-            backgroundColor: '#eeeeee',
-            borderRadius: '3px'
-          }}
-          onMouseDown={handleMouseDownResizer}
-        ></div>
-        <Grid item style={{ width: projectListWidth }}>
-          <Projects />
-        </Grid>
-      </Grid>
+        <EditTargetDialog />
+      </>
     );
   }
 );

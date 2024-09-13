@@ -10,6 +10,13 @@ export const getTheme = () => {
     },
     typography: {
       fontSize: 12
+    },
+    overrides: {
+      MuiTooltip: {
+        tooltip: {
+          fontSize: '0.9em'
+        }
+      }
     }
   });
 };

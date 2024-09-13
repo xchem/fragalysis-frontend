@@ -39,7 +39,8 @@ import {
   getTagCategories,
   getCompoundsLHS,
   getCanonSites,
-  getCanonConformSites
+  getCanonConformSites,
+  getPoses
 } from '../api/tagsApi';
 import {
   getMoleculeTagForTag,
@@ -62,9 +63,9 @@ export const removeSelectedTag = tagItem => dispatch => {
   dispatch(removeFromSelectedTagList(tagItem));
 };
 
-export const selectAllTags = () => (dispatch, getState) => {
+export const selectAllTags = (tagsToSelect = null) => (dispatch, getState) => {
   const state = getState();
-  let tagList = state.apiReducers.tagList;
+  let tagList = tagsToSelect ? tagsToSelect : state.apiReducers.tagList;
   tagList.forEach(t => dispatch(appendSelectedTagList(t)));
 };
 
@@ -148,7 +149,8 @@ export const updateTagProp = (tag, value, prop) => (dispatch, getState) => {
       [...moleculeTag.site_observations],
       newTag.create_date,
       newTag.additional_info,
-      moleculeTag.mol_group
+      moleculeTag.mol_group,
+      newTag.hidden
     );
     let augMolTagObject = augumentTagObjectWithId(newMolTag, tag.id);
     dispatch(updateMoleculeTag(augMolTagObject));
@@ -184,16 +186,25 @@ const getTagsForMol = (molId, tagList) => {
 };
 
 export const loadMoleculesAndTagsNew = targetId => async (dispatch, getState) => {
+  // console.log(`snapshotDebug - loadMoleculesAndTagsNew - before getTags`);
   let tags = await getTags(targetId);
+  // console.log(`snapshotDebug - loadMoleculesAndTagsNew - after getTags`);
   tags = tags.results;
   if (tags?.length > 0) {
+    // console.log(`snapshotDebug - loadMoleculesAndTagsNew - no. of tags received: ${tags?.length}`);
     dispatch(setNoTagsReceived(false));
   }
+  // console.log(`snapshotDebug - loadMoleculesAndTagsNew - before getTagCategories`);
   const tagCategories = await getTagCategories();
+  // console.log(`snapshotDebug - loadMoleculesAndTagsNew - no. of tag categories received: ${tagCategories?.length}`);
+  // console.log(`snapshotDebug - loadMoleculesAndTagsNew - after getTagCategories`);
   // const canonSitesList = await getCanonSites(targetId);
-  const canonConformSitest = await getCanonConformSites(targetId);
+  // const canonConformSitest = await getCanonConformSites(targetId);
 
+  // console.log(`snapshotDebug - loadMoleculesAndTagsNew - before getAllDataNew`);
   const data = await getAllDataNew(targetId);
+  // console.log(`snapshotDebug - loadMoleculesAndTagsNew - after getAllDataNew`);
+  // console.log(`snapshotDebug - loadMoleculesAndTagsNew - no. of molecules received: ${data?.results?.length}`);
   let allMolecules = [];
   data?.results?.forEach(mol => {
     let newObject = { ...mol };
@@ -224,65 +235,42 @@ export const loadMoleculesAndTagsNew = targetId => async (dispatch, getState) =>
   });
 
   dispatch(setAllMolLists([...allMolecules]));
+  // console.log(`snapshotDebug - loadMoleculesAndTagsNew - no. of molecules stored: ${allMolecules?.length}`);
   //need to do this this way because only categories which have at least one tag assigned are sent from backend
   tags = tags.sort(compareTagsAsc);
   dispatch(setMoleculeTags(tags));
   dispatch(setTagSelectorData(tagCategories, tags));
   dispatch(setAllDataLoaded(true));
 
-  return getCompoundsLHS(targetId).then(compounds => {
-    const expandedCompounds = [];
-    let newIdStart = Math.max(...compounds?.map(c => c.id)) + 1;
-    compounds?.forEach(c => {
-      const siteObs = allMolecules.filter(m => m.cmpd === c.id);
-      const canonConformSites = siteObs?.map(so => {
-        return {
-          smiles: so.smiles,
-          code: so.code,
-          canon_site_conf: so.canon_site_conf,
-          canon_site: canonConformSitest.find(ccf => ccf.id === so.canon_site_conf)?.canon_site
-        };
-      });
-      canonConformSites?.forEach(cs => {
-        let newObject = { ...c };
+  // console.log(`snapshotDebug - loadMoleculesAndTagsNew - before getPoses`);
+  return getPoses(targetId).then(poses => {
+    // console.log(`snapshotDebug - loadMoleculesAndTagsNew - after getPoses`);
+    const modifiedPoses = [];
+    // console.log(`snapshotDebug - loadMoleculesAndTagsNew - no. of poses received: ${poses?.length}`);
+    poses?.forEach(pose => {
+      const siteObs = allMolecules.filter(m => pose.site_observations.includes(m.id));
+      const firstObs = siteObs[0];
 
-        newObject['smiles'] = cs.smiles;
-        // newObject['code'] = `${cs.code}/${cs.canon_site}`;
-        newObject['code'] = `${cs.code}`;
-        newObject['origId'] = c.id;
-        newObject['id'] = newIdStart++;
-        newObject['canonSiteConf'] = cs.canon_site_conf;
-        newObject['canonSite'] = cs.canon_site;
+      let newObject = { ...pose };
+      newObject['smiles'] = firstObs?.smiles;
+      newObject['code'] = `${pose.display_name}`;
+      newObject['canonSiteConf'] = firstObs?.canon_site_conf;
+      newObject['canonSite'] = pose.canon_site;
 
-        const associatedObs = siteObs
-          .filter(
-            so =>
-              canonConformSitest.find(ccf => ccf.id === so.canon_site_conf)?.canon_site === newObject.canonSite &&
-              so.cmpd === c.id
-          )
-          .map(so => {
-            return {
-              ...so,
-              canon_site: canonConformSitest.find(ccf => ccf.id === so.canon_site_conf)?.canon_site
-            };
-          })
-          .sort((a, b) => {
-            if (a.code < b.code) {
-              return -1;
-            }
-            if (a.code > b.code) {
-              return 1;
-            }
-            return 0;
-          });
-        newObject['associatedObs'] = associatedObs;
-
-        if (!expandedCompounds.find(ec => ec.origId === newObject.origId && ec.canonSite === newObject.canonSite)) {
-          expandedCompounds.push(newObject);
+      const associatedObs = siteObs.sort((a, b) => {
+        if (a.code < b.code) {
+          return -1;
         }
+        if (a.code > b.code) {
+          return 1;
+        }
+        return 0;
       });
+      newObject['associatedObs'] = associatedObs;
+
+      modifiedPoses.push(newObject);
     });
-    expandedCompounds.sort((a, b) => {
+    modifiedPoses.sort((a, b) => {
       if (a.code < b.code) {
         return -1;
       }
@@ -291,6 +279,7 @@ export const loadMoleculesAndTagsNew = targetId => async (dispatch, getState) =>
       }
       return 0;
     });
-    dispatch(setLHSCompoundsLIst(expandedCompounds));
+    dispatch(setLHSCompoundsLIst(modifiedPoses));
+    // console.log(`snapshotDebug - loadMoleculesAndTagsNew - end of function`);
   });
 };

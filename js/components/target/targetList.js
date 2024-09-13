@@ -28,7 +28,7 @@ import { Link } from 'react-router-dom';
 import { URLS } from '../routes/constants';
 import { isDiscourseAvailable, generateDiscourseTargetURL, openDiscourseLink } from '../../utils/discourse';
 import { setOpenDiscourseErrorModal } from '../../reducers/api/actions';
-import { Chat } from '@material-ui/icons';
+import { Chat, Edit } from '@material-ui/icons';
 import { URL_TOKENS } from '../direct/constants';
 import {
   setListOfFilteredTargets,
@@ -50,7 +50,8 @@ import {
   setSearchDateLastEditTo,
   setSearchTargetAccessString,
   setSearchInitDateFrom,
-  setSearchInitDateTo
+  setSearchInitDateTo,
+  setEditTargetDialogOpen
 } from './redux/actions';
 import {
   compareIdAsc,
@@ -99,12 +100,13 @@ import {
   UnfoldMore,
   FilterList
 } from '@material-ui/icons';
-import { setTargetFilter } from '../../reducers/selection/actions';
+import { setTargetFilter, setTargetToEdit } from '../../reducers/selection/actions';
 import { MOCK_LIST_OF_TARGETS } from './MOCK';
 import { TARGETS_ATTR } from './redux/constants';
 import { getTargetProjectCombinations } from './redux/dispatchActions';
 import moment from 'moment';
 import { getCombinedTargetList } from '../../reducers/api/selectors';
+import { DJANGO_CONTEXT } from '../../utils/djangoContext';
 
 const useStyles = makeStyles(theme => ({
   table: {
@@ -153,6 +155,7 @@ export const TargetList = memo(() => {
 
   const filterClean = useSelector(state => state.targetReducers.filterClean);
   let filter = useSelector(state => state.selectionReducers.targetFilter);
+  const [showEditIconForTarget, setShowEditIconForTarget] = useState(0);
 
   // const target_id_list_unsorted = useSelector(state => state.apiReducers.target_id_list);
   const target_id_list_unsorted = useSelector(state => getCombinedTargetList(state));
@@ -278,7 +281,7 @@ export const TargetList = memo(() => {
 
     for (let attr of TARGETS_ATTR) {
       const lowAttr = attr.key.toLowerCase();
-      if (attr.key === 'title') {
+      if (attr.key === 'display_name') {
         initObject.filter[attr.key] = {
           priority: 0,
           order: -1,
@@ -293,7 +296,7 @@ export const TargetList = memo(() => {
       }
     }
     return initObject;
-  });
+  }, []);
 
   useEffect(() => {
     const init = initialize();
@@ -321,32 +324,56 @@ export const TargetList = memo(() => {
         <TableCell
           component="th"
           scope="row"
-          style={{ minWidth: '150px', padding: '0px 10px 0px 0px', margin: '0px', padding: '0px' }}
+          style={{ minWidth: '150px', padding: '0px', margin: '0px' }}
             >
           <div>{target.id}</div>
         </TableCell>
       </Tooltip> */}
-        <TableCell align="left" style={{ padding: '0px 10px 0px 0px', margin: '0px', padding: '0px' }}>
+        <TableCell
+          align="left"
+          style={{ padding: '0px', margin: '0px' }}
+          onMouseEnter={() => {
+            if (!target.isLegacy && DJANGO_CONTEXT['authenticated']) {
+              setShowEditIconForTarget(target.id);
+            }
+          }}
+          onMouseLeave={() => {
+            if (!target.isLegacy && DJANGO_CONTEXT['authenticated']) {
+              setShowEditIconForTarget(0);
+            }
+          }}
+        >
           {target.isLegacy ? (
             <a href={target.legacyUrl} target="new" style={{ wordBreak: 'break-all' }}>
-              {target.title}
+              {target.display_name}
             </a>
           ) : (
-            <Link to={preview}>
-              <div style={{ wordBreak: 'break-all' }}>{target.title}</div>
-            </Link>
+            <>
+              <Link to={preview}>{target.display_name}</Link>
+              {showEditIconForTarget === target.id && (
+                <IconButton
+                  style={{ padding: '0px' }}
+                  onClick={() => {
+                    dispatch(setTargetToEdit(target));
+                    dispatch(setEditTargetDialogOpen(true));
+                  }}
+                >
+                  <Edit style={{ height: '15px' }} />
+                </IconButton>
+              )}
+            </>
           )}
         </TableCell>
         <TableCell style={{ width: '2px', padding: '0px', margin: '0px' }}></TableCell>
-        <TableCell align="left" style={{ padding: '0px 10px 0px 0px', margin: '0px', padding: '0px' }}>
-          <div>{target.project.target_access_string} </div>
+        <TableCell align="left" style={{ padding: '0px', margin: '0px' }}>
+          {target.project.target_access_string}
         </TableCell>
         <TableCell style={{ width: '2px', padding: '0px', margin: '0px' }}></TableCell>
-        <TableCell align="left" style={{ padding: '0px 10px 0px 0px', margin: '0px', padding: '0px' }}>
-          <div>{moment(target.project.init_date).format('YYYY-MM-DD')} </div>
+        <TableCell align="left" style={{ padding: '0px', margin: '0px' }}>
+          {moment(target.project.init_date).format('YYYY-MM-DD')}
         </TableCell>
         <TableCell style={{ width: '2px', padding: '0px', margin: '0px' }}></TableCell>
-        <TableCell align="left" style={{ padding: '0px 10px 0px 0px', margin: '0px', padding: '0px' }}>
+        <TableCell align="left" style={{ padding: '0px', margin: '0px' }}>
           {sgcUploaded.includes(target.title) && (
             <a href={sgcUrl} target="new">
               SGC summary
@@ -460,7 +487,7 @@ export const TargetList = memo(() => {
       dispatch(setSearchInitDateTo(''));
       const newFilter = { ...filter };
       newFilter.priorityOrder = [
-        'title',
+        'display_name',
         'targetAccessString',
         'initDate'
         //'numberOfChains',
@@ -476,7 +503,7 @@ export const TargetList = memo(() => {
         //'dateLastEdit'
       ];
       newFilter.sortOptions = [
-        ['title', undefined],
+        ['display_name', undefined],
         ['targetAccessString', 'project_target_access_string'],
         ['initDate', 'project.init_date']
         //['numberOfChains', undefined],
@@ -509,10 +536,13 @@ export const TargetList = memo(() => {
 
   // window height for showing rows per page
   const [windowHeight, setWindowHeight] = useState(window.innerHeight);
+  const defaultRowsPerPageOptions = [20, 30, 40, 50, 100];
   let targetListWindowHeight = windowHeight / 22.5;
   let targetListWindowHeightFinal = parseInt(targetListWindowHeight.toFixed(0), 10);
+  if (defaultRowsPerPageOptions.indexOf(targetListWindowHeightFinal) === -1) {
+    defaultRowsPerPageOptions.unshift(targetListWindowHeightFinal);
+  }
   const [rowsPerPage, setRowsPerPage] = useState(targetListWindowHeightFinal);
-  const [rowsPerPagePerPageSize, setRowsPerPagePerPageSize] = useState(targetListWindowHeightFinal);
 
   const handleChangePage = (event, newPage) => {
     setPage(newPage);
@@ -543,7 +573,9 @@ export const TargetList = memo(() => {
       searchedById = [];
     }*/
     if (checkedTarget === true) {
-      searchedByTarget = listOfAllTarget.filter(item => item.title.toLowerCase().includes(searchString.toLowerCase()));
+      searchedByTarget = listOfAllTarget.filter(item =>
+        item.display_name.toLowerCase().includes(searchString.toLowerCase())
+      );
     } else {
       searchedByTarget = [];
     }
@@ -1113,8 +1145,8 @@ export const TargetList = memo(() => {
       filteredListOfTargets !== undefined
         ? filteredListOfTargets
         : listOfTargets !== undefined
-        ? listOfTargets
-        : target_id_list,
+          ? listOfTargets
+          : target_id_list,
       projectsList
     );
     const slice = combinations.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage);
@@ -1633,7 +1665,7 @@ export const TargetList = memo(() => {
           <TableFooter>
             <TableRow>
               <TablePagination
-                rowsPerPageOptions={[rowsPerPagePerPageSize, 20, 30, 40, 50, 100]}
+                rowsPerPageOptions={defaultRowsPerPageOptions}
                 count={listOfAllTarget.length}
                 rowsPerPage={rowsPerPage}
                 page={page}

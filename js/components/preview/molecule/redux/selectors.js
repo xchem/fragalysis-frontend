@@ -1,9 +1,13 @@
+import { truncate } from 'lodash';
 import { createSelector } from 'reselect';
+import { CATEGORY_TYPE } from '../../../../constants/constants';
 
 const getAllMolecules = state => state.apiReducers.all_mol_lists;
 const getAllSelectedTags = state => state.selectionReducers.selectedTagList;
 const getTagFilteringMode = state => state.selectionReducers.tagFilteringMode;
 const getNoTagsReceived = state => state.apiReducers.noTagsReceived;
+const getTagList = state => state.apiReducers.tagList;
+const getTagCategoryList = state => state.apiReducers.categoryList;
 const getDisplayAllMolecules = state => state.selectionReducers.displayAllMolecules;
 const getDisplayUntaggedMolecules = state => state.selectionReducers.displayUntaggedMolecules;
 export const getLHSCompoundsList = state => state.apiReducers.lhs_compounds_list;
@@ -13,9 +17,11 @@ export const selectJoinedMoleculeList = createSelector(
   getAllSelectedTags,
   getTagFilteringMode,
   getNoTagsReceived,
+  getTagList,
+  getTagCategoryList,
   getDisplayAllMolecules,
   getDisplayUntaggedMolecules,
-  (all_mol_lists, selectedTagList, filteringMode, noTagsReceived, displayAllMolecules, displayUntaggedMolecules) => {
+  (all_mol_lists, selectedTagList, filteringMode, noTagsReceived, tagList, categoryList, displayAllMolecules, displayUntaggedMolecules) => {
     let allMoleculesList = [];
 
     if (!displayUntaggedMolecules) {
@@ -68,7 +74,27 @@ export const selectJoinedMoleculeList = createSelector(
     } else {
       if (all_mol_lists) {
         allMoleculesList = all_mol_lists.filter(mol => {
-          return !mol.tags_set || mol.tags_set.length === 0;
+          const categories = [];
+          Object.entries(CATEGORY_TYPE).forEach(([key, categName]) => {
+            const categ = categoryList.find(c => c.category === categName);
+            if (categ) {
+              categories.push({ ...categ });
+            }
+          });
+
+          let hasCuratorTags = false;
+          categories.some(categ => {
+            mol.tags_set.some(tagId => {
+              const tag = tagList.find(t => t.id === tagId);
+              if (!tag.hidden && tag?.category === categ.id) {
+                hasCuratorTags = true;
+                return true;
+              }
+            });
+            return hasCuratorTags;
+          });
+
+          return !mol.tags_set || mol.tags_set.length === 0 || !hasCuratorTags;
         });
       }
     }

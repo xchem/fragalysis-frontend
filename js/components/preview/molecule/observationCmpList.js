@@ -45,7 +45,8 @@ import {
   withDisabledMoleculesNglControlButtons,
   removeSelectedTypesInHitNavigator,
   selectAllHits,
-  autoHideTagEditorDialogsOnScroll
+  autoHideTagEditorDialogsOnScroll,
+  selectAllVisibleObservations
 } from './redux/dispatchActions';
 import { DEFAULT_FILTER, PREDEFINED_FILTERS } from '../../../reducers/selection/constants';
 import { Edit, FilterList } from '@material-ui/icons';
@@ -58,7 +59,9 @@ import {
   setMoleculeForTagEdit,
   setObservationsForLHSCmp,
   setOpenObservationsDialog,
-  setLHSCompoundsInitialized
+  setLHSCompoundsInitialized,
+  setPoseIdForObservationsDialog,
+  setObservationDialogAction
 } from '../../../reducers/selection/actions';
 import { initializeFilter } from '../../../reducers/selection/dispatchActions';
 import * as listType from '../../../constants/listTypes';
@@ -81,6 +84,7 @@ import { LoadingContext } from '../../loading';
 import { DJANGO_CONTEXT } from '../../../utils/djangoContext';
 import ObservationCmpView from './observationCmpView';
 import { ObservationsDialog } from './observationsDialog';
+import { useScrollToSelectedPose } from './useScrollToSelectedPose';
 
 const useStyles = makeStyles(theme => ({
   container: {
@@ -247,6 +251,9 @@ const useStyles = makeStyles(theme => ({
     ...theme.typography.button,
     color: theme.palette.primary.main,
     fontStyle: 'italic'
+  },
+  footerButton: {
+    padding: '6px 7px'
   }
 }));
 let selectedDisplayHits = false;
@@ -330,6 +337,11 @@ export const ObservationCmpList = memo(({ hideProjects }) => {
   if (directDisplay && directDisplay.target) {
     target = directDisplay.target;
   }
+
+  const { addMoleculeViewRef, setScrollToMoleculeId, getNode } = useScrollToSelectedPose(
+    moleculesPerPage,
+    setCurrentPage
+  );
 
   let selectedMolecule = [];
   // TODO: Reset Infinity scroll
@@ -701,7 +713,7 @@ export const ObservationCmpList = memo(({ hideProjects }) => {
   let filteredLHSCompoundsList = useMemo(() => {
     const compounds = [];
     lhsCompoundsList.forEach(compound => {
-      const molsForCmp = joinedMoleculeLists.some(molecule => molecule.cmpd === compound.origId);
+      const molsForCmp = joinedMoleculeLists.some(molecule => molecule.cmpd === compound.compound);
       if (molsForCmp && compound.associatedObs.some(obs => joinedMoleculeLists.some(mol => mol.id === obs.id))) {
         compounds.push(compound);
       }
@@ -712,10 +724,13 @@ export const ObservationCmpList = memo(({ hideProjects }) => {
   useEffect(() => {
     if (isObservationDialogOpen && observationsForLHSCmp?.length > 0) {
       const cmpId = observationsForLHSCmp[0].cmpd;
-      const cmp = filteredLHSCompoundsList.find(c => c.origId === cmpId);
+      const cmp = filteredLHSCompoundsList.find(c => c.compound === cmpId);
       if (!cmp) {
         dispatch(setObservationsForLHSCmp([]));
         dispatch(setOpenObservationsDialog(false));
+        dispatch(setPoseIdForObservationsDialog(0));
+
+        // dispatch(setObservationDialogAction(0, [], false));
       }
     }
   }, [isObservationDialogOpen, filteredLHSCompoundsList, observationsForLHSCmp, dispatch]);
@@ -1021,9 +1036,8 @@ export const ObservationCmpList = memo(({ hideProjects }) => {
                     {filter.priorityOrder.map(attr => (
                       <Grid item key={`Mol-Tooltip-${attr}`}>
                         <Tooltip
-                          title={`${filter.filter[attr].minValue}-${filter.filter[attr].maxValue} ${
-                            filter.filter[attr].order === 1 ? '\u2191' : '\u2193'
-                          }`}
+                          title={`${filter.filter[attr].minValue}-${filter.filter[attr].maxValue} ${filter.filter[attr].order === 1 ? '\u2191' : '\u2193'
+                            }`}
                           placement="top"
                         >
                           <Chip size="small" label={attr} style={{ backgroundColor: getAttrDefinition(attr).color }} />
@@ -1127,7 +1141,7 @@ export const ObservationCmpList = memo(({ hideProjects }) => {
                   [classes.contColButtonHalfSelected]: false
                 })}
                 onClick={() => {
-                  dispatch(selectAllHits([], null, false));
+                  dispatch(selectAllVisibleObservations([], null, false));
                   // setSelectDisplayedHitsPressed(!selectDisplayedHitsPressed);
                 }}
                 disabled={false}
@@ -1146,7 +1160,7 @@ export const ObservationCmpList = memo(({ hideProjects }) => {
                   [classes.contColButtonHalfSelected]: false
                 })}
                 onClick={() => {
-                  dispatch(selectAllHits(uniqueSelectedMoleculeForHitNavigator, null, false));
+                  dispatch(selectAllVisibleObservations(uniqueSelectedMoleculeForHitNavigator, null, false));
                   // setSelectDisplayedHitsPressed(!selectDisplayedHitsPressed);
                 }}
                 disabled={false}
@@ -1157,9 +1171,8 @@ export const ObservationCmpList = memo(({ hideProjects }) => {
           </Tooltip>
         )}
         <Grid style={{ marginTop: '4px' }}>
-          <Typography variant="caption" className={classes.noOfSelectedHits}>{`Selected: ${
-            allSelectedMolecules ? allSelectedMolecules.length : 0
-          }`}</Typography>
+          <Typography variant="caption" className={classes.noOfSelectedHits}>{`Selected: ${allSelectedMolecules ? allSelectedMolecules.length : 0
+            }`}</Typography>
         </Grid>
       </Grid>
       <Grid container spacing={1} direction="column" justifyContent="flex-start" className={classes.container}>
@@ -1214,15 +1227,13 @@ export const ObservationCmpList = memo(({ hideProjects }) => {
               >
                 {filteredLHSCompoundsList.map((data, index, array) => {
                   const molsForCmp = data.associatedObs;
-                  // const selected = allSelectedMolecules.some(
-                  //   molecule => molecule.cmpd === data.origId && molecule.canon_site_conf === data.canonSiteConf
-                  // );
                   const selected = allSelectedMolecules.some(molecule =>
                     data.associatedObs.some(obs => obs.id === molecule.id)
                   );
 
                   return (
                     <ObservationCmpView
+                      ref={addMoleculeViewRef}
                       key={data.id}
                       imageHeight={imgHeight}
                       imageWidth={imgWidth}
@@ -1249,15 +1260,16 @@ export const ObservationCmpList = memo(({ hideProjects }) => {
               </InfiniteScroll>
             </Grid>
             <Grid item>
-              <Grid container spacing={1} justifyContent="space-between" alignItems="center" direction="row">
+              <Grid container justifyContent="space-between" alignItems="center" direction="row">
                 <Grid item>
                   <span
                     className={classes.total}
-                  >{`Total cmps/obs ${filteredLHSCompoundsList?.length}/${joinedMoleculeLists?.length}`}</span>
+                  >{`#Poses=${filteredLHSCompoundsList?.length}, #Obs=${joinedMoleculeLists?.length}`}</span>
                 </Grid>
                 <Grid item>
                   <ButtonGroup variant="text" size="medium" color="primary" aria-label="contained primary button group">
                     <Button
+                      className={classes.footerButton}
                       onClick={() => {
                         dispatch(setNextXMolecules(30));
                       }}
@@ -1265,6 +1277,7 @@ export const ObservationCmpList = memo(({ hideProjects }) => {
                       Load next 30
                     </Button>
                     <Button
+                      className={classes.footerButton}
                       onClick={() => {
                         dispatch(setNextXMolecules(100));
                       }}
@@ -1272,6 +1285,7 @@ export const ObservationCmpList = memo(({ hideProjects }) => {
                       Load next 100
                     </Button>
                     <Button
+                      className={classes.footerButton}
                       onClick={() => {
                         if (joinedMoleculeLists?.length > 300) {
                           setIsOpenAlert(true);

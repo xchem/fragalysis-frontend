@@ -51,8 +51,8 @@ export const getCanonConformSites = async targetId => {
   });
 };
 
-export const getCompoundsLHS = async targetId => {
-  return api({ url: `${base_url}/api/cmpdimg/?target=${targetId}` }).then(response => {
+export const getPoses = async targetId => {
+  return api({ url: `${base_url}/api/poses/?target=${targetId}` }).then(response => {
     if (response?.data) {
       return response.data?.results;
     }

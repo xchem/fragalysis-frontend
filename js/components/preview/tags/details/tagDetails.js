@@ -44,6 +44,9 @@ import {
 import { selectAllTags, clearAllTags } from '../redux/dispatchActions';
 import { Button } from '../../../common/Inputs/Button';
 import { LoadingContext } from '../../../loading';
+import { EditTagsModal } from '../modal/editTagsModal';
+import { DJANGO_CONTEXT } from '../../../../utils/djangoContext';
+import v4 from 'uuid/v4';
 
 export const heightOfBody = '172px';
 export const defaultHeaderPadding = 15;
@@ -166,12 +169,24 @@ const TagDetails = memo(() => {
   let tagDetailView = useSelector(state => state.selectionReducers.tagDetailView);
   const resizableLayout = useSelector(state => state.selectionReducers.resizableLayout);
   const tagCategories = useSelector(state => state.apiReducers.categoryList);
+  const selectedTagList = useSelector(state => state.selectionReducers.selectedTagList);
 
   const [tagList, setTagList] = useState([]);
   const [selectAll, setSelectAll] = useState(true);
+  const [showEditTagsModal, setShowEditTagsModal] = useState(false);
   const [searchString, setSearchString] = useState(null);
 
+  const [allTagsAreSelected, setAllTagsAreSelected] = useState(false);
+
   tagDetailView = tagDetailView?.tagDetailView === undefined ? tagDetailView : tagDetailView.tagDetailView;
+
+  useEffect(() => {
+    if (tagList.length === selectedTagList.length) {
+      setAllTagsAreSelected(true);
+    } else {
+      setAllTagsAreSelected(false);
+    }
+  }, [tagList, selectedTagList]);
 
   const filteredTagList = useMemo(() => {
     if (searchString) {
@@ -183,7 +198,7 @@ const TagDetails = memo(() => {
   useEffect(() => {
     const categoriesToRemove = getCategoriesToBeRemovedFromTagDetails(tagCategories);
     const newTagList = preTagList.filter(t => {
-      if (t.additional_info?.downloadName || categoriesToRemove.some(c => c.id === t.category)) {
+      if (t.hidden === true || t.additional_info?.downloadName || categoriesToRemove.some(c => c.id === t.category)) {
         return false;
       } else {
         return true;
@@ -198,8 +213,8 @@ const TagDetails = memo(() => {
   const moleculesToEditIds = useSelector(state => state.selectionReducers.moleculesToEdit);
   const moleculesToEdit =
     moleculesToEditIds &&
-      moleculesToEditIds.length > 0 &&
-      !(moleculesToEditIds.length === 1 && moleculesToEditIds[0] === null)
+    moleculesToEditIds.length > 0 &&
+    !(moleculesToEditIds.length === 1 && moleculesToEditIds[0] === null)
       ? moleculesToEditIds.map(id => dispatch(getMoleculeForId(id)))
       : [];
 
@@ -327,14 +342,18 @@ const TagDetails = memo(() => {
     dispatch(setDisplayUntaggedMolecules(!displayUntaggedMolecules));
   };
 
-  const handleSelectionButton = () => {
+  const handleSelectionButton = tagsToSelect => {
     dispatch(setDisplayUntaggedMolecules(false));
     if (selectAll) {
-      dispatch(selectAllTags());
+      dispatch(selectAllTags(tagsToSelect));
     } else {
       dispatch(clearAllTags());
     }
     setSelectAll(!selectAll);
+  };
+
+  const handleEditTagsButton = () => {
+    setShowEditTagsModal(!showEditTagsModal);
   };
 
   return (
@@ -408,7 +427,7 @@ const TagDetails = memo(() => {
               variant="text"
               size="small"
               data-id="showUntaggedHitsButton"
-              className={displayUntaggedMolecules ? classes.contColButton : classes.contColButtonSelected}
+              className={displayUntaggedMolecules ? classes.contColButtonSelected : classes.contColButton}
             >
               Show untagged hits
             </Button>
@@ -421,27 +440,48 @@ const TagDetails = memo(() => {
               variant="text"
               size="small"
               data-id="showAllHitsButton"
-              className={displayAllMolecules ? classes.contColButton : classes.contColButtonSelected}
+              className={displayAllMolecules ? classes.contColButtonSelected : classes.contColButton}
             >
               Show all hits
             </Button>
           </Grid>
           <Grid item>
             <Button
-              onClick={() => handleSelectionButton()}
+              onClick={() => handleSelectionButton(tagList)}
               disabled={false}
               color="inherit"
               variant="text"
               size="small"
               data-id="tagSelectionButton"
-              className={selectAll ? classes.contColButton : classes.contColButtonSelected}
+              className={!allTagsAreSelected ? classes.contColButton : classes.contColButtonSelected}
             >
               Select all tags
             </Button>
           </Grid>
+          {DJANGO_CONTEXT.pk && [
+            <Grid key={v4()} item>
+              <Button
+                onClick={() => handleEditTagsButton()}
+                disabled={false}
+                color="inherit"
+                variant="text"
+                size="small"
+                data-id="editTagsButton"
+                className={classes.contColButton}
+              >
+                Edit tags
+              </Button>
+            </Grid>,
+            <EditTagsModal
+              key={v4()}
+              open={showEditTagsModal}
+              setOpenDialog={setShowEditTagsModal}
+              anchorEl={ref?.current}
+            />
+          ]}
         </Grid>
       </div>
-      <div ref={elementRef} className={classes.containerExpanded} style={{ height: tagDetailView ? '80%' : '87%' }}>
+      <div ref={elementRef} className={classes.containerExpanded} style={{ height: tagDetailView ? '89%' : '93%' }}>
         {tagDetailView ? (
           <>
             <div className={classes.container} id="tagName">
@@ -581,7 +621,7 @@ const TagDetails = memo(() => {
                 </Tooltip>
               </IconButton>
             </div>
-            <div />
+            <div></div>
 
             {filteredTagList &&
               filteredTagList.map((tag, idx) => {
@@ -604,9 +644,9 @@ const TagDetails = memo(() => {
           </div>
         )}
       </div>
-      <div style={{ paddingBottom: resizableLayout === true ? '17px' : '0px' }}>
+      {/* <div style={{ paddingBottom: resizableLayout === true ? '17px' : '0px' }}>
         <NewTagDetailRow moleculesToEditIds={moleculesToEditIds} moleculesToEdit={moleculesToEdit} />
-      </div>
+      </div> */}
     </Panel>
   );
 });

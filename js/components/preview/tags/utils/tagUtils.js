@@ -4,7 +4,8 @@ import {
   OBSERVATION_TAG_CATEGORIES,
   COMPOUND_PRIO_TAG_CATEGORIES,
   TAG_DETAILS_REMOVED_CATEGORIES,
-  NON_ASSIGNABLE_CATEGORIES
+  NON_ASSIGNABLE_CATEGORIES,
+  CATEGORY_TYPE
 } from '../../../../constants/constants';
 
 export const DEFAULT_TAG_COLOR = '#E0E0E0';
@@ -20,7 +21,10 @@ export const createMoleculeTagObject = (
   molecules,
   createDate = new Date(),
   additionalInfo = null,
-  molGroup = null
+  molGroup = null,
+  hidden = false,
+  tag_prefix = null,
+  upload_name = null
 ) => {
   return {
     tag: tagName,
@@ -33,34 +37,46 @@ export const createMoleculeTagObject = (
     create_date: createDate,
     help_text: tagName,
     additional_info: additionalInfo,
-    mol_group: molGroup
+    mol_group: molGroup,
+    hidden: hidden,
+    tag_prefix: tag_prefix,
+    upload_name: upload_name
   };
 };
 
-export const compareTagsAsc = (a, b) => {
-  const aName = a.tag_prefix ? `${a.tag_prefix} - ${a.tag}` : a.tag;
-  const bName = b.tag_prefix ? `${b.tag_prefix} - ${b.tag}` : b.tag;
-
-  if (aName < bName) {
+/**
+ * Compare tags, first by category and then by name
+ *
+ * @param {TagObject} a
+ * @param {TagObject} b
+ * @param {boolean} asc true for asc, false for desc
+ * @returns
+ */
+export const compareTagsByCategoryAndName = (a, b, asc = true) => {
+  // by category first
+  if (a.category < b.category) {
     return -1;
   }
-  if (aName > bName) {
+  if (a.category > b.category) {
     return 1;
   }
-  return 0;
+  // then by name
+  const aName = a.tag_prefix ? `${a.tag_prefix} - ${a.tag}` : a.tag;
+  const bName = b.tag_prefix ? `${b.tag_prefix} - ${b.tag}` : b.tag;
+  return asc ? aName.localeCompare(bName, undefined, { numeric: true, sensitivity: 'base' })
+    : bName.localeCompare(aName, undefined, { numeric: true, sensitivity: 'base' });
+};
+
+export const compareTagsByCategoryAndNameAsc = (a, b) => {
+  compareTagsByCategoryAndName(a, b, true);
+}
+
+export const compareTagsAsc = (a, b) => {
+  return compareTagsByCategoryAndName(a, b, true);
 };
 
 export const compareTagsDesc = (a, b) => {
-  const aName = a.tag_prefix ? `${a.tag_prefix} - ${a.tag}` : a.tag;
-  const bName = b.tag_prefix ? `${b.tag_prefix} - ${b.tag}` : b.tag;
-
-  if (aName > bName) {
-    return -1;
-  }
-  if (aName < bName) {
-    return 1;
-  }
-  return 0;
+  return compareTagsByCategoryAndName(a, b, false);
 };
 
 export const compareTagsByCategoryAsc = (a, b) => {
@@ -158,6 +174,21 @@ export const getObservationTagConfig = tagCategoryList => {
   return result;
 };
 
+export const getAllTagsForCategories = (obs, tagList, tagCategoryList) => {
+  const result = [];
+
+  tagCategoryList.forEach(categ => {
+    obs?.tags_set.find(tagId => {
+      const tag = tagList.find(t => t.id === tagId);
+      if (tag?.category === categ.id) {
+        result.push(tag);
+      }
+    });
+  });
+
+  return result;
+};
+
 export const getAllTagsForObservation = (obs, tagList, tagCategoryList) => {
   const result = [];
 
@@ -166,6 +197,36 @@ export const getAllTagsForObservation = (obs, tagList, tagCategoryList) => {
     obs?.tags_set.find(tagId => {
       const tag = tagList.find(t => t.id === tagId);
       if (tag?.category === categ.id) {
+        result.push(tag);
+      }
+    });
+  });
+
+  return result;
+};
+
+/**
+ * Get only "other"/curator tags
+ *
+ * @param {*} obs
+ * @param {*} tagList
+ * @param {*} tagCategoryList
+ * @returns
+ */
+export const getAllTagsForObservationPopover = (obs, tagList, tagCategoryList) => {
+  const result = [];
+  const categories = [];
+
+  tagCategoryList.forEach(c => {
+    if (!NON_ASSIGNABLE_CATEGORIES.includes(c.category)) {
+      categories.push({ ...c });
+    }
+  });
+
+  categories.forEach(categ => {
+    obs?.tags_set.find(tagId => {
+      const tag = tagList.find(t => t.id === tagId);
+      if (!tag.hidden && tag?.category === categ.id) {
         result.push(tag);
       }
     });

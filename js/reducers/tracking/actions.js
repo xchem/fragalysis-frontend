@@ -98,6 +98,13 @@ export const setProjectActionListLoaded = isLoaded => {
   };
 };
 
+export const setSnapshotActionsDownloaded = isDownloaded => {
+  return {
+    type: constants.SET_SNAPSHOT_ACTIONS_DOWNLOADED,
+    isDownloaded: isDownloaded
+  };
+};
+
 export const setSnapshotImageActionList = function(snapshotActionImageList) {
   return {
     type: constants.SET_SNAPSOT_IMAGE_ACTIONS_LIST,
