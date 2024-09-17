@@ -9,6 +9,10 @@ export const URLS = {
   funders: '/viewer/react/funders/',
   target: '/viewer/react/preview/target/',
 
+  lhsUpload: '/api/upload_target_experiments/',
+  rhsUpload: '/viewer/upload_cset/',
+  metadataUpload: '/api/metadata_upload/',
+
   // Projects feature
   projects: '/viewer/react/projects/',
   // Direct feature

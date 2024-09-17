@@ -68,6 +68,7 @@ import { AddProjectDetail } from '../projects/addProjectDetail';
 import { ServicesStatusWrapper } from '../services';
 import { COMPANIES, get_logo } from '../funders/constants';
 import { setEditTargetDialogOpen } from '../target/redux/actions';
+import { Upload } from '@mui/icons-material';
 
 const useStyles = makeStyles(theme => ({
   padding: {
@@ -272,8 +273,8 @@ export default memo(
                   targetName !== undefined ? (
                     <>
                       {currentProject.authorID === null ||
-                      currentProject.projectID === null ||
-                      currentProject.authorID === userId ? (
+                        currentProject.projectID === null ||
+                        currentProject.authorID === userId ? (
                         <Button
                           onClick={() => {
                             isProjectModalLoading === false
@@ -574,6 +575,29 @@ export default memo(
                 </ListItemIcon>
                 <ListItemText primary="Contributors" />
               </ListItem>
+              {DJANGO_CONTEXT.pk &&
+                <>
+                  <Divider />
+                  <ListItem button onClick={() => openLink(URLS.lhsUpload)}>
+                    <ListItemIcon>
+                      <Upload />
+                    </ListItemIcon>
+                    <ListItemText primary="LHS upload" />
+                  </ListItem>
+                  <ListItem button onClick={() => openLink(URLS.rhsUpload)}>
+                    <ListItemIcon>
+                      <Upload />
+                    </ListItemIcon>
+                    <ListItemText primary="RHS upload" />
+                  </ListItem>
+                  <ListItem button onClick={() => openLink(URLS.metadataUpload)}>
+                    <ListItemIcon>
+                      <Upload />
+                    </ListItemIcon>
+                    <ListItemText primary="Metadata upload" />
+                  </ListItem>
+                </>
+              }
               <Divider />
               {authListItem}
             </Grid>
