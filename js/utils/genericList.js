@@ -8,7 +8,7 @@ import { base_url as base_url_const } from '../components/routes/constants';
 // START of functions from GenericList
 export const getUrl = ({
   list_type,
-  project_id,
+  project,
   target_on,
   group_type,
   mol_group_on,
@@ -28,8 +28,8 @@ export const getUrl = ({
   let get_params = {};
   if (list_type === listTypes.TARGET) {
     base_url += 'targets/';
-    if (project_id !== undefined) {
-      get_params.project_id = project_id;
+    if (project !== undefined) {
+      get_params.project = project;
     }
   } else if (list_type === OBJECT_TYPE.MOLECULE_GROUP) {
     if (target_on !== undefined) {
@@ -66,8 +66,8 @@ export const getUrl = ({
     }
   } else if (list_type === listTypes.SESSIONS) {
     base_url += 'viewscene/?user_id=' + userId;
-    if (project_id !== undefined) {
-      get_params.project_id = project_id;
+    if (project !== undefined) {
+      get_params.project = project;
       setSeshListSaving(true);
     }
   } else {
@@ -201,7 +201,7 @@ export function getNumberFromCode(inputCode) {
 
   if (codeAfterIdentifier != null) {
     let startingNumber = (codeAfterIdentifier.match(/\d+/) || [0])
-      .map(function(v) {
+      .map(function (v) {
         return +v;
       })
       .shift();
@@ -212,7 +212,7 @@ export function getNumberFromCode(inputCode) {
       let codeAfterSubIdentifier = codeAfterIdentifier.split(CONSTANTS.sub_identifier)[1];
       if (codeAfterSubIdentifier != null) {
         let startingSubNumber = (codeAfterSubIdentifier.match(/\d+/) || [0])
-          .map(function(v) {
+          .map(function (v) {
             return +v;
           })
           .shift();
