@@ -127,9 +127,16 @@ export const storeData = data => (dispatch, getState) => {
   dispatch(setTagSelectorData(categories, tags));
 
   let allMolecules = [];
-  data.molecules.forEach(mol => {});
+  data.molecules.forEach(mol => { });
 };
 
+/**
+ *
+ * @param {Object} tag tag object
+ * @param {*} value new value
+ * @param {*} prop name of the prop to be updated
+ * @returns {Promise<Object>}
+ */
 export const updateTagProp = (tag, value, prop) => (dispatch, getState) => {
   const state = getState();
   const molTags = state.apiReducers.moleculeTags;

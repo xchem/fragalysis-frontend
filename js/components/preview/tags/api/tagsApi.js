@@ -11,7 +11,7 @@ import { getDefaultTagDiscoursePostText } from '../utils/tagUtils';
 //   });
 // };
 
-export const getTags = targetId => {
+export const getTags = async targetId => {
   return api({ url: `${base_url}/api/siteobservation_tag/?target=${targetId}` }).then(response => {
     if (response?.data) {
       return response.data;
@@ -19,7 +19,7 @@ export const getTags = targetId => {
   });
 };
 
-export const getTagCategories = () => {
+export const getTagCategories = async () => {
   return api({ url: `${base_url}/api/tag_category/` }).then(response => {
     if (response?.data) {
       return response.data?.results;
@@ -67,7 +67,7 @@ export const getTagMolecules = targetId => {
     .catch(err => console.log(err));
 };
 
-export const createNewTag = (tag, targetName) => {
+export const createNewTag = async (tag, targetName) => {
   let url = `${base_url}/api/siteobservation_tag/`;
   if (isDiscourseAvailable()) {
     return createTagPost(tag, targetName, getDefaultTagDiscoursePostText(tag))
@@ -101,7 +101,7 @@ export const createNewTag = (tag, targetName) => {
   }
 };
 
-export const createNewDownloadTag = tag => {
+export const createNewDownloadTag = async tag => {
   let url = `${base_url}/api/siteobservation_tag/`;
   const jsonString = JSON.stringify(tag);
   return api({
@@ -115,7 +115,7 @@ export const createNewDownloadTag = tag => {
     .catch(err => console.log(err));
 };
 
-export const updateExistingTag = (tag, tagId) => {
+export const updateExistingTag = async (tag, tagId) => {
   const jsonString = JSON.stringify(tag);
   let url = `${base_url}/api/siteobservation_tag/${tagId}/`;
   return api({
@@ -129,7 +129,7 @@ export const updateExistingTag = (tag, tagId) => {
     .catch(err => console.log(err));
 };
 
-export const getTagByName = tagName => {
+export const getTagByName = async tagName => {
   let url = `${base_url}/api/siteobservation_tag/?tag=${tagName}`;
   return api({ url: url }).then(response => {
     if (response?.data?.results?.length > 0) {
@@ -138,7 +138,7 @@ export const getTagByName = tagName => {
   });
 };
 
-export const deleteExistingTag = (tag, tagId) => {
+export const deleteExistingTag = async (tag, tagId) => {
   const jsonString = JSON.stringify(tag);
   let url = `${base_url}/api/siteobservation_tag/${tagId}/`;
   return api({
