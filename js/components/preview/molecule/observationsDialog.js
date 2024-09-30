@@ -285,6 +285,7 @@ export const ObservationsDialog = memo(
       CrystalformSites: getCalculatedTagColumnWidth('CrystalformSites'),
       CentroidRes: getCalculatedTagColumnWidth('CentroidRes'),
       LongCode: getCalculatedTagColumnWidth('LongCode'),
+      Path: getCalculatedTagColumnWidth('Path')
     });
 
     /**
@@ -1000,6 +1001,9 @@ export const ObservationsDialog = memo(
                             </Grid>
                             <Grid item align="center" className={classes.headerCell} style={{ minWidth: headerWidths.LongCode }}>
                               LongCode
+                            </Grid>
+                            <Grid item align="center" className={classes.headerCell} style={{ minWidth: headerWidths.Path }}>
+                              Path
                             </Grid>
                           </Grid>
                         )}

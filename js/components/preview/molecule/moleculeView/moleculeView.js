@@ -58,6 +58,8 @@ import { DJANGO_CONTEXT } from '../../../../utils/djangoContext';
 import { getFontColorByBackgroundColor } from '../../../../utils/colors';
 import { api, METHOD } from '../../../../utils/api';
 import { base_url } from '../../../routes/constants';
+import { ContentCopyRounded } from '@mui/icons-material';
+import { ToastContext } from '../../../toast';
 
 const useStyles = makeStyles(theme => ({
   container: {
@@ -411,6 +413,7 @@ const MoleculeView = memo(
     const [tagEditModalOpenNew, setTagEditModalOpenNew] = useState(tagEditorOpenObs);
 
     const { getNglView } = useContext(NglContext);
+    const { toastInfo } = useContext(ToastContext);
     const stage = getNglView(VIEWS.MAJOR_VIEW) && getNglView(VIEWS.MAJOR_VIEW).stage;
 
     const isLigandOn = L;
@@ -465,6 +468,7 @@ const MoleculeView = memo(
     const [moleculeTooltipOpen, setMoleculeTooltipOpen] = useState(false);
     const [tagPopoverOpen, setTagPopoverOpen] = useState(null);
     const [centroidRes, setCentroidRes] = useState('');
+    const [experimentalPath, setExperimentalPath] = useState('');
 
     const moleculeImgRef = useRef(null);
 
@@ -513,6 +517,26 @@ const MoleculeView = memo(
           setCentroidRes('');
         });
     }, [data.canon_site_conf]);
+
+    useEffect(() => {
+      api({
+        url: `${base_url}/api/experiments/`,
+        method: METHOD.GET
+      })
+        .then(resp => {
+          const experiment = resp.data.results.find(experiment => experiment.id === data.experiment);
+          if (experiment) {
+            setExperimentalPath(experiment.pdb_info_source_file ?? '');
+          } else {
+            console.log('there is not any matching canonSiteConf object with ' + data.experiment + ' id');
+            setExperimentalPath('');
+          }
+        })
+        .catch(err => {
+          console.log('error fetching experiment from experiments api', err);
+          setExperimentalPath('');
+        });
+    }, [data.experiment]);
 
     useEffect(() => {
       if (showExpandedView) {
@@ -1134,6 +1158,11 @@ const MoleculeView = memo(
       return tagTooltip;
     }, [getTagType]);
 
+    const copyExperimentalPaths = async () => {
+      await navigator.clipboard.writeText(experimentalPath);
+      toastInfo('Link was copied to the clipboard', { autoHideDuration: 5000 });
+    };
+
     return (
       <>
         <Grid
@@ -1501,6 +1530,13 @@ const MoleculeView = memo(
             <Tooltip title={"LongCode"}>
               <Grid item align="center" className={classes.categoryCell} style={{ minWidth: headerWidths.LongCode }}>
                 {data.longcode}
+              </Grid>
+            </Tooltip>
+            <Tooltip title={experimentalPath.length > 0 ? experimentalPath : 'empty path'}>
+              <Grid item align="center" style={{ minWidth: headerWidths.Path }}>
+                <IconButton color="inherit" onClick={copyExperimentalPaths} size="small">
+                  <ContentCopyRounded fontSize="small" />
+                </IconButton>
               </Grid>
             </Tooltip>
           </Grid>}
