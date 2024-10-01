@@ -33,8 +33,9 @@ export const getUrl = ({
     }
   } else if (list_type === OBJECT_TYPE.MOLECULE_GROUP) {
     if (target_on !== undefined) {
+      // api/molgroup was replaced by api/siteobservationgroup
       get_params.target_id = target_on;
-      base_url += 'molgroup/';
+      base_url += 'siteobservationgroup/';
       get_params.group_type = group_type;
     }
   } else if (list_type === listTypes.MOLECULE) {
