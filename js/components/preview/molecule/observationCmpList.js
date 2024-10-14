@@ -10,7 +10,10 @@ import {
   Divider,
   Typography,
   IconButton,
-  ButtonGroup
+  ButtonGroup,
+  Select,
+  MenuItem,
+  Checkbox
 } from '@material-ui/core';
 import React, { useState, useEffect, useCallback, memo, useRef, useContext, useMemo } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
@@ -320,6 +323,89 @@ export const ObservationCmpList = memo(({ hideProjects }) => {
   const proteinsHasLoaded = useSelector(state => state.nglReducers.proteinsHasLoaded);
 
   const [predefinedFilter, setPredefinedFilter] = useState(filter !== undefined ? filter.predefined : DEFAULT_FILTER);
+
+  const [ascending, setAscending] = useState(true);
+  const handleAscendingChecked = (event) => setAscending(event.target.checked);
+  const SORT_OPTIONS = [
+    'POSE_NAME',
+    'COMPOUND_CODE',
+    'CANONSITE_NUMBER',
+    'CONFORMERSITE_NUMBER',
+    'OBSERVATION_COUNT'
+  ];
+  const sortOptions = {
+    POSE_NAME: {
+      title: 'Pose name',
+      handler: (a, b, asc) => compareByPoseName(a, b, asc)
+    },
+    COMPOUND_CODE: {
+      title: 'Compound code',
+      handler: (a, b, asc) => compareByCompoundCode(a, b, asc)
+    },
+    CANONSITE_NUMBER: {
+      title: 'CanonSite number',
+      handler: (a, b, asc) => compareByCanonSiteNumber(a, b, asc)
+    },
+    CONFORMERSITE_NUMBER: {
+      title: 'ConformerSite number',
+      handler: (a, b, asc) => compareByConformerSiteNumber(a, b, asc)
+    },
+    OBSERVATION_COUNT: {
+      title: 'Observation count',
+      handler: (a, b, asc) => compareByObservationCount(a, b, asc)
+    }
+  };
+  const [sortOption, setSortOption] = useState(SORT_OPTIONS[0]);
+
+  const compareByPoseName = (a, b, asc) => {
+    const aName = a.code;
+    const bName = b.code;
+    return asc ? aName.localeCompare(bName, undefined, { numeric: true, sensitivity: 'base' })
+      : bName.localeCompare(aName, undefined, { numeric: true, sensitivity: 'base' });
+  };
+  const compareByCompoundCode = (a, b, asc) => {
+    const aName = a.main_site_observation_cmpd_code;
+    const bName = b.main_site_observation_cmpd_code;
+    return asc ? aName.localeCompare(bName, undefined, { numeric: true, sensitivity: 'base' })
+      : bName.localeCompare(aName, undefined, { numeric: true, sensitivity: 'base' });
+  };
+  const compareByCanonSiteNumber = (a, b, asc) => {
+    const aName = getCanonSiteTagPrefix(a);
+    const bName = getCanonSiteTagPrefix(b);
+    return asc ? aName.localeCompare(bName, undefined, { numeric: true, sensitivity: 'base' })
+      : bName.localeCompare(aName, undefined, { numeric: true, sensitivity: 'base' });
+  };
+  const compareByConformerSiteNumber = (a, b, asc) => {
+    const aName = getConformerSiteTagPrefix(a);
+    const bName = getConformerSiteTagPrefix(b);
+    return asc ? aName.localeCompare(bName, undefined, { numeric: true, sensitivity: 'base' })
+      : bName.localeCompare(aName, undefined, { numeric: true, sensitivity: 'base' });
+  };
+  const compareByObservationCount = (a, b, asc) => {
+    const aCount = a.site_observations.length;
+    const bCount = b.site_observations.length;
+    return asc ? aCount - bCount : bCount - aCount;
+  };
+
+  /**
+   * Get CanonSites tag for sorting
+   */
+  const getCanonSiteTagPrefix = useCallback(pose => {
+    const mainObservation = pose.associatedObs.find(observation => observation.id === pose.main_site_observation);
+    const canonSitesTag = categories.find(tagCategory => tagCategory.category === 'CanonSites');
+    const canonSite = tags.find(tag => tag.category === canonSitesTag.id && tag.site_observations.includes(mainObservation.id));
+    return canonSite !== undefined ? canonSite.tag_prefix : '';
+  }, [categories, tags]);
+
+  /**
+   * Get ConformerSites tag for sorting
+   */
+  const getConformerSiteTagPrefix = useCallback(pose => {
+    const mainObservation = pose.associatedObs.find(observation => observation.id === pose.main_site_observation);
+    const conformerSitesTag = categories.find(tagCategory => tagCategory.category === 'ConformerSites');
+    const conformerSite = tags.find(tag => tag.category === conformerSitesTag.id && tag.site_observations.includes(mainObservation.id));
+    return conformerSite !== undefined ? conformerSite.tag_prefix : '';
+  }, [categories, tags]);
 
   const isActiveFilter = !!(filter || {}).active;
 
@@ -718,8 +804,9 @@ export const ObservationCmpList = memo(({ hideProjects }) => {
         compounds.push(compound);
       }
     });
+    compounds.sort((a, b) => sortOptions[sortOption].handler(a, b, ascending));
     return compounds;
-  }, [joinedMoleculeLists, lhsCompoundsList]);
+  }, [joinedMoleculeLists, lhsCompoundsList, sortOptions, sortOption, ascending]);
 
   useEffect(() => {
     if (isObservationDialogOpen && observationsForLHSCmp?.length > 0) {
@@ -1113,7 +1200,7 @@ export const ObservationCmpList = memo(({ hideProjects }) => {
 
         {
           <Tooltip title={selectAllHitsPressed ? 'Unselect all hits' : 'Select all hits'}>
-            <Grid item style={{ marginLeft: '20px' }}>
+            <Grid item style={{ marginLeft: '5px' }}>
               <Button
                 variant="outlined"
                 className={classNames(classes.contColButton, {
@@ -1133,7 +1220,7 @@ export const ObservationCmpList = memo(({ hideProjects }) => {
         }
         {selectedDisplayHits === true ? (
           <Tooltip title={'Unselect displayed hits'}>
-            <Grid item style={{ marginLeft: '20px' }}>
+            <Grid item style={{ marginLeft: '5px' }}>
               <Button
                 variant="outlined"
                 className={classNames(classes.contColButton, {
@@ -1152,7 +1239,7 @@ export const ObservationCmpList = memo(({ hideProjects }) => {
           </Tooltip>
         ) : (
           <Tooltip title={'Select displayed hits'}>
-            <Grid item style={{ marginLeft: '20px' }}>
+            <Grid item style={{ marginLeft: '5px' }}>
               <Button
                 variant="outlined"
                 className={classNames(classes.contColButton, {
@@ -1174,6 +1261,32 @@ export const ObservationCmpList = memo(({ hideProjects }) => {
           <Typography variant="caption" className={classes.noOfSelectedHits}>{`Selected: ${allSelectedMolecules ? allSelectedMolecules.length : 0
             }`}</Typography>
         </Grid>
+        <Grid style={{ marginTop: '4px' }}>
+          <Typography variant="caption" className={classes.noOfSelectedHits}>Sort by</Typography>
+        </Grid>
+        <Grid style={{ marginTop: '4px', marginLeft: '4px' }}>
+          <Tooltip title={sortOption ? sortOptions[sortOption].title : "Sort by"}>
+            <Select
+              value={sortOption}
+              onChange={(event) => setSortOption(event.target.value)}
+              // fullWidth
+              size="small"
+              style={{ fontSize: 10, width: 75 }}
+            >
+              {SORT_OPTIONS.map((option, index) => (
+                <MenuItem key={`${index}-${option}`} value={option} style={{ fontSize: 12, padding: '3px 7px' }}>
+                  {sortOptions[option].title}
+                </MenuItem>
+              ))}
+            </Select>
+          </Tooltip>
+        </Grid>
+        <Tooltip title={ascending ? "Ascending" : "Descending"}>
+          <Grid style={{ marginTop: '4px' }}>
+            <Checkbox checked={ascending} onChange={handleAscendingChecked} size="small" style={{ padding: 3 }} />
+            <Typography variant="caption" className={classes.noOfSelectedHits}>ASC</Typography>
+          </Grid>
+        </Tooltip>
       </Grid>
       <Grid container spacing={1} direction="column" justifyContent="flex-start" className={classes.container}>
         <Grid item>
