@@ -32,8 +32,8 @@ import GroupNglControlButtonsContext from '../preview/molecule/groupNglControlBu
 
 const useStyles = makeStyles(theme => ({
   paper: {
-    width: 472,
-    height: 294,
+    width: 505,
+    // height: 294,
     overflowY: 'hidden'
   },
   molHeader: {
@@ -382,11 +382,11 @@ export const InspirationDialog = memo(
             <>
               <Grid container justifyContent="flex-start" direction="row" className={classes.molHeader} wrap="nowrap">
                 <Grid item container justifyContent="flex-start" direction="row">
-                  {Object.keys(moleculeProperty).map(key => (
+                  {/* {Object.keys(moleculeProperty).map(key => (
                     <Grid item key={key} className={classes.rightBorder}>
                       {moleculeProperty[key]}
                     </Grid>
-                  ))}
+                  ))} */}
                   {allSelectedMolecules.length > 0 && (
                     <Grid item>
                       <Grid
