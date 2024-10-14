@@ -176,9 +176,12 @@ const useStyles = makeStyles(theme => ({
     // fontWeight: 'bold',
     paddingLeft: theme.spacing(1) / 4,
     paddingRight: theme.spacing(1) / 4,
-    '&:hover': {
+    '&:hover:not([disabled])': {
       cursor: 'pointer',
       backgroundColor: theme.palette.primary.light
+    },
+    '&:is([disabled])': {
+      color: theme.palette.dividerDark
     }
   },
   dropdownContentSide: {
@@ -662,6 +665,16 @@ export const ObservationsDialog = memo(
       }
     };
 
+    /**
+     * Get observation list for un/tagging
+     *
+     * @returns {Object[]} observations
+     */
+    const observationsForTagOperations = useMemo(() => {
+      // observationsDataList - all observations, moleculeList - filtered, allSelectedMolecules - selected
+      return allSelectedMolecules.length > 0 ? allSelectedMolecules : moleculeList;
+    }, [allSelectedMolecules, moleculeList]);
+
     const tagObservations = async (tag, tagToExclude) => {
       try {
         // setTaggingInProgress(true);
@@ -677,7 +690,7 @@ export const ObservationsDialog = memo(
         }
 
         let molTagObjects = [];
-        observationsDataList.forEach(m => {
+        observationsForTagOperations.forEach(m => {
           if (!m.tags_set.some(id => id === tag.id)) {
             let newMol = { ...m };
             newMol.tags_set.push(tag.id);
@@ -745,7 +758,7 @@ export const ObservationsDialog = memo(
         }
 
         let molTagObjects = [];
-        observationsDataList.forEach(m => {
+        observationsForTagOperations.forEach(m => {
           let newMol = { ...m };
           newMol.tags_set = newMol.tags_set.filter(id => id !== tag.id);
 
@@ -838,6 +851,17 @@ export const ObservationsDialog = memo(
       await tagObservations(tag, mainObservationTag);
       toastInfo(`Tag for observations was changed from "${mainObservationTag.upload_name}" to "${tag.upload_name}". They could disappear based on your tag selection`, { autoHideDuration: 5000 });
     };
+
+    /**
+     * Decide if XCA tag change should not be allowed
+     *
+     * @param {string} category category of tag
+     * @returns {boolean}
+     */
+    const disableXCATagChange = useCallback(category => {
+      // #1522 CanonSite tags should not be allowed to change if there are selected only some observations
+      return category === 'CanonSites' && allSelectedMolecules.length > 0 && (allSelectedMolecules.length !== moleculeList.length);
+    }, [allSelectedMolecules, moleculeList]);
 
     return (
       <Popper id={id} open={open} anchorEl={anchorEl} placement="left-start" ref={ref}>
@@ -1135,15 +1159,16 @@ export const ObservationsDialog = memo(
                       </Button>
                       <Grid container direction="row" className={classes.dropdownContent}>
                         {XCA_TAG_CATEGORIES.map(category =>
-                          <Grid key={category} item className={classNames(classes.dropdown, classes.dropdownItem)}>
+                          <Grid key={category} item className={classNames(classes.dropdown, classes.dropdownItem)} disabled={disableXCATagChange(category)}>
                             Change {PLURAL_TO_SINGULAR[category]}
-                            <Grid container direction="row" className={classNames(classes.dropdownContent, classes.dropdownContentSide)}>
-                              {getTagsForCategory(category)?.map(tag => (
-                                <Grid key={tag.id} item className={classes.dropdownItem} onClick={() => handleXCAtagChange(tag)}>
-                                  {tag.upload_name}
-                                </Grid>
-                              ))}
-                            </Grid>
+                            {!disableXCATagChange(category) &&
+                              <Grid container direction="row" className={classNames(classes.dropdownContent, classes.dropdownContentSide)}>
+                                {getTagsForCategory(category)?.map(tag => (
+                                  <Grid key={tag.id} item className={classes.dropdownItem} onClick={() => handleXCAtagChange(tag)}>
+                                    {tag.upload_name}
+                                  </Grid>
+                                ))}
+                              </Grid>}
                           </Grid>
                         )}
                       </Grid>
