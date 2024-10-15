@@ -425,28 +425,17 @@ export const ObservationCmpList = memo(({ hideProjects }) => {
 
   const areLSHCompoundsInitialized = useSelector(state => state.selectionReducers.areLSHCompoundsInitialized);
 
-  // just modified https://stackoverflow.com/a/73248253/2331858
   useEffect(() => {
     if (hitNavigatorRef && hitNavigatorRef.current) {
-      console.log(hitNavigatorRef);
-      setHitNavigatorWidth(hitNavigatorRef.current.clientWidth);
 
-      // we instantiate the resizeObserver and we pass
-      // the event handler to the constructor
       const resizeObserver = new ResizeObserver(() => {
         if (hitNavigatorRef.current.offsetWidth !== hitNavigatorWidth) {
           setHitNavigatorWidth(hitNavigatorRef.current.offsetWidth);
         }
       });
 
-      // the code in useEffect will be executed when the component
-      // has mounted, so we are certain hitNavigatorRef.current will contain
-      // the element we want to observe
       resizeObserver.observe(hitNavigatorRef.current);
 
-      // if useEffect returns a function, it is called right before the
-      // component unmounts, so it is the right place to stop observing
-      // the element
       return function cleanup() {
         resizeObserver.disconnect();
       }
