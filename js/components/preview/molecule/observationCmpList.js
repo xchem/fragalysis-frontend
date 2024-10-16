@@ -225,6 +225,9 @@ const useStyles = makeStyles(theme => ({
       //color: theme.palette.black
     }
   },
+  selectButton: {
+    padding: '4px 2px !important'
+  },
   formControl: {
     color: 'inherit',
     margin: theme.spacing(1),
@@ -416,9 +419,28 @@ export const ObservationCmpList = memo(({ hideProjects }) => {
   const filterRef = useRef();
   const tagEditorRef = useRef();
   const scrollBarRef = useRef();
+  const hitNavigatorRef = useRef();
   const [tagEditorAnchorEl, setTagEditorAnchorEl] = useState(null);
+  const [hitNavigatorWidth, setHitNavigatorWidth] = useState(0);
 
   const areLSHCompoundsInitialized = useSelector(state => state.selectionReducers.areLSHCompoundsInitialized);
+
+  useEffect(() => {
+    if (hitNavigatorRef && hitNavigatorRef.current) {
+
+      const resizeObserver = new ResizeObserver(() => {
+        if (hitNavigatorRef.current.offsetWidth !== hitNavigatorWidth) {
+          setHitNavigatorWidth(hitNavigatorRef.current.offsetWidth);
+        }
+      });
+
+      resizeObserver.observe(hitNavigatorRef.current);
+
+      return function cleanup() {
+        resizeObserver.disconnect();
+      }
+    }
+  }, [hitNavigatorRef, hitNavigatorWidth]);
 
   if (directDisplay && directDisplay.target) {
     target = directDisplay.target;
@@ -1060,7 +1082,7 @@ export const ObservationCmpList = memo(({ hideProjects }) => {
   };
 
   return (
-    <Panel hasHeader title="Hit navigator" headerActions={actions}>
+    <Panel hasHeader title="Hit navigator" headerActions={actions} ref={hitNavigatorRef}>
       <AlertModal
         title="Are you sure?"
         description={`Loading of ${joinedMoleculeLists?.length} may take a long time`}
@@ -1200,7 +1222,7 @@ export const ObservationCmpList = memo(({ hideProjects }) => {
 
         {
           <Tooltip title={selectAllHitsPressed ? 'Unselect all hits' : 'Select all hits'}>
-            <Grid item style={{ marginLeft: '5px' }}>
+            <Grid item style={{ marginLeft: '2px' }} className={classes.selectButton}>
               <Button
                 variant="outlined"
                 className={classNames(classes.contColButton, {
@@ -1220,7 +1242,7 @@ export const ObservationCmpList = memo(({ hideProjects }) => {
         }
         {selectedDisplayHits === true ? (
           <Tooltip title={'Unselect displayed hits'}>
-            <Grid item style={{ marginLeft: '5px' }}>
+            <Grid item className={classes.selectButton}>
               <Button
                 variant="outlined"
                 className={classNames(classes.contColButton, {
@@ -1239,7 +1261,7 @@ export const ObservationCmpList = memo(({ hideProjects }) => {
           </Tooltip>
         ) : (
           <Tooltip title={'Select displayed hits'}>
-            <Grid item style={{ marginLeft: '5px' }}>
+            <Grid item className={classes.selectButton}>
               <Button
                 variant="outlined"
                 className={classNames(classes.contColButton, {
@@ -1258,11 +1280,11 @@ export const ObservationCmpList = memo(({ hideProjects }) => {
           </Tooltip>
         )}
         <Grid style={{ marginTop: '4px' }}>
-          <Typography variant="caption" className={classes.noOfSelectedHits}>{`Selected: ${allSelectedMolecules ? allSelectedMolecules.length : 0
+          <Typography variant="caption">{`Selected: ${allSelectedMolecules ? allSelectedMolecules.length : 0
             }`}</Typography>
         </Grid>
         <Grid style={{ marginTop: '4px' }}>
-          <Typography variant="caption" className={classes.noOfSelectedHits}>Sort by</Typography>
+          <Typography variant="caption" style={{ paddingLeft: 3 }}>Sort by</Typography>
         </Grid>
         <Grid style={{ marginTop: '4px', marginLeft: '4px' }}>
           <Tooltip title={sortOption ? sortOptions[sortOption].title : "Sort by"}>
@@ -1283,8 +1305,8 @@ export const ObservationCmpList = memo(({ hideProjects }) => {
         </Grid>
         <Tooltip title={ascending ? "Ascending" : "Descending"}>
           <Grid style={{ marginTop: '4px' }}>
-            <Checkbox checked={ascending} onChange={handleAscendingChecked} size="small" style={{ padding: 3 }} />
-            <Typography variant="caption" className={classes.noOfSelectedHits}>ASC</Typography>
+            <Checkbox checked={ascending} onChange={handleAscendingChecked} size="small" style={{ padding: 0 }} />
+            <Typography variant="caption">{(selectAllHitsPressed && hitNavigatorWidth > 508) || (!selectAllHitsPressed && hitNavigatorWidth > 491) ? 'Ascending' : 'ASC'}</Typography>
           </Grid>
         </Tooltip>
       </Grid>

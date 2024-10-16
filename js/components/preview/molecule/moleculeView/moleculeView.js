@@ -147,7 +147,7 @@ const useStyles = makeStyles(theme => ({
   image: {
     border: 'solid 1px',
     borderColor: theme.palette.background.divider,
-    borderStyle: 'solid solid solid none',
+    borderStyle: 'none none none solid',
     position: 'relative'
   },
   imageMargin: {
@@ -1203,7 +1203,7 @@ const MoleculeView = memo(
           </Grid>
           <Grid item container className={classes.detailsCol} justifyContent="space-between" direction="row">
             <Grid item container direction="column" alignItems="center" xs>
-              <Grid item container justifyContent="flex-start" alignItems="center" direction="row">
+              <Grid item container justifyContent="flex-start" alignItems="center" direction="row" xs>
                 <Grid item container justifyContent="space-between" direction="column" xs={3}>
                   {/* Title label */}
                   <Tooltip title={data.prefix_tooltip ?? '-' + (data.id === pose?.main_site_observation ? " - main observation" : "")} placement="bottom-start">
