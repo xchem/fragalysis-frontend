@@ -6,7 +6,7 @@ import { savingStateConst } from '../../components/snapshot/constants';
 import { tags } from '../../components/preview/tags/redux/tempData';
 
 export const INITIAL_STATE = {
-  project_id: undefined,
+  project: undefined,
   target_id: undefined,
   target_id_list: [],
   legacy_target_id_list: [],
@@ -353,7 +353,7 @@ export default function apiReducers(state = INITIAL_STATE, action = {}) {
 
     case constants.RELOAD_API_STATE:
       return Object.assign({}, state, {
-        project_id: action.project_id,
+        project: action.project,
         target_on_name: action.target_on_name,
         target_on: action.target_on,
         target_id: action.target_id,

@@ -130,7 +130,7 @@ const createFlagObjectFromFlagList = flagList => {
   );
 };
 
-export const DownloadStructureDialog = memo(({}) => {
+export const DownloadStructureDialog = memo(({ }) => {
   const newDownload = '--- NEW DOWNLOAD ---';
   const dispatch = useDispatch();
   const classes = useStyles();
@@ -147,6 +147,7 @@ export const DownloadStructureDialog = memo(({}) => {
   const taggedMolecules = useSelector(state => selectJoinedMoleculeList(state));
   const downloadTags = useSelector(state => state.apiReducers.downloadTags);
   const currentSnapshot = useSelector(state => state.projectReducers.currentSnapshot);
+  const currentProject = useSelector(state => state.targetReducers.currentProject);
 
   const [structuresSelection, setStructuresSelection] = useState('allStructures');
 
@@ -236,6 +237,7 @@ export const DownloadStructureDialog = memo(({}) => {
     } else {
       requestObject = {
         target_name: targetName,
+        target_access_string: currentProject?.target_access_string,
         proteins: proteinNames,
         ...mapFiles,
         ...crystallographicFiles,
@@ -253,12 +255,12 @@ export const DownloadStructureDialog = memo(({}) => {
   const prepareDownloadClicked = () => async (dispatch, getState) => {
     const options = { link: { linkAction: downloadStructuresZip, linkText: 'Click to Download', linkParams: [] } };
     if (selectedDownload !== newDownload) {
-      const donwloadTag = findDownload(selectedDownload);
-      if (donwloadTag) {
+      const downloadTag = findDownload(selectedDownload);
+      if (downloadTag) {
         setGeneralError(false);
         setZipPreparing(true);
         setAlreadyInProgress(false);
-        getDownloadStructuresUrl(donwloadTag.additional_info.requestObject)
+        getDownloadStructuresUrl(downloadTag.additional_info.requestObject)
           .then(resp => {
             if (resp.status === 208) {
               //same download is already preparing for someone else
@@ -276,7 +278,7 @@ export const DownloadStructureDialog = memo(({}) => {
             if (resp) {
               const fileSizeInBytes = resp.headers['content-length'];
               setFileSize(getFileSizeString(fileSizeInBytes));
-              const url = generateUrlFromTagName(donwloadTag.tag);
+              const url = generateUrlFromTagName(downloadTag.tag);
               options.link.linkParams = [url];
               setDownloadTagUrl(url);
               setZipPreparing(false);
@@ -534,8 +536,8 @@ export const DownloadStructureDialog = memo(({}) => {
               <Grid item>
                 <Select className={classes.select} value={selectedDownload} onChange={onUpdateExistingDownload}>
                   <MenuItem value={newDownload}>{newDownload}</MenuItem>
-                  {downloadTags.map(dt => (
-                    <MenuItem value={dt.additional_info.downloadName}>{dt.additional_info.downloadName}</MenuItem>
+                  {downloadTags.map((dt, index) => (
+                    <MenuItem key={index} value={dt.additional_info.downloadName}>{dt.additional_info.downloadName}</MenuItem>
                   ))}
                 </Select>
               </Grid>
