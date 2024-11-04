@@ -771,7 +771,7 @@ export const Projects = memo(({ }) => {
                         </TableCell>
                       </Tooltip>
                       <TableCell align="left" style={{ minWidth: '100px', padding: '0px 10px 0px 0px', margin: '0px' }}>
-                        <Link to={`${URLS.target}${project.target}`}>
+                        <Link to={`${URLS.target}${project.target.title}`}>
                           <div>{project.target.title === undefined ? project.target : project.target.title}</div>
                         </Link>
                       </TableCell>

@@ -34,8 +34,8 @@ export const extractTargetFromURLParam = param => {
 
 export const getProjectsForTarget = (target, projectsList) => {
   let result = null;
-  if (target && projectsList && target.project_id && target.project_id.length > 0) {
-    const projects = projectsList.filter(project => target.project_id.includes(project.id));
+  if (target && projectsList && target.project && target.project.length > 0) {
+    const projects = projectsList.filter(project => target.project.includes(project.id));
     result = [...projects];
   }
   return result;

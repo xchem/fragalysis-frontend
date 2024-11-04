@@ -154,18 +154,19 @@ export const getTargetProjectCombinations = (targets, projects) => {
     targetItems.forEach(([targetId, target]) => {
       if (!target.isLegacy) {
         const updatedTarget = target;
-        target.project_id.forEach(projectId => {
-          const project = projects.find(project => project.id === projectId);
-          // const project = projects[projectId];
-          if (project) {
-            updatedTarget.project = project;
-            result.push({ updatedTarget });
-          } else {
-            console.log(
-              `User don't have access to project ${projectId} which is associated with target ${target.title}`
-            );
-          }
-        });
+        console.log('target.project', target.project);
+        // TODO debug this?
+        const projectId = typeof target.project === 'object' ? target.project.id : target.project;
+        const project = projects.find(project => project.id === projectId);
+        // const project = projects[projectId];
+        if (project) {
+          updatedTarget.project = project;
+          result.push({ updatedTarget });
+        } else {
+          console.log(
+            `User don't have access to project ${projectId} which is associated with target ${target.title}`
+          );
+        }
       } else {
         result.push({ updatedTarget: { ...target, project: { target_access_string: 'Legacy' } } });
       }

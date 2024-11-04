@@ -455,7 +455,21 @@ export function selectionReducers(state = INITIAL_STATE, action = {}) {
 
     case constants.REMOVE_FROM_SELECTED_TAG_LIST:
       let diminishedSelectedTagList = new Set(state.selectedTagList);
-      diminishedSelectedTagList.delete(action.item);
+      // TODO sometimes tag object changes for its updated version
+      // handle it here or replace it in set in every place of change?
+      if (diminishedSelectedTagList.has(action.item)) {
+        diminishedSelectedTagList.delete(action.item);
+      } else {
+        let tagToDelete = null;
+        diminishedSelectedTagList.forEach(tag => {
+          if (tag.id === action.item.id) {
+            tagToDelete = tag;
+          }
+        });
+        if (tagToDelete) {
+          diminishedSelectedTagList.delete(tagToDelete);
+        }
+      }
       return Object.assign({}, state, { selectedTagList: [...diminishedSelectedTagList] });
 
     case constants.SET_IS_TAG_GLOBAL_EDIT:

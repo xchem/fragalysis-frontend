@@ -12,6 +12,7 @@ import { removeSelectedTag, updateTagProp } from "../redux/dispatchActions";
 import { getCategoryById } from "../../molecule/redux/dispatchActions";
 import { ToastContext } from "../../../toast";
 import { TAG_DETAILS_REMOVED_CATEGORIES } from "../../../../constants/constants";
+import { setTagToEdit } from "../../../../reducers/selection/actions";
 
 const useStyles = makeStyles(theme => ({
     leftSide: {
@@ -44,9 +45,9 @@ export const EditTagsModal = memo(({ open, anchorEl, setOpenDialog }) => {
     const allMolList = useSelector(state => state.apiReducers.all_mol_lists);
     const moleculesToEditIds = useSelector(state => state.selectionReducers.moleculesToEdit);
     const selectedTagList = useSelector(state => state.selectionReducers.selectedTagList);
+    const tag = useSelector(state => state.selectionReducers.tagToEdit);
 
     const id = open ? 'simple-popover-tags-editor' : undefined;
-    const [tag, setTag] = useState(null);
     const [tags, setTags] = useState([NEW_TAG]);
     const [newTagColor, setNewTagColor] = useState(DEFAULT_TAG_COLOR);
     const [newTagName, setNewTagName] = useState('');
@@ -90,7 +91,7 @@ export const EditTagsModal = memo(({ open, anchorEl, setOpenDialog }) => {
         });
         setTags([NEW_TAG, ...newTagList.sort(compareTagsByCategoryAndNameAsc)]);
         return () => {
-            setTag(null);
+            // dispatch(setTagToEdit(null)); // uncomment this to reset tag after update - clean up moved to resetTagToEditState
             setTags([NEW_TAG]);
         };
     }, [preTagList, tagCategories]);
@@ -105,7 +106,7 @@ export const EditTagsModal = memo(({ open, anchorEl, setOpenDialog }) => {
             setNewTagLink(tag.discourse_url);
             setNewHidden(tag.hidden || false);
         }
-    }, [dispatch, getColourForTag, tag]);
+    }, [getColourForTag, tag]);
 
     const comboCategories = useMemo(() => {
         return getEditNewTagCategories(tagCategories);
@@ -139,6 +140,7 @@ export const EditTagsModal = memo(({ open, anchorEl, setOpenDialog }) => {
         setNewTagName('');
         setNewTagLink('');
         setNewHidden(false);
+        dispatch(setTagToEdit(null));
     };
 
     const onCategoryForNewTagChange = event => {
@@ -211,7 +213,7 @@ export const EditTagsModal = memo(({ open, anchorEl, setOpenDialog }) => {
         }
     };
 
-    const updateTag = () => {
+    const updateTag = async () => {
         if (validateTag() && tag && newTagCategory && newTagName) {
             if (!tag.hidden && newHidden && selectedTagList.some(selectedTag => selectedTag.id === tag.id)) {
                 dispatch(removeSelectedTag(tag));
@@ -219,7 +221,7 @@ export const EditTagsModal = memo(({ open, anchorEl, setOpenDialog }) => {
             }
             // update all props at once
             if (newTagCategory) {
-                dispatch(
+                const updatedTag = await dispatch(
                     updateTagProp(
                         Object.assign({}, tag, {
                             category: newTagCategory,
@@ -232,8 +234,9 @@ export const EditTagsModal = memo(({ open, anchorEl, setOpenDialog }) => {
                         'tag'
                     )
                 );
+                dispatch(setTagToEdit(updatedTag));
             } else {
-                dispatch(
+                const updatedTag = await dispatch(
                     updateTagProp(
                         Object.assign({}, tag, {
                             colour: newTagColor,
@@ -245,10 +248,9 @@ export const EditTagsModal = memo(({ open, anchorEl, setOpenDialog }) => {
                         'tag'
                     )
                 );
+                dispatch(setTagToEdit(updatedTag));
             }
             toastInfo('Tag was updated', { autoHideDuration: 5000 });
-            // reset tag/fields after updating selected one
-            resetTagToEditState();
         }
     };
 
@@ -278,6 +280,7 @@ export const EditTagsModal = memo(({ open, anchorEl, setOpenDialog }) => {
     const handleCloseModal = () => {
         if (open) {
             setOpenDialog(false);
+            resetTagToEditState();
         }
     };
 
@@ -326,7 +329,7 @@ export const EditTagsModal = memo(({ open, anchorEl, setOpenDialog }) => {
                     {rightSide(
                         <Select
                             value={tag?.id || 0}
-                            onChange={(event) => setTag(tags.find(tag => tag.id === event.target.value))}
+                            onChange={(event) => dispatch(setTagToEdit(tags.find(tag => tag.id === event.target.value)))}
                             fullWidth
                         >
                             {tags?.map(tag => (
