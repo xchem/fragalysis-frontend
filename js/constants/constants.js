@@ -61,7 +61,8 @@ export const NON_ASSIGNABLE_CATEGORIES = [
   'CanonSites',
   'CrystalformSites',
   'Quatassemblies',
-  'Crystalforms'
+  'Crystalforms',
+  'Pose'
 ];
 
 export const PLURAL_TO_SINGULAR = {
