@@ -15,7 +15,6 @@ import { RegisterNotice } from '../../discourse/RegisterNotice';
 
 import moment from 'moment';
 import { VIEWS } from '../../../constants/constants';
-import { setIsSnapshotDirty } from '../../../reducers/tracking/actions';
 
 const useStyles = makeStyles(theme => ({
   body: {
@@ -110,7 +109,7 @@ export const NewSnapshotForm = memo(({ handleCloseModal }) => {
             })
           )
             .then(() => {
-              dispatch(setIsSnapshotDirty(false));
+              // dispatch(setIsSnapshotDirty(false));
             })
             .catch(error => {
               setState(() => {

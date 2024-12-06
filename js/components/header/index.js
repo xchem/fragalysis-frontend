@@ -2,7 +2,7 @@
  * Created by abradley on 14/03/2018.
  */
 
-import React, { memo, useContext, forwardRef, useState, useEffect } from 'react';
+import React, { memo, useContext, forwardRef, useState, useEffect, useCallback } from 'react';
 import {
   Grid,
   makeStyles,
@@ -40,7 +40,7 @@ import {
 } from '@material-ui/icons';
 import { HeaderContext } from './headerContext';
 import { Button } from '../common';
-import { URLS } from '../routes/constants';
+import { base_url, URLS } from '../routes/constants';
 import { useCombinedRefs } from '../../utils/refHelpers';
 import { ComputeSize } from '../../utils/computeSize';
 import { DJANGO_CONTEXT } from '../../utils/djangoContext';
@@ -48,7 +48,6 @@ import { DJANGO_CONTEXT } from '../../utils/djangoContext';
 import { useHistory } from 'react-router-dom';
 import { IssueReport } from '../userFeedback/issueReport';
 import { FundersModal } from '../funders/fundersModal';
-import { TrackingModal } from '../tracking/trackingModal';
 // eslint-disable-next-line import/extensions
 import { version } from '../../../package.json';
 import { isDiscourseAvailable, openDiscourseLink } from '../../utils/discourse';
@@ -58,17 +57,28 @@ import { DiscourseErrorModal } from './discourseErrorModal';
 import { setOpenDiscourseErrorModal } from '../../reducers/api/actions';
 import { lockLayout, resetCurrentLayout } from '../../reducers/layout/actions';
 import { ChangeLayoutButton } from './changeLayoutButton';
-import { setIsActionsRestoring, setProjectActionListLoaded } from '../../reducers/tracking/actions';
 import { layouts } from '../../reducers/layout/layouts';
-import { setOpenSnapshotSavingDialog } from '../snapshot/redux/actions';
-import { activateSnapshotDialog } from '../snapshot/redux/dispatchActions';
-import { setAddButton, setProjectModalIsLoading } from '../projects/redux/actions';
+import {
+  setDisableRedirect,
+  setDontShowShareSnapshot,
+  setOpenSnapshotSavingDialog,
+  setSnapshotEditDialogOpen,
+  setSnapshotToBeEdited
+} from '../snapshot/redux/actions';
+import { activateSnapshotDialog, createNewSnapshot } from '../snapshot/redux/dispatchActions';
+import { setAddButton, setCurrentSnapshot, setProjectModalIsLoading } from '../projects/redux/actions';
 import { getVersions } from '../../utils/version';
 import { AddProjectDetail } from '../projects/addProjectDetail';
 import { ServicesStatusWrapper } from '../services';
 import { COMPANIES, get_logo } from '../funders/constants';
 import { setEditTargetDialogOpen } from '../target/redux/actions';
 import { Upload } from '@mui/icons-material';
+import { SnapshotType } from '../projects/redux/constants';
+import { NglContext } from '../nglView/nglProvider';
+import { VIEWS } from '../../constants/constants';
+import moment from 'moment';
+import { ToastContext } from '../toast';
+import { api } from '../../utils/api';
 
 const useStyles = makeStyles(theme => ({
   padding: {
@@ -119,6 +129,9 @@ export default memo(
     const classes = useStyles();
     const { headerNavbarTitle, setHeaderNavbarTitle, headerButtons } = useContext(HeaderContext);
 
+    const { nglViewList, getNglView } = useContext(NglContext);
+    const stage = getNglView(VIEWS.MAJOR_VIEW) && getNglView(VIEWS.MAJOR_VIEW).stage;
+
     const [openMenu, setOpenMenu] = useState(false);
     const [openFunders, setOpenFunders] = useState(false);
     const [openTrackingModal, setOpenTrackingModal] = useState(false);
@@ -139,9 +152,14 @@ export default memo(
 
     const selectedLayoutName = useSelector(state => state.layoutReducers.selectedLayoutName);
 
+    const currentSnapshot = useSelector(state => state.projectReducers.currentSnapshot);
+    const currentSnapshotId = currentSnapshot && currentSnapshot.id;
+
     const discourseAvailable = isDiscourseAvailable();
     const targetDiscourseVisible = discourseAvailable && targetName;
     const projectDiscourseVisible = discourseAvailable && currentProject && currentProject.title;
+
+    const { toastError, toastInfo } = useContext(ToastContext);
 
     useEffect(() => {
       setOpenFunders(isFundersLink);
@@ -159,6 +177,46 @@ export default memo(
     const openLink = link => {
       window.open(link, '_blank');
     };
+
+    const createSnapshot = useCallback(
+      (title, description) => {
+        if (!currentSnapshotId || !currentProject || !title || !description) return;
+        // Prepare snapshot data
+        const type = SnapshotType.MANUAL;
+        const author = DJANGO_CONTEXT['pk'] || null;
+        const parent = currentSnapshotId;
+        const session_project = currentProject.projectID;
+
+        // Prevents redirect and displaying of share snapshot dialog
+        dispatch(setDisableRedirect(true));
+        dispatch(setDontShowShareSnapshot(true));
+
+        // With the above flags set, createNewSnapshot returns the ID of newly created snapshot as the second item in the array
+        return dispatch(
+          createNewSnapshot({
+            title,
+            description,
+            type,
+            author,
+            parent,
+            session_project,
+            nglViewList,
+            stage,
+            overwriteSnapshot: false,
+            createDiscourse: false
+          })
+        );
+      },
+      [currentProject, currentSnapshotId, dispatch, nglViewList, stage]
+    );
+
+    const editSnapshot = useCallback(
+      snapshotCopy => {
+        dispatch(setSnapshotToBeEdited(snapshotCopy));
+        dispatch(setSnapshotEditDialogOpen(true));
+      },
+      [dispatch]
+    );
 
     let authListItem;
 
@@ -257,11 +315,6 @@ export default memo(
                     variant="h5"
                     color="textPrimary"
                     onClick={() => {
-                      dispatch(setIsActionsRestoring(false, false));
-                      dispatch(setProjectActionListLoaded(false));
-                      // dispatch(setCurrentProject(null, null, null, null, null, [], null));
-                      // dispatch(setDialogCurrentStep(0));
-                      // dispatch(setForceCreateProject(false));
                       history.push(URLS.landing);
                       window.location.reload();
                     }}
@@ -273,14 +326,18 @@ export default memo(
                   targetName !== undefined ? (
                     <>
                       {currentProject.authorID === null ||
-                        currentProject.projectID === null ||
-                        currentProject.authorID === userId ? (
+                      currentProject.projectID === null ||
+                      currentProject.authorID === userId ? (
                         <Button
                           onClick={() => {
-                            isProjectModalLoading === false
-                              ? (dispatch(setProjectModalIsLoading(true)), dispatch(setAddButton(false)))
-                              : dispatch(setProjectModalIsLoading(false));
-                            openSaveSnapshotModal === true ? dispatch(setOpenSnapshotSavingDialog(false)) : '';
+                            if (!isProjectModalLoading) {
+                              dispatch(setProjectModalIsLoading(true));
+                              dispatch(setAddButton(false));
+                            } else {
+                              dispatch(setProjectModalIsLoading(false));
+                            }
+
+                            openSaveSnapshotModal ?? dispatch(setOpenSnapshotSavingDialog(false));
                           }}
                           key="newProject"
                           color="primary"
@@ -291,10 +348,14 @@ export default memo(
                       ) : (
                         <Button
                           onClick={() => {
-                            openNewProjectModal === false
-                              ? (dispatch(setProjectModalIsLoading(true)), dispatch(setAddButton(false)))
-                              : dispatch(setProjectModalIsLoading(false));
-                            openSaveSnapshotModal === true ? dispatch(setOpenSnapshotSavingDialog(false)) : '';
+                            if (!openNewProjectModal) {
+                              dispatch(setProjectModalIsLoading(true));
+                              dispatch(setAddButton(false));
+                            } else {
+                              dispatch(setProjectModalIsLoading(false));
+                            }
+
+                            openSaveSnapshotModal ?? dispatch(setOpenSnapshotSavingDialog(false));
                           }}
                           key="newProject"
                           color="primary"
@@ -307,15 +368,43 @@ export default memo(
                         <Button
                           key="saveSnapshot"
                           color="primary"
-                          onClick={() => {
-                            dispatch(activateSnapshotDialog(DJANGO_CONTEXT['pk']));
-                            openSaveSnapshotModal === false
-                              ? dispatch(setOpenSnapshotSavingDialog(true))
-                              : dispatch(setOpenSnapshotSavingDialog(false));
-                            openSaveSnapshotModal === true ? dispatch(setOpenSnapshotSavingDialog(false)) : '';
-                            isProjectModalLoading === true ? dispatch(setProjectModalIsLoading(false)) : '';
+                          onClick={async () => {
+                            // Prevents redirect and displaying of share snapshot dialog
+                            dispatch(setDisableRedirect(true));
+                            dispatch(setDontShowShareSnapshot(true));
 
-                            dispatch(setAddButton(false));
+                            const title = moment().format('-- YYYY-MM-DD -- HH:mm:ss');
+                            const description = `snapshot generated by ${DJANGO_CONTEXT['username']}`;
+                            createSnapshot(title, description)
+                              .then(newSnapshotId => {
+                                const options = {
+                                  link: {
+                                    linkAction: editSnapshot,
+                                    linkText: 'Click to edit',
+                                    linkParams: [{ id: newSnapshotId, title: title, description: description }]
+                                  }
+                                };
+                                api({ url: `${base_url}/api/snapshots/${newSnapshotId}` }).then(snapshotResponse => {
+                                  dispatch(
+                                    setCurrentSnapshot({
+                                      id: snapshotResponse.data.id,
+                                      type: snapshotResponse.data.type,
+                                      title: snapshotResponse.data.title,
+                                      author: snapshotResponse.data.author,
+                                      description: snapshotResponse.data.description,
+                                      created: snapshotResponse.data.created,
+                                      children: snapshotResponse.data.children,
+                                      parent: snapshotResponse.data.parent,
+                                      data: snapshotResponse.data.data
+                                    })
+                                  );
+                                  toastInfo('New snapshot created. Switching to selected snapshot.', options);
+                                });
+                              })
+                              .catch(err => {
+                                toastError('Error creating new snapshot. Unable to switch to selected snapshot.');
+                                console.error(`Save snapshot - error: ${err}`);
+                              });
                           }}
                           startIcon={<Save />}
                         >
@@ -426,16 +515,6 @@ export default memo(
                   </>
                 )}
                 <Grid item>
-                  <Button
-                    startIcon={<Timeline />}
-                    variant="text"
-                    size="small"
-                    onClick={() => setOpenTrackingModal(true)}
-                  >
-                    Timeline
-                  </Button>
-                </Grid>
-                <Grid item>
                   <IssueReport />
                 </Grid>
                 <Grid item>
@@ -503,7 +582,6 @@ export default memo(
           </Grid>
         </AppBar>
         <FundersModal openModal={openFunders} onModalClose={() => setOpenFunders(false)} />
-        <TrackingModal openModal={openTrackingModal} onModalClose={() => setOpenTrackingModal(false)} />
         <DiscourseErrorModal openModal={openDiscourseError} />
         <Drawer
           anchor="left"
@@ -542,8 +620,6 @@ export default memo(
               <ListItem
                 button
                 onClick={() => {
-                  dispatch(setIsActionsRestoring(false, false));
-                  dispatch(setProjectActionListLoaded(false));
                   history.push(URLS.landing);
                   window.location.reload();
                 }}
@@ -575,7 +651,7 @@ export default memo(
                 </ListItemIcon>
                 <ListItemText primary="Contributors" />
               </ListItem>
-              {DJANGO_CONTEXT.pk &&
+              {DJANGO_CONTEXT.pk && (
                 <>
                   <Divider />
                   <ListItem button onClick={() => openLink(URLS.lhsUpload)}>
@@ -597,7 +673,7 @@ export default memo(
                     <ListItemText primary="Metadata upload" />
                   </ListItem>
                 </>
-              }
+              )}
               <Divider />
               {authListItem}
             </Grid>

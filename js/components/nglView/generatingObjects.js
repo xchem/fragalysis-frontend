@@ -46,14 +46,20 @@ export const generateCompoundMolObject = (sdf_info, identifier) => ({
 });
 
 // Ligand
-export const generateMoleculeObject = (data, colourToggle, datasetID) => ({
-  name: `${data.code || data.name}_${OBJECT_TYPE.LIGAND}${datasetID ? '_' + datasetID : ''}`,
-  OBJECT_TYPE: OBJECT_TYPE.LIGAND,
-  colour: colourToggle,
-  sdf_info: data.ligand_mol_file || data.sdf_info,
-  moleculeId: data.id,
-  selectionType: SELECTION_TYPE.LIGAND
-});
+export const generateMoleculeObject = (data, colourToggle, datasetID) => {
+  if (data) {
+    return {
+      name: `${data.code || data.name}_${OBJECT_TYPE.LIGAND}${datasetID ? '_' + datasetID : ''}`,
+      OBJECT_TYPE: OBJECT_TYPE.LIGAND,
+      colour: colourToggle,
+      sdf_info: data.ligand_mol_file || data.sdf_info,
+      moleculeId: data.id,
+      selectionType: SELECTION_TYPE.LIGAND
+    };
+  } else {
+    return null;
+  }
+};
 
 // Vector
 export const generateArrowObject = (data, start, end, name, colour) => ({

@@ -87,10 +87,9 @@ export const setIsLoadingTree = isLoading => ({
   payload: isLoading
 });
 
-export const setCurrentSnapshotTree = tree => ({
-  type: constants.SET_CURRENT_SNAPSHOT_TREE,
-  payload: tree
-});
+export const setCurrentSnapshotTree = tree => {
+  return { type: constants.SET_CURRENT_SNAPSHOT_TREE, payload: tree };
+};
 
 export const setCurrentSnapshotList = list => ({
   type: constants.SET_CURRENT_SNAPSHOT_LIST,

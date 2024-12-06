@@ -623,3 +623,42 @@ export const setUpdatedDatasets = updatedDataset => ({
   type: constants.SET_UPDATED_DATASETS,
   payload: { updatedDataset }
 });
+
+export const setToBeDisplayedListForDataset = (datasetID, toBeDisplayedList) => {
+  return {
+    type: constants.SET_TO_BE_DISPLAYED_LIST_DATASET,
+    toBeDisplayedList: toBeDisplayedList,
+    datasetID: datasetID
+  };
+};
+
+export const appendToBeDisplayedListForDataset = (datasetID, item) => {
+  return {
+    type: constants.APPEND_TO_BE_DISPLAYED_LIST_DATASET,
+    item: item,
+    datasetID: datasetID
+  };
+};
+
+export const removeFromToBeDisplayedListForDataset = (datasetID, item) => {
+  return {
+    type: constants.REMOVE_FROM_TO_BE_DISPLAYED_LIST_DATASET,
+    item: item,
+    datasetID: datasetID
+  };
+};
+
+export const updateInToBeDisplayedListForDataset = (datasetID, item) => {
+  return {
+    type: constants.UPDATE_IN_TO_BE_DISPLAYED_LIST_DATASET,
+    item: item,
+    datasetID: datasetID
+  };
+};
+
+export const setToBeDisplayedLists = toBeDisplayedLists => {
+  return {
+    type: constants.SET_TO_BE_DISPLAYED_LISTS,
+    toBeDisplayedLists: toBeDisplayedLists
+  };
+};

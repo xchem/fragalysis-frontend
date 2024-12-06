@@ -91,14 +91,11 @@ services:
       OIDC_RP_CLIENT_SECRET: ${OIDC_RP_CLIENT_SECRET}
       OIDC_RP_CLIENT_ID: 'fragalysis-local'
       OIDC_RENEW_ID_TOKEN_EXPIRY_MINUTES: 210
-      ISPYB_HOST: ispybdbproxy.diamond.ac.uk
+      # ISPYB_HOST: ispybdbproxy.diamond.ac.uk
       ISPYB_PORT: 4306
       ISPYB_USER: ${ISPYB_USER}
       ISPYB_PASSWORD: ${ISPYB_PASSWORD}
       SECURITY_CONNECTOR: ssh_ispyb
-      SSH_HOST: ssh.diamond.ac.uk
-      SSH_USER: ${SSH_USER}
-      SSH_PASSWORD: ${SSH_PASSWORD}
       LOGGING_FRAMEWORK_ROOT_LEVEL: DEBUG
       AUTHENTICATE_UPLOAD: 'False'
       CELERY_TASK_ALWAYS_EAGER: 'True'

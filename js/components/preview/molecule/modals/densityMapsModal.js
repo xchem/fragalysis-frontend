@@ -25,13 +25,15 @@ export const DensityMapsModal = memo(({ openDialog, setOpenDialog, data, setDens
   const [valueDiff, setValueDiff] = useState(false);
   const [valueEvent, setValueEvent] = useState(false);
   const [valueAtomQuality, setValueAtomQuality] = useState(isQualityOn);
-  const proteinData = data.proteinData;
+  const proteinData = data?.proteinData;
 
   useEffect(() => {
-    proteinData.render_sigmaa = valueSigmaa;
-    proteinData.render_diff = valueDiff;
-    proteinData.render_event = valueEvent;
-  }, []);
+    if (proteinData) {
+      proteinData.render_sigmaa = valueSigmaa;
+      proteinData.render_diff = valueDiff;
+      proteinData.render_event = valueEvent;
+    }
+  }, [proteinData, valueDiff, valueEvent, valueSigmaa]);
 
   // In case quality gets turned on from elsewhere
   useLayoutEffect(() => {
@@ -39,32 +41,40 @@ export const DensityMapsModal = memo(({ openDialog, setOpenDialog, data, setDens
   }, [isQualityOn]);
 
   const toggleRenderSigmaaMap = () => {
-    proteinData.render_sigmaa = !proteinData.render_sigmaa;
-    setValueSigmaa(!valueSigmaa);
+    if (proteinData) {
+      proteinData.render_sigmaa = !proteinData.render_sigmaa;
+      setValueSigmaa(!valueSigmaa);
+    }
   };
 
   const toggleRenderDiffMap = () => {
-    proteinData.render_diff = !proteinData.render_diff;
-    setValueDiff(!valueDiff);
+    if (proteinData) {
+      proteinData.render_diff = !proteinData.render_diff;
+      setValueDiff(!valueDiff);
+    }
   };
 
   const toggleRenderEventMap = () => {
-    proteinData.render_event = !proteinData.render_event;
-    setValueEvent(!valueEvent);
+    if (proteinData) {
+      proteinData.render_event = !proteinData.render_event;
+      setValueEvent(!valueEvent);
+    }
   };
 
   const toggleRenderAtomQuality = () => {
-    const nextValue = !valueAtomQuality;
-    proteinData.render_quality = nextValue;
-    setValueAtomQuality(nextValue);
+    if (proteinData) {
+      const nextValue = !valueAtomQuality;
+      proteinData.render_quality = nextValue;
+      setValueAtomQuality(nextValue);
+    }
   };
 
   const handleCloseModal = () => {
-    dispatch(setOpenDialog(false));
+    setOpenDialog(false);
   };
 
   const handleSaveButton = () => {
-    dispatch(setOpenDialog(false));
+    setOpenDialog(false);
     setDensity();
   };
 
@@ -73,7 +83,7 @@ export const DensityMapsModal = memo(({ openDialog, setOpenDialog, data, setDens
       <>
         <Typography variant="h4">Density rendering maps selection</Typography>
         <Typography variant="subtitle1" gutterBottom className={classes.margin}>
-          {data.code}
+          {data?.code}
         </Typography>
         <Grid container direction="column" className={classes.body}>
           <Grid item>

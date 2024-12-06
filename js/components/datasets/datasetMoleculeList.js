@@ -397,8 +397,6 @@ const DatasetMoleculeList = ({ title, datasetID, url }) => {
 
   const searchString = useSelector(state => state.datasetsReducers.searchString);
 
-  const currentActionList = useSelector(state => state.trackingReducers.current_actions_list);
-
   const isActiveFilter = !!(filterSettings || {}).active;
   const { getNglView } = useContext(NglContext);
 
@@ -494,12 +492,12 @@ const DatasetMoleculeList = ({ title, datasetID, url }) => {
   const isSelectedTypeOn = (typeList, isLHSReference) => {
     if (typeList) {
       if (!isLHSReference) {
-        return typeList.some(molId => allMolecules.some(mol => mol.id === molId));
+        return typeList.some(molId => allMolecules?.some(mol => mol.id === molId));
       } else {
-        const molsWithLHSReference = allMolecules.filter(mol => mol.site_observation_code);
+        const molsWithLHSReference = allMolecules?.filter(mol => mol.site_observation_code);
         return typeList.some(molId =>
           molsWithLHSReference.some(
-            mol => mol.site_observation_code === allMoleculesList.find(m => m.id === molId)?.code
+            mol => mol.site_observation_code === allMoleculesList?.find(m => m.id === molId)?.code
           )
         );
       }
@@ -563,7 +561,7 @@ const DatasetMoleculeList = ({ title, datasetID, url }) => {
         );
       } else {
         if (molecule.site_observation_code) {
-          const lhsMol = allMoleculesList.find(mol => mol.code === molecule.site_observation_code);
+          const lhsMol = allMoleculesList?.find(mol => mol.code === molecule.site_observation_code);
           if (lhsMol) {
             dispatch(removeLHSType[type](stage, lhsMol, colourList[molecule.id % colourList.length], skipTracking));
           }
@@ -597,7 +595,7 @@ const DatasetMoleculeList = ({ title, datasetID, url }) => {
             );
           } else {
             if (molecule.site_observation_code) {
-              const lhsMol = allMoleculesList.find(mol => mol.code === molecule.site_observation_code);
+              const lhsMol = allMoleculesList?.find(mol => mol.code === molecule.site_observation_code);
               if (lhsMol) {
                 if (type === 'protein') {
                   promises.push(
@@ -1479,7 +1477,7 @@ const DatasetMoleculeList = ({ title, datasetID, url }) => {
                         // #1249 dataset molecules currently could use side observation molecule for some renders
                         let idToFind = data.id;
                         if (data.site_observation_code) {
-                          const molecule = allMoleculesList.find(mol => mol.code === data.site_observation_code);
+                          const molecule = allMoleculesList?.find(mol => mol.code === data.site_observation_code);
                           if (molecule) {
                             idToFind = molecule.id;
                           }

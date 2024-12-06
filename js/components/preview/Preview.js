@@ -38,7 +38,13 @@ import { ResizableLayout } from './ResizableLayout';
 import { loadMoleculesAndTagsNew } from './tags/redux/dispatchActions';
 import { getTagMolecules, getTags } from './tags/api/tagsApi';
 import { compareTagsAsc } from './tags/utils/tagUtils';
-import { setMoleculeTags } from '../../reducers/api/actions';
+import {
+  setLHSDataIsLoaded,
+  setLHSDataIsLoading,
+  setMoleculeTags,
+  setRHSDataIsLoaded,
+  setRHSDataIsLoading
+} from '../../reducers/api/actions';
 import { PickProjectModal } from './PickProjectModal';
 import { withLoadingProjects } from '../target/withLoadingProjects';
 import { setProjectModalOpen } from '../projects/redux/actions';
@@ -47,6 +53,18 @@ import { setTagEditorOpen, setMoleculeForTagEdit, setToastMessages } from '../..
 import { LoadingContext } from '../loading';
 import { ToastContext } from '../toast';
 import { TOAST_LEVELS } from '../toast/constants';
+import { useDisplayLigandLHS } from '../../reducers/ngl/useDisplayLigandLHS';
+import { useDisplayProteinLHS } from '../../reducers/ngl/useDisplayProteinLHS';
+import { useDisplayComplexLHS } from '../../reducers/ngl/useDisplayComplexLHS';
+import { useDisplaySurfaceLHS } from '../../reducers/ngl/useDisplaySurfacesLHS';
+import { useDisplayVectorLHS } from '../../reducers/ngl/useDisplayVectorLHS';
+import { useDisplayDensityLHS } from '../../reducers/ngl/useDisplayDensityLHS';
+import { useDisplayLigandRHS } from '../../reducers/ngl/useDisplayLigandRHS';
+import { useDisplayProteinRHS } from '../../reducers/ngl/useDisplayProteinRHS';
+import { useDisplayComplexRHS } from '../../reducers/ngl/useDisplayComplexRHS';
+import { useDisplaySurfaceRHS } from '../../reducers/ngl/useDisplaySurfaceRHS';
+import { loadTargetList } from '../target/redux/dispatchActions';
+import { EditSnapshotDialog } from './projectHistoryPanel/editSnapshotDialog';
 
 const ReactGridLayout = WidthProvider(ResponsiveGridLayout);
 
@@ -80,27 +98,6 @@ const Preview = memo(({ isStateLoaded, hideProjects, isSnapshot = false }) => {
   const theme = useTheme();
 
   const dispatch = useDispatch();
-  // let match = useRouteMatch();
-
-  // const currentPorject = useSelector(state => state.targetReducers.currentProject);
-
-  // if (!currentPorject && match && match.params && match.params.length > 0) {
-  //   const project = extractProjectFromURLParam(match.params[0]);
-  //   if (!project) {
-  //     const projectsForSelectedTarget = dispatch(getProjectsForSelectedTarget());
-  //     if (projectsForSelectedTarget && projectsForSelectedTarget.length > 0) {
-  //       if (projectsForSelectedTarget.length === 1) {
-  //         dispatch(setCurrentProject(projectsForSelectedTarget[0]));
-  //       } else {
-  //         dispatch(setOpenPickProjectModal(true));
-  //       }
-  //     } else {
-  //       //show message that there are no projects for this target
-  //     }
-  //   } else {
-  //     dispatch(setCurrentProject(project));
-  //   }
-  // }
 
   useEffect(() => {
     dispatch(prepareFakeFilterData());
@@ -108,7 +105,7 @@ const Preview = memo(({ isStateLoaded, hideProjects, isSnapshot = false }) => {
 
   const customDatasets = useSelector(state => state.datasetsReducers.datasets);
   const target_on = useSelector(state => state.apiReducers.target_on);
-  const isTrackingRestoring = useSelector(state => state.trackingReducers.isTrackingCompoundsRestoring);
+  const isTrackingRestoring = false; //useSelector(state => state.trackingReducers.isTrackingCompoundsRestoring);
 
   const all_mol_lists = useSelector(state => state.apiReducers.all_mol_lists);
   const moleculeLists = useSelector(state => state.datasetsReducers.moleculeLists);
@@ -120,19 +117,64 @@ const Preview = memo(({ isStateLoaded, hideProjects, isSnapshot = false }) => {
   const openNewProjectModal = useSelector(state => state.projectReducers.isProjectModalOpen);
   const openSaveSnapshotModal = useSelector(state => state.snapshotReducers.openSavingDialog);
 
+  const target_id_list = useSelector(state => state.apiReducers.target_id_list);
+
   const nglPortal = useMemo(() => createHtmlPortalNode({ attributes: { style: 'height: 100%' } }), []);
 
   const { toastSuccess, toastError, toastInfo, toastWarning } = useContext(ToastContext);
 
   const toastMessages = useSelector(state => state.selectionReducers.toastMessages);
 
+  const lhsDataIsLoaded = useSelector(state => state.apiReducers.lhsDataIsLoaded);
+  const rhsDataIsLoaded = useSelector(state => state.apiReducers.rhsDataIsLoaded);
+
   const { setMoleculesAndTagsAreLoading } = useContext(LoadingContext);
 
+  useDisplayLigandLHS();
+  useDisplayProteinLHS();
+  useDisplayComplexLHS();
+  useDisplaySurfaceLHS();
+  useDisplayVectorLHS();
+  useDisplayDensityLHS();
+
+  useDisplayLigandRHS();
+  useDisplayProteinRHS();
+  useDisplayComplexRHS();
+  useDisplaySurfaceRHS();
+
   useEffect(() => {
-    if (target_on && !isSnapshot) {
-      dispatch(loadMoleculesAndTagsNew(target_on));
+    if (target_on /*&& !isSnapshot*/ && !lhsDataIsLoaded) {
+      dispatch(loadMoleculesAndTagsNew(target_on)).then(() => {
+        dispatch(setLHSDataIsLoading(false));
+        dispatch(setLHSDataIsLoaded(true));
+      });
     }
-  }, [dispatch, target_on, isSnapshot, setMoleculesAndTagsAreLoading]);
+  }, [dispatch, target_on, isSnapshot, setMoleculesAndTagsAreLoading, lhsDataIsLoaded]);
+
+  /*
+     Loading datasets
+   */
+  useEffect(() => {
+    if (customDatasets.length === 0 && isTrackingRestoring === false && !rhsDataIsLoaded) {
+      dispatch(setMoleculeListIsLoading(true));
+      dispatch(loadDataSets(target_on))
+        .then(results => {
+          if (Array.isArray(results) && results.length > 0) {
+            let defaultDataset = results[0]?.name;
+            dispatch(setSelectedDatasetIndex(0, 0, defaultDataset, defaultDataset, true));
+          }
+          return dispatch(loadDatasetCompoundsWithScores());
+        })
+        .catch(error => {
+          throw new Error(error);
+        })
+        .finally(() => {
+          dispatch(setMoleculeListIsLoading(false));
+          dispatch(setRHSDataIsLoading(false));
+          dispatch(setRHSDataIsLoaded(true));
+        });
+    }
+  }, [customDatasets.length, dispatch, target_on, isTrackingRestoring, rhsDataIsLoaded]);
 
   useEffect(() => {
     if (toastMessages?.length > 0) {
@@ -157,38 +199,6 @@ const Preview = memo(({ isStateLoaded, hideProjects, isSnapshot = false }) => {
       dispatch(setToastMessages([]));
     }
   }, [dispatch, toastError, toastInfo, toastMessages, toastSuccess, toastWarning]);
-
-  // useEffect(() => {
-  //   if (target_on) {
-  //     getTags(target_on).then(data => {
-  //       const sorted = data.results.sort(compareTagsAsc);
-  //       dispatch(setMoleculeTags(sorted));
-  //     });
-  //   }
-  // }, [dispatch, target_on]);
-
-  /*
-     Loading datasets
-   */
-  useEffect(() => {
-    if (customDatasets.length === 0 && isTrackingRestoring === false) {
-      dispatch(setMoleculeListIsLoading(true));
-      dispatch(loadDataSets(target_on))
-        .then(results => {
-          if (Array.isArray(results) && results.length > 0) {
-            let defaultDataset = results[0]?.name;
-            dispatch(setSelectedDatasetIndex(0, 0, defaultDataset, defaultDataset, true));
-          }
-          return dispatch(loadDatasetCompoundsWithScores());
-        })
-        .catch(error => {
-          throw new Error(error);
-        })
-        .finally(() => {
-          dispatch(setMoleculeListIsLoading(false));
-        });
-    }
-  }, [customDatasets.length, dispatch, target_on, isTrackingRestoring]);
 
   useEffect(() => {
     const moleculeListsCount = Object.keys(moleculeLists || {}).length;
@@ -226,13 +236,6 @@ const Preview = memo(({ isStateLoaded, hideProjects, isSnapshot = false }) => {
   }, [all_mol_lists]);
 
   const [showHistory, setShowHistory] = useState(false);
-
-  // useEffect(() => {
-  //   // Unmount Preview - reset NGL state
-  //   return () => {
-  //     dispatch(unmountPreviewComponent(nglViewList));
-  //   };
-  // }, [dispatch, nglViewList]);
 
   const onLayoutChange = (updatedLayout, layouts) => {
     dispatch(setCurrentLayout(layouts));
@@ -315,10 +318,10 @@ const Preview = memo(({ isStateLoaded, hideProjects, isSnapshot = false }) => {
       <div
         ref={ref}
         className={classes.root}
-        onClick={() => (
-          openNewProjectModal === true ? dispatch(setProjectModalOpen(false)) : '',
-          openSaveSnapshotModal === true ? dispatch(setOpenSnapshotSavingDialog(false)) : ''
-        )}
+        onClick={() => {
+          openNewProjectModal && dispatch(setProjectModalOpen(false));
+          openSaveSnapshotModal && dispatch(setOpenSnapshotSavingDialog(false));
+        }}
       >
         <ReactGridLayout
           // cols={4}
@@ -344,6 +347,7 @@ const Preview = memo(({ isStateLoaded, hideProjects, isSnapshot = false }) => {
       <SaveSnapshotBeforeExit />
       <DownloadStructureDialog />
       <PickProjectModal />
+      <EditSnapshotDialog />
       {!hideProjects && <ProjectDetailDrawer showHistory={showHistory} setShowHistory={setShowHistory} />}
     </>
   );

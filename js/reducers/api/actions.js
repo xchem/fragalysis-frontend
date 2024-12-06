@@ -394,3 +394,45 @@ export const setIsSnapshot = (isSnapshot, skipTracking = true) => {
     skipTracking
   };
 };
+
+export const setLHSDataIsLoading = lhsDataIsLoading => {
+  return {
+    type: constants.SET_LHS_DATA_IS_LOADING,
+    lhsDataIsLoading: lhsDataIsLoading
+  };
+};
+
+export const setLHSDataIsLoaded = lhsDataIsLoaded => {
+  return {
+    type: constants.SET_LHS_DATA_IS_LOADED,
+    lhsDataIsLoaded: lhsDataIsLoaded
+  };
+};
+
+export const setRHSDataIsLoading = rhsDataIsLoading => {
+  return {
+    type: constants.SET_RHS_DATA_IS_LOADING,
+    rhsDataIsLoading: rhsDataIsLoading
+  };
+};
+
+export const setRHSDataIsLoaded = rhsDataIsLoaded => {
+  return {
+    type: constants.SET_RHS_DATA_IS_LOADED,
+    rhsDataIsLoaded: rhsDataIsLoaded
+  };
+};
+
+export const setProteinIsLoading = proteinIsLoading => {
+  return {
+    type: constants.SET_PROTEIN_IS_LOADING,
+    proteinIsLoading: proteinIsLoading
+  };
+};
+
+export const setProteinIsLoaded = proteinIsLoaded => {
+  return {
+    type: constants.SET_PROTEIN_IS_LOADED,
+    proteinIsLoaded: proteinIsLoaded
+  };
+};

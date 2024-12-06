@@ -318,6 +318,8 @@ export const ObservationCmpList = memo(({ hideProjects }) => {
   const noTagsReceived = useSelector(state => state.apiReducers.noTagsReceived);
   const categories = useSelector(state => state.apiReducers.categoryList);
 
+  const lhsDataIsLoaded = useSelector(state => state.apiReducers.lhsDataIsLoaded);
+
   const observationsForLHSCmp = useSelector(state => state.selectionReducers.observationsForLHSCmp);
 
   const lhsCompoundsList = useSelector(state => getLHSCompoundsList(state));
@@ -328,14 +330,8 @@ export const ObservationCmpList = memo(({ hideProjects }) => {
   const [predefinedFilter, setPredefinedFilter] = useState(filter !== undefined ? filter.predefined : DEFAULT_FILTER);
 
   const [ascending, setAscending] = useState(true);
-  const handleAscendingChecked = (event) => setAscending(event.target.checked);
-  const SORT_OPTIONS = [
-    'POSE_NAME',
-    'COMPOUND_CODE',
-    'CANONSITE_NUMBER',
-    'CONFORMERSITE_NUMBER',
-    'OBSERVATION_COUNT'
-  ];
+  const handleAscendingChecked = event => setAscending(event.target.checked);
+  const SORT_OPTIONS = ['POSE_NAME', 'COMPOUND_CODE', 'CANONSITE_NUMBER', 'CONFORMERSITE_NUMBER', 'OBSERVATION_COUNT'];
   const sortOptions = {
     POSE_NAME: {
       title: 'Pose name',
@@ -363,25 +359,29 @@ export const ObservationCmpList = memo(({ hideProjects }) => {
   const compareByPoseName = (a, b, asc) => {
     const aName = a.code;
     const bName = b.code;
-    return asc ? aName.localeCompare(bName, undefined, { numeric: true, sensitivity: 'base' })
+    return asc
+      ? aName.localeCompare(bName, undefined, { numeric: true, sensitivity: 'base' })
       : bName.localeCompare(aName, undefined, { numeric: true, sensitivity: 'base' });
   };
   const compareByCompoundCode = (a, b, asc) => {
     const aName = a.main_site_observation_cmpd_code;
     const bName = b.main_site_observation_cmpd_code;
-    return asc ? aName.localeCompare(bName, undefined, { numeric: true, sensitivity: 'base' })
+    return asc
+      ? aName.localeCompare(bName, undefined, { numeric: true, sensitivity: 'base' })
       : bName.localeCompare(aName, undefined, { numeric: true, sensitivity: 'base' });
   };
   const compareByCanonSiteNumber = (a, b, asc) => {
     const aName = getCanonSiteTagPrefix(a);
     const bName = getCanonSiteTagPrefix(b);
-    return asc ? aName.localeCompare(bName, undefined, { numeric: true, sensitivity: 'base' })
+    return asc
+      ? aName.localeCompare(bName, undefined, { numeric: true, sensitivity: 'base' })
       : bName.localeCompare(aName, undefined, { numeric: true, sensitivity: 'base' });
   };
   const compareByConformerSiteNumber = (a, b, asc) => {
     const aName = getConformerSiteTagPrefix(a);
     const bName = getConformerSiteTagPrefix(b);
-    return asc ? aName.localeCompare(bName, undefined, { numeric: true, sensitivity: 'base' })
+    return asc
+      ? aName.localeCompare(bName, undefined, { numeric: true, sensitivity: 'base' })
       : bName.localeCompare(aName, undefined, { numeric: true, sensitivity: 'base' });
   };
   const compareByObservationCount = (a, b, asc) => {
@@ -393,22 +393,32 @@ export const ObservationCmpList = memo(({ hideProjects }) => {
   /**
    * Get CanonSites tag for sorting
    */
-  const getCanonSiteTagPrefix = useCallback(pose => {
-    const mainObservation = pose.associatedObs.find(observation => observation.id === pose.main_site_observation);
-    const canonSitesTag = categories.find(tagCategory => tagCategory.category === 'CanonSites');
-    const canonSite = tags.find(tag => tag.category === canonSitesTag.id && tag.site_observations.includes(mainObservation.id));
-    return canonSite !== undefined ? canonSite.tag_prefix : '';
-  }, [categories, tags]);
+  const getCanonSiteTagPrefix = useCallback(
+    pose => {
+      const mainObservation = pose.associatedObs.find(observation => observation.id === pose.main_site_observation);
+      const canonSitesTag = categories.find(tagCategory => tagCategory.category === 'CanonSites');
+      const canonSite = tags.find(
+        tag => tag.category === canonSitesTag.id && tag.site_observations.includes(mainObservation.id)
+      );
+      return canonSite !== undefined ? canonSite.tag_prefix : '';
+    },
+    [categories, tags]
+  );
 
   /**
    * Get ConformerSites tag for sorting
    */
-  const getConformerSiteTagPrefix = useCallback(pose => {
-    const mainObservation = pose.associatedObs.find(observation => observation.id === pose.main_site_observation);
-    const conformerSitesTag = categories.find(tagCategory => tagCategory.category === 'ConformerSites');
-    const conformerSite = tags.find(tag => tag.category === conformerSitesTag.id && tag.site_observations.includes(mainObservation.id));
-    return conformerSite !== undefined ? conformerSite.tag_prefix : '';
-  }, [categories, tags]);
+  const getConformerSiteTagPrefix = useCallback(
+    pose => {
+      const mainObservation = pose.associatedObs.find(observation => observation.id === pose.main_site_observation);
+      const conformerSitesTag = categories.find(tagCategory => tagCategory.category === 'ConformerSites');
+      const conformerSite = tags.find(
+        tag => tag.category === conformerSitesTag.id && tag.site_observations.includes(mainObservation.id)
+      );
+      return conformerSite !== undefined ? conformerSite.tag_prefix : '';
+    },
+    [categories, tags]
+  );
 
   const isActiveFilter = !!(filter || {}).active;
 
@@ -427,7 +437,6 @@ export const ObservationCmpList = memo(({ hideProjects }) => {
 
   useEffect(() => {
     if (hitNavigatorRef && hitNavigatorRef.current) {
-
       const resizeObserver = new ResizeObserver(() => {
         if (hitNavigatorRef.current.offsetWidth !== hitNavigatorWidth) {
           setHitNavigatorWidth(hitNavigatorRef.current.offsetWidth);
@@ -438,7 +447,7 @@ export const ObservationCmpList = memo(({ hideProjects }) => {
 
       return function cleanup() {
         resizeObserver.disconnect();
-      }
+      };
     }
   }, [hitNavigatorRef, hitNavigatorWidth]);
 
@@ -831,7 +840,7 @@ export const ObservationCmpList = memo(({ hideProjects }) => {
   }, [joinedMoleculeLists, lhsCompoundsList, sortOptions, sortOption, ascending]);
 
   useEffect(() => {
-    if (isObservationDialogOpen && observationsForLHSCmp?.length > 0) {
+    if (isObservationDialogOpen && observationsForLHSCmp?.length > 0 && lhsDataIsLoaded) {
       const cmpId = observationsForLHSCmp[0].cmpd;
       const cmp = filteredLHSCompoundsList.find(c => c.compound === cmpId);
       if (!cmp) {
@@ -842,7 +851,7 @@ export const ObservationCmpList = memo(({ hideProjects }) => {
         // dispatch(setObservationDialogAction(0, [], false));
       }
     }
-  }, [isObservationDialogOpen, filteredLHSCompoundsList, observationsForLHSCmp, dispatch]);
+  }, [isObservationDialogOpen, filteredLHSCompoundsList, observationsForLHSCmp, dispatch, lhsDataIsLoaded]);
 
   const newMolsToEdit = [];
   allMoleculesList.forEach(cm => {
@@ -1145,8 +1154,9 @@ export const ObservationCmpList = memo(({ hideProjects }) => {
                     {filter.priorityOrder.map(attr => (
                       <Grid item key={`Mol-Tooltip-${attr}`}>
                         <Tooltip
-                          title={`${filter.filter[attr].minValue}-${filter.filter[attr].maxValue} ${filter.filter[attr].order === 1 ? '\u2191' : '\u2193'
-                            }`}
+                          title={`${filter.filter[attr].minValue}-${filter.filter[attr].maxValue} ${
+                            filter.filter[attr].order === 1 ? '\u2191' : '\u2193'
+                          }`}
                           placement="top"
                         >
                           <Chip size="small" label={attr} style={{ backgroundColor: getAttrDefinition(attr).color }} />
@@ -1280,17 +1290,20 @@ export const ObservationCmpList = memo(({ hideProjects }) => {
           </Tooltip>
         )}
         <Grid style={{ marginTop: '4px' }}>
-          <Typography variant="caption">{`Selected: ${allSelectedMolecules ? allSelectedMolecules.length : 0
-            }`}</Typography>
+          <Typography variant="caption">{`Selected: ${
+            allSelectedMolecules ? allSelectedMolecules.length : 0
+          }`}</Typography>
         </Grid>
         <Grid style={{ marginTop: '4px' }}>
-          <Typography variant="caption" style={{ paddingLeft: 3 }}>Sort by</Typography>
+          <Typography variant="caption" style={{ paddingLeft: 3 }}>
+            Sort by
+          </Typography>
         </Grid>
         <Grid style={{ marginTop: '4px', marginLeft: '4px' }}>
-          <Tooltip title={sortOption ? sortOptions[sortOption].title : "Sort by"}>
+          <Tooltip title={sortOption ? sortOptions[sortOption].title : 'Sort by'}>
             <Select
               value={sortOption}
-              onChange={(event) => setSortOption(event.target.value)}
+              onChange={event => setSortOption(event.target.value)}
               // fullWidth
               size="small"
               style={{ fontSize: 10, width: 75 }}
@@ -1303,10 +1316,14 @@ export const ObservationCmpList = memo(({ hideProjects }) => {
             </Select>
           </Tooltip>
         </Grid>
-        <Tooltip title={ascending ? "Ascending" : "Descending"}>
+        <Tooltip title={ascending ? 'Ascending' : 'Descending'}>
           <Grid style={{ marginTop: '4px' }}>
             <Checkbox checked={ascending} onChange={handleAscendingChecked} size="small" style={{ padding: 0 }} />
-            <Typography variant="caption">{(selectAllHitsPressed && hitNavigatorWidth > 508) || (!selectAllHitsPressed && hitNavigatorWidth > 491) ? 'Ascending' : 'ASC'}</Typography>
+            <Typography variant="caption">
+              {(selectAllHitsPressed && hitNavigatorWidth > 508) || (!selectAllHitsPressed && hitNavigatorWidth > 491)
+                ? 'Ascending'
+                : 'ASC'}
+            </Typography>
           </Grid>
         </Tooltip>
       </Grid>

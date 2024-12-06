@@ -41,6 +41,8 @@ export const useScrollToCompound = () => {
   const rhsOpen = useSelector(state => state.previewReducers.viewerControls.sidesOpen.RHS);
   const isSelectedCompoundsTab = tabValue === 1;
 
+  const rhsDataIsLoaded = useSelector(state => state.apiReducers.rhsDataIsLoaded);
+
   const dialogOpenedForInspirationWithId =
     isSelectedCompoundsTab && Object.keys(inspirationLists)?.length > 0
       ? inspirationLists[Object.keys(inspirationLists)]?.length > 0
@@ -112,7 +114,9 @@ export const useScrollToCompound = () => {
           }
         }
         console.log(`${uuid} useScrollToCompound useEffect - end - setting selected dataset scrolled`);
-        dispatch(setSelectedDatasetScrolled(true));
+        if (rhsDataIsLoaded) {
+          dispatch(setSelectedDatasetScrolled(true));
+        }
       }
     }
     console.log(`${uuid} useScrollToCompound useEffect - end`);
@@ -132,7 +136,8 @@ export const useScrollToCompound = () => {
     rhsOpen,
     surfaceList,
     surfaceListDataset,
-    uuid
+    uuid,
+    rhsDataIsLoaded
   ]);
 
   useEffect(() => {

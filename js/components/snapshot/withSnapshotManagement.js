@@ -70,26 +70,6 @@ export const withSnapshotManagement = WrappedComponent => {
         }
       }
       setHeaderButtons([
-        !target && currentSnapshotID && (
-          <Button
-            key="restoreSnapshot"
-            color="primary"
-            onClick={() =>
-              dispatch(
-                restoreSnapshotActions({
-                  nglViewList,
-                  projectId: sessionProjectId,
-                  snapshotId: currentSnapshot.id,
-                  history
-                })
-              )
-            }
-            startIcon={<Restore />}
-            disabled={disableShareButton || false}
-          >
-            Restore
-          </Button>
-        ),
         <Button
           key="shareSnapshot"
           color="primary"

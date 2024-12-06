@@ -20,7 +20,6 @@ import ModalNewProject from '../../common/ModalNewProject';
 import moment from 'moment';
 import { createNewSnapshot, getListOfSnapshots } from '../../snapshot/redux/dispatchActions';
 import { setProjectModalIsLoading } from '../../projects/redux/actions';
-import { manageSendTrackingActions } from '../../../reducers/tracking/dispatchActions';
 import { setOpenSnapshotSavingDialog } from '../../snapshot/redux/actions';
 import { SnapshotType } from '../redux/constants';
 import { NglContext } from '../../nglView/nglProvider';
@@ -148,7 +147,6 @@ export const AddProjectDetail = memo(({}) => {
           if (createDiscourse) {
             dispatch(createProjectDiscoursePost(values.title, targetName, values.description, tags))
               .then(() => dispatch(createProjectFromSnapshotDialog(data)))
-              .then(() => dispatch(manageSendTrackingActions(oldProjectID, true)))
               .then(() =>
                 dispatch(createNewSnapshot({ ...snapshotData, createDiscourse: true, session_project: data.projectID }))
               )
@@ -161,12 +159,10 @@ export const AddProjectDetail = memo(({}) => {
           } else {
             dispatch(createProjectFromSnapshotDialog(data))
               .then(() => {
-                dispatch(manageSendTrackingActions(oldProjectID, true));
-                // handleCloseModal();
-                // dispatch(setOpenSnapshotSavingDialog(true));
+                dispatch(createNewSnapshot({ ...snapshotData, session_project: data.projectID }));
+                handleCloseModal();
               })
-              .then(() => dispatch(createNewSnapshot({ ...snapshotData, session_project: data.projectID })))
-              .then(() => handleCloseModal())
+              // .then(() => handleCloseModal())
               .catch(error => {
                 setState(() => {
                   throw error;

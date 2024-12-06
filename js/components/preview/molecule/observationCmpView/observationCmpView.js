@@ -1149,7 +1149,7 @@ const ObservationCmpView = memo(
           const firstObs = getFirstObservationWithDensity();
           dispatch(getDensityMapData(firstObs)).then(r => {
             if (r) {
-              dispatch(setDensityModalOpen(true));
+              setDensityModalOpen(true);
             } else {
               addNewDensity();
             }

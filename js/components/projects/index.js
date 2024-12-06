@@ -92,7 +92,7 @@ const useStyles = makeStyles(theme => ({
   }
 }));
 
-export const Projects = memo(({ }) => {
+export const Projects = memo(({}) => {
   const classes = useStyles();
   const dispatch = useDispatch();
   const [page, setPage] = React.useState(0);
@@ -562,15 +562,6 @@ export const Projects = memo(({ }) => {
             }}
             onChange={handleSearch}
           />,
-          <IconButton
-            color="inherit"
-            onClick={() => {
-              dispatch(setAddButton(true)), dispatch(setProjectModalOpen(true));
-            }}
-            disabled={DJANGO_CONTEXT['username'] === 'NOT_LOGGED_IN'}
-          >
-            <Add />
-          </IconButton>,
           <IconButton
             onClick={event => {
               if (sortDialogOpen === false) {

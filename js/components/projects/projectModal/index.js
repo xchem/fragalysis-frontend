@@ -209,32 +209,6 @@ export const ProjectModal = memo(({}) => {
                 handleCloseModal();
               });
           }
-
-          // Create from scratch
-          if (values.type === ProjectCreationType.NEW) {
-            dispatch(
-              createProjectFromScratch({
-                ...data,
-                history
-              })
-            )
-              .then(() => {
-                if (createDiscourse) {
-                  const target = findTargetNameForId(values.targetId);
-                  if (target) {
-                    dispatch(createProjectDiscoursePost(values.title, target.title, values.description, tags));
-                  }
-                }
-              })
-              .catch(error => {
-                setState(() => {
-                  throw error;
-                });
-              })
-              .finally(() => {
-                handleCloseModal();
-              });
-          }
         }}
       >
         {({ submitForm, isSubmitting, errors, values }) => (

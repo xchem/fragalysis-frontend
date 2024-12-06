@@ -17,6 +17,7 @@ export const withLoadingProtein = WrappedComponent => {
     const routeSnapshotID = match && match.params && match.params.snapshotId;
     const currentSnapshotID = useSelector(state => state.projectReducers.currentSnapshot.id);
     const isLoadingCurrentSnapshot = useSelector(state => state.projectReducers.isLoadingCurrentSnapshot);
+    const targetIdList = useSelector(state => state.apiReducers.target_id_list);
 
     useEffect(() => {
       dispatch(
@@ -36,7 +37,8 @@ export const withLoadingProtein = WrappedComponent => {
       routeProjectID,
       routeSnapshotID,
       currentSnapshotID,
-      isLoadingCurrentSnapshot
+      isLoadingCurrentSnapshot,
+      targetIdList
     ]);
 
     return <WrappedComponent isStateLoaded={isStateLoaded} {...rest} />;

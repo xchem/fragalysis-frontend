@@ -41,6 +41,8 @@ export const useScrollToSelected = (datasetID, moleculesPerPage, setCurrentPage)
   const tabValue = useSelector(state => state.datasetsReducers.tabValue);
   const isComputedDatasetsTab = tabValue > 1;
 
+  const rhsDataIsLoaded = useSelector(state => state.apiReducers.rhsDataIsLoaded);
+
   // First pass, iterates over all the molecules and checks if any of them is selected. If it is,
   // it saves the ID of the molecule and determines how many pages of molecules should be displayed.
   // This is done only once and only if right hand side is open.
@@ -89,7 +91,9 @@ export const useScrollToSelected = (datasetID, moleculesPerPage, setCurrentPage)
         }
       }
 
-      dispatch(setDatasetScrolled(datasetID));
+      if (rhsDataIsLoaded) {
+        dispatch(setDatasetScrolled(datasetID));
+      }
     }
   }, [
     compoundsToBuyList,
@@ -110,7 +114,8 @@ export const useScrollToSelected = (datasetID, moleculesPerPage, setCurrentPage)
     proteinList,
     complexList,
     surfaceList,
-    isComputedDatasetsTab
+    isComputedDatasetsTab,
+    rhsDataIsLoaded
   ]);
 
   // Second pass, once the list of molecules is displayed and the refs to their DOM nodes have been

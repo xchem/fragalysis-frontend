@@ -40,7 +40,7 @@ const showLigand = async ({
 }) => {
   let stringBlob = new Blob([input_dict.sdf_info], { type: 'text/plain' });
   console.count(`showLigand started`);
-  const skipOrientation = state.trackingReducers.skipOrientationChange;
+  const skipOrientation = false; //state.trackingReducers.skipOrientationChange;
 
   if (loadQuality && quality && quality.badids?.length > 0) {
     return loadQualityFromFile(
@@ -379,7 +379,7 @@ const showProtein = ({ stage, input_dict, object_name, representations, orientat
     const reprArray =
       representations || createRepresentationsArray([createRepresentationStructure(input_dict.nglProtStyle, {})]);
 
-    const skipOrientation = state.trackingReducers.skipOrientationChange;
+    const skipOrientation = false; //state.trackingReducers.skipOrientationChange;
 
     if (!skipOrientation) {
       if (orientationMatrix) {

@@ -10,24 +10,7 @@ import { ButtonGroup, Grid, makeStyles, Tooltip } from '@material-ui/core';
 import { SettingControls } from './settingsControls';
 import DisplayControls from './displayControls/';
 import { MouseControls } from './mouseControls';
-import { ActionCreators as UndoActionCreators } from '../../../undoredo/actions';
-import {
-  undoAction,
-  redoAction,
-  getCanRedo,
-  getCanUndo,
-  getUndoActionText,
-  getRedoActionText,
-  restoreNglViewSettings
-} from '../../../../js/reducers/tracking/dispatchActions';
-import {
-  undoAction as nglUndoAction,
-  redoAction as nglRedoAction,
-  getUndoActionText as nglGetUndoActionText,
-  getRedoActionText as nglGetRedoActionText
-} from '../../../../js/reducers/nglTracking/dispatchActions';
 import { NglContext } from '../../nglView/nglProvider';
-import { nglTrackingRedo, nglTrackingUndo } from '../../../reducers/nglTracking/actions';
 import { turnSide } from './redux/actions';
 
 const drawers = {
@@ -64,29 +47,8 @@ export const ViewerControls = memo(() => {
   const classes = useStyles();
   const dispatch = useDispatch();
   const { nglViewList } = useContext(NglContext);
-  const [undoTooltip, setUndoTooltip] = useState('Undo');
-  const [redoTooltip, setRedoTooltip] = useState('Redo');
-  const [canUndo, setCanUndo] = useState(true);
-  const [canRedo, setCanRedo] = useState(false);
-  const [nglUndoTooltip, nglSetUndoTooltip] = useState('Undo');
-  const [nglRedoTooltip, nglSetRedoTooltip] = useState('Redo');
-  const [nglLocked, setNglLocked] = useState(true);
-  const isActionTracking = useSelector(state => state.trackingReducers.isActionTracking);
-
-  const nglUndoLength = useSelector(state => state.undoableNglTrackingReducers.past).length;
-  const nglRedoLength = useSelector(state => state.undoableNglTrackingReducers.future).length;
-  const nglCanUndo = nglUndoLength > 0;
-  const nglCanRedo = nglRedoLength > 0;
 
   const sidesOpen = useSelector(state => state.previewReducers.viewerControls.sidesOpen);
-
-  useEffect(() => {
-    nglSetUndoTooltip(dispatch(nglGetUndoActionText()));
-  }, [dispatch, nglUndoLength]);
-
-  useEffect(() => {
-    nglSetRedoTooltip(dispatch(nglGetRedoActionText()));
-  }, [dispatch, nglRedoLength]);
 
   const openDrawer = key => {
     //close all and open selected by key
@@ -97,57 +59,6 @@ export const ViewerControls = memo(() => {
   const closeAllDrawers = () => {
     setDrawerSettings(JSON.parse(JSON.stringify(initDrawers)));
   };
-
-  const doUndo = () => {
-    dispatch(UndoActionCreators.undo());
-    setCanRedo(dispatch(getCanRedo()));
-    setCanUndo(dispatch(getCanUndo()));
-    dispatch(undoAction(nglViewList));
-
-    setUndoTooltip(dispatch(getUndoActionText()));
-    setRedoTooltip(dispatch(getRedoActionText()));
-  };
-
-  const nglDoUndo = () => {
-    dispatch(nglTrackingUndo());
-    dispatch(nglUndoAction(nglViewList));
-  };
-
-  const doRedo = () => {
-    dispatch(UndoActionCreators.redo());
-    setCanRedo(dispatch(getCanRedo()));
-    setCanUndo(dispatch(getCanUndo()));
-    dispatch(redoAction(nglViewList));
-
-    setUndoTooltip(dispatch(getUndoActionText()));
-    setRedoTooltip(dispatch(getRedoActionText()));
-  };
-
-  const nglDoRedo = () => {
-    dispatch(nglTrackingRedo());
-    dispatch(nglRedoAction(nglViewList));
-  };
-
-  const handleUserKeyPress = useCallback(e => {
-    var evtobj = window.event ? window.event : e;
-    if (evtobj.keyCode === 90 && evtobj.ctrlKey) {
-      doUndo();
-    } else if (evtobj.keyCode === 89 && evtobj.ctrlKey) {
-      doRedo();
-    }
-  });
-
-  useEffect(() => {
-    if (isActionTracking === false) {
-      setUndoTooltip(dispatch(getUndoActionText()));
-      setRedoTooltip(dispatch(getRedoActionText()));
-    }
-    window.addEventListener('keydown', handleUserKeyPress);
-
-    return () => {
-      window.removeEventListener('keydown', handleUserKeyPress);
-    };
-  }, [handleUserKeyPress, dispatch, isActionTracking]);
 
   return (
     <>
@@ -166,38 +77,6 @@ export const ViewerControls = memo(() => {
 
         <div className={classes.nglButtons}>
           <ButtonGroup variant="contained" color="primary">
-            <Tooltip title={nglUndoTooltip}>
-              {/* Tooltip should not have disabled element as a direct child */}
-              <>
-                <Button
-                  size="small"
-                  color="secondary"
-                  onClick={() => {
-                    nglDoUndo();
-                  }}
-                  className={classes.button}
-                  disabled={!nglCanUndo}
-                >
-                  <Undo />
-                </Button>
-              </>
-            </Tooltip>
-            <Tooltip title={undoTooltip}>
-              {/* Tooltip should not have disabled element as a direct child */}
-              <>
-                <Button
-                  size="small"
-                  color="primary"
-                  onClick={() => {
-                    doUndo();
-                  }}
-                  className={classes.button}
-                  disabled={!canUndo}
-                >
-                  <Undo />
-                </Button>
-              </>
-            </Tooltip>
             <Tooltip title="Settings controls">
               <Button
                 size="small"
@@ -223,49 +102,7 @@ export const ViewerControls = memo(() => {
                 <Mouse />
               </Button>
             </Tooltip>
-            <Tooltip title={redoTooltip}>
-              {/* Tooltip should not have disabled element as a direct child */}
-              <>
-                <Button
-                  size="small"
-                  color="primary"
-                  onClick={() => {
-                    doRedo();
-                  }}
-                  className={classes.button}
-                  disabled={!canRedo}
-                >
-                  <Redo />
-                </Button>
-              </>
-            </Tooltip>
-            <Tooltip title={nglRedoTooltip}>
-              {/* Tooltip should not have disabled element as a direct child */}
-              <>
-                <Button
-                  size="small"
-                  color="secondary"
-                  onClick={() => {
-                    nglDoRedo();
-                  }}
-                  className={classes.button}
-                  disabled={!nglCanRedo}
-                >
-                  <Redo />
-                </Button>
-              </>
-            </Tooltip>
           </ButtonGroup>
-
-          <Tooltip title="Restore NGL view settings">
-            <Button
-              color="primary"
-              onClick={() => dispatch(restoreNglViewSettings(nglViewList))}
-              className={classes.button}
-            >
-              <Restore />
-            </Button>
-          </Tooltip>
         </div>
 
         <Tooltip title={sidesOpen.RHS ? 'Close right hand side' : 'Open right hand side'}>

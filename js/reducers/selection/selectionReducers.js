@@ -56,11 +56,48 @@ export const INITIAL_STATE = {
   areLSHCompoundsInitialized: false,
   toastMessages: [],
   isScrollFiredForLHS: false,
-  targetToEdit: null
+  targetToEdit: null,
+  //   Shape of the object in toBeDisplayedList:
+  // {
+  // 	type: 'L|P|C|S|V|RIBBON|etc...',
+  // 	id: 1,
+
+  // 		center: true,
+  // 		withQuality: true,
+  // 		representations: [] etc...
+
+  // 	display: true
+  // }
+  toBeDisplayedList: []
 };
 
 export function selectionReducers(state = INITIAL_STATE, action = {}) {
   switch (action.type) {
+    case constants.SET_TO_BE_DISPLAYED_LIST:
+      return { ...state, toBeDisplayedList: action.toBeDisplayedList };
+
+    case constants.APPEND_TO_BE_DISPLAYED_LIST:
+      return { ...state, toBeDisplayedList: [...state.toBeDisplayedList, action.item] };
+
+    case constants.REMOVE_FROM_TO_BE_DISPLAYED_LIST:
+      return {
+        ...state,
+        toBeDisplayedList: state.toBeDisplayedList.filter(
+          item => item.id !== action.item.id || item.type !== action.item.type
+        )
+      };
+
+    case constants.UPDATE_IN_TO_BE_DISPLAYED_LIST:
+      return {
+        ...state,
+        toBeDisplayedList: state.toBeDisplayedList.map(item => {
+          if (item.id === action.item.id && item.type === action.item.type) {
+            return { ...item, ...action.item };
+          }
+          return item;
+        })
+      };
+
     case constants.SET_SCROLL_FIRED_FOR_LHS: {
       return { ...state, isScrollFiredForLHS: action.isFired };
     }

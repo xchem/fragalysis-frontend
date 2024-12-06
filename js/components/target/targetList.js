@@ -373,7 +373,7 @@ export const TargetList = memo(() => {
           {moment(target.project.init_date).format('YYYY-MM-DD')}
         </TableCell>
         <TableCell style={{ width: '2px', padding: '0px', margin: '0px' }}></TableCell>
-        <TableCell align="left" style={{ padding: '0px', margin: '0px' }}>
+        {/* <TableCell align="left" style={{ padding: '0px', margin: '0px' }}>
           {sgcUploaded.includes(target.title) && (
             <a href={sgcUrl} target="new">
               SGC summary
@@ -400,7 +400,7 @@ export const TargetList = memo(() => {
               </IconButton>
             </Tooltip>
           )}
-        </TableCell>
+        </TableCell> */}
         {/*
       <TableCell
         align="left"
@@ -1336,11 +1336,11 @@ export const TargetList = memo(() => {
                   onMouseDown={handleMouseDownResizerInitDate}
                 ></div>
               </div>
-              <TableCell
+              {/* <TableCell
                 style={{ width: panelWidthForSGC, padding: '0px', paddingLeft: '5px', verticalAlign: 'center' }}
               >
                 SGC
-              </TableCell>
+              </TableCell> */}
               {/*<div style={{ display: 'flex' }}>
                 <div
                   style={{ cursor: 'col-resize', width: 3, height: '18px', backgroundColor: '#cccccc' }}

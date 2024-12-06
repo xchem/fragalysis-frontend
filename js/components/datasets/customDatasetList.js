@@ -18,9 +18,9 @@ export const CustomDatasetList = memo(({ dataset, hideProjects, isActive }) => {
         dispatch(clearDatasetSettings(dataset.id));
       }
     }
-    return () => {
-      dispatch(clearDatasetSettings(dataset?.id));
-    };
+    // return () => {
+    //   dispatch(clearDatasetSettings(dataset?.id));
+    // };
   }, [dataset, dispatch, isActive, isLoadingMoleculeList]);
 
   const title = dataset && `${dataset.title} v.${dataset.version}`;

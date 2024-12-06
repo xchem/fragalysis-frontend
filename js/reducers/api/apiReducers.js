@@ -52,7 +52,13 @@ export const INITIAL_STATE = {
   target_data_loading_in_progress: false,
   all_data_loaded: false,
   isSnapshot: false,
-  lhs_compounds_list: []
+  lhs_compounds_list: [],
+  lhsDataIsLoading: false,
+  lhsDataIsLoaded: false,
+  rhsDataIsLoading: false,
+  rhsDataIsLoaded: false,
+  proteinIsLoading: false,
+  proteinIsLoaded: false
 };
 
 export const RESET_TARGET_STATE = {
@@ -99,6 +105,24 @@ export const RESET_TARGET_STATE = {
 
 export default function apiReducers(state = INITIAL_STATE, action = {}) {
   switch (action.type) {
+    case constants.SET_LHS_DATA_IS_LOADING:
+      return { ...state, lhsDataIsLoading: action.lhsDataIsLoading };
+
+    case constants.SET_LHS_DATA_IS_LOADED:
+      return { ...state, lhsDataIsLoaded: action.lhsDataIsLoaded };
+
+    case constants.SET_RHS_DATA_IS_LOADING:
+      return { ...state, rhsDataIsLoading: action.rhsDataIsLoading };
+
+    case constants.SET_RHS_DATA_IS_LOADED:
+      return { ...state, rhsDataIsLoaded: action.rhsDataIsLoaded };
+
+    case constants.SET_PROTEIN_IS_LOADING:
+      return { ...state, proteinIsLoading: action.proteinIsLoading };
+
+    case constants.SET_PROTEIN_IS_LOADED:
+      return { ...state, proteinIsLoaded: action.proteinIsLoaded };
+
     case constants.SET_OPEN_DISCOURSE_ERROR_MODAL:
       return Object.assign({}, state, { open_discourse_error_modal: action.payload });
 
@@ -302,7 +326,7 @@ export default function apiReducers(state = INITIAL_STATE, action = {}) {
 
     case constants.SET_SESSION_ID_LIST:
       let sessionSummaryNew = [];
-      for (var key in action.sessionIdList) {
+      for (const key in action.sessionIdList) {
         sessionSummaryNew.push({
           id: action.sessionIdList[key].id,
           uuid: action.sessionIdList[key].uuid,
@@ -320,7 +344,7 @@ export default function apiReducers(state = INITIAL_STATE, action = {}) {
 
     case constants.UPDATE_SESSION_ID_LIST:
       let sessionSummary = [];
-      for (var key in action.sessionIdList) {
+      for (const key in action.sessionIdList) {
         sessionSummary.push({
           id: action.sessionIdList[key].id,
           uuid: action.sessionIdList[key].uuid,

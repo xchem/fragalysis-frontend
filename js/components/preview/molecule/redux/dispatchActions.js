@@ -34,7 +34,9 @@ import {
   setTagEditorOpen,
   setMoleculeForTagEdit,
   setSelectVisiblePoses,
-  setUnselectVisiblePoses
+  setUnselectVisiblePoses,
+  appendToBeDisplayedList,
+  updateInToBeDisplayedList
 } from '../../../../reducers/selection/actions';
 import { base_url } from '../../../routes/constants';
 import {
@@ -79,6 +81,7 @@ import { CATEGORY_TYPE } from '../../../../constants/constants';
 import { selectJoinedMoleculeList } from './selectors';
 import { compareTagsAsc } from '../../tags/utils/tagUtils';
 import { createPoseApi, updatePoseApi } from '../api/poseApi';
+import { NGL_OBJECTS } from '../../../../reducers/ngl/constants';
 // import { molFile, pdbApo } from './testData';
 
 /**
@@ -147,12 +150,12 @@ export const autoHideTagEditorDialogsOnScroll = ({ tagEditorRef, scrollBarRef })
   }
 };
 
-const getViewUrl = (get_view, data) => {
+export const getViewUrl = (get_view, data) => {
   const url = new URL(base_url + '/api/' + get_view + '/' + data.id + '/');
   return url;
 };
 
-const handleVector = (json, stage, data) => (dispatch, getState) => {
+export const handleVector = (json, stage, data) => (dispatch, getState) => {
   const state = getState();
   const { vector_list, compoundsOfVectors } = state.selectionReducers;
 
@@ -179,41 +182,13 @@ const handleVector = (json, stage, data) => (dispatch, getState) => {
 };
 
 export const addVector = (stage, data, skipTracking = false) => async (dispatch, getState) => {
-  const currentVector = getState().selectionReducers.currentVector;
-
-  dispatch(appendVectorOnList(generateMoleculeId(data), skipTracking));
-  dispatch(selectVectorAndResetCompounds(currentVector));
-
-  return api({ url: getViewUrl('graph', data) })
-    .then(response => {
-      const result = response.data.graph;
-      const new_dict = {};
-      // Uniquify
-      if (result) {
-        Object.keys(result).forEach(key => {
-          const smiSet = new Set();
-          new_dict[key] = {};
-          new_dict[key]['addition'] = [];
-          new_dict[key]['vector'] = result[key]['vector'];
-          Object.keys(result[key]['addition']).forEach(index => {
-            const newSmi = result[key]['addition'][index]['end'];
-            if (smiSet.has(newSmi) !== true) {
-              new_dict[key]['addition'].push(result[key]['addition'][index]);
-              smiSet.add(newSmi);
-            }
-          });
-        });
-      }
-      return dispatch(updateVectorCompounds(data.smiles, new_dict));
+  dispatch(
+    appendToBeDisplayedList({
+      type: NGL_OBJECTS.VECTOR,
+      id: data.id,
+      display: true
     })
-    .then(() => api({ url: new URL(base_url + '/api/vector/?id=' + data.id) }))
-    .then(response => {
-      dispatch(handleVector(response.data?.results[0]?.vectors, stage, data));
-    })
-    .finally(() => {
-      const currentOrientation = stage.viewerControls.getOrientation();
-      dispatch(setOrientation(VIEWS.MAJOR_VIEW, currentOrientation));
-    });
+  );
 };
 
 export const removeCurrentVector = currentMoleculeSmile => (dispatch, getState) => {
@@ -226,19 +201,7 @@ export const removeCurrentVector = currentMoleculeSmile => (dispatch, getState) 
 };
 
 export const removeVector = (stage, data, skipTracking = false) => (dispatch, getState) => {
-  const state = getState();
-  const vector_list = state.selectionReducers.vector_list;
-  vector_list
-    .filter(item => item.moleculeId === data.id)
-    .forEach(item => dispatch(deleteObject(Object.assign({ display_div: VIEWS.MAJOR_VIEW }, item), stage)));
-
-  dispatch(removeCurrentVector(data.smiles));
-
-  dispatch(updateVectorCompounds(data.smiles, undefined));
-  dispatch(updateBondColorMapOfCompounds(data.smiles, undefined));
-  dispatch(removeFromVectorOnList(generateMoleculeId(data), skipTracking));
-
-  dispatch(setVectorList(vector_list.filter(item => item.moleculeId !== data.id)));
+  dispatch(updateInToBeDisplayedList({ id: data.id, display: false, type: NGL_OBJECTS.VECTOR }));
 };
 
 export const addComplex = (
@@ -249,29 +212,19 @@ export const addComplex = (
   representations = undefined,
   preserveColour = false
 ) => async dispatch => {
-  dispatch(appendComplexList(generateMoleculeId(data), skipTracking));
-  return dispatch(
-    loadObject({
-      target: Object.assign({ display_div: VIEWS.MAJOR_VIEW }, generateComplexObject(data, colourToggle, base_url)),
-      stage,
-      previousRepresentations: representations,
-      orientationMatrix: null,
-      preserveColour
+  dispatch(
+    appendToBeDisplayedList({
+      type: NGL_OBJECTS.COMPLEX,
+      id: data.id,
+      display: true,
+      representations: representations,
+      preserveColour: preserveColour
     })
-  ).finally(() => {
-    const currentOrientation = stage.viewerControls.getOrientation();
-    dispatch(setOrientation(VIEWS.MAJOR_VIEW, currentOrientation));
-  });
+  );
 };
 
 export const removeComplex = (stage, data, colourToggle, skipTracking = false) => dispatch => {
-  dispatch(
-    deleteObject(
-      Object.assign({ display_div: VIEWS.MAJOR_VIEW }, generateComplexObject(data, colourToggle, base_url)),
-      stage
-    )
-  );
-  dispatch(removeFromComplexList(generateMoleculeId(data), skipTracking));
+  dispatch(updateInToBeDisplayedList({ id: data.id, display: false, type: NGL_OBJECTS.COMPLEX }));
 };
 
 export const addSurface = (
@@ -282,29 +235,19 @@ export const addSurface = (
   representations = undefined,
   preserveColour = false
 ) => async dispatch => {
-  dispatch(appendSurfaceList(generateMoleculeId(data), skipTracking));
-  return dispatch(
-    loadObject({
-      target: Object.assign({ display_div: VIEWS.MAJOR_VIEW }, generateSurfaceObject(data, colourToggle, base_url)),
-      stage,
-      previousRepresentations: representations,
-      orientationMatrix: null,
-      preserveColour
+  dispatch(
+    appendToBeDisplayedList({
+      type: NGL_OBJECTS.SURFACE,
+      id: data.id,
+      display: true,
+      representations: representations,
+      preserveColour: preserveColour
     })
-  ).finally(() => {
-    const currentOrientation = stage.viewerControls.getOrientation();
-    dispatch(setOrientation(VIEWS.MAJOR_VIEW, currentOrientation));
-  });
+  );
 };
 
 export const removeSurface = (stage, data, colourToggle, skipTracking = false) => dispatch => {
-  dispatch(
-    deleteObject(
-      Object.assign({ display_div: VIEWS.MAJOR_VIEW }, generateSurfaceObject(data, colourToggle, base_url)),
-      stage
-    )
-  );
-  dispatch(removeFromSurfaceList(generateMoleculeId(data), skipTracking));
+  dispatch(updateInToBeDisplayedList({ id: data.id, display: false, type: NGL_OBJECTS.SURFACE }));
 };
 
 export const getDensityMapData = data => dispatch => {
@@ -347,52 +290,18 @@ const setDensity = (
   skipTracking = false,
   representations = undefined
 ) => async (dispatch, getState) => {
-  const prepParams = dispatch(getDensityChangedParams(isWireframeStyle));
-  const densityObject = generateDensityObject(data, colourToggle, base_url, isWireframeStyle);
-  const combinedObject = { ...prepParams, ...densityObject };
   dispatch(
-    loadObject({
-      target: Object.assign({ display_div: VIEWS.MAJOR_VIEW }, combinedObject),
-      stage,
-      previousRepresentations: representations,
-      orientationMatrix: null
+    appendToBeDisplayedList({
+      type: NGL_OBJECTS.DENSITY,
+      id: data.id,
+      display: true,
+      representations: representations,
+      isWireframeStyle: isWireframeStyle
     })
-  ).finally(() => {
-    const currentOrientation = stage.viewerControls.getOrientation();
-    dispatch(setOrientation(VIEWS.MAJOR_VIEW, currentOrientation));
-    let molDataId = generateMoleculeId(data);
-    if (!data.proteinData) {
-      dispatch(getProteinData(data)).then(i => {
-        const proteinData = i;
-        data.proteinData = proteinData;
-
-        molDataId['render_event'] = data.proteinData.render_event;
-        molDataId['render_sigmaa'] = data.proteinData.render_sigmaa;
-        molDataId['render_diff'] = data.proteinData.render_diff;
-        molDataId['render_quality'] = data.proteinData.render_quality;
-
-        dispatch(appendDensityList(generateMoleculeId(data), skipTracking));
-        dispatch(appendToDensityListType(molDataId, skipTracking));
-        if (data.proteinData.render_quality) {
-          return dispatch(addQuality(stage, data, colourToggle, true));
-        }
-      });
-    } else {
-      molDataId['render_event'] = data.proteinData.render_event;
-      molDataId['render_sigmaa'] = data.proteinData.render_sigmaa;
-      molDataId['render_diff'] = data.proteinData.render_diff;
-      molDataId['render_quality'] = data.proteinData.render_quality;
-
-      dispatch(appendDensityList(generateMoleculeId(data), skipTracking));
-      dispatch(appendToDensityListType(molDataId, skipTracking));
-      if (data.proteinData.render_quality) {
-        return dispatch(addQuality(stage, data, colourToggle, true));
-      }
-    }
-  });
+  );
 };
 
-const getDensityChangedParams = (isWireframeStyle = undefined) => (dispatch, getState) => {
+export const getDensityChangedParams = (isWireframeStyle = undefined) => (dispatch, getState) => {
   const state = getState();
   const viewParams = state.nglReducers.viewParams;
 
@@ -428,21 +337,12 @@ export const addDensityCustomView = (
 ) => async (dispatch, getState) => {
   const state = getState();
   const viewParams = state.nglReducers.viewParams;
-  // const contour_DENSITY = viewParams[NGL_PARAMS.contour_DENSITY];
-  // const contour_DENSITY_MAP_sigmaa = viewParams[NGL_PARAMS.contour_DENSITY_MAP_sigmaa];
-  // const contour_DENSITY_MAP_diff = viewParams[NGL_PARAMS.contour_DENSITY_MAP_diff];
   if (data.proteinData) {
     return dispatch(setDensityCustom(stage, data, colourToggle, isWireframeStyle, skipTracking, representations));
-    // dispatch(setNglViewParams(NGL_PARAMS.contour_DENSITY, invertedWireframe));
-    // dispatch(setNglViewParams(NGL_PARAMS.contour_DENSITY_MAP_sigmaa, invertedWireframe));
-    // dispatch(setNglViewParams(NGL_PARAMS.contour_DENSITY_MAP_diff, invertedWireframe));
   } else {
     await dispatch(getDensityMapData(data));
     return dispatch(setDensityCustom(stage, data, colourToggle, isWireframeStyle, skipTracking, representations));
   }
-  // dispatch(setNglViewParams(NGL_PARAMS.contour_DENSITY, invertedWireframe));
-  // dispatch(setNglViewParams(NGL_PARAMS.contour_DENSITY_MAP_sigmaa, invertedWireframe));
-  // dispatch(setNglViewParams(NGL_PARAMS.contour_DENSITY_MAP_diff, invertedWireframe));
 };
 
 export const toggleDensityWireframe = (currentWireframeSetting, densityData) => dispatch => {
@@ -470,26 +370,15 @@ const setDensityCustom = (
   skipTracking = false,
   representations = undefined
 ) => async (dispatch, getState) => {
-  let densityObject = dispatch(getDensityChangedParams());
-  densityObject = dispatch(toggleDensityWireframe(isWireframeStyle, densityObject));
-  const oldDensityData = dispatch(deleteDensityObject(data, colourToggle, stage, !isWireframeStyle));
-  densityObject = { ...densityObject, ...oldDensityData };
-  const molId = generateMoleculeId(data);
-  dispatch(removeFromDensityList(molId, true));
-  // dispatch(removeFromDensityListType(molId, true));
-
-  dispatch(appendDensityListCustom(generateMoleculeId(data), skipTracking));
-  return dispatch(
-    loadObject({
-      target: Object.assign({ display_div: VIEWS.MAJOR_VIEW }, densityObject),
-      stage,
-      previousRepresentations: representations,
-      orientationMatrix: null
+  dispatch(
+    appendToBeDisplayedList({
+      type: NGL_OBJECTS.DENSITY_CUSTOM,
+      id: data.id,
+      display: true,
+      representations: representations,
+      isWireframeStyle: isWireframeStyle
     })
-  ).finally(() => {
-    const currentOrientation = stage.viewerControls.getOrientation();
-    dispatch(setOrientation(VIEWS.MAJOR_VIEW, currentOrientation));
-  });
+  );
 };
 
 export const removeDensity = (
@@ -500,19 +389,17 @@ export const removeDensity = (
   skipTracking = false,
   representations = undefined
 ) => dispatch => {
-  dispatch(toggleDensityWireframe(isWireframeStyle));
-  dispatch(deleteDensityObject(data, colourToggle, stage, isWireframeStyle));
-
-  const molId = generateMoleculeId(data);
-  dispatch(removeFromDensityList(molId, skipTracking));
-  dispatch(removeFromDensityListCustom(molId, true));
-  dispatch(removeFromDensityListType(molId, skipTracking));
-  if (data.proteinData.render_quality) {
-    dispatch(removeQuality(stage, data, colourToggle, true));
-  }
+  dispatch(
+    updateInToBeDisplayedList({
+      id: data.id,
+      display: false,
+      isWireframeStyle: isWireframeStyle,
+      type: NGL_OBJECTS.DENSITY_CUSTOM
+    })
+  );
 };
 
-const deleteDensityObject = (data, colourToggle, stage, isWireframeStyle) => dispatch => {
+export const deleteDensityObject = (data, colourToggle, stage, isWireframeStyle) => dispatch => {
   const densityObject = generateDensityObject(data, colourToggle, base_url, isWireframeStyle);
   dispatch(deleteObject(Object.assign({ display_div: VIEWS.MAJOR_VIEW }, densityObject), stage));
 
@@ -534,44 +421,20 @@ export const addHitProtein = (
   representations = undefined,
   preserveColour = false
 ) => async dispatch => {
-  // data.sdf_info = molFile;
-  dispatch(appendProteinList(generateMoleculeId(data), skipTracking));
-  let hitProteinObject = generateHitProteinObject(data, colourToggle, base_url);
-  let qualityInformation = dispatch(readQualityInformation(hitProteinObject.name, hitProteinObject.sdf_info));
-
-  let hasAdditionalInformation =
-    withQuality === true &&
-    qualityInformation &&
-    qualityInformation.badproteinids &&
-    qualityInformation.badproteinids.length !== 0;
-  if (hasAdditionalInformation) {
-    dispatch(appendQualityList(generateMoleculeId(data), true));
-  }
-
-  return dispatch(
-    loadObject({
-      target: Object.assign({ display_div: VIEWS.MAJOR_VIEW }, hitProteinObject),
-      stage,
-      previousRepresentations: representations,
-      orientationMatrix: null,
-      loadQuality: hasAdditionalInformation,
-      quality: qualityInformation,
-      preserveColour
+  dispatch(
+    appendToBeDisplayedList({
+      type: NGL_OBJECTS.PROTEIN,
+      id: data.id,
+      display: true,
+      withQuality: withQuality,
+      representations: representations,
+      preserveColour: preserveColour
     })
-  ).finally(() => {
-    const currentOrientation = stage.viewerControls.getOrientation();
-    dispatch(setOrientation(VIEWS.MAJOR_VIEW, currentOrientation));
-  });
+  );
 };
 
 export const removeHitProtein = (stage, data, colourToggle, skipTracking = false) => dispatch => {
-  dispatch(
-    deleteObject(
-      Object.assign({ display_div: VIEWS.MAJOR_VIEW }, generateHitProteinObject(data, colourToggle, base_url)),
-      stage
-    )
-  );
-  dispatch(removeFromProteinList(generateMoleculeId(data), skipTracking));
+  dispatch(updateInToBeDisplayedList({ id: data.id, display: false, type: NGL_OBJECTS.PROTEIN }));
 };
 
 export const addLigand = (
@@ -583,68 +446,41 @@ export const addLigand = (
   skipTracking = false,
   representations = undefined
 ) => async (dispatch, getState) => {
-  // data.sdf_info = molFile;
-  console.count(`Grabbing orientation before loading ligand.`);
-  const currentOrientation = stage.viewerControls.getOrientation();
-  dispatch(appendFragmentDisplayList(generateMoleculeId(data), skipTracking));
-
-  let moleculeObject = generateMoleculeObject(data, colourToggle);
-  let qualityInformation = dispatch(readQualityInformation(moleculeObject.name, moleculeObject.sdf_info));
-
-  let hasAdditionalInformation =
-    withQuality === true && qualityInformation && qualityInformation.badids && qualityInformation.badids.length !== 0;
-  if (hasAdditionalInformation) {
-    dispatch(appendQualityList(generateMoleculeId(data), true));
-  }
-
-  return dispatch(
-    loadObject({
-      target: Object.assign({ display_div: VIEWS.MAJOR_VIEW }, moleculeObject),
-      stage,
-      previousRepresentations: representations,
-      loadQuality: hasAdditionalInformation,
-      quality: qualityInformation
+  dispatch(
+    appendToBeDisplayedList({
+      type: NGL_OBJECTS.LIGAND,
+      id: data.id,
+      display: true,
+      center: centerOn,
+      withQuality: withQuality,
+      representations: representations
     })
-  ).then(() => {
-    const state = getState();
-    const skipOrientation = state.trackingReducers.skipOrientationChange;
-    if (!skipOrientation) {
-      const ligandOrientation = stage.viewerControls.getOrientation();
-      dispatch(setOrientation(VIEWS.MAJOR_VIEW, ligandOrientation));
-
-      dispatch(appendMoleculeOrientation(data?.id, ligandOrientation));
-      if (centerOn === false) {
-        // keep current orientation of NGL View
-        console.count(`Before applying orientation matrix after loading ligand.`);
-        stage.viewerControls.orient(currentOrientation);
-        console.count(`After applying orientation matrix after loading ligand.`);
-      }
-    }
-  });
+  );
 };
 
 export const removeLigand = (stage, data, skipTracking = false, withVector = true) => dispatch => {
-  dispatch(deleteObject(Object.assign({ display_div: VIEWS.MAJOR_VIEW }, generateMoleculeObject(data)), stage));
-  dispatch(removeFromFragmentDisplayList(generateMoleculeId(data), skipTracking));
-  dispatch(removeFromQualityList(generateMoleculeId(data), true));
-
-  if (withVector === true) {
-    // remove vector
-    dispatch(removeVector(stage, data, skipTracking));
-  }
+  dispatch(
+    updateInToBeDisplayedList({ id: data.id, display: false, withVector: withVector, type: NGL_OBJECTS.LIGAND })
+  );
 };
 
 export const addQuality = (stage, data, colourToggle, skipTracking = false, representations = undefined) => (
   dispatch,
   getState
 ) => {
-  dispatch(deleteObject(Object.assign({ display_div: VIEWS.MAJOR_VIEW }, generateMoleculeObject(data)), stage));
+  dispatch(removeFromFragmentDisplayList(generateMoleculeId(data)));
+  dispatch(removeFromQualityList(generateMoleculeId(data)));
+  dispatch(updateInToBeDisplayedList({ id: data.id, display: false, type: NGL_OBJECTS.LIGAND }));
+  // dispatch(deleteObject(Object.assign({ display_div: VIEWS.MAJOR_VIEW }, generateMoleculeObject(data)), stage));
   dispatch(appendQualityList(generateMoleculeId(data), skipTracking));
   return dispatch(addLigand(stage, data, colourToggle, false, true, true, representations));
 };
 
 export const removeQuality = (stage, data, colourToggle, skipTracking = false) => dispatch => {
-  dispatch(deleteObject(Object.assign({ display_div: VIEWS.MAJOR_VIEW }, generateMoleculeObject(data)), stage));
+  dispatch(removeFromFragmentDisplayList(generateMoleculeId(data)));
+  dispatch(removeFromQualityList(generateMoleculeId(data)));
+  dispatch(updateInToBeDisplayedList({ id: data.id, display: false, type: NGL_OBJECTS.LIGAND }));
+  // dispatch(deleteObject(Object.assign({ display_div: VIEWS.MAJOR_VIEW }, generateMoleculeObject(data)), stage));
   dispatch(addLigand(stage, data, colourToggle, false, false, true));
   dispatch(removeFromQualityList(generateMoleculeId(data), skipTracking));
 };
@@ -1032,22 +868,6 @@ export const removeSelectedMolTypes = (majorViewStage, molecules, skipTracking, 
   });
 };
 
-// export const searchMoleculeGroupByMoleculeID = moleculeID => (dispatch, getState) =>
-//   api({ url: `${base_url}/api/molgroup/?mol_id=${moleculeID}` }).then(response => {
-//     let resultMolGroupID = null;
-//     const molGroupID = response?.data?.results[0]?.id;
-//     const mol_group_list = getState().apiReducers.mol_group_list;
-
-//     if (mol_group_list && Array.isArray(mol_group_list) && molGroupID) {
-//       mol_group_list.forEach((item, index) => {
-//         if (item.id === molGroupID) {
-//           resultMolGroupID = index + 1;
-//         }
-//       });
-//     }
-//     return Promise.resolve(resultMolGroupID);
-//   });
-
 export const applyDirectSelection = stage => (dispatch, getState) => {
   const state = getState();
 
@@ -1095,6 +915,7 @@ export const applyDirectSelection = stage => (dispatch, getState) => {
 };
 
 export const getQualityInformation = (data, molType, width, height) => (dispatch, getState) => {
+  if (!data) return null;
   let moleculeObject = generateMoleculeObject(data);
   let qualityInformation = dispatch(readQualityInformation(moleculeObject.name, data.ligand_mol_file));
 
@@ -1110,43 +931,8 @@ export const getQualityInformation = (data, molType, width, height) => (dispatch
 export const getProteinData = molecule => dispatch => {
   return new Promise((resolve, reject) => {
     resolve(molecule.proteinData);
-  }); /*dispatch(getProteinDataByMolId(molecule.id, molecule.code));*/
+  });
 };
-
-// export const getProteinDataByMolId = (molId, proteinCode) => (dispatch, getState) => {
-//   const state = getState();
-//   const proteindDataCache = state.previewReducers.molecule.proteinDataCache;
-
-//   const molIdStr = molId.toString();
-//   if (proteindDataCache.hasOwnProperty(molIdStr)) {
-//     return new Promise((resolve, reject) => {
-//       resolve(proteindDataCache[molIdStr]);
-//     });
-//   } else {
-//     return loadProteinData(proteinCode).then(i => {
-//       if (!proteindDataCache.hasOwnProperty(molIdStr)) {
-//         dispatch(addProteindDataToCache(molId.toString(), i));
-//       }
-//       return i;
-//     });
-//   }
-// };
-
-// const loadProteinData = code => {
-//   if (code) {
-//     let url = new URL(`${base_url}/api/proteins/?code=${code}`);
-//     let onCancel = () => {};
-//     return api({
-//       url,
-//       onCancel
-//     }).then(response => {
-//       return response.data.results;
-//     });
-//   } else {
-//     console.error('Trying to load protein data for unknown molecule protein code.');
-//     return Promise.resolve();
-//   }
-// };
 
 export const getMolImage = (molId, molType, width, height) => (dispatch, getState) => {
   const state = getState();
@@ -1260,7 +1046,10 @@ export const selectAllHits = (allFilteredLhsCompounds, setNextXMolecules, unsele
   }
 };
 
-export const selectAllVisibleObservations = (visibleObservations, setNextXMolecules, unselect) => (dispatch, getState) => {
+export const selectAllVisibleObservations = (visibleObservations, setNextXMolecules, unselect) => (
+  dispatch,
+  getState
+) => {
   if (setNextXMolecules) {
     dispatch(setNextXMolecules(visibleObservations?.length || 0));
   }

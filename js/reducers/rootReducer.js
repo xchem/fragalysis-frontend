@@ -12,11 +12,10 @@ import { projectReducers } from '../components/projects/redux/reducer';
 import { issueReducers } from '../components/userFeedback/redux/reducer';
 import { datasetsReducers } from '../components/datasets/redux/reducer';
 import { jobTableReducer } from '../components/preview/jobTable/redux/reducer';
-import { trackingReducers, undoableTrackingReducers } from './tracking/trackingReducers';
-import { nglTrackingReducers, undoableNglTrackingReducers } from './nglTracking/nglTrackingReducers';
 import { layoutReducers } from './layout/layoutReducers';
+import { constants } from './constants';
 
-const rootReducer = combineReducers({
+const appReducer = combineReducers({
   apiReducers,
   nglReducers,
   selectionReducers,
@@ -26,12 +25,16 @@ const rootReducer = combineReducers({
   projectReducers,
   issueReducers,
   datasetsReducers,
-  trackingReducers,
   jobTableReducer,
-  undoableTrackingReducers,
-  nglTrackingReducers,
-  undoableNglTrackingReducers,
   layoutReducers
 });
+
+const rootReducer = (state, action) => {
+  if (action.type === constants.SET_ENTIRE_STATE) {
+    return action.newState;
+  }
+
+  return appReducer(state, action);
+};
 
 export { rootReducer };

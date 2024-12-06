@@ -13,4 +13,10 @@ export const colourList = [
   '#FFA5AB'
 ];
 
-export const getRandomColor = molecule => colourList[molecule.id % colourList.length];
+export const getRandomColor = molecule => {
+  if (molecule) {
+    return colourList[molecule?.id % colourList.length];
+  } else {
+    return colourList[0];
+  }
+};

@@ -18,8 +18,6 @@ export const withUpdatingTarget = WrappedContainer => {
       const snapshotId = match && match.params && match.params.snapshotId;
       const projectId = match && match.params && match.params.projectId;
 
-      // const isActionRestoring = useSelector(state => state.trackingReducers.isActionRestoring);
-
       const { isLoading, setIsLoading } = useContext(LoadingContext);
       const [state, setState] = useState();
 

@@ -60,7 +60,7 @@ export const loadProjectsList = () => async (dispatch, getState) => {
 
 export const updateTarget = ({ target, setIsLoading, targetIdList, projectId }) => (dispatch, getState) => {
   const state = getState();
-  const isActionRestoring = state.trackingReducers.isActionRestoring;
+  const isActionRestoring = false; //state.trackingReducers.isActionRestoring;
   const currentSessionProject = state.projectReducers.currentProject;
   const targetOn = state.apiReducers.target_on;
   const currentProject = state.targetReducers.currentProject;

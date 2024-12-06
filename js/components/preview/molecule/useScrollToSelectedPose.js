@@ -27,6 +27,8 @@ export const useScrollToSelectedPose = (moleculesPerPage, setCurrentPage) => {
   const [moleculeViewRefs, setMoleculeViewRefs] = useState({});
   const [scrollToMoleculeId, setScrollToMoleculeId] = useState(null);
 
+  const lhsDataIsLoaded = useSelector(state => state.apiReducers.lhsDataIsLoaded);
+
   // First pass, iterates over all the molecules and checks if any of them is selected. If it is,
   // it saves the ID of the molecule and determines how many pages of molecules should be displayed.
   // This is done only once.
@@ -72,7 +74,9 @@ export const useScrollToSelectedPose = (moleculesPerPage, setCurrentPage) => {
       }
     }
 
-    dispatch(setScrollFiredForLHS(true));
+    if (lhsDataIsLoaded) {
+      dispatch(setScrollFiredForLHS(true));
+    }
   }, [
     dispatch,
     poses,
@@ -89,7 +93,8 @@ export const useScrollToSelectedPose = (moleculesPerPage, setCurrentPage) => {
     densityListCustom,
     vectorOnList,
     poseIdForObservationsDialog,
-    isObservationsDialogOpen
+    isObservationsDialogOpen,
+    lhsDataIsLoaded
   ]);
 
   // Second pass, once the list of molecules is displayed and the refs to their DOM nodes have been

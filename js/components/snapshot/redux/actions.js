@@ -1,7 +1,7 @@
 import { constants } from './constants';
 import { initSharedSnapshot } from './reducer';
 
-export const setOpenSnapshotSavingDialog = (isOpen) => ({
+export const setOpenSnapshotSavingDialog = isOpen => ({
   type: constants.SET_OPEN_SAVING_DIALOG,
   payload: isOpen
 });
@@ -59,4 +59,19 @@ export const setDontShowShareSnapshot = dontShow => ({
 export const setDownloadStructuresDialogOpen = show => ({
   type: constants.SET_DOWNLOAD_STRUCTURES_DIALOG_OPEN,
   payload: show
+});
+
+export const setSnapshotIsDirty = isDirty => ({
+  type: constants.SET_SNAPSHOT_IS_DIRTY,
+  payload: isDirty
+});
+
+export const setSnapshotEditDialogOpen = isOpen => ({
+  type: constants.SET_SNAPSHOT_EDIT_DIALOG_OPEN,
+  payload: isOpen
+});
+
+export const setSnapshotToBeEdited = snapshot => ({
+  type: constants.SET_SNAPSHOT_TO_BE_EDITED,
+  payload: snapshot
 });

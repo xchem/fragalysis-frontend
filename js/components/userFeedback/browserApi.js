@@ -1,5 +1,4 @@
 import { setImageSource, setIsOpenForm } from './redux/actions';
-import { setTrackingImageSource } from '../../reducers/tracking/actions';
 import html2canvas from 'html2canvas';
 /* Getting image from screen capture or  */
 
@@ -85,6 +84,6 @@ export const captureScreen = () => async dispatch => {
 
 export const captureScreenOfSnapshot = () => async dispatch => {
   html2canvas(document.body).then(canvas => {
-    dispatch(setTrackingImageSource(canvas.toDataURL()));
+    // dispatch(setTrackingImageSource(canvas.toDataURL()));
   });
 };

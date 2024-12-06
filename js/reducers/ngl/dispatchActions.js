@@ -53,7 +53,7 @@ export const loadObject = ({
   console.log('loadObject - entry');
   if (stage) {
     const state = getState();
-    const actionRestoring = state.trackingReducers.isActionRestoring;
+    const actionRestoring = false; //state.trackingReducers.isActionRestoring;
     dispatch(incrementCountOfPendingNglObjects(target.display_div));
 
     const versionFixedTarget = JSON.parse(JSON.stringify(target));
@@ -210,7 +210,7 @@ export const setOrientationByInteraction = (div_id, orientation) => (dispatch, g
 export const centerOnLigandByMoleculeID = (stage, moleculeID) => (dispatch, getState) => {
   if (moleculeID && stage) {
     const state = getState();
-    const skipOrientation = state.trackingReducers.skipOrientationChange;
+    const skipOrientation = false; //state.trackingReducers.skipOrientationChange;
     if (!skipOrientation) {
       const storedOrientation = state.nglReducers.moleculeOrientations[moleculeID];
       console.count(`Before applying orientation centerOnLigandByMoleculeID`);
@@ -257,7 +257,7 @@ export const reloadNglViewFromSnapshot = (stage, display_div, snapshot) => (disp
       });
 
       const state = getState();
-      const skipOrientation = state.trackingReducers.skipOrientationChange;
+      const skipOrientation = false; //state.trackingReducers.skipOrientationChange;
       // nglOrientations
       if (!skipOrientation) {
         const newOrientation = snapshot.nglOrientations[display_div];
@@ -368,7 +368,7 @@ export const isDensityMapVisible = (type, stage) => {
 
 export const restoreNglOrientation = (orientation, oldOrientation, div_id, stages) => (dispatch, getState) => {
   const state = getState();
-  const skipOrientation = state.trackingReducers.skipOrientationChange;
+  const skipOrientation = false; //state.trackingReducers.skipOrientationChange;
 
   if (!skipOrientation) {
     const view = stages.find(view => view.id === div_id);

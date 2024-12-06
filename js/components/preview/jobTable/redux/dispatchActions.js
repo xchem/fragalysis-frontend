@@ -1,6 +1,5 @@
 import { setSelectedDatasetIndex, setTabValue } from '../../../datasets/redux/actions';
 import { turnSide } from '../../viewerControls/redux/actions';
-import { getCompoundById } from '../../../../reducers/tracking/dispatchActionsSwitchSnapshot';
 import {
   removeDatasetLigand,
   removeDatasetHitProtein,
@@ -10,6 +9,7 @@ import {
 } from '../../../datasets/redux/dispatchActions';
 import { getRandomColor } from '../../molecule/utils/color';
 import { getJoinedMoleculeLists } from '../../../datasets/redux/selectors';
+import { getCompoundById } from '../../../../utils/genericDispatchActions';
 
 const removeRHSfromNGL = stage => (dispatch, getState) => {
   const state = getState();

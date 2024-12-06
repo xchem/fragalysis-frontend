@@ -74,7 +74,23 @@ export const ToastProvider = memo(props => {
     const infoOptions = {
       variant: 'info'
     };
-    toast(text, { ...infoOptions, ...options });
+    const message = options.link ? (
+      <>
+        <Typography>{text}</Typography>{' '}
+        <Button
+          color="primary"
+          onClick={() => {
+            options.link.linkAction(...options.link.linkParams);
+          }}
+        >
+          {options.link.linkText}
+        </Button>
+      </>
+    ) : (
+      { text }
+    );
+    options.link ? toast(message, { ...infoOptions, ...options }) : toast(text, { ...infoOptions, ...options });
+    // toast(text, { ...infoOptions, ...options });
   };
 
   return (

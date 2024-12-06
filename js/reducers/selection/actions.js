@@ -624,3 +624,31 @@ export const setTargetToEdit = target => {
     target: target
   };
 };
+
+export const setToBeDisplayedList = toBeDisplayedList => {
+  return {
+    type: constants.SET_TO_BE_DISPLAYED_LIST,
+    toBeDisplayedList: toBeDisplayedList
+  };
+};
+
+export const appendToBeDisplayedList = item => {
+  return {
+    type: constants.APPEND_TO_BE_DISPLAYED_LIST,
+    item: item
+  };
+};
+
+export const removeFromToBeDisplayedList = item => {
+  return {
+    type: constants.REMOVE_FROM_TO_BE_DISPLAYED_LIST,
+    item: item
+  };
+};
+
+export const updateInToBeDisplayedList = item => {
+  return {
+    type: constants.UPDATE_IN_TO_BE_DISPLAYED_LIST,
+    item: item
+  };
+};

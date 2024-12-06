@@ -6,7 +6,14 @@ import { makeStyles, Tooltip } from '@material-ui/core';
 import { Button } from '../../common/Inputs/Button';
 import { useDispatch, useSelector } from 'react-redux';
 import palette from '../../../theme/palette';
-import { setIsOpenModalBeforeExit, setSelectedSnapshotToSwitch } from '../../snapshot/redux/actions';
+import {
+  setDisableRedirect,
+  setDontShowShareSnapshot,
+  setIsOpenModalBeforeExit,
+  setSelectedSnapshotToSwitch,
+  setSnapshotEditDialogOpen,
+  setSnapshotToBeEdited
+} from '../../snapshot/redux/actions';
 import JobPopup from './JobPopup';
 import JobConfigurationDialog from './JobConfigurationDialog';
 import { setJobPopUpAnchorEl, setJobConfigurationDialogOpen, refreshJobsData } from '../../projects/redux/actions';
@@ -14,11 +21,17 @@ import JobLauncherDialog from './JobLauncherDialog';
 import { DJANGO_CONTEXT } from '../../../utils/djangoContext';
 import { SQUONK_NOT_AVAILABLE } from './constants';
 import { PROJECTS_JOBS_PANEL_HEIGHT } from '../constants';
-import { changeSnapshot } from '../../../reducers/tracking/dispatchActionsSwitchSnapshot';
 import { NglContext } from '../../nglView/nglProvider';
 import { VIEWS } from '../../../constants/constants';
 import { useRouteMatch } from 'react-router-dom';
 import { setSnapshotLoadingInProgress } from '../../../reducers/api/actions';
+import { changeSnapshot, createNewSnapshot, isSnapshotModified } from '../../snapshot/redux/dispatchActions';
+import moment from 'moment';
+import { SnapshotType } from '../../projects/redux/constants';
+import { getSnapshotAttributesByID } from '../../projects/redux/dispatchActions';
+import { ToastContext } from '../../toast';
+import { deepClone } from '../../../utils/objectUtils';
+import { result } from 'lodash';
 
 export const heightOfProjectHistory = PROJECTS_JOBS_PANEL_HEIGHT;
 
@@ -89,17 +102,17 @@ export const ProjectHistory = memo(({ showFullHistory, graphKey, expanded, onExp
   const currentSnapshotJobList = useSelector(state => state.projectReducers.currentSnapshotJobList);
   const currentSnapshotTree = useSelector(state => state.projectReducers.currentSnapshotTree);
   const jobPopUpAnchorEl = useSelector(state => state.projectReducers.jobPopUpAnchorEl);
-  const isSnapshotDirty = useSelector(state => state.trackingReducers.isSnapshotDirty);
+  // const isSnapshotDirty = false; //useSelector(state => state.snapshotReducers.isSnapshotDirty);
   const currentSessionProject = useSelector(state => state.projectReducers.currentProject);
   const currentSessionProjectID = currentSessionProject && currentSessionProject.projectID;
   const sessionProjectID = paramsProjectID && paramsProjectID != null ? paramsProjectID : currentSessionProjectID;
 
   const currentProject = useSelector(state => state.targetReducers.currentProject);
-  const actionListNGL = useSelector(state => state.nglTrackingReducers.track_actions_list);
-  const actionList = useSelector(state => state.trackingReducers.track_actions_list);
 
   const [tryToOpen, setTryToOpen] = useState(false);
   const [transitionToSnapshot, setTransitionToSnapshot] = useState(null);
+
+  const { toastError, toastInfo } = useContext(ToastContext);
 
   const [jobPopupInfo, setJobPopupInfo] = useState({
     hash: null,
@@ -115,17 +128,91 @@ export const ProjectHistory = memo(({ showFullHistory, graphKey, expanded, onExp
     setTransitionToSnapshot(commit);
   }, []);
 
+  const createSnapshot = useCallback(
+    (title, description) => {
+      // Prepare snapshot data
+      const type = SnapshotType.MANUAL;
+      const author = DJANGO_CONTEXT['pk'] || null;
+      const parent = currentSnapshotID;
+      const session_project = currentSessionProject.projectID;
+
+      // Prevents redirect and displaying of share snapshot dialog
+      dispatch(setDisableRedirect(true));
+      dispatch(setDontShowShareSnapshot(true));
+
+      // With the above flags set, createNewSnapshot returns the ID of newly created snapshot as the second item in the array
+      return dispatch(
+        createNewSnapshot({
+          title,
+          description,
+          type,
+          author,
+          parent,
+          session_project,
+          nglViewList,
+          stage,
+          overwriteSnapshot: false,
+          createDiscourse: false
+        })
+      );
+    },
+    [currentSessionProject.projectID, currentSnapshotID, dispatch, nglViewList, stage]
+  );
+
+  const editSnapshot = useCallback(
+    snapshotCopy => {
+      dispatch(setSnapshotToBeEdited(snapshotCopy));
+      dispatch(setSnapshotEditDialogOpen(true));
+    },
+    [dispatch]
+  );
+
   useEffect(() => {
-    if (isSnapshotDirty && tryToOpen && transitionToSnapshot) {
-      dispatch(setSelectedSnapshotToSwitch(transitionToSnapshot.hash));
-      dispatch(setIsOpenModalBeforeExit(true));
-      setTryToOpen(false);
-      // dispatch(changeSnapshot(sessionProjectID, transitionToSnapshot.hash, nglViewList, stage));
-    } else if (!isSnapshotDirty && tryToOpen && transitionToSnapshot) {
-      dispatch(changeSnapshot(sessionProjectID, transitionToSnapshot.hash, nglViewList, stage));
-      setTryToOpen(false);
-    }
-  }, [dispatch, isSnapshotDirty, nglViewList, sessionProjectID, stage, transitionToSnapshot, tryToOpen]);
+    const switchSnapshot = async () => {
+      if (tryToOpen && transitionToSnapshot) {
+        const modifiedResult = await dispatch(isSnapshotModified(currentSnapshotID));
+        if (modifiedResult) {
+          console.log(`ProjectHistory - useEffect - save first and then switch to snapshot`);
+          const title = moment().format('-- YYYY-MM-DD -- HH:mm:ss');
+          const description = `snapshot generated by ${DJANGO_CONTEXT['username']}`;
+          createSnapshot(title, description)
+            .then(newSnapshotId => {
+              const options = {
+                link: {
+                  linkAction: editSnapshot,
+                  linkText: 'Click to edit',
+                  linkParams: [{ id: newSnapshotId, title: title, description: description }]
+                }
+              };
+              dispatch(changeSnapshot(sessionProjectID, transitionToSnapshot.hash, stage));
+              setTryToOpen(false);
+              toastInfo('New snapshot created. Switching to selected snapshot.', options);
+            })
+            .catch(err => {
+              toastError('Error creating new snapshot. Unable to switch to selected snapshot.');
+              console.error(`ProjectHistory - useEffect - createSnapshot - error: ${err}`);
+            });
+        } else if (!modifiedResult) {
+          console.log(`ProjectHistory - useEffect - switch to snapshot`);
+          dispatch(changeSnapshot(sessionProjectID, transitionToSnapshot.hash, stage));
+          setTryToOpen(false);
+        }
+      }
+    };
+    switchSnapshot();
+  }, [
+    createSnapshot,
+    currentSnapshotID,
+    dispatch,
+    editSnapshot,
+    nglViewList,
+    sessionProjectID,
+    stage,
+    toastError,
+    toastInfo,
+    transitionToSnapshot,
+    tryToOpen
+  ]);
 
   const commitFunction = useCallback(
     ({ title, hash, isSelected = false }) => {
@@ -214,7 +301,7 @@ export const ProjectHistory = memo(({ showFullHistory, graphKey, expanded, onExp
   };
 
   const renderTreeNode = (gitgraph, node, parentBranch) => {
-    if (node !== undefined) {
+    if (node && Object.keys(node).length > 0) {
       const newBranch = gitgraph.branch({
         name: node.title,
         from: parentBranch
@@ -243,7 +330,7 @@ export const ProjectHistory = memo(({ showFullHistory, graphKey, expanded, onExp
         );
       });
 
-      node.children.forEach(childID => {
+      node?.children?.forEach(childID => {
         renderTreeNode(gitgraph, currentSnapshotList[childID], newBranch);
       });
     }
@@ -301,7 +388,7 @@ export const ProjectHistory = memo(({ showFullHistory, graphKey, expanded, onExp
         <div className={classes.containerExpanded}>
           <Gitgraph key={graphKey} options={options}>
             {gitgraph => {
-              if (!!currentSnapshotTree) {
+              if (!!currentSnapshotTree && currentSnapshotList) {
                 renderTreeNode(gitgraph, currentSnapshotTree);
               }
             }}

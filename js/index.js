@@ -10,15 +10,11 @@ import { applyMiddleware, createStore } from 'redux';
 import { rootReducer } from './reducers/rootReducer';
 import { saveStore } from './components/helpers/globalStore';
 import thunkMiddleware from 'redux-thunk';
-import trackingMiddleware from './reducers/tracking/trackingMiddleware';
-import nglTrackingMiddleware from './reducers/nglTracking/nglTrackingMiddleware';
 import { composeWithDevTools } from 'redux-devtools-extension';
 
 const middlewareEnhancer = applyMiddleware(
   //loggerMiddleware,
-  thunkMiddleware,
-  trackingMiddleware,
-  nglTrackingMiddleware
+  thunkMiddleware
 );
 const enhancers = [middlewareEnhancer];
 const composedEnhancers = composeWithDevTools(...enhancers);

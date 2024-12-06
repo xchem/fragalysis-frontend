@@ -21,7 +21,6 @@ import { OBJECT_TYPE } from '../../../nglView/constants';
 import { setSortDialogOpen } from '../../molecule/redux/actions';
 import { resetCurrentCompoundsSettings } from '../../compounds/redux/actions';
 import { reloadSession } from '../../../snapshot/redux/dispatchActions';
-import { resetRestoringState } from '../../../../reducers/tracking/dispatchActions';
 import { URLS } from '../../../routes/constants';
 
 export const clearAfterDeselectingMoleculeGroup = ({ molGroupId }) => dispatch => {
@@ -179,7 +178,6 @@ export const restoreFromCurrentSnapshot = ({ nglViewList }) => (dispatch, getSta
 };
 
 export const restoreSnapshotActions = ({ nglViewList, projectId, snapshotId, history }) => (dispatch, getState) => {
-  dispatch(resetRestoringState(nglViewList));
   // Trigger react-router to get rid of snapshot just saved flag
   history.replace(`${URLS.projects}${projectId}/${snapshotId}`);
 };

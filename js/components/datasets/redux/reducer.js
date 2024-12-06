@@ -87,7 +87,20 @@ export const INITIAL_STATE = {
 
   inspirationsDialogOpenedForSelectedCompound: false,
 
-  isSelectedDatasetScrolled: false
+  isSelectedDatasetScrolled: false,
+  //Map of datasetID and its objects which shape is bellow
+  //   Shape of the object in toBeDisplayedList:
+  // {
+  // 	type: 'L|P|C|S|V|RIBBON|etc...',
+  // 	id: 1,
+
+  // 		center: true,
+  // 		withQuality: true,
+  // 		representations: [] etc...
+
+  // 	display: true
+  // }
+  toBeDisplayedList: {}
 };
 
 /**
@@ -119,7 +132,9 @@ const setList = (state, listsName, datasetId, list) => {
 const appendToList = (state, listsName, datasetId, itemId) => {
   const newState = Object.assign({}, state);
 
-  newState[listsName][datasetId] = [...new Set([...newState[listsName][datasetId], itemId])];
+  newState[listsName][datasetId]
+    ? (newState[listsName][datasetId] = [...new Set([...newState[listsName][datasetId], itemId])])
+    : (newState[listsName][datasetId] = [itemId]);
 
   return newState;
 };
@@ -191,6 +206,47 @@ const removeDatasetFromState = (state, datasetId) => {
 
 export const datasetsReducers = (state = INITIAL_STATE, action = {}) => {
   switch (action.type) {
+    case constants.SET_TO_BE_DISPLAYED_LISTS:
+      return { ...state, toBeDisplayedList: action.toBeDisplayedLists };
+    case constants.SET_TO_BE_DISPLAYED_LIST_DATASET: {
+      return setList(state, 'toBeDisplayedList', action.datasetID, action.list);
+    }
+    case constants.APPEND_TO_BE_DISPLAYED_LIST_DATASET: {
+      return {
+        ...state,
+        toBeDisplayedList: {
+          ...state.toBeDisplayedList,
+          [action.datasetID]: [...(state.toBeDisplayedList[action.datasetID] || []), action.item]
+        }
+      };
+    }
+    case constants.REMOVE_FROM_TO_BE_DISPLAYED_LIST_DATASET: {
+      return {
+        ...state,
+        toBeDisplayedList: {
+          ...state.toBeDisplayedList,
+          [action.datasetID]: state.toBeDisplayedList[action.datasetID].filter(
+            i => i.id !== action.item.id || i.type !== action.item.type
+          )
+        }
+      };
+    }
+    case constants.UPDATE_IN_TO_BE_DISPLAYED_LIST_DATASET: {
+      return {
+        ...state,
+        toBeDisplayedList: {
+          ...state.toBeDisplayedList,
+          [action.datasetID]: state.toBeDisplayedList[action.datasetID].map(item => {
+            if (item.id === action.item.id && item.type === action.item.type) {
+              return { ...item, ...action.item };
+            } else {
+              return item;
+            }
+          })
+        }
+      };
+    }
+
     case constants.ADD_DATASET:
       const increasedDatasets = state.datasets.slice();
       increasedDatasets.push(action.payload);

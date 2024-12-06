@@ -12,9 +12,7 @@ import {
   setForceCreateProject,
   setForceProjectCreated,
   setIsLoadingListOfProjects,
-  setCurrentProjectDiscourseLink,
-  setJobLauncherSquonkUrl,
-  setJobList
+  setCurrentProjectDiscourseLink
 } from './actions';
 import { api, METHOD } from '../../../utils/api';
 import { base_url, URLS } from '../../routes/constants';
@@ -22,14 +20,15 @@ import { setDialogCurrentStep } from '../../snapshot/redux/actions';
 import { createInitSnapshotFromCopy, getListOfSnapshots } from '../../snapshot/redux/dispatchActions';
 import { SnapshotType } from './constants';
 import { DJANGO_CONTEXT } from '../../../utils/djangoContext';
-import { sendInitTrackingActionByProjectId } from '../../../reducers/tracking/dispatchActions';
-import { resetTrackingState, setIsSnapshotDirty } from '../../../reducers/tracking/actions';
 import { createProjectPost } from '../../../utils/discourse';
 import { setIsSnapshot, setOpenDiscourseErrorModal } from '../../../reducers/api/actions';
 
 import moment from 'moment';
-import { resetNglTrackingState } from '../../../reducers/nglTracking/dispatchActions';
 import _ from 'lodash';
+import { setEntireState } from '../../../reducers/actions';
+import { loadTargetList } from '../../target/redux/dispatchActions';
+import { setOrientation } from '../../../reducers/ngl/dispatchActions';
+import { deepClone } from '../../../utils/objectUtils';
 
 export const assignSnapshotToProject = ({ projectID, snapshotID, ...rest }) => (dispatch, getState) => {
   dispatch(resetCurrentSnapshot());
@@ -137,41 +136,54 @@ export const removeProject = projectID => dispatch => {
     });
 };
 
-export const loadSnapshotByProjectID = projectID => (dispatch, getState) => {
+export const loadSnapshotByProjectID = projectID => async (dispatch, getState) => {
   const state = getState();
   const isLoadingCurrentSnapshot = state.projectReducers.isLoadingCurrentSnapshot;
   if (isLoadingCurrentSnapshot === false) {
     dispatch(setIsLoadingCurrentSnapshot(true));
     dispatch(setIsSnapshot(true));
-    return api({ url: `${base_url}/api/snapshots/?session_project=${projectID}&type=INIT` })
-      .then(response => {
-        if (response.data.results.length === 0) {
+    return api({ url: `${base_url}/api/session-projects/${projectID}/` }).then(projectResponse => {
+      return api({ url: `${base_url}/api/snapshots/?session_project=${projectID}&type=INIT` })
+        .then(response => {
+          if (response.data.results.length === 0) {
+            dispatch(resetCurrentSnapshot());
+            return Promise.resolve(null);
+          } else if (response.data.results[0] !== undefined) {
+            console.log(`Snapshot from server: ${JSON.stringify(response.data.results[0])}`);
+            dispatch(setEntireState(response.data.results[0].additional_info.snapshotState));
+            dispatch(
+              setCurrentSnapshot({
+                id: response.data.results[0].id,
+                type: response.data.results[0].type,
+                title: response.data.results[0].title,
+                author: response.data.results[0].author,
+                description: response.data.results[0].description,
+                created: response.data.results[0].created,
+                children: response.data.results[0].children,
+                parent: response.data.results[0].parent,
+                data: response.data.results[0].data
+              })
+            );
+            dispatch(
+              setCurrentProject({
+                projectID: projectResponse.data.id,
+                authorID: projectResponse.data.author || null,
+                title: projectResponse.data.title,
+                description: projectResponse.data.description,
+                targetID: projectResponse.data.target.id,
+                tags: JSON.parse(projectResponse.data.tags)
+              })
+            );
+            return Promise.resolve(response.data.results[0].id);
+          }
+        })
+        .catch(error => {
           dispatch(resetCurrentSnapshot());
-          return Promise.resolve(null);
-        } else if (response.data.results[0] !== undefined) {
-          console.log(`Snapshot from server: ${JSON.stringify(response.data.results[0])}`);
-          dispatch(
-            setCurrentSnapshot({
-              id: response.data.results[0].id,
-              type: response.data.results[0].type,
-              title: response.data.results[0].title,
-              author: response.data.results[0].author,
-              description: response.data.results[0].description,
-              created: response.data.results[0].created,
-              children: response.data.results[0].children,
-              parent: response.data.results[0].parent,
-              data: response.data.results[0].data
-            })
-          );
-          return Promise.resolve(response.data.results[0].id);
-        }
-      })
-      .catch(error => {
-        dispatch(resetCurrentSnapshot());
-      })
-      .finally(() => {
-        dispatch(setIsLoadingCurrentSnapshot(false));
-      });
+        })
+        .finally(() => {
+          dispatch(setIsLoadingCurrentSnapshot(false));
+        });
+    });
   }
   return Promise.resolve(false);
 };
@@ -188,6 +200,7 @@ export const loadCurrentSnapshotByID = snapshotID => (dispatch, getState) => {
           dispatch(resetCurrentSnapshot());
           return Promise.resolve(null);
         } else {
+          dispatch(setEntireState(response.data.additional_info.snapshotState));
           dispatch(
             setCurrentSnapshot({
               id: response.data.id,
@@ -201,6 +214,17 @@ export const loadCurrentSnapshotByID = snapshotID => (dispatch, getState) => {
               data: response.data.data
             })
           );
+          dispatch(
+            setCurrentProject({
+              projectID: response.data.session_project.id,
+              authorID: response.data.session_project.author || null,
+              title: response.data.session_project.title,
+              description: response.data.session_project.description,
+              targetID: response.data.session_project.target.id,
+              tags: JSON.parse(response.data.session_project.tags)
+            })
+          );
+          // dispatch(loadTargetListPostStateRestore());
           return Promise.resolve(response.data);
         }
       })
@@ -212,6 +236,13 @@ export const loadCurrentSnapshotByID = snapshotID => (dispatch, getState) => {
       });
   }
   return Promise.resolve(false);
+};
+
+const loadTargetListPostStateRestore = () => (dispatch, getState) => {
+  let onCancel = () => {};
+  dispatch(loadTargetList(onCancel)).catch(error => {
+    throw new Error(error);
+  });
 };
 
 const parseSnapshotAttributes = data => ({
@@ -226,23 +257,27 @@ const parseSnapshotAttributes = data => ({
 });
 
 export const getSnapshotAttributesByID = snapshotID => (dispatch, getState) => {
-  return api({ url: `${base_url}/api/snapshots/${snapshotID}` }).then(async response => {
-    if (response.data && response.data.id !== undefined) {
-      let currentSnapshotList = JSON.parse(JSON.stringify(getState().projectReducers.currentSnapshotList));
-      if (currentSnapshotList === null) {
-        currentSnapshotList = {};
-      }
-      const snapshot = parseSnapshotAttributes(response.data);
-      currentSnapshotList[snapshotID] = snapshot;
-      dispatch(setCurrentSnapshotList(currentSnapshotList));
+  return api({ url: `${base_url}/api/snapshots/${snapshotID}` })
+    .then(async response => {
+      if (response.data && response.data.id !== undefined) {
+        let currentSnapshotList = JSON.parse(JSON.stringify(getState().projectReducers.currentSnapshotList));
+        if (currentSnapshotList === null) {
+          currentSnapshotList = {};
+        }
+        const snapshot = parseSnapshotAttributes(response.data);
+        currentSnapshotList[snapshotID] = snapshot;
+        dispatch(setCurrentSnapshotList(currentSnapshotList));
 
-      if (response.data.children && response.data.children.length > 0) {
-        return dispatch(populateChildren(response.data.children));
-      } else {
-        return Promise.resolve(snapshot);
+        if (response.data.children && response.data.children.length > 0) {
+          return dispatch(populateChildren(response.data.children));
+        } else {
+          return Promise.resolve(snapshot);
+        }
       }
-    }
-  });
+    })
+    .catch(error => {
+      console.log(error);
+    });
 };
 
 const populateChildren = (children = []) => (dispatch, getState) => {
@@ -256,9 +291,7 @@ export const loadSnapshotTree = projectID => (dispatch, getState) => {
   dispatch(setCurrentSnapshotTree(null));
   return api({ url: `${base_url}/api/snapshots/?session_project=${projectID}&type=INIT` })
     .then(response => {
-      if (response.data.count === 0) {
-        return Promise.reject('Not found INITIAL snapshot');
-      } else if (response.data.count === 1) {
+      if (response.data.count > 0) {
         const tree = parseSnapshotAttributes(response.data.results[0]);
         dispatch(setCurrentSnapshotTree(tree));
         return dispatch(populateChildren([tree.id]));
@@ -266,7 +299,7 @@ export const loadSnapshotTree = projectID => (dispatch, getState) => {
     })
     .finally(() => {
       dispatch(setIsLoadingTree(false));
-      dispatch(setIsSnapshotDirty(false));
+      // dispatch(setIsSnapshotDirty(false));
     });
 };
 
@@ -346,8 +379,8 @@ export const createProjectFromSnapshot = ({ title, description, author, tags, hi
   const snapshotData = JSON.parse(selectedSnapshot && selectedSnapshot.data);
 
   dispatch(setProjectModalIsLoading(true));
-  dispatch(resetTrackingState());
-  dispatch(resetNglTrackingState());
+  // dispatch(resetTrackingState());
+  // dispatch(resetNglTrackingState());
   return dispatch(
     createProject({
       title,
@@ -389,88 +422,9 @@ export const createProjectFromSnapshot = ({ title, description, author, tags, hi
   });
 };
 
-export const createProjectFromScratch = ({ title, description, target, author, tags, history, project }) => (
-  dispatch,
-  getState
-) => {
-  dispatch(setProjectModalIsLoading(true));
-  dispatch(resetTrackingState());
-  dispatch(resetNglTrackingState());
-  return api({
-    url: `${base_url}/api/session-projects/`,
-    method: METHOD.POST,
-    data: { title, description, target, author, tags, project }
-  })
-    .then(response => {
-      const projectID = response.data.id;
-      const title = response.data.title;
-      const authorID = response.data.author;
-      const description = response.data.description;
-      const targetID = response.data.target;
-      const tags = response.data.tags;
-
-      dispatch(setCurrentProject({ projectID, authorID, title, description, targetID, tags }));
-
-      let promises = [];
-      promises.push(dispatch(createInitSnapshotToProjectWitActions(projectID, authorID, null, targetID)));
-
-      Promise.all(promises).then(() => {
-        // create project_target relationShip on BE
-        history.push(`${URLS.projects}${projectID}`);
-      });
-    })
-    .finally(() => {
-      dispatch(setProjectModalIsLoading(false));
-    });
-};
-
 export const createProjectWithoutStateModification = data => async () => {
   const response = await api({ url: `${base_url}/api/session-projects/`, method: METHOD.POST, data });
   return response.data.id;
-};
-
-export const createInitSnapshotToProjectWitActions = (session_project, author, parent, target) => (
-  dispatch,
-  getState
-) => {
-  let type = SnapshotType.INIT;
-  const created = moment();
-  const title = 'Initial Snapshot';
-  const description = 'Auto generated initial snapshot';
-
-  return Promise.all([
-    api({ url: `${base_url}/api/snapshots/?session_project=${session_project}&type=INIT` }).then(response => {
-      return api({
-        url: `${base_url}/api/snapshots/`,
-        data: {
-          title,
-          description,
-          type: type,
-          author,
-          parent,
-          session_project,
-          data: '[]',
-          children: []
-        },
-        method: METHOD.POST
-      }).then(res => {
-        dispatch(
-          setCurrentSnapshot({
-            id: res.data.id,
-            type,
-            title,
-            author,
-            description,
-            created,
-            parent,
-            children: res.data.children,
-            data: '[]'
-          })
-        );
-        dispatch(sendInitTrackingActionByProjectId(target));
-      });
-    })
-  ]);
 };
 
 export const jobFileTransfer = data => {

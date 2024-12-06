@@ -28,7 +28,7 @@ export const ProjectHistoryPanel = ({ showFullHistory }) => {
   const [graphKey, setGraphKey] = useState(new Date().getTime());
 
   useEffect(() => {
-    if (currentSnapshotID !== null) {
+    if (currentSnapshotID !== null && projectID && target_on && target_on !== '') {
       dispatch(loadSnapshotTree(projectID));
       dispatch(loadNewDatasetsAndCompounds(target_on));
     }

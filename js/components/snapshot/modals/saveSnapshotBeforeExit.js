@@ -6,7 +6,6 @@ import { useDispatch, useSelector } from 'react-redux';
 import { NglContext } from '../../nglView/nglProvider';
 import { useRouteMatch } from 'react-router-dom';
 import { setIsOpenModalBeforeExit, setOpenSnapshotSavingDialog, setSelectedSnapshotToSwitch } from '../redux/actions';
-import { changeSnapshot } from '../../../reducers/tracking/dispatchActionsSwitchSnapshot';
 import { VIEWS } from '../../../constants/constants';
 
 export const SaveSnapshotBeforeExit = memo(() => {
@@ -28,7 +27,7 @@ export const SaveSnapshotBeforeExit = memo(() => {
   const handleOnNo = async () => {
     const projectID = paramsProjectID && paramsProjectID != null ? paramsProjectID : currentProjectID;
     dispatch(setIsOpenModalBeforeExit(false));
-    await dispatch(changeSnapshot(projectID, snapshotID, nglViewList, stage));
+    // await dispatch(changeSnapshot(projectID, snapshotID, nglViewList, stage));
 
     dispatch(setSelectedSnapshotToSwitch(null));
     dispatch(setIsOpenModalBeforeExit(false));

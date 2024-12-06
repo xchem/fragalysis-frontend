@@ -156,7 +156,7 @@ export const InspirationDialog = memo(
       let rationale = '';
       if (datasetID && inspirationLists.hasOwnProperty(datasetID) && inspirationLists[datasetID][0]) {
         const moleculeID = inspirationLists[datasetID][0];
-        const molecule = moleculeLists[datasetID].find(molecule => molecule.id === moleculeID);
+        const molecule = moleculeLists[datasetID]?.find(molecule => molecule.id === moleculeID);
         if (molecule !== undefined) {
           rationale = molecule.text_scores.hasOwnProperty('rationale') ? molecule.text_scores.rationale : '';
         }
@@ -194,7 +194,7 @@ export const InspirationDialog = memo(
     }, [inspirationMoleculeDataList, searchString]);
 
     const allSelectedMolecules = inspirationMoleculeDataList.filter(
-      molecule => moleculesToEditIds.includes(molecule.id) /* || molForTagEditId.some(mid => molecule.id === mid)*/
+      molecule => moleculesToEditIds.includes(molecule?.id) /* || molForTagEditId.some(mid => molecule.id === mid)*/
     );
 
     // TODO: refactor from this line (duplicity in datasetMoleculeList.js)
@@ -451,6 +451,7 @@ export const InspirationDialog = memo(
               <div className={classes.content}>
                 {moleculeList.length > 0 &&
                   moleculeList.map((molecule, index, array) => {
+                    if (!molecule) return <> </>;
                     let data = molecule;
                     data.isInspiration = true;
                     let previousData = index > 0 && Object.assign({ isInspiration: true }, array[index - 1]);
