@@ -59,10 +59,18 @@ export const getPoses = async targetId => {
   });
 };
 
-export const getTagMolecules = targetId => {
+export const getTagMolecules = async targetId => {
   return api({ url: `${base_url}/api/siteobservation_tag/?target=${targetId}` })
     .then(response => {
       return response.data;
+    })
+    .catch(err => console.log(err));
+};
+
+export const getCompoundIdentifiers = async () => {
+  return api({ url: `${base_url}/api/compound-identifiers/` })
+    .then(response => {
+      return response.data?.results;
     })
     .catch(err => console.log(err));
 };

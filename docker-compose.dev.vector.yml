@@ -104,7 +104,7 @@ services:
       LEGACY_URL: 'https://fragalysis.diamond.ac.uk'
       DEPLOYMENT_MODE: 'development'
       DISABLE_RESTRICT_PROPOSALS_TO_MEMBERSHIP: 'True'
-      PUBLIC_TAS: 'lb18145-1'
+      PUBLIC_TAS: 'lb18145-1,lb32633-1'
       # INFECTIONS: 'structure-download'
     depends_on:
       database:

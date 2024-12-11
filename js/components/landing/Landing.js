@@ -15,6 +15,8 @@ import { withLoadingProjects } from '../target/withLoadingProjects';
 import { ToastContext } from '../toast';
 import { EditTargetDialog } from '../target/editTargetDialog';
 import { TOAST_LEVELS } from '../toast/constants';
+import { TargetSettingsModal } from '../target/targetSettingsModal';
+import { setEditTargetDialogOpen } from '../target/redux/actions';
 
 const useStyles = makeStyles(theme => ({
   root: {
@@ -40,6 +42,12 @@ const Landing = memo(
       DJANGO_CONTEXT['username'] === 'NOT_LOGGED_IN' ? '' : "You're logged in as " + DJANGO_CONTEXT['username']
     );
     const toastMessages = useSelector(state => state.selectionReducers.toastMessages);
+    const isEditTargetDialogOpen = useSelector(state => state.targetReducers.isEditTargetDialogOpen);
+
+    const onModalClose = () => {
+      dispatch(setEditTargetDialogOpen(false));
+      dispatch(selectionActions.setTargetToEdit(null));
+    };
 
     useEffect(() => {
       if (toastMessages?.length > 0) {
@@ -142,7 +150,7 @@ const Landing = memo(
             <Projects />
           </Grid>
         </Grid>
-        <EditTargetDialog />
+        <TargetSettingsModal openModal={isEditTargetDialogOpen} onModalClose={onModalClose} isTargetOn={false} />
       </>
     );
   }

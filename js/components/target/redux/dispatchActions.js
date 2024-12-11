@@ -58,7 +58,10 @@ export const loadProjectsList = () => async (dispatch, getState) => {
   return resp.data.results;
 };
 
-export const updateTarget = ({ target, setIsLoading, targetIdList, projectId }) => (dispatch, getState) => {
+export const updateTarget = ({ targetName, projectName, setIsLoading, targetIdList, projectId }) => (
+  dispatch,
+  getState
+) => {
   const state = getState();
   const isActionRestoring = false; //state.trackingReducers.isActionRestoring;
   const currentSessionProject = state.projectReducers.currentProject;
@@ -68,11 +71,13 @@ export const updateTarget = ({ target, setIsLoading, targetIdList, projectId }) 
   // Get from the REST API
   let targetUnrecognisedFlag = true;
   // if (target !== undefined) {
-  if (target) {
+  let target = null;
+  if (targetName) {
     if (targetIdList && targetIdList.length > 0) {
-      targetIdList.forEach(targetId => {
-        if (target === targetId.title) {
+      targetIdList.forEach(t => {
+        if (targetName === t.title && t.project.target_access_string === projectName) {
           targetUnrecognisedFlag = false;
+          target = t;
         }
       });
     }
@@ -86,7 +91,7 @@ export const updateTarget = ({ target, setIsLoading, targetIdList, projectId }) 
     setIsLoading(true);
     let url = undefined;
     if (target) {
-      url = `${base_url}/api/targets/?title=${target}`;
+      url = `${base_url}/api/targets/?id=${target.id}`;
       return api({ url })
         .then(response => {
           return dispatch(setTargetOn(response.data['results'][0].id));
@@ -163,9 +168,7 @@ export const getTargetProjectCombinations = (targets, projects) => {
           updatedTarget.project = project;
           result.push({ updatedTarget });
         } else {
-          console.log(
-            `User don't have access to project ${projectId} which is associated with target ${target.title}`
-          );
+          console.log(`User don't have access to project ${projectId} which is associated with target ${target.title}`);
         }
       } else {
         result.push({ updatedTarget: { ...target, project: { target_access_string: 'Legacy' } } });

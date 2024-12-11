@@ -296,7 +296,8 @@ const setDensity = (
       id: data.id,
       display: true,
       representations: representations,
-      isWireframeStyle: isWireframeStyle
+      isWireframeStyle: isWireframeStyle,
+      densityData: data.proteinData
     })
   );
 };
@@ -376,7 +377,8 @@ const setDensityCustom = (
       id: data.id,
       display: true,
       representations: representations,
-      isWireframeStyle: isWireframeStyle
+      isWireframeStyle: isWireframeStyle,
+      densityData: data.proteinData
     })
   );
 };

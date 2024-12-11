@@ -24,6 +24,7 @@ export const INITIAL_STATE = {
   mol_group_on: undefined,
   target_on: undefined,
   target_on_name: undefined,
+  target_on_aliases: [],
   group_id: undefined,
   isFetching: false,
   app_on: 'PREVIEW',
@@ -58,7 +59,8 @@ export const INITIAL_STATE = {
   rhsDataIsLoading: false,
   rhsDataIsLoaded: false,
   proteinIsLoading: false,
-  proteinIsLoaded: false
+  proteinIsLoaded: false,
+  compound_identifiers: []
 };
 
 export const RESET_TARGET_STATE = {
@@ -74,6 +76,7 @@ export const RESET_TARGET_STATE = {
   mol_group_on: undefined,
   target_on: undefined,
   target_on_name: undefined,
+  target_on_aliases: [],
   group_id: undefined,
   isFetching: false,
   app_on: 'PREVIEW',
@@ -100,7 +103,8 @@ export const RESET_TARGET_STATE = {
   target_data_loading_in_progress: false,
   all_data_loaded: false,
   snapshotLoadingInProgress: false,
-  lhs_compounds_list: []
+  lhs_compounds_list: [],
+  compound_identifiers: []
 };
 
 export default function apiReducers(state = INITIAL_STATE, action = {}) {
@@ -123,6 +127,9 @@ export default function apiReducers(state = INITIAL_STATE, action = {}) {
     case constants.SET_PROTEIN_IS_LOADED:
       return { ...state, proteinIsLoaded: action.proteinIsLoaded };
 
+    case constants.SET_COMPOUND_IDENTIFIERS:
+      return { ...state, compound_identifiers: action.compound_identifiers };
+
     case constants.SET_OPEN_DISCOURSE_ERROR_MODAL:
       return Object.assign({}, state, { open_discourse_error_modal: action.payload });
 
@@ -142,16 +149,25 @@ export default function apiReducers(state = INITIAL_STATE, action = {}) {
 
     case constants.SET_TARGET_ON: {
       let target_on_name = undefined;
+      let target_on_aliases = [];
       for (let ind in state.target_id_list) {
         if (state.target_id_list[ind].id === action.target_on) {
-          target_on_name = state.target_id_list[ind].title;
+          target_on_name = state.target_id_list[ind].display_name;
+          target_on_aliases = state.target_id_list[ind].alias_order;
         }
       }
       return Object.assign({}, state, {
         target_on_name: target_on_name,
+        target_on_aliases: target_on_aliases,
         target_on: action.target_on
       });
     }
+
+    case constants.SET_TARGET_ON_NAME:
+      return { ...state, target_on_name: action.target_on_name };
+
+    case constants.SET_TARGET_ON_ALIASES:
+      return { ...state, target_on_aliases: action.target_on_aliases };
 
     case constants.SET_MOL_GROUP_LIST:
       return Object.assign({}, state, {
@@ -378,6 +394,7 @@ export default function apiReducers(state = INITIAL_STATE, action = {}) {
     case constants.RELOAD_API_STATE:
       return Object.assign({}, state, {
         project: action.project,
+        target_on_aliases: action.target_on_aliases,
         target_on_name: action.target_on_name,
         target_on: action.target_on,
         target_id: action.target_id,
@@ -396,7 +413,8 @@ export default function apiReducers(state = INITIAL_STATE, action = {}) {
         pandda_event_list: action.pandda_event_list,
         pandda_site_list: action.pandda_site_list,
         latestSession: action.latestSession,
-        direct_access: action.direct_access
+        direct_access: action.direct_access,
+        compound_identifiers: action.compound_identifiers
         // direct_access_processed: action.direct_access_processed
       });
 

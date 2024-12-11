@@ -3,7 +3,7 @@ import { connect, useSelector } from 'react-redux';
 import HandleUnrecognisedTarget from './handleUnrecognisedTarget';
 import { updateTarget, setTargetUUIDs, resetTargetAndSelection } from './redux/dispatchActions';
 import { useRouteMatch } from 'react-router-dom';
-import { extractTargetFromURLParam } from '../preview/utils';
+import { extractProjectFromURLParam, extractTargetFromURLParam } from '../preview/utils';
 import { LoadingContext } from '../loading';
 
 export const withUpdatingTarget = WrappedContainer => {
@@ -12,7 +12,8 @@ export const withUpdatingTarget = WrappedContainer => {
       let match = useRouteMatch();
 
       // const target = match && match.params && match.params.target;
-      let target = match && match.params && extractTargetFromURLParam(match.params[0]);
+      let targetName = match && match.params && extractTargetFromURLParam(match.params[0]);
+      const projectName = match && match.params && extractProjectFromURLParam(match.params[0]);
       const uuid = match && match.params && match.params.uuid;
       const snapshotUuid = match && match.params && match.params.snapshotUuid;
       const snapshotId = match && match.params && match.params.snapshotId;
@@ -30,12 +31,12 @@ export const withUpdatingTarget = WrappedContainer => {
       }, [setTargetUUIDs, snapshotUuid, uuid]);
 
       useEffect(() => {
-        updateTarget({ target, setIsLoading, targetIdList, projectId }).catch(error => {
+        updateTarget({ targetName, projectName, setIsLoading, targetIdList, projectId }).catch(error => {
           setState(() => {
             throw error;
           });
         });
-      }, [setIsLoading, target, updateTarget, targetIdList, projectId, snapshotId /*, isActionRestoring*/]);
+      }, [setIsLoading, targetName, updateTarget, targetIdList, projectId, snapshotId, projectName]);
 
       if (isLoading === true) {
         return null;

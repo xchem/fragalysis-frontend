@@ -16,3 +16,9 @@ export const getCombinedTargetList = state => {
 
   return result;
 };
+export const getCurrentTarget = state => {
+  const target_on = state.apiReducers.target_on;
+  const targets = state.apiReducers.target_id_list;
+
+  return targets?.find(target => target.id === target_on);
+};

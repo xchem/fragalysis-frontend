@@ -380,6 +380,10 @@ const useStyles = makeStyles(theme => ({
     cursor: 'pointer',
     marginRight: 5,
     position: 'right'
+  },
+  tooltipRow: {
+    marginTop: 2,
+    marginBottom: 2
   }
 }));
 
@@ -523,6 +527,8 @@ const ObservationCmpView = memo(
       const densityListCustom = useSelector(state => state.selectionReducers.densityListCustom);
       const qualityList = useSelector(state => state.selectionReducers.qualityList);
       const vectorOnList = useSelector(state => state.selectionReducers.vectorOnList);
+      // const currentTarget = useSelector(state => getCurrentTarget(state));
+      const aliasOrder = useSelector(state => state.apiReducers.target_on_aliases);
 
       const isLigandOn = isAtLeastOneObservationOnInList(fragmentDisplayList);
       const isProteinOn = isAtLeastOneObservationOnInList(proteinList);
@@ -1278,6 +1284,59 @@ const ObservationCmpView = memo(
 
       const groupMoleculeLPCControlButtonDisabled = disableL || disableP || disableC;
 
+      const getDisplayName = useCallback(() => {
+        const mainObservation = getMainObservation();
+        let displayName = '';
+        const defaultName = mainObservation?.compound_code;
+
+        if (aliasOrder) {
+          for (let index = 0; index < aliasOrder.length; index++) {
+            const preferredIdentifierType = aliasOrder[index];
+            if (preferredIdentifierType === 'compound_code') {
+              displayName = defaultName;
+              break;
+            } else {
+              // id: 81
+              // compound: 34
+              // name: "nonsense-34"
+              // type: "nonsense_id"
+              // url: null
+              const searchedIdentifier = mainObservation.identifiers.find(identifier => identifier.type === preferredIdentifierType);
+              if (searchedIdentifier) {
+                displayName = searchedIdentifier.name;
+                break;
+              }
+            }
+          }
+        }
+        if (!displayName) {
+          displayName = defaultName;
+        }
+
+        return displayName;
+      }, [aliasOrder, getMainObservation]);
+
+      const getDisplayNameTooltip = useCallback(() => {
+        const mainObservation = getMainObservation();
+        const tooltip = <>
+          <p className={classes.tooltipRow}>{mainObservation?.prefix_tooltip ?? '-'}</p>
+          {aliasOrder?.map((alias, index) => {
+            if (alias === 'compound_code') {
+              return <p key={index} className={classes.tooltipRow}>{`${alias}: ${mainObservation?.compound_code}`}</p>;
+              // return <><br></br>{`${alias}: ${mainObservation?.compound_code}`}</>;
+            } else {
+              const searchedIdentifier = mainObservation.identifiers.find(identifier => identifier.type === alias);
+              if (searchedIdentifier) {
+                return <p key={index} className={classes.tooltipRow}>{`${alias}: ${searchedIdentifier.name}`}</p>;
+                // return <><br></br>{`${alias}: ${searchedIdentifier.name}`}</>;
+              }
+            }
+          })}
+        </>;
+
+        return tooltip;
+      }, [aliasOrder, getMainObservation, classes.tooltipRow]);
+
       return (
         <>
           <Grid
@@ -1328,7 +1387,7 @@ const ObservationCmpView = memo(
             </Grid>
             <Grid item container className={classes.detailsCol} justifyContent="space-evenly" direction="column" xs={2}>
               {/* Title label */}
-              <Tooltip title={getMainObservation()?.prefix_tooltip ?? '-'} placement="bottom-start">
+              <Tooltip title={getDisplayNameTooltip()} placement="bottom-start">
                 <Grid
                   item
                   onCopy={e => {
@@ -1341,7 +1400,7 @@ const ObservationCmpView = memo(
                     {getMainObservation()?.code.replaceAll(`${target_on_name}-`, '')}
                   </span>
                   <br />
-                  {data?.main_site_observation_cmpd_code}
+                  {getDisplayName()}
                 </Grid>
               </Tooltip>
               {/* "Filtered"/calculated props

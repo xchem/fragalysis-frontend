@@ -72,7 +72,8 @@ import { AddProjectDetail } from '../projects/addProjectDetail';
 import { ServicesStatusWrapper } from '../services';
 import { COMPANIES, get_logo } from '../funders/constants';
 import { setEditTargetDialogOpen } from '../target/redux/actions';
-import { Upload } from '@mui/icons-material';
+import { Settings, Upload } from '@mui/icons-material';
+import { TargetSettingsModal } from '../target/targetSettingsModal';
 import { SnapshotType } from '../projects/redux/constants';
 import { NglContext } from '../nglView/nglProvider';
 import { VIEWS } from '../../constants/constants';
@@ -134,7 +135,7 @@ export default memo(
 
     const [openMenu, setOpenMenu] = useState(false);
     const [openFunders, setOpenFunders] = useState(false);
-    const [openTrackingModal, setOpenTrackingModal] = useState(false);
+    const [openTargetSettings, setOpenTargetSettings] = useState(false);
     const [versions, setVersions] = useState({});
 
     const layoutEnabled = useSelector(state => state.layoutReducers.layoutEnabled);
@@ -310,14 +311,13 @@ export default memo(
                 >
                   Menu
                 </Button>
-                <Button>
+                <Button
+                  onClick={() => setOpenTargetSettings(true)}
+                  disabled={!targetName || !DJANGO_CONTEXT.pk}
+                >
                   <Typography
                     variant="h5"
                     color="textPrimary"
-                    onClick={() => {
-                      history.push(URLS.landing);
-                      window.location.reload();
-                    }}
                   >
                     Fragalysis: <b id={'headerNavbarTitle'}>{headerNavbarTitle}</b>
                   </Typography>
@@ -326,8 +326,8 @@ export default memo(
                   targetName !== undefined ? (
                     <>
                       {currentProject.authorID === null ||
-                      currentProject.projectID === null ||
-                      currentProject.authorID === userId ? (
+                        currentProject.projectID === null ||
+                        currentProject.authorID === userId ? (
                         <Button
                           onClick={() => {
                             if (!isProjectModalLoading) {
@@ -582,6 +582,7 @@ export default memo(
           </Grid>
         </AppBar>
         <FundersModal openModal={openFunders} onModalClose={() => setOpenFunders(false)} />
+        <TargetSettingsModal openModal={openTargetSettings} onModalClose={() => setOpenTargetSettings(false)} />
         <DiscourseErrorModal openModal={openDiscourseError} />
         <Drawer
           anchor="left"
@@ -651,7 +652,18 @@ export default memo(
                 </ListItemIcon>
                 <ListItemText primary="Contributors" />
               </ListItem>
-              {DJANGO_CONTEXT.pk && (
+              {DJANGO_CONTEXT.pk && !!targetName &&
+                <>
+                  <Divider />
+                  <ListItem button onClick={() => setOpenTargetSettings(true)}>
+                    <ListItemIcon>
+                      <Settings />
+                    </ListItemIcon>
+                    <ListItemText primary="Target settings" />
+                  </ListItem>
+                </>
+              }
+              {DJANGO_CONTEXT.pk &&
                 <>
                   <Divider />
                   <ListItem button onClick={() => openLink(URLS.lhsUpload)}>
@@ -673,7 +685,7 @@ export default memo(
                     <ListItemText primary="Metadata upload" />
                   </ListItem>
                 </>
-              )}
+              }
               <Divider />
               {authListItem}
             </Grid>
@@ -691,7 +703,7 @@ export default memo(
           </Grid>
         </Drawer>
         <Box paddingTop={`${headerHeight}px`} width="100%" />
-      </ComputeSize>
+      </ComputeSize >
     );
   })
 );

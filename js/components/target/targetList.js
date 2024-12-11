@@ -319,7 +319,7 @@ export const TargetList = memo(() => {
     const discourseAvailable = isDiscourseAvailable();
     // const [discourseUrl, setDiscourseUrl] = useState();
     return (
-      <TableRow hover key={target.isLegacy ? target.title + 'Legacy' : target.title}>
+      <TableRow hover key={target.isLegacy ? target.title + 'Legacy' : `${target.id}-${target.title}`}>
         {/*<Tooltip title={`${target.id}`}>
         <TableCell
           component="th"
@@ -350,17 +350,6 @@ export const TargetList = memo(() => {
           ) : (
             <>
               <Link to={preview}>{target.display_name}</Link>
-              {showEditIconForTarget === target.id && (
-                <IconButton
-                  style={{ padding: '0px' }}
-                  onClick={() => {
-                    dispatch(setTargetToEdit(target));
-                    dispatch(setEditTargetDialogOpen(true));
-                  }}
-                >
-                  <Edit style={{ height: '15px' }} />
-                </IconButton>
-              )}
             </>
           )}
         </TableCell>
@@ -373,6 +362,18 @@ export const TargetList = memo(() => {
           {moment(target.project.init_date).format('YYYY-MM-DD')}
         </TableCell>
         <TableCell style={{ width: '2px', padding: '0px', margin: '0px' }}></TableCell>
+        {DJANGO_CONTEXT['authenticated'] && !target.isLegacy && <TableCell style={{ width: '2px', padding: '0px', margin: '0px' }}>
+          {/* {showEditIconForTarget === target.id && ( */}
+          <IconButton
+            style={{ padding: '0px' }}
+            onClick={() => {
+              dispatch(setTargetToEdit(target));
+              dispatch(setEditTargetDialogOpen(true));
+            }}
+          >
+            <Edit style={{ height: '15px' }} />
+          </IconButton>
+        </TableCell>}
         {/* <TableCell align="left" style={{ padding: '0px', margin: '0px' }}>
           {sgcUploaded.includes(target.title) && (
             <a href={sgcUrl} target="new">
@@ -1336,6 +1337,12 @@ export const TargetList = memo(() => {
                   onMouseDown={handleMouseDownResizerInitDate}
                 ></div>
               </div>
+              {DJANGO_CONTEXT['authenticated'] &&
+                <TableCell
+                  style={{ width: 50, padding: '0px', paddingLeft: '5px', verticalAlign: 'center' }}
+                >
+                  Edit
+                </TableCell>}
               {/* <TableCell
                 style={{ width: panelWidthForSGC, padding: '0px', paddingLeft: '5px', verticalAlign: 'center' }}
               >

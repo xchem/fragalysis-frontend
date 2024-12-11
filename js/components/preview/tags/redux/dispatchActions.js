@@ -28,7 +28,8 @@ import {
   setTargetDataLoadingInProgress,
   setAllDataLoaded,
   setMoleculeTags,
-  setLHSCompoundsLIst
+  setLHSCompoundsLIst,
+  setCompoundIdentifiers
 } from '../../../../reducers/api/actions';
 import { setSortDialogOpen } from '../../molecule/redux/actions';
 import { resetCurrentCompoundsSettings } from '../../compounds/redux/actions';
@@ -40,7 +41,8 @@ import {
   getCompoundsLHS,
   getCanonSites,
   getCanonConformSites,
-  getPoses
+  getPoses,
+  getCompoundIdentifiers
 } from '../api/tagsApi';
 import {
   getMoleculeTagForTag,
@@ -195,6 +197,7 @@ const getTagsForMol = (molId, tagList) => {
 export const loadMoleculesAndTagsNew = targetId => async (dispatch, getState) => {
   // console.log(`snapshotDebug - loadMoleculesAndTagsNew - before getTags`);
   let tags = await getTags(targetId);
+  let compoundIdentifiers = await getCompoundIdentifiers();
   // console.log(`snapshotDebug - loadMoleculesAndTagsNew - after getTags`);
   tags = tags.results;
   if (tags?.length > 0) {
@@ -227,6 +230,7 @@ export const loadMoleculesAndTagsNew = targetId => async (dispatch, getState) =>
     maps.event_info = mol.event_file;
     maps.sigmaa_info = mol.sigmaa_file;
     newObject['proteinData'] = maps;
+    newObject.identifiers = compoundIdentifiers.filter(identifier => identifier.compound === newObject.cmpd);
 
     allMolecules.push(newObject);
   });
@@ -247,6 +251,7 @@ export const loadMoleculesAndTagsNew = targetId => async (dispatch, getState) =>
   tags = tags.sort(compareTagsAsc);
   dispatch(setMoleculeTags(tags));
   dispatch(setTagSelectorData(tagCategories, tags));
+  dispatch(setCompoundIdentifiers(compoundIdentifiers));
   dispatch(setAllDataLoaded(true));
 
   // console.log(`snapshotDebug - loadMoleculesAndTagsNew - before getPoses`);

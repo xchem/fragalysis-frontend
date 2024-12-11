@@ -43,6 +43,20 @@ export const setTargetOn = function (target_id, skipTracking = false) {
   };
 };
 
+export const setTargetOnName = function (target_on_name) {
+  return {
+    type: constants.SET_TARGET_ON_NAME,
+    target_on_name: target_on_name
+  };
+};
+
+export const setTargetOnAliases = function (target_on_aliases) {
+  return {
+    type: constants.SET_TARGET_ON_ALIASES,
+    target_on_aliases: target_on_aliases
+  };
+};
+
 export const setPanddaSiteList = function (pandda_site_list) {
   return {
     type: constants.SET_PANNDA_SITE_LIST,
@@ -314,6 +328,7 @@ export const reloadApiState = function (apiReducers) {
 
   return {
     type: constants.RELOAD_API_STATE,
+    target_on_aliases: apiReducers.target_on_aliases,
     target_on_name: apiReducers.target_on_name,
     target_on: apiReducers.target_on,
     target_id: apiReducers.target_id,
@@ -332,7 +347,8 @@ export const reloadApiState = function (apiReducers) {
     pandda_event_on: apiReducers.pandda_event_on,
     pandda_site_on: apiReducers.pandda_site_on,
     pandda_event_list: apiReducers.pandda_event_list,
-    pandda_site_list: apiReducers.pandda_site_list
+    pandda_site_list: apiReducers.pandda_site_list,
+    compound_identifiers: apiReducers.compound_identifiers
   };
 };
 
@@ -434,5 +450,12 @@ export const setProteinIsLoaded = proteinIsLoaded => {
   return {
     type: constants.SET_PROTEIN_IS_LOADED,
     proteinIsLoaded: proteinIsLoaded
+  };
+};
+
+export const setCompoundIdentifiers = compoundIdentifiers => {
+  return {
+    type: constants.SET_COMPOUND_IDENTIFIERS,
+    compound_identifiers: compoundIdentifiers
   };
 };
