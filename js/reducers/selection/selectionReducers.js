@@ -73,8 +73,8 @@ export const INITIAL_STATE = {
   searchSettings: {
     searchBy: {
       shortcode: true,
-      aliases: false,
-      compoundId: false
+      aliases: true,
+      compoundId: true
     }
   }
 };

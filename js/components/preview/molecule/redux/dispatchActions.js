@@ -503,8 +503,9 @@ export const initializeMolecules = majorView => (dispatch, getState) => {
     const state = getState();
     const noTagsReceived = state.apiReducers.noTagsReceived;
     const isSnapshot = state.apiReducers.isSnapshot;
+    const isDirectDisplay = Object.keys(state.apiReducers.direct_access || {})?.length > 0;
 
-    if (!isSnapshot) {
+    if (!isSnapshot && !isDirectDisplay) {
       const firstTag = dispatch(getFirstTagAlphabetically());
       let firstMolecule = null;
       if (firstTag) {
@@ -884,15 +885,11 @@ export const applyDirectSelection = stage => (dispatch, getState) => {
   if (!directAccessProcessed && directDisplay && directDisplay.molecules && directDisplay.molecules.length > 0) {
     const allMols = state.apiReducers.all_mol_lists;
     directDisplay.molecules.forEach(m => {
-      let directProteinNameModded = m.name.toLowerCase();
-      let directProteinCodeModded = `${directDisplay.target.toLowerCase()}-${directProteinNameModded}`;
-      for (let molIndex = 0; molIndex < allMols.length; molIndex++) {
-        let molList = allMols;
-        let mol = molList[molIndex];
-        let proteinCodeModded = mol.code.toLowerCase();
-        if (
-          m.exact ? proteinCodeModded === directProteinCodeModded : proteinCodeModded.includes(directProteinNameModded)
-        ) {
+      // let directProteinNameModded = m.name.toLowerCase();
+      // let directProteinCodeModded = `${directDisplay.target.toLowerCase()}-${directProteinNameModded}`;
+      const foundMols = dispatch(searchForObservations(m.name, allMols, m.searchSettings, m.exact));
+      foundMols?.forEach(mol => {
+        if (mol) {
           if (m.L && !fragmentDisplayList.includes(mol.id)) {
             dispatch(addLigand(stage, mol, colourList[mol.id % colourList.length], true));
           }
@@ -909,7 +906,7 @@ export const applyDirectSelection = stage => (dispatch, getState) => {
             dispatch(addVector(stage, mol, colourList[mol.id % colourList.length]));
           }
         }
-      }
+      });
     });
     // dispatch(setDirectAccess({}));
     dispatch(setDirectAccessProcessed(true));
@@ -1217,18 +1214,33 @@ export const createPose = newPose => async (dispatch, getState) => {
 };
 
 const observationSearchFunctions = {
-  shortcode: (obs, searchTerm) => {
-    return obs.code?.toLowerCase().includes(searchTerm.toLowerCase());
+  shortcode: (obs, searchTerm, exact = false) => {
+    if (exact) {
+      return obs?.code && obs.code.toLowerCase() === searchTerm.toLowerCase();
+    } else {
+      return obs?.code?.toLowerCase().includes(searchTerm.toLowerCase());
+    }
   },
-  aliases: (obs, searchTerm) => {
-    return obs.identifiers?.some(idf => idf.name.toLowerCase().includes(searchTerm.toLowerCase()));
+  aliases: (obs, searchTerm, exact = false) => {
+    if (exact) {
+      return obs?.identifiers?.some(idf => idf.name.toLowerCase() === searchTerm.toLowerCase());
+    } else {
+      return obs?.identifiers?.some(idf => idf.name.toLowerCase().includes(searchTerm.toLowerCase()));
+    }
   },
-  compoundId: (obs, searchTerm) => {
-    return obs.compound_code?.toLowerCase().includes(searchTerm.toLowerCase());
+  compoundId: (obs, searchTerm, exact = false) => {
+    if (exact) {
+      return obs?.compound_code && obs.compound_code.toLowerCase() === searchTerm.toLowerCase();
+    } else {
+      return obs?.compound_code?.toLowerCase().includes(searchTerm.toLowerCase());
+    }
   }
 };
 
-export const searchForObservations = (searchTerm, observations, searchSettings) => (dispatch, getState) => {
+export const searchForObservations = (searchTerm, observations, searchSettings, exact = false) => (
+  dispatch,
+  getState
+) => {
   if (!observations || observations.length === 0) return [];
   if (!searchTerm) return observations;
 

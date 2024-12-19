@@ -354,5 +354,5 @@ const Preview = memo(({ isStateLoaded, hideProjects, isSnapshot = false }) => {
 });
 
 export default withLoadingJobSpecs(
-  withSnapshotManagement(withUpdatingTarget(withLoadingProtein(withLoadingProjects(Preview))))
+  withLoadingProjects(withSnapshotManagement(withUpdatingTarget(withLoadingProtein(Preview))))
 );
