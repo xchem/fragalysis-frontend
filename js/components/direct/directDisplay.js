@@ -34,7 +34,11 @@ export const DirectDisplay = memo(props => {
   useEffect(() => {
     // example url http://127.0.0.1:8080/viewer/react/preview/direct/target/MID2A/tas/lb00000/mols/X0301_0A/L/P/S/X0393_0B/L/P
     // example url with 'exact' https://fragalysis-tibor-default.xchem-dev.diamond.ac.uk/viewer/react/preview/direct/target/NUDT7A_CRUDE/mols/NUDT7A_CRUDE-X0156_1/exact/L/P
-    // based on the issues #431, #448, #447
+    // in two cases above we are searching for molecules using shortcode
+    // Now the search term is looked up in the `shortcode`, `compound ID` and all of the `aliases` (I can change this pretty quickly)
+    // `http://127.0.0.1:8080/viewer/react/preview/direct/target/A71EV2A/tas/lb18145-1/compound/7516/L/S/nonsense-45/L/P/exact/Z4/L/C/A0853a/L/P`
+    // URL above shows `L` and `S` for observation which contains substring `7516`, `L` and `P` for observation which exactly has string `nonsense-45` as a shortcode,
+    // compound ID or one of the aliases, `L` and `C` for all observations which contain substring `Z4`, and `L` and `P` for observations which contains substring `A0853a`
     const param = match.params[0];
     if (!directAccessProcessed && param && param.startsWith(URL_TOKENS.target)) {
       let withoutKeyword = param.split(URL_TOKENS.target);
@@ -63,7 +67,13 @@ export const DirectDisplay = memo(props => {
               }
             }
           }
-          if (rest && rest.length > 1 && rest[0] === URL_TOKENS.molecules) {
+          if (rest && rest.length > 1 && (rest[0] === URL_TOKENS.molecules || rest[0] === URL_TOKENS.compound)) {
+            let searchSettings = { searchBy: {} };
+            if (rest[0] === URL_TOKENS.molecules) {
+              searchSettings = { searchBy: { shortcode: true, aliases: false, compoundId: false } };
+            } else if (rest[0] === URL_TOKENS.compound) {
+              searchSettings = { searchBy: { shortcode: true, aliases: true, compoundId: true } };
+            }
             rest = rest.slice(1);
             let i;
             let currentMolecule;
@@ -105,7 +115,8 @@ export const DirectDisplay = memo(props => {
                           C: false,
                           S: false,
                           V: false,
-                          exact: false
+                          exact: false,
+                          searchSettings: searchSettings
                         };
                         molecules.push(currentMolecule);
                       }
@@ -119,7 +130,8 @@ export const DirectDisplay = memo(props => {
                     C: false,
                     S: false,
                     V: false,
-                    exact: false
+                    exact: false,
+                    searchSettings: searchSettings
                   };
                   molecules.push(currentMolecule);
                 }

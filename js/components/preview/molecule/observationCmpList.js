@@ -49,7 +49,8 @@ import {
   removeSelectedTypesInHitNavigator,
   selectAllHits,
   autoHideTagEditorDialogsOnScroll,
-  selectAllVisibleObservations
+  selectAllVisibleObservations,
+  searchForObservations
 } from './redux/dispatchActions';
 import { DEFAULT_FILTER, PREDEFINED_FILTERS } from '../../../reducers/selection/constants';
 import { Edit, FilterList } from '@material-ui/icons';
@@ -64,7 +65,8 @@ import {
   setOpenObservationsDialog,
   setLHSCompoundsInitialized,
   setPoseIdForObservationsDialog,
-  setObservationDialogAction
+  setObservationDialogAction,
+  setSearchSettingsDialogOpen
 } from '../../../reducers/selection/actions';
 import { initializeFilter } from '../../../reducers/selection/dispatchActions';
 import * as listType from '../../../constants/listTypes';
@@ -88,6 +90,7 @@ import { DJANGO_CONTEXT } from '../../../utils/djangoContext';
 import ObservationCmpView from './observationCmpView';
 import { ObservationsDialog } from './observationsDialog';
 import { useScrollToSelectedPose } from './useScrollToSelectedPose';
+import { SearchSettingsDialog } from './searchSettingsDialog';
 
 const useStyles = makeStyles(theme => ({
   container: {
@@ -277,7 +280,6 @@ export const ObservationCmpList = memo(({ hideProjects }) => {
   const moleculesPerPage = 30;
   const [currentPage, setCurrentPage] = useState(0);
   const searchString = useSelector(state => state.previewReducers.molecule.searchStringLHS);
-  // const [searchString, setSearchString] = useState(null);
   const [sortDialogAnchorEl, setSortDialogAnchorEl] = useState(null);
   const oldUrl = useRef('');
   const setOldUrl = url => {
@@ -326,6 +328,9 @@ export const ObservationCmpList = memo(({ hideProjects }) => {
   const visibleObservations = useSelector(state => selectJoinedMoleculeList(state));
 
   const proteinsHasLoaded = useSelector(state => state.nglReducers.proteinsHasLoaded);
+
+  const searchSettingsDialogOpen = useSelector(state => state.selectionReducers.searchSettingsDialogOpen);
+  const searchSettings = useSelector(state => state.selectionReducers.searchSettings);
 
   const [predefinedFilter, setPredefinedFilter] = useState(filter !== undefined ? filter.predefined : DEFAULT_FILTER);
 
@@ -467,17 +472,12 @@ export const ObservationCmpList = memo(({ hideProjects }) => {
     }, [object_selection]);*/
 
   let joinedMoleculeLists = useMemo(() => {
-    // const searchedString = currentActionList.find(action => action.type === 'SEARCH_STRING_HIT_NAVIGATOR');
     if (searchString) {
-      return allMoleculesList.filter(molecule => molecule.code.toLowerCase().includes(searchString.toLowerCase()));
-      // } else if (searchedString) {
-      //   return getJoinedMoleculeList.filter(molecule =>
-      //     molecule.protein_code.toLowerCase().includes(searchedString.searchStringHitNavigator.toLowerCase())
-      //   );
+      return dispatch(searchForObservations(searchString, allMoleculesList, searchSettings));
     } else {
       return getJoinedMoleculeList;
     }
-  }, [getJoinedMoleculeList, allMoleculesList, searchString]);
+  }, [searchString, dispatch, allMoleculesList, getJoinedMoleculeList, searchSettings]);
 
   const addSelectedMoleculesFromUnselectedSites = useCallback(
     (joinedMoleculeLists, list) => {
@@ -1014,6 +1014,10 @@ export const ObservationCmpList = memo(({ hideProjects }) => {
     return molecules;
   };
 
+  const openSearchSettingsDialog = open => {
+    dispatch(setSearchSettingsDialogOpen(open));
+  };
+
   const actions = [
     <SearchField
       className={classes.search}
@@ -1026,6 +1030,7 @@ export const ObservationCmpList = memo(({ hideProjects }) => {
       // searchString={filterSearchString?.searchStringHitNavigator ?? ''}
       searchString={searchString ?? ''}
       placeholder="Search"
+      searchIconAction={openSearchSettingsDialog}
     />,
 
     <IconButton
@@ -1118,6 +1123,9 @@ export const ObservationCmpList = memo(({ hideProjects }) => {
           setIsOpenLPCAlert(false);
         }}
       />
+      {searchSettingsDialogOpen && (
+        <SearchSettingsDialog openDialog={searchSettingsDialogOpen} setOpenDialog={openSearchSettingsDialog} />
+      )}
       {isObservationDialogOpen && (
         <ObservationsDialog open={isObservationDialogOpen} anchorEl={tagEditorAnchorEl} ref={tagEditorRef} />
       )}

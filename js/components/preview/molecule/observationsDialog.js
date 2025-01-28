@@ -24,6 +24,7 @@ import {
   removeObservationsFromPose,
   removeSelectedMolTypes,
   removeSurface,
+  searchForObservations,
   updateObservationsInPose,
   updatePose,
   withDisabledMoleculesNglControlButtons
@@ -49,9 +50,19 @@ import MoleculeView from './moleculeView';
 import { TagEditor } from '../tags/modal/tagEditor';
 import { ToastContext } from '../../toast';
 import { DJANGO_CONTEXT } from '../../../utils/djangoContext';
-import { updateLHSCompound, updateMoleculeInMolLists, updateMoleculeTag, updateTag } from '../../../reducers/api/actions';
+import {
+  updateLHSCompound,
+  updateMoleculeInMolLists,
+  updateMoleculeTag,
+  updateTag
+} from '../../../reducers/api/actions';
 import { createPoseErrorMessage } from './api/poseApi';
-import { augumentTagObjectWithId, createMoleculeTagObject, DEFAULT_TAG_COLOR, getMoleculeTagForTag } from '../tags/utils/tagUtils';
+import {
+  augumentTagObjectWithId,
+  createMoleculeTagObject,
+  DEFAULT_TAG_COLOR,
+  getMoleculeTagForTag
+} from '../tags/utils/tagUtils';
 import { updateExistingTag } from '../tags/api/tagsApi';
 import { XCA_TAGS_CATEGORIES } from './moleculeView/moleculeView';
 
@@ -251,6 +262,8 @@ export const ObservationsDialog = memo(
     const tagList = useSelector(state => state.apiReducers.moleculeTags);
     const targetId = useSelector(state => state.apiReducers.target_on);
 
+    const searchSettings = useSelector(state => state.selectionReducers.searchSettings);
+
     const poses = useSelector(state => state.apiReducers.lhs_compounds_list);
     const compatiblePoses = useMemo(() => {
       const someObservation = observationsDataList[0];
@@ -270,9 +283,9 @@ export const ObservationsDialog = memo(
     const tagEditorRef = useRef();
 
     const getCalculatedTagColumnWidth = (tagText, font = null) => {
-      const canvas = document.createElement("canvas");
-      const ctx = canvas.getContext("2d");
-      ctx.font = `${(font ?? '12px')} "Roboto", "Helvetica", "Arial", sans-serif`;
+      const canvas = document.createElement('canvas');
+      const ctx = canvas.getContext('2d');
+      ctx.font = `${font ?? '12px'} "Roboto", "Helvetica", "Arial", sans-serif`;
       // 16 as padding buffer
       const calculatedWidth = ctx.measureText(tagText).width + 16;
       return calculatedWidth;
@@ -302,19 +315,20 @@ export const ObservationsDialog = memo(
         setHeaderWidths(old => {
           const newWidths = { ...old };
           newWidths[tagCategory] = calculatedWidth;
-          return { ...newWidths }
+          return { ...newWidths };
         });
       }
     };
 
     const moleculeList = useMemo(() => {
       if (searchString !== null) {
-        return observationsDataList.filter(molecule =>
-          molecule.code.toLowerCase().includes(searchString.toLowerCase())
-        );
+        // return observationsDataList.filter(molecule =>
+        //   molecule.code.toLowerCase().includes(searchString.toLowerCase())
+        // );
+        return dispatch(searchForObservations(searchString, observationsDataList, searchSettings));
       }
       return observationsDataList;
-    }, [observationsDataList, searchString]);
+    }, [dispatch, observationsDataList, searchSettings, searchString]);
 
     const allSelectedMolecules = useMemo(
       () => observationsDataList.filter(molecule => moleculesToEditIds.includes(molecule.id)),
@@ -630,7 +644,9 @@ export const ObservationsDialog = memo(
         const totalApproximateHeight = observationsApproximateHeight + headerFooterApproximateHeight;
         /*if (totalApproximateHeight > maxHeight) {
           height = maxHeight;
-        } else*/ if (totalApproximateHeight < MIN_PANEL_HEIGHT) {
+        } else*/ if (
+          totalApproximateHeight < MIN_PANEL_HEIGHT
+        ) {
           height = MIN_PANEL_HEIGHT;
         } else {
           height = totalApproximateHeight;
@@ -646,15 +662,20 @@ export const ObservationsDialog = memo(
      * @param {string} category
      * @return {array}
      */
-    const getTagsForCategory = useCallback(category => {
-      const tagCategory = tagCategoriesList.find(tagCategory => tagCategory.category === category);
-      return tagCategory ? tagList.filter(tag => {
-        if (tag.category === tagCategory.id) {
-          // console.log('good tag', { ...tag });
-          return true;
-        } else return false;
-      }) : [];
-    }, [tagCategoriesList, tagList]);
+    const getTagsForCategory = useCallback(
+      category => {
+        const tagCategory = tagCategoriesList.find(tagCategory => tagCategory.category === category);
+        return tagCategory
+          ? tagList.filter(tag => {
+              if (tag.category === tagCategory.id) {
+                // console.log('good tag', { ...tag });
+                return true;
+              } else return false;
+            })
+          : [];
+      },
+      [tagCategoriesList, tagList]
+    );
 
     const updateCmp = (cmp, obs) => {
       let newCmp = { ...cmp };
@@ -849,7 +870,10 @@ export const ObservationsDialog = memo(
       }
       // then tag
       await tagObservations(tag, mainObservationTag);
-      toastInfo(`Tag for observations was changed from "${mainObservationTag.upload_name}" to "${tag.upload_name}". They could disappear based on your tag selection`, { autoHideDuration: 5000 });
+      toastInfo(
+        `Tag for observations was changed from "${mainObservationTag.upload_name}" to "${tag.upload_name}". They could disappear based on your tag selection`,
+        { autoHideDuration: 5000 }
+      );
     };
 
     /**
@@ -858,10 +882,17 @@ export const ObservationsDialog = memo(
      * @param {string} category category of tag
      * @returns {boolean}
      */
-    const disableXCATagChange = useCallback(category => {
-      // #1522 CanonSite tags should not be allowed to change if there are selected only some observations
-      return category === 'CanonSites' && allSelectedMolecules.length > 0 && (allSelectedMolecules.length !== moleculeList.length);
-    }, [allSelectedMolecules, moleculeList]);
+    const disableXCATagChange = useCallback(
+      category => {
+        // #1522 CanonSite tags should not be allowed to change if there are selected only some observations
+        return (
+          category === 'CanonSites' &&
+          allSelectedMolecules.length > 0 &&
+          allSelectedMolecules.length !== moleculeList.length
+        );
+      },
+      [allSelectedMolecules, moleculeList]
+    );
 
     return (
       <Popper id={id} open={open} anchorEl={anchorEl} placement="left-start" ref={ref}>
@@ -1006,27 +1037,40 @@ export const ObservationsDialog = memo(
                           </Button>
                         </Grid>
                         {expandView && (
-                          <Grid
-                            item
-                            xs
-                            container
-                            alignItems="center"
-                            style={{ marginLeft: 95 }}
-                          >
-                            {XCA_TAGS_CATEGORIES.map(
-                              (tagCategory, index) => (
-                                <Grid item align="center" key={index} className={classes.headerCell} style={{ minWidth: headerWidths[tagCategory] }}>
-                                  {PLURAL_TO_SINGULAR[tagCategory]}
-                                </Grid>
-                              )
-                            )}
-                            <Grid item align="center" className={classes.headerCell} style={{ minWidth: headerWidths.CentroidRes }}>
+                          <Grid item xs container alignItems="center" style={{ marginLeft: 95 }}>
+                            {XCA_TAGS_CATEGORIES.map((tagCategory, index) => (
+                              <Grid
+                                item
+                                align="center"
+                                key={index}
+                                className={classes.headerCell}
+                                style={{ minWidth: headerWidths[tagCategory] }}
+                              >
+                                {PLURAL_TO_SINGULAR[tagCategory]}
+                              </Grid>
+                            ))}
+                            <Grid
+                              item
+                              align="center"
+                              className={classes.headerCell}
+                              style={{ minWidth: headerWidths.CentroidRes }}
+                            >
                               CentroidRes
                             </Grid>
-                            <Grid item align="center" className={classes.headerCell} style={{ minWidth: headerWidths.LongCode }}>
+                            <Grid
+                              item
+                              align="center"
+                              className={classes.headerCell}
+                              style={{ minWidth: headerWidths.LongCode }}
+                            >
                               LongCode
                             </Grid>
-                            <Grid item align="center" className={classes.headerCell} style={{ minWidth: headerWidths.Path }}>
+                            <Grid
+                              item
+                              align="center"
+                              className={classes.headerCell}
+                              style={{ minWidth: headerWidths.Path }}
+                            >
                               Path
                             </Grid>
                           </Grid>
@@ -1158,19 +1202,34 @@ export const ObservationsDialog = memo(
                         Change XCA tags
                       </Button>
                       <Grid container direction="row" className={classes.dropdownContent}>
-                        {XCA_TAG_CATEGORIES.map(category =>
-                          <Grid key={category} item className={classNames(classes.dropdown, classes.dropdownItem)} disabled={disableXCATagChange(category)}>
+                        {XCA_TAG_CATEGORIES.map(category => (
+                          <Grid
+                            key={category}
+                            item
+                            className={classNames(classes.dropdown, classes.dropdownItem)}
+                            disabled={disableXCATagChange(category)}
+                          >
                             Change {PLURAL_TO_SINGULAR[category]}
-                            {!disableXCATagChange(category) &&
-                              <Grid container direction="row" className={classNames(classes.dropdownContent, classes.dropdownContentSide)}>
+                            {!disableXCATagChange(category) && (
+                              <Grid
+                                container
+                                direction="row"
+                                className={classNames(classes.dropdownContent, classes.dropdownContentSide)}
+                              >
                                 {getTagsForCategory(category)?.map(tag => (
-                                  <Grid key={tag.id} item className={classes.dropdownItem} onClick={() => handleXCAtagChange(tag)}>
+                                  <Grid
+                                    key={tag.id}
+                                    item
+                                    className={classes.dropdownItem}
+                                    onClick={() => handleXCAtagChange(tag)}
+                                  >
                                     {tag.upload_name}
                                   </Grid>
                                 ))}
-                              </Grid>}
+                              </Grid>
+                            )}
                           </Grid>
-                        )}
+                        ))}
                       </Grid>
                     </Grid>
                   </Grid>

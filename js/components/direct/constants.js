@@ -3,5 +3,6 @@ export const URL_TOKENS = {
   molecules: 'mols',
   exact: 'exact',
   tag: 'tag',
-  target_access_string: 'tas'
+  target_access_string: 'tas',
+  compound: 'compound'
 };

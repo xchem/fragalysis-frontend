@@ -73,7 +73,7 @@ export const shouldLoadProtein = ({
     dispatch(setProteinIsLoading(true));
     Promise.all(
       nglViewList.map(nglView =>
-        dispatch(loadProtein(nglView)).finally(() => {
+        dispatch(loadProtein(nglView))?.finally(() => {
           dispatch(setOrientation(nglView.id, nglView.stage.viewerControls.getOrientation()));
         })
       )

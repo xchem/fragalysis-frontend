@@ -4,7 +4,7 @@
 
 import React, { memo, useEffect, useState, useRef, useContext, useCallback, forwardRef } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { Button, Grid, makeStyles, Tooltip, IconButton, Popper, CircularProgress } from '@material-ui/core';
+import { Button, Grid, makeStyles, Tooltip, IconButton, Popper, CircularProgress, Table, TableBody, TableRow, TableCell } from '@material-ui/core';
 import { Panel } from '../../../common';
 import { MyLocation, Warning, Assignment, AssignmentTurnedIn } from '@material-ui/icons';
 import SVGInline from 'react-svg-inline';
@@ -63,6 +63,7 @@ import { getFontColorByBackgroundColor } from '../../../../utils/colors';
 import MoleculeSelectCheckbox from '../moleculeView/moleculeSelectCheckbox';
 import { isAnyObservationTurnedOnForCmp } from '../../../../reducers/selection/selectors';
 import { first } from 'lodash';
+import { ToastContext } from '../../../toast';
 
 const useStyles = makeStyles(theme => ({
   container: {
@@ -381,9 +382,26 @@ const useStyles = makeStyles(theme => ({
     marginRight: 5,
     position: 'right'
   },
-  tooltipRow: {
-    marginTop: 2,
-    marginBottom: 2
+  posePropertiesTableCell: {
+    padding: '4px 8px'
+  },
+  posePropertiesTable: {
+    pointerEvents: 'auto',
+    '& tr > td:nth-of-type(2)': {
+      border: 'none',
+      borderLeft: '1px dashed ' + theme.palette.primary.main
+    },
+    '& tr:hover': {
+      backgroundColor: theme.palette.primary.light
+    }
+  },
+  posePropertiesTableIcon: {
+    padding: 0,
+    color: theme.palette.grey[500]
+  },
+  posePropertiesTableIconActive: {
+    padding: 0,
+    color: theme.palette.grey[700]
   }
 }));
 
@@ -441,6 +459,7 @@ const ObservationCmpView = memo(
 
       const [hasMap, setHasMap] = useState(false);
 
+      const { toastInfo } = useContext(ToastContext);
       const { getNglView } = useContext(NglContext);
       const stage = getNglView(VIEWS.MAJOR_VIEW) && getNglView(VIEWS.MAJOR_VIEW).stage;
 
@@ -1316,26 +1335,62 @@ const ObservationCmpView = memo(
         return displayName;
       }, [aliasOrder, getMainObservation]);
 
-      const getDisplayNameTooltip = useCallback(() => {
-        const mainObservation = getMainObservation();
-        const tooltip = <>
-          <p className={classes.tooltipRow}>{mainObservation?.prefix_tooltip ?? '-'}</p>
-          {aliasOrder?.map((alias, index) => {
-            if (alias === 'compound_code') {
-              return <p key={index} className={classes.tooltipRow}>{`${alias}: ${mainObservation?.compound_code}`}</p>;
-              // return <><br></br>{`${alias}: ${mainObservation?.compound_code}`}</>;
-            } else {
-              const searchedIdentifier = mainObservation.identifiers.find(identifier => identifier.type === alias);
-              if (searchedIdentifier) {
-                return <p key={index} className={classes.tooltipRow}>{`${alias}: ${searchedIdentifier.name}`}</p>;
-                // return <><br></br>{`${alias}: ${searchedIdentifier.name}`}</>;
-              }
-            }
-          })}
-        </>;
+      const copyToClipboard = useCallback(async (type, text) => {
+        await navigator.clipboard.writeText(text);
+        toastInfo(`${text} of '${type}' was copied to the clipboard`, { autoHideDuration: 5000 });
+      }, [toastInfo]);
 
-        return tooltip;
-      }, [aliasOrder, getMainObservation, classes.tooltipRow]);
+      const [anchorElTable, setAnchorElTable] = useState(null);
+      const [tableIsOpen, setTableIsOpen] = useState(false);
+      const handleTablePopoverOpen = (event) => {
+        setAnchorElTable(event.currentTarget);
+      };
+      const handleTablePopoverClose = () => {
+        setAnchorElTable(null);
+        setTableIsOpen(false);
+      };
+      const popoverOpen = Boolean(anchorElTable) || tableIsOpen;
+
+      const getPosePropertiesTable = useCallback(() => {
+        const mainObservation = getMainObservation();
+        const observationCode = getMainObservation()?.code.replaceAll(`${target_on_name}-`, '');
+
+        return <Table className={classes.posePropertiesTable}
+          onMouseLeave={() => setTableIsOpen(false)}
+          onMouseEnter={() => setTableIsOpen(true)}>
+          <TableBody>
+            <Tooltip title={'Click to copy value of smiles'}>
+              <TableRow onClick={() => copyToClipboard('smiles', data.smiles)}>
+                <TableCell className={classes.posePropertiesTableCell}>copy smiles</TableCell>
+                <TableCell className={classes.posePropertiesTableCell}>{data.smiles}</TableCell>
+              </TableRow>
+            </Tooltip>
+            <Tooltip title={'Click to copy value of observation code'}>
+              <TableRow onClick={() => copyToClipboard('smiles', observationCode)}>
+                <TableCell className={classes.posePropertiesTableCell}>copy observation code</TableCell>
+                <TableCell className={classes.posePropertiesTableCell}>{observationCode}</TableCell>
+              </TableRow>
+            </Tooltip>
+            <Tooltip title={'Click to copy value of prefix_tooltip'}>
+              <TableRow onClick={() => copyToClipboard('prefix_tooltip', mainObservation?.prefix_tooltip)}>
+                <TableCell className={classes.posePropertiesTableCell}>copy prefix_tooltip</TableCell>
+                <TableCell className={classes.posePropertiesTableCell}>{mainObservation?.prefix_tooltip ?? ''}</TableCell>
+              </TableRow>
+            </Tooltip>
+            {aliasOrder?.map((alias, index) => {
+              const compoundCode = mainObservation.identifiers.find(identifier => identifier.type === alias)?.name ?? '';
+              return <Tooltip key={index} title={`Click to copy value of ${alias}`}>
+                <TableRow onClick={() => copyToClipboard(alias, alias === 'compound_code' ? mainObservation?.compound_code : compoundCode)}>
+                  <TableCell className={classes.posePropertiesTableCell}>{`copy ${alias}`}</TableCell>
+                  {(alias === 'compound_code') ?
+                    <TableCell className={classes.posePropertiesTableCell}>{`${mainObservation?.compound_code}`}</TableCell>
+                    : <TableCell className={classes.posePropertiesTableCell}>{`${compoundCode}`}</TableCell>}
+                </TableRow>
+              </Tooltip>;
+            })}
+          </TableBody>
+        </Table>;
+      }, [aliasOrder, copyToClipboard, data.smiles, getMainObservation, classes.posePropertiesTable, classes.posePropertiesTableCell, target_on_name]);
 
       return (
         <>
@@ -1387,22 +1442,45 @@ const ObservationCmpView = memo(
             </Grid>
             <Grid item container className={classes.detailsCol} justifyContent="space-evenly" direction="column" xs={2}>
               {/* Title label */}
-              <Tooltip title={getDisplayNameTooltip()} placement="bottom-start">
-                <Grid
-                  item
-                  onCopy={e => {
-                    e.preventDefault();
-                    setNameCopied(moleculeTitle);
-                  }}
-                  className={classes.moleculeTitleLabel}
+              <Grid
+                item
+                onCopy={e => {
+                  e.preventDefault();
+                  setNameCopied(moleculeTitle);
+                }}
+                className={classes.moleculeTitleLabel}
+              >
+                <span className={classes.moleculeTitleLabelMain}>
+                  {getMainObservation()?.code.replaceAll(`${target_on_name}-`, '')}
+                </span>
+                <br />
+                {getDisplayName()}
+                <IconButton className={popoverOpen ? classes.posePropertiesTableIconActive : classes.posePropertiesTableIcon}
+                  onMouseEnter={handleTablePopoverOpen}
+                  onMouseLeave={() => setAnchorElTable(null)}
+                  ref={anchorElTable}
                 >
-                  <span className={classes.moleculeTitleLabelMain}>
-                    {getMainObservation()?.code.replaceAll(`${target_on_name}-`, '')}
-                  </span>
-                  <br />
-                  {getDisplayName()}
-                </Grid>
-              </Tooltip>
+                  <Assignment />
+                  <Popover
+                    id="mouse-over-popover"
+                    style={{ pointerEvents: 'none' }}
+                    open={popoverOpen}
+                    anchorEl={anchorElTable}
+                    anchorOrigin={{
+                      vertical: 'center',
+                      horizontal: 'right'
+                    }}
+                    transformOrigin={{
+                      vertical: 'center',
+                      horizontal: 'left'
+                    }}
+                    onClose={handleTablePopoverClose}
+                    disableRestoreFocus
+                  >
+                    {getPosePropertiesTable()}
+                  </Popover>
+                </IconButton>
+              </Grid>
               {/* "Filtered"/calculated props
             <Grid item>
               <Grid
@@ -1650,13 +1728,13 @@ const ObservationCmpView = memo(
             >
               {svg_image}
               <div className={classes.imageActions}>
-                {moleculeTooltipOpen && (
+                {/* {moleculeTooltipOpen && (
                   <Tooltip title={!isCopied ? 'Copy smiles' : 'Copied'}>
                     <IconButton className={classes.copyIcon} onClick={setCopied}>
                       {!isCopied ? <Assignment /> : <AssignmentTurnedIn />}
                     </IconButton>
                   </Tooltip>
-                )}
+                )} */}
                 {warningIconVisible && (
                   <Tooltip title="Warning">
                     <IconButton className={classes.warningIcon} onClick={() => onQuality()}>

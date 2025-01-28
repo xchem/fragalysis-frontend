@@ -68,11 +68,25 @@ export const INITIAL_STATE = {
 
   // 	display: true
   // }
-  toBeDisplayedList: []
+  toBeDisplayedList: [],
+  searchSettingsDialogOpen: false,
+  searchSettings: {
+    searchBy: {
+      shortcode: true,
+      aliases: true,
+      compoundId: true
+    }
+  }
 };
 
 export function selectionReducers(state = INITIAL_STATE, action = {}) {
   switch (action.type) {
+    case constants.SET_SEARCH_SETTINGS_DIALOG_OPEN:
+      return { ...state, searchSettingsDialogOpen: action.isOpen };
+
+    case constants.SET_SEARCH_SETTINGS:
+      return { ...state, searchSettings: JSON.parse(JSON.stringify(action.settings)) };
+
     case constants.SET_TO_BE_DISPLAYED_LIST:
       return { ...state, toBeDisplayedList: action.toBeDisplayedList };
 

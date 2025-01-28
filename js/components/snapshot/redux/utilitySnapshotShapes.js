@@ -14,7 +14,8 @@ export const SNAPSHOT_VALUES_TO_BE_DELETED = {
     rhsDataIsLoading: true,
     rhsDataIsLoaded: false,
     proteinIsLoading: false,
-    proteinIsLoaded: false
+    proteinIsLoaded: false,
+    compound_identifiers: []
   },
   nglReducers: {
     objectsInView: {},
@@ -69,7 +70,8 @@ export const SNAPSHOT_VALUES_NOT_TO_BE_DELETED_SWITCHING_TARGETS = {
     moleculeTags: [],
     tagList: [],
     categoryList: [],
-    lhs_compounds_list: []
+    lhs_compounds_list: [],
+    compound_identifiers: []
   },
   datasetsReducers: {
     datasets: [],

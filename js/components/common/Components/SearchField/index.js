@@ -1,5 +1,5 @@
 import React, { useMemo } from 'react';
-import { makeStyles, TextField, InputAdornment } from '@material-ui/core';
+import { makeStyles, TextField, InputAdornment, IconButton } from '@material-ui/core';
 import { Search } from '@material-ui/icons';
 import classNames from 'classnames';
 import { debounce } from 'lodash';
@@ -31,9 +31,18 @@ const useStyles = makeStyles(theme => ({
   }
 }));
 
-const SearchField = ({ className, id, placeholder, size, onChange, disabled, searchString }) => {
+const SearchField = ({
+  className,
+  id,
+  placeholder,
+  size,
+  onChange,
+  disabled,
+  searchString,
+  searchIconAction = null
+}) => {
   const classes = useStyles();
-  let value = searchString ??  '';
+  let value = searchString ?? '';
 
   const debounced = useMemo(
     () =>
@@ -57,7 +66,17 @@ const SearchField = ({ className, id, placeholder, size, onChange, disabled, sea
       InputProps={{
         startAdornment: (
           <InputAdornment position="start">
-            <Search color="inherit" />
+            {searchIconAction ? (
+              <IconButton
+                color="inherit"
+                sx={{ pointerEvents: 'auto', cursor: 'pointer' }}
+                onClick={() => searchIconAction(true)}
+              >
+                <Search color="inherit" />
+              </IconButton>
+            ) : (
+              <Search color="inherit" />
+            )}
           </InputAdornment>
         ),
         className: classes.input
