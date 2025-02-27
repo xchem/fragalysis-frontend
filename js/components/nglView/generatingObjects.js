@@ -9,7 +9,6 @@ export const createRepresentationsArray = representations =>
 
 export const assignRepresentationToComp = (type, params, comp, lastKnownID = undefined) => {
   const createdRepresentation = comp.addRepresentation(type, params || {});
-
   return {
     lastKnownID: lastKnownID || createdRepresentation.uuid,
     uuid: createdRepresentation.uuid,

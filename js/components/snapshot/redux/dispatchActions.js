@@ -650,6 +650,7 @@ export const getCleanStateForSnapshot = () => (dispatch, getState) => {
     snapshotData.selectionReducers.toBeDisplayedList.length + numberOfItemsRHS;
   snapshotData.nglReducers.isSnapshotRendering = true;
   snapshotData.nglReducers.nglViewFromSnapshotRendered = false;
+  snapshotData.nglReducers.isNGLQueueEmpty = false;
 
   return snapshotData;
 };
@@ -664,6 +665,15 @@ export const changeSnapshot = (projectID, snapshotID, stage, fromJobExec = false
   const snapshotResponse = await api({ url: `${base_url}/api/snapshots/${snapshotID}` });
 
   const snapshotState = snapshotResponse.data.additional_info.snapshotState;
+
+  if (!fromJobExec) {
+    //orientation animation
+    const newOrientation = snapshotState.nglReducers.nglOrientations[VIEWS.MAJOR_VIEW];
+    //log with timestamp
+    console.log(`Switch - Before smooth animation: ${new Date().toLocaleTimeString()}`);
+    await stage.animationControls.orient(newOrientation.elements, 2000); //.then(() => {
+    console.log(`Switch - After smooth animation: ${new Date().toLocaleTimeString()}`);
+  }
 
   dispatch(
     setCurrentSnapshot({
@@ -683,9 +693,10 @@ export const changeSnapshot = (projectID, snapshotID, stage, fromJobExec = false
   let toBeDisplayedLHSNewDeepCopy = null;
   let toBeDisplayedRHSNewDeepCopy = null;
   if (!fromJobExec) {
-    //orientation animation
-    const newOrientation = snapshotState.nglReducers.nglOrientations[VIEWS.MAJOR_VIEW];
-    await stage.animationControls.orient(newOrientation.elements, 2000); //.then(() => {
+    currentState.snapshotReducers.switchingSnapshotWithinProject = true;
+    snapshotState.snapshotReducers.switchingSnapshotWithinProject = true;
+    snapshotState.nglReducers.isNGLQueueEmpty = false;
+
     const toBeDisplayedLHSCurrent = currentState.selectionReducers.toBeDisplayedList;
     const toBeDisplayedRHSCurrent = currentState.datasetsReducers.toBeDisplayedList;
     const toBeDisplayedLHSNew = snapshotState.selectionReducers.toBeDisplayedList;
@@ -727,6 +738,7 @@ export const changeSnapshot = (projectID, snapshotID, stage, fromJobExec = false
 
   currentState = getState();
   // const copyOfCurrentState = deepClone(currentState);
+  console.log(`RenderingProgressDialog - merging state`);
   const newState = deepMergeWithPriorityAndBlackList(
     // copyOfCurrentState,
     currentState,
@@ -782,43 +794,11 @@ export const isSnapshotModified = snapshotID => async (dispatch, getState) => {
   delete originalSnapshotStateCopy.selectionReducers.toastMessages; //array
   delete currentSnapshotStateCopy.selectionReducers.toastMessages;
 
-  originalSnapshotStateCopy.selectionReducers.toBeDisplayedList = originalSnapshotStateCopy.selectionReducers.toBeDisplayedList.map(
-    obj => ({
-      ...obj,
-      center: false,
-      rendered: true
-    })
-  );
-  let toBeDisplayedRHS = {};
-  let numberOfItemsRHS = 0;
-  Object.keys(originalSnapshotStateCopy.datasetsReducers.toBeDisplayedList).forEach(datasetID => {
-    toBeDisplayedRHS[datasetID] = originalSnapshotStateCopy.datasetsReducers.toBeDisplayedList[datasetID].map(obj => ({
-      ...obj,
-      center: false,
-      rendered: true
-    }));
-    numberOfItemsRHS += toBeDisplayedRHS[datasetID].length;
-  });
-  originalSnapshotStateCopy.datasetsReducers.toBeDisplayedList = toBeDisplayedRHS;
+  delete originalSnapshotStateCopy.selectionReducers.toBeDisplayedList;
+  delete originalSnapshotStateCopy.datasetsReducers.toBeDisplayedList;
 
-  currentSnapshotStateCopy.selectionReducers.toBeDisplayedList = currentSnapshotStateCopy.selectionReducers.toBeDisplayedList.map(
-    obj => ({
-      ...obj,
-      center: false,
-      rendered: true
-    })
-  );
-  toBeDisplayedRHS = {};
-  numberOfItemsRHS = 0;
-  Object.keys(currentSnapshotStateCopy.datasetsReducers.toBeDisplayedList).forEach(datasetID => {
-    toBeDisplayedRHS[datasetID] = currentSnapshotStateCopy.datasetsReducers.toBeDisplayedList[datasetID].map(obj => ({
-      ...obj,
-      center: false,
-      rendered: true
-    }));
-    numberOfItemsRHS += toBeDisplayedRHS[datasetID].length;
-  });
-  currentSnapshotStateCopy.datasetsReducers.toBeDisplayedList = toBeDisplayedRHS;
+  delete currentSnapshotStateCopy.selectionReducers.toBeDisplayedList;
+  delete currentSnapshotStateCopy.datasetsReducers.toBeDisplayedList;
 
   let path = '';
   const isModified = !deepEqual(originalSnapshotStateCopy, currentSnapshotStateCopy, path);

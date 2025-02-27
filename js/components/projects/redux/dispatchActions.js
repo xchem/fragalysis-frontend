@@ -150,6 +150,8 @@ export const loadSnapshotByProjectID = projectID => async (dispatch, getState) =
             return Promise.resolve(null);
           } else if (response.data.results[0] !== undefined) {
             console.log(`Snapshot from server: ${JSON.stringify(response.data.results[0])}`);
+            console.log(`RenderingProgressDialog - before applying state`);
+            response.data.results[0].additional_info.snapshotState.nglReducers.isNGLQueueEmpty = false;
             dispatch(setEntireState(response.data.results[0].additional_info.snapshotState));
             dispatch(
               setCurrentSnapshot({

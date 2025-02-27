@@ -364,16 +364,16 @@ const showProtein = ({ stage, input_dict, object_name, representations, orientat
 
     const skipOrientation = false; //state.trackingReducers.skipOrientationChange;
 
-    if (!skipOrientation) {
-      if (orientationMatrix) {
-        console.count(`Before applying orientation matrix - showProtein`);
-        stage.viewerControls.orient(orientationMatrix);
-        console.count(`After applying orientation matrix - showProtein`);
-      } else if (orientationMatrix === undefined) {
-        comp.autoView();
-        console.count(`Orientation matrix not found for showProtein, using autoView instead.`);
-      }
-    }
+    // if (!skipOrientation) {
+    //   if (orientationMatrix) {
+    //     console.count(`Before applying orientation matrix - showProtein`);
+    //     stage.viewerControls.orient(orientationMatrix);
+    //     console.count(`After applying orientation matrix - showProtein`);
+    //   } else if (orientationMatrix === undefined) {
+    //     comp.autoView();
+    //     console.count(`Orientation matrix not found for showProtein, using autoView instead.`);
+    //   }
+    // }
     return Promise.resolve(assignRepresentationArrayToComp(reprArray, comp));
   });
 };

@@ -295,3 +295,8 @@ export const setNglObjectsInSnapshotToBeRendered = noOfobjects => ({
   type: CONSTANTS.SET_NGL_OBJECTS_IN_SNAPSHOT_TO_BE_RENDERED,
   noOfobjects: noOfobjects
 });
+
+export const setIsNGLQueueEmpty = isEmpty => ({
+  type: CONSTANTS.SET_IS_NGL_QUEUE_EMPTY,
+  isEmpty
+});
