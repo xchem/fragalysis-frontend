@@ -1,7 +1,12 @@
 import { useCallback, useContext, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { NGL_OBJECTS } from './constants';
-import { appendSurfaceList, removeFromSurfaceList, removeFromToBeDisplayedList } from '../selection/actions';
+import {
+  appendSurfaceList,
+  removeFromSurfaceList,
+  removeFromToBeDisplayedList,
+  updateInToBeDisplayedList
+} from '../selection/actions';
 import { generateMoleculeId, generateSurfaceObject } from '../../components/nglView/generatingObjects';
 import { VIEWS } from '../../constants/constants';
 import { NglContext } from '../../components/nglView/nglProvider';
@@ -35,9 +40,8 @@ export const useDisplaySurfaceLHS = () => {
           orientationMatrix: null,
           preserveColour: surfaceData.preserveColour
         })
-      ).finally(() => {
-        const currentOrientation = stage.viewerControls.getOrientation();
-        dispatch(setOrientation(VIEWS.MAJOR_VIEW, currentOrientation));
+      ).then(() => {
+        dispatch(updateInToBeDisplayedList({ id: data.id, rendered: true, type: NGL_OBJECTS.SURFACE }));
       });
     },
     [allObservations, dispatch, stage]

@@ -7,6 +7,7 @@ import {
   removeFromVectorOnList,
   setVectorList,
   updateBondColorMapOfCompounds,
+  updateInToBeDisplayedList,
   updateVectorCompounds
 } from '../selection/actions';
 import { generateMoleculeId } from '../../components/nglView/generatingObjects';
@@ -63,11 +64,10 @@ export const useDisplayVectorLHS = () => {
         })
         .then(() => api({ url: new URL(base_url + '/api/vector/?id=' + data.id) }))
         .then(response => {
-          dispatch(handleVector(response.data?.results[0]?.vectors, stage, data));
+          return dispatch(handleVector(response.data?.results[0]?.vectors, stage, data));
         })
-        .finally(() => {
-          const currentOrientation = stage.viewerControls.getOrientation();
-          dispatch(setOrientation(VIEWS.MAJOR_VIEW, currentOrientation));
+        .then(() => {
+          dispatch(updateInToBeDisplayedList({ id: data.id, rendered: true, type: NGL_OBJECTS.VECTOR }));
         });
     },
     [allObservations, currentVector, dispatch, stage]

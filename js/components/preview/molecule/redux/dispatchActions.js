@@ -1,32 +1,16 @@
 import { deleteObject, loadObject, setOrientation } from '../../../../reducers/ngl/dispatchActions';
 import {
-  appendProteinList,
-  appendComplexList,
-  appendSurfaceList,
-  appendDensityList,
-  appendDensityListCustom,
-  appendFragmentDisplayList,
   appendQualityList,
-  appendVectorOnList,
   appendInformationList,
-  removeFromProteinList,
-  removeFromComplexList,
-  removeFromSurfaceList,
-  removeFromDensityList,
-  removeFromDensityListCustom,
   removeFromFragmentDisplayList,
   removeFromQualityList,
-  removeFromVectorOnList,
   resetCompoundsOfVectors,
   setVectorList,
-  updateVectorCompounds,
   updateBondColorMapOfCompounds,
   resetBondColorMapOfVectors,
   setCurrentVector,
   setHideAll,
   removeFromInformationList,
-  appendToDensityListType,
-  removeFromDensityListType,
   setArrowUpDown,
   setMolListToEdit,
   setSelectAllMolecules,
@@ -44,22 +28,17 @@ import {
   generateMoleculeId,
   generateCylinderObject,
   getVectorWithColorByCountOfCompounds,
-  generateHitProteinObject,
-  generateComplexObject,
-  generateSurfaceObject,
   generateDensityObject,
   generateMoleculeObject
 } from '../../../nglView/generatingObjects';
 import { VIEWS } from '../../../../constants/constants';
 import { api } from '../../../../utils/api';
-import { selectVectorAndResetCompounds } from '../../../../reducers/selection/dispatchActions';
 import { colourList } from '../utils/color';
-import { appendMoleculeOrientation, setNglViewParams } from '../../../../reducers/ngl/actions';
+import { setNglViewParams } from '../../../../reducers/ngl/actions';
 import { setCompoundImage } from '../../summary/redux/actions';
 import { noCompoundImage } from '../../summary/redux/reducer';
 import { getMoleculeOfCurrentVector } from '../../../../reducers/selection/selectors';
 import { resetCurrentCompoundSettingsWithoutSelection } from '../../compounds/redux/actions';
-import { selectMoleculeGroup } from '../../moleculeGroups/redux/dispatchActions';
 import {
   removeLHSCompound,
   setDirectAccessProcessed,
@@ -67,17 +46,11 @@ import {
   updateMoleculeInMolLists
 } from '../../../../reducers/api/actions';
 import { MOL_TYPE } from './constants';
-import {
-  addImageToCache,
-  addProteindDataToCache,
-  disableMoleculeNglControlButton,
-  enableMoleculeNglControlButton
-} from './actions';
+import { addImageToCache, disableMoleculeNglControlButton, enableMoleculeNglControlButton } from './actions';
 import { OBJECT_TYPE, DENSITY_MAPS, NGL_PARAMS } from '../../../nglView/constants';
-import { getRepresentationsByType, getRepresentationsForDensities } from '../../../nglView/generatingObjects';
+import { getRepresentationsByType } from '../../../nglView/generatingObjects';
 import { readQualityInformation } from '../../../nglView/renderingHelpers';
 import { addSelectedTag } from '../../tags/redux/dispatchActions';
-import { CATEGORY_TYPE } from '../../../../constants/constants';
 import { selectJoinedMoleculeList } from './selectors';
 import { compareTagsAsc } from '../../tags/utils/tagUtils';
 import { createPoseApi, updatePoseApi } from '../api/poseApi';
@@ -186,7 +159,8 @@ export const addVector = (stage, data, skipTracking = false) => async (dispatch,
     appendToBeDisplayedList({
       type: NGL_OBJECTS.VECTOR,
       id: data.id,
-      display: true
+      display: true,
+      center: false
     })
   );
 };
@@ -218,7 +192,8 @@ export const addComplex = (
       id: data.id,
       display: true,
       representations: representations,
-      preserveColour: preserveColour
+      preserveColour: preserveColour,
+      center: false
     })
   );
 };
@@ -241,7 +216,8 @@ export const addSurface = (
       id: data.id,
       display: true,
       representations: representations,
-      preserveColour: preserveColour
+      preserveColour: preserveColour,
+      center: false
     })
   );
 };
@@ -297,7 +273,8 @@ const setDensity = (
       display: true,
       representations: representations,
       isWireframeStyle: isWireframeStyle,
-      densityData: data.proteinData
+      densityData: data.proteinData,
+      center: false
     })
   );
 };
@@ -378,7 +355,8 @@ const setDensityCustom = (
       display: true,
       representations: representations,
       isWireframeStyle: isWireframeStyle,
-      densityData: data.proteinData
+      densityData: data.proteinData,
+      center: false
     })
   );
 };
@@ -430,7 +408,8 @@ export const addHitProtein = (
       display: true,
       withQuality: withQuality,
       representations: representations,
-      preserveColour: preserveColour
+      preserveColour: preserveColour,
+      center: false
     })
   );
 };

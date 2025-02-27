@@ -72,14 +72,14 @@ import { AddProjectDetail } from '../projects/addProjectDetail';
 import { ServicesStatusWrapper } from '../services';
 import { COMPANIES, get_logo } from '../funders/constants';
 import { setEditTargetDialogOpen } from '../target/redux/actions';
-import { Settings, Upload } from '@mui/icons-material';
+import { Pin, Settings, Upload } from '@mui/icons-material';
 import { TargetSettingsModal } from '../target/targetSettingsModal';
 import { SnapshotType } from '../projects/redux/constants';
 import { NglContext } from '../nglView/nglProvider';
 import { VIEWS } from '../../constants/constants';
 import moment from 'moment';
 import { ToastContext } from '../toast';
-import { api } from '../../utils/api';
+import { api, METHOD } from '../../utils/api';
 
 const useStyles = makeStyles(theme => ({
   padding: {
@@ -177,6 +177,26 @@ export default memo(
 
     const openLink = link => {
       window.open(link, '_blank');
+    };
+
+    const getTokenFromApi = async () => {
+      return api({
+        url: `${base_url}/api/token/`,
+        method: METHOD.GET
+      })
+        .then(resp => {
+          return resp.data.sessionid;
+        })
+        .catch(err => {
+          console.log('error fetching token', err);
+          return '';
+        });
+    };
+
+    const getToken = async () => {
+      const token = await getTokenFromApi();
+      await navigator.clipboard.writeText(token);
+      toastInfo(`Token '${token}' was copied to the clipboard`, { autoHideDuration: 5000 });
     };
 
     const createSnapshot = useCallback(
@@ -665,6 +685,13 @@ export default memo(
               }
               {DJANGO_CONTEXT.pk &&
                 <>
+                  <Divider />
+                  <ListItem button onClick={getToken}>
+                    <ListItemIcon>
+                      <Pin />
+                    </ListItemIcon>
+                    <ListItemText primary="Get Token" />
+                  </ListItem>
                   <Divider />
                   <ListItem button onClick={() => openLink(URLS.lhsUpload)}>
                     <ListItemIcon>

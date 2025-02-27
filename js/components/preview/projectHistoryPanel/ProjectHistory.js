@@ -32,6 +32,7 @@ import { getSnapshotAttributesByID } from '../../projects/redux/dispatchActions'
 import { ToastContext } from '../../toast';
 import { deepClone } from '../../../utils/objectUtils';
 import { result } from 'lodash';
+import { setIsSnapshotRendering } from '../../../reducers/ngl/actions';
 
 export const heightOfProjectHistory = PROJECTS_JOBS_PANEL_HEIGHT;
 
@@ -111,6 +112,9 @@ export const ProjectHistory = memo(({ showFullHistory, graphKey, expanded, onExp
 
   const [tryToOpen, setTryToOpen] = useState(false);
   const [transitionToSnapshot, setTransitionToSnapshot] = useState(null);
+
+  const [disableGraph, setDisableGraph] = useState(false);
+  const isSnapshotRendering = useSelector(state => state.nglReducers.isSnapshotRendering);
 
   const { toastError, toastInfo } = useContext(ToastContext);
 
@@ -386,7 +390,7 @@ export const ProjectHistory = memo(({ showFullHistory, graphKey, expanded, onExp
         onExpandChange={expanded => onExpanded(expanded)}
       >
         <div className={classes.containerExpanded}>
-          <Gitgraph key={graphKey} options={options}>
+          <Gitgraph key={graphKey} options={options} disabled={true}>
             {gitgraph => {
               if (!!currentSnapshotTree && currentSnapshotList) {
                 renderTreeNode(gitgraph, currentSnapshotTree);

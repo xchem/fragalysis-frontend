@@ -8,7 +8,8 @@ import { getRandomColor } from '../../components/preview/molecule/utils/color';
 import {
   appendProteinList,
   removeFromProteinList,
-  removeFromToBeDisplayedListForDataset
+  removeFromToBeDisplayedListForDataset,
+  updateInToBeDisplayedListForDataset
 } from '../../components/datasets/redux/actions';
 import { generateHitProteinObject, generateMoleculeCompoundId } from '../../components/nglView/generatingObjects';
 import { deleteObject, loadObject, setOrientation } from './dispatchActions';
@@ -43,9 +44,10 @@ export const useDisplayProteinRHS = () => {
           previousRepresentations: proteinData.representations,
           orientationMatrix: null
         })
-      ).finally(() => {
-        const currentOrientation = stage.viewerControls.getOrientation();
-        dispatch(setOrientation(VIEWS.MAJOR_VIEW, currentOrientation));
+      ).then(() => {
+        dispatch(
+          updateInToBeDisplayedListForDataset(datasetID, { id: data.id, rendered: true, type: NGL_OBJECTS.PROTEIN })
+        );
       });
     },
     [allCompounds, dispatch, stage]

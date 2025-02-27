@@ -492,11 +492,11 @@ const DatasetMoleculeList = ({ title, datasetID, url }) => {
   const isSelectedTypeOn = (typeList, isLHSReference) => {
     if (typeList) {
       if (!isLHSReference) {
-        return typeList.some(molId => allMolecules?.some(mol => mol.id === molId));
+        return typeList?.some(molId => allMolecules?.some(mol => mol.id === molId));
       } else {
         const molsWithLHSReference = allMolecules?.filter(mol => mol.site_observation_code);
-        return typeList.some(molId =>
-          molsWithLHSReference.some(
+        return typeList?.some(molId =>
+          molsWithLHSReference?.some(
             mol => mol.site_observation_code === allMoleculesList?.find(m => m.id === molId)?.code
           )
         );

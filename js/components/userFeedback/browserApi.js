@@ -83,7 +83,7 @@ export const captureScreen = () => async dispatch => {
 };
 
 export const captureScreenOfSnapshot = () => async dispatch => {
-  html2canvas(document.body).then(canvas => {
-    // dispatch(setTrackingImageSource(canvas.toDataURL()));
-  });
+  // html2canvas(document.body).then(canvas => {
+  //   // dispatch(setTrackingImageSource(canvas.toDataURL()));
+  // });
 };

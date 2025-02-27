@@ -49,12 +49,20 @@ export const INITIAL_STATE = {
   skipOrientationChange: false,
   nglViewFromSnapshotRendered: false,
   snapshotOrientationApplied: false,
-  reapplyOrientation: false
+  reapplyOrientation: false,
+  objectsInSnapshotToBeRendered: 0,
+  isSnapshotRendering: false
 };
 
 export default function nglReducers(state = INITIAL_STATE, action = {}) {
   switch (action.type) {
     // Defined in initialState - but may be needed if we want to load a different structure
+
+    case CONSTANTS.SET_NGL_OBJECTS_IN_SNAPSHOT_TO_BE_RENDERED:
+      return { ...state, objectsInSnapshotToBeRendered: action.noOfobjects };
+
+    case CONSTANTS.SET_IS_SNAPSHOT_RENDERING:
+      return { ...state, isSnapshotRendering: action.isSnapshotRendering };
 
     case CONSTANTS.SET_SKIP_ORIENTATION_CHANGE:
       return { ...state, skipOrientationChange: action.skip };
@@ -63,7 +71,7 @@ export default function nglReducers(state = INITIAL_STATE, action = {}) {
       return { ...state, reapplyOrientation: action.reapply };
 
     case CONSTANTS.SET_NGL_VIEW_FROM_SNAPSHOT_RENDERED:
-      return { ...state, nglViewFromSnapshotRendered: { ...action.rendered } };
+      return { ...state, nglViewFromSnapshotRendered: action.rendered };
 
     case CONSTANTS.SET_SNAPSHOT_ORIENTATION_APPLIED:
       return { ...state, snapshotOrientationApplied: action.applied };

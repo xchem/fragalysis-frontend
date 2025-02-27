@@ -8,7 +8,8 @@ import { getRandomColor } from '../../components/preview/molecule/utils/color';
 import {
   appendComplexList,
   removeFromComplexList,
-  removeFromToBeDisplayedListForDataset
+  removeFromToBeDisplayedListForDataset,
+  updateInToBeDisplayedListForDataset
 } from '../../components/datasets/redux/actions';
 import { generateComplexObject, generateMoleculeCompoundId } from '../../components/nglView/generatingObjects';
 import { deleteObject, loadObject, setOrientation } from './dispatchActions';
@@ -43,9 +44,10 @@ export const useDisplayComplexRHS = () => {
           previousRepresentations: complexData.representations,
           orientationMatrix: null
         })
-      ).finally(() => {
-        const currentOrientation = stage.viewerControls.getOrientation();
-        dispatch(setOrientation(VIEWS.MAJOR_VIEW, currentOrientation));
+      ).then(() => {
+        dispatch(
+          updateInToBeDisplayedListForDataset(datasetID, { id: data.id, rendered: true, type: NGL_OBJECTS.COMPLEX })
+        );
       });
     },
     [allCompounds, dispatch, stage]

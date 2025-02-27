@@ -1,7 +1,12 @@
 import { useCallback, useContext, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { NGL_OBJECTS } from './constants';
-import { appendComplexList, removeFromComplexList, removeFromToBeDisplayedList } from '../selection/actions';
+import {
+  appendComplexList,
+  removeFromComplexList,
+  removeFromToBeDisplayedList,
+  updateInToBeDisplayedList
+} from '../selection/actions';
 import { generateComplexObject, generateMoleculeId } from '../../components/nglView/generatingObjects';
 import { VIEWS } from '../../constants/constants';
 import { NglContext } from '../../components/nglView/nglProvider';
@@ -35,9 +40,8 @@ export const useDisplayComplexLHS = () => {
           orientationMatrix: null,
           preserveColour: complexData.preserveColour
         })
-      ).finally(() => {
-        const currentOrientation = stage.viewerControls.getOrientation();
-        dispatch(setOrientation(VIEWS.MAJOR_VIEW, currentOrientation));
+      ).then(() => {
+        dispatch(updateInToBeDisplayedList({ id: data.id, rendered: true, type: NGL_OBJECTS.COMPLEX }));
       });
     },
     [allObservations, dispatch, stage]

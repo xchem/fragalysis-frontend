@@ -285,3 +285,13 @@ export const setReapplyOrientation = reapply => ({
   type: CONSTANTS.SET_REAPPLY_ORIENTATION,
   reapply
 });
+
+export const setIsSnapshotRendering = isRendering => ({
+  type: CONSTANTS.SET_IS_SNAPSHOT_RENDERING,
+  isRendering
+});
+
+export const setNglObjectsInSnapshotToBeRendered = noOfobjects => ({
+  type: CONSTANTS.SET_NGL_OBJECTS_IN_SNAPSHOT_TO_BE_RENDERED,
+  noOfobjects: noOfobjects
+});

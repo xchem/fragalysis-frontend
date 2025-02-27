@@ -8,7 +8,8 @@ import { getRandomColor } from '../../components/preview/molecule/utils/color';
 import {
   appendSurfaceList,
   removeFromSurfaceList,
-  removeFromToBeDisplayedListForDataset
+  removeFromToBeDisplayedListForDataset,
+  updateInToBeDisplayedListForDataset
 } from '../../components/datasets/redux/actions';
 import { generateMoleculeCompoundId, generateSurfaceObject } from '../../components/nglView/generatingObjects';
 import { deleteObject, loadObject, setOrientation } from './dispatchActions';
@@ -43,9 +44,10 @@ export const useDisplaySurfaceRHS = () => {
           previousRepresentations: surfaceData.representations,
           orientationMatrix: null
         })
-      ).finally(() => {
-        const currentOrientation = stage.viewerControls.getOrientation();
-        dispatch(setOrientation(VIEWS.MAJOR_VIEW, currentOrientation));
+      ).then(() => {
+        dispatch(
+          updateInToBeDisplayedListForDataset(datasetID, { id: data.id, rendered: true, type: NGL_OBJECTS.SURFACE })
+        );
       });
     },
     [allCompounds, dispatch, stage]

@@ -4,7 +4,19 @@
 
 import React, { memo, useEffect, useState, useRef, useContext, useCallback, forwardRef } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { Button, Grid, makeStyles, Tooltip, IconButton, Popper, CircularProgress, Table, TableBody, TableRow, TableCell } from '@material-ui/core';
+import {
+  Button,
+  Grid,
+  makeStyles,
+  Tooltip,
+  IconButton,
+  Popper,
+  CircularProgress,
+  Table,
+  TableBody,
+  TableRow,
+  TableCell
+} from '@material-ui/core';
 import { Panel } from '../../../common';
 import { MyLocation, Warning, Assignment, AssignmentTurnedIn } from '@material-ui/icons';
 import SVGInline from 'react-svg-inline';
@@ -774,7 +786,7 @@ const ObservationCmpView = memo(
                             }
                           }}
                           style={{ padding: 0, paddingBottom: 3, marginRight: 5, position: 'right' }}
-                        // className={classes.editIcon}
+                          // className={classes.editIcon}
                         >
                           <Tooltip title="Edit tag" className={classes.editButtonIcon}>
                             <Edit />
@@ -839,7 +851,7 @@ const ObservationCmpView = memo(
                           }
                         }}
                         style={{ padding: 0, paddingBottom: 3, paddingRight: 5, cursor: 'pointer' }}
-                      // className={classes.editIcon}
+                        // className={classes.editIcon}
                       >
                         <Tooltip title="Edit tags" className={classes.editButtonIcon}>
                           <Edit />
@@ -918,7 +930,7 @@ const ObservationCmpView = memo(
                 }
               }}
               style={{ padding: 0, paddingBottom: 8, paddingRight: 5, cursor: 'pointer' }}
-            // className={classes.editIcon}
+              // className={classes.editIcon}
             >
               <Tooltip title="Edit tags" className={classes.editButtonIcon}>
                 <Edit />
@@ -950,9 +962,11 @@ const ObservationCmpView = memo(
       // componentDidMount
       useEffect(() => {
         const obs = getMainObservation();
-        dispatch(getMolImage(obs.id, MOL_TYPE.HIT, imageWidth, imageHeight)).then(i => {
-          setImg_data(i);
-        });
+        if (obs) {
+          dispatch(getMolImage(obs.id, MOL_TYPE.HIT, imageWidth, imageHeight)).then(i => {
+            setImg_data(i);
+          });
+        }
       }, [data.id, data.smiles, imageHeight, imageWidth, dispatch, getMainObservation]);
 
       useEffect(() => {
@@ -1320,7 +1334,9 @@ const ObservationCmpView = memo(
               // name: "nonsense-34"
               // type: "nonsense_id"
               // url: null
-              const searchedIdentifier = mainObservation.identifiers.find(identifier => identifier.type === preferredIdentifierType);
+              const searchedIdentifier = mainObservation.identifiers.find(
+                identifier => identifier.type === preferredIdentifierType
+              );
               if (searchedIdentifier) {
                 displayName = searchedIdentifier.name;
                 break;
@@ -1335,14 +1351,17 @@ const ObservationCmpView = memo(
         return displayName;
       }, [aliasOrder, getMainObservation]);
 
-      const copyToClipboard = useCallback(async (type, text) => {
-        await navigator.clipboard.writeText(text);
-        toastInfo(`${text} of '${type}' was copied to the clipboard`, { autoHideDuration: 5000 });
-      }, [toastInfo]);
+      const copyToClipboard = useCallback(
+        async (type, text) => {
+          await navigator.clipboard.writeText(text);
+          toastInfo(`${text} of '${type}' was copied to the clipboard`, { autoHideDuration: 5000 });
+        },
+        [toastInfo]
+      );
 
       const [anchorElTable, setAnchorElTable] = useState(null);
       const [tableIsOpen, setTableIsOpen] = useState(false);
-      const handleTablePopoverOpen = (event) => {
+      const handleTablePopoverOpen = event => {
         setAnchorElTable(event.currentTarget);
       };
       const handleTablePopoverClose = () => {
@@ -1355,42 +1374,70 @@ const ObservationCmpView = memo(
         const mainObservation = getMainObservation();
         const observationCode = getMainObservation()?.code.replaceAll(`${target_on_name}-`, '');
 
-        return <Table className={classes.posePropertiesTable}
-          onMouseLeave={() => setTableIsOpen(false)}
-          onMouseEnter={() => setTableIsOpen(true)}>
-          <TableBody>
-            <Tooltip title={'Click to copy value of smiles'}>
-              <TableRow onClick={() => copyToClipboard('smiles', data.smiles)}>
-                <TableCell className={classes.posePropertiesTableCell}>copy smiles</TableCell>
-                <TableCell className={classes.posePropertiesTableCell}>{data.smiles}</TableCell>
-              </TableRow>
-            </Tooltip>
-            <Tooltip title={'Click to copy value of observation code'}>
-              <TableRow onClick={() => copyToClipboard('smiles', observationCode)}>
-                <TableCell className={classes.posePropertiesTableCell}>copy observation code</TableCell>
-                <TableCell className={classes.posePropertiesTableCell}>{observationCode}</TableCell>
-              </TableRow>
-            </Tooltip>
-            <Tooltip title={'Click to copy value of prefix_tooltip'}>
-              <TableRow onClick={() => copyToClipboard('prefix_tooltip', mainObservation?.prefix_tooltip)}>
-                <TableCell className={classes.posePropertiesTableCell}>copy prefix_tooltip</TableCell>
-                <TableCell className={classes.posePropertiesTableCell}>{mainObservation?.prefix_tooltip ?? ''}</TableCell>
-              </TableRow>
-            </Tooltip>
-            {aliasOrder?.map((alias, index) => {
-              const compoundCode = mainObservation.identifiers.find(identifier => identifier.type === alias)?.name ?? '';
-              return <Tooltip key={index} title={`Click to copy value of ${alias}`}>
-                <TableRow onClick={() => copyToClipboard(alias, alias === 'compound_code' ? mainObservation?.compound_code : compoundCode)}>
-                  <TableCell className={classes.posePropertiesTableCell}>{`copy ${alias}`}</TableCell>
-                  {(alias === 'compound_code') ?
-                    <TableCell className={classes.posePropertiesTableCell}>{`${mainObservation?.compound_code}`}</TableCell>
-                    : <TableCell className={classes.posePropertiesTableCell}>{`${compoundCode}`}</TableCell>}
+        return (
+          <Table
+            className={classes.posePropertiesTable}
+            onMouseLeave={() => setTableIsOpen(false)}
+            onMouseEnter={() => setTableIsOpen(true)}
+          >
+            <TableBody>
+              <Tooltip title={'Click to copy value of smiles'}>
+                <TableRow onClick={() => copyToClipboard('smiles', data.smiles)}>
+                  <TableCell className={classes.posePropertiesTableCell}>copy smiles</TableCell>
+                  <TableCell className={classes.posePropertiesTableCell}>{data.smiles}</TableCell>
                 </TableRow>
-              </Tooltip>;
-            })}
-          </TableBody>
-        </Table>;
-      }, [aliasOrder, copyToClipboard, data.smiles, getMainObservation, classes.posePropertiesTable, classes.posePropertiesTableCell, target_on_name]);
+              </Tooltip>
+              <Tooltip title={'Click to copy value of observation code'}>
+                <TableRow onClick={() => copyToClipboard('smiles', observationCode)}>
+                  <TableCell className={classes.posePropertiesTableCell}>copy observation code</TableCell>
+                  <TableCell className={classes.posePropertiesTableCell}>{observationCode}</TableCell>
+                </TableRow>
+              </Tooltip>
+              <Tooltip title={'Click to copy value of prefix_tooltip'}>
+                <TableRow onClick={() => copyToClipboard('prefix_tooltip', mainObservation?.prefix_tooltip)}>
+                  <TableCell className={classes.posePropertiesTableCell}>copy prefix_tooltip</TableCell>
+                  <TableCell className={classes.posePropertiesTableCell}>
+                    {mainObservation?.prefix_tooltip ?? ''}
+                  </TableCell>
+                </TableRow>
+              </Tooltip>
+              {aliasOrder?.map((alias, index) => {
+                const compoundCode =
+                  mainObservation.identifiers.find(identifier => identifier.type === alias)?.name ?? '';
+                return (
+                  <Tooltip key={index} title={`Click to copy value of ${alias}`}>
+                    <TableRow
+                      onClick={() =>
+                        copyToClipboard(
+                          alias,
+                          alias === 'compound_code' ? mainObservation?.compound_code : compoundCode
+                        )
+                      }
+                    >
+                      <TableCell className={classes.posePropertiesTableCell}>{`copy ${alias}`}</TableCell>
+                      {alias === 'compound_code' ? (
+                        <TableCell
+                          className={classes.posePropertiesTableCell}
+                        >{`${mainObservation?.compound_code}`}</TableCell>
+                      ) : (
+                        <TableCell className={classes.posePropertiesTableCell}>{`${compoundCode}`}</TableCell>
+                      )}
+                    </TableRow>
+                  </Tooltip>
+                );
+              })}
+            </TableBody>
+          </Table>
+        );
+      }, [
+        aliasOrder,
+        copyToClipboard,
+        data.smiles,
+        getMainObservation,
+        classes.posePropertiesTable,
+        classes.posePropertiesTableCell,
+        target_on_name
+      ]);
 
       return (
         <>
@@ -1408,7 +1455,7 @@ const ObservationCmpView = memo(
               [classes.siteOpenObservations]: poseIdForObservationsDialog === data.id && isObservationDialogOpen
             })}
             wrap="nowrap"
-          // ref={ref}
+            // ref={ref}
           >
             {/* Site number */}
             <Grid item container justifyContent="space-between" direction="column" className={classes.site}>
@@ -1455,7 +1502,8 @@ const ObservationCmpView = memo(
                 </span>
                 <br />
                 {getDisplayName()}
-                <IconButton className={popoverOpen ? classes.posePropertiesTableIconActive : classes.posePropertiesTableIcon}
+                <IconButton
+                  className={popoverOpen ? classes.posePropertiesTableIconActive : classes.posePropertiesTableIcon}
                   onMouseEnter={handleTablePopoverOpen}
                   onMouseLeave={() => setAnchorElTable(null)}
                   ref={anchorElTable}
@@ -1747,9 +1795,7 @@ const ObservationCmpView = memo(
 
             {/* CanonSites */}
             <Grid item xs container direction="column" justifyContent="center" alignItems="stretch" wrap="nowrap">
-              <Tooltip
-                title={<div style={{ whiteSpace: 'pre-line' }}>CanonSite - {getCanonSitesTag().tag}</div>}
-              >
+              <Tooltip title={<div style={{ whiteSpace: 'pre-line' }}>CanonSite - {getCanonSitesTag().tag}</div>}>
                 <Grid
                   item
                   xs

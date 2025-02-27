@@ -30,3 +30,5 @@ export const base_url = window.location.protocol + '//' + window.location.host; 
 //export const base_url = 'https://fragalysis-boris-default.xchem-dev.diamond.ac.uk'; //url for debugging on secondary dev pod
 // export const base_url = 'https://fragalysis.xchem.diamond.ac.uk'; //url for debugging staging
 // export const base_url = 'https://fragalysis.diamond.ac.uk'; //url for debugging production
+
+export const base_data_url = base_url + '/media/';

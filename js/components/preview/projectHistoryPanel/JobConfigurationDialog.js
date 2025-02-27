@@ -31,13 +31,15 @@ import {
 } from '../../projects/redux/dispatchActions';
 import { areArraysSame } from '../../../utils/array';
 import { setDisableRedirect, setDontShowShareSnapshot } from '../../snapshot/redux/actions';
-import { createNewSnapshot } from '../../snapshot/redux/dispatchActions';
+import { changeSnapshot, createNewSnapshot } from '../../snapshot/redux/dispatchActions';
 import { NglContext } from '../../nglView/nglProvider';
 import moment from 'moment';
 import { SnapshotType } from '../../projects/redux/constants';
 import { DJANGO_CONTEXT } from '../../../utils/djangoContext';
 import { VIEWS } from '../../../constants/constants';
 import { getSquonkProject } from '../redux/dispatchActions';
+import { extractRelativePath } from './utils';
+import { base_data_url } from '../../routes/constants';
 
 const useStyles = makeStyles(theme => ({
   jobLauncherPopup: {
@@ -165,6 +167,8 @@ const JobConfigurationDialog = ({ snapshots }) => {
   const [open, setOpen] = useState(false);
   const [isError, setIsError] = useState(false);
   const [errorMsg, setErrorMsg] = useState(null);
+  const [isLaunchButtonDisabled, setIsLaunchButtonDisabled] = useState(false);
+
   const handleTooltipClose = () => {
     setOpen(false);
   };
@@ -174,7 +178,7 @@ const JobConfigurationDialog = ({ snapshots }) => {
 
   const jobConfigurationDialogOpen = useSelector(state => state.projectReducers.jobConfigurationDialogOpen);
 
-  const getAllMolecules = useSelector(state => state.apiReducers.all_mol_lists);
+  const allMolecules = useSelector(state => state.apiReducers.all_mol_lists);
   const allDatasets = useSelector(state => state.datasetsReducers.moleculeLists);
   const selectedDatasetCompounds = useSelector(state => state.datasetsReducers.compoundsToBuyDatasetMap);
   const datasetVisibleDatasetCompoundsList = useSelector(state => state.datasetsReducers.ligandLists);
@@ -226,31 +230,27 @@ const JobConfigurationDialog = ({ snapshots }) => {
     dispatch(setDisableRedirect(true));
     dispatch(setDontShowShareSnapshot(true));
 
-    // With the above flags set, createNewSnapshot returns the ID of newly created snapshot as the second item in the array
-    const snapshotId = (
-      await dispatch(
-        createNewSnapshot({
-          title,
-          description,
-          type,
-          author,
-          parent,
-          session_project,
-          nglViewList,
-          stage,
-          overwriteSnapshot: false,
-          createDiscourse: true
-        })
-      )
-    )[1];
-
-    // Create new snapshot
-    const newSnapshot = await dispatch(getSnapshotAttributesByID(snapshotId));
-
-    // Trigger graph rerender
-    dispatch(refreshJobsData());
-
-    return newSnapshot;
+    return dispatch(
+      createNewSnapshot({
+        title,
+        description,
+        type,
+        author,
+        parent,
+        session_project,
+        nglViewList,
+        stage,
+        overwriteSnapshot: false,
+        createDiscourse: true
+      })
+    )
+      .then(snapshotId => {
+        return dispatch(getSnapshotAttributesByID(snapshotId));
+      })
+      .then(snapshot => {
+        dispatch(refreshJobsData());
+        return snapshot;
+      });
   };
 
   const validate = values => {
@@ -265,6 +265,7 @@ const JobConfigurationDialog = ({ snapshots }) => {
 
   const onSubmitForm = async ({ job, inputs, snapshot }) => {
     try {
+      setIsLaunchButtonDisabled(true);
       let chosenLHSCompounds = null;
       // TODO: chosenRHSCompounds
       let chosenRHSCompounds = null;
@@ -274,9 +275,10 @@ const JobConfigurationDialog = ({ snapshots }) => {
         chosenSnapshot = snapshot;
         if (!snapshot.additional_info) {
           chosenSnapshot = await createSnapshot();
-          const currentSnapshotSelectedCompounds = getAllMolecules
+          dispatch(changeSnapshot(currentSessionProject.projectID, chosenSnapshot.id, stage, true));
+          const currentSnapshotSelectedCompounds = allMolecules
             .filter(molecule => currentSnapshotSelectedCompoundsIDs.includes(molecule.id))
-            .map(molecule => molecule.code);
+            .map(molecule => molecule /*.code*/);
 
           const currentSnapshotSelectedDatasetsCompounds = [];
           Object.keys(selectedDatasetCompounds).map(datasetName => {
@@ -290,7 +292,9 @@ const JobConfigurationDialog = ({ snapshots }) => {
           chosenLHSCompounds = currentSnapshotSelectedCompounds;
           chosenRHSCompounds = currentSnapshotSelectedDatasetsCompounds;
         } else {
-          chosenLHSCompounds = snapshot.additional_info.currentSnapshotSelectedCompounds;
+          chosenLHSCompounds = allMolecules.filter(m =>
+            snapshot.additional_info.currentSnapshotSelectedCompounds.includes(m.code)
+          );
         }
         const savedSelection = [];
         Object.keys(chosenSnapshot.additional_info.currentSnapshotSelectedDatasetsCompounds).map(datasetName => {
@@ -300,9 +304,9 @@ const JobConfigurationDialog = ({ snapshots }) => {
         });
         chosenRHSCompounds = savedSelection;
       } else if (inputs === 'selected-inputs') {
-        const currentSnapshotSelectedCompounds = getAllMolecules
+        const currentSnapshotSelectedCompounds = allMolecules
           .filter(molecule => currentSnapshotSelectedCompoundsIDs.includes(molecule.id))
-          .map(molecule => molecule.code);
+          .map(molecule => molecule /*.code*/);
 
         const currentSnapshotSelectedDatasetsCompounds = [];
         Object.keys(selectedDatasetCompounds).map(datasetName => {
@@ -325,27 +329,30 @@ const JobConfigurationDialog = ({ snapshots }) => {
 
         console.log('onSubmitForm checkpoint');
 
+        const currentSnapshotSavedSelectedLHSObs = allMolecules.filter(m =>
+          currentSnapshot.additional_info.currentSnapshotSelectedCompounds.includes(m.code)
+        );
         // In case the selection is different from the one saved with the snapshot, create a new snapshot with the current selection
         if (
           !currentSnapshot.additional_info ||
-          !areArraysSame(
-            currentSnapshot.additional_info.currentSnapshotSelectedCompounds,
-            currentSnapshotSelectedCompounds
-          ) ||
-          !areArraysSame(savedSelection, currentSnapshotSelectedDatasetsCompounds)
+          !areArraysSame(currentSnapshotSavedSelectedLHSObs, currentSnapshotSelectedCompounds)
+          // || !areArraysSame(savedSelection, currentSnapshotSelectedDatasetsCompounds)
         ) {
           chosenSnapshot = await createSnapshot();
+          dispatch(changeSnapshot(currentSessionProject.projectID, chosenSnapshot.id, stage, true));
           chosenLHSCompounds = currentSnapshotSelectedCompounds;
           chosenRHSCompounds = currentSnapshotSelectedDatasetsCompounds;
         } else {
           chosenSnapshot = currentSnapshot;
-          chosenLHSCompounds = currentSnapshot.additional_info.currentSnapshotSelectedCompounds;
+          chosenLHSCompounds = currentSnapshotSelectedCompounds; //allMolecules.filter(
+          //   m => m.code === currentSnapshot.additional_info.currentSnapshotSelectedCompounds
+          // );
           chosenRHSCompounds = savedSelection;
         }
       } else if (inputs === 'visible-inputs') {
-        const currentSnapshotVisibleCompounds = getAllMolecules
+        const currentSnapshotVisibleCompounds = allMolecules
           .filter(molecule => currentSnapshotVisibleCompoundsIDs.includes(molecule.id))
-          .map(molecule => molecule.code);
+          .map(molecule => molecule /*.code*/);
 
         const currentSnapshotVisibleDatasetCompounds = [];
         Object.keys(datasetVisibleDatasetCompoundsList).map(datasetName => {
@@ -369,30 +376,33 @@ const JobConfigurationDialog = ({ snapshots }) => {
         console.log('onSubmitForm checkpoint');
 
         // In case the visible mols are different from the ones saved with the snapshot, create a new snapshot with the current visible mols
+        const currentSnapshotSavedSelectedLHSObs = allMolecules.filter(m =>
+          currentSnapshot.additional_info.currentSnapshotVisibleCompounds.includes(m.code)
+        );
         if (
           !currentSnapshot.additional_info ||
-          !areArraysSame(
-            currentSnapshot.additional_info.currentSnapshotVisibleCompounds,
-            currentSnapshotVisibleCompounds
-          ) ||
+          !areArraysSame(currentSnapshotSavedSelectedLHSObs, currentSnapshotVisibleCompounds) ||
           !areArraysSame(savedVisibleCompounds, currentSnapshotVisibleDatasetCompounds)
         ) {
           chosenSnapshot = await createSnapshot();
+          dispatch(changeSnapshot(currentSessionProject.projectID, chosenSnapshot.id, stage, true));
           chosenLHSCompounds = currentSnapshotVisibleCompounds;
           chosenRHSCompounds = currentSnapshotVisibleDatasetCompounds;
         } else {
           chosenSnapshot = currentSnapshot;
-          chosenLHSCompounds = currentSnapshot.additional_info.currentSnapshotVisibleCompounds;
+          chosenLHSCompounds = currentSnapshotVisibleCompounds; //allMolecules.filter(
+          //   m => m.code === currentSnapshot.additional_info.currentSnapshotSelectedCompounds
+          // );
           chosenRHSCompounds = savedVisibleCompounds;
         }
       }
 
       //reconstruct lhs molecules
-      const chosenLHSCompoundsFull = chosenLHSCompounds.map(molecule => {
-        return getAllMolecules.find(mol => mol.code === molecule);
-      });
+      // const chosenLHSCompoundsFull = chosenLHSCompounds.map(molecule => {
+      //   return allMolecules.find(mol => mol.code === molecule);
+      // });
       // Remove the unnecessary part from protein_code
-      chosenLHSCompounds = chosenLHSCompounds.map(molecule => getMoleculeTitle(molecule));
+      // chosenLHSCompounds = chosenLHSCompounds.map(molecule => getMoleculeTitle(molecule));
 
       if (chosenLHSCompounds.length > 0) {
         // Close the actual pop up window
@@ -408,8 +418,8 @@ const JobConfigurationDialog = ({ snapshots }) => {
           session_project: currentSessionProject.projectID,
           target: targetId,
           squonk_project: dispatch(getSquonkProject()),
-          proteins: chosenLHSCompounds.join(),
-          compounds: chosenRHSCompounds.join()
+          proteins: chosenLHSCompounds.map(m => extractRelativePath(m.apo_desolv_file, base_data_url)).join(),
+          compounds: chosenLHSCompounds.map(m => extractRelativePath(m.ligand_mol, base_data_url)).join()
         });
 
         let transfer_root = null;
@@ -426,11 +436,11 @@ const JobConfigurationDialog = ({ snapshots }) => {
             snapshot: chosenSnapshot,
             // transfer_root: transfer_root,
             // transfer_target: transfer_target,
-            inputs_dir: `${transfer_root}/${transfer_target}`,
+            inputs_dir: `${transfer_root}`,
             // Prepares data for expanding, see comments in JobFragmentProteinSelectWindow
             data: {
               // lhs: chosenLHSCompounds.map(compound => getMoleculeEnumName(compound))
-              lhs: chosenLHSCompoundsFull
+              lhs: chosenLHSCompounds
             }
           })
         );
@@ -443,7 +453,9 @@ const JobConfigurationDialog = ({ snapshots }) => {
         setErrorMsg("There's no selected inputs to run the job.");
         setIsError(true);
       }
+      setIsLaunchButtonDisabled(false);
     } catch (err) {
+      setIsLaunchButtonDisabled(false);
       console.error(err);
       setErrorMsg(err.response.data);
       setIsError(true);
@@ -574,7 +586,7 @@ const JobConfigurationDialog = ({ snapshots }) => {
                       {errorMsg?.message ?? errorMsg}
                     </Paper>
                   )}
-                  <Button color="primary" size="large" type="submit">
+                  <Button color="primary" size="large" type="submit" disabled={isLaunchButtonDisabled}>
                     Launch
                   </Button>
                 </div>

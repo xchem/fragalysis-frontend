@@ -23,7 +23,7 @@ import {
   setColorAction
 } from './actions';
 import { isEmpty, isEqual } from 'lodash';
-import { createRepresentationsArray } from '../../components/nglView/generatingObjects';
+import { createRepresentationsArray, generateMoleculeObject } from '../../components/nglView/generatingObjects';
 import { COMMON_PARAMS, DENSITY_MAPS, OBJECT_TYPE, SELECTION_TYPE } from '../../components/nglView/constants';
 import {
   removeFromComplexList,
@@ -39,6 +39,7 @@ import { nglObjectDictionary } from '../../components/nglView/renderingObjects';
 import { createInitialSnapshot } from '../../components/snapshot/redux/dispatchActions';
 import { VIEWS } from '../../constants/constants';
 import { NGL_PARAMS } from '../../components/nglView/constants/index';
+import { getRandomColor } from '../../components/preview/molecule/utils/color';
 
 export const loadObject = ({
   target,
@@ -48,7 +49,8 @@ export const loadObject = ({
   markAsRightSideLigand,
   loadQuality,
   quality,
-  preserveColour = false
+  preserveColour = false,
+  center
 }) => async (dispatch, getState) => {
   console.log('loadObject - entry');
   if (stage) {
@@ -88,7 +90,8 @@ export const loadObject = ({
       loadQuality,
       quality,
       dispatch,
-      state
+      state,
+      center
     })
       .then(representations => {
         console.count(`Object loaded`);
@@ -207,15 +210,29 @@ export const setOrientationByInteraction = (div_id, orientation) => (dispatch, g
   }
 };
 
-export const centerOnLigandByMoleculeID = (stage, moleculeID) => (dispatch, getState) => {
+export const centerOnLigandByMoleculeID = (stage, moleculeID, datasetId = null) => (dispatch, getState) => {
   if (moleculeID && stage) {
     const state = getState();
-    const skipOrientation = false; //state.trackingReducers.skipOrientationChange;
-    if (!skipOrientation) {
-      const storedOrientation = state.nglReducers.moleculeOrientations[moleculeID];
-      console.count(`Before applying orientation centerOnLigandByMoleculeID`);
-      stage.viewerControls.orient(storedOrientation);
-      console.count(`After applying orientation centerOnLigandByMoleculeID`);
+    let observation = null;
+    if (!datasetId) {
+      const all_mol_lists = state.apiReducers.all_mol_lists;
+      observation = all_mol_lists.find(mol => mol.id === moleculeID);
+    } else {
+      const datasetCompounds = state.datasetsReducers.moleculeLists[datasetId] || [];
+      observation = datasetCompounds.find(mol => mol.id === moleculeID);
+    }
+    if (observation) {
+      const colourToggle = getRandomColor(observation);
+      let obsObject = null;
+      if (!datasetId) {
+        obsObject = generateMoleculeObject(observation, colourToggle);
+      } else {
+        obsObject = generateMoleculeObject(observation, colourToggle, datasetId);
+      }
+      const component = stage.getComponentsByName(obsObject.name).first;
+      component?.autoView();
+      const currentOrientation = stage.viewerControls.getOrientation();
+      dispatch(setNglOrientation(currentOrientation, VIEWS.MAJOR_VIEW));
     }
   }
 };

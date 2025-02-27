@@ -859,7 +859,7 @@ export const ObservationCmpList = memo(({ hideProjects }) => {
       newMolsToEdit.push(cm.id);
     }
   });
-  if (newMolsToEdit.length !== moleculesToEditIds.length) {
+  if (newMolsToEdit.length !== moleculesToEditIds.length && allMoleculesList?.length > 0) {
     dispatch(setMolListToEdit(newMolsToEdit));
   }
 

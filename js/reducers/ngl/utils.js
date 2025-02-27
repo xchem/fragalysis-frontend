@@ -26,3 +26,33 @@ export const getToBeDisplayedStructuresDataset = (toBeDisplayed, displayedList, 
 
   return result;
 };
+
+export const isEverythingInQueueRendered = toBeDisplayed => {
+  return toBeDisplayed.every(item => item.rendered);
+};
+
+export const isEverythingInQueueRenderedDataset = toBeDisplayed => {
+  let result = true;
+
+  Object.keys(toBeDisplayed).forEach(datasetID => {
+    const toBeDisplayedDataset = toBeDisplayed[datasetID] || [];
+    result &= toBeDisplayedDataset.every(item => item.rendered);
+  });
+
+  return result;
+};
+
+export const howManyInQueueRendered = toBeDisplayed => {
+  return toBeDisplayed.filter(item => item.rendered).length;
+};
+
+export const howManyInQueueRenderedDataset = toBeDisplayed => {
+  let result = 0;
+
+  Object.keys(toBeDisplayed).forEach(datasetID => {
+    const toBeDisplayedDataset = toBeDisplayed[datasetID] || [];
+    result += toBeDisplayedDataset.filter(item => item.rendered).length;
+  });
+
+  return result;
+};

@@ -8,12 +8,11 @@ import { getRandomColor } from '../../components/preview/molecule/utils/color';
 import {
   appendLigandList,
   removeFromLigandList,
-  removeFromToBeDisplayedListForDataset
+  removeFromToBeDisplayedListForDataset,
+  updateInToBeDisplayedListForDataset
 } from '../../components/datasets/redux/actions';
 import { generateMoleculeCompoundId, generateMoleculeObject } from '../../components/nglView/generatingObjects';
-import { deleteObject, loadObject, setOrientation } from './dispatchActions';
-import { appendMoleculeOrientation, setNglViewFromSnapshotRendered } from './actions';
-import { getDatasetMoleculeID } from '../../components/datasets/redux/dispatchActions';
+import { deleteObject, loadObject } from './dispatchActions';
 
 export const useDisplayLigandRHS = () => {
   const dispatch = useDispatch();
@@ -21,7 +20,6 @@ export const useDisplayLigandRHS = () => {
   const toBeDisplayedList = useSelector(state => state.datasetsReducers.toBeDisplayedList);
   const displayedLigands = useSelector(state => state.datasetsReducers.ligandLists);
   const allCompounds = useSelector(state => state.datasetsReducers.moleculeLists);
-  const skipOrientationChange = useSelector(state => state.nglReducers.skipOrientationChange);
 
   const { getNglView } = useContext(NglContext);
   const stage = getNglView(VIEWS.MAJOR_VIEW) && getNglView(VIEWS.MAJOR_VIEW).stage;
@@ -36,7 +34,7 @@ export const useDisplayLigandRHS = () => {
 
       dispatch(appendLigandList(datasetID, generateMoleculeCompoundId(data)));
       console.count(`Grabbed orientation before loading dataset ligand`);
-      const currentOrientation = stage.viewerControls.getOrientation();
+      // const currentOrientation = stage.viewerControls.getOrientation();
       return dispatch(
         loadObject({
           target: Object.assign(
@@ -47,25 +45,13 @@ export const useDisplayLigandRHS = () => {
           previousRepresentations: ligandData.representations,
           markAsRightSideLigand: true
         })
-      ).finally(() => {
-        const skipOrientation = skipOrientationChange;
-        if (!skipOrientation) {
-          const ligandOrientation = stage.viewerControls.getOrientation();
-          dispatch(setOrientation(VIEWS.MAJOR_VIEW, ligandOrientation));
-
-          dispatch(appendMoleculeOrientation(getDatasetMoleculeID(datasetID, data?.id), ligandOrientation));
-
-          // keep current orientation of NGL View
-          if (!skipOrientation) {
-            console.count(`Before applying orientation after loading dataset ligand.`);
-            stage.viewerControls.orient(currentOrientation);
-            console.count(`After applying orientation after loading dataset ligand.`);
-          }
-          // dispatch(setNglViewFromSnapshotRendered(false));
-        }
+      ).then(() => {
+        dispatch(
+          updateInToBeDisplayedListForDataset(datasetID, { id: data.id, rendered: true, type: NGL_OBJECTS.LIGAND })
+        );
       });
     },
-    [allCompounds, dispatch, skipOrientationChange, stage]
+    [allCompounds, dispatch, stage]
   );
 
   const removeLigand = useCallback(

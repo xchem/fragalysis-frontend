@@ -44,7 +44,7 @@ const prepareItem = (item, config, targetName) => {
 
   if (config?.file) {
     const file = item[config.file];
-    itemPath = file;
+    itemPath = file.split('/').pop();
     itemName = getMoleculeEnumName(item.code, targetName);
 
     if (config?.skip && config?.skip > 0) {
@@ -163,6 +163,7 @@ export const useJobSchema = jobLauncherData => {
             ...options.properties,
             ...outputs.properties
           }).map(([key, property]) => {
+            console.log(`Processing property ${key} - ${JSON.stringify(property)}`);
             return [key, compileProperty(property, data, ignoreFirstRound, targetName)];
           })
         )

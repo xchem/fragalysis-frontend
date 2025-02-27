@@ -9,7 +9,8 @@ import {
   removeFromDensityList,
   removeFromDensityListCustom,
   removeFromDensityListType,
-  removeFromToBeDisplayedList
+  removeFromToBeDisplayedList,
+  updateInToBeDisplayedList
 } from '../selection/actions';
 import { generateDensityObject, generateMoleculeId } from '../../components/nglView/generatingObjects';
 import { VIEWS } from '../../constants/constants';
@@ -61,9 +62,7 @@ export const useDisplayDensityLHS = () => {
           previousRepresentations: densityData.representations,
           orientationMatrix: null
         })
-      ).finally(() => {
-        const currentOrientation = stage.viewerControls.getOrientation();
-        dispatch(setOrientation(VIEWS.MAJOR_VIEW, currentOrientation));
+      ).then(() => {
         let molDataId = generateMoleculeId(data);
         if (!data.proteinData) {
           dispatch(getProteinData(data)).then(i => {
@@ -78,6 +77,7 @@ export const useDisplayDensityLHS = () => {
             dispatch(appendDensityList(generateMoleculeId(data)));
             dispatch(appendToDensityListType(molDataId));
             if (data.proteinData.render_quality) {
+              dispatch(updateInToBeDisplayedList({ id: data.id, rendered: true, type: NGL_OBJECTS.DENSITY }));
               return dispatch(addQuality(stage, data, colourToggle, true));
             }
           });
@@ -90,9 +90,11 @@ export const useDisplayDensityLHS = () => {
           dispatch(appendDensityList(generateMoleculeId(data)));
           dispatch(appendToDensityListType(molDataId));
           if (data.proteinData.render_quality) {
+            dispatch(updateInToBeDisplayedList({ id: data.id, rendered: true, type: NGL_OBJECTS.DENSITY }));
             return dispatch(addQuality(stage, data, colourToggle, true));
           }
         }
+        dispatch(updateInToBeDisplayedList({ id: data.id, rendered: true, type: NGL_OBJECTS.DENSITY }));
       });
     },
     [allObservations, dispatch, stage]

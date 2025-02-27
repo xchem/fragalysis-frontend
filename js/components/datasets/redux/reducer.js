@@ -249,7 +249,9 @@ export const datasetsReducers = (state = INITIAL_STATE, action = {}) => {
 
     case constants.ADD_DATASET:
       const increasedDatasets = state.datasets.slice();
-      increasedDatasets.push(action.payload);
+      if (!increasedDatasets.some(dataset => dataset.id === action.payload.id)) {
+        increasedDatasets.push(action.payload);
+      }
 
       return Object.assign({}, state, { datasets: increasedDatasets });
 

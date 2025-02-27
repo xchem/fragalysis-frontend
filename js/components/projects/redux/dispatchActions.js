@@ -265,7 +265,8 @@ export const getSnapshotAttributesByID = snapshotID => (dispatch, getState) => {
           currentSnapshotList = {};
         }
         const snapshot = parseSnapshotAttributes(response.data);
-        currentSnapshotList[snapshotID] = snapshot;
+        currentSnapshotList = { ...currentSnapshotList, [`${snapshotID}`]: snapshot };
+        // currentSnapshotList[`${snapshotID}`] = snapshot;
         dispatch(setCurrentSnapshotList(currentSnapshotList));
 
         if (response.data.children && response.data.children.length > 0) {
@@ -461,18 +462,20 @@ export const getJobConfigurationsFromServer = () => async (dispatch, getState) =
   for (let i = 0; i < availableJobs.length; i++) {
     const job = availableJobs[i];
     let jobConfig = await getJobConfigFromServer(job.job_collection, job.job_name, job.job_version);
-    jobConfig = preprocessJobConfig(jobConfig);
-    // console.log(JSON.stringify(filteredJobConfig));
-    const jobOject = {
-      id: jobConfig.id,
-      name: jobConfig.collection,
-      description: jobConfig.description,
-      slug: jobConfig.job,
-      spec: jobConfig,
-      overrides: overrides,
-      overrideIndex: job.index
-    };
-    result.push(jobOject);
+    if (jobConfig) {
+      jobConfig = preprocessJobConfig(jobConfig);
+      // console.log(JSON.stringify(filteredJobConfig));
+      const jobOject = {
+        id: jobConfig.id,
+        name: jobConfig.collection,
+        description: jobConfig.description,
+        slug: jobConfig.job,
+        spec: jobConfig,
+        overrides: overrides,
+        overrideIndex: job.index
+      };
+      result.push(jobOject);
+    }
   }
 
   return result;
@@ -497,11 +500,16 @@ const removePropDeep = (obj, propName) => {
 };
 
 const getJobConfigFromServer = async (job_collection, job_name, job_version) => {
-  const resultCall = await api({
-    url: `${base_url}/api/job_config/?job_name=${job_name.trim()}&job_version=${job_version.trim()}&job_collection=${job_collection.trim()}`
-  });
+  let resultCall = null;
+  try {
+    resultCall = await api({
+      url: `${base_url}/api/job_config/?job_name=${job_name.trim()}&job_version=${job_version.trim()}&job_collection=${job_collection.trim()}`
+    });
+  } catch (e) {
+    console.log(`Job configuration for ${job_collection} ${job_name} ${job_version} not found`);
+  }
 
-  return resultCall.data;
+  return resultCall?.data;
 };
 
 const getJobOverrides = async () => {

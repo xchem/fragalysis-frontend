@@ -5,7 +5,8 @@ import {
   appendProteinList,
   appendQualityList,
   removeFromProteinList,
-  removeFromToBeDisplayedList
+  removeFromToBeDisplayedList,
+  updateInToBeDisplayedList
 } from '../selection/actions';
 import { generateHitProteinObject, generateMoleculeId } from '../../components/nglView/generatingObjects';
 import { VIEWS } from '../../constants/constants';
@@ -55,9 +56,8 @@ export const useDisplayProteinLHS = () => {
           quality: qualityInformation,
           preserveColour: proteinData.preserveColour
         })
-      ).finally(() => {
-        const currentOrientation = stage.viewerControls.getOrientation();
-        dispatch(setOrientation(VIEWS.MAJOR_VIEW, currentOrientation));
+      ).then(() => {
+        dispatch(updateInToBeDisplayedList({ id: data.id, rendered: true, type: NGL_OBJECTS.PROTEIN }));
       });
     },
     [allObservations, dispatch, stage]
