@@ -20,7 +20,8 @@ import {
   setContourAction,
   setWarningIconAction,
   setNglOrientationByInteraction,
-  setColorAction
+  setColorAction,
+  setIsNGLQueueEmpty
 } from './actions';
 import { isEmpty, isEqual } from 'lodash';
 import { createRepresentationsArray, generateMoleculeObject } from '../../components/nglView/generatingObjects';
@@ -53,6 +54,7 @@ export const loadObject = ({
   center
 }) => async (dispatch, getState) => {
   console.log('loadObject - entry');
+  dispatch(setIsNGLQueueEmpty(false));
   if (stage) {
     const state = getState();
     const actionRestoring = false; //state.trackingReducers.isActionRestoring;
@@ -78,7 +80,7 @@ export const loadObject = ({
       });
     }
 
-    console.count(`Before object is loaded`);
+    console.count(`Switch - Before object is loaded`);
     // versionFixedTarget can cause "Error: TypeError: path is null" in stage.loadFile
     return nglObjectDictionary[versionFixedTarget.OBJECT_TYPE]({
       stage,

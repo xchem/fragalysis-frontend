@@ -207,19 +207,19 @@ export const loadQualityFromFile = async (
       }
     }
 
-    if (!skipOrientation) {
-      if (orientationMatrix && orientationMatrix.elements) {
-        const matrix = new Matrix4();
-        matrix.fromArray(orientationMatrix.elements);
+    // if (!skipOrientation) {
+    //   if (orientationMatrix && orientationMatrix.elements) {
+    //     const matrix = new Matrix4();
+    //     matrix.fromArray(orientationMatrix.elements);
 
-        console.count(`Before applying quality orientation matrix.`);
-        stage.viewerControls.orient(matrix);
-        console.count(`After applying quality orientation matrix.`);
-      } else if (orientationMatrix === undefined) {
-        comp.autoView('ligand');
-        console.count(`Orientation matrix not found for quality, using autoView instead.`);
-      }
-    }
+    //     console.count(`Before applying quality orientation matrix.`);
+    //     stage.viewerControls.orient(matrix);
+    //     console.count(`After applying quality orientation matrix.`);
+    //   } else if (orientationMatrix === undefined) {
+    //     comp.autoView('ligand');
+    //     console.count(`Orientation matrix not found for quality, using autoView instead.`);
+    //   }
+    // }
 
     const reprArray = createRepresentationsArray(representationStructures);
     console.count(`loadQualityFromFile finnished`);

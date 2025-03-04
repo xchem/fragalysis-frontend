@@ -14,6 +14,7 @@ import { getRandomColor } from '../../components/preview/molecule/utils/color';
 import { deleteObject, loadObject, setOrientation } from './dispatchActions';
 import { base_url } from '../../components/routes/constants';
 import { getToBeDisplayedStructures } from './utils';
+import { use } from 'react';
 
 export const useDisplaySurfaceLHS = () => {
   const dispatch = useDispatch();

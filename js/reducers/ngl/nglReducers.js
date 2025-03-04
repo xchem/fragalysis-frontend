@@ -51,12 +51,16 @@ export const INITIAL_STATE = {
   snapshotOrientationApplied: false,
   reapplyOrientation: false,
   objectsInSnapshotToBeRendered: 0,
-  isSnapshotRendering: false
+  isSnapshotRendering: false,
+  isNGLQueueEmpty: true
 };
 
 export default function nglReducers(state = INITIAL_STATE, action = {}) {
   switch (action.type) {
     // Defined in initialState - but may be needed if we want to load a different structure
+
+    case CONSTANTS.SET_IS_NGL_QUEUE_EMPTY:
+      return { ...state, isNGLQueueEmpty: action.isEmpty };
 
     case CONSTANTS.SET_NGL_OBJECTS_IN_SNAPSHOT_TO_BE_RENDERED:
       return { ...state, objectsInSnapshotToBeRendered: action.noOfobjects };

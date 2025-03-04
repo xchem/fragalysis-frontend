@@ -47,16 +47,16 @@ export const LoadingProvider = memo(props => {
     } else if (!isSnapshotRendering && isSingleItemRendering) {
       setIsSingleItemRendering(false);
     } else {
-      if (combined < objectsInSnapshotToBeRendered) {
-        //snapshot is still rendering
-        const progress = Math.floor((combined / objectsInSnapshotToBeRendered) * 100);
-        setSnapshotProgress(progress);
-      } else {
-        //snapshot is fully rendered
-        setSnapshotProgress(100);
-        dispatch(setIsSnapshotRendering(false));
-        // dispatch(setNglViewFromSnapshotRendered(true));
-      }
+      // if (combined < objectsInSnapshotToBeRendered) {
+      //   //snapshot is still rendering
+      //   const progress = Math.floor((combined / objectsInSnapshotToBeRendered) * 100);
+      //   setSnapshotProgress(progress);
+      // } else {
+      //   //snapshot is fully rendered
+      //   setSnapshotProgress(100);
+      //   dispatch(setIsSnapshotRendering(false));
+      //   // dispatch(setNglViewFromSnapshotRendered(true));
+      // }
     }
   }, [
     toBeDisplayedListLHS,
@@ -80,7 +80,7 @@ export const LoadingProvider = memo(props => {
       {(isLoading === true || moleculesAndTagsAreLoading === true || isSingleItemRendering) && (
         <LinearProgress color="secondary" className={classes.loadingProgress} variant="query" />
       )}
-      {isSnapshotRendering && (
+      {false && isSnapshotRendering && (
         <LinearProgress
           variant="determinate"
           color="secondary"
