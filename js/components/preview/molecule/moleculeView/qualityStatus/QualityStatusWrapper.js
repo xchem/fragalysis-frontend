@@ -39,7 +39,6 @@ export const QualityStatusWrapper = memo(({ data }) => {
     const allStatuses = useSelector(state => state.apiReducers.quality_statuses);
     const [qualityStatuses, setQualityStatuses] = useState([]);
     const [latestPeerReviews, setLatestPeerReviews] = useState([]);
-    // const [openQualityStatusSettings, setOpenQualityStatusSettings] = useState(false);
     const classes = useStyles();
 
     useEffect(() => {
@@ -96,30 +95,39 @@ export const QualityStatusWrapper = memo(({ data }) => {
     }, [getStatusCount, latestPeerReviews.length]);
 
     const handleEditDialogOpen = useCallback(event => {
-        // setOpenQualityStatusSettings(true);
         setAnchorElQualityStatus(event.currentTarget);
-        // console.log('clicked handleEditDialogOpen');
     }, []);
 
-    const [anchorElTable, setAnchorElTable] = useState(null);
+    const [anchorElModal, setAnchorElModal] = useState(null);
     const [anchorElQualityStatus, setAnchorElQualityStatus] = useState(null);
     const [tableIsOpen, setTableIsOpen] = useState(false);
-    const handleTablePopoverOpen = (event) => {
-        setAnchorElTable(event.currentTarget);
+    const handleStatusMouseEnter = (event) => {
+        setAnchorElModal(event.currentTarget);
     };
-    const handleTablePopoverClose = () => {
-        setAnchorElTable(null);
+    const handleStatusMouseLeave = () => {
+        if (!tableIsOpen) {
+            setAnchorElModal(null);
+        }
+    };
+    const handleQualityStatusSummaryTooltipLeave = useCallback(() => {
+        setTableIsOpen(false);
+        if (!Boolean(anchorElQualityStatus)) {
+            setAnchorElModal(null);
+        }
+    }, [anchorElQualityStatus]);
+    const handleModalPopoverClose = () => {
+        setAnchorElModal(null);
         setTableIsOpen(false);
     };
     const handleModalClose = () => {
-        handleTablePopoverClose();
+        handleModalPopoverClose();
         setAnchorElQualityStatus(null);
     };
-    const popoverOpen = Boolean(anchorElQualityStatus) || Boolean(anchorElTable) || tableIsOpen;
+    const popoverOpen = Boolean(anchorElQualityStatus) || Boolean(anchorElModal) || tableIsOpen;
 
-    const getPosePropertiesTable = useCallback(() => {
+    const getQualityStatusSummaryTooltip = useCallback(() => {
         return <Table className={classes.posePropertiesTable}
-            onMouseLeave={() => setTableIsOpen(false)}
+            onMouseLeave={handleQualityStatusSummaryTooltipLeave}
             onMouseEnter={() => setTableIsOpen(true)}>
             <TableBody>
                 <TableRow>
@@ -130,8 +138,8 @@ export const QualityStatusWrapper = memo(({ data }) => {
                     </Tooltip>
                     <TableCell className={classes.posePropertiesTableCell}>:</TableCell>
                     {latestPeerReviews.map((status, index) => {
-                        return <Tooltip title={status.user ? `${status.first_name} ${status.last_name}` : 'no user'}>
-                            <TableCell key={index} className={classes.posePropertiesTableCell}>
+                        return <Tooltip key={index} title={status.user ? `${status.first_name} ${status.last_name}` : 'no user'}>
+                            <TableCell className={classes.posePropertiesTableCell}>
                                 <QualityStatusLight status={status.status} />
                             </TableCell>
                         </Tooltip>
@@ -146,12 +154,11 @@ export const QualityStatusWrapper = memo(({ data }) => {
                 </TableRow>
             </TableBody>
         </Table>;
-    }, [latestPeerReviews, handleEditDialogOpen, getMainQualityStatusObject, mainQualityStatus, classes.posePropertiesTable, classes.posePropertiesTableCell]);
+    }, [latestPeerReviews, handleEditDialogOpen, getMainQualityStatusObject, mainQualityStatus, classes.posePropertiesTable, classes.posePropertiesTableCell, handleQualityStatusSummaryTooltipLeave]);
 
     return <Grid item
-        onMouseEnter={handleTablePopoverOpen}
-        onMouseLeave={() => setAnchorElTable(null)}
-        ref={anchorElTable}
+        onMouseEnter={handleStatusMouseEnter}
+        onMouseLeave={handleStatusMouseLeave}
         className={classes.wrapper}
     // onClick={handleEditDialogOpen}
     >
@@ -163,7 +170,7 @@ export const QualityStatusWrapper = memo(({ data }) => {
             id="mouse-over-popover"
             style={{ pointerEvents: 'none' }}
             open={popoverOpen}
-            anchorEl={anchorElTable}
+            anchorEl={anchorElModal}
             anchorOrigin={{
                 vertical: 'center',
                 horizontal: 'right'
@@ -172,10 +179,10 @@ export const QualityStatusWrapper = memo(({ data }) => {
                 vertical: 'center',
                 horizontal: 'left'
             }}
-            onClose={handleTablePopoverClose}
+            onClose={handleModalPopoverClose}
             disableRestoreFocus
         >
-            {getPosePropertiesTable()}
+            {getQualityStatusSummaryTooltip()}
         </Popover>
         <QualityStatusModal
             openModal={Boolean(anchorElQualityStatus)}

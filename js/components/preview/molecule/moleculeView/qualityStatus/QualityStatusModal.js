@@ -212,7 +212,7 @@ export const QualityStatusModal = memo(({ openModal, onModalClose, statuses, lat
                     {"➜"}
                     <QualityStatusLight size={15} status={status.status} />
                   </TableCell>
-                  <Tooltip title={status.username}>
+                  <Tooltip title={status.username ?? 'no username'}>
                     <TableCell className={classes.posePropertiesTableCell}>{status.user ? `${status.first_name} ${status.last_name}` : ''}</TableCell>
                   </Tooltip>
                   <TableCell className={classes.posePropertiesTableCell}>{getDateDifference(status.timestamp)}</TableCell>
