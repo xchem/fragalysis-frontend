@@ -568,13 +568,13 @@ export const saveAndShareSnapshot = (nglViewList, showDialog = true, axuData = {
 
       const additional_info = getAdditionalInfo(state, snapshotData);
 
-      const data = {
+      let data = {
         title: ProjectCreationType.READ_ONLY,
         description: ProjectCreationType.READ_ONLY,
         target: targetId,
         author: loggedInUserID || null,
         tags: '[]',
-        additional_info,
+        additional_info: {},
         project: currentProject?.id
       };
 
