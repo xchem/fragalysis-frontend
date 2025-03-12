@@ -1303,7 +1303,7 @@ const ObservationCmpView = memo(
 
       // let moleculeTitle = data?.code.replace(new RegExp(`${target_on_name}-`, 'i'), '');
       // let moleculeTitle = data.code;
-      let moleculeTitle = data?.code.replaceAll(`${target_on_name}-`, '');
+      let moleculeTitle = data?.code?.replaceAll(`${target_on_name}-`, '') || '';
       if (observations?.length > 0 && observations[0].compound_code) {
         moleculeTitle += ` - ${observations[0].compound_code}`;
       }
@@ -1372,7 +1372,7 @@ const ObservationCmpView = memo(
 
       const getPosePropertiesTable = useCallback(() => {
         const mainObservation = getMainObservation();
-        const observationCode = getMainObservation()?.code.replaceAll(`${target_on_name}-`, '');
+        const observationCode = getMainObservation()?.code?.replaceAll(`${target_on_name}-`, '') || '';
 
         return (
           <Table
@@ -1498,7 +1498,7 @@ const ObservationCmpView = memo(
                 className={classes.moleculeTitleLabel}
               >
                 <span className={classes.moleculeTitleLabelMain}>
-                  {getMainObservation()?.code.replaceAll(`${target_on_name}-`, '')}
+                  {getMainObservation()?.code?.replaceAll(`${target_on_name}-`, '') || ''}
                 </span>
                 <br />
                 {getDisplayName()}
