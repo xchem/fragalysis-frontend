@@ -178,6 +178,16 @@ export const COMPANIES = {
         title: 'Medical Research Council',
         link: 'https://mrc.ukri.org/',
         image: 'mrcLogo.png'
+    },
+    oscars: {
+        title: 'OSCARS',
+        link: 'https://oscars-project.eu/',
+        image: 'oscarsLogo.svg'
+    },
+    eosc: {
+        title: 'EOSC-Life',
+        link: 'https://www.eosc-life.eu/',
+        image: 'eoscLogo.png'
     }
 };
 
@@ -209,7 +219,9 @@ export const FUNDING = [
     COMPANIES.sabs,
     COMPANIES.inext,
     COMPANIES.horizon,
-    COMPANIES.mrc
+    COMPANIES.mrc,
+    COMPANIES.oscars,
+    COMPANIES.eosc
 ];
 
 /**
