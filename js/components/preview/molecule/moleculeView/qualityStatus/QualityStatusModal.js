@@ -147,7 +147,6 @@ export const QualityStatusModal = memo(({ openModal, onModalClose, statuses, lat
       }}
       classes={{ paper: classes.paper }}
     >
-      {/* <Dialog open={openModal} onClose={onModalClose} > */}
       <DialogContent dividers className={classes.root}>
         <Grid container justifyContent="flex-start" direction="column" spacing={2}>
           <Grid item container direction="row" justifyContent="space-between" alignItems="center" spacing={2}>
@@ -212,15 +211,18 @@ export const QualityStatusModal = memo(({ openModal, onModalClose, statuses, lat
                     {"➜"}
                     <QualityStatusLight size={15} status={status.status} />
                   </TableCell>
-                  <Tooltip title={status.username ?? 'no username'}>
-                    <TableCell className={classes.posePropertiesTableCell}>{status.user ? `${status.first_name} ${status.last_name}` : ''}</TableCell>
-                  </Tooltip>
+                  {/* <Tooltip title={status.username ?? 'no username'}> */}
+                  <TableCell className={classes.posePropertiesTableCell}>{status.user ? `${status.first_name} ${status.last_name}` : ''}</TableCell>
+                  {/* </Tooltip> */}
                   <TableCell className={classes.posePropertiesTableCell}>{getDateDifference(status.timestamp)}</TableCell>
                   <Tooltip title={status.comment}>
                     <TableCell className={classNames(classes.posePropertiesTableCell, classes.commentTd)}>{status.comment}</TableCell>
                   </Tooltip>
                 </TableRow>
               })}
+              {(!!!statuses || statuses.length === 0) && <TableRow>
+                <TableCell style={{ textAlign: 'center' }}>No peer reviews</TableCell>
+              </TableRow>}
             </TableBody>
           </Table>
         </Grid>

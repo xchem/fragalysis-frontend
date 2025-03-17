@@ -42,7 +42,8 @@ export const QualityStatusWrapper = memo(({ data }) => {
     const classes = useStyles();
 
     useEffect(() => {
-        const statuses = allStatuses.filter(status => status.site_observation === data.id);
+        // filter out default statuses created on load
+        const statuses = allStatuses.filter(status => status.site_observation === data.id && status.comment !== 'Created on load');
         if (statuses) {
             setQualityStatuses(statuses);
         }
