@@ -12,7 +12,7 @@ import { ContentCopyRounded } from '@mui/icons-material';
 import { ToastContext } from '../toast';
 
 const COLUMNS = 5;
-const MAX_IMAGE_HEIGHT = 90;
+const MAX_IMAGE_HEIGHT = 81;
 
 const useStyles = makeStyles(theme => ({
   copyButton: {
