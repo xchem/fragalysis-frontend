@@ -36,7 +36,8 @@ import {
   Restore,
   Layers,
   CreateNewFolder,
-  Save
+  Save,
+  HelpOutline
 } from '@material-ui/icons';
 import { HeaderContext } from './headerContext';
 import { Button } from '../common';
@@ -495,6 +496,13 @@ export default memo(
               )}
             </Grid>
             <ServicesStatusWrapper />
+            <Grid item>
+              <Tooltip title={'Introduction to the Fragalysis application'}>
+                <Button onClick={() => openLink(URLS.helpPage)} startIcon={<HelpOutline />} variant="text" size="small">
+                  Help
+                </Button>
+              </Tooltip>
+            </Grid>
             <Grid item>
               <Grid container direction="row" justifyContent="flex-start" alignItems="center" spacing={1}>
                 {layoutEnabled && (
