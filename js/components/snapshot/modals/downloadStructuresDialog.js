@@ -138,7 +138,6 @@ export const DownloadStructureDialog = memo(({ }) => {
 
   const isOpen = useSelector(state => state.snapshotReducers.downloadStructuresDialogOpen);
   const targetId = useSelector(state => state.apiReducers.target_on);
-  const targetName = useSelector(state => state.apiReducers.target_on_name);
   const targetIdList = useSelector(state => state.apiReducers.target_id_list);
   const target = targetIdList.find(t => t.id === targetId);
   const allMolecules = useSelector(state => state.apiReducers.all_mol_lists);
@@ -236,7 +235,7 @@ export const DownloadStructureDialog = memo(({ }) => {
       requestObject = null;
     } else {
       requestObject = {
-        target_name: targetName,
+        target_name: target?.title,
         target_access_string: currentProject?.target_access_string,
         proteins: proteinNames,
         ...mapFiles,
