@@ -2,7 +2,7 @@ import React, { memo } from "react";
 import { QUALITY_STATUSES, QUALITY_STATUS_COLORS } from "./constants";
 import { LightCircle } from "../../../../services";
 
-export const QualityStatusLight = memo(({ status, size = 15, className }) => {
+export const QualityStatusLight = memo(({ status, size = 15, props = {} }) => {
     const getColor = (status) => {
         switch (status) {
             case QUALITY_STATUSES.GOOD:
@@ -15,5 +15,5 @@ export const QualityStatusLight = memo(({ status, size = 15, className }) => {
                 return QUALITY_STATUS_COLORS.NONE;
         }
     }
-    return <LightCircle color={getColor(status)} size={size} className={className} />;
+    return <LightCircle color={getColor(status)} size={size} props={props} />;
 });

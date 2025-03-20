@@ -17,7 +17,7 @@ import { DJANGO_CONTEXT } from '../../../../../utils/djangoContext';
 const useStyles = makeStyles(theme => ({
   root: {
     padding: 16,
-    minWidth: 276,
+    minWidth: 281,
     '& $gridItem': {
       padding: 4
     }
@@ -33,9 +33,6 @@ const useStyles = makeStyles(theme => ({
   },
   posePropertiesTableCell: {
     padding: '4px 6px'
-  },
-  posePropertiesTable: {
-    // backgroundColor: theme.palette.primary.light
   },
   highlight: {
     boxShadow: '0px 0px 0px 2px #ccc',
@@ -151,7 +148,7 @@ export const QualityStatusModal = memo(({ openModal, onModalClose, statuses, lat
         <Grid container justifyContent="flex-start" direction="column" spacing={2}>
           <Grid item container direction="row" justifyContent="space-between" alignItems="center" spacing={2}>
             <Grid className={classes.gridItem} item xs={2}>
-              <QualityStatusLight size={18} status={getMainQualityStatusObject()?.status} className={classes.mainStatusLight} />
+              <QualityStatusLight size={18} status={getMainQualityStatusObject()?.status} props={{ className: classes.mainStatusLight }} />
             </Grid>
             {DJANGO_CONTEXT.pk && <>
               <Grid className={classes.gridItem} item xs={4}>
@@ -162,7 +159,7 @@ export const QualityStatusModal = memo(({ openModal, onModalClose, statuses, lat
                   className={classNames(classes.gridItem, classes.statusLight)}
                   onClick={() => setSelectedStatus(status)}
                 >
-                  <QualityStatusLight size={16} status={status} className={classNames({ [classes.highlight]: status === selectedStatus })} />
+                  <QualityStatusLight size={16} status={status} props={{ className: classNames({ [classes.highlight]: status === selectedStatus }) }} />
                 </Grid>
               ))}
               <Tooltip title={'Set main status'}>
@@ -202,7 +199,7 @@ export const QualityStatusModal = memo(({ openModal, onModalClose, statuses, lat
             }
           </Grid>
           <Divider />
-          <Table className={classes.posePropertiesTable}>
+          <Table>
             <TableBody>
               {statuses?.map((status, index) => {
                 return <TableRow key={index} className={classNames({ [classes.mainStatusRow]: status.main_status })}>

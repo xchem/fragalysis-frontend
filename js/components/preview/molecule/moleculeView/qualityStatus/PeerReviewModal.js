@@ -72,7 +72,7 @@ export const PeerReviewModal = memo(({ openDialog, onDialogClose, anchorEl, site
               className={classNames(classes.gridItem, classes.statusLight)}
               onClick={() => setSelectedStatus(status)}
             >
-              <QualityStatusLight size={16} status={status} className={classNames({ [classes.highlight]: status === selectedStatus })} />
+              <QualityStatusLight size={16} status={status} props={{ className: classNames({ [classes.highlight]: status === selectedStatus }) }} />
             </Grid>
           ))}
           <Tooltip title={'Add peer review'}>

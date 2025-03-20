@@ -9,13 +9,15 @@ const useStyles = makeStyles(theme => ({
     }
 }));
 
-export const LightCircle = memo(({ color, size = 20, className }) => {
+export const LightCircle = memo(({ color, size = 20, props = { className: '' } }) => {
 
     const cX = size / 2;
     const cY = size / 2;
     const cR = size / 2 - 1;
 
-    return <svg height={size} width={size} className={classNames(useStyles().circle, className)}>
+    const { className, ...passedProps } = props;
+
+    return <svg height={size} width={size} className={classNames(useStyles().circle, className)} {...passedProps}>
         <defs>
             <linearGradient id="darkGradient" gradientTransform="rotate(90)">
                 <stop offset="0%" stopColor="rgba(0,0,0,0.4289916650253851)" />

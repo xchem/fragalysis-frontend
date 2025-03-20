@@ -15,6 +15,8 @@ const useStyles = makeStyles(theme => ({
     },
     wrapper: {
         position: 'relative',
+        height: '100%',
+        width: '100%',
         '&:hover': {
             cursor: 'pointer'
         }
@@ -25,12 +27,12 @@ const useStyles = makeStyles(theme => ({
         borderRadius: '50%',
         position: 'absolute',
         top: -9,
-        left: -9
+        left: 0
     },
     pizzaLight: {
         position: 'absolute',
         top: -8,
-        left: -8
+        left: 1
     }
 }));
 
@@ -95,27 +97,43 @@ export const QualityStatusWrapper = memo(({ data }) => {
         return gradient;
     }, [getStatusCount, latestPeerReviews.length]);
 
+    const peerReviewsButtonRef = useRef(null);
+    const statusLightDivRef = useRef(null);
+    const [anchorElModal, setAnchorElModal] = useState(null);
+    const [anchorElQualityStatus, setAnchorElQualityStatus] = useState(null);
+    const [tableIsOpen, setTableIsOpen] = useState(false);
+
     const handleEditDialogOpen = useCallback(event => {
         setAnchorElQualityStatus(event.currentTarget);
     }, []);
 
-    const [anchorElModal, setAnchorElModal] = useState(null);
-    const [anchorElQualityStatus, setAnchorElQualityStatus] = useState(null);
-    const [tableIsOpen, setTableIsOpen] = useState(false);
-    const handleStatusMouseEnter = (event) => {
-        setAnchorElModal(event.currentTarget);
+    const handleEditDialogOpenFromLight = useCallback(event => {
+        peerReviewsButtonRef.current?.click()
+    }, []);
+
+    const isValidMouseEvent = (event) => {
+        // allow only pizza lights and its circle children gradient
+        return event.target?.classList.contains(classes.pizzaLight) || event.target?.classList.contains(classes.pizza) || event.target?.tagName === 'circle';
     };
-    const handleStatusMouseLeave = () => {
-        if (!tableIsOpen) {
+    const handleStatusMouseEnter = (event) => {
+        // chrome & edge fire mouseleave event after closing the modal so we need to check the target
+        if (isValidMouseEvent(event)) {
+            setAnchorElModal(statusLightDivRef?.current);
+        }
+    };
+    const handleStatusMouseLeave = (event) => {
+        if (!tableIsOpen && isValidMouseEvent(event)) {
             setAnchorElModal(null);
         }
     };
+
     const handleQualityStatusSummaryTooltipLeave = useCallback(() => {
         setTableIsOpen(false);
         if (!Boolean(anchorElQualityStatus)) {
             setAnchorElModal(null);
         }
     }, [anchorElQualityStatus]);
+
     const handleModalPopoverClose = () => {
         setAnchorElModal(null);
         setTableIsOpen(false);
@@ -124,6 +142,7 @@ export const QualityStatusWrapper = memo(({ data }) => {
         handleModalPopoverClose();
         setAnchorElQualityStatus(null);
     };
+
     const popoverOpen = Boolean(anchorElQualityStatus) || Boolean(anchorElModal) || tableIsOpen;
 
     const getQualityStatusSummaryTooltip = useCallback(() => {
@@ -147,7 +166,7 @@ export const QualityStatusWrapper = memo(({ data }) => {
                     })}
                     <TableCell className={classes.posePropertiesTableCell}>
                         <Tooltip title={'Add reviews'}>
-                            <IconButton size="small" onClick={handleEditDialogOpen}>
+                            <IconButton size="small" onClick={handleEditDialogOpen} ref={peerReviewsButtonRef}>
                                 <MoreHoriz />
                             </IconButton>
                         </Tooltip>
@@ -158,15 +177,18 @@ export const QualityStatusWrapper = memo(({ data }) => {
     }, [latestPeerReviews, handleEditDialogOpen, getMainQualityStatusObject, mainQualityStatus, classes.posePropertiesTable, classes.posePropertiesTableCell, handleQualityStatusSummaryTooltipLeave]);
 
     return <Grid item
+        ref={statusLightDivRef}
+        className={classes.wrapper}
         onMouseEnter={handleStatusMouseEnter}
         onMouseLeave={handleStatusMouseLeave}
-        className={classes.wrapper}
-    // onClick={handleEditDialogOpen}
     >
-        <div style={{
-            background: `conic-gradient(${pizzaGradient})`
-        }} className={classes.pizza} ></div>
-        <QualityStatusLight status={mainQualityStatus} className={classes.pizzaLight} />
+        <div style={{ background: `conic-gradient(${pizzaGradient})` }}
+            className={classes.pizza}
+        ></div>
+        <QualityStatusLight status={mainQualityStatus} props={{
+            className: classes.pizzaLight,
+            onClick: handleEditDialogOpenFromLight
+        }} />
         <Popover
             id="mouse-over-popover"
             style={{ pointerEvents: 'none' }}
@@ -193,5 +215,5 @@ export const QualityStatusWrapper = memo(({ data }) => {
             site_observation={data.id}
             anchorElQualityStatus={anchorElQualityStatus}
         />
-    </Grid >;
+    </Grid>;
 });
