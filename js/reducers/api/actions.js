@@ -459,3 +459,17 @@ export const setCompoundIdentifiers = compoundIdentifiers => {
     compound_identifiers: compoundIdentifiers
   };
 };
+
+export const setQualityStatuses = qualityStatuses => {
+  return {
+    type: constants.SET_QUALITY_STATUSES,
+    quality_statuses: qualityStatuses
+  };
+};
+
+export const addQualityStatus = status => {
+  return {
+    type: constants.ADD_QUALITY_STATUS,
+    status: status
+  };
+};

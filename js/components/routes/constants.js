@@ -13,7 +13,6 @@ export const URLS = {
   rhsUpload: '/viewer/upload_cset/',
   metadataUpload: '/api/metadata_upload/',
 
-
   helpPage: 'https://fragalysis.readthedocs.io/en/latest/',
 
   // Projects feature

@@ -76,6 +76,7 @@ import MoleculeSelectCheckbox from '../moleculeView/moleculeSelectCheckbox';
 import { isAnyObservationTurnedOnForCmp } from '../../../../reducers/selection/selectors';
 import { first } from 'lodash';
 import { ToastContext } from '../../../toast';
+import { QualityStatusWrapper } from '../moleculeView/qualityStatus/QualityStatusWrapper';
 
 const useStyles = makeStyles(theme => ({
   container: {
@@ -219,7 +220,7 @@ const useStyles = makeStyles(theme => ({
     backgroundColor: theme.palette.background.default,
     border: `solid 1px`,
     borderColor: theme.palette.background.divider,
-    paddingBottom: theme.spacing(1) / 2
+    paddingBottom: theme.spacing(1) / 4
   },
   qualityLabel: {
     paddingLeft: theme.spacing(1) / 4,
@@ -1334,7 +1335,7 @@ const ObservationCmpView = memo(
               // name: "nonsense-34"
               // type: "nonsense_id"
               // url: null
-              const searchedIdentifier = mainObservation.identifiers.find(
+              const searchedIdentifier = mainObservation?.identifiers.find(
                 identifier => identifier.type === preferredIdentifierType
               );
               if (searchedIdentifier) {
@@ -1403,7 +1404,7 @@ const ObservationCmpView = memo(
               </Tooltip>
               {aliasOrder?.map((alias, index) => {
                 const compoundCode =
-                  mainObservation.identifiers.find(identifier => identifier.type === alias)?.name ?? '';
+                  mainObservation?.identifiers.find(identifier => identifier.type === alias)?.name ?? '';
                 return (
                   <Tooltip key={index} title={`Click to copy value of ${alias}`}>
                     <TableRow
@@ -1482,6 +1483,9 @@ const ObservationCmpView = memo(
                     }
                   }}
                 />
+              </Grid>
+              <Grid item className={classes.rank} container justifyContent="center">
+                <QualityStatusWrapper data={data} />
               </Grid>
               <Grid item className={classes.rank}>
                 {index + 1}.

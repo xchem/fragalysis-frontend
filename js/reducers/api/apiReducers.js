@@ -60,7 +60,8 @@ export const INITIAL_STATE = {
   rhsDataIsLoaded: false,
   proteinIsLoading: false,
   proteinIsLoaded: false,
-  compound_identifiers: []
+  compound_identifiers: [],
+  quality_statuses: []
 };
 
 export const RESET_TARGET_STATE = {
@@ -104,7 +105,8 @@ export const RESET_TARGET_STATE = {
   all_data_loaded: false,
   snapshotLoadingInProgress: false,
   lhs_compounds_list: [],
-  compound_identifiers: []
+  compound_identifiers: [],
+  quality_statuses: []
 };
 
 export default function apiReducers(state = INITIAL_STATE, action = {}) {
@@ -129,6 +131,14 @@ export default function apiReducers(state = INITIAL_STATE, action = {}) {
 
     case constants.SET_COMPOUND_IDENTIFIERS:
       return { ...state, compound_identifiers: action.compound_identifiers };
+
+    case constants.SET_QUALITY_STATUSES:
+      return { ...state, quality_statuses: action.quality_statuses };
+
+    case constants.ADD_QUALITY_STATUS:
+      const tempArray = state.quality_statuses;
+      tempArray.unshift(action.status);
+      return { ...state, quality_statuses: [...tempArray] };
 
     case constants.SET_OPEN_DISCOURSE_ERROR_MODAL:
       return Object.assign({}, state, { open_discourse_error_modal: action.payload });
@@ -414,7 +424,8 @@ export default function apiReducers(state = INITIAL_STATE, action = {}) {
         pandda_site_list: action.pandda_site_list,
         latestSession: action.latestSession,
         direct_access: action.direct_access,
-        compound_identifiers: action.compound_identifiers
+        compound_identifiers: action.compound_identifiers,
+        quality_statuses: action.quality_statuses
         // direct_access_processed: action.direct_access_processed
       });
 
