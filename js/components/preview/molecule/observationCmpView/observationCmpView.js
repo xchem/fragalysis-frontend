@@ -1334,7 +1334,7 @@ const ObservationCmpView = memo(
               // name: "nonsense-34"
               // type: "nonsense_id"
               // url: null
-              const searchedIdentifier = mainObservation.identifiers.find(
+              const searchedIdentifier = mainObservation?.identifiers.find(
                 identifier => identifier.type === preferredIdentifierType
               );
               if (searchedIdentifier) {
@@ -1403,7 +1403,7 @@ const ObservationCmpView = memo(
               </Tooltip>
               {aliasOrder?.map((alias, index) => {
                 const compoundCode =
-                  mainObservation.identifiers.find(identifier => identifier.type === alias)?.name ?? '';
+                  mainObservation?.identifiers.find(identifier => identifier.type === alias)?.name ?? '';
                 return (
                   <Tooltip key={index} title={`Click to copy value of ${alias}`}>
                     <TableRow
