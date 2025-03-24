@@ -129,7 +129,7 @@ export const storeData = data => (dispatch, getState) => {
   dispatch(setTagSelectorData(categories, tags));
 
   let allMolecules = [];
-  data.molecules.forEach(mol => { });
+  data.molecules.forEach(mol => {});
 };
 
 /**
