@@ -866,7 +866,7 @@ export const applyDirectSelection = stage => (dispatch, getState) => {
     directDisplay.molecules.forEach(m => {
       // let directProteinNameModded = m.name.toLowerCase();
       // let directProteinCodeModded = `${directDisplay.target.toLowerCase()}-${directProteinNameModded}`;
-      const foundMols = dispatch(searchForObservations(m.name, allMols, m.searchSettings, m.exact));
+      const foundMols = dispatch(searchForObservations(m.name, allMols, m.searchSettings, m.exact, true));
       foundMols?.forEach(mol => {
         if (mol) {
           if (m.L && !fragmentDisplayList.includes(mol.id)) {
@@ -928,6 +928,92 @@ export const getMolImage = (molId, molType, width, height) => (dispatch, getStat
         dispatch(addImageToCache(molId.toString(), i));
       }
       return i;
+    });
+  }
+};
+
+// export const generateAndStoreMolImage = (obs, molType, width, height, RDKitModule) => async (dispatch, getState) => {
+//   if (!obs) return null;
+//   if (!RDKitModule) return null;
+
+//   const state = getState();
+
+//   const imageCache = state.previewReducers.molecule.imageCache;
+
+//   const obsId = obs.id;
+//   const molIdStr = obsId.toString();
+//   if (imageCache.hasOwnProperty(molIdStr)) {
+//     return new Promise((resolve, reject) => {
+//       resolve(imageCache[molIdStr]);
+//     });
+//   } else {
+//     const mol = RDKitModule.get_mol(obs.smiles);
+//     const svg = await mol.get_svg(width, height);
+//     if (!imageCache.hasOwnProperty(molIdStr)) {
+//       dispatch(addImageToCache(obsId.toString(), svg));
+//     }
+//     return new Promise((resolve, reject) => {
+//       resolve(svg);
+//     });
+//     // return new Promise((resolve, reject) => {
+//     //   resolve(svg);
+//     // });
+
+//     // const svgData = 'data:image/svg+xml;base64,' + btoa(svg);
+//   }
+// };
+
+export const generateAndStoreMolImage = (obs, molType, width, height, RDKitModule) => async (dispatch, getState) => {
+  if (!obs) return null;
+  if (!RDKitModule) return null;
+
+  const state = getState();
+
+  const imageCache = state.previewReducers.molecule.imageCache;
+
+  const obsId = obs.id;
+  const molIdStr = obsId.toString();
+  if (imageCache.hasOwnProperty(molIdStr)) {
+    return new Promise((resolve, reject) => {
+      resolve(imageCache[molIdStr]);
+    });
+  } else {
+    const scaling = 1;
+    const bondWidth = 1;
+    const atomcolors = {};
+    const bondcolors = {};
+    const highlightAtoms = [];
+    const highlightBonds = [];
+
+    const mol = RDKitModule.get_mol(obs.smiles);
+
+    const font = Math.max(Math.round(scaling * 10), 6);
+
+    const options = {
+      width,
+      height,
+      bondLineWidth: bondWidth,
+      minFontSize: font,
+      maxFontSize: font,
+      padding: 0.05,
+      highlightAtomColors: atomcolors,
+      highlightBondColors: bondcolors
+    };
+
+    const svg = mol.get_svg_with_highlights(
+      JSON.stringify({
+        ...options,
+        highlight_atoms: highlightAtoms,
+        highlight_bonds: highlightBonds
+      })
+    );
+
+    mol.delete();
+    if (!imageCache.hasOwnProperty(molIdStr)) {
+      dispatch(addImageToCache(obsId.toString(), svg));
+    }
+    return new Promise((resolve, reject) => {
+      resolve(svg);
     });
   }
 };
@@ -1216,10 +1302,13 @@ const observationSearchFunctions = {
   }
 };
 
-export const searchForObservations = (searchTerm, observations, searchSettings, exact = false) => (
-  dispatch,
-  getState
-) => {
+export const searchForObservations = (
+  searchTerm,
+  observations,
+  searchSettings,
+  exact = false,
+  onlyMainObservations = false
+) => (dispatch, getState) => {
   if (!observations || observations.length === 0) return [];
   if (!searchTerm) return observations;
 
@@ -1228,9 +1317,24 @@ export const searchForObservations = (searchTerm, observations, searchSettings, 
   const searchBy = searchSettings.searchBy;
   const searchByKeys = Object.keys(searchBy).filter(key => searchBy[key]);
 
-  result = observations.filter(obs => {
-    return searchByKeys.reduce((acc, key) => acc || observationSearchFunctions[key](obs, searchTerm), false);
-  });
+  if (onlyMainObservations) {
+    result = observations.filter(obs => {
+      return (
+        dispatch(isMainObservation(obs)) &&
+        searchByKeys.reduce((acc, key) => acc || observationSearchFunctions[key](obs, searchTerm, exact), false)
+      );
+    });
+  } else {
+    result = observations.filter(obs => {
+      return searchByKeys.reduce((acc, key) => acc || observationSearchFunctions[key](obs, searchTerm, exact), false);
+    });
+  }
 
   return result;
+};
+
+export const isMainObservation = observation => (dispatch, getState) => {
+  const state = getState();
+  const poses = state.apiReducers.lhs_compounds_list;
+  return !!poses?.some(pose => pose?.main_site_observation === observation?.id);
 };

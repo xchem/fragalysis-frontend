@@ -15,7 +15,8 @@ export const SNAPSHOT_VALUES_TO_BE_DELETED = {
     rhsDataIsLoaded: false,
     proteinIsLoading: false,
     proteinIsLoaded: false,
-    compound_identifiers: []
+    compound_identifiers: [],
+    quality_statuses: []
   },
   nglReducers: {
     objectsInView: {},

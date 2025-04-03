@@ -29,7 +29,8 @@ import {
   setAllDataLoaded,
   setMoleculeTags,
   setLHSCompoundsLIst,
-  setCompoundIdentifiers
+  setCompoundIdentifiers,
+  setDataAreDownloading
 } from '../../../../reducers/api/actions';
 import { setSortDialogOpen } from '../../molecule/redux/actions';
 import { resetCurrentCompoundsSettings } from '../../compounds/redux/actions';
@@ -195,6 +196,7 @@ const getTagsForMol = (molId, tagList) => {
 };
 
 export const loadMoleculesAndTagsNew = targetId => async (dispatch, getState) => {
+  dispatch(setDataAreDownloading(true));
   // console.log(`snapshotDebug - loadMoleculesAndTagsNew - before getTags`);
   let tags = await getTags(targetId);
   let compoundIdentifiers = await getCompoundIdentifiers();
@@ -292,6 +294,7 @@ export const loadMoleculesAndTagsNew = targetId => async (dispatch, getState) =>
       return 0;
     });
     dispatch(setLHSCompoundsLIst(modifiedPoses));
+    dispatch(setDataAreDownloading(false));
     // console.log(`snapshotDebug - loadMoleculesAndTagsNew - end of function`);
   });
 };

@@ -66,7 +66,8 @@ import {
   setLHSCompoundsInitialized,
   setPoseIdForObservationsDialog,
   setObservationDialogAction,
-  setSearchSettingsDialogOpen
+  setSearchSettingsDialogOpen,
+  setLHSIsFullyRendered
 } from '../../../reducers/selection/actions';
 import { initializeFilter } from '../../../reducers/selection/dispatchActions';
 import * as listType from '../../../constants/listTypes';
@@ -293,6 +294,8 @@ export const ObservationCmpList = memo(({ hideProjects }) => {
   const getJoinedMoleculeList = useSelector(state => selectJoinedMoleculeList(state));
   const allMoleculesList = useSelector(state => selectAllMoleculeList(state));
 
+  const dataAreDownloading = useSelector(state => state.apiReducers.dataAreDownloading);
+
   const selectedAll = useRef(false);
 
   const proteinList = useSelector(state => state.selectionReducers.proteinList);
@@ -394,6 +397,17 @@ export const ObservationCmpList = memo(({ hideProjects }) => {
     const bCount = b.site_observations.length;
     return asc ? aCount - bCount : bCount - aCount;
   };
+
+  useEffect(() => {
+    if (!dataAreDownloading && all_mol_lists?.length > 0) {
+      requestAnimationFrame(() => {
+        // Add another frame just to be sure rendering is done
+        requestAnimationFrame(() => {
+          dispatch(setLHSIsFullyRendered(true));
+        });
+      });
+    }
+  }, [dataAreDownloading, all_mol_lists, dispatch]);
 
   /**
    * Get CanonSites tag for sorting

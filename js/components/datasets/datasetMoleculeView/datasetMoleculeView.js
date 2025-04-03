@@ -71,6 +71,7 @@ import {
   addComplex,
   addHitProtein,
   addSurface,
+  generateAndStoreMolImage,
   getMolImage,
   removeComplex,
   removeHitProtein,
@@ -92,6 +93,7 @@ import { compoundsColors } from '../../preview/compounds/redux/constants';
 import { LockVisibleCompoundsDialog } from '../lockVisibleCompoundsDialog';
 import { fabClasses } from '@mui/material';
 import useClipboard from 'react-use-clipboard';
+import { useRDKit } from '../../rdkit/RDKitContext';
 
 const useStyles = makeStyles(theme => ({
   container: {
@@ -402,6 +404,8 @@ const DatasetMoleculeView = memo(
       const { handlerId, isDragging } = useDragDropMoleculeView(ref, datasetID, data, index, moveMolecule);
       const opacity = isDragging ? 0 : 1;
 
+      const { RDKitModule, loading } = useRDKit();
+
       const selectedAll = useRef(false);
       const currentID = (data && data.id) || (data && data.smiles) || undefined;
       const isFromVectorSelector = isCompoundFromVectorSelector(data);
@@ -514,10 +518,22 @@ const DatasetMoleculeView = memo(
 
       // componentDidMount
       useEffect(() => {
-        dispatch(getMolImage(data.smiles, MOL_TYPE.DATASET, imageWidth, imageHeight)).then(i => {
-          setImage(i);
+        dispatch(generateAndStoreMolImage(data, MOL_TYPE.DATASET, imageWidth, imageHeight, RDKitModule)).then(i => {
+          i && setImage(i.toString());
         });
-      }, [C, currentID, data, L, imageHeight, imageWidth, data.smiles, data.id, filteredDatasetMoleculeList, dispatch]);
+      }, [
+        C,
+        currentID,
+        data,
+        L,
+        imageHeight,
+        imageWidth,
+        data.smiles,
+        data.id,
+        filteredDatasetMoleculeList,
+        dispatch,
+        RDKitModule
+      ]);
 
       const svg_image = (
         <SVGInline
@@ -1397,10 +1413,10 @@ const DatasetMoleculeView = memo(
                                   null}
                               </Grid>
                             )) || (
-                                <Grid item className={classes.rightBorder}>
-                                  -
-                                </Grid>
-                              )}
+                              <Grid item className={classes.rightBorder}>
+                                -
+                              </Grid>
+                            )}
                           </Tooltip>
                         );
                       })}

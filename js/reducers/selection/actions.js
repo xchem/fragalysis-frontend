@@ -666,3 +666,10 @@ export const setSearchSettings = settings => {
     settings: settings
   };
 };
+
+export const setLHSIsFullyRendered = isFullyRendered => {
+  return {
+    type: constants.SET_LHS_IS_FULLY_RENDERED,
+    isFullyRendered: isFullyRendered
+  };
+};

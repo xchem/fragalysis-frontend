@@ -61,7 +61,9 @@ export const INITIAL_STATE = {
   proteinIsLoading: false,
   proteinIsLoaded: false,
   compound_identifiers: [],
-  quality_statuses: []
+  quality_statuses: [],
+  rdkitScriptLoaded: false,
+  dataAreDownloading: false
 };
 
 export const RESET_TARGET_STATE = {
@@ -106,11 +108,19 @@ export const RESET_TARGET_STATE = {
   snapshotLoadingInProgress: false,
   lhs_compounds_list: [],
   compound_identifiers: [],
-  quality_statuses: []
+  quality_statuses: [],
+  rdkitScriptLoaded: false,
+  dataAreDownloading: false
 };
 
 export default function apiReducers(state = INITIAL_STATE, action = {}) {
   switch (action.type) {
+    case constants.SET_DATA_ARE_DOWNLOADING:
+      return { ...state, dataAreDownloading: action.dataAreDownloading };
+
+    case constants.SET_RDKIT_SCRIPT_LOADED:
+      return { ...state, rdkitScriptLoaded: action.rdkLoaded };
+
     case constants.SET_LHS_DATA_IS_LOADING:
       return { ...state, lhsDataIsLoading: action.lhsDataIsLoading };
 

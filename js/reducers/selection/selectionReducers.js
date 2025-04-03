@@ -76,11 +76,15 @@ export const INITIAL_STATE = {
       aliases: true,
       compoundId: true
     }
-  }
+  },
+  lhsIsFullyRendered: false
 };
 
 export function selectionReducers(state = INITIAL_STATE, action = {}) {
   switch (action.type) {
+    case constants.SET_LHS_IS_FULLY_RENDERED:
+      return { ...state, lhsIsFullyRendered: action.isFullyRendered };
+
     case constants.SET_SEARCH_SETTINGS_DIALOG_OPEN:
       return { ...state, searchSettingsDialogOpen: action.isOpen };
 

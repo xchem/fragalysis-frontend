@@ -62,6 +62,7 @@ services:
       - ../data/logs:/code/logs/
       - ../data/media:/code/media/
       - ../fragalysis-frontend:/code/frontend
+      - ../data/target:/code/target
     ports:
       - '8080:80'
     environment:

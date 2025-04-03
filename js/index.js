@@ -11,6 +11,7 @@ import { rootReducer } from './reducers/rootReducer';
 import { saveStore } from './components/helpers/globalStore';
 import thunkMiddleware from 'redux-thunk';
 import { composeWithDevTools } from 'redux-devtools-extension';
+import { setRDKITScriptLoaded } from './reducers/api/actions';
 
 const middlewareEnhancer = applyMiddleware(
   //loggerMiddleware,
@@ -30,6 +31,14 @@ doc.head.querySelector('link').remove();
 
 const container = doc.getElementById('app');
 const root = createRoot(container);
+
+// const script = document.createElement('script');
+// script.src = 'https://unpkg.com/@rdkit/rdkit/dist/RDKit_minimal.js';
+// script.async = false;
+// script.onload = () => {
+//   store.dispatch(setRDKITScriptLoaded(true));
+// };
+// document.body.appendChild(script);
 
 root.render(
   <Provider store={store}>
