@@ -80,6 +80,7 @@ import { ToastContext } from '../../../toast';
 import { QualityStatusWrapper } from '../moleculeView/qualityStatus/QualityStatusWrapper';
 import { useRDKit } from '../../../rdkit/RDKitContext';
 
+
 const useStyles = makeStyles(theme => ({
   container: {
     padding: theme.spacing(1) / 4,
