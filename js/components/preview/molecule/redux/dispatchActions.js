@@ -866,7 +866,7 @@ export const applyDirectSelection = stage => (dispatch, getState) => {
     directDisplay.molecules.forEach(m => {
       // let directProteinNameModded = m.name.toLowerCase();
       // let directProteinCodeModded = `${directDisplay.target.toLowerCase()}-${directProteinNameModded}`;
-      const foundMols = dispatch(searchForObservations(m.name, allMols, m.searchSettings, m.exact));
+      const foundMols = dispatch(searchForObservations(m.name, allMols, m.searchSettings, m.exact, true));
       foundMols?.forEach(mol => {
         if (mol) {
           if (m.L && !fragmentDisplayList.includes(mol.id)) {
@@ -1302,10 +1302,13 @@ const observationSearchFunctions = {
   }
 };
 
-export const searchForObservations = (searchTerm, observations, searchSettings, exact = false) => (
-  dispatch,
-  getState
-) => {
+export const searchForObservations = (
+  searchTerm,
+  observations,
+  searchSettings,
+  exact = false,
+  onlyMainObservations = false
+) => (dispatch, getState) => {
   if (!observations || observations.length === 0) return [];
   if (!searchTerm) return observations;
 
@@ -1314,9 +1317,24 @@ export const searchForObservations = (searchTerm, observations, searchSettings, 
   const searchBy = searchSettings.searchBy;
   const searchByKeys = Object.keys(searchBy).filter(key => searchBy[key]);
 
-  result = observations.filter(obs => {
-    return searchByKeys.reduce((acc, key) => acc || observationSearchFunctions[key](obs, searchTerm), false);
-  });
+  if (onlyMainObservations) {
+    result = observations.filter(obs => {
+      return (
+        dispatch(isMainObservation(obs)) &&
+        searchByKeys.reduce((acc, key) => acc || observationSearchFunctions[key](obs, searchTerm, exact), false)
+      );
+    });
+  } else {
+    result = observations.filter(obs => {
+      return searchByKeys.reduce((acc, key) => acc || observationSearchFunctions[key](obs, searchTerm, exact), false);
+    });
+  }
 
   return result;
+};
+
+export const isMainObservation = observation => (dispatch, getState) => {
+  const state = getState();
+  const poses = state.apiReducers.lhs_compounds_list;
+  return !!poses?.some(pose => pose?.main_site_observation === observation?.id);
 };
