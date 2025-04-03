@@ -44,7 +44,8 @@ import {
   getQualityInformation,
   getDensityMapData,
   withDisabledMoleculeNglControlButton,
-  getCategoryById
+  getCategoryById,
+  generateAndStoreMolImage
 } from '../redux/dispatchActions';
 import {
   setSelectedAll,
@@ -77,6 +78,7 @@ import { isAnyObservationTurnedOnForCmp } from '../../../../reducers/selection/s
 import { first } from 'lodash';
 import { ToastContext } from '../../../toast';
 import { QualityStatusWrapper } from '../moleculeView/qualityStatus/QualityStatusWrapper';
+import { useRDKit } from '../../../rdkit/RDKitContext';
 
 const useStyles = makeStyles(theme => ({
   container: {
@@ -457,6 +459,9 @@ const ObservationCmpView = memo(
       const classes = useStyles();
 
       const dispatch = useDispatch();
+
+      const { RDKitModule, loading } = useRDKit();
+
       const target_on_name = useSelector(state => state.apiReducers.target_on_name);
       const filter = useSelector(state => state.selectionReducers.filter);
       const [img_data, setImg_data] = useState(img_data_init);
@@ -963,12 +968,12 @@ const ObservationCmpView = memo(
       // componentDidMount
       useEffect(() => {
         const obs = getMainObservation();
-        if (obs) {
-          dispatch(getMolImage(obs.id, MOL_TYPE.HIT, imageWidth, imageHeight)).then(i => {
-            setImg_data(i);
+        if (RDKitModule && obs) {
+          dispatch(generateAndStoreMolImage(obs, MOL_TYPE.HIT, imageWidth, imageHeight, RDKitModule)).then(i => {
+            i && setImg_data(i.toString());
           });
         }
-      }, [data.id, data.smiles, imageHeight, imageWidth, dispatch, getMainObservation]);
+      }, [data.id, data.smiles, imageHeight, imageWidth, dispatch, getMainObservation, RDKitModule]);
 
       useEffect(() => {
         dispatch(getQualityInformation(data));

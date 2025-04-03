@@ -932,6 +932,92 @@ export const getMolImage = (molId, molType, width, height) => (dispatch, getStat
   }
 };
 
+// export const generateAndStoreMolImage = (obs, molType, width, height, RDKitModule) => async (dispatch, getState) => {
+//   if (!obs) return null;
+//   if (!RDKitModule) return null;
+
+//   const state = getState();
+
+//   const imageCache = state.previewReducers.molecule.imageCache;
+
+//   const obsId = obs.id;
+//   const molIdStr = obsId.toString();
+//   if (imageCache.hasOwnProperty(molIdStr)) {
+//     return new Promise((resolve, reject) => {
+//       resolve(imageCache[molIdStr]);
+//     });
+//   } else {
+//     const mol = RDKitModule.get_mol(obs.smiles);
+//     const svg = await mol.get_svg(width, height);
+//     if (!imageCache.hasOwnProperty(molIdStr)) {
+//       dispatch(addImageToCache(obsId.toString(), svg));
+//     }
+//     return new Promise((resolve, reject) => {
+//       resolve(svg);
+//     });
+//     // return new Promise((resolve, reject) => {
+//     //   resolve(svg);
+//     // });
+
+//     // const svgData = 'data:image/svg+xml;base64,' + btoa(svg);
+//   }
+// };
+
+export const generateAndStoreMolImage = (obs, molType, width, height, RDKitModule) => async (dispatch, getState) => {
+  if (!obs) return null;
+  if (!RDKitModule) return null;
+
+  const state = getState();
+
+  const imageCache = state.previewReducers.molecule.imageCache;
+
+  const obsId = obs.id;
+  const molIdStr = obsId.toString();
+  if (imageCache.hasOwnProperty(molIdStr)) {
+    return new Promise((resolve, reject) => {
+      resolve(imageCache[molIdStr]);
+    });
+  } else {
+    const scaling = 1;
+    const bondWidth = 1;
+    const atomcolors = {};
+    const bondcolors = {};
+    const highlightAtoms = [];
+    const highlightBonds = [];
+
+    const mol = RDKitModule.get_mol(obs.smiles);
+
+    const font = Math.max(Math.round(scaling * 10), 6);
+
+    const options = {
+      width,
+      height,
+      bondLineWidth: bondWidth,
+      minFontSize: font,
+      maxFontSize: font,
+      padding: 0.05,
+      highlightAtomColors: atomcolors,
+      highlightBondColors: bondcolors
+    };
+
+    const svg = mol.get_svg_with_highlights(
+      JSON.stringify({
+        ...options,
+        highlight_atoms: highlightAtoms,
+        highlight_bonds: highlightBonds
+      })
+    );
+
+    mol.delete();
+    if (!imageCache.hasOwnProperty(molIdStr)) {
+      dispatch(addImageToCache(obsId.toString(), svg));
+    }
+    return new Promise((resolve, reject) => {
+      resolve(svg);
+    });
+  }
+};
+
 export const loadMolImage = (molId, molType, width, height) => {
   let url = undefined;
   if (molType === MOL_TYPE.HIT) {

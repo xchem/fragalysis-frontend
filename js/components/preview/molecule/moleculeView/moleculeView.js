@@ -33,7 +33,8 @@ import {
   getDensityMapData,
   getProteinData,
   withDisabledMoleculeNglControlButton,
-  getCategoryById
+  getCategoryById,
+  generateAndStoreMolImage
 } from '../redux/dispatchActions';
 import {
   setSelectedAll,
@@ -67,6 +68,7 @@ import { api, METHOD } from '../../../../utils/api';
 import { base_url } from '../../../routes/constants';
 import { ContentCopyRounded } from '@mui/icons-material';
 import { ToastContext } from '../../../toast';
+import { useRDKit } from '../../../rdkit/RDKitContext';
 
 const useStyles = makeStyles(theme => ({
   container: {
@@ -417,6 +419,8 @@ const MoleculeView = memo(
     const target_on_name = useSelector(state => state.apiReducers.target_on_name);
     const filter = useSelector(state => state.selectionReducers.filter);
     const [img_data, setImg_data] = useState(img_data_init);
+
+    const { RDKitModule, loading } = useRDKit();
 
     const viewParams = useSelector(state => state.nglReducers.viewParams);
     const tagList = useSelector(state => state.apiReducers.tagList);
@@ -846,11 +850,11 @@ const MoleculeView = memo(
     // componentDidMount
     useEffect(() => {
       if (data) {
-        dispatch(getMolImage(data?.id, MOL_TYPE.HIT, imageWidth, imageHeight)).then(i => {
-          setImg_data(i);
+        dispatch(generateAndStoreMolImage(data, MOL_TYPE.HIT, imageWidth, imageHeight, RDKitModule)).then(i => {
+          i && setImg_data(i.toString());
         });
       }
-    }, [data, imageHeight, imageWidth, dispatch]);
+    }, [data, imageHeight, imageWidth, dispatch, RDKitModule]);
 
     useEffect(() => {
       dispatch(getQualityInformation(data));
@@ -859,7 +863,7 @@ const MoleculeView = memo(
     const svg_image = (
       <SVGInline
         component="div"
-        svg={img_data}
+        svg={img_data.toString()}
         // className={classes.imageMargin}
         style={{
           height: `${imageHeight}px`,
@@ -1608,7 +1612,7 @@ const MoleculeView = memo(
         <SvgTooltip
           open={moleculeTooltipOpen}
           anchorEl={moleculeImgRef.current}
-          imgData={img_data}
+          imgData={img_data.toString()}
           width={imageWidth}
           height={imageHeight}
         />
