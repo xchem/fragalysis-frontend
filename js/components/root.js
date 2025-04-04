@@ -13,24 +13,26 @@ import { NglProvider } from './nglView/nglProvider';
 import { ErrorBoundary } from './errorHandling/errorBoundary';
 import { ToastProvider } from './toast';
 import { LoadingProvider } from './loading';
+import { RDKitProvider } from './rdkit/RDKitContext';
 
 const Root = memo(() => {
-
   return (
     <ErrorBoundary>
       <CssBaseline>
         <ThemeProvider theme={getTheme()}>
-          <ToastProvider>
-            <LoadingProvider>
-              <HeaderProvider>
-                <NglProvider>
-                  <BrowserRouter>
-                    <Routes />
-                  </BrowserRouter>
-                </NglProvider>
-              </HeaderProvider>
-            </LoadingProvider>
-          </ToastProvider>
+          <RDKitProvider>
+            <ToastProvider>
+              <LoadingProvider>
+                <HeaderProvider>
+                  <NglProvider>
+                    <BrowserRouter>
+                      <Routes />
+                    </BrowserRouter>
+                  </NglProvider>
+                </HeaderProvider>
+              </LoadingProvider>
+            </ToastProvider>
+          </RDKitProvider>
         </ThemeProvider>
       </CssBaseline>
     </ErrorBoundary>

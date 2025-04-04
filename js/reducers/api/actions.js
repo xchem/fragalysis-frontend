@@ -7,7 +7,7 @@ export const setOpenDiscourseErrorModal = open => {
   return { type: constants.SET_OPEN_DISCOURSE_ERROR_MODAL, payload: open };
 };
 
-export const setTargetIdList = function (input_json) {
+export const setTargetIdList = function(input_json) {
   return {
     type: constants.SET_TARGET_ID_LIST,
     target_id_list: input_json
@@ -28,14 +28,14 @@ export const replaceTarget = target => {
   };
 };
 
-export const setDuckYankData = function (input_json) {
+export const setDuckYankData = function(input_json) {
   return {
     type: constants.SET_DUCK_YANK_DATA,
     duck_yank_data: input_json
   };
 };
 
-export const setTargetOn = function (target_id, skipTracking = false) {
+export const setTargetOn = function(target_id, skipTracking = false) {
   return {
     type: constants.SET_TARGET_ON,
     target_on: target_id,
@@ -43,76 +43,76 @@ export const setTargetOn = function (target_id, skipTracking = false) {
   };
 };
 
-export const setTargetOnName = function (target_on_name) {
+export const setTargetOnName = function(target_on_name) {
   return {
     type: constants.SET_TARGET_ON_NAME,
     target_on_name: target_on_name
   };
 };
 
-export const setTargetOnAliases = function (target_on_aliases) {
+export const setTargetOnAliases = function(target_on_aliases) {
   return {
     type: constants.SET_TARGET_ON_ALIASES,
     target_on_aliases: target_on_aliases
   };
 };
 
-export const setPanddaSiteList = function (pandda_site_list) {
+export const setPanddaSiteList = function(pandda_site_list) {
   return {
     type: constants.SET_PANNDA_SITE_LIST,
     pandda_site_list: pandda_site_list
   };
 };
 
-export const setPanddaEventList = function (pandda_event_list) {
+export const setPanddaEventList = function(pandda_event_list) {
   return {
     type: constants.SET_PANNDA_EVENT_LIST,
     pandda_event_list: pandda_event_list
   };
 };
 
-export const setPanddaSiteOn = function (pandda_site_id) {
+export const setPanddaSiteOn = function(pandda_site_id) {
   return {
     type: constants.SET_PANNDA_SITE_ON,
     pandda_site_id: pandda_site_id
   };
 };
-export const setPanddaEventOn = function (pandda_event_id) {
+export const setPanddaEventOn = function(pandda_event_id) {
   return {
     type: constants.SET_PANNDA_EVENT_ON,
     pandda_event_id: pandda_event_id
   };
 };
 
-export const setMolGroupOn = function (mol_group_id) {
+export const setMolGroupOn = function(mol_group_id) {
   return {
     type: constants.SET_MOL_GROUP_ON,
     mol_group_on: mol_group_id
   };
 };
 
-export const setMolGroupOff = function (mol_group_id) {
+export const setMolGroupOff = function(mol_group_id) {
   return {
     type: constants.SET_MOL_GROUP_OFF,
     mol_group_off: mol_group_id
   };
 };
 
-export const setMolGroupList = function (mol_group_list) {
+export const setMolGroupList = function(mol_group_list) {
   return {
     type: constants.SET_MOL_GROUP_LIST,
     mol_group_list: mol_group_list
   };
 };
 
-export const setMoleculeList = function (molecule_list) {
+export const setMoleculeList = function(molecule_list) {
   return {
     type: constants.SET_MOLECULE_LIST,
     molecule_list: molecule_list
   };
 };
 
-export const setCachedMolLists = function (cached_mol_lists) {
+export const setCachedMolLists = function(cached_mol_lists) {
   return {
     type: constants.SET_CACHED_MOL_LISTS,
     cached_mol_lists: cached_mol_lists
@@ -196,70 +196,70 @@ export const removeLHSCompound = cmp => {
   };
 };
 
-export const setSavingState = function (savingState) {
+export const setSavingState = function(savingState) {
   return {
     type: constants.SET_SAVING_STATE,
     savingState: savingState
   };
 };
 
-export const setSeshListSaving = function (seshListSaving) {
+export const setSeshListSaving = function(seshListSaving) {
   return {
     type: constants.SET_SESH_LIST_SAVING,
     seshListSaving
   };
 };
 
-export const setLatestSnapshot = function (uuid) {
+export const setLatestSnapshot = function(uuid) {
   return {
     type: constants.SET_LATEST_SNAPSHOT,
     latestSnapshot: uuid
   };
 };
 
-export const setLatestSession = function (uuid) {
+export const setLatestSession = function(uuid) {
   return {
     type: constants.SET_LATEST_SESSION,
     latestSession: uuid
   };
 };
 
-export const setSessionTitle = function (sessionTitle) {
+export const setSessionTitle = function(sessionTitle) {
   return {
     type: constants.SET_SESSION_TITLE,
     sessionTitle: sessionTitle
   };
 };
 
-export const setSessionId = function (id) {
+export const setSessionId = function(id) {
   return {
     type: constants.SET_SESSION_ID,
     sessionId: id
   };
 };
 
-export const setSessionIdList = function (input_json) {
+export const setSessionIdList = function(input_json) {
   return {
     type: constants.SET_SESSION_ID_LIST,
     sessionIdList: input_json
   };
 };
 
-export const updateSessionIdList = function (input_json) {
+export const updateSessionIdList = function(input_json) {
   return {
     type: constants.UPDATE_SESSION_ID_LIST,
     sessionIdList: input_json
   };
 };
 
-export const setTargetUnrecognised = function (bool) {
+export const setTargetUnrecognised = function(bool) {
   return {
     type: constants.SET_TARGET_UNRECOGNISED,
     targetUnrecognised: bool
   };
 };
 
-export const setUuid = function (uuid) {
+export const setUuid = function(uuid) {
   return {
     type: constants.SET_UUID,
     uuid: uuid
@@ -308,7 +308,7 @@ export const setAllDataLoaded = allDataLoaded => {
   };
 };
 
-export const reloadApiState = function (apiReducers) {
+export const reloadApiState = function(apiReducers) {
   const cachedMolList = apiReducers.cached_mol_lists;
   let fixedCachedMolList = {};
   if (cachedMolList) {
@@ -362,7 +362,7 @@ export const updateTag = (item, skipTracking = false) => {
   };
 };
 
-export const setTagList = function (tagList, skipTracking = false) {
+export const setTagList = function(tagList, skipTracking = false) {
   return {
     type: constants.SET_TAG_LIST,
     tagList: tagList,
@@ -370,7 +370,7 @@ export const setTagList = function (tagList, skipTracking = false) {
   };
 };
 
-export const appendTagList = function (item, skipTracking = false) {
+export const appendTagList = function(item, skipTracking = false) {
   return {
     type: constants.APPEND_TAG_LIST,
     item: item,
@@ -378,7 +378,7 @@ export const appendTagList = function (item, skipTracking = false) {
   };
 };
 
-export const removeFromTagList = function (item, skipTracking = false) {
+export const removeFromTagList = function(item, skipTracking = false) {
   return {
     type: constants.REMOVE_FROM_TAG_LIST,
     item: item,
@@ -386,7 +386,7 @@ export const removeFromTagList = function (item, skipTracking = false) {
   };
 };
 
-export const setCategoryList = function (categoryList, skipTracking = false) {
+export const setCategoryList = function(categoryList, skipTracking = false) {
   return {
     type: constants.SET_CATEGORY_LIST,
     categoryList: categoryList,
@@ -457,5 +457,33 @@ export const setCompoundIdentifiers = compoundIdentifiers => {
   return {
     type: constants.SET_COMPOUND_IDENTIFIERS,
     compound_identifiers: compoundIdentifiers
+  };
+};
+
+export const setQualityStatuses = qualityStatuses => {
+  return {
+    type: constants.SET_QUALITY_STATUSES,
+    quality_statuses: qualityStatuses
+  };
+};
+
+export const addQualityStatus = status => {
+  return {
+    type: constants.ADD_QUALITY_STATUS,
+    status: status
+  };
+};
+
+export const setRDKITScriptLoaded = rdkLoaded => {
+  return {
+    type: constants.SET_RDKIT_SCRIPT_LOADED,
+    rdkLoaded: rdkLoaded
+  };
+};
+
+export const setDataAreDownloading = dataAreDownloading => {
+  return {
+    type: constants.SET_DATA_ARE_DOWNLOADING,
+    dataAreDownloading: dataAreDownloading
   };
 };

@@ -81,6 +81,7 @@ import { VIEWS } from '../../constants/constants';
 import moment from 'moment';
 import { ToastContext } from '../toast';
 import { api, METHOD } from '../../utils/api';
+import { QualityStatusService } from '../preview/molecule/moleculeView/qualityStatus/QualityStatusService';
 
 const useStyles = makeStyles(theme => ({
   padding: {
@@ -496,6 +497,7 @@ export default memo(
               )}
             </Grid>
             <ServicesStatusWrapper />
+            <QualityStatusService />
             <Grid item>
               <Tooltip title={'Introduction to the Fragalysis application'}>
                 <Button onClick={() => openLink(URLS.helpPage)} startIcon={<HelpOutline />} variant="text" size="small">

@@ -44,7 +44,8 @@ import {
   getQualityInformation,
   getDensityMapData,
   withDisabledMoleculeNglControlButton,
-  getCategoryById
+  getCategoryById,
+  generateAndStoreMolImage
 } from '../redux/dispatchActions';
 import {
   setSelectedAll,
@@ -76,6 +77,9 @@ import MoleculeSelectCheckbox from '../moleculeView/moleculeSelectCheckbox';
 import { isAnyObservationTurnedOnForCmp } from '../../../../reducers/selection/selectors';
 import { first } from 'lodash';
 import { ToastContext } from '../../../toast';
+import { QualityStatusWrapper } from '../moleculeView/qualityStatus/QualityStatusWrapper';
+import { useRDKit } from '../../../rdkit/RDKitContext';
+
 
 const useStyles = makeStyles(theme => ({
   container: {
@@ -219,7 +223,7 @@ const useStyles = makeStyles(theme => ({
     backgroundColor: theme.palette.background.default,
     border: `solid 1px`,
     borderColor: theme.palette.background.divider,
-    paddingBottom: theme.spacing(1) / 2
+    paddingBottom: theme.spacing(1) / 4
   },
   qualityLabel: {
     paddingLeft: theme.spacing(1) / 4,
@@ -456,6 +460,9 @@ const ObservationCmpView = memo(
       const classes = useStyles();
 
       const dispatch = useDispatch();
+
+      const { RDKitModule, loading } = useRDKit();
+
       const target_on_name = useSelector(state => state.apiReducers.target_on_name);
       const filter = useSelector(state => state.selectionReducers.filter);
       const [img_data, setImg_data] = useState(img_data_init);
@@ -962,12 +969,12 @@ const ObservationCmpView = memo(
       // componentDidMount
       useEffect(() => {
         const obs = getMainObservation();
-        if (obs) {
-          dispatch(getMolImage(obs.id, MOL_TYPE.HIT, imageWidth, imageHeight)).then(i => {
-            setImg_data(i);
+        if (RDKitModule && obs) {
+          dispatch(generateAndStoreMolImage(obs, MOL_TYPE.HIT, imageWidth, imageHeight, RDKitModule)).then(i => {
+            i && setImg_data(i.toString());
           });
         }
-      }, [data.id, data.smiles, imageHeight, imageWidth, dispatch, getMainObservation]);
+      }, [data.id, data.smiles, imageHeight, imageWidth, dispatch, getMainObservation, RDKitModule]);
 
       useEffect(() => {
         dispatch(getQualityInformation(data));
@@ -1482,6 +1489,9 @@ const ObservationCmpView = memo(
                     }
                   }}
                 />
+              </Grid>
+              <Grid item className={classes.rank} container justifyContent="center">
+                <QualityStatusWrapper data={data} />
               </Grid>
               <Grid item className={classes.rank}>
                 {index + 1}.

@@ -66,6 +66,7 @@ import { useDisplaySurfaceRHS } from '../../reducers/ngl/useDisplaySurfaceRHS';
 import { loadTargetList } from '../target/redux/dispatchActions';
 import { EditSnapshotDialog } from './projectHistoryPanel/editSnapshotDialog';
 import { RenderingProgressDialog } from '../loading/RenderingProgressDialog';
+import { DataDownloadProgressDialog } from '../loading/DataDownloadProgressDialog';
 
 const ReactGridLayout = WidthProvider(ResponsiveGridLayout);
 
@@ -350,6 +351,7 @@ const Preview = memo(({ isStateLoaded, hideProjects, isSnapshot = false }) => {
       <PickProjectModal />
       <EditSnapshotDialog />
       <RenderingProgressDialog />
+      <DataDownloadProgressDialog />
       {!hideProjects && <ProjectDetailDrawer showHistory={showHistory} setShowHistory={setShowHistory} />}
     </>
   );
