@@ -495,6 +495,10 @@ const MoleculeView = memo(
 
     const hasMap = proteinData?.diff_info || proteinData?.event_info || proteinData?.sigmaa_info;
 
+    const canon_site_conf = data?.canon_site_conf;
+    const experiment = data?.experiment;
+    const longcode = data?.longcode;
+
     useEffect(() => {
       setTagEditModalOpenNew(tagEditorOpenObs);
     }, [tagEditorOpenObs]);
@@ -505,7 +509,7 @@ const MoleculeView = memo(
         method: METHOD.GET
       })
         .then(resp => {
-          const canonSiteConf = resp.data.results.find(canonSiteConf => canonSiteConf.id === data.canon_site_conf);
+          const canonSiteConf = resp.data.results.find(canonSiteConf => canonSiteConf.id === canon_site_conf);
           if (canonSiteConf) {
             api({
               url: `${base_url}/api/canon_sites/`,
@@ -525,7 +529,7 @@ const MoleculeView = memo(
                 setCentroidRes('');
               });
           } else {
-            console.log('there is not any matching canonSiteConf object with ' + data.canon_site_conf + ' id');
+            console.log('there is not any matching canonSiteConf object with ' + canon_site_conf + ' id');
             setCentroidRes('');
           }
         })
@@ -533,7 +537,7 @@ const MoleculeView = memo(
           console.log('error fetching centroid_res from canon_sites', err);
           setCentroidRes('');
         });
-    }, [data.canon_site_conf]);
+    }, [canon_site_conf]);
 
     useEffect(() => {
       api({
@@ -541,11 +545,11 @@ const MoleculeView = memo(
         method: METHOD.GET
       })
         .then(resp => {
-          const experiment = resp.data.results.find(experiment => experiment.id === data.experiment);
+          const experiment = resp.data.results.find(experiment => experiment.id === experiment);
           if (experiment) {
             setExperimentalPath(experiment.pdb_info_source_file ?? '');
           } else {
-            console.log('there is not any matching canonSiteConf object with ' + data.experiment + ' id');
+            console.log('there is not any matching canonSiteConf object with ' + experiment + ' id');
             setExperimentalPath('');
           }
         })
@@ -553,17 +557,17 @@ const MoleculeView = memo(
           console.log('error fetching experiment from experiments api', err);
           setExperimentalPath('');
         });
-    }, [data.experiment]);
+    }, [experiment]);
 
     useEffect(() => {
       if (showExpandedView) {
         setHeaderWidthsHandler(centroidRes, 'CentroidRes');
-        setHeaderWidthsHandler(data.longcode, 'LongCode');
+        setHeaderWidthsHandler(longcode, 'LongCode');
         XCA_TAGS_CATEGORIES.forEach(tagCategory => {
           setHeaderWidthsHandler(getTagLabel(tagCategory), tagCategory);
         });
       }
-    }, [showExpandedView, getTagType, getTagLabel, centroidRes, data.longcode, setHeaderWidthsHandler]);
+    }, [showExpandedView, getTagType, getTagLabel, centroidRes, longcode, setHeaderWidthsHandler]);
 
     const handlePopoverOpen = event => {
       setTagPopoverOpen(event.currentTarget);
