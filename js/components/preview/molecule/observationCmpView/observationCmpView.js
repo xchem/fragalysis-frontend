@@ -80,7 +80,6 @@ import { ToastContext } from '../../../toast';
 import { QualityStatusWrapper } from '../moleculeView/qualityStatus/QualityStatusWrapper';
 import { useRDKit } from '../../../rdkit/RDKitContext';
 
-
 const useStyles = makeStyles(theme => ({
   container: {
     padding: theme.spacing(1) / 4,
@@ -1324,39 +1323,46 @@ const ObservationCmpView = memo(
 
       const groupMoleculeLPCControlButtonDisabled = disableL || disableP || disableC;
 
-      const getDisplayName = useCallback(() => {
-        const mainObservation = getMainObservation();
-        let displayName = '';
-        const defaultName = mainObservation?.compound_code;
+      const getDisplayName = useCallback(
+        (shortened = false) => {
+          const mainObservation = getMainObservation();
+          let displayName = '';
+          const defaultName = mainObservation?.compound_code;
 
-        if (aliasOrder) {
-          for (let index = 0; index < aliasOrder.length; index++) {
-            const preferredIdentifierType = aliasOrder[index];
-            if (preferredIdentifierType === 'compound_code') {
-              displayName = defaultName;
-              break;
-            } else {
-              // id: 81
-              // compound: 34
-              // name: "nonsense-34"
-              // type: "nonsense_id"
-              // url: null
-              const searchedIdentifier = mainObservation?.identifiers.find(
-                identifier => identifier.type === preferredIdentifierType
-              );
-              if (searchedIdentifier) {
-                displayName = searchedIdentifier.name;
+          if (aliasOrder) {
+            for (let index = 0; index < aliasOrder.length; index++) {
+              const preferredIdentifierType = aliasOrder[index];
+              if (preferredIdentifierType === 'compound_code') {
+                displayName = defaultName;
                 break;
+              } else {
+                // id: 81
+                // compound: 34
+                // name: "nonsense-34"
+                // type: "nonsense_id"
+                // url: null
+                const searchedIdentifier = mainObservation?.identifiers.find(
+                  identifier => identifier.type === preferredIdentifierType
+                );
+                if (searchedIdentifier) {
+                  displayName = searchedIdentifier.name;
+                  break;
+                }
               }
             }
           }
-        }
-        if (!displayName) {
-          displayName = defaultName;
-        }
+          if (!displayName) {
+            displayName = defaultName;
+          }
 
-        return displayName;
-      }, [aliasOrder, getMainObservation]);
+          if (shortened) {
+            displayName = displayName?.length > 12 ? `${displayName?.substring(0, 9)}...` : displayName;
+          }
+
+          return displayName;
+        },
+        [aliasOrder, getMainObservation]
+      );
 
       const copyToClipboard = useCallback(
         async (type, text) => {
@@ -1499,46 +1505,48 @@ const ObservationCmpView = memo(
             </Grid>
             <Grid item container className={classes.detailsCol} justifyContent="space-evenly" direction="column" xs={2}>
               {/* Title label */}
-              <Grid
-                item
-                onCopy={e => {
-                  e.preventDefault();
-                  setNameCopied(moleculeTitle);
-                }}
-                className={classes.moleculeTitleLabel}
-              >
-                <span className={classes.moleculeTitleLabelMain}>
-                  {getMainObservation()?.code?.replaceAll(`${target_on_name}-`, '') || ''}
-                </span>
-                <br />
-                {getDisplayName()}
-                <IconButton
-                  className={popoverOpen ? classes.posePropertiesTableIconActive : classes.posePropertiesTableIcon}
-                  onMouseEnter={handleTablePopoverOpen}
-                  onMouseLeave={() => setAnchorElTable(null)}
-                  ref={anchorElTable}
+              <Tooltip title={getDisplayName() || ''}>
+                <Grid
+                  item
+                  onCopy={e => {
+                    e.preventDefault();
+                    setNameCopied(moleculeTitle);
+                  }}
+                  className={classes.moleculeTitleLabel}
                 >
-                  <Assignment />
-                  <Popover
-                    id="mouse-over-popover"
-                    style={{ pointerEvents: 'none' }}
-                    open={popoverOpen}
-                    anchorEl={anchorElTable}
-                    anchorOrigin={{
-                      vertical: 'center',
-                      horizontal: 'right'
-                    }}
-                    transformOrigin={{
-                      vertical: 'center',
-                      horizontal: 'left'
-                    }}
-                    onClose={handleTablePopoverClose}
-                    disableRestoreFocus
+                  <span className={classes.moleculeTitleLabelMain}>
+                    {getMainObservation()?.code?.replaceAll(`${target_on_name}-`, '') || ''}
+                  </span>
+                  <br />
+                  {getDisplayName(true)}
+                  <IconButton
+                    className={popoverOpen ? classes.posePropertiesTableIconActive : classes.posePropertiesTableIcon}
+                    onMouseEnter={handleTablePopoverOpen}
+                    onMouseLeave={() => setAnchorElTable(null)}
+                    ref={anchorElTable}
                   >
-                    {getPosePropertiesTable()}
-                  </Popover>
-                </IconButton>
-              </Grid>
+                    <Assignment />
+                    <Popover
+                      id="mouse-over-popover"
+                      style={{ pointerEvents: 'none' }}
+                      open={popoverOpen}
+                      anchorEl={anchorElTable}
+                      anchorOrigin={{
+                        vertical: 'center',
+                        horizontal: 'right'
+                      }}
+                      transformOrigin={{
+                        vertical: 'center',
+                        horizontal: 'left'
+                      }}
+                      onClose={handleTablePopoverClose}
+                      disableRestoreFocus
+                    >
+                      {getPosePropertiesTable()}
+                    </Popover>
+                  </IconButton>
+                </Grid>
+              </Tooltip>
               {/* "Filtered"/calculated props
             <Grid item>
               <Grid

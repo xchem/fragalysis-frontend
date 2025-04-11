@@ -1091,9 +1091,9 @@ export const withDisabledMoleculesNglControlButtons = (moleculeIds, type, callba
 };
 
 export const selectAllHits = (allFilteredLhsCompounds, setNextXMolecules, unselect) => (dispatch, getState) => {
-  if (setNextXMolecules) {
-    dispatch(setNextXMolecules(allFilteredLhsCompounds?.length || 0));
-  }
+  // if (setNextXMolecules) {
+  //   dispatch(setNextXMolecules(allFilteredLhsCompounds?.length || 0));
+  // }
   const listOfIds = [];
   allFilteredLhsCompounds.forEach(cmp => {
     if (cmp.associatedObs?.length > 0 && cmp.main_site_observation) {
