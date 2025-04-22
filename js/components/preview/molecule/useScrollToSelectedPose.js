@@ -2,11 +2,12 @@ import { useCallback, useEffect, useState } from 'react';
 import { useDispatch, useSelector, shallowEqual } from 'react-redux';
 import { setScrollFiredForLHS } from '../../../reducers/selection/actions';
 import { getLHSCompoundsList } from './redux/selectors';
+import { tr } from 'date-fns/locale';
 
 /**
  * A hook which scrolls to the first selected pose when a snapshot is loaded.
  */
-export const useScrollToSelectedPose = (moleculesPerPage, setCurrentPage) => {
+export const useScrollToSelectedPose = (moleculesPerPage, setCurrentPage, loadMolecules) => {
   const dispatch = useDispatch();
 
   const poses = useSelector(state => getLHSCompoundsList(state), shallowEqual);
@@ -41,6 +42,7 @@ export const useScrollToSelectedPose = (moleculesPerPage, setCurrentPage) => {
           if (pose.id === poseIdForObservationsDialog) {
             setCurrentPage(i / moleculesPerPage + 1);
             setScrollToMoleculeId(poseIdForObservationsDialog);
+            loadMolecules && loadMolecules(true);
             break;
           }
         }
@@ -68,6 +70,7 @@ export const useScrollToSelectedPose = (moleculesPerPage, setCurrentPage) => {
           ) {
             setCurrentPage(i / moleculesPerPage + 1);
             setScrollToMoleculeId(pose.id);
+            loadMolecules && loadMolecules(true);
             break;
           }
         }
@@ -94,7 +97,8 @@ export const useScrollToSelectedPose = (moleculesPerPage, setCurrentPage) => {
     vectorOnList,
     poseIdForObservationsDialog,
     isObservationsDialogOpen,
-    lhsDataIsLoaded
+    lhsDataIsLoaded,
+    loadMolecules
   ]);
 
   // Second pass, once the list of molecules is displayed and the refs to their DOM nodes have been

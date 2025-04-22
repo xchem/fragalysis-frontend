@@ -92,6 +92,7 @@ import ObservationCmpView from './observationCmpView';
 import { ObservationsDialog } from './observationsDialog';
 import { useScrollToSelectedPose } from './useScrollToSelectedPose';
 import { SearchSettingsDialog } from './searchSettingsDialog';
+import { set } from 'lodash';
 
 const useStyles = makeStyles(theme => ({
   container: {
@@ -278,8 +279,12 @@ export const ObservationCmpList = memo(({ hideProjects }) => {
   const nextXMolecules = useSelector(state => state.selectionReducers.nextXMolecules);
   const [selectAllHitsPressed, setSelectAllHitsPressed] = useState(false);
   const [selectDisplayedHitsPressed, setSelectDisplayedHitsPressed] = useState(false);
+
   const moleculesPerPage = 30;
   const [currentPage, setCurrentPage] = useState(0);
+  const [itemsToBeDisplayed, setItemsToBeDisplayed] = useState([]);
+  const [sortSettingsChanged, setSortSettingsChanged] = useState(false);
+
   const searchString = useSelector(state => state.previewReducers.molecule.searchStringLHS);
   const [sortDialogAnchorEl, setSortDialogAnchorEl] = useState(null);
   const oldUrl = useRef('');
@@ -338,7 +343,10 @@ export const ObservationCmpList = memo(({ hideProjects }) => {
   const [predefinedFilter, setPredefinedFilter] = useState(filter !== undefined ? filter.predefined : DEFAULT_FILTER);
 
   const [ascending, setAscending] = useState(true);
-  const handleAscendingChecked = event => setAscending(event.target.checked);
+  const handleAscendingChecked = event => {
+    setAscending(event.target.checked);
+    setSortSettingsChanged(true);
+  };
   const SORT_OPTIONS = ['POSE_NAME', 'COMPOUND_CODE', 'CANONSITE_NUMBER', 'CONFORMERSITE_NUMBER', 'OBSERVATION_COUNT'];
   const sortOptions = {
     POSE_NAME: {
@@ -368,29 +376,29 @@ export const ObservationCmpList = memo(({ hideProjects }) => {
     const aName = a.code;
     const bName = b.code;
     return asc
-      ? aName.localeCompare(bName, undefined, { numeric: true, sensitivity: 'base' })
-      : bName.localeCompare(aName, undefined, { numeric: true, sensitivity: 'base' });
+      ? aName?.localeCompare(bName, undefined, { numeric: true, sensitivity: 'base' })
+      : bName?.localeCompare(aName, undefined, { numeric: true, sensitivity: 'base' });
   };
   const compareByCompoundCode = (a, b, asc) => {
     const aName = a.main_site_observation_cmpd_code;
     const bName = b.main_site_observation_cmpd_code;
     return asc
-      ? aName.localeCompare(bName, undefined, { numeric: true, sensitivity: 'base' })
-      : bName.localeCompare(aName, undefined, { numeric: true, sensitivity: 'base' });
+      ? aName?.localeCompare(bName, undefined, { numeric: true, sensitivity: 'base' })
+      : bName?.localeCompare(aName, undefined, { numeric: true, sensitivity: 'base' });
   };
   const compareByCanonSiteNumber = (a, b, asc) => {
     const aName = getCanonSiteTagPrefix(a);
     const bName = getCanonSiteTagPrefix(b);
     return asc
-      ? aName.localeCompare(bName, undefined, { numeric: true, sensitivity: 'base' })
-      : bName.localeCompare(aName, undefined, { numeric: true, sensitivity: 'base' });
+      ? aName?.localeCompare(bName, undefined, { numeric: true, sensitivity: 'base' })
+      : bName?.localeCompare(aName, undefined, { numeric: true, sensitivity: 'base' });
   };
   const compareByConformerSiteNumber = (a, b, asc) => {
     const aName = getConformerSiteTagPrefix(a);
     const bName = getConformerSiteTagPrefix(b);
     return asc
-      ? aName.localeCompare(bName, undefined, { numeric: true, sensitivity: 'base' })
-      : bName.localeCompare(aName, undefined, { numeric: true, sensitivity: 'base' });
+      ? aName?.localeCompare(bName, undefined, { numeric: true, sensitivity: 'base' })
+      : bName?.localeCompare(aName, undefined, { numeric: true, sensitivity: 'base' });
   };
   const compareByObservationCount = (a, b, asc) => {
     const aCount = a.site_observations.length;
@@ -474,10 +482,11 @@ export const ObservationCmpList = memo(({ hideProjects }) => {
     target = directDisplay.target;
   }
 
-  const { addMoleculeViewRef, setScrollToMoleculeId, getNode } = useScrollToSelectedPose(
-    moleculesPerPage,
-    setCurrentPage
-  );
+  // const { addMoleculeViewRef, setScrollToMoleculeId, getNode } = useScrollToSelectedPose(
+  //   moleculesPerPage,
+  //   setCurrentPage,
+  //   loadMolecules
+  // );
 
   let selectedMolecule = [];
   // TODO: Reset Infinity scroll
@@ -487,6 +496,8 @@ export const ObservationCmpList = memo(({ hideProjects }) => {
 
   let joinedMoleculeLists = useMemo(() => {
     if (searchString) {
+      setCurrentPage(0);
+      setItemsToBeDisplayed([]);
       return dispatch(searchForObservations(searchString, allMoleculesList, searchSettings));
     } else {
       return getJoinedMoleculeList;
@@ -581,7 +592,28 @@ export const ObservationCmpList = memo(({ hideProjects }) => {
 
   const loadNextMolecules = () => {
     setCurrentPage(currentPage + 1);
+    setItemsToBeDisplayed(filteredLHSCompoundsList.slice(0, (currentPage + 1) * moleculesPerPage));
   };
+
+  const loadMolecules = () => {
+    setItemsToBeDisplayed(filteredLHSCompoundsList.slice(0, currentPage * moleculesPerPage));
+  };
+
+  const { addMoleculeViewRef, setScrollToMoleculeId, getNode } = useScrollToSelectedPose(
+    moleculesPerPage,
+    setCurrentPage,
+    loadMolecules
+  );
+
+  useEffect(() => {
+    if (nextXMolecules || sortSettingsChanged) {
+      const newCurrentPage = currentPage + Math.ceil(nextXMolecules / moleculesPerPage);
+      setCurrentPage(newCurrentPage);
+      setItemsToBeDisplayed(filteredLHSCompoundsList.slice(0, newCurrentPage * moleculesPerPage));
+      dispatch(setNextXMolecules(0));
+      setSortSettingsChanged(false);
+    }
+  }, [currentPage, dispatch, filteredLHSCompoundsList, nextXMolecules, sortSettingsChanged]);
 
   if (molForTagEditId && !joinedMoleculeLists.some(m => m.id === molForTagEditId.some(mid => mid === m.id))) {
     molForTagEditId.forEach(mid => {
@@ -621,9 +653,6 @@ export const ObservationCmpList = memo(({ hideProjects }) => {
       return 0;
     });
   }
-
-  const listItemOffset = (currentPage + 1) * moleculesPerPage + nextXMolecules;
-  const canLoadMore = listItemOffset < joinedMoleculeLists.length;
 
   useEffect(() => {
     if (
@@ -1109,6 +1138,15 @@ export const ObservationCmpList = memo(({ hideProjects }) => {
     return false;
   };
 
+  const listItemOffset = (currentPage + 1) * moleculesPerPage + nextXMolecules;
+  const canLoadMore =
+    listItemOffset < filteredLHSCompoundsList?.length ||
+    (listItemOffset > filteredLHSCompoundsList?.length &&
+      itemsToBeDisplayed?.length < filteredLHSCompoundsList?.length);
+  console.log(
+    `Infinity scroll: listItemOffset: ${listItemOffset}, currentPage: ${currentPage}, moleculesPerPage: ${moleculesPerPage}, nextXMolecules: ${nextXMolecules}, canLoadMore: ${canLoadMore}, listItemOffset: ${listItemOffset}, filteredLHSCompoundsList: ${filteredLHSCompoundsList.length}`
+  );
+
   return (
     <Panel hasHeader title="Hit navigator" headerActions={actions} ref={hitNavigatorRef}>
       <AlertModal
@@ -1325,7 +1363,10 @@ export const ObservationCmpList = memo(({ hideProjects }) => {
           <Tooltip title={sortOption ? sortOptions[sortOption].title : 'Sort by'}>
             <Select
               value={sortOption}
-              onChange={event => setSortOption(event.target.value)}
+              onChange={event => {
+                setSortOption(event.target.value);
+                setSortSettingsChanged(true);
+              }}
               // fullWidth
               size="small"
               style={{ fontSize: 10, width: 75 }}
@@ -1399,7 +1440,7 @@ export const ObservationCmpList = memo(({ hideProjects }) => {
                 }
                 useWindow={false}
               >
-                {filteredLHSCompoundsList.map((data, index, array) => {
+                {itemsToBeDisplayed.map((data, index, array) => {
                   const molsForCmp = data.associatedObs;
                   const selected = allSelectedMolecules.some(molecule =>
                     data.associatedObs.some(obs => obs.id === molecule.id)
