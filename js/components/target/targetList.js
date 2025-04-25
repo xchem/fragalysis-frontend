@@ -89,7 +89,7 @@ import {
   compareInitDateAsc,
   compareInitDateDesc
 } from './sortTargets/sortTargets';
-import { TargetListSortFilterDialog, sortTargets } from './targetListSortFilterDialog';
+import { TargetListSortFilterDialog } from './targetListSortFilterDialog';
 import {
   Delete,
   Add,
@@ -110,9 +110,14 @@ import { DJANGO_CONTEXT } from '../../utils/djangoContext';
 
 const useStyles = makeStyles(theme => ({
   table: {
-    minWidth: 430,
-    tableLayout: 'auto',
-    marginTop: '8px'
+    // minWidth: 430,
+    tableLayout: 'auto'
+    // marginTop: '8px'
+  },
+  tableHeader: {
+    padding: 0,
+    paddingLeft: 3,
+    verticalAlign: 'middle'
   },
   search: {
     margin: theme.spacing(1),
@@ -129,6 +134,9 @@ const useStyles = makeStyles(theme => ({
   chip: {
     margin: theme.spacing(1) / 2
   },
+  arrowsWrapper: {
+    paddingRight: 3
+  },
   sortButton: {
     width: '0.75em',
     height: '0.75em',
@@ -136,14 +144,54 @@ const useStyles = makeStyles(theme => ({
   }
 }));
 
-export const TargetList = memo(() => {
+export const TargetList = memo(({ list = [], title = 'Target list', authRequired = false, legacy = false }) => {
   const classes = useStyles();
   const dispatch = useDispatch();
+  const [initList, setInitList] = useState([]);
+  const [targetList, setTargetList] = useState([]);
+  const [filterDialogOpen, setFilterDialogOpen] = useState(false);
+  const [searchString, setSearchString] = useState('');
+  // checkbox for search
+  const [checkedTarget, setCheckedTarget] = useState(true);
+  const [checkedTargetAccessString, setCheckedTargetAccessString] = useState(true);
+
   const [page, setPage] = useState(0);
   const [isResizing, setIsResizing] = useState(false);
   const [isResizingTargetAccessString, setIsResizingTargetAccessString] = useState(false);
   const [isResizingInitDate, setIsResizingInitDate] = useState(false);
   const [isResizingSGC, setIsResizingSGC] = useState(false);
+  const [isResizingForColumns, setIsResizingForColumns] = useState({
+    target: false,
+    tas: false,
+    initDate: false,
+    lastUpdatedDate: false,
+    shortName: false,
+    longName: false,
+    organism: false,
+    externalURL: false
+  });
+  const updateIsResizingForColumn = (column, isResizing) => {
+    setIsResizingForColumns({
+      ...isResizingForColumns,
+      [column]: isResizing
+    })
+  };
+  const [panelWidthForColumns, setPanelWidthForColumns] = useState({
+    target: 110,
+    tas: 110,
+    initDate: 90,
+    lastUpdatedDate: 90,
+    shortName: 110,
+    longName: 110,
+    organism: 110,
+    externalURL: 110
+  });
+  const updateWidthForColumn = (column, width) => {
+    setPanelWidthForColumns({
+      ...panelWidthForColumns,
+      [column]: width
+    })
+  };
   const [panelWidth, setPanelWidth] = useState(110);
   const [panelWidthForTargetAccessString, setPanelWidthForTargetAccessString] = useState(140);
   const [panelWidthForInitDate, setPanelWidthForInitDate] = useState(90);
@@ -153,18 +201,217 @@ export const TargetList = memo(() => {
   const [sortDialogAnchorEl, setSortDialogAnchorEl] = useState(null);
   const sortDialogOpen = useSelector(state => state.targetReducers.targetListFilterDialog);
 
+  const initialize = useCallback(() => {
+    let initObject = {
+      active: false,
+      predefined: 'none',
+      filter: {},
+      priorityOrder: TARGETS_ATTR.map(target => target.key),
+      sortOptions: TARGETS_ATTR.map(target => [target.key, target.path])
+    };
+
+    for (let attr of TARGETS_ATTR) {
+      const lowAttr = attr.key.toLowerCase();
+      if (attr.key === 'display_name') {
+        initObject.filter[attr.key] = {
+          priority: 0,
+          order: -1,
+          isFloat: attr.isFloat
+        };
+      } else {
+        initObject.filter[attr.key] = {
+          priority: 0,
+          order: 0,
+          isFloat: attr.isFloat
+        };
+      }
+    }
+    return initObject;
+  }, []);
+
+  const initFilterState = {
+    target: {
+      priority: 1,
+      order: 0,
+      value: '',
+      title: 'Target'
+    },
+    tas: {
+      priority: 2,
+      order: 0,
+      value: '',
+      title: 'TAS'
+    },
+    initDate: {
+      priority: 3,
+      order: 0,
+      value: ['', ''],
+      title: 'Init date'
+    },
+    ...(!legacy && {
+      lastUpdatedDate: {
+        priority: 4,
+        order: 0,
+        value: ['', ''],
+        title: 'Last updated'
+      },
+      shortName: {
+        priority: 5,
+        order: 0,
+        value: '',
+        title: 'Short name'
+      },
+      longName: {
+        priority: 6,
+        order: 0,
+        value: '',
+        title: 'Long name'
+      },
+      organism: {
+        priority: 7,
+        order: 0,
+        value: '',
+        title: 'Organism'
+      }
+      // externalURL: {
+      //   priority: 0,
+      //   order: 0,
+      //   value: ''
+      // }
+    })
+  };
+
   const filterClean = useSelector(state => state.targetReducers.filterClean);
-  let filter = useSelector(state => state.selectionReducers.targetFilter);
-  const [showEditIconForTarget, setShowEditIconForTarget] = useState(0);
+  const targetFilter = useSelector(state => state.selectionReducers.targetFilter);
+  const [filter, setFilter] = useState(targetFilter || initialize());
+  const [newFilter, setNewFilter] = useState(initFilterState);
+
+  const updateFilter = (column, type, value) => {
+    if (type === 'value' && column.toLowerCase().includes('date')) {
+      const oldValue = newFilter[column].value;
+      if (value[0] === '') {
+        value = [oldValue[0], value[1]];
+      } else if (value[1] === '') {
+        value = [value[0], oldValue[1]];
+      }
+    }
+    setNewFilter(old => {
+      const updated = { ...old };
+      updated[column] = {
+        ...old[column],
+        [type]: value
+      };
+      return updated;
+      // return
+      //   ...old,
+      //   [column]: {
+      //     ...[column],
+      //     [type]: value
+      //   }
+      // };
+      // return {
+      //   ...old,
+      //   [column]: {
+      //     ...[column],
+      //     [type]: value
+      //   }
+      // };
+    });
+  };
 
   // const target_id_list_unsorted = useSelector(state => state.apiReducers.target_id_list);
-  const target_id_list_unsorted = useSelector(state => getCombinedTargetList(state));
   const projectsList = useSelector(state => state.targetReducers.projects);
-  let listOfTargets = useSelector(state => state.targetReducers.listOfTargets);
   let filteredListOfTargets = useSelector(state => state.targetReducers.listOfFilteredTargets);
 
-  let target_id_list = filter === undefined ? target_id_list_unsorted.sort(compareTargetAsc) : target_id_list_unsorted;
-  let listOfAllTargetsDefault = target_id_list;
+  let target_id_list = filter === undefined ? list.sort(compareTargetAsc) : list;
+
+  const filterProperty = (target, property, filterValue) => {
+    switch (property) {
+      case 'target':
+        return target.display_name.toLowerCase().includes(filterValue.toLowerCase());
+      case 'tas':
+        return target.project.target_access_string.toLowerCase().includes(filterValue.toLowerCase());
+      case 'initDate':
+        const initDate = moment(target.project.init_date).format('YYYY-MM-DD');
+        const initDateFrom = filterValue[0].length > 0 ? filterValue[0] <= initDate : true;
+        const initDateTo = filterValue[1].length > 0 ? filterValue[1] >= initDate : true;
+        return initDateFrom && initDateTo;
+      case 'lastUpdatedDate':
+        const lastUpdatedDate = target.last_updated ? moment(target.last_updated).format('YYYY-MM-DD') : '';
+        const lastUpdatedDateFrom = filterValue[0].length > 0 ? filterValue[0] <= lastUpdatedDate : true;
+        const lastUpdatedDateTo = filterValue[1].length > 0 ? filterValue[1] >= lastUpdatedDate : true;
+        return lastUpdatedDate ? lastUpdatedDateFrom && lastUpdatedDateTo : true;
+      case 'shortName':
+        return target.short_name.toLowerCase().includes(filterValue.toLowerCase());
+      case 'longName':
+        return target.long_name.toLowerCase().includes(filterValue.toLowerCase());
+      case 'organism':
+        return target.organism.toLowerCase().includes(filterValue.toLowerCase());
+    }
+    return false;
+  };
+
+  const orderProperty = (a, b, property) => {
+    switch (property) {
+      case 'target':
+        return a.display_name.toLowerCase() < b.display_name.toLowerCase() ? -1 : 1;
+      case 'tas':
+        return a.project.target_access_string.toLowerCase() < b.project.target_access_string.toLowerCase() ? -1 : 1;
+      case 'initDate':
+        return a.project.init_date < b.project.init_date ? -1 : 1;
+      case 'lastUpdatedDate':
+        return a.last_updated < b.last_updated ? -1 : 1;
+      case 'shortName':
+        return a.short_name.toLowerCase() < b.short_name.toLowerCase() ? -1 : 1;
+      case 'longName':
+        return a.long_name.toLowerCase() < b.long_name.toLowerCase() ? -1 : 1;
+      case 'organism':
+        return a.organism.toLowerCase() < b.organism.toLowerCase() ? -1 : 1;
+    }
+    return 0;
+  };
+
+  useEffect(() => {
+    const combinations = getTargetProjectCombinations(list, projectsList);
+    const updatedTargets = combinations.map(c => c.updatedTarget);
+    setInitList(updatedTargets);
+  }, [list, projectsList]);
+
+  useEffect(() => {
+    if (initList.length > 0) {
+      let filteredList = initList;
+      Object.keys(newFilter).map(property => {
+        // apply filters
+        if (newFilter[property].value) {
+          filteredList = filteredList.filter(target => {
+            return filterProperty(target, property, newFilter[property].value);
+          }
+          );
+        }
+        // apply ordering
+        if (newFilter[property].order !== 0) {
+          filteredList = filteredList.sort((a, b) => {
+            if (newFilter[property].order === 1) {
+              return orderProperty(a, b, property);
+            } else {
+              return orderProperty(b, a, property);
+            }
+          });
+        }
+      });
+
+      console.log('pre searchString', searchString, checkedTarget, checkedTargetAccessString);
+      if (searchString && (checkedTarget || checkedTargetAccessString)) {
+        filteredList = filteredList.filter(item =>
+          checkedTarget && item.display_name.toLowerCase().includes(searchString.toLowerCase())
+          || checkedTargetAccessString && item.project.target_access_string.toLowerCase().includes(searchString.toLowerCase())
+        );
+        setTargetList(filteredList);
+      } else {
+        setTargetList(filteredList);
+      }
+    }
+  }, [newFilter, searchString, checkedTarget, checkedTargetAccessString, initList]);
 
   if (filter) {
     // filter target
@@ -211,138 +458,17 @@ export const TargetList = memo(() => {
     }
   }
 
-  let searchString = '';
-
-  // checkbox for search
-  const [checkedId, setCheckedId] = useState(true);
-  const [checkedTarget, setCheckedTarget] = useState(true);
-  const [checkedNumberOfChains, setCheckedNumberOfChains] = useState(true);
-  const [checkedPrimaryChain, setCheckedPrimaryChain] = useState(true);
-  const [checkedUniprot, setCheckedUniprot] = useState(true);
-  const [checkedRange, setCheckedRange] = useState(true);
-  const [checkedProteinName, setCheckedProteinName] = useState(true);
-  const [checkedGeneName, setCheckedGeneName] = useState(true);
-  const [checkedSpeciesId, setCheckedSpeciesId] = useState(true);
-  const [checkedSpecies, setCheckedSpecies] = useState(true);
-  const [checkedDomain, setCheckedDomain] = useState(true);
-  const [checkedECNumber, setCheckedECNUmber] = useState(true);
-  const [checkedNHits, setCheckedNHits] = useState(true);
-  const [checkedDateLastEdit, setCheckedDateLastEdit] = useState(true);
-  const [checkedVersionId, setCheckedVersionId] = useState(true);
-  const [checkedTargetAccessString, setCheckedTargetAccessString] = useState(true);
-
-  const offsetId = 10;
-  const offsetTarget = 20;
-  const offsetNumberOfChains = 30;
-  const offsetPrimaryChain = 40;
-  const offsetUniprot = 60;
-  const offsetRange = 70;
-  const offsetProteinName = 80;
-  const offsetGeneName = 90;
-  const offsetSpeciesId = 100;
-  const offsetSpecies = 110;
-  const offsetDomain = 120;
-  const offsetECNumber = 130;
-  const offsetNHits = 140;
-  const offsetDateLastEdit = 150;
-  const offsetVersionId = 160;
-  const offsetTargetAccessString = 170;
-  const offsetInitDate = 180;
-
-  let searchedById = [];
-  let searchedByTarget = [];
-  let searchedByNumberOfChains = [];
-  let searchedByPrimaryChain = [];
-  let searchedByUniprot = [];
-  let searchedByRange = [];
-  let searchedByProteinName = [];
-  let searchedByGeneName = [];
-  let searchedBySpeciesId = [];
-  let searchedBySpecies = [];
-  let searchedByDomain = [];
-  let searchedByDateLastEdit = [];
-  let searchedVersionId = [];
-  let searchedByECNumber = [];
-  let searchedNHits = [];
-  let searchedByTargetAccessString = [];
-
-  let listOfFilteredTargetsByDate = useSelector(state => state.targetReducers.listOfFilteredTargetsByDate);
-
-  const isActiveFilter = !!(filter || {}).active;
-  let listOfAllTarget = [...listOfAllTargetsDefault].sort(compareTargetAsc);
-  const initialize = useCallback(() => {
-    let initObject = {
-      active: false,
-      predefined: 'none',
-      filter: {},
-      priorityOrder: TARGETS_ATTR.map(target => target.key),
-      sortOptions: TARGETS_ATTR.map(target => [target.key, target.path])
-    };
-
-    for (let attr of TARGETS_ATTR) {
-      const lowAttr = attr.key.toLowerCase();
-      if (attr.key === 'display_name') {
-        initObject.filter[attr.key] = {
-          priority: 0,
-          order: -1,
-          isFloat: attr.isFloat
-        };
-      } else {
-        initObject.filter[attr.key] = {
-          priority: 0,
-          order: 0,
-          isFloat: attr.isFloat
-        };
-      }
-    }
-    return initObject;
-  }, []);
-
-  useEffect(() => {
-    const init = initialize();
-    setInitState(init);
-  }, []);
-
-  const [initState, setInitState] = useState(initialize());
-
-  filter = filter || initState;
-
-  const render_item_method = target => {
+  const render_item_method = useCallback(target => {
     let preview;
     if (target.isLegacy) {
       preview = target.legacyUrl;
     } else {
       preview = `${URLS.target}${target.title}/${URL_TOKENS.target_access_string}/${target.project.target_access_string}`;
     }
-    const sgcUrl = 'https://thesgc.org/sites/default/files/XChem/' + target.title + '/html/index.html';
-    const sgcUploaded = ['BRD1A', 'DCLRE1AA', 'FALZA', 'FAM83BA', 'HAO1A', 'NUDT4A', 'NUDT5A', 'NUDT7A', 'PARP14A'];
-    const discourseAvailable = isDiscourseAvailable();
-    // const [discourseUrl, setDiscourseUrl] = useState();
+
     return (
       <TableRow hover key={target.isLegacy ? target.title + 'Legacy' : `${target.id}-${target.title}`}>
-        {/*<Tooltip title={`${target.id}`}>
-        <TableCell
-          component="th"
-          scope="row"
-          style={{ minWidth: '150px', padding: '0px', margin: '0px' }}
-            >
-          <div>{target.id}</div>
-        </TableCell>
-      </Tooltip> */}
-        <TableCell
-          align="left"
-          style={{ padding: '0px', margin: '0px' }}
-          onMouseEnter={() => {
-            if (!target.isLegacy && DJANGO_CONTEXT['authenticated']) {
-              setShowEditIconForTarget(target.id);
-            }
-          }}
-          onMouseLeave={() => {
-            if (!target.isLegacy && DJANGO_CONTEXT['authenticated']) {
-              setShowEditIconForTarget(0);
-            }
-          }}
-        >
+        <TableCell align="left" style={{ padding: '0px', margin: '0px' }} >
           {target.isLegacy ? (
             <a href={target.legacyUrl} target="new" style={{ wordBreak: 'break-all' }}>
               {target.display_name}
@@ -362,8 +488,29 @@ export const TargetList = memo(() => {
           {moment(target.project.init_date).format('YYYY-MM-DD')}
         </TableCell>
         <TableCell style={{ width: '2px', padding: '0px', margin: '0px' }}></TableCell>
+        {legacy === false && ([
+          <TableCell key={'1'} align="left" style={{ padding: '0px', margin: '0px' }}>
+            {target.last_updated ? moment(target.last_updated).format('YYYY-MM-DD') : ''}
+          </TableCell>,
+          <TableCell key={'2'} style={{ width: '2px', padding: '0px', margin: '0px' }}></TableCell>,
+          <TableCell key={'3'} align="left" style={{ padding: '0px', margin: '0px' }}>
+            {target.short_name}
+          </TableCell>,
+          <TableCell key={'4'} style={{ width: '2px', padding: '0px', margin: '0px' }}></TableCell>,
+          <TableCell key={'5'} align="left" style={{ padding: '0px', margin: '0px' }}>
+            {target.long_name}
+          </TableCell>,
+          <TableCell key={'6'} style={{ width: '2px', padding: '0px', margin: '0px' }}></TableCell>,
+          <TableCell key={'7'} align="left" style={{ padding: '0px', margin: '0px' }}>
+            {target.organism}
+          </TableCell>,
+          <TableCell key={'8'} style={{ width: '2px', padding: '0px', margin: '0px' }}></TableCell>,
+          <TableCell key={'9'} align="left" style={{ padding: '0px', margin: '0px' }}>
+            <a href={target.external_url} target="_blank">{target.external_url_display_name}</a>
+          </TableCell>,
+          <TableCell key={'10'} style={{ width: '2px', padding: '0px', margin: '0px' }}></TableCell>
+        ])}
         {DJANGO_CONTEXT['authenticated'] && !target.isLegacy && <TableCell style={{ width: '2px', padding: '0px', margin: '0px' }}>
-          {/* {showEditIconForTarget === target.id && ( */}
           <IconButton
             style={{ padding: '0px' }}
             onClick={() => {
@@ -374,166 +521,9 @@ export const TargetList = memo(() => {
             <Edit style={{ height: '15px' }} />
           </IconButton>
         </TableCell>}
-        {/* <TableCell align="left" style={{ padding: '0px', margin: '0px' }}>
-          {sgcUploaded.includes(target.title) && (
-            <a href={sgcUrl} target="new">
-              SGC summary
-            </a>
-          )}
-          {discourseAvailable && (
-            <Tooltip title="Go to Discourse">
-              <IconButton
-                disabled={!isDiscourseAvailable()}
-                onClick={() => {
-                  generateDiscourseTargetURL(target.title)
-                    .then(response => {
-                      const link = response.data['Post url'];
-                      openDiscourseLink(link);
-                    })
-                    .catch(err => {
-                      console.log(err);
-                      dispatch(setOpenDiscourseErrorModal(true));
-                    });
-                }}
-                style={{ padding: '0px' }}
-              >
-                <Chat style={{ height: '15px' }} />
-              </IconButton>
-            </Tooltip>
-          )}
-        </TableCell> */}
-        {/*
-      <TableCell
-        align="left"
-        style={{ minWidth: '100px', padding: '5px 10px 0px 0px', margin: '0px', padding: '0px' }}
-      >
-        <div>{target.numberOfChains}</div>
-      </TableCell>
-      <TableCell
-        align="left"
-        style={{ minWidth: '150px', padding: '0px 10px 0px 0px', margin: '0px', padding: '0px' }}
-      >
-        <div>{target.primaryChain}</div>
-      </TableCell>
-      <TableCell style={{ padding: '0px' }} align="left">
-        <Link to={`${URLS.target}${target.uniprot}`}>
-          <div>{target.uniprot} </div>
-        </Link>
-      </TableCell>
-      <TableCell style={{ padding: '0px' }} align="left">
-        {target.range}
-      </TableCell>{' '}
-      <TableCell style={{ padding: '0px' }} align="left">
-        {target.proteinName}
-      </TableCell>{' '}
-      <TableCell style={{ padding: '0px' }} align="left">
-        {target.geneName}
-      </TableCell>{' '}
-      <TableCell style={{ padding: '0px' }} align="left">
-        {target.speciesId}
-      </TableCell>
-      <TableCell align="left" style={{ padding: '0px' }}>
-        <Link to={`${URLS.target}${target.species}`}>
-          <div>{target.species} </div>
-        </Link>
-      </TableCell>
-      <TableCell style={{ padding: '0px' }} align="left">
-        {target.domain}
-      </TableCell>
-      <TableCell style={{ padding: '0px' }} align="left">
-        {target.ECNumber}
-      </TableCell>
-      <TableCell
-        align="left"
-        style={{ minWidth: '150px', padding: '0px 10px 0px 0px', margin: '0px', padding: '0px' }}
-      >
-        <div> {target.NHits}</div>
-      </TableCell>
-      <TableCell
-        align="left"
-        style={{ minWidth: '150px', padding: '0px 10px 0px 0px', margin: '0px', padding: '0px' }}
-      >
-        <div> {target.dateLastEdit}</div>
-      </TableCell>
-      <TableCell
-        align="left"
-        style={{ minWidth: '150px', padding: '0px 10px 0px 0px', margin: '0px', padding: '0px' }}
-      >
-        <div> {target.versionId}</div>
-      </TableCell>
-    */}
       </TableRow>
     );
-  };
-
-  useEffect(() => {
-    // remove filter data
-    if (filterClean === true) {
-      dispatch(setDefaultFilter(false));
-      dispatch(setSearchTarget(''));
-      dispatch(setSearchNumberOfChains(''));
-      dispatch(setSearchPrimaryChain(''));
-      dispatch(setSearchUniprot(''));
-      dispatch(setSearchRange(''));
-      dispatch(setSearchProteinName(''));
-      dispatch(setSearchGeneName(''));
-      dispatch(setSearchSpecies(''));
-      dispatch(setSearchDomain(''));
-      dispatch(setSearchECNumber(''));
-      dispatch(setSearchNHits(''));
-      dispatch(setSearchDateLastEditFrom(''));
-      dispatch(setSearchDateLastEditTo(''));
-      dispatch(setSearchTargetAccessString(''));
-      dispatch(setSearchInitDateFrom(''));
-      dispatch(setSearchInitDateTo(''));
-      const newFilter = { ...filter };
-      newFilter.priorityOrder = [
-        'display_name',
-        'targetAccessString',
-        'initDate'
-        //'numberOfChains',
-        //'primaryChain',
-        //'uniprot',
-        //'range',
-        //'proteinName',
-        //'geneName',
-        //'species',
-        //'domain',
-        //'ECNumber',
-        //'NHits',
-        //'dateLastEdit'
-      ];
-      newFilter.sortOptions = [
-        ['display_name', undefined],
-        ['targetAccessString', 'project_target_access_string'],
-        ['initDate', 'project.init_date']
-        //['numberOfChains', undefined],
-        //['primaryChain', undefined],
-        //['uniprot', undefined],
-        //['range', undefined],
-        //['geneName', undefined],
-        //['species', undefined],
-        //['domain', undefined],
-        //['ECNumber', undefined],
-        //['NHits', undefined],
-        //['dateLastEdit', undefined]
-      ];
-      //newFilter.filter.numberOfChains.order = 1;
-      newFilter.filter.title.order = -1;
-      newFilter.filter.targetAccessString.order = 0;
-      newFilter.filter.initDate.order = 0;
-      //newFilter.filter.primaryChain.order = 1;
-      //newFilter.filter.uniprot.order = 1;
-      //newFilter.filter.range.order = 1;
-      //newFilter.filter.geneName.order = 1;
-      //newFilter.filter.species.order = 1;
-      //newFilter.filter.domain.order = 1;
-      //newFilter.filter.ECNumber.order = 1;
-      //newFilter.filter.NHits.order = 1;
-      //newFilter.filter.dateLastEdit.order = 1;
-      dispatch(setTargetFilter(newFilter));
-    }
-  }, [filterClean]);
+  }, [dispatch, legacy]);
 
   // window height for showing rows per page
   const [windowHeight, setWindowHeight] = useState(window.innerHeight);
@@ -554,474 +544,13 @@ export const TargetList = memo(() => {
     setPage(0);
   };
 
-  useEffect(() => {
-    if (isActiveFilter) {
-      listOfAllTargetsDefault = sortTargets(listOfAllTargetsDefault, filter);
-      dispatch(setListOfTargets(listOfAllTargetsDefault));
-      if (filteredListOfTargets !== undefined) {
-        filteredListOfTargets = sortTargets(filteredListOfTargets, filter);
-        dispatch(setListOfFilteredTargets(filteredListOfTargets));
-      }
-    }
-  }, [filter]);
-
   // search from target list
   const handleSearch = event => {
-    searchString = event.target.value;
-    /* if (checkedId === true) {
-      searchedById = listOfAllTarget.filter(item => item.id.toString().includes(searchString));
-    } else {
-      searchedById = [];
-    }*/
-    if (checkedTarget === true) {
-      searchedByTarget = listOfAllTarget.filter(item =>
-        item.display_name.toLowerCase().includes(searchString.toLowerCase())
-      );
-    } else {
-      searchedByTarget = [];
-    }
-    if (checkedTargetAccessString === true) {
-      searchedByTargetAccessString = listOfAllTarget.filter(item =>
-        item.project.target_access_string.toLowerCase().includes(searchString.toLowerCase())
-      );
-    } else {
-      searchedByTargetAccessString = [];
-    }
-    /* if (checkedNumberOfChains === true) {
-      searchedByNumberOfChains = listOfAllTarget.filter(item => item.numberOfChains.toString().includes(searchString));
-    } else {
-      searchedByNumberOfChains = [];
-    }
-    if (checkedPrimaryChain === true) {
-      searchedByPrimaryChain = listOfAllTarget.filter(item => {
-        return item.primaryChain.toLowerCase().includes(searchString.toLowerCase());
-      });
-    } else {
-      searchedByPrimaryChain = [];
-    }
-    if (checkedUniprot === true) {
-      searchedByUniprot = listOfAllTarget.filter(item => {
-        return item.uniprot.toLowerCase().includes(searchString.toLowerCase());
-      });
-    } else {
-      searchedByUniprot = [];
-    }
-    if (checkedRange === true) {
-      searchedByRange = listOfAllTarget.filter(item => {
-        return item.range.toString().includes(searchString);
-      });
-    } else {
-      searchedByRange = [];
-    }
-    if (checkedProteinName === true) {
-      searchedByProteinName = listOfAllTarget.filter(item => {
-        return item.proteinName.toLowerCase().includes(searchString.toLowerCase());
-      });
-    } else {
-      searchedByProteinName = [];
-    }
-    if (checkedGeneName === true) {
-      searchedByGeneName = listOfAllTarget.filter(item => {
-        return item.geneName
-          .toLowerCase()
-          .toString()
-          .includes(searchString.toLowerCase());
-      });
-    } else {
-      searchedByGeneName = [];
-    }
-    if (checkedSpeciesId === true) {
-      searchedBySpeciesId = listOfAllTarget.filter(item => {
-        return item.speciesId.toString().includes(searchString);
-      });
-    } else {
-      searchedBySpeciesId = [];
-    }
-    if (checkedSpecies === true) {
-      searchedBySpecies = listOfAllTarget.filter(item => {
-        return item.species.toLowerCase().includes(searchString.toLowerCase());
-      });
-    } else {
-      searchedBySpecies = [];
-    }
-    if (checkedDomain === true) {
-      searchedByDomain = listOfAllTarget.filter(item => {
-        return item.domain.toLowerCase().includes(searchString.toLowerCase());
-      });
-    } else {
-      searchedByDomain = [];
-    }
-    if (checkedECNumber === true) {
-      searchedByECNumber = listOfAllTarget.filter(item => {
-        return item.ECNumber.toLowerCase().includes(searchString.toLowerCase());
-      });
-    } else {
-      searchedByECNumber = [];
-    }
-    if (checkedNHits === true) {
-      searchedNHits = listOfAllTarget.filter(item => {
-        return item.NHits.toString().includes(searchString);
-      });
-    } else {
-      searchedNHits = [];
-    }
-    if (checkedDateLastEdit === true) {
-      searchedByDateLastEdit = listOfAllTarget.filter(item => {
-        return item.dateLastEdit.toLowerCase().includes(searchString.toLowerCase());
-      });
-    } else {
-      searchedByDateLastEdit = [];
-    }
-    if (checkedVersionId === true) {
-      searchedVersionId = listOfAllTarget.filter(item => {
-        return item.versionId.toString().includes(searchString);
-      });
-    } else {
-      searchedVersionId = [];
-    }
-*/
-    const mergedSearchList = [
-      ...searchedById,
-      ...searchedByTarget,
-      ...searchedByNumberOfChains,
-      ...searchedByPrimaryChain,
-      ...searchedByUniprot,
-      ...searchedByRange,
-      ...searchedByProteinName,
-      ...searchedByGeneName,
-      ...searchedBySpeciesId,
-      ...searchedBySpecies,
-      ...searchedByDomain,
-      ...searchedByDateLastEdit,
-      ...searchedVersionId,
-      ...searchedByECNumber,
-      ...searchedNHits,
-      ...searchedByTargetAccessString
-    ];
-    const uniqueArray = Array.from(new Set(mergedSearchList.map(JSON.stringify))).map(JSON.parse);
-    dispatch(setListOfFilteredTargets(uniqueArray));
+    setSearchString(event.target.value);
   };
 
-  if (filteredListOfTargets === undefined) {
-    filteredListOfTargets = [...listOfAllTarget];
-  }
-
-  if (listOfFilteredTargetsByDate !== undefined && filteredListOfTargets !== undefined) {
-    filteredListOfTargets = filteredListOfTargets.filter(item1 =>
-      listOfFilteredTargetsByDate.some(item2 => item2.id === item1.id)
-    );
-  }
-
-  const handleHeaderSort = type => {
-    switch (type) {
-      case 'id':
-        if (sortSwitch === offsetId + 1) {
-          dispatch(setListOfFilteredTargets([...listOfAllTarget].sort(compareIdAsc)));
-          setSortSwitch(sortSwitch + 1);
-        } else if (sortSwitch === offsetId + 2) {
-          dispatch(setListOfFilteredTargets([...listOfAllTarget].sort(compareIdAsc)));
-          setSortSwitch(0);
-        } else {
-          dispatch(setListOfFilteredTargets([...listOfAllTarget].sort(compareIdDesc)));
-          setSortSwitch(offsetId + 1);
-        }
-        break;
-      case 'target':
-        if (sortSwitch === offsetTarget + 1) {
-          if (filter !== undefined) {
-            const newFilter = { ...filter };
-            newFilter.filter.title.order = 1;
-            dispatch(setTargetFilter(newFilter));
-          }
-          dispatch(
-            setListOfFilteredTargets(
-              filteredListOfTargets === undefined
-                ? [...listOfAllTarget].sort(compareTargetAsc)
-                : filteredListOfTargets.sort(compareTargetAsc)
-            )
-          );
-          setSortSwitch(sortSwitch + 1);
-        } else if (sortSwitch === offsetTarget + 2) {
-          if (filter !== undefined) {
-            const newFilter = { ...filter };
-            newFilter.filter.title.order = 0;
-            dispatch(setTargetFilter(newFilter));
-          }
-          dispatch(
-            setListOfFilteredTargets(
-              filteredListOfTargets === undefined
-                ? [...listOfAllTarget].sort(compareTargetAsc)
-                : filteredListOfTargets.sort(compareTargetAsc)
-            )
-          );
-          setSortSwitch(0);
-        } else {
-          if (filter !== undefined) {
-            // change radio button in project list filter
-            const newFilter = { ...filter };
-            newFilter.filter.title.order = -1;
-            dispatch(setTargetFilter(newFilter));
-          }
-          dispatch(
-            setListOfFilteredTargets(
-              filteredListOfTargets === undefined
-                ? [...listOfAllTarget].sort(compareTargetDesc)
-                : [...filteredListOfTargets].sort(compareTargetDesc)
-            )
-          );
-          setSortSwitch(offsetTarget + 1);
-        }
-        break;
-      case 'targetAccessString':
-        if (sortSwitch === offsetTargetAccessString + 1) {
-          if (filter !== undefined) {
-            const newFilter = { ...filter };
-            newFilter.filter.targetAccessString.order = 1;
-            dispatch(setTargetFilter(newFilter));
-          }
-          dispatch(
-            setListOfFilteredTargets(
-              filteredListOfTargets === undefined
-                ? [...listOfAllTarget].sort(compareTargetAccessStringAsc)
-                : [...filteredListOfTargets].sort(compareTargetAccessStringAsc)
-            )
-          );
-          setSortSwitch(sortSwitch + 1);
-        } else if (sortSwitch === offsetTargetAccessString + 2) {
-          if (filter !== undefined) {
-            const newFilter = { ...filter };
-            newFilter.filter.targetAccessString.order = 0;
-            dispatch(setTargetFilter(newFilter));
-          }
-          dispatch(
-            setListOfFilteredTargets(
-              filteredListOfTargets === undefined
-                ? [...listOfAllTarget].sort(compareTargetAccessStringAsc)
-                : [...filteredListOfTargets].sort(compareTargetAccessStringAsc)
-            )
-          );
-          setSortSwitch(0);
-        } else {
-          if (filter !== undefined) {
-            const newFilter = { ...filter };
-            newFilter.filter.targetAccessString.order = -1;
-            dispatch(setTargetFilter(newFilter));
-          }
-          dispatch(
-            setListOfFilteredTargets(
-              filteredListOfTargets === undefined
-                ? [...listOfAllTarget].sort(compareTargetAccessStringDesc)
-                : [...filteredListOfTargets].sort(compareTargetAccessStringDesc)
-            )
-          );
-          setSortSwitch(offsetTargetAccessString + 1);
-        }
-        break;
-      case 'initDate':
-        if (sortSwitch === offsetInitDate + 1) {
-          if (filter !== undefined) {
-            const newFilter = { ...filter };
-            newFilter.filter.initDate.order = 1;
-            dispatch(setTargetFilter(newFilter));
-          }
-          dispatch(
-            setListOfFilteredTargets(
-              filteredListOfTargets === undefined
-                ? [...listOfAllTarget].sort(compareInitDateAsc)
-                : [...filteredListOfTargets].sort(compareInitDateAsc)
-            )
-          );
-          setSortSwitch(sortSwitch + 1);
-        } else if (sortSwitch === offsetInitDate + 2) {
-          if (filter !== undefined) {
-            const newFilter = { ...filter };
-            newFilter.filter.initDate.order = 0;
-            dispatch(setTargetFilter(newFilter));
-          }
-          dispatch(
-            setListOfFilteredTargets(
-              filteredListOfTargets === undefined
-                ? [...listOfAllTarget].sort(compareInitDateAsc)
-                : [...filteredListOfTargets].sort(compareInitDateAsc)
-            )
-          );
-          setSortSwitch(0);
-        } else {
-          if (filter !== undefined) {
-            const newFilter = { ...filter };
-            newFilter.filter.initDate.order = -1;
-            dispatch(setTargetFilter(newFilter));
-          }
-          dispatch(
-            setListOfFilteredTargets(
-              filteredListOfTargets === undefined
-                ? [...listOfAllTarget].sort(compareInitDateDesc)
-                : [...filteredListOfTargets].sort(compareInitDateDesc)
-            )
-          );
-          setSortSwitch(offsetInitDate + 1);
-        }
-        break;
-      case 'numberOfChains':
-        if (sortSwitch === offsetNumberOfChains + 1) {
-          dispatch(setListOfFilteredTargets([...listOfAllTarget].sort(compareNumberOfChainAsc)));
-          setSortSwitch(sortSwitch + 1);
-        } else if (sortSwitch === offsetNumberOfChains + 2) {
-          dispatch(setListOfFilteredTargets([...listOfAllTarget].sort(compareNumberOfChainAsc)));
-          setSortSwitch(0);
-        } else {
-          dispatch(setListOfFilteredTargets([...listOfAllTarget].sort(compareNumberOfChainDesc)));
-          setSortSwitch(offsetNumberOfChains + 1);
-        }
-        break;
-      case 'primaryChain':
-        if (sortSwitch === offsetPrimaryChain + 1) {
-          dispatch(setListOfFilteredTargets([...listOfAllTarget].sort(comparePrimaryChainAsc)));
-          setSortSwitch(sortSwitch + 1);
-        } else if (sortSwitch === offsetPrimaryChain + 2) {
-          dispatch(setListOfFilteredTargets([...listOfAllTarget].sort(comparePrimaryChainAsc)));
-          setSortSwitch(0);
-        } else {
-          dispatch(setListOfFilteredTargets([...listOfAllTarget].sort(comparePrimaryChainDesc)));
-          setSortSwitch(offsetPrimaryChain + 1);
-        }
-        break;
-      case 'uniprot':
-        if (sortSwitch === offsetUniprot + 1) {
-          dispatch(setListOfFilteredTargets([...listOfAllTarget].sort(compareUniprotAsc)));
-          setSortSwitch(sortSwitch + 1);
-        } else if (sortSwitch === offsetUniprot + 2) {
-          dispatch(setListOfFilteredTargets([...listOfAllTarget].sort(compareUniprotAsc)));
-          setSortSwitch(0);
-        } else {
-          dispatch(setListOfFilteredTargets([...listOfAllTarget].sort(compareUniprotDesc)));
-          setSortSwitch(offsetUniprot + 1);
-        }
-        break;
-      case 'range':
-        if (sortSwitch === offsetRange + 1) {
-          dispatch(setListOfFilteredTargets([...listOfAllTarget].sort(compareRangeAsc)));
-          setSortSwitch(sortSwitch + 1);
-        } else if (sortSwitch === offsetRange + 2) {
-          dispatch(setListOfFilteredTargets([...listOfAllTarget].sort(compareRangeAsc)));
-          setSortSwitch(0);
-        } else {
-          dispatch(setListOfFilteredTargets([...listOfAllTarget].sort(compareRangeDesc)));
-          setSortSwitch(offsetRange + 1);
-        }
-        break;
-      case 'proteinName':
-        if (sortSwitch === offsetProteinName + 1) {
-          dispatch(setListOfFilteredTargets([...listOfAllTarget].sort(compareProteinNameAsc)));
-          setSortSwitch(sortSwitch + 1);
-        } else if (sortSwitch === offsetProteinName + 2) {
-          dispatch(setListOfFilteredTargets([...listOfAllTarget].sort(compareProteinNameAsc)));
-          setSortSwitch(0);
-        } else {
-          dispatch(setListOfFilteredTargets([...listOfAllTarget].sort(compareProteinNameDesc)));
-          setSortSwitch(offsetProteinName + 1);
-        }
-        break;
-      case 'geneName':
-        if (sortSwitch === offsetGeneName + 1) {
-          dispatch(setListOfFilteredTargets([...listOfAllTarget].sort(compareGeneNameAsc)));
-          setSortSwitch(sortSwitch + 1);
-        } else if (sortSwitch === offsetGeneName + 2) {
-          dispatch(setListOfFilteredTargets([...listOfAllTarget].sort(compareGeneNameAsc)));
-          setSortSwitch(0);
-        } else {
-          dispatch(setListOfFilteredTargets([...listOfAllTarget].sort(compareGeneNameDesc)));
-          setSortSwitch(offsetGeneName + 1);
-        }
-        break;
-      case 'speciesId':
-        if (sortSwitch === offsetSpeciesId + 1) {
-          dispatch(setListOfFilteredTargets([...listOfAllTarget].sort(compareSpeciesIdAsc)));
-          setSortSwitch(sortSwitch + 1);
-        } else if (sortSwitch === offsetSpeciesId + 2) {
-          dispatch(setListOfFilteredTargets([...listOfAllTarget].sort(compareSpeciesIdAsc)));
-          setSortSwitch(0);
-        } else {
-          dispatch(setListOfFilteredTargets([...listOfAllTarget].sort(compareSpeciesIdDesc)));
-          setSortSwitch(offsetSpeciesId + 1);
-        }
-        break;
-      case 'species':
-        if (sortSwitch === offsetSpecies + 1) {
-          dispatch(setListOfFilteredTargets([...listOfAllTarget].sort(compareSpeciesAsc)));
-          setSortSwitch(sortSwitch + 1);
-        } else if (sortSwitch === offsetSpecies + 2) {
-          dispatch(setListOfFilteredTargets([...listOfAllTarget].sort(compareSpeciesAsc)));
-          setSortSwitch(0);
-        } else {
-          dispatch(setListOfFilteredTargets([...listOfAllTarget].sort(compareSpeciesDesc)));
-          setSortSwitch(offsetSpecies + 1);
-        }
-        break;
-      case 'domain':
-        if (sortSwitch === offsetDomain + 1) {
-          dispatch(setListOfFilteredTargets([...listOfAllTarget].sort(compareDomainAsc)));
-          setSortSwitch(sortSwitch + 1);
-        } else if (sortSwitch === offsetDomain + 2) {
-          dispatch(setListOfFilteredTargets([...listOfAllTarget].sort(compareDomainAsc)));
-          setSortSwitch(0);
-        } else {
-          dispatch(setListOfFilteredTargets([...listOfAllTarget].sort(compareDomainDesc)));
-          setSortSwitch(offsetDomain + 1);
-        }
-        break;
-      case 'ECNumber':
-        if (sortSwitch === offsetECNumber + 1) {
-          dispatch(setListOfFilteredTargets([...listOfAllTarget].sort(compareECNumberAsc)));
-          setSortSwitch(sortSwitch + 1);
-        } else if (sortSwitch === offsetECNumber + 2) {
-          dispatch(setListOfFilteredTargets([...listOfAllTarget].sort(compareECNumberAsc)));
-          setSortSwitch(0);
-        } else {
-          dispatch(setListOfFilteredTargets([...listOfAllTarget].sort(compareECNumberDesc)));
-          setSortSwitch(offsetECNumber + 1);
-        }
-        break;
-      case 'NHits':
-        if (sortSwitch === offsetNHits + 1) {
-          dispatch(setListOfFilteredTargets([...listOfAllTarget].sort(compareECNumberAsc)));
-          setSortSwitch(sortSwitch + 1);
-        } else if (sortSwitch === offsetNHits + 2) {
-          dispatch(setListOfFilteredTargets([...listOfAllTarget].sort(compareNHitsAsc)));
-          setSortSwitch(0);
-        } else {
-          dispatch(setListOfFilteredTargets([...listOfAllTarget].sort(compareNHitsDesc)));
-          setSortSwitch(offsetNHits + 1);
-        }
-        break;
-      case 'dateLastEdit':
-        if (sortSwitch === offsetDateLastEdit + 1) {
-          dispatch(setListOfFilteredTargets([...listOfAllTarget].sort(compareDateLastEditAsc)));
-          setSortSwitch(sortSwitch + 1);
-        } else if (sortSwitch === offsetDateLastEdit + 2) {
-          dispatch(setListOfFilteredTargets([...listOfAllTarget].sort(compareDateLastEditAsc)));
-          setSortSwitch(0);
-        } else {
-          dispatch(setListOfFilteredTargets([...listOfAllTarget].sort(compareDateLastEditDesc)));
-          setSortSwitch(offsetDateLastEdit + 1);
-        }
-        break;
-      case 'versionId':
-        if (sortSwitch === offsetVersionId + 1) {
-          dispatch(setListOfFilteredTargets([...listOfAllTarget].sort(compareVersionIdAsc)));
-          setSortSwitch(sortSwitch + 1);
-        } else if (sortSwitch === offsetVersionId + 2) {
-          dispatch(setListOfFilteredTargets([...listOfAllTarget].sort(compareVersionIdAsc)));
-          setSortSwitch(0);
-        } else {
-          dispatch(setListOfFilteredTargets([...listOfAllTarget].sort(compareVersionIdDesc)));
-          setSortSwitch(offsetVersionId + 1);
-        }
-        break;
-      default:
-        dispatch(setListOfFilteredTargets([...listOfAllTarget].sort(compareTargetDesc)));
-        break;
-    }
+  const handleHeaderSort = property => {
+    updateFilter(property, 'order', newFilter[property].order === 1 ? -1 : newFilter[property].order === -1 ? 0 : 1);
   };
 
   // START RESIZER FOR TARGET COLUMN
@@ -1029,17 +558,17 @@ export const TargetList = memo(() => {
     setIsResizing(true);
   };
 
-  const handleMouseMove = e => {
+  const handleMouseMove = useCallback(e => {
     if (!isResizing) return;
     const deltaX = e.clientX - 20;
     setPanelWidth(deltaX);
-  };
+  }, [isResizing]);
 
-  const handleMouseUp = () => {
+  const handleMouseUp = useCallback(() => {
     setIsResizing(false);
     window.removeEventListener('mousemove', handleMouseMove);
     window.removeEventListener('mouseup', handleMouseUp);
-  };
+  }, [handleMouseMove]);
 
   useEffect(() => {
     if (isResizing) {
@@ -1049,7 +578,7 @@ export const TargetList = memo(() => {
       window.removeEventListener('mousemove', handleMouseMove);
       window.removeEventListener('mouseup', handleMouseUp);
     }
-  }, [isResizing]);
+  }, [isResizing, handleMouseMove, handleMouseUp]);
   // END RESIZER FOR TARGET COLUMN
 
   // START RESIZER FOR TARGET ACCESS STRING COLUMN
@@ -1058,17 +587,17 @@ export const TargetList = memo(() => {
     panelWidth !== undefined ? setPanelWidth(panelWidth) : setPanelWidth(130);
   };
 
-  const handleMouseMoveTargetAccessString = e => {
+  const handleMouseMoveTargetAccessString = useCallback(e => {
     if (!isResizingTargetAccessString) return;
     const deltaX = e.clientX - 140;
     setPanelWidthForTargetAccessString(deltaX);
-  };
+  }, [isResizingTargetAccessString]);
 
-  const handleMouseUpTargetAccessString = () => {
+  const handleMouseUpTargetAccessString = useCallback(() => {
     setIsResizingTargetAccessString(false);
     window.removeEventListener('mousemove', handleMouseMoveTargetAccessString);
     window.removeEventListener('mouseup', handleMouseUpTargetAccessString);
-  };
+  }, [handleMouseMoveTargetAccessString]);
 
   useEffect(() => {
     if (isResizingTargetAccessString) {
@@ -1078,8 +607,13 @@ export const TargetList = memo(() => {
       window.removeEventListener('mousemove', handleMouseMoveTargetAccessString);
       window.removeEventListener('mouseup', handleMouseUpTargetAccessString);
     }
-  }, [isResizingTargetAccessString]);
+  }, [isResizingTargetAccessString, handleMouseMoveTargetAccessString, handleMouseUpTargetAccessString]);
   // END RESIZER FOR TARGET ACCESS STRING COLUMN
+
+  const handleMouseDownResizer = (column) => {
+    updateIsResizingForColumn(column, true);
+    //panelWidth !== undefined ? setPanelWidth(panelWidth) : setPanelWidth(130);
+  };
 
   // START RESIZER FOR INIT DATE COLUMN
   const handleMouseDownResizerInitDate = () => {
@@ -1140,31 +674,32 @@ export const TargetList = memo(() => {
       window.removeEventListener('mouseup', handleMouseUpSGC);
     }
   }, [isResizingSGC]);
-
-  const itemsToRender = () => {
-    const combinations = getTargetProjectCombinations(
-      filteredListOfTargets !== undefined
-        ? filteredListOfTargets
-        : listOfTargets !== undefined
-          ? listOfTargets
-          : target_id_list,
-      projectsList
-    );
-    const slice = combinations.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage);
-    const result = slice.map(data => render_item_method(data.updatedTarget));
-
-    return result;
-  };
-
   // END RESIZER FOR SGC COLUMN
-  const targetsToUse = filteredListOfTargets ? filteredListOfTargets : listOfAllTarget;
+
+  const needsAuthentication = authRequired && DJANGO_CONTEXT['authenticated'] === false;
+
+  const itemsToRender = useCallback(() => {
+    // const combinations = getTargetProjectCombinations(targetList, projectsList);
+    // const slice = combinations.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage);
+    const slice = targetList.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage);
+    const result = slice.map(data => render_item_method(data));
+
+    return slice.length > 0 ? result : [
+      <TableRow key="empty">
+        <TableCell colSpan={16} align="center">
+          {needsAuthentication ? 'You need to log in to view your targets' : 'No targets found'}
+        </TableCell>
+      </TableRow>
+    ];
+  }, [targetList, page, rowsPerPage, render_item_method, needsAuthentication]);
+
   if (target_id_list) {
     return (
       <Panel
         hasHeader
-        title="Target list"
+        title={title}
         bodyOverflow
-        headerActions={[
+        headerActions={!needsAuthentication && [
           <TextField
             className={classes.search}
             id="input-with-icon-textfield"
@@ -1182,12 +717,12 @@ export const TargetList = memo(() => {
           />,
           <IconButton
             onClick={event => {
-              if (sortDialogOpen === false || sortDialogOpen === undefined) {
+              if (filterDialogOpen === false || filterDialogOpen === undefined) {
                 setSortDialogAnchorEl(event.currentTarget);
-                dispatch(setSortTargetDialogOpen(true));
+                setFilterDialogOpen(true);
               } else {
                 setSortDialogAnchorEl(null);
-                dispatch(setSortTargetDialogOpen(false));
+                setFilterDialogOpen(false);
               }
             }}
             color={'inherit'}
@@ -1200,41 +735,22 @@ export const TargetList = memo(() => {
       >
         <Table className={classes.table} aria-label="a dense table">
           <TableHead>
-            <TableRow style={{ padding: '0px', paddingTop: '15px' }}>
-              {/*} <TableCell style={{ padding: '0px' }}>
-                <Typography variant="inherit">
-                  <input
-                    type="checkbox"
-                    style={{ verticalAlign: 'middle' }}
-                    checked={checkedId}
-                    onChange={() => setCheckedId(!checkedId)}
-                  />
-                  Id
-                </Typography>
-                <IconButton style={{ padding: '0px' }} onClick={() => handleHeaderSort('id')}>
-                  <Tooltip title="Sort" className={classes.sortButton}>
-                    {[1, 2].includes(sortSwitch - offsetId) ? (
-                      sortSwitch % offsetId < 2 ? (
-                        <KeyboardArrowDown style={{ padding: '0px' }} />
-                      ) : (
-                        <KeyboardArrowUp style={{ padding: '0px' }} />
-                      )
-                    ) : (
-                      <UnfoldMore style={{ padding: '0px' }} />
-          )}
-                  </Tooltip>
-                </IconButton>
-                    </TableCell>*/}
-              <TableCell style={{ width: panelWidth, padding: '0px' }}>
-                <Typography variant="inherit">
-                  <input
-                    type="checkbox"
-                    style={{ verticalAlign: 'middle' }}
-                    checked={checkedTarget}
-                    onChange={() => setCheckedTarget(!checkedTarget)}
-                  />
-                  Target
-                </Typography>
+            <TableRow>
+              <TableCell
+                className={classes.tableHeader}
+              // style={{ width: panelWidthForColumns.target, padding: '0px' }}
+              >
+                <Tooltip title="Include Target name in Search">
+                  <Typography variant="inherit">
+                    <input
+                      type="checkbox"
+                      style={{ verticalAlign: 'middle' }}
+                      checked={checkedTarget}
+                      onChange={() => setCheckedTarget(!checkedTarget)}
+                    />
+                    {newFilter.target.title}
+                  </Typography>
+                </Tooltip>
               </TableCell>
               <div style={{ display: 'flex' }}>
                 <div>
@@ -1243,9 +759,9 @@ export const TargetList = memo(() => {
                     onClick={() => handleHeaderSort('target')}
                   >
                     <Tooltip title="Sort" className={classes.sortButton}>
-                      {filter.filter.title.order === -1 ? (
+                      {newFilter.target.order === -1 ? (
                         <KeyboardArrowDown />
-                      ) : filter.filter.title.order === 1 ? (
+                      ) : newFilter.target.order === 1 ? (
                         <KeyboardArrowUp />
                       ) : (
                         <UnfoldMore />
@@ -1264,27 +780,32 @@ export const TargetList = memo(() => {
                   onMouseDown={handleMouseDown}
                 ></div>
               </div>
-              <TableCell style={{ width: panelWidthForTargetAccessString, padding: '0px' }}>
-                <Typography variant="inherit">
-                  <input
-                    type="checkbox"
-                    style={{ verticalAlign: 'middle' }}
-                    checked={checkedTargetAccessString}
-                    onChange={() => setCheckedTargetAccessString(!checkedTargetAccessString)}
-                  />
-                  Target access
-                </Typography>
+              <TableCell
+                className={classes.tableHeader}
+              // style={{ width: panelWidthForColumns.tas, padding: '0px' }}
+              >
+                <Tooltip title="Include Target access string in Search">
+                  <Typography variant="inherit">
+                    <input
+                      type="checkbox"
+                      style={{ verticalAlign: 'middle' }}
+                      checked={checkedTargetAccessString}
+                      onChange={() => setCheckedTargetAccessString(!checkedTargetAccessString)}
+                    />
+                    {newFilter.tas.title}
+                  </Typography>
+                </Tooltip>
               </TableCell>
               <div style={{ display: 'flex' }}>
                 <div>
                   <IconButton
                     style={{ padding: '0px', paddingRight: '5px' }}
-                    onClick={() => handleHeaderSort('targetAccessString')}
+                    onClick={() => handleHeaderSort('tas')}
                   >
                     <Tooltip title="Sort" className={classes.sortButton}>
-                      {filter.filter.targetAccessString.order === -1 ? (
+                      {newFilter.tas.order === -1 ? (
                         <KeyboardArrowDown />
-                      ) : filter.filter.targetAccessString.order === 1 ? (
+                      ) : newFilter.tas.order === 1 ? (
                         <KeyboardArrowUp />
                       ) : (
                         <UnfoldMore />
@@ -1303,21 +824,23 @@ export const TargetList = memo(() => {
                   onMouseDown={handleMouseDownResizerTargetAccessString}
                 ></div>
               </div>
+
               <TableCell
-                style={{ width: panelWidthForInitDate, padding: '0px', paddingLeft: '5px', verticalAlign: 'center' }}
+                className={classes.tableHeader}
+              // style={{ width: panelWidthForColumns.initDate, padding: '0px', paddingLeft: '5px', verticalAlign: 'center' }}
               >
-                Init date
+                {newFilter.initDate.title}
               </TableCell>
               <div style={{ display: 'flex' }}>
-                <div style={{ paddingRight: '5px' }}>
+                <div className={classes.arrowsWrapper}>
                   <IconButton
                     style={{ padding: '0px', verticalAlign: 'center' }}
                     onClick={() => handleHeaderSort('initDate')}
                   >
                     <Tooltip title="Sort" className={classes.sortButton}>
-                      {filter.filter.initDate.order === -1 ? (
+                      {newFilter.initDate.order === -1 ? (
                         <KeyboardArrowDown />
-                      ) : filter.filter.initDate.order === 1 ? (
+                      ) : newFilter.initDate.order === 1 ? (
                         <KeyboardArrowUp />
                       ) : (
                         <UnfoldMore />
@@ -1325,7 +848,6 @@ export const TargetList = memo(() => {
                     </Tooltip>
                   </IconButton>
                 </div>
-
                 <div
                   style={{
                     cursor: 'col-resize',
@@ -1337,335 +859,189 @@ export const TargetList = memo(() => {
                   onMouseDown={handleMouseDownResizerInitDate}
                 ></div>
               </div>
-              {DJANGO_CONTEXT['authenticated'] &&
+
+              {legacy === false && ([
+                <TableCell key={'1'}
+                  className={classes.tableHeader}
+                // style={{ width: panelWidthForColumns.lastUpdatedDate, padding: '0px', paddingLeft: '5px', verticalAlign: 'center' }}
+                >
+                  {newFilter.lastUpdatedDate.title}
+                </TableCell>,
+                <div key={'2'} style={{ display: 'flex' }}>
+                  <div className={classes.arrowsWrapper}>
+                    <IconButton
+                      style={{ padding: '0px', verticalAlign: 'center' }}
+                      onClick={() => handleHeaderSort('lastUpdatedDate')}
+                    >
+                      <Tooltip title="Sort" className={classes.sortButton}>
+                        {newFilter.lastUpdatedDate?.order === -1 ? (
+                          <KeyboardArrowDown />
+                        ) : newFilter.lastUpdatedDate?.order === 1 ? (
+                          <KeyboardArrowUp />
+                        ) : (
+                          <UnfoldMore />
+                        )}
+                      </Tooltip>
+                    </IconButton>
+                  </div>
+                  <div
+                    style={{
+                      cursor: 'col-resize',
+                      width: 4,
+                      height: '21px',
+                      backgroundColor: '#cccccc',
+                      borderRadius: '3px'
+                    }}
+                    onMouseDown={() => handleMouseDown('lastUpdatedDate')}
+                  ></div>
+                </div>,
+
+                <TableCell key={'3'}
+                  className={classes.tableHeader}
+                // style={{ width: panelWidthForColumns.shortName, padding: '0px', paddingLeft: '5px', verticalAlign: 'center' }}
+                >
+                  {newFilter.shortName.title}
+                </TableCell>,
+                <div key={'4'} style={{ display: 'flex' }}>
+                  <div className={classes.arrowsWrapper}>
+                    <IconButton
+                      style={{ padding: '0px', verticalAlign: 'center' }}
+                      onClick={() => handleHeaderSort('shortName')}
+                    >
+                      <Tooltip title="Sort" className={classes.sortButton}>
+                        {newFilter.shortName.order === -1 ? (
+                          <KeyboardArrowDown />
+                        ) : newFilter.shortName.order === 1 ? (
+                          <KeyboardArrowUp />
+                        ) : (
+                          <UnfoldMore />
+                        )}
+                      </Tooltip>
+                    </IconButton>
+                  </div>
+                  <div
+                    style={{
+                      cursor: 'col-resize',
+                      width: 4,
+                      height: '21px',
+                      backgroundColor: '#cccccc',
+                      borderRadius: '3px'
+                    }}
+                    onMouseDown={() => handleMouseDownResizer('shortName')}
+                  ></div>
+                </div>,
+                <TableCell key={'5'}
+                  className={classes.tableHeader}
+                // style={{ width: panelWidthForColumns.longName, padding: '0px', paddingLeft: '5px', verticalAlign: 'center' }}
+                >
+                  {newFilter.longName.title}
+                </TableCell>,
+                <div key={'6'} style={{ display: 'flex' }}>
+                  <div className={classes.arrowsWrapper}>
+                    <IconButton
+                      style={{ padding: '0px', verticalAlign: 'center' }}
+                      onClick={() => handleHeaderSort('longName')}
+                    >
+                      <Tooltip title="Sort" className={classes.sortButton}>
+                        {newFilter.longName.order === -1 ? (
+                          <KeyboardArrowDown />
+                        ) : newFilter.longName.order === 1 ? (
+                          <KeyboardArrowUp />
+                        ) : (
+                          <UnfoldMore />
+                        )}
+                      </Tooltip>
+                    </IconButton>
+                  </div>
+                  <div
+                    style={{
+                      cursor: 'col-resize',
+                      width: 4,
+                      height: '21px',
+                      backgroundColor: '#cccccc',
+                      borderRadius: '3px'
+                    }}
+                    onMouseDown={() => handleMouseDownResizer('longName')}
+                  ></div>
+                </div>,
+                <TableCell key={'7'}
+                  className={classes.tableHeader}
+                // style={{ width: panelWidthForColumns.organism, padding: '0px', paddingLeft: '5px', verticalAlign: 'center' }}
+                >
+                  {newFilter.organism.title}
+                </TableCell>,
+                <div key={'8'} style={{ display: 'flex' }}>
+                  <div className={classes.arrowsWrapper}>
+                    <IconButton
+                      style={{ padding: '0px', verticalAlign: 'center' }}
+                      onClick={() => handleHeaderSort('organism')}
+                    >
+                      <Tooltip title="Sort" className={classes.sortButton}>
+                        {newFilter.organism.order === -1 ? (
+                          <KeyboardArrowDown />
+                        ) : newFilter.organism.order === 1 ? (
+                          <KeyboardArrowUp />
+                        ) : (
+                          <UnfoldMore />
+                        )}
+                      </Tooltip>
+                    </IconButton>
+                  </div>
+                  <div
+                    style={{
+                      cursor: 'col-resize',
+                      width: 4,
+                      height: '21px',
+                      backgroundColor: '#cccccc',
+                      borderRadius: '3px'
+                    }}
+                    onMouseDown={() => handleMouseDownResizer('organism')}
+                  ></div>
+                </div>,
+
+                <TableCell key={'9'}
+                  className={classes.tableHeader}
+                // style={{ width: panelWidthForColumns.externalURL, padding: '0px', paddingLeft: '5px', verticalAlign: 'center' }}
+                >
+                  External URL
+                </TableCell>,
+                <div key={'10'} style={{ display: 'flex' }}>
+                  <div className={classes.arrowsWrapper}>
+                    <IconButton
+                      style={{ padding: '0px', verticalAlign: 'center' }}
+                      onClick={() => handleHeaderSort('externalURL')}
+                    >
+                      <Tooltip title="Sort" className={classes.sortButton}>
+                        {filter.filter.externalURL?.order === -1 ? (
+                          <KeyboardArrowDown />
+                        ) : filter.filter.externalURL?.order === 1 ? (
+                          <KeyboardArrowUp />
+                        ) : (
+                          <UnfoldMore />
+                        )}
+                      </Tooltip>
+                    </IconButton>
+                  </div>
+                  <div
+                    style={{
+                      cursor: 'col-resize',
+                      width: 4,
+                      height: '21px',
+                      backgroundColor: '#cccccc',
+                      borderRadius: '3px'
+                    }}
+                    onMouseDown={() => handleMouseDownResizer('externalURL')}
+                  ></div>
+                </div>
+              ])}
+
+              {DJANGO_CONTEXT['authenticated'] && legacy === false &&
                 <TableCell
-                  style={{ width: 50, padding: '0px', paddingLeft: '5px', verticalAlign: 'center' }}
+                  className={classes.tableHeader}
+                // style={{ width: 50, paddingLeft: '5px', verticalAlign: 'center' }}
                 >
                   Edit
                 </TableCell>}
-              {/* <TableCell
-                style={{ width: panelWidthForSGC, padding: '0px', paddingLeft: '5px', verticalAlign: 'center' }}
-              >
-                SGC
-              </TableCell> */}
-              {/*<div style={{ display: 'flex' }}>
-                <div
-                  style={{ cursor: 'col-resize', width: 3, height: '18px', backgroundColor: '#cccccc' }}
-                  onMouseDown={handleMouseDownResizerSGC}
-                ></div>
-                </div>*/}
-              {/*   <TableCell style={{ padding: '0px' }}>
-                <Typography variant="inherit">
-                  <input
-                    type="checkbox"
-                    style={{ verticalAlign: 'middle' }}
-                    checked={checkedNumberOfChains}
-                    onChange={() => setCheckedNumberOfChains(!checkedNumberOfChains)}
-                  />
-                  Number of chains
-                </Typography>
-                <IconButton style={{ padding: '0px' }} onClick={() => handleHeaderSort('numberOfChains')}>
-                  <Tooltip title="Sort" className={classes.sortButton}>
-                    {[1, 2].includes(sortSwitch - offsetNumberOfChains) ? (
-                      sortSwitch % offsetNumberOfChains < 2 ? (
-                        <KeyboardArrowDown />
-                      ) : (
-                        <KeyboardArrowUp />
-                      )
-                    ) : (
-                      <UnfoldMore />
-                    )}
-                  </Tooltip>
-                </IconButton>
-              </TableCell>
-              <TableCell style={{ padding: '0px' }}>
-                <Typography variant="inherit">
-                  <input
-                    type="checkbox"
-                    style={{ verticalAlign: 'middle' }}
-                    checked={checkedPrimaryChain}
-                    onChange={() => setCheckedPrimaryChain(!checkedPrimaryChain)}
-                  />
-                  Primary chains
-                </Typography>
-                <IconButton style={{ padding: '0px' }} onClick={() => handleHeaderSort('primaryChain')}>
-                  <Tooltip title="Sort" className={classes.sortButton}>
-                    {[1, 2].includes(sortSwitch - offsetPrimaryChain) ? (
-                      sortSwitch % offsetPrimaryChain < 2 ? (
-                        <KeyboardArrowDown />
-                      ) : (
-                        <KeyboardArrowUp />
-                      )
-                    ) : (
-                      <UnfoldMore />
-                    )}
-                  </Tooltip>
-                </IconButton>
-              </TableCell>
-              <TableCell style={{ padding: '0px' }}>
-                <Typography variant="inherit">
-                  <input
-                    type="checkbox"
-                    style={{ verticalAlign: 'middle' }}
-                    checked={checkedUniprot}
-                    onChange={() => setCheckedUniprot(!checkedUniprot)}
-                  />
-                  Uniprot
-                </Typography>
-                <IconButton style={{ padding: '0px' }} onClick={() => handleHeaderSort('uniprot')}>
-                  <Tooltip title="Sort" className={classes.sortButton}>
-                    {[1, 2].includes(sortSwitch - offsetUniprot) ? (
-                      sortSwitch % offsetUniprot < 2 ? (
-                        <KeyboardArrowDown />
-                      ) : (
-                        <KeyboardArrowUp />
-                      )
-                    ) : (
-                      <UnfoldMore />
-                    )}
-                  </Tooltip>
-                </IconButton>
-              </TableCell>
-              <TableCell style={{ padding: '0px' }}>
-                <Typography variant="inherit">
-                  <input
-                    type="checkbox"
-                    style={{ verticalAlign: 'middle' }}
-                    checked={checkedRange}
-                    onChange={() => setCheckedRange(!checkedRange)}
-                  />
-                  Range
-                </Typography>
-                <IconButton style={{ padding: '0px' }} onClick={() => handleHeaderSort('range')}>
-                  <Tooltip title="Sort" className={classes.sortButton}>
-                    {[1, 2].includes(sortSwitch - offsetRange) ? (
-                      sortSwitch % offsetRange < 2 ? (
-                        <KeyboardArrowDown />
-                      ) : (
-                        <KeyboardArrowUp />
-                      )
-                    ) : (
-                      <UnfoldMore />
-                    )}
-                  </Tooltip>
-                </IconButton>
-              </TableCell>
-              <TableCell style={{ padding: '0px' }}>
-                <Typography variant="inherit">
-                  <input
-                    type="checkbox"
-                    style={{ verticalAlign: 'middle' }}
-                    checked={checkedProteinName}
-                    onChange={() => setCheckedProteinName(!checkedProteinName)}
-                  />
-                  Protein Name
-                </Typography>
-                <IconButton style={{ padding: '0px' }} onClick={() => handleHeaderSort('proteinName')}>
-                  <Tooltip title="Sort" className={classes.sortButton}>
-                    {[1, 2].includes(sortSwitch - offsetProteinName) ? (
-                      sortSwitch % offsetProteinName < 2 ? (
-                        <KeyboardArrowDown />
-                      ) : (
-                        <KeyboardArrowUp />
-                      )
-                    ) : (
-                      <UnfoldMore />
-                    )}
-                  </Tooltip>
-                </IconButton>
-              </TableCell>
-              <TableCell style={{ padding: '0px' }}>
-                <Typography variant="inherit">
-                  <input
-                    type="checkbox"
-                    style={{ verticalAlign: 'middle' }}
-                    checked={checkedGeneName}
-                    onChange={() => setCheckedGeneName(!checkedGeneName)}
-                  />
-                  Gene name
-                </Typography>
-                <IconButton style={{ padding: '0px' }} onClick={() => handleHeaderSort('geneName')}>
-                  <Tooltip title="Sort" className={classes.sortButton}>
-                    {[1, 2].includes(sortSwitch - offsetGeneName) ? (
-                      sortSwitch % offsetGeneName < 2 ? (
-                        <KeyboardArrowDown />
-                      ) : (
-                        <KeyboardArrowUp />
-                      )
-                    ) : (
-                      <UnfoldMore />
-                    )}
-                  </Tooltip>
-                </IconButton>
-              </TableCell>
-              <TableCell style={{ padding: '0px' }}>
-                <Typography variant="inherit">
-                  <input
-                    type="checkbox"
-                    style={{ verticalAlign: 'middle' }}
-                    checked={checkedSpeciesId}
-                    onChange={() => setCheckedSpeciesId(!checkedSpeciesId)}
-                  />
-                  Species id
-                </Typography>
-                <IconButton style={{ padding: '0px' }} onClick={() => handleHeaderSort('speciesId')}>
-                  <Tooltip title="Sort" className={classes.sortButton}>
-                    {[1, 2].includes(sortSwitch - offsetSpeciesId) ? (
-                      sortSwitch % offsetSpeciesId < 2 ? (
-                        <KeyboardArrowDown />
-                      ) : (
-                        <KeyboardArrowUp />
-                      )
-                    ) : (
-                      <UnfoldMore />
-                    )}
-                  </Tooltip>
-                </IconButton>
-              </TableCell>
-              <TableCell style={{ padding: '0px' }}>
-                <Typography variant="inherit">
-                  <input
-                    type="checkbox"
-                    style={{ verticalAlign: 'middle' }}
-                    checked={checkedSpecies}
-                    onChange={() => setCheckedSpecies(!checkedSpecies)}
-                  />
-                  Species
-                </Typography>
-                <IconButton style={{ padding: '0px' }} onClick={() => handleHeaderSort('species')}>
-                  <Tooltip title="Sort" className={classes.sortButton}>
-                    {[1, 2].includes(sortSwitch - offsetSpecies) ? (
-                      sortSwitch % offsetSpecies < 2 ? (
-                        <KeyboardArrowDown />
-                      ) : (
-                        <KeyboardArrowUp />
-                      )
-                    ) : (
-                      <UnfoldMore />
-                    )}
-                  </Tooltip>
-                </IconButton>
-              </TableCell>
-              <TableCell style={{ padding: '0px' }}>
-                <Typography variant="inherit">
-                  <input
-                    type="checkbox"
-                    style={{ verticalAlign: 'middle' }}
-                    checked={checkedDomain}
-                    onChange={() => setCheckedDomain(!checkedDomain)}
-                  />
-                  Domain
-                </Typography>
-                <IconButton style={{ padding: '0px' }} onClick={() => handleHeaderSort('domain')}>
-                  <Tooltip title="Sort" className={classes.sortButton}>
-                    {[1, 2].includes(sortSwitch - offsetDomain) ? (
-                      sortSwitch % offsetDomain < 2 ? (
-                        <KeyboardArrowDown />
-                      ) : (
-                        <KeyboardArrowUp />
-                      )
-                    ) : (
-                      <UnfoldMore />
-                    )}
-                  </Tooltip>
-                </IconButton>
-              </TableCell>
-              <TableCell style={{ padding: '0px' }}>
-                <Typography variant="inherit">
-                  <input
-                    type="checkbox"
-                    style={{ verticalAlign: 'middle' }}
-                    checked={checkedECNumber}
-                    onChange={() => setCheckedECNUmber(!checkedECNumber)}
-                  />
-                  EC number
-                </Typography>
-                <IconButton style={{ padding: '0px' }} onClick={() => handleHeaderSort('ECNumber')}>
-                  <Tooltip title="Sort" className={classes.sortButton}>
-                    {[1, 2].includes(sortSwitch - offsetECNumber) ? (
-                      sortSwitch % offsetECNumber < 2 ? (
-                        <KeyboardArrowDown />
-                      ) : (
-                        <KeyboardArrowUp />
-                      )
-                    ) : (
-                      <UnfoldMore />
-                    )}
-                  </Tooltip>
-                </IconButton>
-              </TableCell>
-              <TableCell style={{ padding: '0px' }}>
-                <Typography variant="inherit">
-                  <input
-                    type="checkbox"
-                    style={{ verticalAlign: 'middle' }}
-                    checked={checkedNHits}
-                    onChange={() => setCheckedNHits(!checkedNHits)}
-                  />
-                  N hits
-                </Typography>
-                <IconButton style={{ padding: '0px' }} onClick={() => handleHeaderSort('NHits')}>
-                  <Tooltip title="Sort" className={classes.sortButton}>
-                    {[1, 2].includes(sortSwitch - offsetNHits) ? (
-                      sortSwitch % offsetNHits < 2 ? (
-                        <KeyboardArrowDown />
-                      ) : (
-                        <KeyboardArrowUp />
-                      )
-                    ) : (
-                      <UnfoldMore />
-                    )}
-                  </Tooltip>
-                </IconButton>
-              </TableCell>
-              <TableCell style={{ padding: '0px' }}>
-                <Typography variant="inherit">
-                  <input
-                    type="checkbox"
-                    style={{ verticalAlign: 'middle' }}
-                    checked={checkedDateLastEdit}
-                    onChange={() => setCheckedDateLastEdit(!checkedDateLastEdit)}
-                  />
-                  Date last edit
-                </Typography>
-                <IconButton style={{ padding: '0px' }} onClick={() => handleHeaderSort('dateLastEdit')}>
-                  <Tooltip title="Sort" className={classes.sortButton}>
-                    {[1, 2].includes(sortSwitch - offsetDateLastEdit) ? (
-                      sortSwitch % offsetDateLastEdit < 2 ? (
-                        <KeyboardArrowDown />
-                      ) : (
-                        <KeyboardArrowUp />
-                      )
-                    ) : (
-                      <UnfoldMore />
-                    )}
-                  </Tooltip>
-                </IconButton>
-              </TableCell>
-              <TableCell style={{ padding: '0px' }}>
-                <Typography variant="inherit">
-                  <input
-                    type="checkbox"
-                    style={{ verticalAlign: 'middle' }}
-                    checked={checkedVersionId}
-                    onChange={() => setCheckedVersionId(!checkedVersionId)}
-                  />
-                  Version ID
-                </Typography>
-                <IconButton style={{ padding: '0px' }} onClick={() => handleHeaderSort('versionId')}>
-                  <Tooltip title="Sort" className={classes.sortButton}>
-                    {[1, 2].includes(sortSwitch - offsetVersionId) ? (
-                      sortSwitch % offsetVersionId < 2 ? (
-                        <KeyboardArrowDown />
-                      ) : (
-                        <KeyboardArrowUp />
-                      )
-                    ) : (
-                      <UnfoldMore />
-                    )}
-                  </Tooltip>
-                </IconButton>
-                    </TableCell>*/}
             </TableRow>
           </TableHead>
           <TableBody>{itemsToRender()}</TableBody>
@@ -1673,7 +1049,7 @@ export const TargetList = memo(() => {
             <TableRow>
               <TablePagination
                 rowsPerPageOptions={defaultRowsPerPageOptions}
-                count={listOfAllTarget.length}
+                count={targetList.length}
                 rowsPerPage={rowsPerPage}
                 page={page}
                 SelectProps={{
@@ -1686,12 +1062,14 @@ export const TargetList = memo(() => {
             </TableRow>
           </TableFooter>
         </Table>
-        {sortDialogOpen && (
+        {filterDialogOpen && (
           <TargetListSortFilterDialog
-            open={sortDialogOpen}
+            open={filterDialogOpen}
             anchorEl={sortDialogAnchorEl}
-            filter={filter}
-            setSortDialogAnchorEl={setSortDialogAnchorEl}
+            filter={newFilter}
+            resetFilter={() => setNewFilter(initFilterState)}
+            setFilter={updateFilter}
+            onClose={() => setFilterDialogOpen(false)}
           />
         )}
       </Panel>
