@@ -53,7 +53,9 @@ export const useDisplayDensityLHS = () => {
       data.proteinData = densityData.densityData;
 
       const prepParams = dispatch(getDensityChangedParams(densityData.isWireframeStyle));
-      const densityObject = generateDensityObject(data, colourToggle, base_url, densityData.isWireframeStyle);
+      const densityObject = await dispatch(
+        generateDensityObject(data, colourToggle, base_url, densityData.isWireframeStyle)
+      );
       const combinedObject = { ...prepParams, ...densityObject };
       dispatch(
         loadObject({

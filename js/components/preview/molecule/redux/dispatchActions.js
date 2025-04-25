@@ -50,7 +50,7 @@ import { addImageToCache, disableMoleculeNglControlButton, enableMoleculeNglCont
 import { OBJECT_TYPE, DENSITY_MAPS, NGL_PARAMS } from '../../../nglView/constants';
 import { getRepresentationsByType } from '../../../nglView/generatingObjects';
 import { readQualityInformation } from '../../../nglView/renderingHelpers';
-import { addSelectedTag } from '../../tags/redux/dispatchActions';
+import { addSelectedTag, getLigandData } from '../../tags/redux/dispatchActions';
 import { selectJoinedMoleculeList } from './selectors';
 import { compareTagsAsc } from '../../tags/utils/tagUtils';
 import { createPoseApi, updatePoseApi } from '../api/poseApi';
@@ -379,8 +379,8 @@ export const removeDensity = (
   );
 };
 
-export const deleteDensityObject = (data, colourToggle, stage, isWireframeStyle) => dispatch => {
-  const densityObject = generateDensityObject(data, colourToggle, base_url, isWireframeStyle);
+export const deleteDensityObject = (data, colourToggle, stage, isWireframeStyle) => async dispatch => {
+  const densityObject = await dispatch(generateDensityObject(data, colourToggle, base_url, isWireframeStyle));
   dispatch(deleteObject(Object.assign({ display_div: VIEWS.MAJOR_VIEW }, densityObject), stage));
 
   let sigmaDensityObject = Object.assign({ ...densityObject, name: densityObject.name + DENSITY_MAPS.SIGMAA });
@@ -452,7 +452,6 @@ export const addQuality = (stage, data, colourToggle, skipTracking = false, repr
   dispatch(removeFromFragmentDisplayList(generateMoleculeId(data)));
   dispatch(removeFromQualityList(generateMoleculeId(data)));
   dispatch(updateInToBeDisplayedList({ id: data.id, display: false, type: NGL_OBJECTS.LIGAND }));
-  // dispatch(deleteObject(Object.assign({ display_div: VIEWS.MAJOR_VIEW }, generateMoleculeObject(data)), stage));
   dispatch(appendQualityList(generateMoleculeId(data), skipTracking));
   return dispatch(addLigand(stage, data, colourToggle, false, true, true, representations));
 };
@@ -461,7 +460,6 @@ export const removeQuality = (stage, data, colourToggle, skipTracking = false) =
   dispatch(removeFromFragmentDisplayList(generateMoleculeId(data)));
   dispatch(removeFromQualityList(generateMoleculeId(data)));
   dispatch(updateInToBeDisplayedList({ id: data.id, display: false, type: NGL_OBJECTS.LIGAND }));
-  // dispatch(deleteObject(Object.assign({ display_div: VIEWS.MAJOR_VIEW }, generateMoleculeObject(data)), stage));
   dispatch(addLigand(stage, data, colourToggle, false, false, true));
   dispatch(removeFromQualityList(generateMoleculeId(data), skipTracking));
 };
@@ -892,10 +890,11 @@ export const applyDirectSelection = stage => (dispatch, getState) => {
   }
 };
 
-export const getQualityInformation = (data, molType, width, height) => (dispatch, getState) => {
+export const getQualityInformation = (data, molType, width, height) => async (dispatch, getState) => {
   if (!data) return null;
-  let moleculeObject = generateMoleculeObject(data);
-  let qualityInformation = dispatch(readQualityInformation(moleculeObject.name, data.ligand_mol_file));
+  let moleculeObject = await dispatch(generateMoleculeObject(data));
+  const ligandText = await dispatch(getLigandData(data));
+  let qualityInformation = dispatch(readQualityInformation(moleculeObject.name, ligandText));
 
   let hasAdditionalInformation =
     qualityInformation &&
