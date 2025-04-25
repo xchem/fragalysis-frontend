@@ -32,10 +32,32 @@ const Landing = memo(
     const dispatch = useDispatch();
     const classes = useStyles();
 
-    const projectWidth = window.innerWidth;
     const [isResizing, setIsResizing] = useState(false);
-    const [targetListWidth, setTargetListWidth] = useState(450);
-    const [projectListWidth, setProjectListWidth] = useState(projectWidth);
+    const [resizer, setResizer] = useState(null);
+    // const [targetListWidth, setTargetListWidth] = useState(450);
+    const [publicTargetListWidth, setPublicTargetListWidth] = useState(window.innerWidth * 0.4);
+    const [privateTargetListWidth, setPrivateTargetListWidth] = useState(window.innerWidth * 0.4);
+    const [legacyTargetListWidth, setLegacyTargetListWidth] = useState(window.innerWidth * 0.2);
+
+    const [privateTargets, setPrivateTargets] = useState([]);
+    const [publicTargets, setPublicTargets] = useState([]);
+
+    const target_id_list = useSelector(state => state.apiReducers.target_id_list);
+    const legacy_target_id_list = useSelector(state => state.apiReducers.legacy_target_id_list);
+
+    useEffect(() => {
+      let tempPrivateTargets = [];
+      let tempPublicTargets = [];
+      target_id_list?.forEach(target => {
+        if (target.project.open_to_public === false) {
+          tempPrivateTargets.push(target);
+        } else {
+          tempPublicTargets.push(target);
+        }
+      });
+      setPrivateTargets(tempPrivateTargets);
+      setPublicTargets(tempPublicTargets);
+    }, [target_id_list]);
 
     const { toast, toastSuccess, toastError, toastInfo, toastWarning } = useContext(ToastContext);
     const [loginText, setLoginText] = useState(
@@ -99,23 +121,30 @@ const Landing = memo(
       resetProjectsReducer();
     }, [resetTargetState, resetSelectionState, toast, loginText, resetCurrentCompoundsSettings, resetProjectsReducer]);
 
-    const handleMouseDownResizer = () => {
+    const handleMouseDownResizer = (resizer) => {
       setIsResizing(true);
+      setResizer(resizer);
     };
 
     const handleMouseMove = useCallback(
       e => {
-        if (!isResizing) return;
-        const targetListWidth = e.clientX;
-        const projectListWidth = window.innerWidth - targetListWidth;
-        setTargetListWidth(targetListWidth);
-        setProjectListWidth(projectListWidth);
+        if (!isResizing || resizer === null) return;
+        const leftPartWidth = e.clientX;
+        const rightPartWidth = window.innerWidth - leftPartWidth;
+        if (resizer === 1) {
+          setPublicTargetListWidth(leftPartWidth);
+          setPrivateTargetListWidth(rightPartWidth);
+        } else if (resizer === 2) {
+          setPrivateTargetListWidth(leftPartWidth);
+          setLegacyTargetListWidth(rightPartWidth);
+        }
       },
-      [isResizing]
+      [isResizing, resizer]
     );
 
     const handleMouseUp = useCallback(() => {
       setIsResizing(false);
+      setResizer(null);
       window.removeEventListener('mousemove', handleMouseMove);
       window.removeEventListener('mouseup', handleMouseUp);
     }, [handleMouseMove]);
@@ -133,8 +162,8 @@ const Landing = memo(
     return (
       <>
         <Grid container className={classes.root}>
-          <Grid item style={{ width: targetListWidth }}>
-            <TargetList />
+          <Grid item style={{ width: publicTargetListWidth }}>
+            <TargetList list={publicTargets} title={'Public targets'} />
           </Grid>
           <div
             style={{
@@ -144,10 +173,25 @@ const Landing = memo(
               backgroundColor: '#eeeeee',
               borderRadius: '3px'
             }}
-            onMouseDown={handleMouseDownResizer}
+            className='resizer-left'
+            onMouseDown={() => handleMouseDownResizer(1)}
           ></div>
-          <Grid item style={{ width: projectListWidth }}>
-            <Projects />
+          <Grid item style={{ width: privateTargetListWidth }}>
+            <TargetList list={privateTargets} title={'Private targets'} authRequired={true} />
+          </Grid>
+          <div
+            style={{
+              cursor: 'col-resize',
+              width: 3,
+              height: '100%',
+              backgroundColor: '#eeeeee',
+              borderRadius: '3px'
+            }}
+            className='resizer-right'
+            onMouseDown={() => handleMouseDownResizer(2)}
+          ></div>
+          <Grid item style={{ width: legacyTargetListWidth }}>
+            <TargetList list={legacy_target_id_list} title={'Legacy targets'} legacy={true} />
           </Grid>
         </Grid>
         <TargetSettingsModal openModal={isEditTargetDialogOpen} onModalClose={onModalClose} isTargetOn={false} />

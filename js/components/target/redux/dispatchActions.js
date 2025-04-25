@@ -30,7 +30,16 @@ export const loadTargetList = onCancel => (dispatch, getState) => {
       dispatch(setIsTargetLoading(false));
     },
     old_url: oldUrl,
-    setObjectList: params => dispatch(setTargetIdList(params)),
+    setObjectList: async params => {
+      const experiments = await loadExperimentList();
+      params?.forEach(target => {
+        const experiment = experiments.sort((a, b) => a.commit_datetime > b.commit_datetime ? -1 : 1).find(experiment => experiment.target === target.id);
+        if (experiment) {
+          target.last_updated = experiment.commit_datetime;
+        }
+      });
+      dispatch(setTargetIdList(params))
+    },
     list_type,
     cancel: onCancel
   });
@@ -50,6 +59,12 @@ export const loadLegacyTargetList = () => async (dispatch, getState) => {
       dispatch(setLegacyTargetIdList(copy));
     }
   }
+};
+
+export const loadExperimentList = async () => {
+  const url = `${base_url}/api/target_experiment_uploads/`;
+  const resp = await api({ url, method: METHOD.GET });
+  return resp.data.results;
 };
 
 export const loadProjectsList = () => async (dispatch, getState) => {
