@@ -26,7 +26,7 @@ export const useDisplaySurfaceRHS = () => {
   const stage = getNglView(VIEWS.MAJOR_VIEW) && getNglView(VIEWS.MAJOR_VIEW).stage;
 
   const displaySurface = useCallback(
-    surfaceData => {
+    async surfaceData => {
       const datasetCompounds = allCompounds[surfaceData.datasetID];
       const data = datasetCompounds?.find(obs => obs.id === surfaceData.id);
       if (!data) return;
@@ -38,7 +38,7 @@ export const useDisplaySurfaceRHS = () => {
         loadObject({
           target: Object.assign(
             { display_div: VIEWS.MAJOR_VIEW },
-            generateSurfaceObject(data, colourToggle, base_url, datasetID)
+            await dispatch(generateSurfaceObject(data, colourToggle, base_url, datasetID))
           ),
           stage,
           previousRepresentations: surfaceData.representations,
@@ -54,7 +54,7 @@ export const useDisplaySurfaceRHS = () => {
   );
 
   const removeSurface = useCallback(
-    surfaceData => {
+    async surfaceData => {
       const datasetCompounds = allCompounds[surfaceData.datasetID];
       const data = datasetCompounds?.find(obs => obs.id === surfaceData.id);
       if (!data) return;
@@ -65,7 +65,7 @@ export const useDisplaySurfaceRHS = () => {
         deleteObject(
           Object.assign(
             { display_div: VIEWS.MAJOR_VIEW },
-            generateSurfaceObject(data, colourToggle, base_url, datasetID)
+            await dispatch(generateSurfaceObject(data, colourToggle, base_url, datasetID))
           ),
           stage
         )

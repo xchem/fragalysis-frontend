@@ -25,7 +25,7 @@ export const useDisplayLigandRHS = () => {
   const stage = getNglView(VIEWS.MAJOR_VIEW) && getNglView(VIEWS.MAJOR_VIEW).stage;
 
   const displayLigand = useCallback(
-    ligandData => {
+    async ligandData => {
       const datasetCompounds = allCompounds[ligandData.datasetID];
       const data = datasetCompounds?.find(obs => obs.id === ligandData.id);
       if (!data) return;
@@ -34,13 +34,11 @@ export const useDisplayLigandRHS = () => {
 
       dispatch(appendLigandList(datasetID, generateMoleculeCompoundId(data)));
       console.count(`Grabbed orientation before loading dataset ligand`);
+      const ligandDataText = await dispatch(generateMoleculeObject(data, colourToggle, datasetID));
       // const currentOrientation = stage.viewerControls.getOrientation();
       return dispatch(
         loadObject({
-          target: Object.assign(
-            { display_div: VIEWS.MAJOR_VIEW },
-            generateMoleculeObject(data, colourToggle, datasetID)
-          ),
+          target: Object.assign({ display_div: VIEWS.MAJOR_VIEW }, ligandDataText),
           stage,
           previousRepresentations: ligandData.representations,
           markAsRightSideLigand: true
@@ -55,18 +53,14 @@ export const useDisplayLigandRHS = () => {
   );
 
   const removeLigand = useCallback(
-    ligandData => {
+    async ligandData => {
       const datasetCompounds = allCompounds[ligandData.datasetID];
       const data = datasetCompounds?.find(obs => obs.id === ligandData.id);
       if (!data) return;
       const datasetID = ligandData.datasetID;
 
-      dispatch(
-        deleteObject(
-          Object.assign({ display_div: VIEWS.MAJOR_VIEW }, generateMoleculeObject(data, undefined, datasetID)),
-          stage
-        )
-      );
+      const ligandDataText = await dispatch(generateMoleculeObject(data, undefined, datasetID));
+      dispatch(deleteObject(Object.assign({ display_div: VIEWS.MAJOR_VIEW }, ligandDataText), stage));
       dispatch(removeFromLigandList(datasetID, generateMoleculeCompoundId(data)));
 
       dispatch(removeFromToBeDisplayedListForDataset(datasetID, { id: ligandData.id, type: NGL_OBJECTS.LIGAND }));

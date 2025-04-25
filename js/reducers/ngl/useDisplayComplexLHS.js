@@ -26,7 +26,7 @@ export const useDisplayComplexLHS = () => {
   const stage = getNglView(VIEWS.MAJOR_VIEW) && getNglView(VIEWS.MAJOR_VIEW).stage;
 
   const displayComplex = useCallback(
-    complexData => {
+    async complexData => {
       const data = allObservations.find(obs => obs.id === complexData.id);
       if (!data) return;
       const colourToggle = getRandomColor(data);
@@ -34,7 +34,10 @@ export const useDisplayComplexLHS = () => {
       dispatch(appendComplexList(generateMoleculeId(data)));
       return dispatch(
         loadObject({
-          target: Object.assign({ display_div: VIEWS.MAJOR_VIEW }, generateComplexObject(data, colourToggle, base_url)),
+          target: Object.assign(
+            { display_div: VIEWS.MAJOR_VIEW },
+            await dispatch(generateComplexObject(data, colourToggle, base_url))
+          ),
           stage,
           previousRepresentations: complexData.representations,
           orientationMatrix: null,
@@ -48,14 +51,17 @@ export const useDisplayComplexLHS = () => {
   );
 
   const removeComplex = useCallback(
-    complexData => {
+    async complexData => {
       const data = allObservations.find(obs => obs.id === complexData.id);
       if (!data) return;
       const colourToggle = getRandomColor(data);
 
       dispatch(
         deleteObject(
-          Object.assign({ display_div: VIEWS.MAJOR_VIEW }, generateComplexObject(data, colourToggle, base_url)),
+          Object.assign(
+            { display_div: VIEWS.MAJOR_VIEW },
+            await dispatch(generateComplexObject(data, colourToggle, base_url))
+          ),
           stage
         )
       );

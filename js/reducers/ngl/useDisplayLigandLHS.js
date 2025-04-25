@@ -32,7 +32,7 @@ export const useDisplayLigandLHS = () => {
   // const isLoadingCurrentSnapshot = useSelector(state => state.projectReducers.isLoadingCurrentSnapshot);
 
   const displayLigand = useCallback(
-    ligandData => {
+    async ligandData => {
       const data = allObservations.find(obs => obs.id === ligandData.id);
       if (!data) return;
       const colourToggle = getRandomColor(data);
@@ -40,7 +40,7 @@ export const useDisplayLigandLHS = () => {
 
       dispatch(appendFragmentDisplayList(generateMoleculeId(data)));
 
-      let moleculeObject = generateMoleculeObject(data, colourToggle);
+      let moleculeObject = await dispatch(generateMoleculeObject(data, colourToggle));
       let qualityInformation = dispatch(readQualityInformation(moleculeObject.name, moleculeObject.sdf_info));
 
       let hasAdditionalInformation =
@@ -74,10 +74,11 @@ export const useDisplayLigandLHS = () => {
   );
 
   const removeLigand = useCallback(
-    ligandData => {
+    async ligandData => {
       const data = allObservations.find(obs => obs.id === ligandData.id);
       if (!data) return;
-      dispatch(deleteObject(Object.assign({ display_div: VIEWS.MAJOR_VIEW }, generateMoleculeObject(data)), stage));
+      const ligandDataText = await dispatch(generateMoleculeObject(data));
+      dispatch(deleteObject(Object.assign({ display_div: VIEWS.MAJOR_VIEW }, ligandDataText), stage));
       dispatch(removeFromFragmentDisplayList(generateMoleculeId(data)));
       dispatch(removeFromQualityList(generateMoleculeId(data)));
       if (ligandData.withVector === true) {

@@ -28,13 +28,13 @@ export const useDisplayProteinLHS = () => {
   const stage = getNglView(VIEWS.MAJOR_VIEW) && getNglView(VIEWS.MAJOR_VIEW).stage;
 
   const displayProtein = useCallback(
-    proteinData => {
+    async proteinData => {
       const data = allObservations.find(obs => obs.id === proteinData.id);
       if (!data) return;
       const colourToggle = getRandomColor(data);
 
       dispatch(appendProteinList(generateMoleculeId(data)));
-      const hitProteinObject = generateHitProteinObject(data, colourToggle, base_url);
+      const hitProteinObject = await dispatch(generateHitProteinObject(data, colourToggle, base_url));
       const qualityInformation = dispatch(readQualityInformation(hitProteinObject.name, hitProteinObject.sdf_info));
 
       let hasAdditionalInformation =
@@ -64,13 +64,16 @@ export const useDisplayProteinLHS = () => {
   );
 
   const removeProtein = useCallback(
-    proteinData => {
+    async proteinData => {
       const data = allObservations.find(obs => obs.id === proteinData.id);
       if (!data) return;
       const colourToggle = getRandomColor(data);
       dispatch(
         deleteObject(
-          Object.assign({ display_div: VIEWS.MAJOR_VIEW }, generateHitProteinObject(data, colourToggle, base_url)),
+          Object.assign(
+            { display_div: VIEWS.MAJOR_VIEW },
+            await dispatch(generateHitProteinObject(data, colourToggle, base_url))
+          ),
           stage
         )
       );
