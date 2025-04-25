@@ -26,7 +26,7 @@ export const useDisplayProteinRHS = () => {
   const stage = getNglView(VIEWS.MAJOR_VIEW) && getNglView(VIEWS.MAJOR_VIEW).stage;
 
   const displayProtein = useCallback(
-    proteinData => {
+    async proteinData => {
       const datasetCompounds = allCompounds[proteinData.datasetID];
       const data = datasetCompounds?.find(obs => obs.id === proteinData.id);
       if (!data) return;
@@ -38,7 +38,7 @@ export const useDisplayProteinRHS = () => {
         loadObject({
           target: Object.assign(
             { display_div: VIEWS.MAJOR_VIEW },
-            generateHitProteinObject(data, colourToggle, base_url, datasetID)
+            await dispatch(generateHitProteinObject(data, colourToggle, base_url, datasetID))
           ),
           stage,
           previousRepresentations: proteinData.representations,
@@ -54,7 +54,7 @@ export const useDisplayProteinRHS = () => {
   );
 
   const removeProtein = useCallback(
-    proteinData => {
+    async proteinData => {
       const datasetCompounds = allCompounds[proteinData.datasetID];
       const data = datasetCompounds?.find(obs => obs.id === proteinData.id);
       if (!data) return;
@@ -65,7 +65,7 @@ export const useDisplayProteinRHS = () => {
         deleteObject(
           Object.assign(
             { display_div: VIEWS.MAJOR_VIEW },
-            generateHitProteinObject(data, colourToggle, base_url, datasetID)
+            await dispatch(generateHitProteinObject(data, colourToggle, base_url, datasetID))
           ),
           stage
         )

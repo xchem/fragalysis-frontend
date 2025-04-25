@@ -26,7 +26,7 @@ export const useDisplayComplexRHS = () => {
   const stage = getNglView(VIEWS.MAJOR_VIEW) && getNglView(VIEWS.MAJOR_VIEW).stage;
 
   const displayComplex = useCallback(
-    complexData => {
+    async complexData => {
       const datasetCompounds = allCompounds[complexData.datasetID];
       const data = datasetCompounds?.find(obs => obs.id === complexData.id);
       if (!data) return;
@@ -38,7 +38,7 @@ export const useDisplayComplexRHS = () => {
         loadObject({
           target: Object.assign(
             { display_div: VIEWS.MAJOR_VIEW },
-            generateComplexObject(data, colourToggle, base_url, datasetID)
+            await dispatch(generateComplexObject(data, colourToggle, base_url, datasetID))
           ),
           stage,
           previousRepresentations: complexData.representations,
@@ -54,7 +54,7 @@ export const useDisplayComplexRHS = () => {
   );
 
   const removeComplex = useCallback(
-    complexData => {
+    async complexData => {
       const datasetCompounds = allCompounds[complexData.datasetID];
       const data = datasetCompounds?.find(obs => obs.id === complexData.id);
       if (!data) return;
@@ -65,7 +65,7 @@ export const useDisplayComplexRHS = () => {
         deleteObject(
           Object.assign(
             { display_div: VIEWS.MAJOR_VIEW },
-            generateComplexObject(data, colourToggle, base_url, datasetID)
+            await dispatch(generateComplexObject(data, colourToggle, base_url, datasetID))
           ),
           stage
         )

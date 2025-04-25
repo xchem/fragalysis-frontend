@@ -30,7 +30,8 @@ import {
   setMoleculeTags,
   setLHSCompoundsLIst,
   setCompoundIdentifiers,
-  setDataAreDownloading
+  setDataAreDownloading,
+  appendLigandData
 } from '../../../../reducers/api/actions';
 import { setSortDialogOpen } from '../../molecule/redux/actions';
 import { resetCurrentCompoundsSettings } from '../../compounds/redux/actions';
@@ -233,6 +234,9 @@ export const loadMoleculesAndTagsNew = targetId => async (dispatch, getState) =>
     maps.sigmaa_info = mol.sigmaa_file;
     newObject['proteinData'] = maps;
     newObject.identifiers = compoundIdentifiers.filter(identifier => identifier.compound === newObject.cmpd);
+    if (newObject.ligand_mol_file) {
+      delete newObject.ligand_mol_file;
+    }
 
     allMolecules.push(newObject);
   });
@@ -297,4 +301,24 @@ export const loadMoleculesAndTagsNew = targetId => async (dispatch, getState) =>
     dispatch(setDataAreDownloading(false));
     // console.log(`snapshotDebug - loadMoleculesAndTagsNew - end of function`);
   });
+};
+
+export const getLigandData = obs => async (dispatch, getState) => {
+  const state = getState();
+  const ligandDataList = state.apiReducers.ligandData;
+  const ligandDataEntry = ligandDataList.find(entry => entry.obsId === obs.id);
+
+  if (ligandDataEntry) {
+    return ligandDataEntry.ligandData;
+  }
+
+  const path = obs.ligand_mol || obs.associatedObs.ligand_mol;
+  if (!path) {
+    console.error(`getLigandData - No ligand_mol path provided for observation ID: ${obs.id}`);
+    return null;
+  }
+  const response = await fetch(path);
+  const text = await response.text();
+  dispatch(appendLigandData(obs.id, text));
+  return text;
 };

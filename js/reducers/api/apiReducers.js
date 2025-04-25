@@ -63,7 +63,8 @@ export const INITIAL_STATE = {
   compound_identifiers: [],
   quality_statuses: [],
   rdkitScriptLoaded: false,
-  dataAreDownloading: false
+  dataAreDownloading: false,
+  ligandData: []
 };
 
 export const RESET_TARGET_STATE = {
@@ -110,11 +111,16 @@ export const RESET_TARGET_STATE = {
   compound_identifiers: [],
   quality_statuses: [],
   rdkitScriptLoaded: false,
-  dataAreDownloading: false
+  dataAreDownloading: false,
+  ligandData: []
 };
 
 export default function apiReducers(state = INITIAL_STATE, action = {}) {
   switch (action.type) {
+    case constants.APPEND_LIGAND_DATA:
+      const newLigandDataList = [...state.ligandData, { obsId: action.obsId, ligandData: action.ligandData }];
+      return { ...state, ligandData: newLigandDataList };
+
     case constants.SET_DATA_ARE_DOWNLOADING:
       return { ...state, dataAreDownloading: action.dataAreDownloading };
 
