@@ -3,7 +3,12 @@ import { Grid, Popper, IconButton, Tooltip, makeStyles, FormControlLabel, Switch
 import { Panel } from '../../../common';
 import { Close } from '@material-ui/icons';
 import { useDispatch, useSelector } from 'react-redux';
-import { updateLHSCompound, updateMoleculeInMolLists, updateMoleculeTag, updateTag } from '../../../../reducers/api/actions';
+import {
+  updateLHSCompound,
+  updateMoleculeInMolLists,
+  updateMoleculeTag,
+  updateTag
+} from '../../../../reducers/api/actions';
 import { getMoleculeForId } from '../redux/dispatchActions';
 import {
   setMoleculeForTagEdit,
@@ -138,7 +143,7 @@ export const TagEditor = memo(
     const [molsLeftForTagging, setMolsLeftForTagging] = useState(0);
 
     let moleculesToEditIds = [];
-    if (moleculesToEditIdsSt.length === 0) {
+    if (moleculesToEditIdsSt.length === 0 || !isTagGlobalEdit) {
       moleculesToEditIds.push(...molId);
     } else {
       moleculesToEditIds = [...moleculesToEditIdsSt];
