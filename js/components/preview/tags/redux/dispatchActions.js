@@ -303,6 +303,35 @@ export const loadMoleculesAndTagsNew = targetId => async (dispatch, getState) =>
   });
 };
 
+// export const getLigandData = obs => async (dispatch, getState) => {
+//   const state = getState();
+//   const ligandDataList = state.apiReducers.ligandData;
+//   const ligandDataEntry = ligandDataList.find(entry => entry.obsId === obs.id);
+
+//   if (ligandDataEntry) {
+//     return ligandDataEntry.ligandData;
+//   }
+
+//   // const path = obs.ligand_mol || obs.associatedObs.ligand_mol;
+//   let path = obs.ligand_mol;
+//   let obsId = obs.id;
+//   if (!path && obs.associatedObs?.length > 0 && obs.main_site_observation) {
+//     const associatedObs = obs.associatedObs.find(o => o.id === obs.main_site_observation);
+//     if (associatedObs) {
+//       path = associatedObs.ligand_mol;
+//       obsId = associatedObs.id;
+//     }
+//   }
+//   if (!path) {
+//     console.error(`getLigandData - No ligand_mol path provided for observation ID: ${obsId}`);
+//     return null;
+//   }
+//   const response = await fetch(path);
+//   const text = await response.text();
+//   dispatch(appendLigandData(obsId, text));
+//   return text;
+// };
+
 export const getLigandData = obs => async (dispatch, getState) => {
   const state = getState();
   const ligandDataList = state.apiReducers.ligandData;
@@ -312,9 +341,11 @@ export const getLigandData = obs => async (dispatch, getState) => {
     return ligandDataEntry.ligandData;
   }
 
-  const path = obs.ligand_mol || obs.associatedObs.ligand_mol;
+  // const path = obs.ligand_mol || obs.associatedObs.ligand_mol;
+  let path = obs.ligand_mol;
+
   if (!path) {
-    console.error(`getLigandData - No ligand_mol path provided for observation ID: ${obs.id}`);
+    // console.error(`getLigandData - No ligand_mol path provided for observation ID: ${obs.id}`);
     return null;
   }
   const response = await fetch(path);
