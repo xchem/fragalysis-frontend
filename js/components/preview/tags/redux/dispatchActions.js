@@ -312,7 +312,14 @@ export const getLigandData = obs => async (dispatch, getState) => {
     return ligandDataEntry.ligandData;
   }
 
-  const path = obs.ligand_mol || obs.associatedObs.ligand_mol;
+  // const path = obs.ligand_mol || obs.associatedObs.ligand_mol;
+  let path = obs.ligand_mol;
+  if (!path && obs.associatedObs?.length > 0 && obs.main_site_observation) {
+    const associatedObs = obs.associatedObs.find(o => o.id === obs.main_site_observation);
+    if (associatedObs) {
+      path = associatedObs.ligand_mol;
+    }
+  }
   if (!path) {
     console.error(`getLigandData - No ligand_mol path provided for observation ID: ${obs.id}`);
     return null;
