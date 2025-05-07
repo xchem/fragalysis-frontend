@@ -1138,7 +1138,8 @@ export const ObservationCmpList = memo(({ hideProjects }) => {
     return false;
   };
 
-  const listItemOffset = (currentPage + 1) * moleculesPerPage + nextXMolecules;
+  // const listItemOffset = (currentPage + 1) * moleculesPerPage + nextXMolecules;
+  const listItemOffset = currentPage * moleculesPerPage + nextXMolecules;
   const canLoadMore =
     listItemOffset < filteredLHSCompoundsList?.length ||
     (listItemOffset > filteredLHSCompoundsList?.length &&
@@ -1146,6 +1147,28 @@ export const ObservationCmpList = memo(({ hideProjects }) => {
   console.log(
     `Infinity scroll: listItemOffset: ${listItemOffset}, currentPage: ${currentPage}, moleculesPerPage: ${moleculesPerPage}, nextXMolecules: ${nextXMolecules}, canLoadMore: ${canLoadMore}, listItemOffset: ${listItemOffset}, filteredLHSCompoundsList: ${filteredLHSCompoundsList.length}`
   );
+
+  useEffect(() => {
+    let updatedCurrentPage = currentPage;
+    if (filteredLHSCompoundsList?.length < currentPage * moleculesPerPage) {
+      //we are always only adding +1 to current page so we need to check if there is a oportunity to scale back
+      updatedCurrentPage = Math.ceil(filteredLHSCompoundsList?.length / moleculesPerPage); // - 1;
+
+      if (currentPage > updatedCurrentPage) {
+        setCurrentPage(0);
+        setItemsToBeDisplayed([]);
+      }
+    }
+  }, [filteredLHSCompoundsList, currentPage, moleculesPerPage]);
+
+  useEffect(() => {
+    //if something goes wrong and we are displaying what we shoudn't we need to reset itemsToBeDisplayed to proper slice of filteredLHSCompoundsList
+    //kind of hacky solution but I think it's good failsafe
+    const whatToDisplay = filteredLHSCompoundsList?.slice(0, currentPage * moleculesPerPage);
+    if (itemsToBeDisplayed?.length !== whatToDisplay?.length) {
+      setItemsToBeDisplayed([...whatToDisplay]);
+    }
+  }, [currentPage, filteredLHSCompoundsList, itemsToBeDisplayed.length]);
 
   return (
     <Panel hasHeader title="Hit navigator" headerActions={actions} ref={hitNavigatorRef}>
