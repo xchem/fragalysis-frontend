@@ -27,7 +27,7 @@ export const useDisplaySurfaceLHS = () => {
   const stage = getNglView(VIEWS.MAJOR_VIEW) && getNglView(VIEWS.MAJOR_VIEW).stage;
 
   const displaySurface = useCallback(
-    surfaceData => {
+    async surfaceData => {
       const data = allObservations.find(obs => obs.id === surfaceData.id);
       if (!data) return;
       const colourToggle = getRandomColor(data);
@@ -35,7 +35,10 @@ export const useDisplaySurfaceLHS = () => {
       dispatch(appendSurfaceList(generateMoleculeId(data)));
       return dispatch(
         loadObject({
-          target: Object.assign({ display_div: VIEWS.MAJOR_VIEW }, generateSurfaceObject(data, colourToggle, base_url)),
+          target: Object.assign(
+            { display_div: VIEWS.MAJOR_VIEW },
+            await dispatch(generateSurfaceObject(data, colourToggle, base_url))
+          ),
           stage,
           previousRepresentations: surfaceData.representations,
           orientationMatrix: null,
@@ -49,14 +52,17 @@ export const useDisplaySurfaceLHS = () => {
   );
 
   const removeSurface = useCallback(
-    surfaceData => {
+    async surfaceData => {
       const data = allObservations.find(obs => obs.id === surfaceData.id);
       if (!data) return;
       const colourToggle = getRandomColor(data);
 
       dispatch(
         deleteObject(
-          Object.assign({ display_div: VIEWS.MAJOR_VIEW }, generateSurfaceObject(data, colourToggle, base_url)),
+          Object.assign(
+            { display_div: VIEWS.MAJOR_VIEW },
+            await dispatch(generateSurfaceObject(data, colourToggle, base_url))
+          ),
           stage
         )
       );

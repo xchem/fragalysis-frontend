@@ -53,6 +53,11 @@ export const TargetSettingsModal = memo(({ openModal, onModalClose, isTargetOn =
   const [editable, setEditable] = useState(false);
   const [identifierTypes, setIdentifierTypes] = useState([]);
   const [displayName, setDisplayName] = useState('');
+  const [shortName, setShortName] = useState('');
+  const [longName, setLongName] = useState('');
+  const [organism, setOrganism] = useState('');
+  const [externalURL, setExternalURL] = useState('');
+  const [externalURLName, setExternalURLName] = useState('');
   const [electronDensity, setElectronDensity] = useState(null);
   const [currentTarget, setCurrentTarget] = useState(null);
 
@@ -110,6 +115,11 @@ export const TargetSettingsModal = memo(({ openModal, onModalClose, isTargetOn =
     setCurrentTarget(target);
     setIdentifierTypes(types);
     setDisplayName(targetName);
+    setShortName(target.short_name);
+    setLongName(target.long_name);
+    setOrganism(target.organism);
+    setExternalURL(target.external_url);
+    setExternalURLName(target.external_url_display_name);
     // setElectronDensity(null);
   }, [isTargetOn, target_on_name, target_on_aliases, activeTarget, selectedTarget]);
 
@@ -144,7 +154,15 @@ export const TargetSettingsModal = memo(({ openModal, onModalClose, isTargetOn =
       api({
         url: `${base_url}/api/targets/${currentTarget.id}/`,
         method: METHOD.PATCH,
-        data: { display_name: displayName, alias_order: identifierTypes }
+        data: {
+          display_name: displayName,
+          short_name: shortName,
+          long_name: longName,
+          organism: organism,
+          external_url: externalURL,
+          external_url_display_name: externalURLName,
+          alias_order: identifierTypes
+        }
       })
         .then(resp => {
           if (isTargetOn) {
@@ -154,6 +172,11 @@ export const TargetSettingsModal = memo(({ openModal, onModalClose, isTargetOn =
           } else {
             // out of target scope
             currentTarget.display_name = displayName;
+            currentTarget.short_name = shortName;
+            currentTarget.long_name = longName;
+            currentTarget.organism = organism;
+            currentTarget.external_url = externalURL;
+            currentTarget.external_url_display_name = externalURLName;
             currentTarget.alias_order = identifierTypes;
             dispatch(replaceTarget(currentTarget));
           }
@@ -204,9 +227,69 @@ export const TargetSettingsModal = memo(({ openModal, onModalClose, isTargetOn =
             </Grid>
             <Grid item xs>
               {editable ?
-                <TextField value={displayName ?? ""} placeholder="enter name" onChange={e => setDisplayName(e.target.value)} disabled={!editable} />
+                <TextField value={displayName ?? ""} placeholder="enter display name" onChange={e => setDisplayName(e.target.value)} disabled={!editable} />
                 :
                 <Typography variant="body1">{displayName}</Typography>
+              }
+            </Grid>
+          </Grid>
+          <Grid item container direction="row" justifyContent="space-between" alignItems="center" spacing={2}>
+            <Grid item xs>
+              <Typography variant="body1">Short name</Typography>
+            </Grid>
+            <Grid item xs>
+              {editable ?
+                <TextField value={shortName ?? ""} placeholder="enter short name" onChange={e => setShortName(e.target.value)} disabled={!editable} />
+                :
+                <Typography variant="body1">{shortName}</Typography>
+              }
+            </Grid>
+          </Grid>
+          <Grid item container direction="row" justifyContent="space-between" alignItems="center" spacing={2}>
+            <Grid item xs>
+              <Typography variant="body1">Long name</Typography>
+            </Grid>
+            <Grid item xs>
+              {editable ?
+                <TextField value={longName ?? ""} placeholder="enter long name" onChange={e => setLongName(e.target.value)} disabled={!editable} />
+                :
+                <Typography variant="body1">{longName}</Typography>
+              }
+            </Grid>
+          </Grid>
+          <Grid item container direction="row" justifyContent="space-between" alignItems="center" spacing={2}>
+            <Grid item xs>
+              <Typography variant="body1">Organism</Typography>
+            </Grid>
+            <Grid item xs>
+              {editable ?
+                <TextField value={organism ?? ""} placeholder="enter organism" onChange={e => setOrganism(e.target.value)} disabled={!editable} />
+                :
+                <Typography variant="body1">{organism}</Typography>
+              }
+            </Grid>
+          </Grid>
+          <Grid item container direction="row" justifyContent="space-between" alignItems="center" spacing={2}>
+            <Grid item xs>
+              <Typography variant="body1">External URL</Typography>
+            </Grid>
+            <Grid item xs>
+              {editable ?
+                <TextField value={externalURL ?? ""} placeholder="enter external URL" onChange={e => setExternalURL(e.target.value)} disabled={!editable} />
+                :
+                <Typography variant="body1">{externalURL}</Typography>
+              }
+            </Grid>
+          </Grid>
+          <Grid item container direction="row" justifyContent="space-between" alignItems="center" spacing={2}>
+            <Grid item xs>
+              <Typography variant="body1">External URL name</Typography>
+            </Grid>
+            <Grid item xs>
+              {editable ?
+                <TextField value={externalURLName ?? ""} placeholder="enter external URL name" onChange={e => setExternalURLName(e.target.value)} disabled={!editable} />
+                :
+                <Typography variant="body1">{externalURLName}</Typography>
               }
             </Grid>
           </Grid>

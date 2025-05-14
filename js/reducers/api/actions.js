@@ -487,3 +487,11 @@ export const setDataAreDownloading = dataAreDownloading => {
     dataAreDownloading: dataAreDownloading
   };
 };
+
+export const appendLigandData = (obsId, ligandData) => {
+  return {
+    type: constants.APPEND_LIGAND_DATA,
+    obsId: obsId,
+    ligandData: ligandData
+  };
+};

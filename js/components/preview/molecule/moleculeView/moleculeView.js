@@ -505,18 +505,18 @@ const MoleculeView = memo(
 
     useEffect(() => {
       api({
-        url: `${base_url}/api/canon_site_confs/`,
+        url: `${base_url}/api/canon_site_confs/${canon_site_conf}/`,
         method: METHOD.GET
       })
         .then(resp => {
-          const canonSiteConf = resp.data.results.find(canonSiteConf => canonSiteConf.id === canon_site_conf);
-          if (canonSiteConf) {
+          const canonSiteConf = resp?.data;
+          if (canonSiteConf?.canon_site) {
             api({
-              url: `${base_url}/api/canon_sites/`,
+              url: `${base_url}/api/canon_sites/${canonSiteConf.canon_site}/`,
               method: METHOD.GET
             })
               .then(resp => {
-                const canonSite = resp.data.results.find(canonSite => canonSite.id === canonSiteConf.canon_site);
+                const canonSite = resp.data;
                 if (canonSite) {
                   setCentroidRes(canonSite.centroid_res);
                 } else {
@@ -541,11 +541,11 @@ const MoleculeView = memo(
 
     useEffect(() => {
       api({
-        url: `${base_url}/api/experiments/`,
+        url: `${base_url}/api/experiments/${experiment}/`,
         method: METHOD.GET
       })
         .then(resp => {
-          const experiment = resp.data.results.find(experiment => experiment.id === experiment);
+          const experiment = resp?.data;
           if (experiment) {
             setExperimentalPath(experiment.pdb_info_source_file ?? '');
           } else {

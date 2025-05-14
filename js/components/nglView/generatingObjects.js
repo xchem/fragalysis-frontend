@@ -1,5 +1,6 @@
 import { MOL_REPRESENTATION, OBJECT_TYPE, SELECTION_TYPE } from './constants';
 import * as listTypes from '../../constants/listTypes';
+import { getLigandData } from '../preview/tags/redux/dispatchActions';
 
 export const defaultFocus = 0;
 export const createRepresentationStructure = (type, params, lastKnownID = undefined) => ({ type, params, lastKnownID });
@@ -45,13 +46,13 @@ export const generateCompoundMolObject = (sdf_info, identifier) => ({
 });
 
 // Ligand
-export const generateMoleculeObject = (data, colourToggle, datasetID) => {
+export const generateMoleculeObject = (data, colourToggle, datasetID) => async dispatch => {
   if (data) {
     return {
       name: `${data.code || data.name}_${OBJECT_TYPE.LIGAND}${datasetID ? '_' + datasetID : ''}`,
       OBJECT_TYPE: OBJECT_TYPE.LIGAND,
       colour: colourToggle,
-      sdf_info: data.ligand_mol_file || data.sdf_info,
+      sdf_info: (await dispatch(getLigandData(data))) || data.sdf_info,
       moleculeId: data.id,
       selectionType: SELECTION_TYPE.LIGAND
     };
@@ -85,7 +86,7 @@ export const generateCylinderObject = (data, start, end, name, colour) => ({
 });
 
 // Hit Protein
-export const generateHitProteinObject = (data, colourToggle, base_url, datasetID) => {
+export const generateHitProteinObject = (data, colourToggle, base_url, datasetID) => async dispatch => {
   let prot_url;
 
   if (data && data.apo_file) {
@@ -101,7 +102,7 @@ export const generateHitProteinObject = (data, colourToggle, base_url, datasetID
   return {
     name: `${data.code || data.name}_${OBJECT_TYPE.HIT_PROTEIN}${datasetID ? '_' + datasetID : ''}`,
     OBJECT_TYPE: OBJECT_TYPE.HIT_PROTEIN,
-    sdf_info: data.ligand_mol_file || data.sdf_info,
+    sdf_info: (await dispatch(getLigandData(data))) || data.sdf_info,
     colour: colourToggle,
     prot_url,
     moleculeId: data.id,
@@ -110,7 +111,7 @@ export const generateHitProteinObject = (data, colourToggle, base_url, datasetID
 };
 
 // Complex
-export const generateComplexObject = (data, colourToggle, base_url, datasetID) => {
+export const generateComplexObject = (data, colourToggle, base_url, datasetID) => async dispatch => {
   let prot_url;
 
   if (data && data.apo_file) {
@@ -126,7 +127,7 @@ export const generateComplexObject = (data, colourToggle, base_url, datasetID) =
   return {
     name: `${data.code || data.name}_${OBJECT_TYPE.COMPLEX}${datasetID ? '_' + datasetID : ''}`,
     OBJECT_TYPE: OBJECT_TYPE.COMPLEX,
-    sdf_info: data.ligand_mol_file || data.sdf_info,
+    sdf_info: (await dispatch(getLigandData(data))) || data.sdf_info,
     colour: colourToggle,
     prot_url,
     moleculeId: data.id,
@@ -135,7 +136,7 @@ export const generateComplexObject = (data, colourToggle, base_url, datasetID) =
 };
 
 // Surface
-export const generateSurfaceObject = (data, colourToggle, base_url, datasetID) => {
+export const generateSurfaceObject = (data, colourToggle, base_url, datasetID) => async dispatch => {
   let prot_url;
 
   if (data && data.apo_file) {
@@ -150,7 +151,7 @@ export const generateSurfaceObject = (data, colourToggle, base_url, datasetID) =
   return {
     name: `${data.code || data.name}_${OBJECT_TYPE.SURFACE}${datasetID ? '_' + datasetID : ''}`,
     OBJECT_TYPE: OBJECT_TYPE.SURFACE,
-    sdf_info: data.ligand_mol_file || data.sdf_info,
+    sdf_info: (await dispatch(getLigandData(data))) || data.sdf_info,
     colour: colourToggle,
     prot_url,
     moleculeId: data.id,
@@ -159,7 +160,7 @@ export const generateSurfaceObject = (data, colourToggle, base_url, datasetID) =
 };
 
 // Density
-export const generateDensityObject = (data, colourToggle, base_url, isWireframeStyle) => {
+export const generateDensityObject = (data, colourToggle, base_url, isWireframeStyle) => async dispatch => {
   const proteinData = data && data.proteinData;
 
   let prot_url;
@@ -204,7 +205,7 @@ export const generateDensityObject = (data, colourToggle, base_url, isWireframeS
   return {
     name: `${data.code || data.name}_${OBJECT_TYPE.DENSITY}`,
     OBJECT_TYPE: OBJECT_TYPE.DENSITY,
-    sdf_info: data.ligand_mol_file || data.sdf_info,
+    sdf_info: (await dispatch(getLigandData(data))) || data.sdf_info,
     event_url,
     sigmaa_url,
     diff_url,

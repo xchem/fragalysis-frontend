@@ -44,7 +44,7 @@ const TagCategoryGridView = memo(({ name, tags, specialTags, clickCallback, disa
   const moleculesToEditIdsSt = useSelector(state => state.selectionReducers.moleculesToEdit) || [];
 
   let moleculesToEditIds = [];
-  if (moleculesToEditIdsSt.length === 0) {
+  if (moleculesToEditIdsSt.length === 0 || !isTagGlobalEdit) {
     moleculesToEditIds.push(...molId);
   } else {
     moleculesToEditIds = [...moleculesToEditIdsSt];

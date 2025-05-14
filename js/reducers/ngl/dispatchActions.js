@@ -212,7 +212,7 @@ export const setOrientationByInteraction = (div_id, orientation) => (dispatch, g
   }
 };
 
-export const centerOnLigandByMoleculeID = (stage, moleculeID, datasetId = null) => (dispatch, getState) => {
+export const centerOnLigandByMoleculeID = (stage, moleculeID, datasetId = null) => async (dispatch, getState) => {
   if (moleculeID && stage) {
     const state = getState();
     let observation = null;
@@ -227,9 +227,9 @@ export const centerOnLigandByMoleculeID = (stage, moleculeID, datasetId = null) 
       const colourToggle = getRandomColor(observation);
       let obsObject = null;
       if (!datasetId) {
-        obsObject = generateMoleculeObject(observation, colourToggle);
+        obsObject = await dispatch(generateMoleculeObject(observation, colourToggle));
       } else {
-        obsObject = generateMoleculeObject(observation, colourToggle, datasetId);
+        obsObject = await dispatch(generateMoleculeObject(observation, colourToggle, datasetId));
       }
       const component = stage.getComponentsByName(obsObject.name).first;
       component?.autoView();
