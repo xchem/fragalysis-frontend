@@ -106,6 +106,18 @@ const Landing = memo(
           </span>
         );
       }
+
+      const handleWindowResize = () => {
+        setPublicTargetListWidth(window.innerWidth * 0.4);
+        setPrivateTargetListWidth(window.innerWidth * 0.4);
+        setLegacyTargetListWidth(window.innerWidth * 0.2);
+      };
+
+      window.addEventListener('resize', handleWindowResize);
+
+      return () => {
+        window.removeEventListener('resize', handleWindowResize);
+      }
     }, []);
 
     useEffect(() => {
@@ -169,6 +181,7 @@ const Landing = memo(
             style={{
               cursor: 'col-resize',
               width: 3,
+              minWidth: 3,
               height: '100%',
               backgroundColor: '#eeeeee',
               borderRadius: '3px'
@@ -183,6 +196,7 @@ const Landing = memo(
             style={{
               cursor: 'col-resize',
               width: 3,
+              minWidth: 3,
               height: '100%',
               backgroundColor: '#eeeeee',
               borderRadius: '3px'
