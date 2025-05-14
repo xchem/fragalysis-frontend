@@ -5,8 +5,6 @@
 import React, { memo, useState, useEffect, useCallback } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import {
-  ListItemText,
-  ListItemSecondaryAction,
   Table,
   makeStyles,
   TableBody,
@@ -18,72 +16,19 @@ import {
   IconButton,
   InputAdornment,
   TextField,
-  Chip,
   Tooltip,
-  Typography,
-  Grid
+  Typography
 } from '@material-ui/core';
-import { List, ListItem, Panel } from '../common';
 import { Link } from 'react-router-dom';
 import { URLS } from '../routes/constants';
-import { isDiscourseAvailable, generateDiscourseTargetURL, openDiscourseLink } from '../../utils/discourse';
-import { setOpenDiscourseErrorModal } from '../../reducers/api/actions';
-import { Chat, Edit } from '@material-ui/icons';
+import { Edit } from '@material-ui/icons';
 import { URL_TOKENS } from '../direct/constants';
 import {
-  setListOfFilteredTargets,
-  setSortTargetDialogOpen,
-  setListOfTargets,
-  setDefaultFilter,
-  setSearchTarget,
-  setSearchNumberOfChains,
-  setSearchPrimaryChain,
-  setSearchUniprot,
-  setSearchRange,
-  setSearchProteinName,
-  setSearchGeneName,
-  setSearchSpecies,
-  setSearchDomain,
-  setSearchECNumber,
-  setSearchNHits,
-  setSearchDateLastEditFrom,
-  setSearchDateLastEditTo,
-  setSearchTargetAccessString,
-  setSearchInitDateFrom,
-  setSearchInitDateTo,
   setEditTargetDialogOpen
 } from './redux/actions';
 import {
-  compareIdAsc,
-  compareIdDesc,
   compareTargetAsc,
   compareTargetDesc,
-  compareNumberOfChainDesc,
-  compareNumberOfChainAsc,
-  comparePrimaryChainDesc,
-  comparePrimaryChainAsc,
-  compareUniprotAsc,
-  compareUniprotDesc,
-  compareRangeAsc,
-  compareRangeDesc,
-  compareProteinNameAsc,
-  compareProteinNameDesc,
-  compareGeneNameAsc,
-  compareGeneNameDesc,
-  compareSpeciesIdAsc,
-  compareSpeciesIdDesc,
-  compareSpeciesAsc,
-  compareSpeciesDesc,
-  compareDomainAsc,
-  compareDomainDesc,
-  compareECNumberAsc,
-  compareECNumberDesc,
-  compareNHitsAsc,
-  compareNHitsDesc,
-  compareDateLastEditAsc,
-  compareDateLastEditDesc,
-  compareVersionIdAsc,
-  compareVersionIdDesc,
   compareTargetAccessStringAsc,
   compareTargetAccessStringDesc,
   compareInitDateAsc,
@@ -91,22 +36,18 @@ import {
 } from './sortTargets/sortTargets';
 import { TargetListSortFilterDialog } from './targetListSortFilterDialog';
 import {
-  Delete,
-  Add,
   Search,
-  QuestionAnswer,
   KeyboardArrowDown,
   KeyboardArrowUp,
   UnfoldMore,
   FilterList
 } from '@material-ui/icons';
-import { setTargetFilter, setTargetToEdit } from '../../reducers/selection/actions';
-import { MOCK_LIST_OF_TARGETS } from './MOCK';
+import { setTargetToEdit } from '../../reducers/selection/actions';
 import { TARGETS_ATTR } from './redux/constants';
 import { getTargetProjectCombinations } from './redux/dispatchActions';
 import moment from 'moment';
-import { getCombinedTargetList } from '../../reducers/api/selectors';
 import { DJANGO_CONTEXT } from '../../utils/djangoContext';
+import { Panel } from '../common';
 
 const useStyles = makeStyles(theme => ({
   table: {
@@ -236,19 +177,19 @@ export const TargetList = memo(({ list = [], title = 'Target list', authRequired
       value: '',
       title: 'Target'
     },
-    tas: {
-      priority: 2,
-      order: 0,
-      value: '',
-      title: 'TAS'
-    },
-    initDate: {
-      priority: 3,
-      order: 0,
-      value: ['', ''],
-      title: 'Init date'
-    },
     ...(!legacy && {
+      tas: {
+        priority: 2,
+        order: 0,
+        value: '',
+        title: 'TAS'
+      },
+      initDate: {
+        priority: 3,
+        order: 0,
+        value: ['', ''],
+        title: 'Init date'
+      },
       lastUpdatedDate: {
         priority: 4,
         order: 0,
@@ -480,15 +421,15 @@ export const TargetList = memo(({ list = [], title = 'Target list', authRequired
           )}
         </TableCell>
         <TableCell style={{ width: '2px', padding: '0px', margin: '0px' }}></TableCell>
-        <TableCell align="left" style={{ padding: '0px', margin: '0px' }}>
-          {target.project.target_access_string}
-        </TableCell>
-        <TableCell style={{ width: '2px', padding: '0px', margin: '0px' }}></TableCell>
-        <TableCell align="left" style={{ padding: '0px', margin: '0px' }}>
-          {moment(target.project.init_date).format('YYYY-MM-DD')}
-        </TableCell>
-        <TableCell style={{ width: '2px', padding: '0px', margin: '0px' }}></TableCell>
         {legacy === false && ([
+          <TableCell key={'14'} align="left" style={{ padding: '0px', margin: '0px' }}>
+            {target.project.target_access_string}
+          </TableCell>,
+          <TableCell key={'13'} style={{ width: '2px', padding: '0px', margin: '0px' }}></TableCell>,
+          <TableCell key={'12'} align="left" style={{ padding: '0px', margin: '0px' }}>
+            {moment(target.project.init_date).format('YYYY-MM-DD')}
+          </TableCell>,
+          <TableCell key={'11'} style={{ width: '2px', padding: '0px', margin: '0px' }}></TableCell>,
           <TableCell key={'1'} align="left" style={{ padding: '0px', margin: '0px' }}>
             {target.last_updated ? moment(target.last_updated).format('YYYY-MM-DD') : ''}
           </TableCell>,
@@ -780,87 +721,86 @@ export const TargetList = memo(({ list = [], title = 'Target list', authRequired
                   onMouseDown={handleMouseDown}
                 ></div>
               </div>
-              <TableCell
-                className={classes.tableHeader}
-              // style={{ width: panelWidthForColumns.tas, padding: '0px' }}
-              >
-                <Tooltip title="Include Target access string in Search">
-                  <Typography variant="inherit">
-                    <input
-                      type="checkbox"
-                      style={{ verticalAlign: 'middle' }}
-                      checked={checkedTargetAccessString}
-                      onChange={() => setCheckedTargetAccessString(!checkedTargetAccessString)}
-                    />
-                    {newFilter.tas.title}
-                  </Typography>
-                </Tooltip>
-              </TableCell>
-              <div style={{ display: 'flex' }}>
-                <div>
-                  <IconButton
-                    style={{ padding: '0px', paddingRight: '5px' }}
-                    onClick={() => handleHeaderSort('tas')}
-                  >
-                    <Tooltip title="Sort" className={classes.sortButton}>
-                      {newFilter.tas.order === -1 ? (
-                        <KeyboardArrowDown />
-                      ) : newFilter.tas.order === 1 ? (
-                        <KeyboardArrowUp />
-                      ) : (
-                        <UnfoldMore />
-                      )}
-                    </Tooltip>
-                  </IconButton>
-                </div>
-                <div
-                  style={{
-                    cursor: 'col-resize',
-                    width: 4,
-                    height: '21px',
-                    backgroundColor: '#cccccc',
-                    borderRadius: '3px'
-                  }}
-                  onMouseDown={handleMouseDownResizerTargetAccessString}
-                ></div>
-              </div>
-
-              <TableCell
-                className={classes.tableHeader}
-              // style={{ width: panelWidthForColumns.initDate, padding: '0px', paddingLeft: '5px', verticalAlign: 'center' }}
-              >
-                {newFilter.initDate.title}
-              </TableCell>
-              <div style={{ display: 'flex' }}>
-                <div className={classes.arrowsWrapper}>
-                  <IconButton
-                    style={{ padding: '0px', verticalAlign: 'center' }}
-                    onClick={() => handleHeaderSort('initDate')}
-                  >
-                    <Tooltip title="Sort" className={classes.sortButton}>
-                      {newFilter.initDate.order === -1 ? (
-                        <KeyboardArrowDown />
-                      ) : newFilter.initDate.order === 1 ? (
-                        <KeyboardArrowUp />
-                      ) : (
-                        <UnfoldMore />
-                      )}
-                    </Tooltip>
-                  </IconButton>
-                </div>
-                <div
-                  style={{
-                    cursor: 'col-resize',
-                    width: 4,
-                    height: '21px',
-                    backgroundColor: '#cccccc',
-                    borderRadius: '3px'
-                  }}
-                  onMouseDown={handleMouseDownResizerInitDate}
-                ></div>
-              </div>
-
               {legacy === false && ([
+                <TableCell key={20}
+                  className={classes.tableHeader}
+                // style={{ width: panelWidthForColumns.tas, padding: '0px' }}
+                >
+                  <Tooltip title="Include Target access string in Search">
+                    <Typography variant="inherit">
+                      <input
+                        type="checkbox"
+                        style={{ verticalAlign: 'middle' }}
+                        checked={checkedTargetAccessString}
+                        onChange={() => setCheckedTargetAccessString(!checkedTargetAccessString)}
+                      />
+                      {newFilter.tas.title}
+                    </Typography>
+                  </Tooltip>
+                </TableCell>,
+                <div key={21} style={{ display: 'flex' }}>
+                  <div>
+                    <IconButton
+                      style={{ padding: '0px', paddingRight: '5px' }}
+                      onClick={() => handleHeaderSort('tas')}
+                    >
+                      <Tooltip title="Sort" className={classes.sortButton}>
+                        {newFilter.tas.order === -1 ? (
+                          <KeyboardArrowDown />
+                        ) : newFilter.tas.order === 1 ? (
+                          <KeyboardArrowUp />
+                        ) : (
+                          <UnfoldMore />
+                        )}
+                      </Tooltip>
+                    </IconButton>
+                  </div>
+                  <div
+                    style={{
+                      cursor: 'col-resize',
+                      width: 4,
+                      height: '21px',
+                      backgroundColor: '#cccccc',
+                      borderRadius: '3px'
+                    }}
+                    onMouseDown={handleMouseDownResizerTargetAccessString}
+                  ></div>
+                </div>,
+
+                <TableCell key={22}
+                  className={classes.tableHeader}
+                // style={{ width: panelWidthForColumns.initDate, padding: '0px', paddingLeft: '5px', verticalAlign: 'center' }}
+                >
+                  {newFilter.initDate.title}
+                </TableCell>,
+                <div key={23} style={{ display: 'flex' }}>
+                  <div className={classes.arrowsWrapper}>
+                    <IconButton
+                      style={{ padding: '0px', verticalAlign: 'center' }}
+                      onClick={() => handleHeaderSort('initDate')}
+                    >
+                      <Tooltip title="Sort" className={classes.sortButton}>
+                        {newFilter.initDate.order === -1 ? (
+                          <KeyboardArrowDown />
+                        ) : newFilter.initDate.order === 1 ? (
+                          <KeyboardArrowUp />
+                        ) : (
+                          <UnfoldMore />
+                        )}
+                      </Tooltip>
+                    </IconButton>
+                  </div>
+                  <div
+                    style={{
+                      cursor: 'col-resize',
+                      width: 4,
+                      height: '21px',
+                      backgroundColor: '#cccccc',
+                      borderRadius: '3px'
+                    }}
+                    onMouseDown={handleMouseDownResizerInitDate}
+                  ></div>
+                </div>,
                 <TableCell key={'1'}
                   className={classes.tableHeader}
                 // style={{ width: panelWidthForColumns.lastUpdatedDate, padding: '0px', paddingLeft: '5px', verticalAlign: 'center' }}
