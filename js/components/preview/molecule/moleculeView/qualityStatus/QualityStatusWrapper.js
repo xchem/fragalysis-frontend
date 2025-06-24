@@ -45,7 +45,7 @@ export const QualityStatusWrapper = memo(({ data }) => {
 
     useEffect(() => {
         // filter out default statuses created on load
-        const statuses = allStatuses.filter(status => status.site_observation === data.id && status.comment !== 'Created on load');
+        const statuses = allStatuses.filter(status => status.site_observation === data.main_site_observation && status.comment !== 'Created on load');
         if (statuses) {
             setQualityStatuses(statuses);
         }
@@ -212,7 +212,7 @@ export const QualityStatusWrapper = memo(({ data }) => {
             onModalClose={handleModalClose}
             statuses={qualityStatuses}
             latestPeerReviews={latestPeerReviews}
-            site_observation={data.id}
+            site_observation={data.main_site_observation}
             anchorElQualityStatus={anchorElQualityStatus}
         />
     </Grid>;
