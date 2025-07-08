@@ -495,3 +495,17 @@ export const appendLigandData = (obsId, ligandData) => {
     ligandData: ligandData
   };
 };
+
+export const setErrorOccuredDuringDownload = errorOccuredDuringDownload => {
+  return {
+    type: constants.SET_ERROR_OCCURED_DURING_DOWNLOAD,
+    errorOccuredDuringDownload: errorOccuredDuringDownload
+  };
+};
+
+export const setDataAreDownloaded = dataAreDownloaded => {
+  return {
+    type: constants.SET_DATA_ARE_DOWNLOADED,
+    dataAreDownloaded: dataAreDownloaded
+  };
+};

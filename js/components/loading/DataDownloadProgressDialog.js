@@ -5,9 +5,13 @@ import { useSelector } from 'react-redux';
 export const DataDownloadProgressDialog = () => {
   const dataAreDownloading = useSelector(state => state.apiReducers.dataAreDownloading);
   const lhsIsFullyRendered = useSelector(state => state.selectionReducers.lhsIsFullyRendered);
+  const errorOccuredDuringDownload = useSelector(state => state.apiReducers.errorOccuredDuringDownload);
 
   return (
-    <Dialog open={dataAreDownloading || !lhsIsFullyRendered} aria-labelledby="data-download-progress-dialog-title">
+    <Dialog
+      open={(dataAreDownloading || !lhsIsFullyRendered) && !errorOccuredDuringDownload}
+      aria-labelledby="data-download-progress-dialog-title"
+    >
       <DialogTitle id="data-download-progress-dialog-title">
         {dataAreDownloading ? 'Data download progress' : 'Rendering of UI in progress'}
       </DialogTitle>

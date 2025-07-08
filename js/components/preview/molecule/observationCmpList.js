@@ -67,7 +67,8 @@ import {
   setPoseIdForObservationsDialog,
   setObservationDialogAction,
   setSearchSettingsDialogOpen,
-  setLHSIsFullyRendered
+  setLHSIsFullyRendered,
+  addToastMessage
 } from '../../../reducers/selection/actions';
 import { initializeFilter } from '../../../reducers/selection/dispatchActions';
 import * as listType from '../../../constants/listTypes';
@@ -93,6 +94,8 @@ import { ObservationsDialog } from './observationsDialog';
 import { useScrollToSelectedPose } from './useScrollToSelectedPose';
 import { SearchSettingsDialog } from './searchSettingsDialog';
 import { set } from 'lodash';
+import { use } from 'react';
+import { TOAST_LEVELS } from '../../toast/constants';
 
 const useStyles = makeStyles(theme => ({
   container: {
@@ -317,6 +320,9 @@ export const ObservationCmpList = memo(({ hideProjects }) => {
   const moleculesToEditIds = useSelector(state => state.selectionReducers.moleculesToEdit);
   const isGlobalEdit = useSelector(state => state.selectionReducers.isGlobalEdit);
 
+  const dataAreDownloaded = useSelector(state => state.apiReducers.dataAreDownloaded);
+  const errorOccuredDuringDownload = useSelector(state => state.apiReducers.errorOccuredDuringDownload);
+
   const isObservationDialogOpen = useSelector(state => state.selectionReducers.isObservationDialogOpen);
 
   const object_selection = useSelector(state => state.selectionReducers.mol_group_selection);
@@ -407,7 +413,7 @@ export const ObservationCmpList = memo(({ hideProjects }) => {
   };
 
   useEffect(() => {
-    if (!dataAreDownloading && all_mol_lists?.length > 0) {
+    if (!dataAreDownloading && dataAreDownloaded /*all_mol_lists?.length > 0*/) {
       requestAnimationFrame(() => {
         // Add another frame just to be sure rendering is done
         requestAnimationFrame(() => {
@@ -415,7 +421,18 @@ export const ObservationCmpList = memo(({ hideProjects }) => {
         });
       });
     }
-  }, [dataAreDownloading, all_mol_lists, dispatch]);
+  }, [dataAreDownloading, all_mol_lists, dispatch, dataAreDownloaded]);
+
+  useEffect(() => {
+    if (dataAreDownloaded && !errorOccuredDuringDownload && all_mol_lists?.length <= 0) {
+      dispatch(
+        addToastMessage({
+          text: `Target data downloaded but no molecules found. This is usually caused by network issues so please try again later. If the issue persists, please contact us.`,
+          level: TOAST_LEVELS.ERROR
+        })
+      );
+    }
+  }, [dataAreDownloaded, errorOccuredDuringDownload, dispatch, all_mol_lists.length]);
 
   /**
    * Get CanonSites tag for sorting
