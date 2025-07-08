@@ -64,7 +64,9 @@ export const INITIAL_STATE = {
   quality_statuses: [],
   rdkitScriptLoaded: false,
   dataAreDownloading: false,
-  ligandData: []
+  ligandData: [],
+  errorOccuredDuringDownload: false,
+  dataAreDownloaded: false
 };
 
 export const RESET_TARGET_STATE = {
@@ -112,11 +114,19 @@ export const RESET_TARGET_STATE = {
   quality_statuses: [],
   rdkitScriptLoaded: false,
   dataAreDownloading: false,
-  ligandData: []
+  ligandData: [],
+  errorOccuredDuringDownload: false,
+  dataAreDownloaded: false
 };
 
 export default function apiReducers(state = INITIAL_STATE, action = {}) {
   switch (action.type) {
+    case constants.SET_DATA_ARE_DOWNLOADED:
+      return { ...state, dataAreDownloaded: action.dataAreDownloaded };
+
+    case constants.SET_ERROR_OCCURED_DURING_DOWNLOAD:
+      return { ...state, errorOccuredDuringDownload: action.errorOccuredDuringDownload };
+
     case constants.APPEND_LIGAND_DATA:
       const newLigandDataList = [...state.ligandData, { obsId: action.obsId, ligandData: action.ligandData }];
       return { ...state, ligandData: newLigandDataList };

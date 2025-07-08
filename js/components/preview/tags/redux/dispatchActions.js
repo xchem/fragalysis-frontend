@@ -1,7 +1,8 @@
 import {
   setSelectedTagList,
   appendSelectedTagList,
-  removeFromSelectedTagList
+  removeFromSelectedTagList,
+  addToastMessage
 } from '../../../../reducers/selection/actions';
 import {
   setProteinList,
@@ -31,7 +32,9 @@ import {
   setLHSCompoundsLIst,
   setCompoundIdentifiers,
   setDataAreDownloading,
-  appendLigandData
+  appendLigandData,
+  setErrorOccuredDuringDownload,
+  setDataAreDownloaded
 } from '../../../../reducers/api/actions';
 import { setSortDialogOpen } from '../../molecule/redux/actions';
 import { resetCurrentCompoundsSettings } from '../../compounds/redux/actions';
@@ -53,6 +56,7 @@ import {
   compareTagsAsc
 } from '../utils/tagUtils';
 import { DJANGO_CONTEXT } from '../../../../utils/djangoContext';
+import { TOAST_LEVELS } from '../../../toast/constants';
 
 export const setTagSelectorData = (categories, tags) => dispatch => {
   dispatch(setCategoryList(categories));
@@ -197,98 +201,52 @@ const getTagsForMol = (molId, tagList) => {
 };
 
 export const loadMoleculesAndTagsNew = targetId => async (dispatch, getState) => {
-  dispatch(setDataAreDownloading(true));
-  // console.log(`snapshotDebug - loadMoleculesAndTagsNew - before getTags`);
-  let tags = await getTags(targetId);
-  let compoundIdentifiers = await getCompoundIdentifiers();
-  // console.log(`snapshotDebug - loadMoleculesAndTagsNew - after getTags`);
-  tags = tags.results;
-  if (tags?.length > 0) {
-    // console.log(`snapshotDebug - loadMoleculesAndTagsNew - no. of tags received: ${tags?.length}`);
-    dispatch(setNoTagsReceived(false));
-  }
-  // console.log(`snapshotDebug - loadMoleculesAndTagsNew - before getTagCategories`);
-  const tagCategories = await getTagCategories();
-  // console.log(`snapshotDebug - loadMoleculesAndTagsNew - no. of tag categories received: ${tagCategories?.length}`);
-  // console.log(`snapshotDebug - loadMoleculesAndTagsNew - after getTagCategories`);
-  // const canonSitesList = await getCanonSites(targetId);
-  // const canonConformSitest = await getCanonConformSites(targetId);
-
-  // console.log(`snapshotDebug - loadMoleculesAndTagsNew - before getAllDataNew`);
-  const data = await getAllDataNew(targetId);
-  // console.log(`snapshotDebug - loadMoleculesAndTagsNew - after getAllDataNew`);
-  // console.log(`snapshotDebug - loadMoleculesAndTagsNew - no. of molecules received: ${data?.results?.length}`);
-  let allMolecules = [];
-  data?.results?.forEach(mol => {
-    let newObject = { ...mol };
-    const tagsForMol = getTagsForMol(mol.id, tags);
-    if (tagsForMol) {
-      newObject['tags_set'] = [...tagsForMol.map(t => t.id)];
-    } else {
-      newObject['tags_set'] = [];
+  try {
+    dispatch(setDataAreDownloading(true));
+    // console.log(`snapshotDebug - loadMoleculesAndTagsNew - before getTags`);
+    let tags = await getTags(targetId);
+    let compoundIdentifiers = await getCompoundIdentifiers();
+    // console.log(`snapshotDebug - loadMoleculesAndTagsNew - after getTags`);
+    tags = tags.results;
+    if (tags?.length > 0) {
+      // console.log(`snapshotDebug - loadMoleculesAndTagsNew - no. of tags received: ${tags?.length}`);
+      dispatch(setNoTagsReceived(false));
     }
+    // console.log(`snapshotDebug - loadMoleculesAndTagsNew - before getTagCategories`);
+    const tagCategories = await getTagCategories();
+    // console.log(`snapshotDebug - loadMoleculesAndTagsNew - no. of tag categories received: ${tagCategories?.length}`);
+    // console.log(`snapshotDebug - loadMoleculesAndTagsNew - after getTagCategories`);
+    // const canonSitesList = await getCanonSites(targetId);
+    // const canonConformSitest = await getCanonConformSites(targetId);
 
-    const maps = {};
-    maps.diff_info = mol.diff_file;
-    maps.event_info = mol.event_file;
-    maps.sigmaa_info = mol.sigmaa_file;
-    newObject['proteinData'] = maps;
-    newObject.identifiers = compoundIdentifiers.filter(identifier => identifier.compound === newObject.cmpd);
-    if (newObject.ligand_mol_file) {
-      delete newObject.ligand_mol_file;
-    }
+    // console.log(`snapshotDebug - loadMoleculesAndTagsNew - before getAllDataNew`);
+    const data = await getAllDataNew(targetId);
+    // console.log(`snapshotDebug - loadMoleculesAndTagsNew - after getAllDataNew`);
+    // console.log(`snapshotDebug - loadMoleculesAndTagsNew - no. of molecules received: ${data?.results?.length}`);
+    let allMolecules = [];
+    data?.results?.forEach(mol => {
+      let newObject = { ...mol };
+      const tagsForMol = getTagsForMol(mol.id, tags);
+      if (tagsForMol) {
+        newObject['tags_set'] = [...tagsForMol.map(t => t.id)];
+      } else {
+        newObject['tags_set'] = [];
+      }
 
-    allMolecules.push(newObject);
-  });
+      const maps = {};
+      maps.diff_info = mol.diff_file;
+      maps.event_info = mol.event_file;
+      maps.sigmaa_info = mol.sigmaa_file;
+      newObject['proteinData'] = maps;
+      newObject.identifiers = compoundIdentifiers.filter(identifier => identifier.compound === newObject.cmpd);
+      if (newObject.ligand_mol_file) {
+        delete newObject.ligand_mol_file;
+      }
 
-  allMolecules?.sort((a, b) => {
-    if (a.code < b.code) {
-      return -1;
-    }
-    if (a.code > b.code) {
-      return 1;
-    }
-    return 0;
-  });
-
-  dispatch(setAllMolLists([...allMolecules]));
-  // console.log(`snapshotDebug - loadMoleculesAndTagsNew - no. of molecules stored: ${allMolecules?.length}`);
-  //need to do this this way because only categories which have at least one tag assigned are sent from backend
-  tags = tags.sort(compareTagsAsc);
-  dispatch(setMoleculeTags(tags));
-  dispatch(setTagSelectorData(tagCategories, tags));
-  dispatch(setCompoundIdentifiers(compoundIdentifiers));
-  dispatch(setAllDataLoaded(true));
-
-  // console.log(`snapshotDebug - loadMoleculesAndTagsNew - before getPoses`);
-  return getPoses(targetId).then(poses => {
-    // console.log(`snapshotDebug - loadMoleculesAndTagsNew - after getPoses`);
-    const modifiedPoses = [];
-    // console.log(`snapshotDebug - loadMoleculesAndTagsNew - no. of poses received: ${poses?.length}`);
-    poses?.forEach(pose => {
-      const siteObs = allMolecules.filter(m => pose.site_observations.includes(m.id));
-      const firstObs = siteObs[0];
-
-      let newObject = { ...pose };
-      newObject['smiles'] = firstObs?.smiles;
-      newObject['code'] = `${pose.display_name}`;
-      newObject['canonSiteConf'] = firstObs?.canon_site_conf;
-      newObject['canonSite'] = pose.canon_site;
-
-      const associatedObs = siteObs.sort((a, b) => {
-        if (a.code < b.code) {
-          return -1;
-        }
-        if (a.code > b.code) {
-          return 1;
-        }
-        return 0;
-      });
-      newObject['associatedObs'] = associatedObs;
-
-      modifiedPoses.push(newObject);
+      allMolecules.push(newObject);
     });
-    modifiedPoses.sort((a, b) => {
+
+    allMolecules?.sort((a, b) => {
       if (a.code < b.code) {
         return -1;
       }
@@ -297,10 +255,69 @@ export const loadMoleculesAndTagsNew = targetId => async (dispatch, getState) =>
       }
       return 0;
     });
-    dispatch(setLHSCompoundsLIst(modifiedPoses));
+
+    dispatch(setAllMolLists([...allMolecules]));
+    // console.log(`snapshotDebug - loadMoleculesAndTagsNew - no. of molecules stored: ${allMolecules?.length}`);
+    //need to do this this way because only categories which have at least one tag assigned are sent from backend
+    tags = tags.sort(compareTagsAsc);
+    dispatch(setMoleculeTags(tags));
+    dispatch(setTagSelectorData(tagCategories, tags));
+    dispatch(setCompoundIdentifiers(compoundIdentifiers));
+    dispatch(setAllDataLoaded(true));
+
+    // console.log(`snapshotDebug - loadMoleculesAndTagsNew - before getPoses`);
+    return getPoses(targetId).then(poses => {
+      // console.log(`snapshotDebug - loadMoleculesAndTagsNew - after getPoses`);
+      const modifiedPoses = [];
+      // console.log(`snapshotDebug - loadMoleculesAndTagsNew - no. of poses received: ${poses?.length}`);
+      poses?.forEach(pose => {
+        const siteObs = allMolecules.filter(m => pose.site_observations.includes(m.id));
+        const firstObs = siteObs[0];
+
+        let newObject = { ...pose };
+        newObject['smiles'] = firstObs?.smiles;
+        newObject['code'] = `${pose.display_name}`;
+        newObject['canonSiteConf'] = firstObs?.canon_site_conf;
+        newObject['canonSite'] = pose.canon_site;
+
+        const associatedObs = siteObs.sort((a, b) => {
+          if (a.code < b.code) {
+            return -1;
+          }
+          if (a.code > b.code) {
+            return 1;
+          }
+          return 0;
+        });
+        newObject['associatedObs'] = associatedObs;
+
+        modifiedPoses.push(newObject);
+      });
+      modifiedPoses.sort((a, b) => {
+        if (a.code < b.code) {
+          return -1;
+        }
+        if (a.code > b.code) {
+          return 1;
+        }
+        return 0;
+      });
+      dispatch(setLHSCompoundsLIst(modifiedPoses));
+      // console.log(`snapshotDebug - loadMoleculesAndTagsNew - end of function`);
+    });
+  } catch (error) {
+    console.error('Error loading molecules and tags:', error);
+    dispatch(setErrorOccuredDuringDownload(true));
+    dispatch(
+      addToastMessage({
+        text: `Error while downloading data. Please try again later. If the issue persists please contact us.`,
+        level: TOAST_LEVELS.ERROR
+      })
+    );
+  } finally {
     dispatch(setDataAreDownloading(false));
-    // console.log(`snapshotDebug - loadMoleculesAndTagsNew - end of function`);
-  });
+    dispatch(setDataAreDownloaded(true));
+  }
 };
 
 // export const getLigandData = obs => async (dispatch, getState) => {

@@ -68,11 +68,9 @@ export const getTagMolecules = async targetId => {
 };
 
 export const getCompoundIdentifiers = async () => {
-  return api({ url: `${base_url}/api/compound-identifiers/` })
-    .then(response => {
-      return response.data?.results;
-    })
-    .catch(err => console.log(err));
+  return api({ url: `${base_url}/api/compound-identifiers/` }).then(response => {
+    return response.data?.results;
+  });
 };
 
 export const createNewTag = async (tag, targetName) => {
