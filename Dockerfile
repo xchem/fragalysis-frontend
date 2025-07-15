@@ -1,4 +1,4 @@
-FROM node:16.17.1-buster
+FROM node:16.17.1-bullseye
 
 # Install yarn
 RUN curl -sS https://dl.yarnpkg.com/debian/pubkey.gpg | apt-key add - && \
