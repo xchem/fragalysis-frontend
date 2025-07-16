@@ -12,6 +12,13 @@ const getDisplayAllMolecules = state => state.selectionReducers.displayAllMolecu
 const getDisplayUntaggedMolecules = state => state.selectionReducers.displayUntaggedMolecules;
 export const getLHSCompoundsList = state => state.apiReducers.lhs_compounds_list;
 
+const getProteinList = state => state.selectionReducers.proteinList;
+const getComplexList = state => state.selectionReducers.complexList;
+const getFragmentDisplayList = state => state.selectionReducers.fragmentDisplayList;
+const getSurfaceList = state => state.selectionReducers.surfaceList;
+const getDensityList = state => state.selectionReducers.densityList;
+const getVectorOnList = state => state.selectionReducers.vectorOnList;
+
 export const selectJoinedMoleculeList = createSelector(
   getAllMolecules,
   getAllSelectedTags,
@@ -133,3 +140,32 @@ export const selectAllMoleculeList = createSelector(getAllMolecules, all_mol_lis
 
   return all_mol_lists;
 });
+
+export const getAllDisplayedLHSCompounds = createSelector(
+  getProteinList,
+  getComplexList,
+  getFragmentDisplayList,
+  getSurfaceList,
+  getDensityList,
+  getVectorOnList,
+  (proteinList, complexList, fragmentDisplayList, surfaceList, densityList, vectorOnList) => {
+    let allSelectedMolecules = proteinList || [];
+    console.log('allSelectedMolecules', allSelectedMolecules);
+    if (complexList.length > 0) {
+      allSelectedMolecules.push(...complexList);
+    }
+    if (fragmentDisplayList.length > 0) {
+      allSelectedMolecules.push(...fragmentDisplayList);
+    }
+    if (surfaceList.length > 0) {
+      allSelectedMolecules.push(...surfaceList);
+    }
+    if (densityList.length > 0) {
+      allSelectedMolecules.push(...densityList);
+    }
+    if (vectorOnList.length > 0) {
+      allSelectedMolecules.push(...vectorOnList);
+    }
+    return [...new Set(allSelectedMolecules)];
+  }
+);

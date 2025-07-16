@@ -26,13 +26,13 @@ const useStyles = makeStyles(theme => ({
         width: 17,
         borderRadius: '50%',
         position: 'absolute',
-        top: -9,
-        left: 0
+        // top: -9,
+        left: 2
     },
     pizzaLight: {
         position: 'absolute',
-        top: -8,
-        left: 1
+        top: 1,
+        left: 3
     }
 }));
 

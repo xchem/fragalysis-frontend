@@ -54,6 +54,7 @@ export const INITIAL_STATE = {
   all_data_loaded: false,
   isSnapshot: false,
   lhs_compounds_list: [],
+  lhs_extra_columns: [],
   lhsDataIsLoading: false,
   lhsDataIsLoaded: false,
   rhsDataIsLoading: false,
@@ -110,6 +111,7 @@ export const RESET_TARGET_STATE = {
   all_data_loaded: false,
   snapshotLoadingInProgress: false,
   lhs_compounds_list: [],
+  lhs_extra_columns: [],
   compound_identifiers: [],
   quality_statuses: [],
   rdkitScriptLoaded: false,
@@ -266,6 +268,9 @@ export default function apiReducers(state = INITIAL_STATE, action = {}) {
 
     case constants.SET_LHS_COMPOUNDS_LIST:
       return { ...state, lhs_compounds_list: action.lhs_compounds_list };
+
+    case constants.SET_LHS_EXTRA_COLUMNS:
+      return { ...state, lhs_extra_columns: action.lhs_extra_columns };
 
     case constants.UPDATE_LHS_COMPOUND: {
       let newList = [...state.lhs_compounds_list];
