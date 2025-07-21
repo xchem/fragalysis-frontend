@@ -28,9 +28,11 @@ export const useColumns = (defaultWidth) => {
                         name: column.result_property,
                         displayName: column.result_property,
                         type: getColumnType(column.data_type),
+                        visible: column.visible,
                         minWidth: 50,
                         width: 54,
-                        resizable: true
+                        resizable: true,
+                        data_type: column.data_type
                     });
                 }
             });

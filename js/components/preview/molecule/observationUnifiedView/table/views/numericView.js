@@ -16,11 +16,10 @@ export const NumericView = memo(({ column, data }) => {
     const classes = useStyles();
 
     const activityDataSet = useMemo(() => {
-        return data?.activityData?.filter(activity => activity.property_name === column.name).map(activity => activity.raw_value) || [];
+        return data?.activityData?.filter(activity => activity.property_name === column.name).map(activity => activity[`${column.data_type}_value`]) || [];
     }, [column, data.activityData]);
 
     const activityCellData = useMemo(() => {
-        console.log('activityDataSet', activityDataSet);
         return activityDataSet.length > 0 ?
             activityDataSet.length > 1 ?
                 `${(activityDataSet.reduce((acc, curr) => acc + curr, 0) / activityDataSet.length).toFixed(2)} (n=${activityDataSet.length})`

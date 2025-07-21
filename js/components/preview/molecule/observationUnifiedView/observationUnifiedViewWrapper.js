@@ -135,8 +135,8 @@ const ObservationUnifiedViewWrapper = memo(
         <Table className={classes.table}>
           <TableHead>
             <TableRow>
-              {columns?.map(({ name, displayName, type, resizable }) => {
-                return <TableCell key={name}
+              {columns?.map(({ name, displayName, type, resizable, visible }) => {
+                return (visible && <TableCell key={name}
                   width={getColumnWidth(name)}
                   style={{ maxWidth: getColumnWidth(name) }}
                   className={classes.headerCell}
@@ -152,7 +152,7 @@ const ObservationUnifiedViewWrapper = memo(
                         />}
                     </div>
                   </Tooltip>
-                </TableCell>
+                </TableCell>)
               })}
             </TableRow>
           </TableHead>

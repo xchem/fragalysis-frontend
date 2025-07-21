@@ -96,7 +96,8 @@ import { SearchSettingsDialog } from './searchSettingsDialog';
 import { set } from 'lodash';
 import { use } from 'react';
 import { TOAST_LEVELS } from '../../toast/constants';
-import ObservationUnifiedViewWrapper from './observationUnifiedView/ObservationUnifiedViewWrapper';
+import { FilterSettingsModal } from './observationUnifiedView/table';
+import ObservationUnifiedViewWrapper from './observationUnifiedView/observationUnifiedViewWrapper';
 
 const useStyles = makeStyles(theme => ({
   container: {
@@ -1130,9 +1131,9 @@ export const ObservationCmpList = memo(({ hideProjects }) => {
       }}
       color={'inherit'}
       // disabled={predefinedFilter !== 'none'}
-      disabled={true}
+      disabled={DJANGO_CONTEXT['username'] === 'NOT_LOGGED_IN'}
     >
-      <Tooltip title="Filter/Sort">
+      <Tooltip title="LHS settings">
         <FilterList />
       </Tooltip>
     </IconButton>
@@ -1221,13 +1222,22 @@ export const ObservationCmpList = memo(({ hideProjects }) => {
           ref={tagEditorRef}
         />
       )}
-      {sortDialogOpen && (
+      {/* {sortDialogOpen && (
         <MoleculeListSortFilterDialog
           open={sortDialogOpen}
           anchorEl={sortDialogAnchorEl}
           filter={filter}
           setSortDialogAnchorEl={setSortDialogAnchorEl}
           joinedMoleculeLists={joinedMoleculeListsCopy}
+        />
+      )} */}
+      {sortDialogOpen && (
+        <FilterSettingsModal
+          openModal={sortDialogOpen}
+          onModalClose={() => {
+            setSortDialogAnchorEl(null);
+            dispatch(setSortDialogOpen(false));
+          }}
         />
       )}
       <div ref={filterRef}>

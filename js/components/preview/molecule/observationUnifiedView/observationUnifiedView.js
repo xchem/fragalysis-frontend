@@ -414,12 +414,12 @@ const ObservationUnifiedView = memo(
           wrap="nowrap"
         >
           {columns?.map((column) =>
-            <TableCell
-              key={column.name}
-              style={{ maxWidth: getColumnWidth(column.name) }}
-            >
-              {getProperView(column)}
-            </TableCell>
+          (column.visible && <TableCell
+            key={column.name}
+            style={{ maxWidth: getColumnWidth(column.name) }}
+          >
+            {getProperView(column)}
+          </TableCell>)
           )}
         </TableRow>
 

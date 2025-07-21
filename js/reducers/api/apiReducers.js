@@ -270,7 +270,8 @@ export default function apiReducers(state = INITIAL_STATE, action = {}) {
       return { ...state, lhs_compounds_list: action.lhs_compounds_list };
 
     case constants.SET_LHS_EXTRA_COLUMNS:
-      return { ...state, lhs_extra_columns: action.lhs_extra_columns };
+      // sort columns by their order before setting them
+      return { ...state, lhs_extra_columns: action.lhs_extra_columns.sort((a, b) => a.order - b.order) };
 
     case constants.UPDATE_LHS_COMPOUND: {
       let newList = [...state.lhs_compounds_list];

@@ -22,7 +22,9 @@ export const COLUMNS = [
         type: COLUMN_TYPES.PEER_REVIEW,
         minWidth: 22,
         width: 22,
-        resizable: false
+        resizable: false,
+        visible: true,
+        data_type: 'custom'
     },
     {
         name: 'detail',
@@ -30,7 +32,9 @@ export const COLUMNS = [
         type: COLUMN_TYPES.OBSERVATION,
         minWidth: 172,
         width: 182,
-        resizable: true
+        resizable: true,
+        visible: true,
+        data_type: 'custom'
     },
     {
         name: 'molecule',
@@ -38,7 +42,9 @@ export const COLUMNS = [
         type: COLUMN_TYPES.MOLECULE,
         minWidth: 150,
         width: 150,
-        resizable: false
+        resizable: false,
+        visible: true,
+        data_type: 'custom'
     },
     {
         name: 'canonSite',
@@ -46,7 +52,9 @@ export const COLUMNS = [
         type: COLUMN_TYPES.CANON_SITE,
         minWidth: 22,
         width: 22,
-        resizable: false
+        resizable: false,
+        visible: true,
+        data_type: 'custom'
     },
     {
         name: 'conformerSite',
@@ -54,7 +62,9 @@ export const COLUMNS = [
         type: COLUMN_TYPES.CONFORMER_SITE,
         minWidth: 22,
         width: 22,
-        resizable: false
+        resizable: false,
+        visible: true,
+        data_type: 'custom'
     },
     {
         name: 'observations',
@@ -62,6 +72,8 @@ export const COLUMNS = [
         type: COLUMN_TYPES.OBSERVATIONS,
         minWidth: 22,
         width: 22,
-        resizable: false
+        resizable: false,
+        visible: true,
+        data_type: 'custom'
     }
 ];
