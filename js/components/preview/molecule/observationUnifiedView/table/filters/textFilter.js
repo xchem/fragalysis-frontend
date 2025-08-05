@@ -45,12 +45,16 @@ export const TextFilter = memo(({ name, onFilterChange, onSortingChange }) => {
         onSortingChange(newSortingValue);
     };
 
-    return <FilterWrapper title={`Sort / Filter (${name})`} handleReset={() => {
-        setFilterValue(initFilterValue);
-        setSortingValue(initSortingValue);
-        onFilterChange(initFilterValue);
-        onSortingChange(initSortingValue);
-    }}>
+    return <FilterWrapper
+        title={`Sort / Filter (${name})`}
+        handleReset={() => {
+            setFilterValue(initFilterValue);
+            setSortingValue(initSortingValue);
+            onFilterChange(initFilterValue);
+            onSortingChange(initSortingValue);
+        }}
+        isActive={filterValue.value !== '' || sortingValue.enabled}
+    >
         {/** Options */}
         <Grid container direction="row">
             {/** First column */}

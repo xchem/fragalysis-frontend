@@ -45,7 +45,10 @@ export const useFilters = (initialItems, columns) => {
     }, [getQualityStatuses]);
 
     const filterByText = (item, name, filterSettings) => {
-        const activityDataValue = item.activityData.find(activityData => activityData.property_name === name)?.text_value || '';
+        // do not filter by default if no value is set
+        if (filterSettings.value === '') return true;
+
+        const activityDataValue = item.activityData?.find(activityData => activityData.property_name === name)?.text_value || '';
         // get values from filter and remove empty ones
         const valuesToFilter = filterSettings.value.split('\n').filter(value => value);
 
@@ -198,21 +201,22 @@ export const useFilters = (initialItems, columns) => {
         };
 
         if (filterSettings.observationCode) {
-            const observationCode = item.main_site_observation_cmpd_code || '';
+            const observationCode = item.display_name || '';
             if (filterSet(observationCode)) return true;
         }
 
-        if (filterSettings.compoundAlias) {
-            const compoundAlias = item.display_name || '';
-            if (filterSet(compoundAlias)) return true;
+        if (filterSettings.compoundCode) {
+            const compoundCode = item.main_site_observation_cmpd_code || '';
+            if (filterSet(compoundCode)) return true;
         }
 
-        if (filterSettings.compoundID) {
-            const compoundID = item.id || '';
-            if (filterSet(compoundID)) return true;
+        if (filterSettings.compoundAliases) {
+            const mainObservation = item.associatedObs.find(o => o.id === item.main_site_observation);
+            const compoundAliases = [item.main_site_observation_cmpd_code].concat(mainObservation?.identifiers?.map(o => o.name) || []);
+            if (compoundAliases.some(compoundAlias => filterSet(compoundAlias))) return true;
         }
 
-        return filterSettings.observationCode || filterSettings.compoundAlias || filterSettings.compoundID ? false : true;
+        return filterSettings.observationCode || filterSettings.compoundCode || filterSettings.compoundAliases ? false : true;
     };
 
     // filter logic for each column type
@@ -230,8 +234,8 @@ export const useFilters = (initialItems, columns) => {
     };
 
     const sortByText = (a, b, name, sortValue) => {
-        const activityDataValueA = a.activityData.find(activityData => activityData.property_name === name)?.text_value || '';
-        const activityDataValueB = b.activityData.find(activityData => activityData.property_name === name)?.text_value || '';
+        const activityDataValueA = a.activityData?.find(activityData => activityData.property_name === name)?.text_value || '';
+        const activityDataValueB = b.activityData?.find(activityData => activityData.property_name === name)?.text_value || '';
         return sortValue.order === ORDER.ASC ? activityDataValueA.localeCompare(activityDataValueB, undefined, { numeric: true, sensitivity: 'base' })
             : activityDataValueB.localeCompare(activityDataValueA, undefined, { numeric: true, sensitivity: 'base' });
     };

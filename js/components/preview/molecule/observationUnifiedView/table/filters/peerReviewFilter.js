@@ -1,4 +1,4 @@
-import React, { memo, useState } from "react";
+import React, { memo, useCallback, useState } from "react";
 import { Checkbox, FormControl, FormControlLabel, Grid, makeStyles, MenuItem, Radio, RadioGroup, Select, TextField } from "@material-ui/core"
 import { FilterWrapper } from "./filterWrapper";
 import { ORDER } from "../constants";
@@ -53,7 +53,6 @@ export const PeerReviewFilter = memo(({ onFilterChange, onSortingChange }) => {
             ...filterValue,
             [property]: value
         };
-        console.log(`Filter changed for peer review:`, value, newFilterValue);
         setFilterValue(newFilterValue);
         onFilterChange(newFilterValue);
     };
@@ -67,12 +66,22 @@ export const PeerReviewFilter = memo(({ onFilterChange, onSortingChange }) => {
         onSortingChange(newSortingValue);
     };
 
-    return <FilterWrapper title="Sort / Filter (Peer Review)" handleReset={() => {
-        setFilterValue(initFilterValue);
-        setSortingValue(initSortingValue);
-        onFilterChange(initFilterValue);
-        onSortingChange(initSortingValue);
-    }}>
+    const isFilterActive = useCallback(() => {
+        return Object.values(filterValue.mainStatus).some(status => status)
+            || Object.values(filterValue.peerReview).some(pr => pr.checked && pr.value !== '')
+            || sortingValue.enabled;
+    }, [filterValue, sortingValue]);
+
+    return <FilterWrapper
+        title="Sort / Filter (Peer Review)"
+        handleReset={() => {
+            setFilterValue(initFilterValue);
+            setSortingValue(initSortingValue);
+            onFilterChange(initFilterValue);
+            onSortingChange(initSortingValue);
+        }}
+        isActive={isFilterActive()}
+    >
         {/** Statuses */}
         <Grid container direction="row">
             {/** First column with main statuses */}

@@ -214,7 +214,9 @@ export const loadMoleculesAndTagsNew = targetId => async (dispatch, getState) =>
     let activityData = await getActityData(targetId);
     // let lhsExtraColumns = [];
     // let tempExtraColumnsMap = {};
+    // activity could be for compound or site observation
     let compoundActivityDataMap = {};
+    let siteObservationActivityDataMap = {};
     activityData?.forEach(activity => {
       if (activity?.compound && activity?.compound !== 'null') {
         if (!compoundActivityDataMap[activity.compound]) {
@@ -229,10 +231,14 @@ export const loadMoleculesAndTagsNew = targetId => async (dispatch, getState) =>
         //     unit: activity.unit
         //   };
         // }
+      } else if (activity?.site_observation && activity?.site_observation !== 'null') {
+        if (!siteObservationActivityDataMap[activity.site_observation]) {
+          siteObservationActivityDataMap[activity.site_observation] = [];
+        }
+        siteObservationActivityDataMap[activity.site_observation].push(activity);
       }
     });
     // lhsExtraColumns = Object.values(tempExtraColumnsMap);
-    console.log('lhsExtraColumns', lhsExtraColumns)
 
     // console.log(`snapshotDebug - loadMoleculesAndTagsNew - after getTags`);
     tags = tags.results;
@@ -308,14 +314,15 @@ export const loadMoleculesAndTagsNew = targetId => async (dispatch, getState) =>
         newObject['canonSiteConf'] = firstObs?.canon_site_conf;
         newObject['canonSite'] = pose.canon_site;
 
-        if (compoundActivityDataMap[pose.compound] && pose.site_observations.some(id => id === compoundActivityDataMap[pose.compound].site_observation)) {
+        if (compoundActivityDataMap[pose.compound] || pose.site_observations.some(id => siteObservationActivityDataMap[id])) {
           newObject['activityData'] = compoundActivityDataMap[pose.compound];
-        } else {
-          // TODO just for test!!
-          const tmp = Object.keys(compoundActivityDataMap);
-          const activities = compoundActivityDataMap[tmp[Math.floor((Math.random() * tmp.length))]];
-          newObject['activityData'] = activities;
         }
+        // else {
+        //   // TODO just for test!!
+        //   const tmp = Object.keys(compoundActivityDataMap);
+        //   const activities = compoundActivityDataMap[tmp[Math.floor((Math.random() * tmp.length))]];
+        //   newObject['activityData'] = activities;
+        // }
 
         const associatedObs = siteObs.sort((a, b) => {
           if (a.code < b.code) {

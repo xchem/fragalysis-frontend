@@ -187,13 +187,14 @@ export default function apiReducers(state = INITIAL_STATE, action = {}) {
 
     case constants.SET_TARGET_ON: {
       let target_on_name = undefined;
-      let target_on_aliases = [];
-      for (let ind in state.target_id_list) {
-        if (state.target_id_list[ind].id === action.target_on) {
-          target_on_name = state.target_id_list[ind].display_name;
-          target_on_aliases = state.target_id_list[ind].alias_order;
+      let target_on_aliases = ['compound_code'];
+      state.target_id_list?.forEach(target => {
+        if (target.id === action.target_on) {
+          target_on_name = target.display_name;
+          target_on_aliases = target_on_aliases.concat(target.alias_order ?? []);
         }
-      }
+      });
+
       return Object.assign({}, state, {
         target_on_name: target_on_name,
         target_on_aliases: target_on_aliases,

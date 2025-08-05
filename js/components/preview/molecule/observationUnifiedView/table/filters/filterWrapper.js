@@ -2,7 +2,7 @@ import React, { memo, useRef, useState } from "react";
 import { IconButton, Popper, Tooltip, makeStyles } from "@material-ui/core"
 import { Panel } from "../../../../../common";
 import { Close } from "@material-ui/icons";
-import { FilterAlt, RestartAlt } from "@mui/icons-material";
+import { Circle, FilterAlt, RestartAlt } from "@mui/icons-material";
 
 const useStyles = makeStyles(theme => ({
     filterButton: {
@@ -11,6 +11,14 @@ const useStyles = makeStyles(theme => ({
         // marginRight: 2,
         position: 'absolute',
         right: 3
+    },
+    filterActiveDot: {
+        padding: 0,
+        color: theme.palette.error.main,
+        // marginRight: 2,
+        position: 'absolute',
+        right: 6,
+        top: 1
     },
     filterWrapper: {
         '& *': {
@@ -22,7 +30,7 @@ const useStyles = makeStyles(theme => ({
     }
 }));
 
-export const FilterWrapper = memo(({ title, children, handleReset = null }) => {
+export const FilterWrapper = memo(({ title, children, isActive = false, handleReset = null }) => {
 
     const ref = useRef(null);
     const classes = useStyles();
@@ -51,6 +59,13 @@ export const FilterWrapper = memo(({ title, children, handleReset = null }) => {
         >
             <FilterAlt sx={{ fontSize: 20 }} />
         </IconButton>
+        {!!isActive && <IconButton
+            size="small"
+            className={classes.filterActiveDot}
+            onClick={() => handleEditTagsButton()}
+        >
+            <Circle sx={{ fontSize: 5 }} />
+        </IconButton>}
         <Popper id={id} open={showEditTagsModal} anchorEl={ref?.current} placement={"right-end"} className={classes.filterWrapper} >
             <Panel
                 title={title}

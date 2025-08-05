@@ -149,8 +149,10 @@ export const getAllDisplayedLHSCompounds = createSelector(
   getDensityList,
   getVectorOnList,
   (proteinList, complexList, fragmentDisplayList, surfaceList, densityList, vectorOnList) => {
-    let allSelectedMolecules = proteinList || [];
-    console.log('allSelectedMolecules', allSelectedMolecules);
+    let allSelectedMolecules = [];
+    if (proteinList.length > 0) {
+      allSelectedMolecules.push(...proteinList);
+    }
     if (complexList.length > 0) {
       allSelectedMolecules.push(...complexList);
     }

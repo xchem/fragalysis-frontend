@@ -4,9 +4,9 @@ import React, { memo, useMemo } from "react";
 const useStyles = makeStyles(theme => ({
     dataCell: {
         textAlign: 'center',
-        // overflow: 'hidden',
-        // whiteSpace: 'nowrap',
-        // textOverflow: 'ellipsis',
+        overflow: 'hidden',
+        whiteSpace: 'nowrap',
+        textOverflow: 'ellipsis',
         padding: 3
     }
 }));

@@ -1,4 +1,4 @@
-import React, { memo, useState } from "react";
+import React, { memo, useCallback, useState } from "react";
 import { Checkbox, FormControl, FormControlLabel, Grid, makeStyles, Radio, RadioGroup, TextField } from "@material-ui/core"
 import { FilterWrapper } from "./filterWrapper";
 import { setShowDisplayedMolecules } from "../../../../../../reducers/selection/actions";
@@ -20,8 +20,8 @@ export const ObservationFilter = memo(({ onFilterChange, onSortingChange }) => {
     const initFilterValue = {
         alwaysShowDisplayedHits: showDisplayedMolecules,
         observationCode: false,
-        compoundAlias: false,
-        compoundID: false,
+        compoundCode: false,
+        compoundAliases: false,
         value: '',
         exactMatch: false
     };
@@ -53,12 +53,22 @@ export const ObservationFilter = memo(({ onFilterChange, onSortingChange }) => {
         onSortingChange(newSortingValue);
     };
 
-    return <FilterWrapper title="Advanced Search" handleReset={() => {
-        setFilterValue(initFilterValue);
-        setSortingValue(initSortingValue);
-        onFilterChange(initFilterValue);
-        onSortingChange(initSortingValue);
-    }}>
+    const isFilterActive = useCallback(() => {
+        return ((filterValue.observationCode || filterValue.compoundCode || filterValue.compoundAliases)
+            && filterValue.value !== '')
+            || sortingValue.enabled;
+    }, [filterValue, sortingValue]);
+
+    return <FilterWrapper
+        title="Advanced Search"
+        handleReset={() => {
+            setFilterValue(initFilterValue);
+            setSortingValue(initSortingValue);
+            onFilterChange(initFilterValue);
+            onSortingChange(initSortingValue);
+        }}
+        isActive={isFilterActive()}
+    >
         {/** Options */}
         <Grid container direction="row">
             <Grid item xs><FormControlLabel control={<Checkbox checked={filterValue.alwaysShowDisplayedHits} onChange={e => { dispatch(setShowDisplayedMolecules(e.target.checked)); handleFilterChange('alwaysShowDisplayedHits', e.target.checked) }} />} label="Always show displayed hits" /></Grid>
@@ -67,13 +77,13 @@ export const ObservationFilter = memo(({ onFilterChange, onSortingChange }) => {
             <Grid item xs className="filter-header">Keyword Search</Grid>
         </Grid>
         <Grid container direction="row">
-            <Grid item xs><FormControlLabel control={<Checkbox checked={filterValue.observationCode} onChange={e => handleFilterChange('observationCode', e.target.checked)} />} label="Observation / pose shortcode" /></Grid>
+            <Grid item xs><FormControlLabel control={<Checkbox checked={filterValue.observationCode} onChange={e => handleFilterChange('observationCode', e.target.checked)} />} label="Observation code" /></Grid>
         </Grid>
         <Grid container direction="row">
-            <Grid item xs><FormControlLabel control={<Checkbox checked={filterValue.compoundAlias} onChange={e => handleFilterChange('compoundAlias', e.target.checked)} />} label="Compound aliases" /></Grid>
+            <Grid item xs><FormControlLabel control={<Checkbox checked={filterValue.compoundCode} onChange={e => handleFilterChange('compoundCode', e.target.checked)} />} label="Compound code" /></Grid>
         </Grid>
         <Grid container direction="row">
-            <Grid item xs><FormControlLabel control={<Checkbox checked={filterValue.compoundID} onChange={e => handleFilterChange('compoundID', e.target.checked)} />} label="Compound ID" /></Grid>
+            <Grid item xs><FormControlLabel control={<Checkbox checked={filterValue.compoundAliases} onChange={e => handleFilterChange('compoundAliases', e.target.checked)} />} label="Compound aliases" /></Grid>
         </Grid>
 
         <Grid container direction="row">
@@ -94,9 +104,9 @@ export const ObservationFilter = memo(({ onFilterChange, onSortingChange }) => {
                     <FormControl>
                         <RadioGroup value={sortingValue.enabled} onChange={e => handleSortingChange('enabled', Number(e.target.value))}>
                             <FormControlLabel value={0} control={<Radio />} label="None" />
-                            <FormControlLabel value={1} control={<Radio />} label="Observation / pose shortcode" />
-                            <FormControlLabel value={2} control={<Radio />} label="Compound aliases" />
-                            <FormControlLabel value={3} control={<Radio />} label="Compound ID" />
+                            <FormControlLabel value={1} control={<Radio />} label="Observation code" />
+                            <FormControlLabel value={2} control={<Radio />} label="Compound code" />
+                            <FormControlLabel value={3} control={<Radio />} label="All compound aliases" />
                         </RadioGroup>
                     </FormControl>
                 </Grid>
