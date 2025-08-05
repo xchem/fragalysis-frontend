@@ -49,6 +49,8 @@ export const INITIAL_STATE = {
   displayUntaggedMolecules: false,
   nextXMolecules: 0,
 
+  showDisplayedMolecules: true,
+
   isObservationDialogOpen: false,
   observationsForLHSCmp: [],
   poseIdForObservationsDialog: 0,
@@ -556,6 +558,10 @@ export function selectionReducers(state = INITIAL_STATE, action = {}) {
 
     case constants.SET_NEXT_X_MOLECULES:
       return { ...state, nextXMolecules: action.nextXMolecules };
+
+    case constants.SET_SHOW_DISPLAYED_MOLECULES: {
+      return { ...state, showDisplayedMolecules: action.showDisplayedMolecules };
+    }
 
     case constants.SET_ASSIGN_TAGS_VIEW:
       return { ...state, assignTagView: action.payload };

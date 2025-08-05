@@ -34,7 +34,8 @@ import {
   setDataAreDownloading,
   appendLigandData,
   setErrorOccuredDuringDownload,
-  setDataAreDownloaded
+  setDataAreDownloaded,
+  setLHSExtraColumns
 } from '../../../../reducers/api/actions';
 import { setSortDialogOpen } from '../../molecule/redux/actions';
 import { resetCurrentCompoundsSettings } from '../../compounds/redux/actions';
@@ -47,7 +48,9 @@ import {
   getCanonSites,
   getCanonConformSites,
   getPoses,
-  getCompoundIdentifiers
+  getCompoundIdentifiers,
+  getActityColumns,
+  getActityData
 } from '../api/tagsApi';
 import {
   getMoleculeTagForTag,
@@ -135,7 +138,7 @@ export const storeData = data => (dispatch, getState) => {
   dispatch(setTagSelectorData(categories, tags));
 
   let allMolecules = [];
-  data.molecules.forEach(mol => {});
+  data.molecules.forEach(mol => { });
 };
 
 /**
@@ -206,6 +209,37 @@ export const loadMoleculesAndTagsNew = targetId => async (dispatch, getState) =>
     // console.log(`snapshotDebug - loadMoleculesAndTagsNew - before getTags`);
     let tags = await getTags(targetId);
     let compoundIdentifiers = await getCompoundIdentifiers();
+
+    let lhsExtraColumns = await getActityColumns(targetId);
+    let activityData = await getActityData(targetId);
+    // let lhsExtraColumns = [];
+    // let tempExtraColumnsMap = {};
+    // activity could be for compound or site observation
+    let compoundActivityDataMap = {};
+    let siteObservationActivityDataMap = {};
+    activityData?.forEach(activity => {
+      if (activity?.compound && activity?.compound !== 'null') {
+        if (!compoundActivityDataMap[activity.compound]) {
+          compoundActivityDataMap[activity.compound] = [];
+        }
+        compoundActivityDataMap[activity.compound].push(activity);
+
+        // if (activity.parsing_error === false && !tempExtraColumnsMap[activity.property_name]) {
+        //   tempExtraColumnsMap[activity.property_name] = {
+        //     name: activity.property_name,
+        //     type: activity.data_type,
+        //     unit: activity.unit
+        //   };
+        // }
+      } else if (activity?.site_observation && activity?.site_observation !== 'null') {
+        if (!siteObservationActivityDataMap[activity.site_observation]) {
+          siteObservationActivityDataMap[activity.site_observation] = [];
+        }
+        siteObservationActivityDataMap[activity.site_observation].push(activity);
+      }
+    });
+    // lhsExtraColumns = Object.values(tempExtraColumnsMap);
+
     // console.log(`snapshotDebug - loadMoleculesAndTagsNew - after getTags`);
     tags = tags.results;
     if (tags?.length > 0) {
@@ -280,6 +314,16 @@ export const loadMoleculesAndTagsNew = targetId => async (dispatch, getState) =>
         newObject['canonSiteConf'] = firstObs?.canon_site_conf;
         newObject['canonSite'] = pose.canon_site;
 
+        if (compoundActivityDataMap[pose.compound] || pose.site_observations.some(id => siteObservationActivityDataMap[id])) {
+          newObject['activityData'] = compoundActivityDataMap[pose.compound];
+        }
+        // else {
+        //   // TODO just for test!!
+        //   const tmp = Object.keys(compoundActivityDataMap);
+        //   const activities = compoundActivityDataMap[tmp[Math.floor((Math.random() * tmp.length))]];
+        //   newObject['activityData'] = activities;
+        // }
+
         const associatedObs = siteObs.sort((a, b) => {
           if (a.code < b.code) {
             return -1;
@@ -303,6 +347,7 @@ export const loadMoleculesAndTagsNew = targetId => async (dispatch, getState) =>
         return 0;
       });
       dispatch(setLHSCompoundsLIst(modifiedPoses));
+      dispatch(setLHSExtraColumns(lhsExtraColumns));
       // console.log(`snapshotDebug - loadMoleculesAndTagsNew - end of function`);
     });
   } catch (error) {

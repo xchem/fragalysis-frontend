@@ -996,7 +996,9 @@ export const generateAndStoreMolImage = (obs, molType, width, height, RDKitModul
       maxFontSize: font,
       padding: 0.05,
       highlightAtomColors: atomcolors,
-      highlightBondColors: bondcolors
+      highlightBondColors: bondcolors,
+      // this was just a guess to make it transparent, default seems to be [r = 1.0, g = 1.0, b = 1.0, a = 1.0]
+      backgroundColour: [0, 0, 0, 0]
     };
 
     const svg = mol.get_svg_with_highlights(
@@ -1033,7 +1035,7 @@ export const loadMolImage = (molId, molType, width, height) => {
     return Promise.resolve();
   }
 
-  let onCancel = () => {};
+  let onCancel = () => { };
   return api({
     url,
     onCancel

@@ -721,6 +721,12 @@ export default memo(
                     </ListItemIcon>
                     <ListItemText primary="Metadata upload" />
                   </ListItem>
+                  <ListItem button onClick={() => openLink(URLS.assayDataUpload)}>
+                    <ListItemIcon>
+                      <Upload />
+                    </ListItemIcon>
+                    <ListItemText primary="Assay data upload" />
+                  </ListItem>
                 </>
               }
               <Divider />
