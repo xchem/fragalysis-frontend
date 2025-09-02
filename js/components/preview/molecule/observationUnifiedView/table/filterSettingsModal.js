@@ -142,7 +142,7 @@ export const FilterSettingsModal = memo(({ openModal, onModalClose }) => {
         <Grid container justifyContent="flex-start" direction="column" className={classes.root} spacing={2}>
           <Grid item container direction="column" justifyContent="space-between" alignItems="center" spacing={2}>
             <Grid item xs>
-              <Typography variant="body1">Order and visibility of columns</Typography>
+              <Typography variant="body1">Order and visibility of extra columns</Typography>
             </Grid>
             {/* <Grid item xs>
               <Typography variant="body1">Order of columns</Typography>
@@ -173,6 +173,9 @@ export const FilterSettingsModal = memo(({ openModal, onModalClose }) => {
                     </Grid>
                   )}
                 </Grid>
+              }
+              {extraColumns.length === 0 &&
+                <Typography variant="body1">no extra columns defined (no assay data uploaded)</Typography>
               }
             </Grid>
           </Grid>
