@@ -67,7 +67,8 @@ import {
   setPoseIdForObservationsDialog,
   setObservationDialogAction,
   setSearchSettingsDialogOpen,
-  setLHSIsFullyRendered
+  setLHSIsFullyRendered,
+  addToastMessage
 } from '../../../reducers/selection/actions';
 import { initializeFilter } from '../../../reducers/selection/dispatchActions';
 import * as listType from '../../../constants/listTypes';
@@ -93,6 +94,10 @@ import { ObservationsDialog } from './observationsDialog';
 import { useScrollToSelectedPose } from './useScrollToSelectedPose';
 import { SearchSettingsDialog } from './searchSettingsDialog';
 import { set } from 'lodash';
+import { use } from 'react';
+import { TOAST_LEVELS } from '../../toast/constants';
+import { FilterSettingsModal } from './observationUnifiedView/table';
+import ObservationUnifiedViewWrapper from './observationUnifiedView/observationUnifiedViewWrapper';
 
 const useStyles = makeStyles(theme => ({
   container: {
@@ -118,7 +123,8 @@ const useStyles = makeStyles(theme => ({
   },
   gridItemList: {
     overflow: 'auto',
-    height: `calc(99% - ${theme.spacing(6)}px - ${theme.spacing(2)}px)`
+    height: `calc(99% - ${theme.spacing(6)}px - ${theme.spacing(2)}px)`,
+    width: '100%'
   },
   centered: {
     display: 'flex',
@@ -292,8 +298,7 @@ export const ObservationCmpList = memo(({ hideProjects }) => {
     oldUrl.current = url;
   };
   const list_type = listType.MOLECULE;
-  const imgHeight = 49;
-  const imgWidth = 150;
+
   const sortDialogOpen = useSelector(state => state.previewReducers.molecule.sortDialogOpen);
   const filter = useSelector(state => state.selectionReducers.filter);
   const getJoinedMoleculeList = useSelector(state => selectJoinedMoleculeList(state));
@@ -316,6 +321,9 @@ export const ObservationCmpList = memo(({ hideProjects }) => {
   const molForTagEditId = useSelector(state => state.selectionReducers.molForTagEdit);
   const moleculesToEditIds = useSelector(state => state.selectionReducers.moleculesToEdit);
   const isGlobalEdit = useSelector(state => state.selectionReducers.isGlobalEdit);
+
+  const dataAreDownloaded = useSelector(state => state.apiReducers.dataAreDownloaded);
+  const errorOccuredDuringDownload = useSelector(state => state.apiReducers.errorOccuredDuringDownload);
 
   const isObservationDialogOpen = useSelector(state => state.selectionReducers.isObservationDialogOpen);
 
@@ -407,7 +415,7 @@ export const ObservationCmpList = memo(({ hideProjects }) => {
   };
 
   useEffect(() => {
-    if (!dataAreDownloading && all_mol_lists?.length > 0) {
+    if (!dataAreDownloading && dataAreDownloaded /*all_mol_lists?.length > 0*/) {
       requestAnimationFrame(() => {
         // Add another frame just to be sure rendering is done
         requestAnimationFrame(() => {
@@ -415,7 +423,18 @@ export const ObservationCmpList = memo(({ hideProjects }) => {
         });
       });
     }
-  }, [dataAreDownloading, all_mol_lists, dispatch]);
+  }, [dataAreDownloading, all_mol_lists, dispatch, dataAreDownloaded]);
+
+  useEffect(() => {
+    if (dataAreDownloaded && !errorOccuredDuringDownload && all_mol_lists?.length <= 0) {
+      dispatch(
+        addToastMessage({
+          text: `Target data downloaded but no molecules found. This is usually caused by network issues so please try again later. If the issue persists, please contact us.`,
+          level: TOAST_LEVELS.ERROR
+        })
+      );
+    }
+  }, [dataAreDownloaded, errorOccuredDuringDownload, dispatch, all_mol_lists.length]);
 
   /**
    * Get CanonSites tag for sorting
@@ -1112,9 +1131,9 @@ export const ObservationCmpList = memo(({ hideProjects }) => {
       }}
       color={'inherit'}
       // disabled={predefinedFilter !== 'none'}
-      disabled={true}
+      disabled={DJANGO_CONTEXT['username'] === 'NOT_LOGGED_IN'}
     >
-      <Tooltip title="Filter/Sort">
+      <Tooltip title="LHS settings">
         <FilterList />
       </Tooltip>
     </IconButton>
@@ -1127,16 +1146,6 @@ export const ObservationCmpList = memo(({ hideProjects }) => {
   const groupNglControlButtonsDisabledState = useDisableNglControlButtons(allSelectedMolecules);
 
   const anyControlButtonDisabled = Object.values(groupNglControlButtonsDisabledState).some(buttonState => buttonState);
-
-  const containsAtLeastOne = (list, molsList) => {
-    for (const mol in molsList) {
-      if (list.includes(mol.id)) {
-        return true;
-      }
-    }
-
-    return false;
-  };
 
   // const listItemOffset = (currentPage + 1) * moleculesPerPage + nextXMolecules;
   const listItemOffset = currentPage * moleculesPerPage + nextXMolecules;
@@ -1213,13 +1222,22 @@ export const ObservationCmpList = memo(({ hideProjects }) => {
           ref={tagEditorRef}
         />
       )}
-      {sortDialogOpen && (
+      {/* {sortDialogOpen && (
         <MoleculeListSortFilterDialog
           open={sortDialogOpen}
           anchorEl={sortDialogAnchorEl}
           filter={filter}
           setSortDialogAnchorEl={setSortDialogAnchorEl}
           joinedMoleculeLists={joinedMoleculeListsCopy}
+        />
+      )} */}
+      {sortDialogOpen && (
+        <FilterSettingsModal
+          openModal={sortDialogOpen}
+          onModalClose={() => {
+            setSortDialogAnchorEl(null);
+            dispatch(setSortDialogOpen(false));
+          }}
         />
       )}
       <div ref={filterRef}>
@@ -1237,9 +1255,8 @@ export const ObservationCmpList = memo(({ hideProjects }) => {
                     {filter.priorityOrder.map(attr => (
                       <Grid item key={`Mol-Tooltip-${attr}`}>
                         <Tooltip
-                          title={`${filter.filter[attr].minValue}-${filter.filter[attr].maxValue} ${
-                            filter.filter[attr].order === 1 ? '\u2191' : '\u2193'
-                          }`}
+                          title={`${filter.filter[attr].minValue}-${filter.filter[attr].maxValue} ${filter.filter[attr].order === 1 ? '\u2191' : '\u2193'
+                            }`}
                           placement="top"
                         >
                           <Chip size="small" label={attr} style={{ backgroundColor: getAttrDefinition(attr).color }} />
@@ -1373,9 +1390,8 @@ export const ObservationCmpList = memo(({ hideProjects }) => {
           </Tooltip>
         )}
         <Grid style={{ marginTop: '4px' }}>
-          <Typography variant="caption">{`Selected: ${
-            allSelectedMolecules ? allSelectedMolecules.length : 0
-          }`}</Typography>
+          <Typography variant="caption">{`Selected: ${allSelectedMolecules ? allSelectedMolecules.length : 0
+            }`}</Typography>
         </Grid>
         <Grid style={{ marginTop: '4px' }}>
           <Typography variant="caption" style={{ paddingLeft: 3 }}>
@@ -1463,38 +1479,21 @@ export const ObservationCmpList = memo(({ hideProjects }) => {
                 }
                 useWindow={false}
               >
-                {itemsToBeDisplayed.map((data, index, array) => {
-                  const molsForCmp = data.associatedObs;
-                  const selected = allSelectedMolecules.some(molecule =>
-                    data.associatedObs.some(obs => obs.id === molecule.id)
-                  );
-
-                  return (
-                    <ObservationCmpView
-                      ref={addMoleculeViewRef}
-                      key={data.id}
-                      imageHeight={imgHeight}
-                      imageWidth={imgWidth}
-                      data={data}
-                      index={index}
-                      setRef={setTagEditorAnchorEl}
-                      L={containsAtLeastOne(fragmentDisplayList, molsForCmp)}
-                      P={containsAtLeastOne(proteinList, molsForCmp)}
-                      C={containsAtLeastOne(complexList, molsForCmp)}
-                      S={containsAtLeastOne(surfaceList, molsForCmp)}
-                      D={containsAtLeastOne(densityList, molsForCmp)}
-                      D_C={containsAtLeastOne(densityListCustom, molsForCmp)}
-                      Q={containsAtLeastOne(qualityList, molsForCmp)}
-                      V={containsAtLeastOne(vectorOnList, molsForCmp)}
-                      I={containsAtLeastOne(informationList, molsForCmp)}
-                      selected={selected}
-                      disableL={false}
-                      disableP={false}
-                      disableC={false}
-                      observations={molsForCmp}
-                    />
-                  );
-                })}
+                <ObservationUnifiedViewWrapper
+                  items={itemsToBeDisplayed}
+                  allSelectedMolecules={allSelectedMolecules}
+                  addMoleculeViewRef={addMoleculeViewRef}
+                  handleSetTagEditorAnchorEl={setTagEditorAnchorEl}
+                  fragmentDisplayList={fragmentDisplayList}
+                  proteinList={proteinList}
+                  complexList={complexList}
+                  surfaceList={surfaceList}
+                  densityList={densityList}
+                  densityListCustom={densityListCustom}
+                  qualityList={qualityList}
+                  vectorOnList={vectorOnList}
+                  informationList={informationList}
+                />
               </InfiniteScroll>
             </Grid>
             <Grid item>

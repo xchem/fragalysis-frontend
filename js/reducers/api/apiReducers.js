@@ -54,6 +54,7 @@ export const INITIAL_STATE = {
   all_data_loaded: false,
   isSnapshot: false,
   lhs_compounds_list: [],
+  lhs_extra_columns: [],
   lhsDataIsLoading: false,
   lhsDataIsLoaded: false,
   rhsDataIsLoading: false,
@@ -64,7 +65,9 @@ export const INITIAL_STATE = {
   quality_statuses: [],
   rdkitScriptLoaded: false,
   dataAreDownloading: false,
-  ligandData: []
+  ligandData: [],
+  errorOccuredDuringDownload: false,
+  dataAreDownloaded: false
 };
 
 export const RESET_TARGET_STATE = {
@@ -108,15 +111,24 @@ export const RESET_TARGET_STATE = {
   all_data_loaded: false,
   snapshotLoadingInProgress: false,
   lhs_compounds_list: [],
+  lhs_extra_columns: [],
   compound_identifiers: [],
   quality_statuses: [],
   rdkitScriptLoaded: false,
   dataAreDownloading: false,
-  ligandData: []
+  ligandData: [],
+  errorOccuredDuringDownload: false,
+  dataAreDownloaded: false
 };
 
 export default function apiReducers(state = INITIAL_STATE, action = {}) {
   switch (action.type) {
+    case constants.SET_DATA_ARE_DOWNLOADED:
+      return { ...state, dataAreDownloaded: action.dataAreDownloaded };
+
+    case constants.SET_ERROR_OCCURED_DURING_DOWNLOAD:
+      return { ...state, errorOccuredDuringDownload: action.errorOccuredDuringDownload };
+
     case constants.APPEND_LIGAND_DATA:
       const newLigandDataList = [...state.ligandData, { obsId: action.obsId, ligandData: action.ligandData }];
       return { ...state, ligandData: newLigandDataList };
@@ -175,13 +187,14 @@ export default function apiReducers(state = INITIAL_STATE, action = {}) {
 
     case constants.SET_TARGET_ON: {
       let target_on_name = undefined;
-      let target_on_aliases = [];
-      for (let ind in state.target_id_list) {
-        if (state.target_id_list[ind].id === action.target_on) {
-          target_on_name = state.target_id_list[ind].display_name;
-          target_on_aliases = state.target_id_list[ind].alias_order;
+      let target_on_aliases = ['compound_code'];
+      state.target_id_list?.forEach(target => {
+        if (target.id === action.target_on) {
+          target_on_name = target.display_name;
+          target_on_aliases = target_on_aliases.concat(target.alias_order ?? []);
         }
-      }
+      });
+
       return Object.assign({}, state, {
         target_on_name: target_on_name,
         target_on_aliases: target_on_aliases,
@@ -256,6 +269,10 @@ export default function apiReducers(state = INITIAL_STATE, action = {}) {
 
     case constants.SET_LHS_COMPOUNDS_LIST:
       return { ...state, lhs_compounds_list: action.lhs_compounds_list };
+
+    case constants.SET_LHS_EXTRA_COLUMNS:
+      // sort columns by their order before setting them
+      return { ...state, lhs_extra_columns: action.lhs_extra_columns.sort((a, b) => a.order - b.order) };
 
     case constants.UPDATE_LHS_COMPOUND: {
       let newList = [...state.lhs_compounds_list];

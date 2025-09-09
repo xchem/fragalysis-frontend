@@ -5,12 +5,12 @@
   "description": "Frontend for fragalysis",
   "main": "webpack.config.js",
   "scripts": {
-    "start": "node server.js",
+    "start": "node --openssl-legacy-provider ./server.js",
     "test": "jest",
     "testwatch": "jest --watchAll",
-    "build": "webpack --config webpack.config.js --progress --mode production",
-    "watch": "webpack --config webpack.config.js --watch",
-    "dev": "webpack --config webpack.config.js --mode development --watch"
+    "build": "node --openssl-legacy-provider ./node_modules/webpack/bin/webpack.js --config webpack.config.js --progress --mode production",
+    "watch": "node --openssl-legacy-provider ./node_modules/webpack/bin/webpack.js --config webpack.config.js --watch",
+    "dev": "node --openssl-legacy-provider ./node_modules/webpack/bin/webpack.js --config webpack.config.js --mode development --watch"
   },
   "jest": {
     "setupFilesAfterEnv": [

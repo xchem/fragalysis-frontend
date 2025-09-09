@@ -59,6 +59,22 @@ export const getPoses = async targetId => {
   });
 };
 
+export const getActityData = async targetId => {
+  return api({ url: `${base_url}/api/activity_data/?result_upload__target=${targetId}` }).then(response => {
+    if (response?.data) {
+      return response.data?.results;
+    }
+  });
+};
+
+export const getActityColumns = async targetId => {
+  return api({ url: `${base_url}/api/assay_data_property/?target=${targetId}` }).then(response => {
+    if (response?.data) {
+      return response.data?.results;
+    }
+  });
+};
+
 export const getTagMolecules = async targetId => {
   return api({ url: `${base_url}/api/siteobservation_tag/?target=${targetId}` })
     .then(response => {
@@ -68,11 +84,9 @@ export const getTagMolecules = async targetId => {
 };
 
 export const getCompoundIdentifiers = async () => {
-  return api({ url: `${base_url}/api/compound-identifiers/` })
-    .then(response => {
-      return response.data?.results;
-    })
-    .catch(err => console.log(err));
+  return api({ url: `${base_url}/api/compound-identifiers/` }).then(response => {
+    return response.data?.results;
+  });
 };
 
 export const createNewTag = async (tag, targetName) => {

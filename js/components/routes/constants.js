@@ -12,6 +12,7 @@ export const URLS = {
   lhsUpload: '/api/upload_target_experiments/',
   rhsUpload: '/viewer/upload_cset/',
   metadataUpload: '/api/metadata_upload/',
+  assayDataUpload: '/api/assay_data_upload/',
 
   helpPage: 'https://fragalysis.readthedocs.io/en/latest/',
 
