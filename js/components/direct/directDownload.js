@@ -1,9 +1,13 @@
-import React, { memo, useEffect, useState } from 'react';
+import React, { memo, useCallback, useEffect, useState } from 'react';
 import { useRouteMatch } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { URL_TOKENS } from './constants';
 import { getTagByName } from '../preview/tags/api/tagsApi';
-import { getDownloadStructuresUrl, downloadStructuresZip } from '../snapshot/api/api';
+import {
+  getDownloadStructuresTaskOrUrl,
+  downloadStructuresZip,
+  getDownloadTaskStatusObject
+} from '../snapshot/api/api';
 import { DownloadProgress } from './downloadProgress';
 import { setDirectDownloadInProgress, setSnapshotDownloadUrl } from '../../reducers/api/actions';
 
@@ -11,6 +15,23 @@ export const DirectDownload = memo(url => {
   let match = useRouteMatch();
   const dispatch = useDispatch();
   const [downloadInProgress, setDownloadInProgress] = useState(false);
+
+  const handleTask = useCallback(
+    async taskUrl => {
+      const taskStatusResponse = await getDownloadTaskStatusObject(taskUrl);
+      if (taskStatusResponse && taskStatusResponse.data) {
+        const taskStatus = taskStatusResponse.data;
+        if (taskStatus?.finished) {
+          const fileUrl = taskStatus.messages;
+          downloadStructuresZip(fileUrl);
+          dispatch(setDirectDownloadInProgress(false));
+        } else {
+          setTimeout(() => handleTask(taskUrl), 2000);
+        }
+      }
+    },
+    [dispatch]
+  );
 
   useEffect(() => {
     if (!downloadInProgress) {
@@ -29,19 +50,23 @@ export const DirectDownload = memo(url => {
                   const requestObject = tag.additional_info.requestObject;
                   const snapshotUrl = tag.additional_info.snapshot.relativeUrl;
                   dispatch(setSnapshotDownloadUrl(snapshotUrl));
-                  return getDownloadStructuresUrl(requestObject);
+                  return getDownloadStructuresTaskOrUrl(requestObject);
                 }
               })
-              .then(resp => {
-                const url = resp.data.file_url;
-                downloadStructuresZip(url);
-                dispatch(setDirectDownloadInProgress(false));
+              .then(async resp => {
+                if (resp?.data?.file_url) {
+                  const url = resp.data.file_url;
+                  downloadStructuresZip(url);
+                  dispatch(setDirectDownloadInProgress(false));
+                } else if (resp?.data?.task_status_url) {
+                  /*await */ handleTask(resp.data.task_status_url);
+                }
               });
           }
         }
       }
     }
-  }, [dispatch, downloadInProgress, match.params]);
+  }, [dispatch, downloadInProgress, handleTask, match.params]);
 
   return <DownloadProgress />;
 });
