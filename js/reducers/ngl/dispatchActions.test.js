@@ -1,7 +1,6 @@
 import configureStore from 'redux-mock-store';
 import thunk from 'redux-thunk';
 import {
-  decrementCountOfRemainingMoleculeGroupsWithSavingDefaultState,
   deleteObject,
   loadObject,
   reloadNglViewFromSnapshot,
@@ -125,7 +124,6 @@ describe("testing ngl reducer's async actions", () => {
     });
 
     const decrementedCount = store.getState().nglReducers.countOfRemainingMoleculeGroups - 1;
-    store.dispatch(decrementCountOfRemainingMoleculeGroupsWithSavingDefaultState());
 
     expect(await getAction(store, saveCurrentStateAsDefaultScene)).toBeNull();
     expect(await getAction(store, decrementCountOfRemainingMoleculeGroups)).toStrictEqual({
@@ -144,7 +142,6 @@ describe("testing ngl reducer's async actions", () => {
     });
 
     const decrementedCount = store.getState().nglReducers.countOfRemainingMoleculeGroups - 1;
-    store.dispatch(decrementCountOfRemainingMoleculeGroupsWithSavingDefaultState());
     expect(await getAction(store, saveCurrentStateAsDefaultScene)).not.toBeNull();
     expect(await getAction(store, decrementCountOfRemainingMoleculeGroups)).toStrictEqual({
       type: CONSTANTS.DECREMENT_COUNT_OF_REMAINING_MOLECULE_GROUPS,

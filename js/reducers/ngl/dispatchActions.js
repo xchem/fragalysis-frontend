@@ -37,7 +37,6 @@ import {
   removeFromDensityListType
 } from '../selection/actions';
 import { nglObjectDictionary } from '../../components/nglView/renderingObjects';
-import { createInitialSnapshot } from '../../components/snapshot/redux/dispatchActions';
 import { VIEWS } from '../../constants/constants';
 import { NGL_PARAMS } from '../../components/nglView/constants/index';
 import { getRandomColor } from '../../components/preview/molecule/utils/color';
@@ -171,19 +170,6 @@ export const checkRemoveFromDensityList = (target, objectsInView) => () => {
 
   let canRemove = !existOtherMap;
   return canRemove;
-};
-
-export const decrementCountOfRemainingMoleculeGroupsWithSavingDefaultState = (projectId, summaryView) => (
-  dispatch,
-  getState
-) => {
-  const state = getState();
-  const decrementedCount = state.nglReducers.countOfRemainingMoleculeGroups - 1;
-  // decide to create INIT snapshot
-  if (decrementedCount === 0 && state.nglReducers.proteinsHasLoaded === true) {
-    dispatch(createInitialSnapshot(projectId, summaryView));
-  }
-  dispatch(decrementCountOfRemainingMoleculeGroups(decrementedCount));
 };
 
 export const setOrientation = (div_id, orientation) => (dispatch, getState) => {

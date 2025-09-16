@@ -21,6 +21,11 @@ export const setListOfSnapshots = list => ({
   payload: list
 });
 
+export const appendToListOfSnapshots = snapshot => ({
+  type: constants.APPEND_TO_LIST_OF_SNAPSHOTS,
+  payload: snapshot
+});
+
 export const setIsLoadingListOfSnapshots = isLoading => ({
   type: constants.SET_IS_LOADING_LIST_OF_SNAPSHOTS,
   payload: isLoading
@@ -74,4 +79,14 @@ export const setSnapshotEditDialogOpen = isOpen => ({
 export const setSnapshotToBeEdited = snapshot => ({
   type: constants.SET_SNAPSHOT_TO_BE_EDITED,
   payload: snapshot
+});
+
+export const appendToSnapshotsCreatedThisSession = snapshotId => ({
+  type: constants.APPEND_TO_SNAPSHOTS_CREATED_THIS_SESSION,
+  payload: snapshotId
+});
+
+export const setSnapshotIsSaving = isSaving => ({
+  type: constants.SET_SNAPSHOT_IS_SAVING,
+  payload: isSaving
 });

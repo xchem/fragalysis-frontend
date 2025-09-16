@@ -30,7 +30,6 @@ export const CustomDatasetList = memo(({ dataset, hideProjects, isActive }) => {
       style={{ paddingTop: '10px' }}
       title={title}
       url={dataset && dataset.url}
-      hideProjects={hideProjects}
       datasetID={dataset && dataset.id}
     />
   );

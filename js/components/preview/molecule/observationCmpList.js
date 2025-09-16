@@ -275,7 +275,7 @@ const useStyles = makeStyles(theme => ({
 }));
 let selectedDisplayHits = false;
 
-export const ObservationCmpList = memo(({ hideProjects }) => {
+export const ObservationCmpList = memo(({}) => {
   const classes = useStyles();
   const dispatch = useDispatch();
   let match = useRouteMatch();
@@ -686,7 +686,6 @@ export const ObservationCmpList = memo(({ hideProjects }) => {
       if (
         majorViewStage &&
         all_mol_lists &&
-        hideProjects &&
         target !== undefined &&
         !areLSHCompoundsInitialized &&
         tags &&
@@ -709,7 +708,6 @@ export const ObservationCmpList = memo(({ hideProjects }) => {
     lhsCompoundsList,
     majorViewStage,
     dispatch,
-    hideProjects,
     target,
     proteinsHasLoaded,
     joinedMoleculeLists,

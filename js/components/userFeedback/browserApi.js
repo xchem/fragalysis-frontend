@@ -1,5 +1,5 @@
 import { setImageSource, setIsOpenForm } from './redux/actions';
-import html2canvas from 'html2canvas';
+import domtoimage from 'dom-to-image-more';
 /* Getting image from screen capture or  */
 
 // https://stackoverflow.com/questions/9847580/how-to-detect-safari-chrome-ie-firefox-and-opera-browser
@@ -82,8 +82,38 @@ export const captureScreen = () => async dispatch => {
   dispatch(setIsOpenForm(true));
 };
 
-export const captureScreenOfSnapshot = () => async dispatch => {
-  // html2canvas(document.body).then(canvas => {
-  //   // dispatch(setTrackingImageSource(canvas.toDataURL()));
-  // });
+export const captureScreenOfSnapshotNglScreen = () => async dispatch => {
+  const view = document.getElementById('major_view');
+  if (view !== null) {
+    const dataUrl = await domtoimage.toPng(view);
+    return dataUrl;
+  }
+  return null;
+};
+
+export const captureScreenOfSnapshotFullScreen = () => async dispatch => {
+  const dataUrl = await domtoimage.toPng(document.body);
+  return dataUrl;
+};
+
+export const rescaleImage = async (image, width, height) => {
+  // Create an image from the data URL
+  const img = new Image();
+  img.src = image;
+
+  // Wait for image to load
+  await new Promise(resolve => {
+    img.onload = resolve;
+  });
+
+  // Now draw it onto a 1280x720 canvas
+  const canvas = document.createElement('canvas');
+  canvas.width = width;
+  canvas.height = height;
+
+  const ctx = canvas.getContext('2d');
+  ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+
+  // Return the resized screenshot as a data URL
+  return canvas.toDataURL('image/png');
 };
