@@ -55,7 +55,7 @@ services:
       start_period: 10s
   web:
     container_name: web_dock
-    image: xchem/fragalysis-stack:latest
+    # image: xchem/fragalysis-stack:latest
     # image: xchem/fragalysis-backend:m2ms-1649-refresh-fix
     # image: boriskovarm2ms/fragalysis-stack:experiment2
     # image: kaliif/fragalysis-backend:download-task
