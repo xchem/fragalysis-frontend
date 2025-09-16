@@ -1,10 +1,6 @@
 import { generateSphere } from '../../molecule/molecules_helpers';
 import { VIEWS } from '../../../../constants/constants';
-import {
-  decrementCountOfRemainingMoleculeGroupsWithSavingDefaultState,
-  deleteObject,
-  loadObject
-} from '../../../../reducers/ngl/dispatchActions';
+import { deleteObject, loadObject } from '../../../../reducers/ngl/dispatchActions';
 import {
   resetSelectionState,
   setComplexList,
@@ -35,7 +31,7 @@ export const saveMoleculeGroupsToNglView = (molGroupList, stage, projectId) => d
     molGroupList.map(data =>
       dispatch(
         loadObject({ target: Object.assign({ display_div: VIEWS.SUMMARY_VIEW }, generateSphere(data)), stage })
-      ).then(() => dispatch(decrementCountOfRemainingMoleculeGroupsWithSavingDefaultState(projectId, stage)))
+      ).then(() => {})
     );
   }
 };

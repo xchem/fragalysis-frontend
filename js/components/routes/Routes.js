@@ -11,8 +11,6 @@ import { withLoadingTargetList } from '../target/withLoadingTargetIdList';
 import { BrowserCheck } from '../errorHandling/browserCheck';
 import { URLS } from './constants';
 import { HeaderContext } from '../header/headerContext';
-import { Projects } from '../projects';
-import { ProjectDetailSessionList } from '../projects/projectDetailSessionList';
 import { SessionRedirect } from '../snapshot/sessionRedirect';
 import { DirectDisplay } from '../direct/directDisplay';
 import { setSnapshotJustSaved } from '../snapshot/redux/actions';
@@ -40,7 +38,7 @@ const Routes = memo(() => {
   const { headerHeight, setHeaderHeight } = useContext(HeaderContext);
   const contentHeight = `calc(100vh - ${headerHeight}px - ${2 * theme.spacing(1)}px)`;
   const contentWidth = `100%`;
-  const isFunders = useRouteMatch(URLS.funders)
+  const isFunders = useRouteMatch(URLS.funders);
 
   const dispatch = useDispatch();
   const location = useLocation();
@@ -56,12 +54,6 @@ const Routes = memo(() => {
       <Header headerHeight={headerHeight} setHeaderHeight={setHeaderHeight} isFundersLink={!!isFunders?.isExact} />
       <Box className={classes.content} minHeight={contentHeight} width={contentWidth}>
         <Switch>
-          <Route exact path={URLS.projects}>
-            <Projects />
-          </Route>
-          <Route exact path={`${URLS.projects}:projectId/history`}>
-            <ProjectDetailSessionList />
-          </Route>
           <Route exact path={`${URLS.projects}:projectId`}>
             <ProjectPreview />
           </Route>
@@ -100,7 +92,7 @@ const Routes = memo(() => {
         </Switch>
       </Box>
       <BrowserCheck />
-    </Box >
+    </Box>
   );
 });
 

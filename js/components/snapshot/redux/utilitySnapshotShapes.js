@@ -17,7 +17,8 @@ export const SNAPSHOT_VALUES_TO_BE_DELETED = {
     proteinIsLoaded: false,
     compound_identifiers: [],
     quality_statuses: [],
-    ligandData: []
+    ligandData: [],
+    dataAreDownloaded: false
   },
   nglReducers: {
     objectsInView: {},
@@ -40,7 +41,9 @@ export const SNAPSHOT_VALUES_TO_BE_DELETED = {
   },
   snapshotReducers: {
     openSavingDialog: false,
-    isSnapshotDirty: false
+    isSnapshotDirty: false,
+    listOfSnapshots: null,
+    snapshotsCreatedThisSession: []
   },
   previewReducers: {
     molecule: {
@@ -74,7 +77,8 @@ export const SNAPSHOT_VALUES_NOT_TO_BE_DELETED_SWITCHING_TARGETS = {
     categoryList: [],
     lhs_compounds_list: [],
     compound_identifiers: [],
-    ligandData: []
+    ligandData: [],
+    dataAreDownloaded: false
   },
   datasetsReducers: {
     datasets: [],
@@ -87,5 +91,9 @@ export const SNAPSHOT_VALUES_NOT_TO_BE_DELETED_SWITCHING_TARGETS = {
     currentSnapshotList: [],
     currentSnapshotTree: {},
     currentProject: {}
+  },
+  snapshotReducers: {
+    listOfSnapshots: [],
+    snapshotsCreatedThisSession: []
   }
 };

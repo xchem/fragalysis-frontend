@@ -4,7 +4,6 @@ import { loadObject, setOrientation } from '../../../reducers/ngl/dispatchAction
 import { reloadSummaryReducer } from '../summary/redux/actions';
 import { reloadCompoundsReducer, resetCurrentCompoundsSettings } from '../compounds/redux/actions';
 import { removeAllNglComponents, setProteinLoadingState } from '../../../reducers/ngl/actions';
-import { createInitialSnapshot } from '../../snapshot/redux/dispatchActions';
 import { resetLoadedSnapshots, resetProjectsReducer } from '../../projects/redux/actions';
 import { resetSelectionState } from '../../../reducers/selection/actions';
 import { URLS } from '../../routes/constants';
@@ -82,10 +81,6 @@ export const shouldLoadProtein = ({
         dispatch(setProteinLoadingState(true));
         dispatch(setProteinIsLoading(false));
         dispatch(setProteinIsLoaded(true));
-        if (getState().nglReducers.countOfRemainingMoleculeGroups === 0) {
-          const summaryView = nglViewList.find(view => view.id === VIEWS.SUMMARY_VIEW);
-          dispatch(createInitialSnapshot(routeProjectID, summaryView));
-        }
       })
       .catch(error => {
         dispatch(setProteinLoadingState(false));

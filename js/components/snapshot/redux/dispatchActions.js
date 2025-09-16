@@ -11,22 +11,20 @@ import {
 } from '../../../reducers/selection/actions';
 import { api, METHOD } from '../../../utils/api';
 import {
+  appendToListOfSnapshots,
+  appendToSnapshotsCreatedThisSession,
   setDisableRedirect,
   setIsLoadingListOfSnapshots,
   setIsLoadingSnapshotDialog,
   setListOfSnapshots,
   setOpenSnapshotSavingDialog,
   setSharedSnapshot,
+  setSnapshotIsSaving,
   setSnapshotJustSaved
 } from './actions';
 import { setDialogCurrentStep } from '../../snapshot/redux/actions';
 import { DJANGO_CONTEXT } from '../../../utils/djangoContext';
-import {
-  assignSnapshotToProject,
-  createProjectFromSnapshotDialog,
-  createProjectWithoutStateModification,
-  loadSnapshotTree
-} from '../../projects/redux/dispatchActions';
+import { createProjectWithoutStateModification } from '../../projects/redux/dispatchActions';
 import { reloadPreviewReducer } from '../../preview/redux/dispatchActions';
 import { ProjectCreationType, SnapshotType } from '../../projects/redux/constants';
 import moment from 'moment';
@@ -38,12 +36,7 @@ import {
 } from '../../../reducers/ngl/actions';
 import { reloadNglViewFromSnapshot } from '../../../reducers/ngl/dispatchActions';
 import { base_url, URLS } from '../../routes/constants';
-import {
-  resetCurrentSnapshot,
-  setCurrentSnapshot,
-  setForceCreateProject,
-  setForceProjectCreated
-} from '../../projects/redux/actions';
+import { resetCurrentSnapshot, setCurrentSnapshot } from '../../projects/redux/actions';
 import { selectFirstMolGroup } from '../../preview/moleculeGroups/redux/dispatchActions';
 import {
   reloadDatasetsReducer,
@@ -51,7 +44,11 @@ import {
   setToBeDisplayedLists,
   updateInToBeDisplayedListForDataset
 } from '../../datasets/redux/actions';
-import { captureScreenOfSnapshot } from '../../userFeedback/browserApi';
+import {
+  captureScreenOfSnapshotFullScreen,
+  captureScreenOfSnapshotNglScreen,
+  rescaleImage
+} from '../../userFeedback/browserApi';
 import { setCurrentProject } from '../../projects/redux/actions';
 import { createProjectPost } from '../../../utils/discourse';
 import {
@@ -69,25 +66,8 @@ import {
 import { setEntireState } from '../../../reducers/actions';
 import { VIEWS } from '../../../constants/constants';
 import { fr } from 'date-fns/locale';
+import { DEFAULT_SCREENSHOT_RESOLUTION, SCREENSHOT_TYPE } from '../constants';
 // import { display } from 'html2canvas/dist/types/css/property-descriptors/display';
-
-export const getListOfSnapshots = () => (dispatch, getState) => {
-  const userID = DJANGO_CONTEXT['pk'] || null;
-  if (userID !== null) {
-    dispatch(setIsLoadingListOfSnapshots(true));
-    return api({ url: `${base_url}/api/snapshots/?session_project__isnull=False&author=${userID}` })
-      .then(response => {
-        if (response && response.data && response.data.results) {
-          dispatch(setListOfSnapshots(response.data.results));
-        }
-      })
-      .finally(() => {
-        dispatch(setIsLoadingListOfSnapshots(false));
-      });
-  } else {
-    return Promise.resolve();
-  }
-};
 
 export const reloadSession = (snapshotData, nglViewList) => (dispatch, getState) => {
   const state = getState();
@@ -113,115 +93,7 @@ export const reloadSession = (snapshotData, nglViewList) => (dispatch, getState)
   dispatch(setProteinLoadingState(true));
 };
 
-export const saveCurrentSnapshot = ({
-  type,
-  title,
-  author,
-  description,
-  data,
-  created,
-  parent,
-  children,
-  session_project = null
-}) => (dispatch, getState) => {
-  dispatch(resetCurrentSnapshot());
-  return api({
-    url: `${base_url}/api/snapshots/`,
-    data: { type, title, author, description, created, parent, data: '[]', children, session_project },
-    method: METHOD.POST
-  })
-    .then(response =>
-      dispatch(
-        setCurrentSnapshot({
-          id: response.data.id,
-          type,
-          title,
-          author,
-          description,
-          created,
-          parent,
-          children: response.data.children,
-          data
-        })
-      )
-    )
-
-    .catch(error => {
-      throw new Error(error);
-    })
-    .finally(() => {
-      dispatch(getListOfSnapshots());
-    });
-};
-
-export const createInitialSnapshot = (projectID, summaryView) => async (dispatch, getState) => {
-  const { apiReducers, nglReducers, selectionReducers, previewReducers, datasetsReducers } = getState();
-  const data = { apiReducers, nglReducers, selectionReducers, previewReducers, datasetsReducers };
-  const type = SnapshotType.INIT;
-  const title = 'Initial Snapshot';
-  const author = DJANGO_CONTEXT.pk || null;
-  const description = 'Auto generated initial snapshot';
-  const parent = null;
-  const children = [];
-  const created = moment();
-
-  // store initial snapshot to BE
-  if (projectID) {
-    await dispatch(saveCurrentSnapshot({ type, title, author, description, data, created, parent, children }));
-
-    await dispatch(assignSnapshotToProject({ projectID, snapshotID: getState().projectReducers.currentSnapshot.id }));
-    dispatch(loadSnapshotTree(projectID)).catch(error => {
-      throw new Error(error);
-    });
-  }
-  // store initial snapshot only to redux state
-  else {
-    await dispatch(
-      setCurrentSnapshot({
-        id: null,
-        type,
-        title,
-        author,
-        description,
-        created,
-        parent,
-        children,
-        data
-      })
-    );
-    dispatch(selectFirstMolGroup({ summaryView }));
-  }
-};
-
-export const createInitSnapshotFromCopy = ({
-  title,
-  author,
-  description,
-  data,
-  created,
-  parent,
-  children,
-  session_project
-}) => (dispatch, getState) => {
-  if (session_project) {
-    return dispatch(
-      saveCurrentSnapshot({
-        type: SnapshotType.INIT,
-        title,
-        author,
-        description,
-        data,
-        created,
-        parent,
-        children,
-        session_project
-      })
-    );
-  }
-  return Promise.reject('ProjectID is missing');
-};
-
-const getAdditionalInfo = (state, snapshotState = null) => {
+const getAdditionalInfo = state => {
   const allMolecules = state.apiReducers.all_mol_lists;
   const { moleculesToEdit, fragmentDisplayList } = state.selectionReducers;
   const currentSnapshotSelectedCompounds = allMolecules
@@ -249,8 +121,7 @@ const getAdditionalInfo = (state, snapshotState = null) => {
     currentSnapshotSelectedCompounds,
     currentSnapshotVisibleCompounds,
     currentSnapshotSelectedDatasetsCompounds,
-    currentSnapshotVisibleDatasetsCompounds,
-    snapshotState
+    currentSnapshotVisibleDatasetsCompounds
   };
 };
 
@@ -315,7 +186,6 @@ export const createNewSnapshot = ({
       if (response.data.count === 0) {
         newType = SnapshotType.INIT;
         // Without this, the snapshot tree wouldnt work
-        dispatch(setForceProjectCreated(false));
         //if it's INIT snapshot than it's a root snapshot of a project so parent MUST be null
         parent = null;
       }
@@ -375,7 +245,6 @@ export const createNewSnapshot = ({
 
                       if (createdSnapshot !== undefined && createdSnapshot !== null) {
                         // If the tree fails to load, bail out first without modifying the store
-                        await dispatch(loadSnapshotTree(projectResponse.data.id));
                         await dispatch(
                           setCurrentSnapshot({
                             id: createdSnapshot.id,
@@ -446,41 +315,6 @@ export const createSnapshotDiscoursePost = (snapshotId = undefined) => (dispatch
   return createProjectPost(currentProject.title, targetName, msg, []);
 };
 
-export const activateSnapshotDialog = (loggedInUserID = undefined, finallyShareSnapshot = false) => (
-  dispatch,
-  getState
-) => {
-  const state = getState();
-  const targetId = state.apiReducers.target_on;
-  const sessionProjectID = state.projectReducers.currentProject.projectID;
-  const currentSnapshotAuthor = state.projectReducers.currentSnapshot.author;
-  const currentProject = state.targetReducers.currentProject;
-
-  dispatch(captureScreenOfSnapshot());
-  dispatch(setDisableRedirect(finallyShareSnapshot));
-
-  if (!loggedInUserID && targetId) {
-    const data = {
-      title: ProjectCreationType.READ_ONLY,
-      description: ProjectCreationType.READ_ONLY,
-      target: targetId,
-      author: null,
-      tags: '[]',
-      project: currentProject.id
-    };
-    dispatch(createProjectFromSnapshotDialog(data)).catch(error => {
-      throw new Error(error);
-    });
-  } else if (
-    finallyShareSnapshot === true &&
-    loggedInUserID &&
-    sessionProjectID !== null &&
-    currentSnapshotAuthor === null
-  ) {
-    dispatch(setForceCreateProject(true));
-  }
-};
-
 export const createNewSnapshotWithoutStateModification = ({
   title,
   description,
@@ -490,7 +324,13 @@ export const createNewSnapshotWithoutStateModification = ({
   session_project,
   nglViewList,
   axuData = {},
-  additional_info
+  additional_info,
+  state,
+  imageFullScreen = null,
+  imageNgl = null,
+  overwriteSnapshot = false,
+  snapshotIdToOverwrite = 0,
+  oldImages = []
 }) => (dispatch, getState) => {
   if (!session_project) {
     return Promise.reject('Project ID is missing!');
@@ -516,10 +356,32 @@ export const createNewSnapshotWithoutStateModification = ({
     };
     const dataString = JSON.stringify(dataToSend);
 
+    let method = METHOD.POST;
+    if (overwriteSnapshot) {
+      method = METHOD.PUT;
+    }
+
+    let snapshotIdSlug = '';
+    if (overwriteSnapshot) {
+      snapshotIdSlug = `${snapshotIdToOverwrite}/`;
+    }
+
+    let fullscreenImageSlug = '';
+    if (overwriteSnapshot && oldImages.length > 0) {
+      const firstImage = oldImages.filter(image => image.screenshot_type === SCREENSHOT_TYPE.FULL_SCREEN);
+      fullscreenImageSlug = firstImage.length > 0 ? `${firstImage[0].id}/` : '';
+    }
+
+    let nglViewImageSlug = '';
+    if (overwriteSnapshot && oldImages.length > 1) {
+      const secondImage = oldImages.filter(image => image.screenshot_type === SCREENSHOT_TYPE.NGL_SCREEN);
+      nglViewImageSlug = secondImage.length > 0 ? `${secondImage[0].id}/` : '';
+    }
+
     return api({
-      url: `${base_url}/api/snapshots/`,
+      url: `${base_url}/api/snapshots/${snapshotIdSlug}`,
       data: dataString,
-      method: METHOD.POST
+      method
     }).then(res => {
       if (res.data.id && session_project) {
         dispatch(
@@ -531,88 +393,137 @@ export const createNewSnapshotWithoutStateModification = ({
             disableRedirect: true
           })
         );
+        if (imageFullScreen && imageNgl) {
+          const fullScreenImageData = {
+            screenshot: imageFullScreen,
+            screenshot_type: SCREENSHOT_TYPE.FULL_SCREEN,
+            snapshot: res.data.id
+          };
+          const imageNglData = {
+            screenshot: imageNgl,
+            screenshot_type: SCREENSHOT_TYPE.NGL_SCREEN,
+            snapshot: res.data.id
+          };
+          return Promise.all([
+            api({
+              url: `${base_url}/api/snapshot_screenshots/${fullscreenImageSlug}`,
+              data: fullScreenImageData,
+              method
+            }),
+            api({
+              url: `${base_url}/api/snapshot_screenshots/${nglViewImageSlug}`,
+              data: imageNglData,
+              method
+            }),
+            api({
+              url: `${base_url}/api/snapshot_state/${res.data.id}/`,
+              data: { state: state },
+              method: METHOD.PUT
+            })
+          ]).then(() => {
+            return api({ url: `${base_url}/api/snapshots/${res.data.id}/` }).then(snapshot => {
+              if (!overwriteSnapshot) {
+                dispatch(appendToSnapshotsCreatedThisSession(res.data.id));
+                dispatch(appendToListOfSnapshots(snapshot.data));
+              }
+              dispatch(setSnapshotIsSaving(false));
+            });
+          });
+        }
       }
     });
   });
 };
 
-export const saveAndShareSnapshot = (nglViewList, showDialog = true, axuData = {}) => async (dispatch, getState) => {
+export const saveAndShareSnapshot = (
+  nglViewList,
+  showDialog = true,
+  axuData = {},
+  overwriteSnapshot = false,
+  snapshotIdToOverwrite = 0,
+  oldImages = [],
+  sessionProjectId = 0
+) => async (dispatch, getState) => {
+  dispatch(setSnapshotIsSaving(true));
   const snapshotData = dispatch(getCleanStateForSnapshot());
+  snapshotData.snapshotReducers.isSnapshotSaving = false;
   const state = getState();
   const targetId = state.apiReducers.target_on;
   const loggedInUserID = DJANGO_CONTEXT['pk'];
   const currentProject = state.targetReducers.currentProject;
-  const currentSessionProject = state.projectReducers.currentProject;
 
   dispatch(setDisableRedirect(true));
 
   if (targetId) {
-    if (loggedInUserID && currentSessionProject && currentSessionProject.projectID) {
-      //if user is logged in and is working on a project the current snapshot is shared
-      const currentSnapshot = state.projectReducers.currentSnapshot;
+    let imageFullscreen = await dispatch(captureScreenOfSnapshotFullScreen());
+    imageFullscreen = await rescaleImage(
+      imageFullscreen,
+      DEFAULT_SCREENSHOT_RESOLUTION.width,
+      DEFAULT_SCREENSHOT_RESOLUTION.height
+    );
+    let imageNgl = await dispatch(captureScreenOfSnapshotNglScreen());
+    imageNgl = await rescaleImage(imageNgl, DEFAULT_SCREENSHOT_RESOLUTION.width, DEFAULT_SCREENSHOT_RESOLUTION.height);
+    if (showDialog) {
+      dispatch(setIsLoadingSnapshotDialog(true));
+    }
 
-      dispatch(
-        setSharedSnapshot({
-          title: currentSnapshot.title,
-          description: currentSnapshot.description,
-          url: `${base_url}${URLS.projects}${currentSessionProject.projectID}/${currentSnapshot.id}`,
-          disableRedirect: true
+    const additional_info = getAdditionalInfo(state);
+
+    let data = {
+      title: ProjectCreationType.READ_ONLY,
+      description: ProjectCreationType.READ_ONLY,
+      target: targetId,
+      author: loggedInUserID || null,
+      tags: '[]',
+      additional_info: {},
+      project: currentProject?.id
+    };
+
+    try {
+      let projectID = sessionProjectId;
+      if (!overwriteSnapshot || !projectID) {
+        projectID = await dispatch(createProjectWithoutStateModification(data));
+      }
+      const username = DJANGO_CONTEXT['username'];
+      const title = moment().format('-- YYYY-MM-DD -- HH:mm:ss');
+      const description =
+        loggedInUserID === undefined ? 'Snapshot generated by anonymous user' : `snapshot generated by ${username}`;
+      const type = SnapshotType.MANUAL;
+      const author = loggedInUserID || null;
+      const parent = null;
+      const session_project = projectID;
+
+      await dispatch(
+        createNewSnapshotWithoutStateModification({
+          title,
+          description,
+          type,
+          author,
+          parent,
+          session_project,
+          nglViewList,
+          axuData,
+          additional_info,
+          state: snapshotData,
+          imageFullScreen: imageFullscreen,
+          imageNgl: imageNgl,
+          overwriteSnapshot: overwriteSnapshot,
+          snapshotIdToOverwrite: snapshotIdToOverwrite,
+          oldImages: oldImages
         })
       );
-    } else {
-      //user is not logged in and/or is not working on a project so a new snapshot is created and shared
-      dispatch(captureScreenOfSnapshot());
+
       if (showDialog) {
-        dispatch(setIsLoadingSnapshotDialog(true));
+        dispatch(setIsLoadingSnapshotDialog(false));
       }
-
-      const additional_info = getAdditionalInfo(state, snapshotData);
-
-      let data = {
-        title: ProjectCreationType.READ_ONLY,
-        description: ProjectCreationType.READ_ONLY,
-        target: targetId,
-        author: loggedInUserID || null,
-        tags: '[]',
-        additional_info: {},
-        project: currentProject?.id
-      };
-
-      try {
-        let projectID = await dispatch(createProjectWithoutStateModification(data));
-        const username = DJANGO_CONTEXT['username'];
-        const title = moment().format('-- YYYY-MM-DD -- HH:mm:ss');
-        const description =
-          loggedInUserID === undefined ? 'Snapshot generated by anonymous user' : `snapshot generated by ${username}`;
-        const type = SnapshotType.MANUAL;
-        const author = loggedInUserID || null;
-        const parent = null;
-        const session_project = projectID;
-
-        await dispatch(
-          createNewSnapshotWithoutStateModification({
-            title,
-            description,
-            type,
-            author,
-            parent,
-            session_project,
-            nglViewList,
-            axuData,
-            additional_info
-          })
-        );
-
-        if (showDialog) {
-          dispatch(setIsLoadingSnapshotDialog(false));
-        }
-      } catch (error) {
-        if (showDialog) {
-          dispatch(setIsLoadingSnapshotDialog(false));
-        }
-        throw new Error(error);
+    } catch (error) {
+      dispatch(setSnapshotIsSaving(false));
+      if (showDialog) {
+        dispatch(setIsLoadingSnapshotDialog(false));
       }
+      throw new Error(error);
     }
+    // }
   }
 };
 
@@ -664,7 +575,14 @@ export const changeSnapshot = (projectID, snapshotID, stage, fromJobExec = false
   // Load the needed data
   const snapshotResponse = await api({ url: `${base_url}/api/snapshots/${snapshotID}` });
 
-  const snapshotState = snapshotResponse.data.additional_info.snapshotState;
+  const snapshotStateResponse = await api({ url: `${base_url}/api/snapshot_state/${snapshotID}/` });
+  let snapshotState = snapshotStateResponse.data.state;
+
+  if (!snapshotState) {
+    snapshotState = snapshotResponse.data.additional_info.snapshotState;
+  }
+
+  // const snapshotState = snapshotResponse.data.additional_info.snapshotState;
 
   if (!fromJobExec) {
     //orientation animation

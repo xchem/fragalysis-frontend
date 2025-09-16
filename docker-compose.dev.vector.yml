@@ -59,6 +59,7 @@ services:
     # image: xchem/fragalysis-backend:m2ms-1649-refresh-fix
     # image: boriskovarm2ms/fragalysis-stack:experiment2
     # image: kaliif/fragalysis-backend:download-task
+    # image: kaliif/fragalysis-backend:screenshots
     command: /bin/bash /code/launch-stack.sh
     volumes:
       - ../data/logs:/code/logs/
