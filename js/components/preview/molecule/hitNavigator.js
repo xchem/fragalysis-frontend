@@ -4,8 +4,8 @@
 import React, { memo } from 'react';
 import { ObservationCmpList } from './observationCmpList';
 
-const HitNavigator = memo(({ hideProjects }) => {
-  return <ObservationCmpList hideProjects={hideProjects} />;
+const HitNavigator = memo(({}) => {
+  return <ObservationCmpList />;
 });
 
 export default HitNavigator;

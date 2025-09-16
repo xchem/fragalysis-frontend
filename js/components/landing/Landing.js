@@ -8,7 +8,6 @@ import { connect, useDispatch, useSelector } from 'react-redux';
 import * as apiActions from '../../reducers/api/actions';
 import * as selectionActions from '../../reducers/selection/actions';
 import { DJANGO_CONTEXT } from '../../utils/djangoContext';
-import { Projects } from '../projects';
 import { resetCurrentCompoundsSettings } from '../preview/compounds/redux/actions';
 import { resetProjectsReducer } from '../projects/redux/actions';
 import { withLoadingProjects } from '../target/withLoadingProjects';
@@ -117,7 +116,7 @@ const Landing = memo(
 
       return () => {
         window.removeEventListener('resize', handleWindowResize);
-      }
+      };
     }, []);
 
     useEffect(() => {
@@ -133,7 +132,7 @@ const Landing = memo(
       resetProjectsReducer();
     }, [resetTargetState, resetSelectionState, toast, loginText, resetCurrentCompoundsSettings, resetProjectsReducer]);
 
-    const handleMouseDownResizer = (resizer) => {
+    const handleMouseDownResizer = resizer => {
       setIsResizing(true);
       setResizer(resizer);
     };
@@ -186,7 +185,7 @@ const Landing = memo(
               backgroundColor: '#eeeeee',
               borderRadius: '3px'
             }}
-            className='resizer-left'
+            className="resizer-left"
             onMouseDown={() => handleMouseDownResizer(1)}
           ></div>
           <Grid item style={{ width: privateTargetListWidth }}>
@@ -201,7 +200,7 @@ const Landing = memo(
               backgroundColor: '#eeeeee',
               borderRadius: '3px'
             }}
-            className='resizer-right'
+            className="resizer-right"
             onMouseDown={() => handleMouseDownResizer(2)}
           ></div>
           <Grid item style={{ width: legacyTargetListWidth }}>

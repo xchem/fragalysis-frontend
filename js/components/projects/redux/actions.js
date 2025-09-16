@@ -1,10 +1,5 @@
 import { constants } from './constants';
 
-export const setSortDialogOpen = isOpen => ({
-  type: constants.SET_SORT_DIALOG_OPEN,
-  payload: isOpen
-});
-
 export const setDefaultFilter = isClean => ({
   type: constants.SET_FILTER_CLEAN,
   payload: isClean
@@ -22,21 +17,6 @@ export const setCurrentProjectProperty = (key, value) => ({
 
 export const resetProjectState = () => ({
   type: constants.RESET_CURRENT_PROJECT_STATE
-});
-
-export const setProjectModalOpen = isOpen => ({
-  type: constants.SET_PROJECT_MODAL_OPEN,
-  payload: isOpen
-});
-
-export const setAddButton = isOpen => ({
-  type: constants.SET_ADD_BUTTON,
-  payload: isOpen
-});
-
-export const setProjectModalIsLoading = isLoading => ({
-  type: constants.SET_PROJECT_MODAL_IS_LOADING,
-  payload: isLoading
 });
 
 export const setCurrentSnapshot = currentSnapshot => ({
@@ -62,11 +42,6 @@ export const resetProjectsReducer = () => ({ type: constants.RESET_PROJECTS_REDU
 
 export const resetLoadedSnapshots = () => ({ type: constants.RESET_LOADED_SNAPSHOTS });
 
-export const setListOfProjects = projects => ({
-  type: constants.SET_LIST_OF_PROJECTS,
-  payload: projects
-});
-
 export const setListOfFilteredProjects = projects => ({
   type: constants.SET_LIST_OF_FILTERED_PROJECTS,
   payload: projects
@@ -77,20 +52,6 @@ export const setListOfFilteredProjectsByDate = projects => ({
   payload: projects
 });
 
-export const setIsLoadingListOfProjects = isLoading => ({
-  type: constants.SET_IS_LOADING_LIST_OF_PROJECTS,
-  payload: isLoading
-});
-
-export const setIsLoadingTree = isLoading => ({
-  type: constants.SET_IS_LOADING_TREE,
-  payload: isLoading
-});
-
-export const setCurrentSnapshotTree = tree => {
-  return { type: constants.SET_CURRENT_SNAPSHOT_TREE, payload: tree };
-};
-
 export const setCurrentSnapshotList = list => ({
   type: constants.SET_CURRENT_SNAPSHOT_LIST,
   payload: list
@@ -99,31 +60,6 @@ export const setCurrentSnapshotList = list => ({
 export const setSnapshotJobList = data => ({
   type: constants.SET_CURRENT_SNAPSHOT_JOBLIST,
   payload: data
-});
-
-export const setForceCreateProject = isForce => ({
-  type: constants.SET_FORCE_CREATE_PROJECT,
-  payload: isForce
-});
-
-export const setForceProjectCreated = isCreated => ({
-  type: constants.SET_FORCE_PROJECT_CREATED,
-  payload: isCreated
-});
-
-export const setProjectDiscourseLinks = links => ({
-  type: constants.SET_PROJECT_DISCOURSE_LINKS,
-  payload: links
-});
-
-export const setCurrentProjectDiscourseLink = link => ({
-  type: constants.SET_CURRENT_PROJECT_DISCOURSE_LINK,
-  payload: link
-});
-
-export const setJobPopUpAnchorEl = jobPopUpAnchorEl => ({
-  type: constants.SET_JOB_POP_UP_ANCHOR_EL,
-  payload: jobPopUpAnchorEl
 });
 
 export const setJobConfigurationDialogOpen = open => ({

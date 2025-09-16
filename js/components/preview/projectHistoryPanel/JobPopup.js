@@ -4,7 +4,6 @@ import { makeStyles } from '@material-ui/core';
 import { Button } from '../../common/Inputs/Button';
 import { useDispatch, useSelector } from 'react-redux';
 import { setIsOpenModalBeforeExit, setSelectedSnapshotToSwitch } from '../../snapshot/redux/actions';
-import { setJobPopUpAnchorEl } from '../../projects/redux/actions';
 import { DJANGO_CONTEXT } from '../../../utils/djangoContext';
 import { loadNewDatasetsAndCompounds } from '../../datasets/redux/dispatchActions';
 import { isSquonkProjectAccessible } from './utils';
@@ -73,16 +72,11 @@ const JobPopup = ({ jobPopUpAnchorEl, jobPopupInfo }) => {
   };
 
   return (
-    <Popper
-      open={!!jobPopUpAnchorEl}
-      onClose={() => dispatch(setJobPopUpAnchorEl(null))}
-      anchorEl={jobPopUpAnchorEl}
-      placement="right"
-    >
+    <Popper open={!!jobPopUpAnchorEl} onClose={() => {}} anchorEl={jobPopUpAnchorEl} placement="right">
       <div className={classes.jobPopup}>
         <div className={classes.topPopup}>
           <span>Job</span>
-          <button className={classes.popUpButton} onClick={() => dispatch(setJobPopUpAnchorEl(null))}>
+          <button className={classes.popUpButton} onClick={() => {}}>
             X
           </button>
         </div>
@@ -99,7 +93,6 @@ const JobPopup = ({ jobPopUpAnchorEl, jobPopupInfo }) => {
           <Button
             color="primary"
             onClick={() => {
-              dispatch(setJobPopUpAnchorEl(null));
               dispatch(setSelectedSnapshotToSwitch(hash));
               dispatch(setIsOpenModalBeforeExit(true));
             }}

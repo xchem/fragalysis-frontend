@@ -10,6 +10,7 @@ import { saveAndShareSnapshot } from './redux/dispatchActions';
 import { NglContext } from '../nglView/nglProvider';
 import { restoreSnapshotActions } from '../preview/moleculeGroups/redux/dispatchActions';
 import { extractTargetFromURLParam } from '../preview/utils';
+import { setDontShowShareSnapshot } from './redux/actions';
 
 /**
  * Created by ricgillams on 13/06/2018.
@@ -78,7 +79,7 @@ export const withSnapshotManagement = WrappedComponent => {
           startIcon={<Share />}
           disabled={disableShareButton || false}
           onClick={() => {
-            dispatch(saveAndShareSnapshot(nglViewList, true, {}));
+            dispatch(saveAndShareSnapshot(nglViewList, true, {})).then(() => dispatch(setDontShowShareSnapshot(false)));
           }}
         >
           Share
