@@ -140,6 +140,7 @@ services:
       - .env
     # image: ${BE_NAMESPACE:-xchem}/fragalysis-backend:${BE_IMAGE_TAG:-latest}
     # image: kaliif/fragalysis-backend:download-task
+    # image: kaliif/fragalysis-backend:screenshots
     image: xchem/fragalysis-stack:latest
     restart: on-failure
     volumes:
@@ -198,4 +199,5 @@ services:
     # image: ${BE_NAMESPACE:-xchem}/fragalysis-backend:${BE_IMAGE_TAG:-latest}
     # image: kaliif/fragalysis-backend:download-task
     image: xchem/fragalysis-stack:latest
+    # image: kaliif/fragalysis-backend:screenshots
     restart: on-failure
