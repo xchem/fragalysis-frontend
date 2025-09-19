@@ -261,6 +261,7 @@ export const DownloadStructureDialog = memo(({}) => {
 
   const prepareDownloadClicked = () => async (dispatch, getState) => {
     try {
+      setErrorMessage('');
       const options = { link: { linkAction: downloadStructuresZip, linkText: 'Click to Download', linkParams: [] } };
 
       if (selectedDownload !== newDownload) {
@@ -319,7 +320,7 @@ export const DownloadStructureDialog = memo(({}) => {
         } else {
           if (resp?.data?.file_url) {
             //we have a download link so it means that download already exists
-            /*await */ handlePreparedDownload(resp.data.file_url, tagData, options, options, tagName);
+            /*await */ handlePreparedDownload(resp.data.file_url, tagData, options, tagName, false);
           } else if (resp.data.task_status_url) {
             //download doesn't exist yet so we need to handle async task first
             /*await */ handleDownloadTask(resp.data.task_status_url, tagData, options, tagName);
@@ -381,25 +382,34 @@ export const DownloadStructureDialog = memo(({}) => {
   };
 
   const handleDownloadTask = async (taskUrl, tagData, options, tagName, existingDownload = false) => {
-    const taskStatusResponse = await getDownloadTaskStatusObject(taskUrl);
-    if (taskStatusResponse && taskStatusResponse.data) {
-      const taskStatus = taskStatusResponse.data;
-      if (taskStatus?.finished) {
-        if (taskStatus?.status === 'SUCCESS') {
-          const fileUrl = taskStatus.messages;
-          console.log('DownloadStructureDialog - handleDownloadTask - data are ready');
-          await handlePreparedDownload(fileUrl, tagData, options, tagName, existingDownload);
+    try {
+      const taskStatusResponse = await getDownloadTaskStatusObject(taskUrl);
+      if (taskStatusResponse && taskStatusResponse.data) {
+        const taskStatus = taskStatusResponse.data;
+        if (taskStatus?.finished) {
+          if (taskStatus?.status === 'SUCCESS') {
+            const fileUrl = taskStatus.messages;
+            console.log('DownloadStructureDialog - handleDownloadTask - data are ready');
+            await handlePreparedDownload(fileUrl, tagData, options, tagName, existingDownload);
+          } else {
+            setZipPreparing(false);
+            setBackendError(true);
+            const errorMessage = `Download failed, with backend error '${taskStatus?.messages}'. Please contact administrator.`;
+            setErrorMessage(errorMessage);
+            toastError(errorMessage);
+          }
         } else {
-          setZipPreparing(false);
-          setBackendError(true);
-          const errorMessage = `Download failed, with backend error '${taskStatus?.messages}'. Please contact administrator.`;
-          setErrorMessage(errorMessage);
-          toastError(errorMessage);
+          console.log('DownloadStructureDialog - handleDownloadTask - data are not ready yet');
+          setTimeout(() => handleDownloadTask(taskUrl, tagData, options, tagName, existingDownload), 5000);
         }
-      } else {
-        console.log('DownloadStructureDialog - handleDownloadTask - data are not ready yet');
-        setTimeout(() => handleDownloadTask(taskUrl, tagData, options, tagName, existingDownload), 5000);
       }
+    } catch (e) {
+      setZipPreparing(false);
+      setBackendError(true);
+      const errorMessage = `Download failed, with backend error. Please contact administrator. Error details: ${e?.message}`;
+      setErrorMessage(errorMessage);
+      toastError(errorMessage);
+      console.error(e);
     }
   };
 

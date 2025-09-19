@@ -216,6 +216,9 @@ const SnapshotList = memo(({ expandHandler = null }) => {
       }
     }
 
+    //we need to filter out also auxiliary download snapshots
+    result = result.filter(snapshot => !snapshot?.data?.includes('downloadTag'));
+
     return result;
   }, [listOfSnapshots, searchString, onlyMine, snapshotsCreatedThisSession, showStarredByOthers]);
 
