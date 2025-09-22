@@ -275,15 +275,6 @@ export default memo(
       userId = DJANGO_CONTEXT['pk'];
     }
 
-    const prodSite = (
-      <Typography variant="body2">
-        Please use:
-        <a href={URLS.prodLanding} data-toggle="tooltip" title="https://fragalysis.diamond.ac.uk">
-          production site
-        </a>
-      </Typography>
-    );
-
     useEffect(() => {
       if (headerNavbarTitle === '') {
         if (document.location.host.startsWith('fragalysis.diamond') !== true) {
@@ -594,7 +585,6 @@ export default memo(
                 <Grid item>
                   <Typography variant="subtitle2">{username}</Typography>
                 </Grid>
-                <Grid item>{prodSite}</Grid>
               </Grid>
 
               <Divider />
