@@ -219,6 +219,14 @@ export const useFilters = (initialItems, columns) => {
         return filterSettings.observationCode || filterSettings.compoundCode || filterSettings.compoundAliases ? false : true;
     };
 
+    const filterByMolecule = (item, name, filterSettings) => {
+        if (filterSettings.filteredCompounds === null) {
+            return true;
+        }
+        return filterSettings.filteredCompounds.length === 0 ? false
+            : filterSettings.filteredCompounds.includes(filterSettings.structureType === 'compound' ? item.compound : item.main_site_observation);
+    };
+
     // filter logic for each column type
     const filterFunctions = {
         [COLUMN_TYPES.TEXT]: (item, name, value) =>
@@ -230,7 +238,7 @@ export const useFilters = (initialItems, columns) => {
         [COLUMN_TYPES.OBSERVATION]: (item, name, value) =>
             filterByObservation(item, name, value),
         [COLUMN_TYPES.MOLECULE]: (item, name, value) =>
-            true
+            filterByMolecule(item, name, value)
     };
 
     const sortByText = (a, b, name, sortValue) => {
@@ -347,8 +355,7 @@ export const useFilters = (initialItems, columns) => {
             case COLUMN_TYPES.OBSERVATION:
                 return <ObservationFilter onFilterChange={v => handleColumnFilter(name, v)} onSortingChange={v => handleColumnSorting(name, v)} />;
             case COLUMN_TYPES.MOLECULE:
-                return null;
-            // return <MoleculeFilter onFilterChange={v => handleColumnFilter(name, v)} onSortingChange={v => handleColumnSorting(name, v)} />;
+                return <MoleculeFilter onFilterChange={v => handleColumnFilter(name, v)} onSortingChange={v => handleColumnSorting(name, v)} />;
             default:
                 return null;
             // return <DefaultFilter />;

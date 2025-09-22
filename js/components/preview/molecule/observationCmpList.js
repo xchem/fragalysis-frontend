@@ -89,7 +89,6 @@ import GroupNglControlButtonsContext from './groupNglControlButtonsContext';
 import { extractTargetFromURLParam } from '../utils';
 import { LoadingContext } from '../../loading';
 import { DJANGO_CONTEXT } from '../../../utils/djangoContext';
-import ObservationCmpView from './observationCmpView';
 import { ObservationsDialog } from './observationsDialog';
 import { useScrollToSelectedPose } from './useScrollToSelectedPose';
 import { SearchSettingsDialog } from './searchSettingsDialog';
@@ -275,7 +274,7 @@ const useStyles = makeStyles(theme => ({
 }));
 let selectedDisplayHits = false;
 
-export const ObservationCmpList = memo(({}) => {
+export const ObservationCmpList = memo(({ }) => {
   const classes = useStyles();
   const dispatch = useDispatch();
   let match = useRouteMatch();

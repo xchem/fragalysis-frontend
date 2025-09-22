@@ -48,9 +48,7 @@ import {
   getCanonSites,
   getCanonConformSites,
   getPoses,
-  getCompoundIdentifiers,
-  getActityColumns,
-  getActityData
+  getCompoundIdentifiers
 } from '../api/tagsApi';
 import {
   getMoleculeTagForTag,
@@ -60,6 +58,7 @@ import {
 } from '../utils/tagUtils';
 import { DJANGO_CONTEXT } from '../../../../utils/djangoContext';
 import { TOAST_LEVELS } from '../../../toast/constants';
+import { getActivityColumns, getActivityData } from '../../molecule/observationUnifiedView/api';
 
 export const setTagSelectorData = (categories, tags) => dispatch => {
   dispatch(setCategoryList(categories));
@@ -210,8 +209,8 @@ export const loadMoleculesAndTagsNew = targetId => async (dispatch, getState) =>
     let tags = await getTags(targetId);
     let compoundIdentifiers = await getCompoundIdentifiers();
 
-    let lhsExtraColumns = await getActityColumns(targetId);
-    let activityData = await getActityData(targetId);
+    let lhsExtraColumns = await getActivityColumns(targetId);
+    let activityData = await getActivityData(targetId);
     // let lhsExtraColumns = [];
     // let tempExtraColumnsMap = {};
     // activity could be for compound or site observation
@@ -314,8 +313,11 @@ export const loadMoleculesAndTagsNew = targetId => async (dispatch, getState) =>
         newObject['canonSiteConf'] = firstObs?.canon_site_conf;
         newObject['canonSite'] = pose.canon_site;
 
-        if (compoundActivityDataMap[pose.compound] || pose.site_observations.some(id => siteObservationActivityDataMap[id])) {
-          newObject['activityData'] = compoundActivityDataMap[pose.compound];
+        // get activity data for its compound and all associated site observations
+        const activityData = (compoundActivityDataMap[pose.compound] ?? [])
+          .concat(pose.site_observations.flatMap(id => siteObservationActivityDataMap[id] ?? []));
+        if (activityData.length > 0) {
+          newObject['activityData'] = activityData;
         }
         // else {
         //   // TODO just for test!!

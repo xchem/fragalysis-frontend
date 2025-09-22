@@ -28,7 +28,7 @@ import { MOL_TYPE } from '../redux/constants';
 import { getRandomColor } from '../utils/color';
 import { DEFAULT_TAG_COLOR, getAllTagsForLHSCmp } from '../../tags/utils/tagUtils';
 import { getFontColorByBackgroundColor } from '../../../../utils/colors';
-import { isAnyObservationTurnedOnForCmp } from '../../../../reducers/selection/selectors';
+import { getFilterSmileQuery, isAnyObservationTurnedOnForCmp } from '../../../../reducers/selection/selectors';
 import { useRDKit } from '../../../rdkit/RDKitContext';
 import { DetailView } from './table/views/detailView';
 import { ObservationsView } from './table/views/observationsView';
@@ -108,6 +108,7 @@ const ObservationUnifiedView = memo(
       const tagList = useSelector(state => state.apiReducers.tagList);
       const tagCategories = useSelector(state => state.apiReducers.categoryList);
       const tagEditorOpen = useSelector(state => state.selectionReducers.tagEditorOpened);
+      const filteredSmilesQuery = useSelector(state => getFilterSmileQuery(state));
 
       const isObservationDialogOpen = useSelector(state => state.selectionReducers.isObservationDialogOpen);
 
@@ -266,11 +267,11 @@ const ObservationUnifiedView = memo(
           // dispatch(getMolImage(obs.id, MOL_TYPE.HIT, imageWidth, imageHeight)).then(i => {
           //   setImg_data(i);
           // });
-          dispatch(generateAndStoreMolImage(obs, MOL_TYPE.HIT, imageWidth, imageHeight, RDKitModule)).then(i => {
+          dispatch(generateAndStoreMolImage(obs, MOL_TYPE.HIT, imageWidth, imageHeight, RDKitModule, filteredSmilesQuery)).then(i => {
             i && setImg_data(i.toString());
           });
         }
-      }, [data.id, data.smiles, imageHeight, imageWidth, dispatch, getMainObservation, RDKitModule]);
+      }, [data.id, data.smiles, imageHeight, imageWidth, dispatch, getMainObservation, RDKitModule, filteredSmilesQuery]);
 
       useEffect(() => {
         dispatch(getQualityInformation(data));

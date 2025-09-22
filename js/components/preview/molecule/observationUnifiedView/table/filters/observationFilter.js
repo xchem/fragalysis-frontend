@@ -1,7 +1,7 @@
-import React, { memo, useCallback, useState } from "react";
+import React, { memo, useCallback, useEffect, useState } from "react";
 import { Checkbox, FormControl, FormControlLabel, Grid, makeStyles, Radio, RadioGroup, TextField } from "@material-ui/core"
 import { FilterWrapper } from "./filterWrapper";
-import { setShowDisplayedMolecules } from "../../../../../../reducers/selection/actions";
+import { setShowDisplayedMolecules, setUnifiedFilterItem } from "../../../../../../reducers/selection/actions";
 import { useDispatch, useSelector } from "react-redux";
 import { ORDER } from "../constants";
 
@@ -16,6 +16,7 @@ export const ObservationFilter = memo(({ onFilterChange, onSortingChange }) => {
     const dispatch = useDispatch();
 
     const showDisplayedMolecules = useSelector(state => state.selectionReducers.showDisplayedMolecules);
+    const unifiedFilter = useSelector(state => state.selectionReducers.unifiedFilter);
 
     const initFilterValue = {
         alwaysShowDisplayedHits: showDisplayedMolecules,
@@ -35,6 +36,19 @@ export const ObservationFilter = memo(({ onFilterChange, onSortingChange }) => {
     const [filterValue, setFilterValue] = useState(initFilterValue);
     const [sortingValue, setSortingValue] = useState(initSortingValue);
 
+    const [initialized, setInitialized] = useState(false);
+
+    useEffect(() => {
+        if (!initialized) {
+            if (unifiedFilter?.detail) {
+                setFilterValue(unifiedFilter.detail);
+            } else {
+                setFilterValue(initFilterValue);
+            }
+            setInitialized(true);
+        }
+    }, [unifiedFilter.detail, initFilterValue, initialized]);
+
     const handleFilterChange = (property, value) => {
         const newFilterValue = {
             ...filterValue,
@@ -42,6 +56,7 @@ export const ObservationFilter = memo(({ onFilterChange, onSortingChange }) => {
         };
         setFilterValue(newFilterValue);
         onFilterChange(newFilterValue);
+        dispatch(setUnifiedFilterItem('detail', newFilterValue));
     };
 
     const handleSortingChange = (property, value) => {
@@ -66,6 +81,8 @@ export const ObservationFilter = memo(({ onFilterChange, onSortingChange }) => {
             setSortingValue(initSortingValue);
             onFilterChange(initFilterValue);
             onSortingChange(initSortingValue);
+            dispatch(setUnifiedFilterItem('detail', initFilterValue));
+            dispatch(setShowDisplayedMolecules(true));
         }}
         isActive={isFilterActive()}
     >

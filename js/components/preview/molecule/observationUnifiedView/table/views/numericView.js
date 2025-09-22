@@ -17,7 +17,7 @@ export const NumericView = memo(({ column, data }) => {
 
     const getDataValue = (activity, dataType) => {
         // we can't use {type}_value as they are not always present (at current state of backend)
-        // also note that there is int_value and not integer_value
+        // also note that there is int_value and not integer_value, but data type is integer
         let valueToReturn = activity['raw_value'];
         if (dataType === 'integer') {
             valueToReturn = valueToReturn !== null ? parseInt(valueToReturn, 10) : null;

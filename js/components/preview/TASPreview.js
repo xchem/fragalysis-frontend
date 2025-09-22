@@ -54,8 +54,14 @@ export const TASPreview = memo(props => {
   }, [dispatch, currentPorject, match, history, currentTarget, targetList, projectsLoaded]);
 
   useEffect(() => {
+    // DJANGO_CONTEXT.target_warning_message = 'This is staging, please use <a href="https://fragalysis.diamond.ac.uk" target="_blank">production</a>';
+    // DJANGO_CONTEXT.target_warning_message = 'This is staging, please use &lt;a href=&quot;https://fragalysis.diamond.ac.uk&quot; target=&quot;_blank&quot;&gt;production&lt;/a&gt;';
     if (DJANGO_CONTEXT.target_warning_message && DJANGO_CONTEXT.target_warning_message.length > 0) {
-      toastWarning(DJANGO_CONTEXT.target_warning_message);
+      // use textarea to decode html entities
+      const textArea = document.createElement('textarea');
+      textArea.innerHTML = DJANGO_CONTEXT.target_warning_message;
+      // allow to display html in the warning message from the backend
+      toastWarning(<div dangerouslySetInnerHTML={{ __html: textArea.value }} />);
     }
   }, [toastWarning]);
 

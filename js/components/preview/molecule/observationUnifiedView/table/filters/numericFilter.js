@@ -1,7 +1,9 @@
-import React, { memo, useState } from "react";
+import React, { memo, useEffect, useState } from "react";
 import { Checkbox, FormControl, FormControlLabel, Grid, makeStyles, MenuItem, Radio, RadioGroup, Select, TextField } from "@material-ui/core"
 import { FilterWrapper } from "./filterWrapper";
 import { ORDER } from "../constants";
+import { useDispatch, useSelector } from "react-redux";
+import { setUnifiedFilterItem } from "../../../../../../reducers/selection/actions";
 
 const useStyles = makeStyles(theme => ({
     row: {
@@ -11,6 +13,9 @@ const useStyles = makeStyles(theme => ({
 
 export const NumericFilter = memo(({ name, onFilterChange, onSortingChange }) => {
     const classes = useStyles();
+    const dispatch = useDispatch();
+
+    const unifiedFilter = useSelector(state => state.selectionReducers.unifiedFilter);
 
     const initFilterValue = {
         type: 'value',
@@ -27,6 +32,20 @@ export const NumericFilter = memo(({ name, onFilterChange, onSortingChange }) =>
     const [filterValue, setFilterValue] = useState(initFilterValue);
     const [sortingValue, setSortingValue] = useState(initSortingValue);
 
+    const [initialized, setInitialized] = useState(false);
+
+    useEffect(() => {
+        if (!initialized) {
+            if (unifiedFilter?.[name]) {
+                setFilterValue(unifiedFilter[name]);
+            } else {
+                setFilterValue(initFilterValue);
+            }
+            setInitialized(true);
+        }
+    }, [unifiedFilter, name, initFilterValue, initialized]);
+    // }, [unifiedFilter[name], initFilterValue, initialized]);
+
     const handleFilterChange = (property, value) => {
         const newFilterValue = {
             ...filterValue,
@@ -34,6 +53,7 @@ export const NumericFilter = memo(({ name, onFilterChange, onSortingChange }) =>
         };
         setFilterValue(newFilterValue);
         onFilterChange(newFilterValue);
+        dispatch(setUnifiedFilterItem(name, newFilterValue));
     };
 
     const handleSortingChange = (property, value) => {
@@ -52,6 +72,7 @@ export const NumericFilter = memo(({ name, onFilterChange, onSortingChange }) =>
             setSortingValue(initSortingValue);
             onFilterChange(initFilterValue);
             onSortingChange(initSortingValue);
+            dispatch(setUnifiedFilterItem(name, initFilterValue));
         }}
         isActive={filterValue.value !== '' || sortingValue.enabled}
     >
