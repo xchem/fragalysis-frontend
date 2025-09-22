@@ -1554,6 +1554,11 @@
     "@jridgewell/resolve-uri" "^3.1.0"
     "@jridgewell/sourcemap-codec" "^1.4.14"
 
+"@loschmidt/jsme-react@^1.0.2":
+  version "1.0.2"
+  resolved "https://registry.yarnpkg.com/@loschmidt/jsme-react/-/jsme-react-1.0.2.tgz#83a518863ffa4b44e3950f80bde2d0ddd31bd966"
+  integrity sha512-86jgmAL66ykYgqAzm3WLJZkVlQT8rF/xrqx92AJNjSXukSRUO10AoduIvJonvDHUS/fUohzpwK+SpptrKxzX8w==
+
 "@material-ui/core@^4.9.1":
   version "4.12.4"
   resolved "https://registry.yarnpkg.com/@material-ui/core/-/core-4.12.4.tgz#4ac17488e8fcaf55eb6a7f5efb2a131e10138a73"
