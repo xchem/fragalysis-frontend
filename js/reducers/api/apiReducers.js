@@ -53,7 +53,7 @@ export const INITIAL_STATE = {
   target_data_loading_in_progress: false,
   all_data_loaded: false,
   isSnapshot: false,
-  lhs_compounds_list: [],
+  lhs_compounds_list: [], // this is list of poses where each contains compound and observations
   lhs_extra_columns: [],
   lhsDataIsLoading: false,
   lhsDataIsLoaded: false,

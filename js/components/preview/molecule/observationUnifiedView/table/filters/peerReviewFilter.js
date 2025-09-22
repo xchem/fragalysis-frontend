@@ -1,7 +1,9 @@
-import React, { memo, useCallback, useState } from "react";
+import React, { memo, useCallback, useEffect, useState } from "react";
 import { Checkbox, FormControl, FormControlLabel, Grid, makeStyles, MenuItem, Radio, RadioGroup, Select, TextField } from "@material-ui/core"
 import { FilterWrapper } from "./filterWrapper";
 import { ORDER } from "../constants";
+import { useDispatch, useSelector } from "react-redux";
+import { setUnifiedFilterItem } from "../../../../../../reducers/selection/actions";
 
 const useStyles = makeStyles(theme => ({
     row: {
@@ -11,6 +13,9 @@ const useStyles = makeStyles(theme => ({
 
 export const PeerReviewFilter = memo(({ onFilterChange, onSortingChange }) => {
     const classes = useStyles();
+    const dispatch = useDispatch();
+
+    const unifiedFilter = useSelector(state => state.selectionReducers.unifiedFilter);
 
     const initFilterValue = {
         mainStatus: { good: false, mediocre: false, bad: false, none: false },
@@ -30,6 +35,19 @@ export const PeerReviewFilter = memo(({ onFilterChange, onSortingChange }) => {
 
     const [filterValue, setFilterValue] = useState(initFilterValue);
     const [sortingValue, setSortingValue] = useState(initSortingValue);
+
+    const [initialized, setInitialized] = useState(false);
+
+    useEffect(() => {
+        if (!initialized) {
+            if (unifiedFilter?.peerReview) {
+                setFilterValue(unifiedFilter.peerReview);
+            } else {
+                setFilterValue(initFilterValue);
+            }
+            setInitialized(true);
+        }
+    }, [unifiedFilter.peerReview, initFilterValue, initialized]);
 
     const setValueForMainStatus = (property, value) => {
         return {
@@ -55,6 +73,7 @@ export const PeerReviewFilter = memo(({ onFilterChange, onSortingChange }) => {
         };
         setFilterValue(newFilterValue);
         onFilterChange(newFilterValue);
+        dispatch(setUnifiedFilterItem('peerReview', newFilterValue));
     };
 
     const handleSortingChange = (property, value) => {
@@ -79,6 +98,7 @@ export const PeerReviewFilter = memo(({ onFilterChange, onSortingChange }) => {
             setSortingValue(initSortingValue);
             onFilterChange(initFilterValue);
             onSortingChange(initSortingValue);
+            dispatch(setUnifiedFilterItem('peerReview', initFilterValue));
         }}
         isActive={isFilterActive()}
     >

@@ -14,6 +14,9 @@ export const RDKitProvider = ({ children }) => {
   const isRDKitScriptLoaded = useSelector(state => state.apiReducers.rdkitScriptLoaded); // Check if the script is already loaded
 
   useEffect(() => {
+    // https://www.rdkitjs.com/
+    // https://github.com/rdkit/rdkit-js
+    // https://github.com/rdkit/rdkit-js/blob/master/typescript/index.d.ts
     const script = document.createElement('script');
     script.src = 'https://unpkg.com/@rdkit/rdkit/dist/RDKit_minimal.js';
     script.async = true;
@@ -39,7 +42,7 @@ export const RDKitProvider = ({ children }) => {
     };
 
     document.body.appendChild(script);
-  }, []);
+  }, [dispatch]);
 
   useEffect(() => {
     const loadRDKit = async () => {

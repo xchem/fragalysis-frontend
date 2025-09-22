@@ -680,3 +680,11 @@ export const setLHSIsFullyRendered = isFullyRendered => {
     isFullyRendered: isFullyRendered
   };
 };
+
+export const setUnifiedFilterItem = (key, value) => {
+  return {
+    type: constants.SET_UNIFIED_FILTER_ITEM,
+    key,
+    value
+  };
+};

@@ -962,7 +962,33 @@ export const getMolImage = (molId, molType, width, height) => (dispatch, getStat
 //   }
 // };
 
-export const generateAndStoreMolImage = (obs, molType, width, height, RDKitModule) => async (dispatch, getState) => {
+/**
+ * Get highlight options for a substructure query, this is just based on
+ * https://github.com/rdkit/rdkit-js/blob/master/examples/react/src/components/MoleculeStructure/MoleculeStructure.js
+ *
+ * @param {*} mol
+ * @param {*} qmol
+ * @returns [{atoms: [], bonds: [], highlightColour: [1,0,1]}] or null if no substructure matches
+ */
+const getHighlightOptions = (mol, qmol) => {
+  // e.g. get_substruct_matches: [{"atoms":[1,2,3],"bonds":[1,2]},{"atoms":[2,3,4],"bonds":[2,3]}]
+  const subStructHighlightDetails = JSON.parse(
+    mol.get_substruct_matches(qmol)
+  );
+  const subStructHighlightDetailsMerged = Array.isArray(subStructHighlightDetails) && subStructHighlightDetails.length > 0
+    ? subStructHighlightDetails.reduce(
+      (acc, { atoms, bonds }) => ({
+        atoms: [...acc.atoms, ...atoms],
+        bonds: [...acc.bonds, ...bonds]
+      }),
+      { bonds: [], atoms: [] }
+    )
+    : null;
+  if (subStructHighlightDetailsMerged) subStructHighlightDetailsMerged['highlightColour'] = [1, 0, 1];
+  return subStructHighlightDetailsMerged;
+}
+
+export const generateAndStoreMolImage = (obs, molType, width, height, RDKitModule, subqueryToHighlight = '') => async (dispatch, getState) => {
   if (!obs) return null;
   if (!RDKitModule) return null;
 
@@ -972,7 +998,7 @@ export const generateAndStoreMolImage = (obs, molType, width, height, RDKitModul
 
   const obsId = obs.id;
   const molIdStr = obsId.toString();
-  if (imageCache.hasOwnProperty(molIdStr)) {
+  if (imageCache.hasOwnProperty(molIdStr) && !subqueryToHighlight) {
     return new Promise((resolve, reject) => {
       resolve(imageCache[molIdStr]);
     });
@@ -1001,16 +1027,23 @@ export const generateAndStoreMolImage = (obs, molType, width, height, RDKitModul
       backgroundColour: [0, 0, 0, 0]
     };
 
+    let highlightOptions = null;
+    if (subqueryToHighlight) {
+      // highlight substructure if available
+      const qmol = RDKitModule.get_qmol(subqueryToHighlight);
+      highlightOptions = getHighlightOptions(mol, qmol);
+      qmol?.delete();
+    }
+
     const svg = mol.get_svg_with_highlights(
       JSON.stringify({
         ...options,
-        highlight_atoms: highlightAtoms,
-        highlight_bonds: highlightBonds
+        ...(highlightOptions ? highlightOptions : { bonds: highlightAtoms, atoms: highlightBonds })
       })
     );
 
     mol.delete();
-    if (!imageCache.hasOwnProperty(molIdStr)) {
+    if (!imageCache.hasOwnProperty(molIdStr) && !subqueryToHighlight) {
       dispatch(addImageToCache(obsId.toString(), svg));
     }
     return new Promise((resolve, reject) => {

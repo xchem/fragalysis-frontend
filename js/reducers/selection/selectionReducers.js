@@ -79,7 +79,9 @@ export const INITIAL_STATE = {
       compoundId: true
     }
   },
-  lhsIsFullyRendered: false
+  lhsIsFullyRendered: false,
+
+  unifiedFilter: {}
 };
 
 export function selectionReducers(state = INITIAL_STATE, action = {}) {
@@ -583,6 +585,13 @@ export function selectionReducers(state = INITIAL_STATE, action = {}) {
 
     case constants.SET_TOAST_MESSAGES:
       return { ...state, toastMessages: [...action.toastMessages] };
+
+    case constants.SET_UNIFIED_FILTER_ITEM:
+      const { unifiedFilter } = state;
+      unifiedFilter[action.key] = { ...action.value };
+      return Object.assign({}, state, {
+        ...unifiedFilter
+      });
 
     // Cases like: @@redux/INIT
     default:
