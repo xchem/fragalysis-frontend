@@ -153,7 +153,7 @@ const useStyles = makeStyles(theme => ({
 /**
  * TagDetails is a wrapper panel for tags summary, their editing and creating new ones
  */
-const TagDetails = memo(() => {
+const TagDetails = memo(({ expandHandler = null }) => {
   const classes = useStyles();
   const ref = useRef(null);
   const elementRef = useRef(null);
@@ -363,9 +363,13 @@ const TagDetails = memo(() => {
       hasExpansion
       defaultExpanded
       title="Tag Details"
-      onExpandChange={useCallback(expanded => dispatch(setPanelsExpanded(layoutItemNames.TAG_DETAILS, expanded)), [
-        dispatch
-      ])}
+      onExpandChange={useCallback(
+        expanded => {
+          dispatch(setPanelsExpanded(layoutItemNames.TAG_DETAILS, expanded));
+          expandHandler && expandHandler(expanded);
+        },
+        [dispatch, expandHandler]
+      )}
       headerActions={[
         <Grid container className={classes.headerContainer}>
           <Grid item xs={4}>

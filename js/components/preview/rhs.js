@@ -41,7 +41,7 @@ const useStyles = makeStyles(theme => ({
   }
 }));
 
-export const RHS = ({ hideProjects }) => {
+export const RHS = ({}) => {
   const classes = useStyles();
 
   const dispatch = useDispatch();
@@ -151,11 +151,7 @@ export const RHS = ({ hideProjects }) => {
               <Grid item style={{ height: compoundSetExpand?.compoundSets === true ? '85%' : '98%' }}>
                 <CompoundSetList />
                 <div key="place for resizer" style={{ paddingTop: '10px' }}></div>
-                <CustomDatasetList
-                  dataset={dataset}
-                  hideProjects={hideProjects}
-                  isActive={sidesOpen.RHS && index === selectedDatasetIndex}
-                />
+                <CustomDatasetList dataset={dataset} isActive={sidesOpen.RHS && index === selectedDatasetIndex} />
               </Grid>
             </TabPanel>
           );

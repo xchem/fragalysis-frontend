@@ -66,10 +66,9 @@ import {
   setSnapshotEditDialogOpen,
   setSnapshotToBeEdited
 } from '../snapshot/redux/actions';
-import { activateSnapshotDialog, createNewSnapshot } from '../snapshot/redux/dispatchActions';
-import { setAddButton, setCurrentSnapshot, setProjectModalIsLoading } from '../projects/redux/actions';
+import { createNewSnapshot } from '../snapshot/redux/dispatchActions';
+import { setCurrentSnapshot } from '../projects/redux/actions';
 import { getVersions } from '../../utils/version';
-import { AddProjectDetail } from '../projects/addProjectDetail';
 import { ServicesStatusWrapper } from '../services';
 import { COMPANIES, get_logo } from '../funders/constants';
 import { setEditTargetDialogOpen } from '../target/redux/actions';
@@ -145,9 +144,6 @@ export default memo(
 
     const currentProject = useSelector(state => state.projectReducers.currentProject);
     const targetName = useSelector(state => state.apiReducers.target_on_name);
-
-    const openNewProjectModal = useSelector(state => state.projectReducers.isProjectModalOpen);
-    const isProjectModalLoading = useSelector(state => state.projectReducers.isProjectModalLoading);
 
     const openSaveSnapshotModal = useSelector(state => state.snapshotReducers.openSavingDialog);
 
@@ -279,15 +275,6 @@ export default memo(
       userId = DJANGO_CONTEXT['pk'];
     }
 
-    const prodSite = (
-      <Typography variant="body2">
-        Please use:
-        <a href={URLS.prodLanding} data-toggle="tooltip" title="https://fragalysis.diamond.ac.uk">
-          production site
-        </a>
-      </Typography>
-    );
-
     useEffect(() => {
       if (headerNavbarTitle === '') {
         if (document.location.host.startsWith('fragalysis.diamond') !== true) {
@@ -333,59 +320,14 @@ export default memo(
                 >
                   Menu
                 </Button>
-                <Button
-                  onClick={() => setOpenTargetSettings(true)}
-                  disabled={!targetName || !DJANGO_CONTEXT.pk}
-                >
-                  <Typography
-                    variant="h5"
-                    color="textPrimary"
-                  >
+                <Button onClick={() => setOpenTargetSettings(true)} disabled={!targetName || !DJANGO_CONTEXT.pk}>
+                  <Typography variant="h5" color="textPrimary">
                     Fragalysis: <b id={'headerNavbarTitle'}>{headerNavbarTitle}</b>
                   </Typography>
                 </Button>
                 {username !== null ? (
                   targetName !== undefined ? (
                     <>
-                      {currentProject.authorID === null ||
-                        currentProject.projectID === null ||
-                        currentProject.authorID === userId ? (
-                        <Button
-                          onClick={() => {
-                            if (!isProjectModalLoading) {
-                              dispatch(setProjectModalIsLoading(true));
-                              dispatch(setAddButton(false));
-                            } else {
-                              dispatch(setProjectModalIsLoading(false));
-                            }
-
-                            openSaveSnapshotModal ?? dispatch(setOpenSnapshotSavingDialog(false));
-                          }}
-                          key="newProject"
-                          color="primary"
-                          startIcon={<CreateNewFolder />}
-                        >
-                          New project
-                        </Button>
-                      ) : (
-                        <Button
-                          onClick={() => {
-                            if (!openNewProjectModal) {
-                              dispatch(setProjectModalIsLoading(true));
-                              dispatch(setAddButton(false));
-                            } else {
-                              dispatch(setProjectModalIsLoading(false));
-                            }
-
-                            openSaveSnapshotModal ?? dispatch(setOpenSnapshotSavingDialog(false));
-                          }}
-                          key="newProject"
-                          color="primary"
-                          startIcon={<CreateNewFolder />}
-                        >
-                          New project from snapshot
-                        </Button>
-                      )}
                       {currentProject.projectID !== null ? (
                         <Button
                           key="saveSnapshot"
@@ -443,7 +385,6 @@ export default memo(
                   ''
                 )}
                 {headerButtons && headerButtons.map(item => item)}
-                <AddProjectDetail />
               </ButtonGroup>
             </Grid>
             <Grid item>
@@ -644,7 +585,6 @@ export default memo(
                 <Grid item>
                   <Typography variant="subtitle2">{username}</Typography>
                 </Grid>
-                <Grid item>{prodSite}</Grid>
               </Grid>
 
               <Divider />
@@ -663,13 +603,6 @@ export default memo(
 
               <Divider />
 
-              <ListItem button onClick={() => history.push(URLS.projects)}>
-                <ListItemIcon>
-                  <Description />
-                </ListItemIcon>
-                <ListItemText primary="Projects" />
-              </ListItem>
-
               <ListItem button onClick={() => history.push(URLS.management)}>
                 <ListItemIcon>
                   <Work />
@@ -682,7 +615,7 @@ export default memo(
                 </ListItemIcon>
                 <ListItemText primary="Contributors" />
               </ListItem>
-              {DJANGO_CONTEXT.pk && !!targetName &&
+              {DJANGO_CONTEXT.pk && !!targetName && (
                 <>
                   <Divider />
                   <ListItem button onClick={() => setOpenTargetSettings(true)}>
@@ -692,8 +625,8 @@ export default memo(
                     <ListItemText primary="Target settings" />
                   </ListItem>
                 </>
-              }
-              {DJANGO_CONTEXT.pk &&
+              )}
+              {DJANGO_CONTEXT.pk && (
                 <>
                   <Divider />
                   <ListItem button onClick={getToken}>
@@ -728,7 +661,7 @@ export default memo(
                     <ListItemText primary="Assay data upload" />
                   </ListItem>
                 </>
-              }
+              )}
               <Divider />
               {authListItem}
             </Grid>
@@ -746,7 +679,7 @@ export default memo(
           </Grid>
         </Drawer>
         <Box paddingTop={`${headerHeight}px`} width="100%" />
-      </ComputeSize >
+      </ComputeSize>
     );
   })
 );

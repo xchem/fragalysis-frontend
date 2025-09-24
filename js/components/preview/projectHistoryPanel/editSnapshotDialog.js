@@ -79,7 +79,7 @@ export const EditSnapshotDialog = () => {
   const snapshotToBeEdited = useSelector(state => state.snapshotReducers.snapshotToBeEdited);
 
   const onClose = () => {
-    dispatch(setSnapshotEditDialogOpen(true));
+    dispatch(setSnapshotEditDialogOpen(false));
     dispatch(setSnapshotToBeEdited(null));
   };
 
@@ -89,25 +89,27 @@ export const EditSnapshotDialog = () => {
     if (values.name === '') {
       errors.name = 'Required';
     }
-    if (values.description === '') {
-      errors.description = 'Required';
-    }
+    // if (values.description === '') {
+    //   errors.description = 'Required';
+    // }
 
     return errors;
   };
 
-  const onSubmitForm = async ({ name, description }) => {
+  const onSubmitForm = async ({ name /*, description*/ }) => {
     snapshotToBeEdited &&
       api({
         url: `${base_url}/api/snapshots/${snapshotToBeEdited.id}/`,
         method: METHOD.PATCH,
-        data: { title: name, description: description }
+        data: { title: name /*, description: description*/ }
       })
         .then(resp => {
           snapshotToBeEdited.title = name;
-          snapshotToBeEdited.description = description;
+          // snapshotToBeEdited.description = description;
+          dispatch(setSnapshotEditDialogOpen(false));
+          dispatch(setSnapshotToBeEdited(snapshotToBeEdited));
           dispatch(addToastMessage({ text: `Snapshot saved successfully.`, level: TOAST_LEVELS.SUCCESS }));
-          onClose();
+          // onClose();
         })
         .catch(err => {
           dispatch(addToastMessage({ text: 'Saving snapshot failed.', level: TOAST_LEVELS.ERROR }));
@@ -128,8 +130,10 @@ export const EditSnapshotDialog = () => {
           <div className={classes.bodyPopup}>
             <Formik
               initialValues={{
-                name: snapshotToBeEdited?.title ? snapshotToBeEdited?.title : '',
-                description: snapshotToBeEdited?.description ? snapshotToBeEdited?.description : ''
+                name: snapshotToBeEdited?.title
+                  ? snapshotToBeEdited?.title
+                  : '' /*,
+                description: snapshotToBeEdited?.description ? snapshotToBeEdited?.description : ''*/
               }}
               onSubmit={onSubmitForm}
               validate={validate}
@@ -145,7 +149,7 @@ export const EditSnapshotDialog = () => {
                         }
                       />
                     </Grid>
-                    <Grid item>
+                    {/* <Grid item>
                       <InputFieldAvatar
                         icon={<Description />}
                         field={
@@ -158,7 +162,7 @@ export const EditSnapshotDialog = () => {
                           />
                         }
                       />
-                    </Grid>
+                    </Grid> */}
                   </Grid>
                   <Grid container justifyContent="flex-end" direction="row">
                     <Grid>

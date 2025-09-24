@@ -15,7 +15,7 @@ export const INITIAL_STATE = {
   openSavingDialog: false,
   dialogCurrentStep: 0,
   isLoadingSnapshotDialog: false,
-  listOfSnapshots: [],
+  listOfSnapshots: null,
   isLoadingListOfSnapshots: false,
   sharedSnapshotURL: null,
   sharedSnapshot: initSharedSnapshot,
@@ -27,16 +27,24 @@ export const INITIAL_STATE = {
   downloadStructuresDialogOpen: false,
   isSnapshotDirty: false,
   isSnapshotEditDialogOpen: false,
-  snapshotToBeEdited: null
+  snapshotToBeEdited: null,
+  snapshotsCreatedThisSession: [],
+  isSnapshotSaving: false
 };
 
 export const snapshotReducers = (state = INITIAL_STATE, action = {}) => {
   switch (action.type) {
+    case constants.SET_SNAPSHOT_IS_SAVING:
+      return { ...state, isSnapshotSaving: action.payload };
+
+    case constants.APPEND_TO_SNAPSHOTS_CREATED_THIS_SESSION:
+      return { ...state, snapshotsCreatedThisSession: [...state.snapshotsCreatedThisSession, action.payload] };
+
     case constants.SET_SNAPSHOT_EDIT_DIALOG_OPEN:
       return { ...state, isSnapshotEditDialogOpen: action.payload };
 
     case constants.SET_SNAPSHOT_TO_BE_EDITED:
-      return { ...state, snapshotToBeEdited: action.payload };
+      return { ...state, snapshotToBeEdited: { ...action.payload } };
 
     case constants.SET_SNAPSHOT_IS_DIRTY:
       return { ...state, isSnapshotDirty: action.payload };
@@ -82,6 +90,9 @@ export const snapshotReducers = (state = INITIAL_STATE, action = {}) => {
       return Object.assign({}, state, {
         listOfSnapshots: action.payload
       });
+
+    case constants.APPEND_TO_LIST_OF_SNAPSHOTS:
+      return { ...state, listOfSnapshots: [...state.listOfSnapshots, action.payload] };
 
     case constants.SET_IS_LOADING_LIST_OF_SNAPSHOTS:
       return Object.assign({}, state, {

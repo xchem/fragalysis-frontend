@@ -25,11 +25,12 @@ const useStyles = makeStyles(theme => ({
   }
 }));
 
-export const ModalShareSnapshot = memo(({ }) => {
+export const ModalShareSnapshot = memo(({}) => {
   const classes = useStyles();
   const sharedSnapshot = useSelector(state => state.snapshotReducers.sharedSnapshot);
   const isLoadingSnapshotDialog = useSelector(state => state.snapshotReducers.isLoadingSnapshotDialog);
   const dontShowShareSnapshot = useSelector(state => state.snapshotReducers.dontShowShareSnapshot);
+  const isSaving = useSelector(state => state.snapshotReducers.isSnapshotSaving);
   const dispatch = useDispatch();
 
   const openInNewTab = () => {
@@ -47,7 +48,7 @@ export const ModalShareSnapshot = memo(({ }) => {
   };
 
   return (
-    <Modal open={sharedSnapshot.url !== null && dontShowShareSnapshot === false}>
+    <Modal open={sharedSnapshot.url !== null && dontShowShareSnapshot === false && !isSaving}>
       {isLoadingSnapshotDialog === false ? (
         <>
           <DialogTitle id="form-dialog-title">{sharedSnapshot.title}</DialogTitle>
@@ -59,7 +60,7 @@ export const ModalShareSnapshot = memo(({ }) => {
             <Button onClick={() => updateClipboard(sharedSnapshot.url)} color="primary">
               Copy link
             </Button>
-            <Button style={{width: '175px'}} onClick={openInNewTab} color="primary">
+            <Button style={{ width: '175px' }} onClick={openInNewTab} color="primary">
               Open in new tab to test (recommended!)
             </Button>
             <Button onClick={closeModal} color="secondary">

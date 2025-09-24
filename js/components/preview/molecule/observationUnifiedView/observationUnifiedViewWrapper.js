@@ -16,6 +16,7 @@ import ObservationUnifiedView from './observationUnifiedView';
 import { useColumns } from './hooks/useColumns';
 import { useFilters } from './hooks';
 import { TableResizer } from './table/tableResizer';
+import { jsmeSetup } from '@loschmidt/jsme-react';
 
 const useStyles = makeStyles(theme => ({
   table: {
@@ -81,6 +82,9 @@ const ObservationUnifiedViewWrapper = memo(
       const imgWidth = 150;
 
       const classes = useStyles();
+
+      // setup jsme before to prevent window jumping when molecule filter opens first time
+      jsmeSetup();
 
       const containsAtLeastOne = (list, molsList) => {
         for (const mol in molsList) {

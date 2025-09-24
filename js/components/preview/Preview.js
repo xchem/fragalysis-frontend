@@ -14,8 +14,6 @@ import { withLoadingProtein } from './withLoadingProtein';
 import { withLoadingJobSpecs } from './withLoadingJobSpecs';
 import { withSnapshotManagement } from '../snapshot/withSnapshotManagement';
 import { useDispatch, useSelector } from 'react-redux';
-import { ProjectHistoryPanel } from './projectHistoryPanel';
-import { ProjectDetailDrawer } from '../projects/projectDetailDrawer';
 import { NewSnapshotModal } from '../snapshot/modals/newSnapshotModal';
 import { SaveSnapshotBeforeExit } from '../snapshot/modals/saveSnapshotBeforeExit';
 import { ModalShareSnapshot } from '../snapshot/modals/modalShareSnapshot';
@@ -47,7 +45,6 @@ import {
 } from '../../reducers/api/actions';
 import { PickProjectModal } from './PickProjectModal';
 import { withLoadingProjects } from '../target/withLoadingProjects';
-import { setProjectModalOpen } from '../projects/redux/actions';
 import { setOpenSnapshotSavingDialog } from '../snapshot/redux/actions';
 import { setTagEditorOpen, setMoleculeForTagEdit, setToastMessages } from '../../reducers/selection/actions';
 import { LoadingContext } from '../loading';
@@ -67,6 +64,9 @@ import { loadTargetList } from '../target/redux/dispatchActions';
 import { EditSnapshotDialog } from './projectHistoryPanel/editSnapshotDialog';
 import { RenderingProgressDialog } from '../loading/RenderingProgressDialog';
 import { DataDownloadProgressDialog } from '../loading/DataDownloadProgressDialog';
+import layout from '../../reducers/layout/layouts/draggable';
+import SnapshotList from '../snapshot/snapshotList';
+import SnapshotSavingProgressDialog from '../snapshot/modals/snapshotSavingProgressDialog';
 
 const ReactGridLayout = WidthProvider(ResponsiveGridLayout);
 
@@ -116,7 +116,6 @@ const Preview = memo(({ isStateLoaded, hideProjects, isSnapshot = false }) => {
   const currentLayout = useSelector(state => state.layoutReducers.currentLayout);
   const layoutLocked = useSelector(state => state.layoutReducers.layoutLocked);
 
-  const openNewProjectModal = useSelector(state => state.projectReducers.isProjectModalOpen);
   const openSaveSnapshotModal = useSelector(state => state.snapshotReducers.openSavingDialog);
 
   const target_id_list = useSelector(state => state.apiReducers.target_id_list);
@@ -183,7 +182,7 @@ const Preview = memo(({ isStateLoaded, hideProjects, isSnapshot = false }) => {
       toastMessages.forEach(message => {
         switch (message.level) {
           case TOAST_LEVELS.SUCCESS:
-            toastSuccess(message.text);
+            toastSuccess(message.text, { autoHideDuration: 3000 });
             break;
           case TOAST_LEVELS.ERROR:
             toastError(message.text);
@@ -249,6 +248,13 @@ const Preview = memo(({ isStateLoaded, hideProjects, isSnapshot = false }) => {
 
   const renderItem = id => {
     switch (id) {
+      case layoutItemNames.SNAPSHOT_LIST: {
+        return (
+          <div key="snapshotList">
+            <SnapshotList />
+          </div>
+        );
+      }
       case layoutItemNames.TAG_DETAILS: {
         return (
           <div key="tagDetails">
@@ -266,7 +272,7 @@ const Preview = memo(({ isStateLoaded, hideProjects, isSnapshot = false }) => {
       case layoutItemNames.HIT_NAVIGATOR: {
         return (
           <div key="hitNavigator">
-            <HitNavigator hideProjects={hideProjects} />
+            <HitNavigator />
           </div>
         );
       }
@@ -281,7 +287,7 @@ const Preview = memo(({ isStateLoaded, hideProjects, isSnapshot = false }) => {
       case layoutItemNames.RHS: {
         return (
           <div key="RHS">
-            <RHS hideProjects={hideProjects} />
+            <RHS />
           </div>
         );
       }
@@ -293,11 +299,7 @@ const Preview = memo(({ isStateLoaded, hideProjects, isSnapshot = false }) => {
         );
       }
       case layoutItemNames.PROJECT_HISTORY: {
-        return (
-          <div key="projectHistory">
-            <ProjectHistoryPanel showFullHistory={() => setShowHistory(!showHistory)} />
-          </div>
-        );
+        return <div key="projectHistory"></div>;
       }
       case layoutItemNames.RESIZABLE: {
         return (
@@ -321,7 +323,6 @@ const Preview = memo(({ isStateLoaded, hideProjects, isSnapshot = false }) => {
         ref={ref}
         className={classes.root}
         onClick={() => {
-          openNewProjectModal && dispatch(setProjectModalOpen(false));
           openSaveSnapshotModal && dispatch(setOpenSnapshotSavingDialog(false));
         }}
       >
@@ -352,7 +353,7 @@ const Preview = memo(({ isStateLoaded, hideProjects, isSnapshot = false }) => {
       <EditSnapshotDialog />
       <RenderingProgressDialog />
       <DataDownloadProgressDialog />
-      {!hideProjects && <ProjectDetailDrawer showHistory={showHistory} setShowHistory={setShowHistory} />}
+      <SnapshotSavingProgressDialog />
     </>
   );
 });

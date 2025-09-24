@@ -21,7 +21,12 @@ import {
   Paper
 } from '@material-ui/core';
 import { selectJoinedMoleculeList } from '../../preview/molecule/redux/selectors';
-import { getDownloadStructuresUrl, downloadStructuresZip, getDownloadFileSize } from '../api/api';
+import {
+  getDownloadStructuresTaskOrUrl,
+  downloadStructuresZip,
+  getDownloadFileSize,
+  getDownloadTaskStatusObject
+} from '../api/api';
 import { setDownloadStructuresDialogOpen, setDontShowShareSnapshot, setSharedSnapshot } from '../redux/actions';
 import { saveAndShareSnapshot } from '../redux/dispatchActions';
 import { getFileSizeString } from '../../../utils/api';
@@ -39,6 +44,7 @@ import { appendToDownloadTags } from '../../../reducers/api/actions';
 import { getTagByName } from '../../preview/tags/api/tagsApi';
 import { withStyles } from '@material-ui/core/styles';
 import { ToastContext } from '../../toast';
+import { th } from 'date-fns/locale';
 
 const useStyles = makeStyles(theme => ({
   root: {
@@ -117,7 +123,8 @@ const PERMALINK_OPTIONS = [
 ];
 
 const OTHERS = [
-  { flag: 'single_sdf_file', text: 'Single SDF of all ligands', defaultValue: true }
+  { flag: 'single_sdf_file', text: 'Single SDF of all ligands', defaultValue: true },
+  { flag: 'compound_sets', text: 'Computed compound sets', defaultValue: true }
   // { flag: 'sdf_info', text: 'Separate SDFs in subdirectory', defaultValue: false }
 ];
 
@@ -130,7 +137,7 @@ const createFlagObjectFromFlagList = flagList => {
   );
 };
 
-export const DownloadStructureDialog = memo(({ }) => {
+export const DownloadStructureDialog = memo(({}) => {
   const newDownload = '--- NEW DOWNLOAD ---';
   const dispatch = useDispatch();
   const classes = useStyles();
@@ -244,7 +251,8 @@ export const DownloadStructureDialog = memo(({ }) => {
         all_aligned_structures: true,
         metadata_info: metadata,
         static_link: isStaticDownload(),
-        file_url: ''
+        file_url: '',
+        use_zip: true
       };
     }
 
@@ -252,126 +260,156 @@ export const DownloadStructureDialog = memo(({ }) => {
   };
 
   const prepareDownloadClicked = () => async (dispatch, getState) => {
-    const options = { link: { linkAction: downloadStructuresZip, linkText: 'Click to Download', linkParams: [] } };
-    if (selectedDownload !== newDownload) {
-      const downloadTag = findDownload(selectedDownload);
-      if (downloadTag) {
+    try {
+      setErrorMessage('');
+      const options = { link: { linkAction: downloadStructuresZip, linkText: 'Click to Download', linkParams: [] } };
+
+      if (selectedDownload !== newDownload) {
+        const downloadTag = findDownload(selectedDownload);
+        if (!downloadTag) return;
+
         setGeneralError(false);
         setZipPreparing(true);
         setAlreadyInProgress(false);
-        getDownloadStructuresUrl(downloadTag.additional_info.requestObject)
-          .then(resp => {
-            if (resp.status === 208) {
-              //same download is already preparing for someone else
-              setAlreadyInProgress(true);
-              toastInfo('Same download is already preparing for someone else. Try again in a minute.');
-              return null;
-            } else {
-              //everything is fine and we got the URL
-              setDownloadUrl(resp.data.file_url);
 
-              return getDownloadFileSize(resp.data.file_url);
-            }
-          })
-          .then(resp => {
-            if (resp) {
-              const fileSizeInBytes = resp.headers['content-length'];
-              setFileSize(getFileSizeString(fileSizeInBytes));
-              const url = generateUrlFromTagName(downloadTag.tag);
-              options.link.linkParams = [url];
-              setDownloadTagUrl(url);
-              setZipPreparing(false);
-              toastSuccess('Download is ready!', options);
-            }
-          });
-      }
-    } else {
-      setGeneralError(false);
-      setZipPreparing(true);
-      setAlreadyInProgress(false);
-      setDownloadTagUrl(null);
-      setFileSize(null);
-      setDownloadUrl(null);
-      let inProgress = false;
+        const resp = await getDownloadStructuresTaskOrUrl(downloadTag.additional_info.requestObject);
+        if (resp.status === 208) {
+          setAlreadyInProgress(true);
+          toastInfo('Same download is already preparing for someone else. Try again in a minute.');
+          return;
+        }
 
-      // for testing purposes - preparation is way to fast
-      // await new Promise(r => setTimeout(r, 120000));
+        if (resp?.data?.file_url) {
+          await handlePreparedDownload(resp.data.file_url, downloadTag, options, null, true);
+        } else if (resp.data.task_status_url) {
+          await handleDownloadTask(resp.data.task_status_url, downloadTag, options, null, true);
+        } else {
+          throw new Error('Unexpected response from the server: ' + JSON.stringify(resp.data));
+        }
+      } else {
+        setGeneralError(false);
+        setZipPreparing(true);
+        setAlreadyInProgress(false);
+        setDownloadTagUrl(null);
+        setFileSize(null);
+        setDownloadUrl(null);
 
-      const requestObject = prepareRequestObject();
-      if (requestObject) {
-        const tagData = { requestObject: requestObject, structuresSelection: structuresSelection };
+        const requestObject = prepareRequestObject();
+        if (!requestObject) {
+          setZipPreparing(false);
+          return;
+        }
+
+        const tagData = { requestObject, structuresSelection };
         dispatch(setDontShowShareSnapshot(true));
         const tagName = generateTagName();
         const auxData = { downloadTag: tagName };
-        dispatch(saveAndShareSnapshot(nglViewList, false, auxData))
-          .then(() => {
-            const state = getState();
-            const sharedSnapshot = state.snapshotReducers.sharedSnapshot;
-            tagData['snapshot'] = sharedSnapshot;
-            tagData['downloadName'] = moment().format('-- YYYY-MM-DD -- HH:mm:ss') + ' -- ' + moment.tz.guess();
-            dispatch(setSharedSnapshot(initSharedSnapshot));
-            dispatch(setDontShowShareSnapshot(false));
-            return getDownloadStructuresUrl(requestObject);
-          })
-          .then(resp => {
-            if (resp.status === 208) {
-              //same download is already preparing for someone else
-              setAlreadyInProgress(true);
-              toastInfo('Same download is already preparing for someone else. Try again in a minute.');
-              inProgress = true;
-              return null;
-            } else {
-              //everything is fine and we got the URL
-              setDownloadUrl(resp.data.file_url);
-              options.link.linkParams = [resp.data.file_url];
-              if (isStaticDownload()) {
-                tagData.requestObject.file_url = resp.data.file_url;
-              }
-              return getDownloadFileSize(resp.data.file_url);
-            }
-          })
-          .then(resp => {
-            if (resp && !inProgress) {
-              const fileSizeInBytes = resp.headers['content-length'];
-              const fileSizeString = getFileSizeString(fileSizeInBytes);
-              options.link.linkText = `Click to Download - ${fileSizeString}`;
-              setFileSize(fileSizeString);
-            }
-          })
-          .then(resp => {
-            if (!inProgress) {
-              return createDownloadTag(tagData, tagName);
-            } else {
-              return null;
-            }
-          })
-          .then(molTag => {
-            if (molTag && !inProgress) {
-              dispatch(appendToDownloadTags(molTag));
-              const url = generateUrl(molTag);
-              setDownloadTagUrl(url);
-              toastSuccess('Download is ready!', options);
-            }
-            setZipPreparing(false);
-          })
-          .catch(e => {
-            setZipPreparing(false);
-            console.log(JSON.stringify(e?.response?.data));
-            let errorMessage = '';
-            if (e?.response?.data?.message) {
-              setBackendError(true);
-              errorMessage = `Download failed, with backend error '${e?.response?.data?.message}'. Please contact administrator.`;
-            } else {
-              setGeneralError(true);
-              errorMessage = 'Downoad failed, please try again later. If error persists, contact administrator';
-            }
-            setErrorMessage(errorMessage);
-            console.log(e);
-            toastError(errorMessage);
-          });
-      } else {
-        setZipPreparing(false);
+
+        await dispatch(saveAndShareSnapshot(nglViewList, false, auxData));
+        const state = getState();
+        const sharedSnapshot = state.snapshotReducers.sharedSnapshot;
+        tagData.snapshot = sharedSnapshot;
+        tagData.downloadName = `${moment().format('-- YYYY-MM-DD -- HH:mm:ss')} -- ${moment.tz.guess()}`;
+        dispatch(setSharedSnapshot(initSharedSnapshot));
+        dispatch(setDontShowShareSnapshot(false));
+
+        const resp = await getDownloadStructuresTaskOrUrl(requestObject);
+        if (resp.status === 208) {
+          setAlreadyInProgress(true);
+          toastInfo('Same download is already preparing for someone else. Try again in a minute.');
+        } else {
+          if (resp?.data?.file_url) {
+            //we have a download link so it means that download already exists
+            /*await */ handlePreparedDownload(resp.data.file_url, tagData, options, tagName, false);
+          } else if (resp.data.task_status_url) {
+            //download doesn't exist yet so we need to handle async task first
+            /*await */ handleDownloadTask(resp.data.task_status_url, tagData, options, tagName);
+          } else {
+            throw new Error('Unexpected response from the server: ' + JSON.stringify(resp.data));
+          }
+        }
+
+        // setZipPreparing(false);
       }
+    } catch (e) {
+      setZipPreparing(false);
+      console.error(JSON.stringify(e?.response?.data));
+
+      let errorMessage = '';
+      if (e?.response?.data?.message) {
+        setBackendError(true);
+        errorMessage = `Download failed, with backend error '${e?.response?.data?.message}'. Please contact administrator.`;
+      } else {
+        setGeneralError(true);
+        errorMessage = 'Download failed, please try again later. If error persists, contact administrator';
+      }
+
+      setErrorMessage(errorMessage);
+      console.log(e);
+      toastError(errorMessage);
+    }
+  };
+
+  const handlePreparedDownload = async (fileUrl, tagData, options, tagName, existingDownload = false) => {
+    console.log('DownloadStructureDialog - handlePreparedDownload - data are ready - going to set up download');
+
+    setDownloadUrl(fileUrl);
+
+    if (!existingDownload && isStaticDownload()) {
+      tagData.requestObject.file_url = fileUrl;
+    }
+
+    const sizeResp = await getDownloadFileSize(fileUrl);
+    const fileSizeInBytes = sizeResp.headers['content-length'];
+    const fileSizeString = getFileSizeString(fileSizeInBytes);
+    options.link.linkText = `Click to Download - ${fileSizeString}`;
+    setFileSize(fileSizeString);
+
+    if (!existingDownload) {
+      options.link.linkParams = [fileUrl];
+      const molTag = await createDownloadTag(tagData, tagName);
+      dispatch(appendToDownloadTags(molTag));
+      const url = generateUrl(molTag);
+      setDownloadTagUrl(url);
+    } else {
+      const url = generateUrlFromTagName(tagData.tag);
+      options.link.linkParams = [url];
+      setDownloadTagUrl(url);
+    }
+
+    setZipPreparing(false);
+    toastSuccess('Download is ready!', options);
+  };
+
+  const handleDownloadTask = async (taskUrl, tagData, options, tagName, existingDownload = false) => {
+    try {
+      const taskStatusResponse = await getDownloadTaskStatusObject(taskUrl);
+      if (taskStatusResponse && taskStatusResponse.data) {
+        const taskStatus = taskStatusResponse.data;
+        if (taskStatus?.finished) {
+          if (taskStatus?.status === 'SUCCESS') {
+            const fileUrl = taskStatus.messages;
+            console.log('DownloadStructureDialog - handleDownloadTask - data are ready');
+            await handlePreparedDownload(fileUrl, tagData, options, tagName, existingDownload);
+          } else {
+            setZipPreparing(false);
+            setBackendError(true);
+            const errorMessage = `Download failed, with backend error '${taskStatus?.messages}'. Please contact administrator.`;
+            setErrorMessage(errorMessage);
+            toastError(errorMessage);
+          }
+        } else {
+          console.log('DownloadStructureDialog - handleDownloadTask - data are not ready yet');
+          setTimeout(() => handleDownloadTask(taskUrl, tagData, options, tagName, existingDownload), 5000);
+        }
+      }
+    } catch (e) {
+      setZipPreparing(false);
+      setBackendError(true);
+      const errorMessage = `Download failed, with backend error. Please contact administrator. Error details: ${e?.message}`;
+      setErrorMessage(errorMessage);
+      toastError(errorMessage);
+      console.error(e);
     }
   };
 
@@ -426,6 +464,7 @@ export const DownloadStructureDialog = memo(({ }) => {
 
   const onUpdateExistingDownload = event => {
     updateExistingDownload(event.target.value);
+    resetDownloadOnChange(true);
   };
 
   // Extracts flags for specified flagList and returns them as a JSON object
@@ -473,8 +512,10 @@ export const DownloadStructureDialog = memo(({ }) => {
     }
   };
 
-  const resetDownloadOnChange = () => {
-    setSelectedDownload(newDownload);
+  const resetDownloadOnChange = (downloadChanged = false) => {
+    if (!downloadChanged) {
+      setSelectedDownload(newDownload);
+    }
     setDownloadTagUrl(null);
     setFileSize(null);
     setDownloadUrl(null);
@@ -536,7 +577,9 @@ export const DownloadStructureDialog = memo(({ }) => {
                 <Select className={classes.select} value={selectedDownload} onChange={onUpdateExistingDownload}>
                   <MenuItem value={newDownload}>{newDownload}</MenuItem>
                   {downloadTags.map((dt, index) => (
-                    <MenuItem key={index} value={dt.additional_info.downloadName}>{dt.additional_info.downloadName}</MenuItem>
+                    <MenuItem key={index} value={dt.additional_info.downloadName}>
+                      {dt.additional_info.downloadName}
+                    </MenuItem>
                   ))}
                 </Select>
               </Grid>

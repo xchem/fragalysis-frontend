@@ -14,6 +14,8 @@ const surfaceList = state => state.selectionReducers.surfaceList;
 const densityList = state => state.selectionReducers.densityList;
 const vectorOnList = state => state.selectionReducers.vectorOnList;
 
+const moleculeFilter = state => state.selectionReducers.unifiedFilter.molecule;
+
 export const getMoleculeOfCurrentVector = createSelector(
   getCurrentVector,
   getVectorList,
@@ -123,5 +125,15 @@ export const isAnyObservationTurnedOnForCmp = createSelector(
       }
     });
     return hasInspiration;
+  }
+);
+
+export const getFilterSmileQuery = createSelector(
+  moleculeFilter,
+  (moleculeFilter) => {
+    if (moleculeFilter && moleculeFilter.smiles) {
+      return moleculeFilter.smiles;
+    }
+    return '';
   }
 );

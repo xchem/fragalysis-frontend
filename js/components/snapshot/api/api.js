@@ -1,7 +1,7 @@
 import { api, METHOD, getFileSize } from '../../../utils/api';
 import { base_url } from '../../routes/constants';
 
-export const getDownloadStructuresUrl = requestObject => {
+export const getDownloadStructuresTaskOrUrl = requestObject => {
   const jsonString = JSON.stringify(requestObject);
   return api({
     url: `${base_url}/api/download_structures/`,
@@ -22,4 +22,11 @@ export const downloadStructuresZip = downloadUrl => {
     anchor.download = 'download';
     anchor.click();
   }
+};
+
+export const getDownloadTaskStatusObject = async taskUrl => {
+  return api({
+    url: `${base_url}${taskUrl}`,
+    method: METHOD.GET
+  });
 };

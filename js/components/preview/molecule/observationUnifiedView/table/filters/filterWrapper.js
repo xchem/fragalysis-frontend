@@ -3,6 +3,7 @@ import { IconButton, Popper, Tooltip, makeStyles } from "@material-ui/core"
 import { Panel } from "../../../../../common";
 import { Close } from "@material-ui/icons";
 import { Circle, FilterAlt, RestartAlt } from "@mui/icons-material";
+import { Paper } from "@mui/material";
 
 const useStyles = makeStyles(theme => ({
     filterButton: {
@@ -21,21 +22,28 @@ const useStyles = makeStyles(theme => ({
         top: 1
     },
     filterWrapper: {
-        '& *': {
+        '& label *': {
             fontSize: 13
         },
         '& .filter-header': {
+            fontSize: 13,
             textDecoration: 'underline'
         }
+    },
+    tooltip: {
+        borderRadius: 4,
+        backgroundColor: theme.palette.background.paper,
+        boxShadow: theme.shadows[1]
     }
 }));
 
-export const FilterWrapper = memo(({ title, children, isActive = false, handleReset = null }) => {
+export const FilterWrapper = memo(({ title, children, isActive = false, handleReset = null, onHoverComponent = null }) => {
 
     const ref = useRef(null);
     const classes = useStyles();
 
     const [showEditTagsModal, setShowEditTagsModal] = useState(false);
+    const [showOnHoverComponent, setShowOnHoverComponent] = useState(false);
 
     const id = showEditTagsModal ? `simple-popover-filter-editor-${title}` : undefined;
 
@@ -53,12 +61,18 @@ export const FilterWrapper = memo(({ title, children, isActive = false, handleRe
     return (<>
         <IconButton
             size="small"
-            className={classes.filterButton}
             onClick={() => handleEditTagsButton()}
+            className={classes.filterButton}
             ref={ref}
+            onMouseEnter={() => setShowOnHoverComponent(true)}
+            onMouseLeave={() => setShowOnHoverComponent(false)}
         >
             <FilterAlt sx={{ fontSize: 20 }} />
         </IconButton>
+        {onHoverComponent && <Popper open={showOnHoverComponent} anchorEl={ref?.current} placement={"top"} className={classes.tooltip} >
+            {onHoverComponent}
+        </Popper >
+        }
         {!!isActive && <IconButton
             size="small"
             className={classes.filterActiveDot}
@@ -66,7 +80,7 @@ export const FilterWrapper = memo(({ title, children, isActive = false, handleRe
         >
             <Circle sx={{ fontSize: 5 }} />
         </IconButton>}
-        <Popper id={id} open={showEditTagsModal} anchorEl={ref?.current} placement={"right-end"} className={classes.filterWrapper} >
+        <Popper id={id} open={showEditTagsModal} anchorEl={ref?.current} placement={"right"} className={classes.filterWrapper} >
             <Panel
                 title={title}
                 hasHeader
@@ -94,5 +108,6 @@ export const FilterWrapper = memo(({ title, children, isActive = false, handleRe
             >
                 {children}
             </Panel>
-        </Popper></>);
+        </Popper>
+    </>);
 });
