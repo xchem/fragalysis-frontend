@@ -48,10 +48,12 @@ const Landing = memo(
       let tempPrivateTargets = [];
       let tempPublicTargets = [];
       target_id_list?.forEach(target => {
-        if (target.project.open_to_public === false) {
-          tempPrivateTargets.push(target);
-        } else {
-          tempPublicTargets.push(target);
+        if (target.project && typeof target.project === 'object') {
+          if (target.project.open_to_public === false) {
+            tempPrivateTargets.push(target);
+          } else {
+            tempPublicTargets.push(target);
+          }
         }
       });
       setPrivateTargets(tempPrivateTargets);

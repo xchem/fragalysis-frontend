@@ -55,7 +55,7 @@ services:
       start_period: 10s
   web:
     container_name: web_dock
-    # image: xchem/fragalysis-stack:latest
+    image: xchem/fragalysis-stack:latest
     # image: xchem/fragalysis-backend:m2ms-1649-refresh-fix
     # image: boriskovarm2ms/fragalysis-stack:experiment2
     # image: kaliif/fragalysis-backend:download-task
@@ -109,6 +109,7 @@ services:
       DEPLOYMENT_MODE: 'development'
       DISABLE_RESTRICT_PROPOSALS_TO_MEMBERSHIP: 'True'
       PUBLIC_TAS: 'lb18145-1,lb32633-1'
+      RESTRICTED_TAS_USERS: 'spf57946:lb32627-261'
       WEB_DJANGO_SUPERUSER_PASSWORD: ${WEB_DJANGO_SUPERUSER_PASSWORD}
       SQUONK2_REFRESH_SHOULD_RETRIEVE_RESULTS: 'Yes'
       # INFECTIONS: 'structure-download'
