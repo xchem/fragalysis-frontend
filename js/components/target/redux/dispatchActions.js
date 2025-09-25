@@ -3,6 +3,8 @@ import { getUrl, loadFromServer } from '../../../utils/genericList';
 import {
   resetTargetState,
   setLegacyTargetIdList,
+  setTargetDataLoaded,
+  setTargetDataLoadingInProgress,
   setTargetIdList,
   setTargetOn,
   setTargetUnrecognised,
@@ -22,23 +24,28 @@ export const loadTargetList = onCancel => (dispatch, getState) => {
   const oldUrl = getState().targetReducers.oldUrl;
   const list_type = listType.TARGET;
   dispatch(setIsTargetLoading(true));
+  dispatch(setTargetDataLoadingInProgress(true));
   dispatch(loadLegacyTargetList());
   return loadFromServer({
     url: getUrl({ list_type }),
     setOldUrl: url => {
       dispatch(setOldUrl(url));
       dispatch(setIsTargetLoading(false));
+      dispatch(setTargetDataLoadingInProgress(false));
+      dispatch(setTargetDataLoaded(true));
     },
     old_url: oldUrl,
     setObjectList: async params => {
       const experiments = await loadExperimentList();
       params?.forEach(target => {
-        const experiment = experiments.sort((a, b) => a.commit_datetime > b.commit_datetime ? -1 : 1).find(experiment => experiment.target === target.id);
+        const experiment = experiments
+          .sort((a, b) => (a.commit_datetime > b.commit_datetime ? -1 : 1))
+          .find(experiment => experiment.target === target.id);
         if (experiment) {
           target.last_updated = experiment.commit_datetime;
         }
       });
-      dispatch(setTargetIdList(params))
+      dispatch(setTargetIdList(params));
     },
     list_type,
     cancel: onCancel

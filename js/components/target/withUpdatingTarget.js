@@ -1,6 +1,6 @@
 import React, { memo, useContext, useEffect, useState } from 'react';
 import { connect, useSelector } from 'react-redux';
-import HandleUnrecognisedTarget from './handleUnrecognisedTarget';
+import { HandleUnrecognisedTarget } from './handleUnrecognisedTarget';
 import { updateTarget, setTargetUUIDs, resetTargetAndSelection } from './redux/dispatchActions';
 import { useRouteMatch } from 'react-router-dom';
 import { extractProjectFromURLParam, extractTargetFromURLParam } from '../preview/utils';
