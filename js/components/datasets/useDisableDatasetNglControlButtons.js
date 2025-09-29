@@ -8,9 +8,11 @@ const useDisableDatasetNglControlButtons = selectedMolecules => {
 
   const selectedMoleculesControlButtons = [];
   selectedMolecules.forEach(({ datasetID, molecule }) => {
-    const disableMoleculeNglControlButtons = disableDatasetsNglControlButtons[datasetID]?.[molecule.id];
-    if (disableMoleculeNglControlButtons) {
-      selectedMoleculesControlButtons.push(disableMoleculeNglControlButtons);
+    if (datasetID && molecule) {
+      const disableMoleculeNglControlButtons = disableDatasetsNglControlButtons[datasetID]?.[molecule.id];
+      if (disableMoleculeNglControlButtons) {
+        selectedMoleculesControlButtons.push(disableMoleculeNglControlButtons);
+      }
     }
   });
 
