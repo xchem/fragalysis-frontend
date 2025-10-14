@@ -67,7 +67,8 @@ export const INITIAL_STATE = {
   dataAreDownloading: false,
   ligandData: [],
   errorOccuredDuringDownload: false,
-  dataAreDownloaded: false
+  dataAreDownloaded: false,
+  targetDataLoaded: false
 };
 
 export const RESET_TARGET_STATE = {
@@ -118,7 +119,8 @@ export const RESET_TARGET_STATE = {
   dataAreDownloading: false,
   ligandData: [],
   errorOccuredDuringDownload: false,
-  dataAreDownloaded: false
+  dataAreDownloaded: false,
+  targetDataLoaded: false
 };
 
 export default function apiReducers(state = INITIAL_STATE, action = {}) {
@@ -230,6 +232,9 @@ export default function apiReducers(state = INITIAL_STATE, action = {}) {
 
     case constants.SET_TARGET_DATA_LOADING_IN_PROGRESS:
       return { ...state, target_data_loading_in_progress: action.targetDataLoadingInProgress };
+
+    case constants.SET_TARGET_DATA_LOADED:
+      return { ...state, targetDataLoaded: action.targetDataLoaded };
 
     case constants.SET_ALL_DATA_LOADED:
       return { ...state, all_data_loaded: action.allDataLoaded };
