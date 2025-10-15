@@ -163,7 +163,6 @@ const NglView = memo(
     // Stable handler, always reads latest value from ref
     const handleStageClicked = useCallback(
       pickingProxy => {
-        // Always use ref for latest value
         if (!isCoordinateFilterPermittedRef.current) return;
         if (!pickingProxy) return;
         if (!(pickingProxy.atom || pickingProxy.bond)) return;
