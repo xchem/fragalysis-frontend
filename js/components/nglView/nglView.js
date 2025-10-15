@@ -4,7 +4,7 @@
 
 import { Stage, Shape } from 'ngl';
 import React, { memo, useEffect, useCallback, useContext, useState, useRef } from 'react';
-import { connect } from 'react-redux';
+import { connect, useDispatch, useSelector } from 'react-redux';
 import * as nglActions from '../../reducers/ngl/actions';
 import * as nglDispatchActions from '../../reducers/ngl/dispatchActions';
 import * as selectionActions from '../../reducers/selection/actions';
@@ -15,6 +15,8 @@ import { NGL_PARAMS } from './constants';
 import { makeStyles, Popover, TextField, Button, Typography } from '@material-ui/core';
 import { VIEWS } from '../../constants/constants';
 import { INITIAL_STATE as NGL_INITIAL } from '../../reducers/ngl/nglReducers';
+import { api } from '../../utils/api';
+import { base_url } from '../routes/constants';
 
 const useStyles = makeStyles(theme => ({
   paper: {
@@ -40,6 +42,7 @@ const NglView = memo(
     defaultRadius = 5,
     apiEndpoint = '/api/radius-selection'
   }) => {
+    const dispatch = useDispatch();
     // connect to NGL Stage object
     const { registerNglView, unregisterNglView, getNglView } = useContext(NglContext);
     const [stage, setStage] = useState();
@@ -53,6 +56,24 @@ const NglView = memo(
     const [radius, setRadius] = useState(String(defaultRadius)); // keep as string to allow empty
     const sphereCompRef = useRef(null);
     const lastOriginRef = useRef(null);
+
+    const targetId = useSelector(state => state.apiReducers.target_on);
+
+    const sphereCoordinates = useSelector(state => state.selectionReducers.sphereCoordinates);
+    const coordinateRadius = useSelector(state => state.selectionReducers.coordinateRadius);
+    const unifiedFilter = useSelector(state => state.selectionReducers.unifiedFilter);
+    const isCoordinateFilterApplied = useSelector(state => state.selectionReducers.isCoordinateFilterApplied);
+    const sphereRendered = useSelector(state => state.selectionReducers.sphereRendered);
+
+    const isCoordinateFilterPermitted = unifiedFilter?.detail?.coordinateSearch === true;
+    const isCoordinateFilterPermittedRef = useRef(isCoordinateFilterPermitted);
+    // Keep ref up to date
+    useEffect(() => {
+      isCoordinateFilterPermittedRef.current = isCoordinateFilterPermitted;
+    }, [isCoordinateFilterPermitted]);
+    // console.log('unifiedFilter?.detail?.coordinateSearch:', unifiedFilter?.detail?.coordinateSearch);
+    const rendererDomElement = stage?.viewer?.renderer?.domElement;
+    const mousePosition = stage?.mouseObserver?.position;
 
     const parseRadius = useCallback(
       val => {
@@ -91,16 +112,22 @@ const NglView = memo(
       const origin = lastOriginRef.current;
       if (!origin) return;
       const value = parseRadius(radius);
-      const payload = { origin: [origin.x, origin.y, origin.z], radius: value };
-      try {
-        await fetch(apiEndpoint, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(payload)
+      api({
+        url: `${base_url}/api/site_observation_ids/?target=${targetId}&xorigin=${origin.x}&yorigin=${origin.y}&zorigin=${origin.z}&radius=${value}`
+      })
+        .then(response => {
+          if (response?.data?.results) {
+            const ids = response.data.results.map(item => item.id);
+            dispatch(selectionActions.setCoordinateFilterResults(ids));
+            dispatch(selectionActions.setIsCoordinateFilterApplied(true));
+            // console.log('Site Observation IDs within radius:', ids);
+          }
+        })
+        .catch(err => {
+          console.log(err);
         });
-      } catch (e) {}
       setPopoverOpen(false);
-    }, [apiEndpoint, radius, parseRadius]);
+    }, [dispatch, parseRadius, radius, targetId]);
 
     useEffect(() => {
       const monitor = () => {
@@ -133,21 +160,26 @@ const NglView = memo(
       }
     }, [div_id, getNglView]);
 
+    // Stable handler, always reads latest value from ref
     const handleStageClicked = useCallback(
       pickingProxy => {
+        // Always use ref for latest value
+        if (!isCoordinateFilterPermittedRef.current) return;
         if (!pickingProxy) return;
         if (!(pickingProxy.atom || pickingProxy.bond)) return;
         const pos = pickingProxy.position?.clone?.();
         if (!pos) return;
 
         lastOriginRef.current = pos;
-        ensureSphereAt(pos, parseRadius(radius));
+        dispatch(selectionActions.setSphereCoordinate(pos));
+        dispatch(selectionActions.setCoordinateRadius(radius));
+        // ensureSphereAt(pos, parseRadius(radius));
 
         // Anchor popover to mouse cursor using NGL's mouseObserver
-        const canvas = stage?.viewer?.renderer?.domElement;
-        if (canvas && stage?.mouseObserver?.position) {
+        const canvas = rendererDomElement;
+        if (canvas && mousePosition) {
           const rect = canvas.getBoundingClientRect();
-          const m = stage.mouseObserver.position;
+          const m = mousePosition;
           setAnchorPos({
             top: Math.round(rect.top + m.y),
             left: Math.round(rect.left + m.x)
@@ -155,8 +187,35 @@ const NglView = memo(
         }
         setPopoverOpen(true);
       },
-      [ensureSphereAt, parseRadius, radius, stage]
+      [dispatch, mousePosition, radius, rendererDomElement]
     );
+
+    useEffect(() => {
+      if (!ready) return;
+      if (sphereCoordinates && isCoordinateFilterPermitted && !sphereRendered) {
+        dispatch(selectionActions.setSphereRendered(true));
+        ensureSphereAt(sphereCoordinates, parseRadius(coordinateRadius));
+      } else {
+        if (!sphereCoordinates && sphereCompRef.current && sphereRendered) {
+          try {
+            stage.removeComponent(sphereCompRef.current);
+            dispatch(selectionActions.setSphereRendered(false));
+          } catch (e) {
+            console.error(e);
+          }
+        }
+      }
+    }, [
+      coordinateRadius,
+      dispatch,
+      ensureSphereAt,
+      isCoordinateFilterPermitted,
+      parseRadius,
+      ready,
+      sphereCoordinates,
+      sphereRendered,
+      stage
+    ]);
 
     const registerStageEvents = useCallback(
       (newStage, getNglView) => {
@@ -217,12 +276,12 @@ const NglView = memo(
         }
       }
 
-      return () => {
-        if (stage) {
-          unregisterStageEvents(stage, getNglView);
-          unregisterNglView(div_id);
-        }
-      };
+      // return () => {
+      //   if (stage) {
+      //     unregisterStageEvents(stage, getNglView);
+      //     unregisterNglView(div_id);
+      //   }
+      // };
     }, [
       div_id,
       handleResize,
@@ -280,7 +339,17 @@ const NglView = memo(
             fullWidth
           />
           <div style={{ display: 'flex', gap: 8, justifyContent: 'flex-end', marginTop: 12 }}>
-            <Button onClick={() => setPopoverOpen(false)}>Cancel</Button>
+            <Button
+              onClick={() => {
+                if (!isCoordinateFilterApplied) {
+                  dispatch(selectionActions.setSphereCoordinate(null));
+                  dispatch(selectionActions.setCoordinateRadius(''));
+                }
+                setPopoverOpen(false);
+              }}
+            >
+              Cancel
+            </Button>
             <Button variant="contained" color="primary" onClick={submitRadius}>
               Apply
             </Button>
