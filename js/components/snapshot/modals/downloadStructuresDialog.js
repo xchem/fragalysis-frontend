@@ -417,6 +417,13 @@ export const DownloadStructureDialog = memo(({}) => {
         toastError(errorMessage);
         console.error(e);
       }
+    } catch (e) {
+      setZipPreparing(false);
+      setBackendError(true);
+      const errorMessage = `Download failed, with backend error. Please contact administrator. Error details: ${e?.message}`;
+      setErrorMessage(errorMessage);
+      toastError(errorMessage);
+      console.error(e);
     }
   };
 
