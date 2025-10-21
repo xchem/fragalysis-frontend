@@ -58,6 +58,8 @@ export const ObservationFilter = memo(({ onFilterChange, onSortingChange }) => {
 
   const handleFilterChangeHandler = handleObservationFilterChange(setFilterValue, onFilterChange);
 
+  const coordinateFilterApplied = useSelector(state => state.selectionReducers.isCoordinateFilterApplied);
+
   const filterDetail = unifiedFilter?.detail;
 
   useEffect(() => {
@@ -87,9 +89,10 @@ export const ObservationFilter = memo(({ onFilterChange, onSortingChange }) => {
     return (
       ((filterValue.observationCode || filterValue.compoundCode || filterValue.compoundAliases) &&
         filterValue.value !== '') ||
-      sortingValue.enabled
+      sortingValue.enabled ||
+      coordinateFilterApplied
     );
-  }, [filterValue, sortingValue]);
+  }, [filterValue, sortingValue, coordinateFilterApplied]);
 
   return (
     <FilterWrapper
