@@ -25,6 +25,17 @@ import { handleObservationFilterChange } from '../../../redux/dispatchActions';
 const useStyles = makeStyles(theme => ({
   row: {
     padding: 2
+  },
+  controlTopAligned: {
+    alignItems: 'flex-start',
+    minWidth: 0
+  },
+  wrapLabel: {
+    display: 'block',
+    whiteSpace: 'normal',
+    overflowWrap: 'anywhere',
+    wordBreak: 'break-word',
+    lineHeight: 1.3
   }
 }));
 
@@ -125,6 +136,32 @@ export const ObservationFilter = memo(({ onFilterChange, onSortingChange }) => {
         </Grid>
       </Grid>
       <Grid container direction="row">
+        <Grid item xs>
+          <FormControlLabel
+            classes={{ root: classes.controlTopAligned }}
+            control={
+              <Checkbox
+                checked={filterValue.coordinateSearch}
+                onChange={e => {
+                  dispatch(setCoordinateFilterResults([]));
+                  dispatch(setIsCoordinateFilterApplied(false));
+                  dispatch(setSphereCoordinate(null));
+                  dispatch(setCoordinateRadius(''));
+                  dispatch(handleFilterChangeHandler(filterValue, 'coordinateSearch', e.target.checked));
+                }}
+              />
+            }
+            label={
+              <>
+                <span className={classes.wrapLabel}>Coordinate search </span>
+                <span className={classes.wrapLabel}>(click on structure in 3D viewer and press</span>
+                <span className={classes.wrapLabel}>Apply in radius dialog to search)</span>{' '}
+              </>
+            }
+          />
+        </Grid>
+      </Grid>
+      <Grid container direction="row">
         <Grid item xs className="filter-header">
           Keyword Search
         </Grid>
@@ -165,25 +202,6 @@ export const ObservationFilter = memo(({ onFilterChange, onSortingChange }) => {
               />
             }
             label="Compound aliases"
-          />
-        </Grid>
-      </Grid>
-      <Grid container direction="row">
-        <Grid item xs>
-          <FormControlLabel
-            control={
-              <Checkbox
-                checked={filterValue.coordinateSearch}
-                onChange={e => {
-                  dispatch(setCoordinateFilterResults([]));
-                  dispatch(setIsCoordinateFilterApplied(false));
-                  dispatch(setSphereCoordinate(null));
-                  dispatch(setCoordinateRadius(''));
-                  dispatch(handleFilterChangeHandler(filterValue, 'coordinateSearch', e.target.checked));
-                }}
-              />
-            }
-            label="Coordinate search"
           />
         </Grid>
       </Grid>
