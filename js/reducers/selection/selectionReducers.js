@@ -1,6 +1,7 @@
 /**
  * Created by abradley on 15/03/2018.
  */
+import { parse } from 'date-fns';
 import { setPoseIdForObservationsDialog } from './actions';
 import { constants } from './constants';
 
@@ -81,7 +82,12 @@ export const INITIAL_STATE = {
   },
   lhsIsFullyRendered: false,
 
-  unifiedFilter: {}
+  unifiedFilter: {},
+  isCoordinateFilterApplied: false,
+  coordinateFilterResults: [],
+  sphereCoordinates: null,
+  coordinateRadius: 5, // in Angstroms,
+  sphereRendered: false
 };
 
 export function selectionReducers(state = INITIAL_STATE, action = {}) {
@@ -587,11 +593,39 @@ export function selectionReducers(state = INITIAL_STATE, action = {}) {
       return { ...state, toastMessages: [...action.toastMessages] };
 
     case constants.SET_UNIFIED_FILTER_ITEM:
-      const { unifiedFilter } = state;
+      const unifiedFilter = { ...state.unifiedFilter };
       unifiedFilter[action.key] = { ...action.value };
-      return Object.assign({}, state, {
-        ...unifiedFilter
-      });
+      return { ...state, unifiedFilter: JSON.parse(JSON.stringify(unifiedFilter)) };
+
+    case constants.SET_COORDINATE_FILTER_RESULTS:
+      return {
+        ...state,
+        coordinateFilterResults: action.results
+      };
+
+    case constants.SET_IS_COORDINATE_FILTER_APPLIED:
+      return {
+        ...state,
+        isCoordinateFilterApplied: action.isApplied
+      };
+
+    case constants.SET_SPHERE_COORDINATE:
+      return {
+        ...state,
+        sphereCoordinates: action.coordinate
+      };
+
+    case constants.SET_COORDINATE_RADIUS:
+      return {
+        ...state,
+        coordinateRadius: action.radius
+      };
+
+    case constants.SET_SPHERE_RENDERED:
+      return {
+        ...state,
+        sphereRendered: action.isRendered
+      };
 
     // Cases like: @@redux/INIT
     default:
