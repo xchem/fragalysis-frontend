@@ -180,6 +180,7 @@ export const DownloadStructureDialog = memo(({}) => {
   const [backendError, setBackendError] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
   const [alreadyInProgress, setAlreadyInProgress] = useState(false);
+  const [apiErrorCounter, setApiErrorCounter] = useState(0);
 
   const { toastSuccess, toastError, toastInfo } = useContext(ToastContext);
 
@@ -262,6 +263,7 @@ export const DownloadStructureDialog = memo(({}) => {
   const prepareDownloadClicked = () => async (dispatch, getState) => {
     try {
       setErrorMessage('');
+      setApiErrorCounter(0);
       const options = { link: { linkAction: downloadStructuresZip, linkText: 'Click to Download', linkParams: [] } };
 
       if (selectedDownload !== newDownload) {
@@ -402,6 +404,18 @@ export const DownloadStructureDialog = memo(({}) => {
           console.log('DownloadStructureDialog - handleDownloadTask - data are not ready yet');
           setTimeout(() => handleDownloadTask(taskUrl, tagData, options, tagName, existingDownload), 5000);
         }
+      }
+    } catch (e) {
+      if (apiErrorCounter < 3) {
+        setApiErrorCounter(prev => prev + 1);
+        setTimeout(() => handleDownloadTask(taskUrl, tagData, options, tagName, existingDownload), 5000);
+      } else {
+        setZipPreparing(false);
+        setBackendError(true);
+        const errorMessage = `Download failed, with backend error. Please contact administrator. Error details: ${e?.message}`;
+        setErrorMessage(errorMessage);
+        toastError(errorMessage);
+        console.error(e);
       }
     } catch (e) {
       setZipPreparing(false);

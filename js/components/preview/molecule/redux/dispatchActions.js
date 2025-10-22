@@ -20,7 +20,8 @@ import {
   setSelectVisiblePoses,
   setUnselectVisiblePoses,
   appendToBeDisplayedList,
-  updateInToBeDisplayedList
+  updateInToBeDisplayedList,
+  setUnifiedFilterItem
 } from '../../../../reducers/selection/actions';
 import { base_url } from '../../../routes/constants';
 import {
@@ -972,23 +973,25 @@ export const getMolImage = (molId, molType, width, height) => (dispatch, getStat
  */
 const getHighlightOptions = (mol, qmol) => {
   // e.g. get_substruct_matches: [{"atoms":[1,2,3],"bonds":[1,2]},{"atoms":[2,3,4],"bonds":[2,3]}]
-  const subStructHighlightDetails = JSON.parse(
-    mol.get_substruct_matches(qmol)
-  );
-  const subStructHighlightDetailsMerged = Array.isArray(subStructHighlightDetails) && subStructHighlightDetails.length > 0
-    ? subStructHighlightDetails.reduce(
-      (acc, { atoms, bonds }) => ({
-        atoms: [...acc.atoms, ...atoms],
-        bonds: [...acc.bonds, ...bonds]
-      }),
-      { bonds: [], atoms: [] }
-    )
-    : null;
+  const subStructHighlightDetails = JSON.parse(mol.get_substruct_matches(qmol));
+  const subStructHighlightDetailsMerged =
+    Array.isArray(subStructHighlightDetails) && subStructHighlightDetails.length > 0
+      ? subStructHighlightDetails.reduce(
+          (acc, { atoms, bonds }) => ({
+            atoms: [...acc.atoms, ...atoms],
+            bonds: [...acc.bonds, ...bonds]
+          }),
+          { bonds: [], atoms: [] }
+        )
+      : null;
   if (subStructHighlightDetailsMerged) subStructHighlightDetailsMerged['highlightColour'] = [1, 0, 1];
   return subStructHighlightDetailsMerged;
-}
+};
 
-export const generateAndStoreMolImage = (obs, molType, width, height, RDKitModule, subqueryToHighlight = '') => async (dispatch, getState) => {
+export const generateAndStoreMolImage = (obs, molType, width, height, RDKitModule, subqueryToHighlight = '') => async (
+  dispatch,
+  getState
+) => {
   if (!obs) return null;
   if (!RDKitModule) return null;
 
@@ -1068,7 +1071,7 @@ export const loadMolImage = (molId, molType, width, height) => {
     return Promise.resolve();
   }
 
-  let onCancel = () => { };
+  let onCancel = () => {};
   return api({
     url,
     onCancel
@@ -1371,4 +1374,18 @@ export const isMainObservation = observation => (dispatch, getState) => {
   const state = getState();
   const poses = state.apiReducers.lhs_compounds_list;
   return !!poses?.some(pose => pose?.main_site_observation === observation?.id);
+};
+
+export const handleObservationFilterChange = (setFilterValueFn, onFilterChangeFn) => (
+  filterValue,
+  property,
+  value
+) => dispatch => {
+  const newFilterValue = {
+    ...filterValue,
+    [property]: value
+  };
+  setFilterValueFn && setFilterValueFn(newFilterValue);
+  onFilterChangeFn && onFilterChangeFn(newFilterValue);
+  dispatch(setUnifiedFilterItem('detail', newFilterValue));
 };

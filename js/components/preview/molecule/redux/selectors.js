@@ -19,6 +19,9 @@ const getSurfaceList = state => state.selectionReducers.surfaceList;
 const getDensityList = state => state.selectionReducers.densityList;
 const getVectorOnList = state => state.selectionReducers.vectorOnList;
 
+const getIsCoordinateFilterApplied = state => state.selectionReducers.isCoordinateFilterApplied;
+const getCoordinateFilterResults = state => state.selectionReducers.coordinateFilterResults;
+
 export const selectJoinedMoleculeList = createSelector(
   getAllMolecules,
   getAllSelectedTags,
@@ -28,10 +31,29 @@ export const selectJoinedMoleculeList = createSelector(
   getTagCategoryList,
   getDisplayAllMolecules,
   getDisplayUntaggedMolecules,
-  (all_mol_lists, selectedTagList, filteringMode, noTagsReceived, tagList, categoryList, displayAllMolecules, displayUntaggedMolecules) => {
+  getIsCoordinateFilterApplied,
+  getCoordinateFilterResults,
+  (
+    all_mol_lists,
+    selectedTagList,
+    filteringMode,
+    noTagsReceived,
+    tagList,
+    categoryList,
+    displayAllMolecules,
+    displayUntaggedMolecules,
+    isCoordinateFilterApplied,
+    coordinateFilterResults
+  ) => {
     let allMoleculesList = [];
 
     if (!displayUntaggedMolecules) {
+      let inputMols = [];
+      if (isCoordinateFilterApplied) {
+        inputMols = all_mol_lists.filter(mol => coordinateFilterResults.includes(mol.id));
+      } else {
+        inputMols = [...all_mol_lists];
+      }
       if (!noTagsReceived && !displayAllMolecules) {
         let tagListToUse = [];
         tagListToUse = selectedTagList;
@@ -39,7 +61,7 @@ export const selectJoinedMoleculeList = createSelector(
         if (!filteringMode) {
           //inclusive mode - i.e. if molecule has at least one of the selected tags then molecule is displayed
           tagListToUse.forEach(tag => {
-            let filteredMols = all_mol_lists.filter(mol => {
+            let filteredMols = inputMols.filter(mol => {
               let foundTag = mol.tags_set.filter(t => t === tag.id);
               if (foundTag && foundTag.length > 0) {
                 return true;
@@ -56,7 +78,7 @@ export const selectJoinedMoleculeList = createSelector(
           });
         } else {
           //exclusive mode - i.e. molecule has to have all selected tags attached to it
-          all_mol_lists.forEach(mol => {
+          inputMols.forEach(mol => {
             let foundAllTags = false;
             for (let i = 0; i < selectedTagList.length; i++) {
               let tag = selectedTagList[i];
