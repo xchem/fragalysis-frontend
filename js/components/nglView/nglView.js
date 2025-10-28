@@ -191,7 +191,10 @@ const NglView = memo(
 
     useEffect(() => {
       if (!ready) return;
-      if (sphereCoordinates && isCoordinateFilterPermitted && !sphereRendered) {
+      if (sphereCoordinates && isCoordinateFilterPermitted /* && !sphereRendered*/) {
+        if (sphereCompRef.current) {
+          stage.removeComponent(sphereCompRef.current);
+        }
         dispatch(selectionActions.setSphereRendered(true));
         ensureSphereAt(sphereCoordinates, parseRadius(coordinateRadius));
       } else {
