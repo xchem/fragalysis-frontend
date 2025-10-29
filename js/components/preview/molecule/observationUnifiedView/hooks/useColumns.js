@@ -38,7 +38,15 @@ export const useColumns = (defaultWidth) => {
             });
             setColumns(newColumns);
         } else {
-            setColumns(COLUMNS);
+            // set observation column width to fill hit navigator space better if there are no extra columns
+            const columns = COLUMNS;
+            columns.map(column => {
+                if (column.name === 'detail') {
+                    column.width = 230;
+                }
+                return column;
+            });
+            setColumns(columns);
         }
     }, [extraColumns, getColumnType]);
 
