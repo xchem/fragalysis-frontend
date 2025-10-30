@@ -168,11 +168,6 @@ export const clearMoleculeGroupSelection = ({ getNglView }) => (dispatch, getSta
   dispatch(resetCurrentCompoundsSettings(true));
 };
 
-export const restoreFromCurrentSnapshot = ({ nglViewList }) => (dispatch, getState) => {
-  const snapshot = getState().projectReducers.currentSnapshot.data;
-  dispatch(reloadSession(snapshot, nglViewList));
-};
-
 export const restoreSnapshotActions = ({ nglViewList, projectId, snapshotId, history }) => (dispatch, getState) => {
   // Trigger react-router to get rid of snapshot just saved flag
   history.replace(`${URLS.projects}${projectId}/${snapshotId}`);

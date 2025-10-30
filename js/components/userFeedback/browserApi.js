@@ -83,37 +83,72 @@ export const captureScreen = () => async dispatch => {
 };
 
 export const captureScreenOfSnapshotNglScreen = () => async dispatch => {
-  const view = document.getElementById('major_view');
-  if (view !== null) {
-    const dataUrl = await domtoimage.toPng(view);
-    return dataUrl;
-  }
-  return null;
-};
+  const node = document.getElementById('major_view');
+  if (!node) return null;
 
-export const captureScreenOfSnapshotFullScreen = () => async dispatch => {
-  const dataUrl = await domtoimage.toPng(document.body);
+  // Force pixel ratio = 1 to avoid huge canvases on HiDPI
+  const width = node.scrollWidth;
+  const height = node.scrollHeight;
+
+  const dataUrl = await domtoimage.toPng(node, {
+    width,
+    height,
+    style: {
+      // neutralize DPR scaling and ensure layout size matches our width/height
+      transform: 'scale(1)',
+      transformOrigin: 'top left',
+      width: `${width}px`,
+      height: `${height}px`
+    }
+  });
+
   return dataUrl;
 };
 
-export const rescaleImage = async (image, width, height) => {
-  // Create an image from the data URL
-  const img = new Image();
-  img.src = image;
+export const captureScreenOfSnapshotFullScreen = () => async dispatch => {
+  const node = document.documentElement; // whole page, not just body
+  const width = Math.max(document.documentElement.scrollWidth, document.body?.scrollWidth || 0);
+  const height = Math.max(document.documentElement.scrollHeight, document.body?.scrollHeight || 0);
 
-  // Wait for image to load
-  await new Promise(resolve => {
-    img.onload = resolve;
+  const dataUrl = await domtoimage.toPng(node, {
+    width,
+    height,
+    style: {
+      transform: 'scale(1)',
+      transformOrigin: 'top left',
+      width: `${width}px`,
+      height: `${height}px`
+    }
   });
 
-  // Now draw it onto a 1280x720 canvas
+  return dataUrl;
+};
+
+export const rescaleImage = async (imageDataUrl, width, height) => {
+  const img = new Image();
+  img.crossOrigin = 'anonymous'; // safe if same-origin or data URL
+  img.src = imageDataUrl;
+
+  // Wait for the image to fully load and decode
+  if (img.decode) {
+    await img.decode();
+  } else {
+    await new Promise(resolve => {
+      img.onload = () => resolve();
+    });
+  }
+
   const canvas = document.createElement('canvas');
   canvas.width = width;
   canvas.height = height;
 
   const ctx = canvas.getContext('2d');
-  ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+  ctx.imageSmoothingEnabled = true;
+  ctx.imageSmoothingQuality = 'high';
 
-  // Return the resized screenshot as a data URL
+  // Draw the image to fill the entire canvas
+  ctx.drawImage(img, 0, 0, width, height);
+
+  // Return resized image as data URL
   return canvas.toDataURL('image/png');
 };
