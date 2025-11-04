@@ -216,6 +216,12 @@ const SnapshotList = memo(({ expandHandler = null }) => {
       }
     }
 
+    result = result.filter(
+      snapshot =>
+        !snapshot?.additional_info?.hasOwnProperty('visibleInUI') ||
+        (snapshot?.additional_info?.hasOwnProperty('visibleInUI') && snapshot?.additional_info?.visibleInUI === true)
+    );
+
     //we need to filter out also auxiliary download snapshots
     result = result.filter(snapshot => !snapshot?.data?.includes('downloadTag'));
 
