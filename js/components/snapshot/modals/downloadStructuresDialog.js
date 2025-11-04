@@ -124,7 +124,8 @@ const PERMALINK_OPTIONS = [
 
 const OTHERS = [
   { flag: 'single_sdf_file', text: 'Single SDF of all ligands', defaultValue: true },
-  { flag: 'compound_sets', text: 'Computed compound sets', defaultValue: true }
+  { flag: 'compound_sets', text: 'Computed compound sets', defaultValue: true },
+  { flag: 'soakdb_files', text: 'SoakDB CSV and SQLite files', defaultValue: false }
   // { flag: 'sdf_info', text: 'Separate SDFs in subdirectory', defaultValue: false }
 ];
 
