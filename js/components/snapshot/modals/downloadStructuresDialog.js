@@ -308,7 +308,7 @@ export const DownloadStructureDialog = memo(({}) => {
         const tagName = generateTagName();
         const auxData = { downloadTag: tagName };
 
-        await dispatch(saveAndShareSnapshot(nglViewList, false, auxData));
+        await dispatch(saveAndShareSnapshot(nglViewList, false, auxData, false, 0, [], 0, false));
         const state = getState();
         const sharedSnapshot = state.snapshotReducers.sharedSnapshot;
         tagData.snapshot = sharedSnapshot;

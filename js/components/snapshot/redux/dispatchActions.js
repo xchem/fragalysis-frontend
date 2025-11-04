@@ -69,7 +69,7 @@ import { fr } from 'date-fns/locale';
 import { DEFAULT_SCREENSHOT_RESOLUTION, SCREENSHOT_TYPE } from '../constants';
 // import { display } from 'html2canvas/dist/types/css/property-descriptors/display';
 
-const getAdditionalInfo = state => {
+const getAdditionalInfo = (state, visibleInUI = true) => {
   const allMolecules = state.apiReducers.all_mol_lists;
   const { moleculesToEdit, fragmentDisplayList } = state.selectionReducers;
   const currentSnapshotSelectedCompounds = allMolecules
@@ -97,7 +97,8 @@ const getAdditionalInfo = state => {
     currentSnapshotSelectedCompounds,
     currentSnapshotVisibleCompounds,
     currentSnapshotSelectedDatasetsCompounds,
-    currentSnapshotVisibleDatasetsCompounds
+    currentSnapshotVisibleDatasetsCompounds,
+    visibleInUI
   };
 };
 
@@ -139,7 +140,7 @@ export const createNewSnapshot = ({
         session_project,
         children: currentSnapshot.children,
         data: '[]',
-        additional_info: getAdditionalInfo(state, snapshotData)
+        additional_info: getAdditionalInfo(state)
       },
       method: METHOD.PUT
     });
@@ -177,7 +178,7 @@ export const createNewSnapshot = ({
           session_project,
           data: '[]',
           children: [],
-          additional_info: getAdditionalInfo(state, snapshotData)
+          additional_info: getAdditionalInfo(state)
         },
         method: METHOD.POST
       }).then(res => {
@@ -418,7 +419,8 @@ export const saveAndShareSnapshot = (
   overwriteSnapshot = false,
   snapshotIdToOverwrite = 0,
   oldImages = [],
-  sessionProjectId = 0
+  sessionProjectId = 0,
+  visibleInUI = true
 ) => async (dispatch, getState) => {
   dispatch(setSnapshotIsSaving(true));
   const snapshotData = dispatch(getCleanStateForSnapshot());
@@ -443,7 +445,7 @@ export const saveAndShareSnapshot = (
       dispatch(setIsLoadingSnapshotDialog(true));
     }
 
-    const additional_info = getAdditionalInfo(state);
+    const additional_info = getAdditionalInfo(state, visibleInUI);
 
     let data = {
       title: ProjectCreationType.READ_ONLY,
