@@ -18,7 +18,9 @@ export const layoutItemNames = {
   VIEWER_CONTROLS: 'viewerControls',
   PROJECT_HISTORY: 'projectHistory',
   RESIZABLE: 'resizable',
-  SNAPSHOT_LIST: 'snapshotList'
+  SNAPSHOT_LIST: 'snapshotList',
+  PLOTLY_VIEW: 'plotlyView',
+  COMPOUNDS_VIEW: 'compoundsView'
 };
 
 export const constants = {

@@ -11,6 +11,8 @@ import HitNavigator from './molecule/hitNavigator';
 import { ViewerControls } from './viewerControls';
 import { RHS } from './rhs';
 import { setResizableLayout, setActualRhsWidth } from '../../reducers/selection/actions';
+import { PlotlyView } from './plotly/plotlyView';
+import { layoutItemNames } from '../../reducers/layout/constants';
 
 const useStyles = makeStyles(theme => ({
   root: { display: 'flex', height: '100%' },
@@ -30,7 +32,9 @@ const resizerSize = 20;
 const MIN_HEIGHTS = {
   snapshot: 25,
   tagDetails: 25,
-  hitNavigator: 120
+  hitNavigator: 120,
+  plotlyView: 120,
+  rhs: 120
 };
 
 export const ResizableLayout = ({ gridRef, nglPortal }) => {
@@ -58,6 +62,7 @@ export const ResizableLayout = ({ gridRef, nglPortal }) => {
     () => [
       {
         id: 'snapshot',
+        group: 'lhs',
         component: (
           <SnapshotList
             expandHandler={expanded => {
@@ -74,6 +79,7 @@ export const ResizableLayout = ({ gridRef, nglPortal }) => {
       },
       {
         id: 'tagDetails',
+        group: 'lhs',
         component: (
           <TagDetails
             expandHandler={expanded => {
@@ -90,6 +96,7 @@ export const ResizableLayout = ({ gridRef, nglPortal }) => {
       },
       {
         id: 'hitNavigator',
+        group: 'lhs',
         component: <HitNavigator />,
         min: MIN_HEIGHTS.hitNavigator,
         initialPct: 55
@@ -97,6 +104,35 @@ export const ResizableLayout = ({ gridRef, nglPortal }) => {
     ],
     [mutateSuggestedHeight]
   );
+
+  const rhsPanels = useMemo(
+    () => [
+      {
+        id: 'plotlyView',
+        group: 'rhs',
+        component: <PlotlyView expandHandler={expanded => {
+          if (expanded) {
+            mutateSuggestedHeight(layoutItemNames.PLOTLY_VIEW, null);
+          } else {
+            mutateSuggestedHeight(layoutItemNames.PLOTLY_VIEW, 25);
+          }
+        }} />,
+        min: MIN_HEIGHTS.plotlyView,
+        initialPct: 55
+      },
+      {
+        id: 'rhs',
+        group: 'rhs',
+        component: <RHS />,
+        min: MIN_HEIGHTS.rhs,
+        initialPct: 55
+      }
+    ],
+    [mutateSuggestedHeight]
+  );
+
+  // const lhsPanels = useMemo(() => panels.filter(p => p.group === 'lhs'), [panels]);
+  // const rhsPanels = useMemo(() => panels.filter(p => p.group === 'rhs'), [panels]);
 
   const clampRange = (v, min, max) => Math.max(min, Math.min(max, v));
 
@@ -122,6 +158,17 @@ export const ResizableLayout = ({ gridRef, nglPortal }) => {
     },
     [panels, panelSuggestedHeights]
   );
+  const rememberRHSHeights = useCallback(
+    arr => {
+      rhsPanels.forEach((p, i) => {
+        const hasOverride = panelSuggestedHeights.some(x => x.id === p.id);
+        if (!hasOverride) {
+          lastVariableHeights.current[p.id] = arr[i];
+        }
+      });
+    },
+    [rhsPanels, panelSuggestedHeights]
+  );
 
   // Initial heights
   const [heights, setHeights] = useState(() => {
@@ -132,6 +179,15 @@ export const ResizableLayout = ({ gridRef, nglPortal }) => {
     }
     const equal = total / panels.length;
     return panels.map(p => clampRange(equal, p.min, total));
+  });
+  const [rhsHeights, setRHSHeights] = useState(() => {
+    const total = getTotalHeight() || 600;
+    const allPctOK = rhsPanels.every(p => typeof p.initialPct === 'number');
+    if (allPctOK) {
+      return rhsPanels.map(p => clampRange((p.initialPct / 100) * total, p.min, total));
+    }
+    const equal = total / rhsPanels.length;
+    return rhsPanels.map(p => clampRange(equal, p.min, total));
   });
 
   // ResizeObserver – preserve ratios on container resize
@@ -158,6 +214,30 @@ export const ResizableLayout = ({ gridRef, nglPortal }) => {
     if (node) observer.observe(node);
     return () => observer.disconnect();
   }, [getTotalHeight, gridRef, panels, rememberHeights]);
+
+  useLayoutEffect(() => {
+    let lastTotal = null;
+    const observer = new ResizeObserver(() => {
+      const total = getTotalHeight();
+      if (!total || total === lastTotal) return;
+      lastTotal = total;
+      setRHSHeights(prev => {
+        const sum = prev.reduce((a, b) => a + b, 0);
+        const factor = total / sum;
+        let newH = prev.map((h, i) => clampRange(h * factor, rhsPanels[i].min, total));
+        const drift = total - newH.reduce((a, b) => a + b, 0);
+        if (Math.abs(drift) > 1) {
+          const idx = newH.indexOf(Math.max(...newH));
+          newH[idx] += drift;
+        }
+        rememberRHSHeights(newH);
+        return newH;
+      });
+    });
+    const node = gridRef?.current?.elementRef?.current?.firstChild;
+    if (node) observer.observe(node);
+    return () => observer.disconnect();
+  }, [getTotalHeight, gridRef, rhsPanels, rememberRHSHeights]);
 
   //  Divider drag handler - horizontal resizers between panels
   const makeOnResize = useCallback(
@@ -198,6 +278,45 @@ export const ResizableLayout = ({ gridRef, nglPortal }) => {
       });
     },
     [getTotalHeight, gridRef, panels, rememberHeights]
+  );
+  const makeOnRHSResize = useCallback(
+    index => (_, cursorY) => {
+      const total = getTotalHeight();
+      if (!total) return;
+
+      const node = gridRef.current.elementRef.current.firstChild;
+      const top = node.getBoundingClientRect().y;
+      const aboveMin = rhsPanels.slice(0, index + 1).reduce((s, p) => s + p.min, 0);
+      const belowMin = rhsPanels.slice(index + 1).reduce((s, p) => s + p.min, 0);
+      const maxAbove = total - belowMin;
+      const desiredAbove = clampRange(cursorY - top - resizerSize / 2, aboveMin, maxAbove);
+
+      setRHSHeights(prev => {
+        const out = [...prev];
+        if (index === 0) {
+          out[0] = desiredAbove;
+          const remain = total - desiredAbove;
+          const oldBelow = prev.slice(1);
+          const sumOld = oldBelow.reduce((a, b) => a + b, 0) || 1;
+          oldBelow.forEach((h, j) => {
+            out[1 + j] = clampRange((h / sumOld) * remain, rhsPanels[1 + j].min, remain);
+          });
+        } else {
+          const fixedAbove = prev.slice(0, index).reduce((a, b) => a + b, 0);
+          const newH = clampRange(desiredAbove - fixedAbove, rhsPanels[index].min, total - fixedAbove - belowMin);
+          out[index] = newH;
+          const remain = total - fixedAbove - newH;
+          const oldBelow = prev.slice(index + 1);
+          const sumOld = oldBelow.reduce((a, b) => a + b, 0) || 1;
+          oldBelow.forEach((h, j) => {
+            out[index + 1 + j] = clampRange((h / sumOld) * remain, rhsPanels[index + 1 + j].min, remain);
+          });
+        }
+        rememberRHSHeights(out);
+        return out;
+      });
+    },
+    [getTotalHeight, gridRef, rhsPanels, rememberRHSHeights]
   );
 
   const [lhsW, setLhsW] = useState(sidesOpen.LHS ? sideWidth : 0);
@@ -318,7 +437,21 @@ export const ResizableLayout = ({ gridRef, nglPortal }) => {
         <>
           <Resizer onResize={onRhsResize} />
           <div style={{ width: rhsW }}>
-            <RHS />
+            {/* <PlotlyView />
+            <RHS /> */}
+            {rhsPanels.map((p, i) => (
+              <React.Fragment key={p.id}>
+                <div
+                  style={{
+                    height: panelSuggestedHeights.find(item => item.id === p.id)?.suggestedHeight ?? rhsHeights[i],
+                    overflow: 'auto'
+                  }}
+                >
+                  {p.component}
+                </div>
+                {i < rhsPanels.length - 1 && <Resizer orientation="horizontal" onResize={makeOnRHSResize(i)} />}
+              </React.Fragment>
+            ))}
           </div>
         </>
       )}
