@@ -9,7 +9,7 @@ export const INITIAL_STATE = {
   scoreCompoundMap: {}, // map of $compoundID and its $scoreList
 
   selectedDatasetIndex: 0,
-  tabValue: 0,
+  tabValue: 2, // set default tab to "Compound sets"
 
   // filter
   filterDatasetMap: {}, // map of $datasetID and its $filterSettings
