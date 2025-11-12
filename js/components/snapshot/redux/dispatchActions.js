@@ -69,31 +69,7 @@ import { fr } from 'date-fns/locale';
 import { DEFAULT_SCREENSHOT_RESOLUTION, SCREENSHOT_TYPE } from '../constants';
 // import { display } from 'html2canvas/dist/types/css/property-descriptors/display';
 
-export const reloadSession = (snapshotData, nglViewList) => (dispatch, getState) => {
-  const state = getState();
-  const snapshotTitle = state.projectReducers.currentSnapshot.title;
-
-  dispatch(reloadApiState(snapshotData.apiReducers));
-  // dispatch(setSessionId(myJson.id));
-  dispatch(setSessionTitle(snapshotTitle));
-
-  if (nglViewList.length > 0) {
-    dispatch(reloadSelectionReducer(snapshotData.selectionReducers));
-    dispatch(reloadDatasetsReducer(snapshotData.datasetsReducers));
-
-    nglViewList.forEach(nglView => {
-      dispatch(reloadNglViewFromSnapshot(nglView.stage, nglView.id, snapshotData.nglReducers));
-    });
-
-    if (snapshotData.selectionReducers.vectorOnList.length !== 0) {
-      dispatch(reloadPreviewReducer(snapshotData.previewReducers));
-    }
-  }
-
-  dispatch(setProteinLoadingState(true));
-};
-
-const getAdditionalInfo = state => {
+const getAdditionalInfo = (state, visibleInUI = true) => {
   const allMolecules = state.apiReducers.all_mol_lists;
   const { moleculesToEdit, fragmentDisplayList } = state.selectionReducers;
   const currentSnapshotSelectedCompounds = allMolecules
@@ -121,7 +97,8 @@ const getAdditionalInfo = state => {
     currentSnapshotSelectedCompounds,
     currentSnapshotVisibleCompounds,
     currentSnapshotSelectedDatasetsCompounds,
-    currentSnapshotVisibleDatasetsCompounds
+    currentSnapshotVisibleDatasetsCompounds,
+    visibleInUI
   };
 };
 
@@ -163,7 +140,7 @@ export const createNewSnapshot = ({
         session_project,
         children: currentSnapshot.children,
         data: '[]',
-        additional_info: getAdditionalInfo(state, snapshotData)
+        additional_info: getAdditionalInfo(state)
       },
       method: METHOD.PUT
     });
@@ -201,7 +178,7 @@ export const createNewSnapshot = ({
           session_project,
           data: '[]',
           children: [],
-          additional_info: getAdditionalInfo(state, snapshotData)
+          additional_info: getAdditionalInfo(state)
         },
         method: METHOD.POST
       }).then(res => {
@@ -442,7 +419,8 @@ export const saveAndShareSnapshot = (
   overwriteSnapshot = false,
   snapshotIdToOverwrite = 0,
   oldImages = [],
-  sessionProjectId = 0
+  sessionProjectId = 0,
+  visibleInUI = true
 ) => async (dispatch, getState) => {
   dispatch(setSnapshotIsSaving(true));
   const snapshotData = dispatch(getCleanStateForSnapshot());
@@ -467,7 +445,7 @@ export const saveAndShareSnapshot = (
       dispatch(setIsLoadingSnapshotDialog(true));
     }
 
-    const additional_info = getAdditionalInfo(state);
+    const additional_info = getAdditionalInfo(state, visibleInUI);
 
     let data = {
       title: ProjectCreationType.READ_ONLY,
@@ -566,11 +544,16 @@ export const getCleanStateForSnapshot = () => (dispatch, getState) => {
   return snapshotData;
 };
 
-export const changeSnapshot = (projectID, snapshotID, stage, fromJobExec = false) => async (dispatch, getState) => {
+export const changeSnapshot = (projectID, snapshotID, stage, fromJobExec = false, loadingSnapshot = false) => async (
+  dispatch,
+  getState
+) => {
   dispatch(setSnapshotLoadingInProgress(true));
   dispatch(setIsSnapshot(true));
   // A hacky way of changing the URL without triggering react-router
-  window.history.replaceState(null, null, `${URLS.projects}${projectID}/${snapshotID}`);
+  if (!fromJobExec) {
+    window.history.replaceState(null, null, `${URLS.projects}${projectID}/${snapshotID}`);
+  }
 
   // Load the needed data
   const snapshotResponse = await api({ url: `${base_url}/api/snapshots/${snapshotID}` });
@@ -610,6 +593,10 @@ export const changeSnapshot = (projectID, snapshotID, stage, fromJobExec = false
   let currentState = getState();
   let toBeDisplayedLHSNewDeepCopy = null;
   let toBeDisplayedRHSNewDeepCopy = null;
+  if (loadingSnapshot) {
+    currentState.snapshotReducers.switchingSnapshotWithinProject = false;
+    snapshotState.snapshotReducers.switchingSnapshotWithinProject = false;
+  }
   if (!fromJobExec) {
     currentState.snapshotReducers.switchingSnapshotWithinProject = true;
     snapshotState.snapshotReducers.switchingSnapshotWithinProject = true;
@@ -668,11 +655,8 @@ export const changeSnapshot = (projectID, snapshotID, stage, fromJobExec = false
     dispatch(setToBeDisplayedList(toBeDisplayedLHSNewDeepCopy));
     dispatch(setToBeDisplayedLists(toBeDisplayedRHSNewDeepCopy));
   }
-  // });
-  // await new Promise(r => setTimeout(r, 2000));
 
-  // dispatch(setEntireState(newState));
-  // console.log('msg');
+  return snapshotResponse;
 };
 
 export const isSnapshotModified = snapshotID => async (dispatch, getState) => {

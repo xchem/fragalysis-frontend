@@ -124,7 +124,8 @@ const PERMALINK_OPTIONS = [
 
 const OTHERS = [
   { flag: 'single_sdf_file', text: 'Single SDF of all ligands', defaultValue: true },
-  { flag: 'compound_sets', text: 'Computed compound sets', defaultValue: true }
+  { flag: 'compound_sets', text: 'Computed compound sets', defaultValue: true },
+  { flag: 'soakdb_files', text: 'SoakDB CSV and SQLite files', defaultValue: false }
   // { flag: 'sdf_info', text: 'Separate SDFs in subdirectory', defaultValue: false }
 ];
 
@@ -180,6 +181,7 @@ export const DownloadStructureDialog = memo(({}) => {
   const [backendError, setBackendError] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
   const [alreadyInProgress, setAlreadyInProgress] = useState(false);
+  const [apiErrorCounter, setApiErrorCounter] = useState(0);
 
   const { toastSuccess, toastError, toastInfo } = useContext(ToastContext);
 
@@ -262,6 +264,7 @@ export const DownloadStructureDialog = memo(({}) => {
   const prepareDownloadClicked = () => async (dispatch, getState) => {
     try {
       setErrorMessage('');
+      setApiErrorCounter(0);
       const options = { link: { linkAction: downloadStructuresZip, linkText: 'Click to Download', linkParams: [] } };
 
       if (selectedDownload !== newDownload) {
@@ -305,7 +308,7 @@ export const DownloadStructureDialog = memo(({}) => {
         const tagName = generateTagName();
         const auxData = { downloadTag: tagName };
 
-        await dispatch(saveAndShareSnapshot(nglViewList, false, auxData));
+        await dispatch(saveAndShareSnapshot(nglViewList, false, auxData, false, 0, [], 0, false));
         const state = getState();
         const sharedSnapshot = state.snapshotReducers.sharedSnapshot;
         tagData.snapshot = sharedSnapshot;
@@ -404,12 +407,17 @@ export const DownloadStructureDialog = memo(({}) => {
         }
       }
     } catch (e) {
-      setZipPreparing(false);
-      setBackendError(true);
-      const errorMessage = `Download failed, with backend error. Please contact administrator. Error details: ${e?.message}`;
-      setErrorMessage(errorMessage);
-      toastError(errorMessage);
-      console.error(e);
+      if (apiErrorCounter < 3) {
+        setApiErrorCounter(prev => prev + 1);
+        setTimeout(() => handleDownloadTask(taskUrl, tagData, options, tagName, existingDownload), 5000);
+      } else {
+        setZipPreparing(false);
+        setBackendError(true);
+        const errorMessage = `Download failed, with backend error. Please contact administrator. Error details: ${e?.message}`;
+        setErrorMessage(errorMessage);
+        toastError(errorMessage);
+        console.error(e);
+      }
     }
   };
 
@@ -809,3 +817,4 @@ export const DownloadStructureDialog = memo(({}) => {
     </Modal>
   );
 });
+

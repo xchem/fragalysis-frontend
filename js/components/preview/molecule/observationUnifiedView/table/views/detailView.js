@@ -1161,6 +1161,8 @@ export const DetailView = memo(
                 justifyContent="space-between"
                 direction="row"
                 wrap="nowrap"
+                data-lhs-compound-code={getMainObservation()?.compound_code || ''}
+                data-lhs-observation-code={getMainObservation()?.code || ''}
             >
                 <Grid item container className={classes.detailsCol} justifyContent="space-evenly" direction="column" xs={2}>
                     {/* Title label */}

@@ -225,63 +225,6 @@ export const centerOnLigandByMoleculeID = (stage, moleculeID, datasetId = null) 
   }
 };
 
-/**
- *
- * @param stage - instance of NGL view
- * @param display_div - id of NGL View div
- * @param snapshot - snapshot data of NGL View
- */
-export const reloadNglViewFromSnapshot = (stage, display_div, snapshot) => (dispatch, getState) => {
-  dispatch(setNglStateFromCurrentSnapshot(snapshot));
-
-  // Remove all components in NGL View
-  stage.removeAllComponents();
-
-  // Reconstruction of state in NGL View from currentScene data
-  // objectsInView
-  Promise.all(
-    Object.keys(snapshot.objectsInView || {}).map(objInView => {
-      if (snapshot.objectsInView[objInView].display_div === display_div) {
-        let representations = snapshot.objectsInView[objInView].representations;
-        return dispatch(
-          loadObject({
-            target: snapshot.objectsInView[objInView],
-            stage,
-            previousRepresentations: createRepresentationsArray(representations)
-          })
-        );
-      } else {
-        return Promise.resolve();
-      }
-    })
-  ).finally(() => {
-    if (display_div !== VIEWS.SUMMARY_VIEW) {
-      // loop over nglViewParams
-      Object.keys(snapshot.viewParams).forEach(param => {
-        dispatch(setNglViewParams(param, snapshot.viewParams[param], stage, VIEWS.MAJOR_VIEW));
-      });
-
-      const state = getState();
-      const skipOrientation = false; //state.trackingReducers.skipOrientationChange;
-      // nglOrientations
-      if (!skipOrientation) {
-        const newOrientation = snapshot.nglOrientations[display_div];
-        console.count(`Orientation retrieved reloadNglViewFromSnapshot`);
-        if (newOrientation) {
-          console.count(`Before applying orientation reloadNglViewFromSnapshot`);
-          stage.viewerControls.orient(newOrientation.elements);
-          console.count(`After applying orientation reloadNglViewFromSnapshot`);
-        }
-
-        // set molecule orientations
-        if (snapshot.moleculeOrientations) {
-          dispatch(setMoleculeOrientations(snapshot.moleculeOrientations));
-        }
-      }
-    }
-  });
-};
-
 export const setNglBckGrndColor = (color, major) => (dispatch, getState) => {
   dispatch(setNglViewParams(NGL_PARAMS.backgroundColor, color, major, VIEWS.MAJOR_VIEW));
   dispatch(setBackgroundColor(color));

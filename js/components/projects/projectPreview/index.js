@@ -2,7 +2,11 @@ import React, { memo, useContext, useEffect, useRef, useState } from 'react';
 import Preview from '../../preview/Preview';
 import { useDispatch, useSelector } from 'react-redux';
 import { useRouteMatch } from 'react-router-dom';
-import { loadCurrentSnapshotByID, loadSnapshotByProjectID } from '../redux/dispatchActions';
+import {
+  loadCurrentSnapshotByID,
+  loadCurrentSnapshotByIDOverlay,
+  loadSnapshotByProjectID
+} from '../redux/dispatchActions';
 import { DJANGO_CONTEXT } from '../../../utils/djangoContext';
 import { setDownloadStructuresDialogOpen } from '../../snapshot/redux/actions';
 import { ToastContext } from '../../toast';
@@ -138,7 +142,8 @@ export const ProjectPreview = memo(({}) => {
         });
     } else {
       if (currentSnapshotID === null) {
-        dispatch(loadCurrentSnapshotByID(snapshotId))
+        // dispatch(loadCurrentSnapshotByID(snapshotId))
+        dispatch(loadCurrentSnapshotByIDOverlay(projectId, snapshotId))
           .then(response => {
             if (response !== false) {
               if (response) {
@@ -151,7 +156,8 @@ export const ProjectPreview = memo(({}) => {
                   setShowLegacySnapshotModal(true);
                 }
                 if (response.data) {
-                  const dataObj = JSON.parse(response.data);
+                  // const dataObj = JSON.parse(response.data);
+                  const dataObj = response.data;
                   if (dataObj.downloadTag) {
                     dispatch(setDownloadStructuresDialogOpen(true));
                   }
@@ -174,7 +180,7 @@ export const ProjectPreview = memo(({}) => {
         }
       }
     }
-  }, [currentSnapshotID, dispatch, projectId, snapshotId, isActionRestoring, isActionRestored, canShow]);
+  }, [currentSnapshotID, dispatch, projectId, snapshotId, isActionRestoring, isActionRestored, canShow, stage]);
 
   if (canShow === false) {
     toast('Not valid snapshot!');

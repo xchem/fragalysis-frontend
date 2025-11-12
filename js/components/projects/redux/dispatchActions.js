@@ -13,6 +13,7 @@ import { setIsSnapshot, setOpenDiscourseErrorModal } from '../../../reducers/api
 import _ from 'lodash';
 import { setEntireState } from '../../../reducers/actions';
 import { loadTargetList } from '../../target/redux/dispatchActions';
+import { changeSnapshot } from '../../snapshot/redux/dispatchActions';
 
 export const removeSnapshotByID = snapshotID => dispatch => {
   return api({ url: `${base_url}/api/snapshots/${snapshotID}` }).then(response => {
@@ -99,6 +100,37 @@ export const loadSnapshotByProjectID = projectID => async (dispatch, getState) =
   return Promise.resolve(false);
 };
 
+export const loadCurrentSnapshotByIDOverlay = (projectId, snapshotID) => async (dispatch, getState) => {
+  const state = getState();
+
+  const isLoadingCurrentSnapshot = state.projectReducers.isLoadingCurrentSnapshot;
+  if (isLoadingCurrentSnapshot) {
+    return Promise.resolve(false);
+  }
+
+  try {
+    dispatch(setIsLoadingCurrentSnapshot(true));
+    dispatch(setIsSnapshot(true));
+
+    //we don't need stage because we are not doing that animation that is done when switching snapshots from the UI
+    // we are directly loading the snapshot state
+    const snapshotResponse = await dispatch(changeSnapshot(projectId, snapshotID, null, true, true));
+    dispatch(
+      setCurrentProject({
+        projectID: snapshotResponse.data.session_project.id,
+        authorID: snapshotResponse.data.session_project.author || null,
+        title: snapshotResponse.data.session_project.title,
+        description: snapshotResponse.data.session_project.description,
+        targetID: snapshotResponse.data.session_project.target.id,
+        tags: JSON.parse(snapshotResponse.data.session_project.tags)
+      })
+    );
+    return snapshotResponse.data;
+  } finally {
+    dispatch(setIsLoadingCurrentSnapshot(false));
+  }
+};
+
 export const loadCurrentSnapshotByID = snapshotID => (dispatch, getState) => {
   const state = getState();
   const isLoadingCurrentSnapshot = state.projectReducers.isLoadingCurrentSnapshot;
@@ -121,7 +153,9 @@ export const loadCurrentSnapshotByID = snapshotID => (dispatch, getState) => {
           }
 
           snapshotState.nglReducers.isNGLQueueEmpty = false;
-          dispatch(setEntireState(snapshotState));
+          //need to overlay the current state with the snapshot state
+          // dispatch(setEntireState(snapshotState));
+          dispatch(changeSnapshot());
           dispatch(
             setCurrentSnapshot({
               id: snapshot.id,
