@@ -13,5 +13,5 @@ ENV APP_ROOT /frontend
 WORKDIR ${APP_ROOT}/static
 COPY . ${APP_ROOT}/
 WORKDIR ${APP_ROOT}
-RUN yarn install && \
+RUN yarn install --frozen-lockfile && \
     yarn run build
