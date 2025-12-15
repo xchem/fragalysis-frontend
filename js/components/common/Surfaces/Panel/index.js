@@ -131,7 +131,7 @@ export const Panel = memo(
             <div className={secondaryBackground ? classes.headerSecondary : classes.header}>
               <Grid
                 container
-                justifyContent="space-between"
+                justifyContent={title ? "space-between" : "flex-end"}
                 direction="row"
                 alignItems="center"
                 className={classes.headerGrid}
