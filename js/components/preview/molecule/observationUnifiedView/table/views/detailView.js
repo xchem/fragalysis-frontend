@@ -161,10 +161,11 @@ const useStyles = makeStyles(theme => ({
         }
     },
     detailsCol: {
+        position: 'relative',
         border: 'solid 1px',
         borderColor: theme.palette.background.divider,
-        borderStyle: 'solid none solid solid',
-        width: 'inherit'
+        borderStyle: 'solid none solid solid'
+        // width: 'inherit'
     },
     image: {
         border: 'solid 1px',
@@ -224,7 +225,15 @@ const useStyles = makeStyles(theme => ({
     },
     moleculeTitleLabelMain: {
         fontWeight: 'bold',
-        fontSize: '0.9rem'
+        fontSize: '0.9rem',
+        overflow: 'hidden',
+        whiteSpace: 'nowrap',
+        textOverflow: 'ellipsis'
+    },
+    moleculeTitleLabelSub: {
+        overflow: 'hidden',
+        whiteSpace: 'nowrap',
+        textOverflow: 'ellipsis'
     },
     checkbox: {
         padding: 0
@@ -376,10 +385,16 @@ const useStyles = makeStyles(theme => ({
         position: 'right'
     },
     posePropertiesTableIcon: {
+        position: 'absolute',
+        right: -17,
+        bottom: 5,
         padding: 0,
         color: theme.palette.grey[500]
     },
     posePropertiesTableIconActive: {
+        position: 'absolute',
+        right: -17,
+        bottom: 5,
         padding: 0,
         color: theme.palette.grey[700]
     }
@@ -1164,56 +1179,63 @@ export const DetailView = memo(
                 data-lhs-compound-code={getMainObservation()?.compound_code || ''}
                 data-lhs-observation-code={getMainObservation()?.code || ''}
             >
-                <Grid item container className={classes.detailsCol} justifyContent="space-evenly" direction="column" xs={2}>
+                <Grid item container className={classes.detailsCol} justifyContent="space-evenly" direction="column" xs={4}>
                     {/* Title label */}
-                    <Tooltip title={getDisplayName() || ''}>
-                        <Grid
-                            item
-                            onCopy={e => {
-                                e.preventDefault();
-                                setNameCopied(moleculeTitle);
-                            }}
-                            className={classes.moleculeTitleLabel}
-                        >
+                    <Grid
+                        item
+                        container
+                        onCopy={e => {
+                            e.preventDefault();
+                            setNameCopied(moleculeTitle);
+                        }}
+                        className={classes.moleculeTitleLabel}
+                    >
+                        <Tooltip title={getMainObservation()?.code?.replaceAll(`${target_on_name}-`, '') || ''}>
                             <span className={classes.moleculeTitleLabelMain}>
                                 {getMainObservation()?.code?.replaceAll(`${target_on_name}-`, '') || ''}
                             </span>
-                            <br />
-                            {getDisplayName(true)}
-                            <IconButton
-                                className={popoverOpen ? classes.posePropertiesTableIconActive : classes.posePropertiesTableIcon}
-                                onMouseEnter={handleTablePopoverOpen}
-                                onMouseLeave={() => setAnchorElTable(null)}
-                                ref={anchorElTable}
+                        </Tooltip>
+                        <br />
+                        <Tooltip title={getDisplayName() || ''}>
+                            <span className={classes.moleculeTitleLabelSub}>
+                                {getDisplayName()}
+                            </span>
+                        </Tooltip>
+                        <IconButton
+                            className={popoverOpen ? classes.posePropertiesTableIconActive : classes.posePropertiesTableIcon}
+                            onMouseEnter={handleTablePopoverOpen}
+                            onMouseLeave={() => setAnchorElTable(null)}
+                            ref={anchorElTable}
+                        >
+                            <Assignment />
+                            <Popover
+                                id="mouse-over-popover"
+                                style={{ pointerEvents: 'none' }}
+                                open={popoverOpen}
+                                anchorEl={anchorElTable}
+                                anchorOrigin={{
+                                    vertical: 'center',
+                                    horizontal: 'right'
+                                }}
+                                transformOrigin={{
+                                    vertical: 'center',
+                                    horizontal: 'left'
+                                }}
+                                onClose={handleTablePopoverClose}
+                                disableRestoreFocus
                             >
-                                <Assignment />
-                                <Popover
-                                    id="mouse-over-popover"
-                                    style={{ pointerEvents: 'none' }}
-                                    open={popoverOpen}
-                                    anchorEl={anchorElTable}
-                                    anchorOrigin={{
-                                        vertical: 'center',
-                                        horizontal: 'right'
-                                    }}
-                                    transformOrigin={{
-                                        vertical: 'center',
-                                        horizontal: 'left'
-                                    }}
-                                    onClose={handleTablePopoverClose}
-                                    disableRestoreFocus
-                                >
-                                    <CopyDataTable
-                                        mainObservation={getMainObservation()}
-                                        target_on_name={target_on_name}
-                                        data={data}
-                                        aliasOrder={aliasOrder}
-                                        handleTableIsOpen={(isOpen) => setTableIsOpen(isOpen)}
-                                    />
-                                </Popover>
-                            </IconButton>
-                        </Grid>
-                    </Tooltip>
+                                <CopyDataTable
+                                    mainObservation={getMainObservation()}
+                                    target_on_name={target_on_name}
+                                    data={data}
+                                    aliasOrder={aliasOrder}
+                                    handleTableIsOpen={(isOpen) => setTableIsOpen(isOpen)}
+                                />
+                            </Popover>
+                        </IconButton>
+
+                    </Grid>
+
                 </Grid>
                 {/* Tags */}
                 <Grid
@@ -1222,7 +1244,7 @@ export const DetailView = memo(
                     justifyContent="flex-start"
                     alignItems="flex-end"
                     direction="column"
-                    xs={10}
+                    xs={8}
                     className={classes.buttonsTagsWrapper}
                 >
                     {/* Control Buttons A, L, C, V */}
