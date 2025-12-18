@@ -3,7 +3,24 @@
  */
 
 import React, { memo, useCallback, useContext, useEffect, useRef, useState } from 'react';
-import { Button, Dialog, DialogActions, DialogContent, DialogTitle, Divider, FormControlLabel, Grid, IconButton, makeStyles, MenuItem, Radio, RadioGroup, Select, TextField, Typography } from '@material-ui/core';
+import {
+  Button,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogTitle,
+  Divider,
+  FormControlLabel,
+  Grid,
+  IconButton,
+  makeStyles,
+  MenuItem,
+  Radio,
+  RadioGroup,
+  Select,
+  TextField,
+  Typography
+} from '@material-ui/core';
 import { Tooltip } from '@mui/material';
 import { Close } from '@mui/icons-material';
 import { ToastContext } from '../toast';
@@ -14,6 +31,7 @@ import { TOAST_LEVELS } from '../toast/constants';
 import { addToastMessage } from '../../reducers/selection/actions';
 import { replaceTarget, setTargetOnAliases, setTargetOnName } from '../../reducers/api/actions';
 import { getCurrentTarget } from '../../reducers/api/selectors';
+import { DENSITY_MAP_TYPES, MAP_RENDERING_MODES } from '../preview/molecule/utils/constants';
 
 const useStyles = makeStyles(theme => ({
   copyButton: {
@@ -58,8 +76,9 @@ export const TargetSettingsModal = memo(({ openModal, onModalClose, isTargetOn =
   const [organism, setOrganism] = useState('');
   const [externalURL, setExternalURL] = useState('');
   const [externalURLName, setExternalURLName] = useState('');
-  const [electronDensity, setElectronDensity] = useState(null);
   const [currentTarget, setCurrentTarget] = useState(null);
+  const [electronDensityMapType, setElectronDensityMapType] = useState(DENSITY_MAP_TYPES.EVENT);
+  const [electronDensityRenderingMode, setElectronDensityRenderingMode] = useState(MAP_RENDERING_MODES.WIREFRAME);
 
   const target_on_name = useSelector(state => state.apiReducers.target_on_name);
   const target_on_aliases = useSelector(state => state.apiReducers.target_on_aliases);
@@ -120,6 +139,8 @@ export const TargetSettingsModal = memo(({ openModal, onModalClose, isTargetOn =
     setOrganism(target.organism);
     setExternalURL(target.external_url);
     setExternalURLName(target.external_url_display_name);
+    setElectronDensityMapType(target.settings?.electron_density_map_type || DENSITY_MAP_TYPES.EVENT);
+    setElectronDensityRenderingMode(target.settings?.electron_density_rendering_mode || MAP_RENDERING_MODES.WIREFRAME);
     // setElectronDensity(null);
   }, [isTargetOn, target_on_name, target_on_aliases, activeTarget, selectedTarget]);
 
@@ -161,7 +182,12 @@ export const TargetSettingsModal = memo(({ openModal, onModalClose, isTargetOn =
           organism: organism,
           external_url: externalURL,
           external_url_display_name: externalURLName,
-          alias_order: identifierTypes
+          alias_order: identifierTypes,
+          settings: {
+            ...(currentTarget.settings || {}),
+            electron_density_map_type: electronDensityMapType,
+            electron_density_rendering_mode: electronDensityRenderingMode
+          }
         }
       })
         .then(resp => {
@@ -169,6 +195,11 @@ export const TargetSettingsModal = memo(({ openModal, onModalClose, isTargetOn =
             // in target scope
             dispatch(setTargetOnName(displayName));
             dispatch(setTargetOnAliases(identifierTypes));
+            currentTarget.settings = {
+              ...(currentTarget.settings || {}),
+              electron_density_map_type: electronDensityMapType,
+              electron_density_rendering_mode: electronDensityRenderingMode
+            };
           } else {
             // out of target scope
             currentTarget.display_name = displayName;
@@ -178,6 +209,11 @@ export const TargetSettingsModal = memo(({ openModal, onModalClose, isTargetOn =
             currentTarget.external_url = externalURL;
             currentTarget.external_url_display_name = externalURLName;
             currentTarget.alias_order = identifierTypes;
+            currentTarget.settings = {
+              ...(currentTarget.settings || {}),
+              electron_density_map_type: electronDensityMapType,
+              electron_density_rendering_mode: electronDensityRenderingMode
+            };
             dispatch(replaceTarget(currentTarget));
           }
           dispatch(addToastMessage({ text: `Target updated successfully`, level: TOAST_LEVELS.SUCCESS }));
@@ -191,13 +227,9 @@ export const TargetSettingsModal = memo(({ openModal, onModalClose, isTargetOn =
 
   return (
     <Dialog open={openModal} onClose={onModalClose}>
-      <DialogTitle sx={{ m: 0, p: 2 }}>{editable ? "Edit target settings" : "Target settings"}</DialogTitle>
+      <DialogTitle sx={{ m: 0, p: 2 }}>{editable ? 'Edit target settings' : 'Target settings'}</DialogTitle>
       <Tooltip title="Close editor">
-        <IconButton
-          color="inherit"
-          className={classes.headerButton}
-          onClick={onModalClose}
-        >
+        <IconButton color="inherit" className={classes.headerButton} onClick={onModalClose}>
           <Close />
         </IconButton>
       </Tooltip>
@@ -226,11 +258,16 @@ export const TargetSettingsModal = memo(({ openModal, onModalClose, isTargetOn =
               <Typography variant="body1">Display name</Typography>
             </Grid>
             <Grid item xs>
-              {editable ?
-                <TextField value={displayName ?? ""} placeholder="enter display name" onChange={e => setDisplayName(e.target.value)} disabled={!editable} />
-                :
+              {editable ? (
+                <TextField
+                  value={displayName ?? ''}
+                  placeholder="enter display name"
+                  onChange={e => setDisplayName(e.target.value)}
+                  disabled={!editable}
+                />
+              ) : (
                 <Typography variant="body1">{displayName}</Typography>
-              }
+              )}
             </Grid>
           </Grid>
           <Grid item container direction="row" justifyContent="space-between" alignItems="center" spacing={2}>
@@ -238,11 +275,16 @@ export const TargetSettingsModal = memo(({ openModal, onModalClose, isTargetOn =
               <Typography variant="body1">Short name</Typography>
             </Grid>
             <Grid item xs>
-              {editable ?
-                <TextField value={shortName ?? ""} placeholder="enter short name" onChange={e => setShortName(e.target.value)} disabled={!editable} />
-                :
+              {editable ? (
+                <TextField
+                  value={shortName ?? ''}
+                  placeholder="enter short name"
+                  onChange={e => setShortName(e.target.value)}
+                  disabled={!editable}
+                />
+              ) : (
                 <Typography variant="body1">{shortName}</Typography>
-              }
+              )}
             </Grid>
           </Grid>
           <Grid item container direction="row" justifyContent="space-between" alignItems="center" spacing={2}>
@@ -250,11 +292,16 @@ export const TargetSettingsModal = memo(({ openModal, onModalClose, isTargetOn =
               <Typography variant="body1">Long name</Typography>
             </Grid>
             <Grid item xs>
-              {editable ?
-                <TextField value={longName ?? ""} placeholder="enter long name" onChange={e => setLongName(e.target.value)} disabled={!editable} />
-                :
+              {editable ? (
+                <TextField
+                  value={longName ?? ''}
+                  placeholder="enter long name"
+                  onChange={e => setLongName(e.target.value)}
+                  disabled={!editable}
+                />
+              ) : (
                 <Typography variant="body1">{longName}</Typography>
-              }
+              )}
             </Grid>
           </Grid>
           <Grid item container direction="row" justifyContent="space-between" alignItems="center" spacing={2}>
@@ -262,11 +309,16 @@ export const TargetSettingsModal = memo(({ openModal, onModalClose, isTargetOn =
               <Typography variant="body1">Organism</Typography>
             </Grid>
             <Grid item xs>
-              {editable ?
-                <TextField value={organism ?? ""} placeholder="enter organism" onChange={e => setOrganism(e.target.value)} disabled={!editable} />
-                :
+              {editable ? (
+                <TextField
+                  value={organism ?? ''}
+                  placeholder="enter organism"
+                  onChange={e => setOrganism(e.target.value)}
+                  disabled={!editable}
+                />
+              ) : (
                 <Typography variant="body1">{organism}</Typography>
-              }
+              )}
             </Grid>
           </Grid>
           <Grid item container direction="row" justifyContent="space-between" alignItems="center" spacing={2}>
@@ -274,11 +326,16 @@ export const TargetSettingsModal = memo(({ openModal, onModalClose, isTargetOn =
               <Typography variant="body1">External URL</Typography>
             </Grid>
             <Grid item xs>
-              {editable ?
-                <TextField value={externalURL ?? ""} placeholder="enter external URL" onChange={e => setExternalURL(e.target.value)} disabled={!editable} />
-                :
+              {editable ? (
+                <TextField
+                  value={externalURL ?? ''}
+                  placeholder="enter external URL"
+                  onChange={e => setExternalURL(e.target.value)}
+                  disabled={!editable}
+                />
+              ) : (
                 <Typography variant="body1">{externalURL}</Typography>
-              }
+              )}
             </Grid>
           </Grid>
           <Grid item container direction="row" justifyContent="space-between" alignItems="center" spacing={2}>
@@ -286,11 +343,16 @@ export const TargetSettingsModal = memo(({ openModal, onModalClose, isTargetOn =
               <Typography variant="body1">External URL name</Typography>
             </Grid>
             <Grid item xs>
-              {editable ?
-                <TextField value={externalURLName ?? ""} placeholder="enter external URL name" onChange={e => setExternalURLName(e.target.value)} disabled={!editable} />
-                :
+              {editable ? (
+                <TextField
+                  value={externalURLName ?? ''}
+                  placeholder="enter external URL name"
+                  onChange={e => setExternalURLName(e.target.value)}
+                  disabled={!editable}
+                />
+              ) : (
                 <Typography variant="body1">{externalURLName}</Typography>
-              }
+              )}
             </Grid>
           </Grid>
           <Divider />
@@ -299,30 +361,43 @@ export const TargetSettingsModal = memo(({ openModal, onModalClose, isTargetOn =
               <Typography variant="body1">Preferred alias</Typography>
             </Grid>
             <Grid item xs>
-              {editable ?
+              {editable ? (
                 <Tooltip title="Drag and drop to reorder">
-                  <Grid item container direction="column" justifyContent="center" alignItems="flex-start" spacing={1} onDrop={e => e.preventDefault()} onDragOver={e => e.preventDefault()}>
-                    {identifierTypes?.map((type, index) =>
-                      <Grid key={type} item className={classes.identifier}
+                  <Grid
+                    item
+                    container
+                    direction="column"
+                    justifyContent="center"
+                    alignItems="flex-start"
+                    spacing={1}
+                    onDrop={e => e.preventDefault()}
+                    onDragOver={e => e.preventDefault()}
+                  >
+                    {identifierTypes?.map((type, index) => (
+                      <Grid
+                        key={type}
+                        item
+                        className={classes.identifier}
                         draggable="true"
-                        onDragStart={() => draggedIdentifier.current = index}
-                        onDragEnter={() => draggedOverIdentifier.current = index}
+                        onDragStart={() => (draggedIdentifier.current = index)}
+                        onDragEnter={() => (draggedOverIdentifier.current = index)}
                         onDragEnd={handleSort}
                         onDragOver={e => e.preventDefault()}
                       >
                         <Typography variant="body1">{`${index + 1}. ${type}`}</Typography>
                       </Grid>
-                    )}
+                    ))}
                   </Grid>
-                </Tooltip> :
+                </Tooltip>
+              ) : (
                 <Grid item container direction="column" justifyContent="center" alignItems="flex-start" spacing={1}>
-                  {identifierTypes?.map((type, index) =>
+                  {identifierTypes?.map((type, index) => (
                     <Grid key={type} item>
                       <Typography variant="body1">{`${index + 1}. ${type}`}</Typography>
                     </Grid>
-                  )}
+                  ))}
                 </Grid>
-              }
+              )}
             </Grid>
           </Grid>
           <Divider />
@@ -330,15 +405,63 @@ export const TargetSettingsModal = memo(({ openModal, onModalClose, isTargetOn =
             <Grid item xs>
               <Typography variant="body1">Electron density</Typography>
             </Grid>
+
             <Grid item xs>
-              <RadioGroup
-                name="electron-density-radio-group"
-                value={electronDensity}
-                onChange={e => setElectronDensity(e.target.value)}
-              >
-                <FormControlLabel value="wireframe" control={<Radio />} label="Wireframe" disabled={!editable || true} />
-                <FormControlLabel value="surface" control={<Radio />} label="Surface" disabled={!editable || true} />
-              </RadioGroup>
+              <Grid container direction="column" spacing={1}>
+                {/* Map type group */}
+                <Grid item>
+                  <Typography variant="body2">Map type</Typography>
+                  <RadioGroup
+                    row
+                    name="electron-density-map-type"
+                    value={electronDensityMapType}
+                    onChange={e => setElectronDensityMapType(e.target.value)}
+                  >
+                    <FormControlLabel
+                      value={DENSITY_MAP_TYPES.EVENT}
+                      control={<Radio />}
+                      label="PanDDA Event maps - primary evidence"
+                      disabled={!editable}
+                    />
+                    <FormControlLabel
+                      value={DENSITY_MAP_TYPES._2FoFc}
+                      control={<Radio />}
+                      label='Conventional inspection maps ("2FoFc")'
+                      disabled={!editable}
+                    />
+                    <FormControlLabel
+                      value={DENSITY_MAP_TYPES.FoFC}
+                      control={<Radio />}
+                      label='Conventional residual maps ("FoFc")'
+                      disabled={!editable}
+                    />
+                  </RadioGroup>
+                </Grid>
+
+                {/* Rendering mode group */}
+                <Grid item>
+                  <Typography variant="body2">Rendering mode</Typography>
+                  <RadioGroup
+                    row
+                    name="electron-density-rendering-mode"
+                    value={electronDensityRenderingMode}
+                    onChange={e => setElectronDensityRenderingMode(e.target.value)}
+                  >
+                    <FormControlLabel
+                      value={MAP_RENDERING_MODES.WIREFRAME}
+                      control={<Radio />}
+                      label="Wireframe"
+                      disabled={!editable}
+                    />
+                    <FormControlLabel
+                      value={MAP_RENDERING_MODES.SURFACE}
+                      control={<Radio />}
+                      label="Surface"
+                      disabled={!editable}
+                    />
+                  </RadioGroup>
+                </Grid>
+              </Grid>
             </Grid>
           </Grid>
         </Grid>

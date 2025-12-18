@@ -251,7 +251,6 @@ export const ObservationsDialog = memo(
     const complexList = useSelector(state => state.selectionReducers.complexList);
     const surfaceList = useSelector(state => state.selectionReducers.surfaceList);
     const densityList = useSelector(state => state.selectionReducers.densityList);
-    const densityListCustom = useSelector(state => state.selectionReducers.densityListCustom);
     const qualityList = useSelector(state => state.selectionReducers.qualityList);
     const vectorOnList = useSelector(state => state.selectionReducers.vectorOnList);
     const informationList = useSelector(state => state.selectionReducers.informationList);
@@ -1111,8 +1110,7 @@ export const ObservationsDialog = memo(
                           P={proteinList.includes(molecule.id)}
                           C={complexList.includes(molecule.id)}
                           S={surfaceList.includes(molecule.id)}
-                          D={densityList.includes(molecule.id)}
-                          D_C={densityListCustom.includes(data.id)}
+                          D={densityList.some(d => d.id === molecule.id)}
                           Q={qualityList.includes(molecule.id)}
                           V={vectorOnList.includes(molecule.id)}
                           I={informationList.includes(data.id)}

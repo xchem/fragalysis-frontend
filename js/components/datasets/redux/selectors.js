@@ -169,7 +169,7 @@ export const isAnyInspirationTurnedOn = createSelector(
     proteins.forEach(p => allLists.add(p));
     complexis.forEach(p => allLists.add(p));
     surfaces.forEach(p => allLists.add(p));
-    densities.forEach(p => allLists.add(p));
+    densities.forEach(p => allLists.add(p.id));
     vectors.forEach(p => allLists.add(p));
     let hasInspiration = false;
     inspirations.forEach(moleculeID => {
@@ -192,6 +192,17 @@ export const isAnyInspirationTurnedOnByType = (inspirations, data) => {
     }
   });
   return hasInspirationType;
+};
+
+export const isAnyInspirationTurnedOnDensity = (inspirations, data) => {
+  let hasInspirationDensity = false;
+  inspirations.forEach(moleculeID => {
+    if (data.some(d => d.id === moleculeID)) {
+      hasInspirationDensity = true;
+      return hasInspirationDensity;
+    }
+  });
+  return hasInspirationDensity;
 };
 
 export const getFilteredDatasetMoleculeList = createSelector(
