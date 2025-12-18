@@ -191,29 +191,6 @@ export const removeFromDensityList = function(item, skipTracking = false) {
   };
 };
 
-export const setDensityListCustom = function(densityListCustom) {
-  return {
-    type: constants.SET_DENSITY_LIST_CUSTOM,
-    densityListCustom: densityListCustom
-  };
-};
-
-export const appendDensityListCustom = function(item, skipTracking = false) {
-  return {
-    type: constants.APPEND_DENSITY_LIST_CUSTOM,
-    item: item,
-    skipTracking
-  };
-};
-
-export const removeFromDensityListCustom = function(item, skipTracking = false) {
-  return {
-    type: constants.REMOVE_FROM_DENSITY_LIST_CUSTOM,
-    item: item,
-    skipTracking
-  };
-};
-
 export const setQualityList = function(qualityList, skipTracking = false) {
   return {
     type: constants.SET_QUALITY_LIST,

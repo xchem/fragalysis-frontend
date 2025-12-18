@@ -7,7 +7,6 @@ import {
 import {
   setProteinList,
   setDensityList,
-  setDensityListCustom,
   setQualityList,
   setComplexList,
   setSurfaceList,
@@ -117,7 +116,6 @@ const clearSelectionState = () => (dispatch, getState) => {
 
   dispatch(setProteinList([]));
   dispatch(setDensityList([]));
-  dispatch(setDensityListCustom([]));
   dispatch(setQualityList([]));
   dispatch(setSurfaceList([]));
   dispatch(setFragmentDisplayList([]));
@@ -137,7 +135,7 @@ export const storeData = data => (dispatch, getState) => {
   dispatch(setTagSelectorData(categories, tags));
 
   let allMolecules = [];
-  data.molecules.forEach(mol => { });
+  data.molecules.forEach(mol => {});
 };
 
 /**
@@ -314,8 +312,9 @@ export const loadMoleculesAndTagsNew = targetId => async (dispatch, getState) =>
         newObject['canonSite'] = pose.canon_site;
 
         // get activity data for its compound and all associated site observations
-        const activityData = (compoundActivityDataMap[pose.compound] ?? [])
-          .concat(pose.site_observations.flatMap(id => siteObservationActivityDataMap[id] ?? []));
+        const activityData = (compoundActivityDataMap[pose.compound] ?? []).concat(
+          pose.site_observations.flatMap(id => siteObservationActivityDataMap[id] ?? [])
+        );
         if (activityData.length > 0) {
           newObject['activityData'] = activityData;
         }

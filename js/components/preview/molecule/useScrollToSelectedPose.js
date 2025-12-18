@@ -16,7 +16,6 @@ export const useScrollToSelectedPose = (moleculesPerPage, setCurrentPage, loadMo
   const complexes = useSelector(state => state.selectionReducers.complexList);
   const surfaces = useSelector(state => state.selectionReducers.surfaceList);
   const densityList = useSelector(state => state.selectionReducers.densityList);
-  const densityListCustom = useSelector(state => state.selectionReducers.densityListCustom);
   const vectorOnList = useSelector(state => state.selectionReducers.vectorOnList);
 
   const isObservationsDialogOpen = useSelector(state => state.selectionReducers.isObservationDialogOpen);
@@ -52,7 +51,6 @@ export const useScrollToSelectedPose = (moleculesPerPage, setCurrentPage, loadMo
         complexes?.length ||
         surfaces?.length ||
         densityList?.length ||
-        densityListCustom?.length ||
         vectorOnList?.length
       ) {
         for (let i = 0; i < poses.length; i++) {
@@ -64,8 +62,7 @@ export const useScrollToSelectedPose = (moleculesPerPage, setCurrentPage, loadMo
             containsAtLeastOne(proteins, molsForCmp) ||
             containsAtLeastOne(complexes, molsForCmp) ||
             containsAtLeastOne(surfaces, molsForCmp) ||
-            containsAtLeastOne(densityList, molsForCmp) ||
-            containsAtLeastOne(densityListCustom, molsForCmp) ||
+            containsAtLeastOneDensity(densityList, molsForCmp) ||
             containsAtLeastOne(vectorOnList, molsForCmp)
           ) {
             setCurrentPage(i / moleculesPerPage + 1);
@@ -91,9 +88,7 @@ export const useScrollToSelectedPose = (moleculesPerPage, setCurrentPage, loadMo
     complexes,
     surfaces,
     densityList.length,
-    densityListCustom.length,
     densityList,
-    densityListCustom,
     vectorOnList,
     poseIdForObservationsDialog,
     isObservationsDialogOpen,
@@ -127,14 +122,6 @@ export const useScrollToSelectedPose = (moleculesPerPage, setCurrentPage, loadMo
       : top >= 0 && left >= 0 && bottom <= innerHeight && right <= innerWidth;
   };
 
-  // Used to attach the ref of DOM nodes.
-  // const addMoleculeViewRef = useCallback((moleculeId, node) => {
-  //   setMoleculeViewRefs(prevRefs => ({
-  //     ...prevRefs,
-  //     [moleculeId]: node
-  //   }));
-  // }, []);
-
   const addMoleculeViewRef = useCallback((moleculeId, node) => {
     setMoleculeViewRefs(prevRefs => {
       if (prevRefs.hasOwnProperty(moleculeId) || !node) return prevRefs;
@@ -155,6 +142,16 @@ export const useScrollToSelectedPose = (moleculesPerPage, setCurrentPage, loadMo
   const containsAtLeastOne = (list, molsList) => {
     for (const mol of molsList) {
       if (list.includes(mol.id)) {
+        return true;
+      }
+    }
+
+    return false;
+  };
+
+  const containsAtLeastOneDensity = (list, molsList) => {
+    for (const mol of molsList) {
+      if (list.some(d => d.id === mol.id)) {
         return true;
       }
     }

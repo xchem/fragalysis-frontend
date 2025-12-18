@@ -59,11 +59,11 @@ export const SettingControls = memo(({ open, onClose }) => {
   const majorView = getNglView(VIEWS.MAJOR_VIEW) && getNglView(VIEWS.MAJOR_VIEW).stage;
   const summaryView = getNglView(VIEWS.SUMMARY_VIEW) && getNglView(VIEWS.SUMMARY_VIEW).stage;
 
-  const selectedMaps = useSelector(state => state.selectionReducers.densityListType);
+  const densityList = useSelector(state => state.selectionReducers.densityList);
 
-  const eventMapShown = selectedMaps.filter(m => m.render_event).length > 0;
-  const sigmaaMapShown = selectedMaps.filter(m => m.render_sigmaa).length > 0;
-  const diffMapShown = selectedMaps.filter(m => m.render_diff).length > 0;
+  const eventMapShown = densityList.filter(m => m.render_event).length > 0;
+  const sigmaaMapShown = densityList.filter(m => m.render_2FoFc).length > 0;
+  const diffMapShown = densityList.filter(m => m.render_FoFc).length > 0;
 
   const handleStageColor = () => {
     if (viewParams[NGL_PARAMS.backgroundColor] === BACKGROUND_COLOR.white) {

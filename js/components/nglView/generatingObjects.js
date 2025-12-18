@@ -160,7 +160,7 @@ export const generateSurfaceObject = (data, colourToggle, base_url, datasetID) =
 };
 
 // Density
-export const generateDensityObject = (data, colourToggle, base_url, isWireframeStyle) => async dispatch => {
+export const generateDensityObject = (data, densityObject) => async dispatch => {
   const proteinData = data && data.proteinData;
 
   let prot_url;
@@ -210,11 +210,11 @@ export const generateDensityObject = (data, colourToggle, base_url, isWireframeS
     sigmaa_url,
     diff_url,
     prot_url,
-    render_sigmaa: proteinData?.render_sigmaa,
-    render_diff: proteinData?.render_diff,
-    render_event: proteinData?.render_event,
+    render_sigmaa: densityObject?.render_2FoFc,
+    render_diff: densityObject?.render_FoFc,
+    render_event: densityObject?.render_event,
     moleculeId: data.id,
-    wireframe: isWireframeStyle,
+    wireframe: densityObject?.isWireframeStyle,
     selectionType: SELECTION_TYPE.DENSITY
   };
 };

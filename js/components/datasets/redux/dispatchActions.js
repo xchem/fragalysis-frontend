@@ -55,7 +55,8 @@ import { api, METHOD } from '../../../utils/api';
 import {
   getInitialDatasetFilterProperties,
   getInitialDatasetFilterSettings,
-  getJoinedMoleculeLists
+  getJoinedMoleculeLists,
+  isAnyInspirationTurnedOnDensity
 } from './selectors';
 import { COUNT_OF_VISIBLE_SCORES, DEFAULT_COUNT_OF_VISIBLE_SCORES } from './constants';
 import { colourList } from '../../preview/molecule/utils/color';
@@ -276,10 +277,10 @@ export const loadDatasetCompoundsWithScores = (datasetsToLoad = null) => (dispat
           const compondMoleculesMap = {};
           compondMolecules.data.results.forEach(
             molecule =>
-            (compondMoleculesMap[molecule.name] = {
-              site_observation_code: molecule.site_observation_code,
-              pdb_info: molecule.pdb_info
-            })
+              (compondMoleculesMap[molecule.name] = {
+                site_observation_code: molecule.site_observation_code,
+                pdb_info: molecule.pdb_info
+              })
           );
           response.data.results.forEach(molecule => {
             if (compondMoleculesMap.hasOwnProperty(molecule.name)) {
@@ -798,7 +799,6 @@ const moveSelectedDatasetMoleculeInspirationsSettings = (data, newItemData, stag
   const fragmentDisplayListMolecule = state.selectionReducers.fragmentDisplayList;
   const surfaceListMolecule = state.selectionReducers.surfaceList;
   const densityListMolecule = state.selectionReducers.densityList;
-  const densityListCustomMolecule = state.selectionReducers.densityListCustom;
   const vectorOnListMolecule = state.selectionReducers.vectorOnList;
   const qualityListMolecule = state.selectionReducers.qualityList;
 
@@ -813,7 +813,6 @@ const moveSelectedDatasetMoleculeInspirationsSettings = (data, newItemData, stag
       complexListMolecule,
       surfaceListMolecule,
       densityListMolecule,
-      densityListCustomMolecule,
       vectorOnListMolecule,
       qualityListMolecule,
       skipTracking
@@ -1154,7 +1153,6 @@ export const moveMoleculeInspirationsSettings = (
   complexListMolecule,
   surfaceListMolecule,
   densityListMolecule,
-  densityCustomListMolecule,
   vectorOnListMolecule,
   qualityListMolecule,
   skipTracking
@@ -1166,11 +1164,7 @@ export const moveMoleculeInspirationsSettings = (
     let isAnyInspirationProteinOn = isAnyInspirationTurnedOnByType(computed_inspirations, proteinListMolecule);
     let isAnyInspirationComplexOn = isAnyInspirationTurnedOnByType(computed_inspirations, complexListMolecule);
     let isAnyInspirationSurfaceOn = isAnyInspirationTurnedOnByType(computed_inspirations, surfaceListMolecule);
-    let isAnyInspirationDensityOn = isAnyInspirationTurnedOnByType(computed_inspirations, densityListMolecule);
-    let isAnyInspirationDensityOnCustom = isAnyInspirationTurnedOnByType(
-      computed_inspirations,
-      densityCustomListMolecule
-    );
+    let isAnyInspirationDensityOn = isAnyInspirationTurnedOnDensity(computed_inspirations, densityListMolecule);
     let isAnyInspirationVectorOn = isAnyInspirationTurnedOnByType(computed_inspirations, vectorOnListMolecule);
     let isAnyInspirationQualityOn = isAnyInspirationTurnedOnByType(computed_inspirations, qualityListMolecule);
 
@@ -1180,7 +1174,6 @@ export const moveMoleculeInspirationsSettings = (
       isAnyInspirationComplexOn ||
       isAnyInspirationSurfaceOn ||
       isAnyInspirationDensityOn ||
-      isAnyInspirationDensityOnCustom ||
       isAnyInspirationVectorOn ||
       isAnyInspirationQualityOn
     ) {
@@ -1193,7 +1186,6 @@ export const moveMoleculeInspirationsSettings = (
           isAnyInspirationComplexOn,
           isAnyInspirationSurfaceOn,
           isAnyInspirationDensityOn,
-          isAnyInspirationDensityOnCustom,
           isAnyInspirationVectorOn,
           isAnyInspirationQualityOn,
           skipTracking
@@ -1211,13 +1203,13 @@ const moveInspirations = (
   isAnyInspirationComplexOn,
   isAnyInspirationSurfaceOn,
   isAnyInspirationDensityOn,
-  isAnyInspirationDensityOnCustom,
   isAnyInspirationVectorOn,
   isAnyInspirationQualityOn,
   skipTracking
 ) => (dispatch, getState) => {
   const state = getState();
   const molecules = state.datasetsReducers.inspirationMoleculeDataList;
+  const densityList = state.selectionReducers.densityList;
   const promises = [];
   if (molecules) {
     molecules.forEach(molecule => {
@@ -1271,34 +1263,15 @@ const moveInspirations = (
           );
         }
         if (isAnyInspirationDensityOn) {
-          let representations = getRepresentationsByType(objectsInView, molecule, OBJECT_TYPE.DENSITY);
-          promises.push(
-            dispatch(
-              addDensity(
-                stage,
-                molecule,
-                colourList[molecule.id % colourList.length],
-                false,
-                skipTracking,
-                representations
-              )
-            )
-          );
-        }
-        if (isAnyInspirationDensityOnCustom) {
-          let representations = getRepresentationsByType(objectsInView, molecule, OBJECT_TYPE.DENSITY);
-          promises.push(
-            dispatch(
-              addDensityCustomView(
-                stage,
-                molecule,
-                colourList[molecule.id % colourList.length],
-                false,
-                skipTracking,
-                representations
-              )
-            )
-          );
+          //let's skip it for now
+          //TODO: reenable when decided that it makes sense to support arrows and also move densities around
+          // let representations = getRepresentationsByType(objectsInView, molecule, OBJECT_TYPE.DENSITY);
+          // const densityObject
+          // promises.push(
+          //   dispatch(
+          //     addDensity(molecule, , representations)
+          //   )
+          // );
         }
         if (isAnyInspirationVectorOn) {
           promises.push(

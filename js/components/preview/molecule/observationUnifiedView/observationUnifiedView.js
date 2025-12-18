@@ -3,11 +3,7 @@
  */
 import React, { memo, useEffect, useState, useRef, useContext, useCallback, forwardRef } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import {
-  makeStyles,
-  TableRow,
-  TableCell
-} from '@material-ui/core';
+import { makeStyles, TableRow, TableCell } from '@material-ui/core';
 import classNames from 'classnames';
 import { VIEWS } from '../../../../constants/constants';
 import { COMMON_PARAMS } from '../../../nglView/constants';
@@ -21,9 +17,7 @@ import {
   generateAndStoreMolImage,
   getMolImage
 } from '../redux/dispatchActions';
-import {
-  setObservationsForLHSCmp
-} from '../../../../reducers/selection/actions';
+import { setObservationsForLHSCmp } from '../../../../reducers/selection/actions';
 import { MOL_TYPE } from '../redux/constants';
 import { getRandomColor } from '../utils/color';
 import { DEFAULT_TAG_COLOR, getAllTagsForLHSCmp } from '../../tags/utils/tagUtils';
@@ -78,7 +72,6 @@ const ObservationUnifiedView = memo(
         C,
         S,
         D,
-        D_C,
         Q,
         V,
         I,
@@ -171,6 +164,22 @@ const ObservationUnifiedView = memo(
         return result;
       };
 
+      const isAtLeastOneObservationOnDensityList = list => {
+        let result = false;
+
+        if (list && list.length > 0 && observations && observations.length > 0) {
+          for (const obs of observations) {
+            const isPresent = list.some(d => obs.id === d.id);
+            if (isPresent) {
+              result = true;
+              break;
+            }
+          }
+        }
+
+        return result;
+      };
+
       useEffect(() => {
         for (let i = 0; i < observations.length; i++) {
           const obs = observations[i];
@@ -194,7 +203,7 @@ const ObservationUnifiedView = memo(
       // C stands for contacts now
       const isComplexOn = isAtLeastOneObservationOnInList(complexList);
       const isSurfaceOn = isAtLeastOneObservationOnInList(surfaceList);
-      const isDensityOn = isAtLeastOneObservationOnInList(densityList);
+      const isDensityOn = isAtLeastOneObservationOnDensityList(densityList);
       const isQualityOn = isAtLeastOneObservationOnInList(qualityList);
       const isVectorOn = isAtLeastOneObservationOnInList(vectorOnList);
       const hasAdditionalInformation = I;
@@ -267,11 +276,22 @@ const ObservationUnifiedView = memo(
           // dispatch(getMolImage(obs.id, MOL_TYPE.HIT, imageWidth, imageHeight)).then(i => {
           //   setImg_data(i);
           // });
-          dispatch(generateAndStoreMolImage(obs, MOL_TYPE.HIT, imageWidth, imageHeight, RDKitModule, filteredSmilesQuery)).then(i => {
+          dispatch(
+            generateAndStoreMolImage(obs, MOL_TYPE.HIT, imageWidth, imageHeight, RDKitModule, filteredSmilesQuery)
+          ).then(i => {
             i && setImg_data(i.toString());
           });
         }
-      }, [data.id, data.smiles, imageHeight, imageWidth, dispatch, getMainObservation, RDKitModule, filteredSmilesQuery]);
+      }, [
+        data.id,
+        data.smiles,
+        imageHeight,
+        imageWidth,
+        dispatch,
+        getMainObservation,
+        RDKitModule,
+        filteredSmilesQuery
+      ]);
 
       useEffect(() => {
         dispatch(getQualityInformation(data));
@@ -321,67 +341,73 @@ const ObservationUnifiedView = memo(
         }
       };
 
-      const getProperView = (column) => {
+      const getProperView = column => {
         switch (column.type) {
           case COLUMN_TYPES.PEER_REVIEW:
-            return <PeerReviewView
-              data={data}
-              index={index}
-              selected={selected}
-              observations={observations}
-              mainObservation={getMainObservation()}
-            />;
+            return (
+              <PeerReviewView
+                data={data}
+                index={index}
+                selected={selected}
+                observations={observations}
+                mainObservation={getMainObservation()}
+              />
+            );
           case COLUMN_TYPES.OBSERVATION:
-            return <DetailView
-              data={data}
-              handleRef={handleRef}
-              disableL={disableL}
-              disableP={disableP}
-              disableC={disableC}
-              observations={observations}
-            />;
+            return (
+              <DetailView
+                data={data}
+                handleRef={handleRef}
+                disableL={disableL}
+                disableP={disableP}
+                disableC={disableC}
+                observations={observations}
+              />
+            );
           case COLUMN_TYPES.MOLECULE:
-            return <ImageView
-              moleculeImgRef={moleculeImgRef}
-              img_data={img_data}
-              warningIconVisible={warningIconVisible}
-              current_style={current_style}
-              imageHeight={imageHeight}
-              imageWidth={imageWidth}
-              onQuality={onQuality}
-            />;
+            return (
+              <ImageView
+                moleculeImgRef={moleculeImgRef}
+                img_data={img_data}
+                warningIconVisible={warningIconVisible}
+                current_style={current_style}
+                imageHeight={imageHeight}
+                imageWidth={imageWidth}
+                onQuality={onQuality}
+              />
+            );
           case COLUMN_TYPES.CANON_SITE:
-            return <CanonSiteView
-              resolveTagBackgroundColor={resolveTagBackgroundColor}
-              resolveTagForegroundColor={resolveTagForegroundColor}
-              canonSitesTag={getCanonSitesTag()}
-            />;
+            return (
+              <CanonSiteView
+                resolveTagBackgroundColor={resolveTagBackgroundColor}
+                resolveTagForegroundColor={resolveTagForegroundColor}
+                canonSitesTag={getCanonSitesTag()}
+              />
+            );
           case COLUMN_TYPES.CONFORMER_SITE:
-            return <ConformerSiteView
-              tagList={tagList}
-              observations={observations}
-              conformerSitesCategory={getConformerSitesTagCategory()}
-              canonSitesTag={getCanonSitesTag()}
-              resolveTagBackgroundColor={resolveTagBackgroundColor}
-              resolveTagForegroundColor={resolveTagForegroundColor}
-            />;
+            return (
+              <ConformerSiteView
+                tagList={tagList}
+                observations={observations}
+                conformerSitesCategory={getConformerSitesTagCategory()}
+                canonSitesTag={getCanonSitesTag()}
+                resolveTagBackgroundColor={resolveTagBackgroundColor}
+                resolveTagForegroundColor={resolveTagForegroundColor}
+              />
+            );
           case COLUMN_TYPES.OBSERVATIONS:
-            return <ObservationsView
-              data={data}
-              observations={observations}
-              isAnyObservationOn={isAnyObservationOn}
-              handleRef={handleRef}
-            />;
+            return (
+              <ObservationsView
+                data={data}
+                observations={observations}
+                isAnyObservationOn={isAnyObservationOn}
+                handleRef={handleRef}
+              />
+            );
           case COLUMN_TYPES.NUMBER:
-            return <NumericView
-              data={data}
-              column={column}
-            />;
+            return <NumericView data={data} column={column} />;
           default:
-            return <TextView
-              data={data}
-              column={column}
-            />;
+            return <TextView data={data} column={column} />;
         }
       };
 
@@ -414,13 +440,13 @@ const ObservationUnifiedView = memo(
           })}
           wrap="nowrap"
         >
-          {columns?.map((column) =>
-          (column.visible && <TableCell
-            key={column.name}
-            style={{ maxWidth: getColumnWidth(column.name) }}
-          >
-            {getProperView(column)}
-          </TableCell>)
+          {columns?.map(
+            column =>
+              column.visible && (
+                <TableCell key={column.name} style={{ maxWidth: getColumnWidth(column.name) }}>
+                  {getProperView(column)}
+                </TableCell>
+              )
           )}
         </TableRow>
 

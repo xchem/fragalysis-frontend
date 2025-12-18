@@ -3,15 +3,7 @@
  */
 
 import React, { memo, forwardRef } from 'react';
-import {
-  makeStyles,
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableRow,
-  Tooltip
-} from '@material-ui/core';
+import { makeStyles, Table, TableBody, TableCell, TableHead, TableRow, Tooltip } from '@material-ui/core';
 import ObservationUnifiedView from './observationUnifiedView';
 import { useColumns } from './hooks/useColumns';
 import { useFilters } from './hooks';
@@ -66,7 +58,6 @@ const ObservationUnifiedViewWrapper = memo(
         complexList,
         surfaceList,
         densityList,
-        densityListCustom,
         qualityList,
         vectorOnList,
         informationList,
@@ -77,7 +68,6 @@ const ObservationUnifiedViewWrapper = memo(
       },
       outsideRef
     ) => {
-
       const imgHeight = 49;
       const imgWidth = 150;
 
@@ -140,23 +130,29 @@ const ObservationUnifiedViewWrapper = memo(
           <TableHead>
             <TableRow>
               {columns?.map(({ name, displayName, type, resizable, visible }) => {
-                return (visible && <TableCell key={name}
-                  width={getColumnWidth(name)}
-                  style={{ maxWidth: getColumnWidth(name) }}
-                  className={classes.headerCell}
-                >
-                  <Tooltip title={displayName} placement="top">
-                    <div className={classes.resizerParent}>
-                      {displayName}
-                      {getColumnFilter(type, name)}
-                      {resizable &&
-                        <TableResizer
-                          className={classes.resizer}
-                          onResize={width => handleColumnResize(name, width)}
-                        />}
-                    </div>
-                  </Tooltip>
-                </TableCell>)
+                return (
+                  visible && (
+                    <TableCell
+                      key={name}
+                      width={getColumnWidth(name)}
+                      style={{ maxWidth: getColumnWidth(name) }}
+                      className={classes.headerCell}
+                    >
+                      <Tooltip title={displayName} placement="top">
+                        <div className={classes.resizerParent}>
+                          {displayName}
+                          {getColumnFilter(type, name)}
+                          {resizable && (
+                            <TableResizer
+                              className={classes.resizer}
+                              onResize={width => handleColumnResize(name, width)}
+                            />
+                          )}
+                        </div>
+                      </Tooltip>
+                    </TableCell>
+                  )
+                );
               })}
             </TableRow>
           </TableHead>
@@ -181,7 +177,6 @@ const ObservationUnifiedViewWrapper = memo(
                   C={containsAtLeastOne(complexList, molsForCmp)}
                   S={containsAtLeastOne(surfaceList, molsForCmp)}
                   D={containsAtLeastOne(densityList, molsForCmp)}
-                  D_C={containsAtLeastOne(densityListCustom, molsForCmp)}
                   Q={containsAtLeastOne(qualityList, molsForCmp)}
                   V={containsAtLeastOne(vectorOnList, molsForCmp)}
                   I={containsAtLeastOne(informationList, molsForCmp)}
@@ -196,8 +191,11 @@ const ObservationUnifiedViewWrapper = memo(
               );
             })}
           </TableBody>
-        </Table >);
-    }));
+        </Table>
+      );
+    }
+  )
+);
 
 ObservationUnifiedViewWrapper.displayName = 'ObservationUnifiedViewWrapper';
 export default ObservationUnifiedViewWrapper;
