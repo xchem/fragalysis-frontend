@@ -8,6 +8,7 @@ import { MoleculeFilter } from "../table/filters/moleculeFilter";
 import { useSelector } from "react-redux";
 import { QUALITY_STATUSES } from "../../moleculeView/qualityStatus/constants";
 import { getAllDisplayedLHSCompounds } from "../../redux/selectors";
+import { DJANGO_CONTEXT } from "../../../../../utils/djangoContext";
 
 export const useFilters = (initialItems, columns) => {
     const [filters, setFilters] = useState({});
@@ -34,11 +35,14 @@ export const useFilters = (initialItems, columns) => {
         return getQualityStatuses(data)?.find(status => status.main_status === true);
     }, [getQualityStatuses]);
 
-    const getPeerReviews = useCallback((data) => {
+    const getPeerReviews = useCallback((data, onlyMyReviews = false) => {
         const userMap = {};
         getQualityStatuses(data).forEach(status => {
             if (!(status.user in userMap) && status.main_status === false) {
-                userMap[status.user] = status;
+                // user === pk or username === username
+                if (!onlyMyReviews || (onlyMyReviews && status.user === DJANGO_CONTEXT.pk)) {
+                    userMap[status.user] = status;
+                }
             }
         });
         return Object.values(userMap);
@@ -145,7 +149,7 @@ export const useFilters = (initialItems, columns) => {
         const peerReviewFilter = filterSettings.peerReview;
         const isPeerReviewFilterActive = Object.values(peerReviewFilter).some(statusState => statusState.checked === true);
         if (isPeerReviewFilterActive) {
-            const peerReviews = getPeerReviews(item);
+            const peerReviews = getPeerReviews(item, peerReviewFilter.onlyMyReviews.checked || false);
             const goodPeerReviews = peerReviews.filter(review => review.status === QUALITY_STATUSES.GOOD);
             const mediocrePeerReviews = peerReviews.filter(review => review.status === QUALITY_STATUSES.MEDIOCRE);
             const badPeerReviews = peerReviews.filter(review => review.status === QUALITY_STATUSES.BAD);
