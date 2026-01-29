@@ -115,7 +115,7 @@ export const isAnyObservationTurnedOnForCmp = createSelector(
     proteins.forEach(p => allLists.add(p));
     complexis.forEach(p => allLists.add(p));
     surfaces.forEach(p => allLists.add(p));
-    densities.forEach(p => allLists.add(p));
+    densities.forEach(p => allLists.add(p.id));
     vectors.forEach(p => allLists.add(p));
     let hasInspiration = false;
     observations.forEach(moleculeID => {
@@ -128,12 +128,9 @@ export const isAnyObservationTurnedOnForCmp = createSelector(
   }
 );
 
-export const getFilterSmileQuery = createSelector(
-  moleculeFilter,
-  (moleculeFilter) => {
-    if (moleculeFilter && moleculeFilter.smiles) {
-      return moleculeFilter.smiles;
-    }
-    return '';
+export const getFilterSmileQuery = createSelector(moleculeFilter, moleculeFilter => {
+  if (moleculeFilter && moleculeFilter.smiles) {
+    return moleculeFilter.smiles;
   }
-);
+  return '';
+});

@@ -11,6 +11,19 @@ export const getToBeDisplayedStructures = (toBeDisplayed, displayedList, type, t
   return structures;
 };
 
+export const getToBeDisplayedStructuresDensity = (toBeDisplayed, displayedList, type, toBeRemoved = false) => {
+  let structures = [];
+
+  structures = toBeDisplayed.filter(
+    struct =>
+      struct.type === type &&
+      struct.display === !toBeRemoved &&
+      (toBeRemoved || !displayedList.find(d => d.id === struct.id))
+  );
+
+  return structures;
+};
+
 export const getToBeDisplayedStructuresDataset = (toBeDisplayed, displayedList, type, toBeRemoved = false) => {
   let result = [];
 

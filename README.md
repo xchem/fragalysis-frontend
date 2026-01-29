@@ -36,7 +36,7 @@ The repositories are:
 
 - Docker
 - Git
-- NodeJS (v16)
+- NodeJS (v22.17.1)
 - Yarn
 - Some target data
 

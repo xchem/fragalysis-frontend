@@ -185,7 +185,7 @@ export const getAllDisplayedLHSCompounds = createSelector(
       allSelectedMolecules.push(...surfaceList);
     }
     if (densityList.length > 0) {
-      allSelectedMolecules.push(...densityList);
+      allSelectedMolecules.push(...densityList.map(d => d.id));
     }
     if (vectorOnList.length > 0) {
       allSelectedMolecules.push(...vectorOnList);

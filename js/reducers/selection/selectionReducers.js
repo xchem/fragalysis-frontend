@@ -13,7 +13,6 @@ export const INITIAL_STATE = {
   complexList: [],
   surfaceList: [],
   densityList: [],
-  densityListCustom: [],
   densityListType: [],
   qualityList: [],
   informationList: [],
@@ -285,29 +284,12 @@ export function selectionReducers(state = INITIAL_STATE, action = {}) {
       return Object.assign({}, state, { densityList: [...newDensityList] });
 
     case constants.APPEND_DENSITY_LIST:
-      return Object.assign({}, state, { densityList: [...new Set([...state.densityList, action.item.id])] });
+      return { ...state, densityList: [...state.densityList.filter(d => d.id !== action.item.id), action.item] };
 
-    case constants.REMOVE_FROM_DENSITY_LIST:
-      let diminishedDensityList = new Set(state.densityList);
-      diminishedDensityList.delete(action.item.id);
-      return Object.assign({}, state, { densityList: [...diminishedDensityList] });
-
-    case constants.SET_DENSITY_LIST_CUSTOM:
-      let newDensityListCustom = new Set();
-      action.densityListCustom.forEach(f => {
-        newDensityListCustom.add(f);
-      });
-      return Object.assign({}, state, { densityListCustom: [...newDensityListCustom] });
-
-    case constants.APPEND_DENSITY_LIST_CUSTOM:
-      return Object.assign({}, state, {
-        densityListCustom: [...new Set([...state.densityListCustom, action.item.id])]
-      });
-
-    case constants.REMOVE_FROM_DENSITY_LIST_CUSTOM:
-      let diminishedDensityListCustom = new Set(state.densityListCustom);
-      diminishedDensityListCustom.delete(action.item.id);
-      return Object.assign({}, state, { densityListCustom: [...diminishedDensityListCustom] });
+    case constants.REMOVE_FROM_DENSITY_LIST: {
+      const newDensityList = state.densityList.filter(d => d.id !== action.item.id);
+      return { ...state, densityList: [...newDensityList] };
+    }
 
     case constants.SET_QUALITY_LIST:
       let newQualityList = new Set();
@@ -506,6 +488,7 @@ export function selectionReducers(state = INITIAL_STATE, action = {}) {
       });
 
     case constants.SET_HIDE_ALL:
+      //what is this????
       return state;
 
     case constants.SET_SELECTED_TAG_LIST:

@@ -242,66 +242,54 @@ export const getDensityMapData = data => dispatch => {
     });
 };
 
-export const addDensity = (
-  stage,
-  data,
-  colourToggle,
-  isWireframeStyle,
-  skipTracking = false,
-  representations = undefined
-) => (dispatch, getState) => {
+export const addDensity = (data, densityObject, representations = undefined) => (dispatch, getState) => {
   if (data.proteinData) {
-    return dispatch(setDensity(stage, data, colourToggle, isWireframeStyle, skipTracking, representations));
+    return dispatch(setDensity(data, densityObject, representations));
   }
 
   return dispatch(getDensityMapData(data)).then(() => {
-    return dispatch(setDensity(stage, data, colourToggle, isWireframeStyle, skipTracking, representations));
+    return dispatch(setDensity(data, densityObject, representations));
   });
 };
 
-const setDensity = (
-  stage,
-  data,
-  colourToggle,
-  isWireframeStyle,
-  skipTracking = false,
-  representations = undefined
-) => async (dispatch, getState) => {
+const setDensity = (data, densityObject, representations = undefined) => async (dispatch, getState) => {
   dispatch(
     appendToBeDisplayedList({
       type: NGL_OBJECTS.DENSITY,
       id: data.id,
       display: true,
       representations: representations,
-      isWireframeStyle: isWireframeStyle,
       densityData: data.proteinData,
+      densityObject: densityObject,
       center: false
     })
   );
 };
 
-export const getDensityChangedParams = (isWireframeStyle = undefined) => (dispatch, getState) => {
+export const getDensityChangedParams = densitySettingsObject => (dispatch, getState) => {
   const state = getState();
   const viewParams = state.nglReducers.viewParams;
 
+  const isWireframeStyle = densitySettingsObject.isWireframeStyle;
+
   return {
-    isolevel_DENSITY: viewParams[NGL_PARAMS.isolevel_DENSITY],
+    isolevel_DENSITY: densitySettingsObject.contour_event, //viewParams[NGL_PARAMS.isolevel_DENSITY],
     boxSize_DENSITY: viewParams[NGL_PARAMS.boxSize_DENSITY],
     opacity_DENSITY: viewParams[NGL_PARAMS.opacity_DENSITY],
     contour_DENSITY: isWireframeStyle !== undefined ? isWireframeStyle : viewParams[NGL_PARAMS.contour_DENSITY],
-    color_DENSITY: viewParams[NGL_PARAMS.color_DENSITY],
-    isolevel_DENSITY_MAP_sigmaa: viewParams[NGL_PARAMS.isolevel_DENSITY_MAP_sigmaa],
+    color_DENSITY: densitySettingsObject.color, //viewParams[NGL_PARAMS.color_DENSITY],
+    isolevel_DENSITY_MAP_sigmaa: densitySettingsObject.contour_2FoFc, //viewParams[NGL_PARAMS.isolevel_DENSITY_MAP_sigmaa],
     boxSize_DENSITY_MAP_sigmaa: viewParams[NGL_PARAMS.boxSize_DENSITY_MAP_sigmaa],
     opacity_DENSITY_MAP_sigmaa: viewParams[NGL_PARAMS.opacity_DENSITY_MAP_sigmaa],
     contour_DENSITY_MAP_sigmaa:
       isWireframeStyle !== undefined ? isWireframeStyle : viewParams[NGL_PARAMS.contour_DENSITY_MAP_sigmaa],
-    color_DENSITY_MAP_sigmaa: viewParams[NGL_PARAMS.color_DENSITY_MAP_sigmaa],
-    isolevel_DENSITY_MAP_diff: viewParams[NGL_PARAMS.isolevel_DENSITY_MAP_diff],
+    color_DENSITY_MAP_sigmaa: densitySettingsObject.color, //viewParams[NGL_PARAMS.color_DENSITY_MAP_sigmaa],
+    isolevel_DENSITY_MAP_diff: densitySettingsObject.contour_FoFc, //viewParams[NGL_PARAMS.isolevel_DENSITY_MAP_diff],
     boxSize_DENSITY_MAP_diff: viewParams[NGL_PARAMS.boxSize_DENSITY_MAP_diff],
     opacity_DENSITY_MAP_diff: viewParams[NGL_PARAMS.opacity_DENSITY_MAP_diff],
     contour_DENSITY_MAP_diff:
       isWireframeStyle !== undefined ? isWireframeStyle : viewParams[NGL_PARAMS.contour_DENSITY_MAP_diff],
-    color_DENSITY_MAP_diff: viewParams[NGL_PARAMS.color_DENSITY_MAP_diff],
+    color_DENSITY_MAP_diff: /*densitySettingsObject.color,*/ viewParams[NGL_PARAMS.color_DENSITY_MAP_diff],
     color_DENSITY_MAP_diff_negate: viewParams[NGL_PARAMS.color_DENSITY_MAP_diff_negate]
   };
 };
@@ -375,13 +363,13 @@ export const removeDensity = (
       id: data.id,
       display: false,
       isWireframeStyle: isWireframeStyle,
-      type: NGL_OBJECTS.DENSITY_CUSTOM
+      type: NGL_OBJECTS.DENSITY
     })
   );
 };
 
-export const deleteDensityObject = (data, colourToggle, stage, isWireframeStyle) => async dispatch => {
-  const densityObject = await dispatch(generateDensityObject(data, colourToggle, base_url, isWireframeStyle));
+export const deleteDensityObject = (data, stage, densitySettingsObject) => async dispatch => {
+  const densityObject = await dispatch(generateDensityObject(data, densitySettingsObject));
   dispatch(deleteObject(Object.assign({ display_div: VIEWS.MAJOR_VIEW }, densityObject), stage));
 
   let sigmaDensityObject = Object.assign({ ...densityObject, name: densityObject.name + DENSITY_MAPS.SIGMAA });
@@ -598,7 +586,6 @@ export const hideAllSelectedMolecules = (stage, currentMolecules, isHideAll, ski
   const surfaceList = state.selectionReducers.surfaceList;
   const proteinList = state.selectionReducers.proteinList;
   const densityList = state.selectionReducers.densityList;
-  const densityListCustom = state.selectionReducers.densityListCustom;
   const qualityList = state.selectionReducers.qualityList;
 
   let ligandDataList = [];
@@ -607,7 +594,6 @@ export const hideAllSelectedMolecules = (stage, currentMolecules, isHideAll, ski
   let surfaceDataList = [];
   let proteinDataList = [];
   let densityDataList = [];
-  let densityDataListCustom = [];
   let qualityDataList = [];
 
   fragmentDisplayList.forEach(moleculeId => {
@@ -650,18 +636,10 @@ export const hideAllSelectedMolecules = (stage, currentMolecules, isHideAll, ski
     }
   });
 
-  densityList.forEach(moleculeId => {
-    const data = currentMolecules.find(molecule => molecule.id === moleculeId);
+  densityList.forEach(d => {
+    const data = currentMolecules.find(molecule => molecule.id === d.id);
     if (data) {
       densityDataList.push(data);
-      dispatch(removeDensity(stage, data, colourList[0], skipTracking));
-    }
-  });
-
-  densityListCustom.forEach(moleculeId => {
-    const data = currentMolecules.find(molecule => molecule.id === moleculeId);
-    if (data) {
-      densityDataListCustom.push(data);
       dispatch(removeDensity(stage, data, colourList[0], skipTracking));
     }
   });
@@ -679,21 +657,6 @@ export const hideAllSelectedMolecules = (stage, currentMolecules, isHideAll, ski
   dispatch(resetCompoundsOfVectors());
   dispatch(resetBondColorMapOfVectors());
   dispatch(setCompoundImage(noCompoundImage));
-
-  let data = {
-    ligandList: ligandDataList,
-    proteinList: proteinDataList,
-    complexList: complexDataList,
-    surfaceList: surfaceDataList,
-    vectorOnList: vectorOnDataList,
-    qualityList: qualityDataList,
-    densityList: densityDataList,
-    densityListCustom: densityDataListCustom
-  };
-
-  if (isHideAll === true) {
-    dispatch(setHideAll(data));
-  }
 };
 
 export const moveSelectedMolSettings = (stage, item, newItem, data, skipTracking) => (dispatch, getState) => {
@@ -723,19 +686,6 @@ export const moveSelectedMolSettings = (stage, item, newItem, data, skipTracking
       const qualityRepresentations = getRepresentationsByType(data.objectsInView, item, OBJECT_TYPE.QUALITY);
       promises.push(dispatch(addQuality(stage, newItem, data.colourToggle, skipTracking, qualityRepresentations)));
     }
-    if (data.isDensityOn) {
-      // const densityRepresentations = getRepresentationsForDensities(data.objectsInView, item, OBJECT_TYPE.DENSITY);
-      // newItem.proteinData.render_event = item.proteinData.render_event;
-      // newItem.proteinData.render_sigmaa = item.proteinData.render_sigmaa;
-      // newItem.proteinData.render_diff = item.proteinData.render_diff;
-      // dispatch(addDensity(stage, newItem, data.colourToggle, false, skipTracking, densityRepresentations));
-    }
-    if (data.isDensityCustomOn) {
-      // const densityCustomRepresentations = getRepresentationsByType(data.objectsInView, item, OBJECT_TYPE.DENSITY);
-      // dispatch(
-      //   addDensityCustomView(stage, newItem, data.colourToggle, false, skipTracking, densityCustomRepresentations)
-      // );
-    }
     if (data.isVectorOn) {
       promises.push(dispatch(addVector(stage, newItem, skipTracking)));
     }
@@ -754,7 +704,6 @@ export const removeSelectedMolTypes = (majorViewStage, molecules, skipTracking, 
   const surfaceList = state.selectionReducers.surfaceList;
   const proteinList = state.selectionReducers.proteinList;
   const densityList = state.selectionReducers.densityList;
-  const densityListCustom = state.selectionReducers.densityListCustom;
   const qualityList = state.selectionReducers.qualityList;
   let joinedMoleculeLists = molecules;
 
@@ -816,19 +765,8 @@ export const removeSelectedMolTypes = (majorViewStage, molecules, skipTracking, 
       );
     }
   });
-  densityList?.forEach(moleculeID => {
-    let foundedMolecule = joinedMoleculeLists?.find(mol => mol.id === moleculeID);
-
-    if (foundedMolecule) {
-      foundedMolecule = Object.assign({ isInspiration: isInspiration }, foundedMolecule);
-
-      dispatch(
-        removeDensity(majorViewStage, foundedMolecule, colourList[foundedMolecule.id % colourList.length], skipTracking)
-      );
-    }
-  });
-  densityListCustom?.forEach(moleculeID => {
-    let foundedMolecule = joinedMoleculeLists?.find(mol => mol.id === moleculeID);
+  densityList?.forEach(d => {
+    let foundedMolecule = joinedMoleculeLists?.find(mol => mol.id === d.id);
 
     if (foundedMolecule) {
       foundedMolecule = Object.assign({ isInspiration: isInspiration }, foundedMolecule);
@@ -931,37 +869,6 @@ export const getMolImage = (molId, molType, width, height) => (dispatch, getStat
     });
   }
 };
-
-// export const generateAndStoreMolImage = (obs, molType, width, height, RDKitModule) => async (dispatch, getState) => {
-//   if (!obs) return null;
-//   if (!RDKitModule) return null;
-
-//   const state = getState();
-
-//   const imageCache = state.previewReducers.molecule.imageCache;
-
-//   const obsId = obs.id;
-//   const molIdStr = obsId.toString();
-//   if (imageCache.hasOwnProperty(molIdStr)) {
-//     return new Promise((resolve, reject) => {
-//       resolve(imageCache[molIdStr]);
-//     });
-//   } else {
-//     const mol = RDKitModule.get_mol(obs.smiles);
-//     const svg = await mol.get_svg(width, height);
-//     if (!imageCache.hasOwnProperty(molIdStr)) {
-//       dispatch(addImageToCache(obsId.toString(), svg));
-//     }
-//     return new Promise((resolve, reject) => {
-//       resolve(svg);
-//     });
-//     // return new Promise((resolve, reject) => {
-//     //   resolve(svg);
-//     // });
-
-//     // const svgData = 'data:image/svg+xml;base64,' + btoa(svg);
-//   }
-// };
 
 /**
  * Get highlight options for a substructure query, this is just based on

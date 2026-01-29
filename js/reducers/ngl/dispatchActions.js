@@ -33,7 +33,6 @@ import {
   removeFromProteinList,
   removeFromSurfaceList,
   removeFromDensityList,
-  removeFromDensityListCustom,
   removeFromDensityListType
 } from '../selection/actions';
 import { nglObjectDictionary } from '../../components/nglView/renderingObjects';
@@ -143,8 +142,6 @@ export const deleteObject = (target, stage, deleteFromSelections) => dispatch =>
           break;
         case SELECTION_TYPE.DENSITY:
           dispatch(removeFromDensityList(objectId));
-          dispatch(removeFromDensityListCustom(objectId, true));
-          dispatch(removeFromDensityListType({ id: objectId }));
           break;
         case SELECTION_TYPE.VECTOR:
           dispatch(removeFromVectorOnList(objectId));

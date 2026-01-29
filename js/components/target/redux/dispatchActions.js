@@ -43,6 +43,7 @@ export const loadTargetList = onCancel => (dispatch, getState) => {
           .find(experiment => experiment.target === target.id);
         if (experiment) {
           target.last_updated = experiment.commit_datetime;
+          target.data_version = experiment.data_version_major;
         }
       });
       dispatch(setTargetIdList(params));

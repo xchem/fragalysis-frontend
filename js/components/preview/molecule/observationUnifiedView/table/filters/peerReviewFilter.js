@@ -23,7 +23,8 @@ export const PeerReviewFilter = memo(({ onFilterChange, onSortingChange }) => {
             good: { checked: false, option: 0, value: '' },
             mediocre: { checked: false, option: 0, value: '' },
             bad: { checked: false, option: 0, value: '' },
-            none: { checked: false, option: 0, value: '' }
+            none: { checked: false, option: 0, value: '' },
+            onlyMyReviews: { checked: false }
         }
     };
 
@@ -111,6 +112,7 @@ export const PeerReviewFilter = memo(({ onFilterChange, onSortingChange }) => {
                 <Grid item xs><FormControlLabel control={<Checkbox checked={filterValue.mainStatus.mediocre} onChange={e => handleFilterChange('mainStatus', setValueForMainStatus('mediocre', e.target.checked))} />} label="Mediocre" /></Grid>
                 <Grid item xs><FormControlLabel control={<Checkbox checked={filterValue.mainStatus.bad} onChange={e => handleFilterChange('mainStatus', setValueForMainStatus('bad', e.target.checked))} />} label="Bad" /></Grid>
                 <Grid item xs><FormControlLabel control={<Checkbox checked={filterValue.mainStatus.none} onChange={e => handleFilterChange('mainStatus', setValueForMainStatus('none', e.target.checked))} />} label="None" /></Grid>
+                <Grid item xs></Grid>
             </Grid>
             {/** Second column with peer reviews */}
             <Grid container item xs={4} direction="column">
@@ -119,6 +121,7 @@ export const PeerReviewFilter = memo(({ onFilterChange, onSortingChange }) => {
                 <Grid item xs><FormControlLabel control={<Checkbox checked={filterValue.peerReview.mediocre.checked} onChange={e => handleFilterChange('peerReview', setValueForPeerReview('mediocre', 'checked', e.target.checked))} />} label="Mediocre" /></Grid>
                 <Grid item xs><FormControlLabel control={<Checkbox checked={filterValue.peerReview.bad.checked} onChange={e => handleFilterChange('peerReview', setValueForPeerReview('bad', 'checked', e.target.checked))} />} label="Bad" /></Grid>
                 <Grid item xs><FormControlLabel control={<Checkbox checked={filterValue.peerReview.none.checked} onChange={e => handleFilterChange('peerReview', setValueForPeerReview('none', 'checked', e.target.checked))} />} label="None" /></Grid>
+                <Grid item xs><FormControlLabel control={<Checkbox checked={filterValue.peerReview.onlyMyReviews.checked} onChange={e => handleFilterChange('peerReview', setValueForPeerReview('onlyMyReviews', 'checked', e.target.checked))} />} label="Only my reviews" /></Grid>
             </Grid>
             {/** Third column with options */}
             <Grid container item xs={2} direction="column">
@@ -159,6 +162,7 @@ export const PeerReviewFilter = memo(({ onFilterChange, onSortingChange }) => {
                         </Select>
                     </FormControl>
                 </Grid>
+                <Grid item xs></Grid>
             </Grid>
             {/** Fourth column with values */}
             <Grid container item xs={2} direction="column">
@@ -175,6 +179,7 @@ export const PeerReviewFilter = memo(({ onFilterChange, onSortingChange }) => {
                 <Grid item xs>
                     <FormControl><TextField value={filterValue.peerReview.none.value} onChange={e => handleFilterChange('peerReview', setValueForPeerReview('none', 'value', e.target.value))} /></FormControl>
                 </Grid>
+                <Grid item xs></Grid>
             </Grid>
         </Grid>
         {/** Sort */}

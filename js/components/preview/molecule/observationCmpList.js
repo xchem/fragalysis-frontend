@@ -274,7 +274,7 @@ const useStyles = makeStyles(theme => ({
 }));
 let selectedDisplayHits = false;
 
-export const ObservationCmpList = memo(({ }) => {
+export const ObservationCmpList = memo(({}) => {
   const classes = useStyles();
   const dispatch = useDispatch();
   let match = useRouteMatch();
@@ -312,7 +312,6 @@ export const ObservationCmpList = memo(({ }) => {
   const fragmentDisplayList = useSelector(state => state.selectionReducers.fragmentDisplayList);
   const surfaceList = useSelector(state => state.selectionReducers.surfaceList);
   const densityList = useSelector(state => state.selectionReducers.densityList);
-  const densityListCustom = useSelector(state => state.selectionReducers.densityListCustom);
   const qualityList = useSelector(state => state.selectionReducers.qualityList);
   const vectorOnList = useSelector(state => state.selectionReducers.vectorOnList);
   const informationList = useSelector(state => state.selectionReducers.informationList);
@@ -586,14 +585,23 @@ export const ObservationCmpList = memo(({ }) => {
     moleculesToEditIds
   ]);
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  joinedMoleculeLists = useMemo(() => addSelectedMoleculesFromUnselectedSites(joinedMoleculeLists, densityList), [
-    addSelectedMoleculesFromUnselectedSites,
-    joinedMoleculeLists,
-    densityList,
-    molForTagEditId,
-    isTagEditorOpen,
-    moleculesToEditIds
-  ]);
+  joinedMoleculeLists = useMemo(() => {
+    const addedMols = [...joinedMoleculeLists];
+    const onlyAlreadySelected = [];
+    densityList?.forEach(d => {
+      const foundJoinedMolecule = addedMols.find(mol => mol.id === d.id);
+      if (!foundJoinedMolecule) {
+        const molecule = allMoleculesList.find(mol => mol.id === d.id);
+        if (molecule) {
+          addedMols.push(molecule);
+          onlyAlreadySelected.push(molecule);
+        }
+      }
+    });
+
+    const result = [...onlyAlreadySelected, ...joinedMoleculeLists];
+    return result;
+  }, [joinedMoleculeLists, densityList, allMoleculesList]);
   // eslint-disable-next-line react-hooks/exhaustive-deps
   joinedMoleculeLists = useMemo(() => addSelectedMoleculesFromUnselectedSites(joinedMoleculeLists, vectorOnList), [
     addSelectedMoleculesFromUnselectedSites,
@@ -767,7 +775,7 @@ export const ObservationCmpList = memo(({ }) => {
             proteinList.includes(selectedMolecule.id) ||
             complexList.includes(selectedMolecule.id) ||
             surfaceList.includes(selectedMolecule.id) ||
-            densityList.includes(selectedMolecule.id) ||
+            densityList.some(d => d.id === selectedMolecule.id) ||
             vectorOnList.includes(selectedMolecule.id)
           ) {
             selectedDisplayHits = true;
@@ -796,7 +804,9 @@ export const ObservationCmpList = memo(({ }) => {
           if (danglingSurfaces && danglingSurfaces.length > 0) {
             notSelectedMols.push(danglingSurfaces);
           }
-          const danglingDensities = densityList.filter(id => !allSelectedMolecules.filter(m => m.id === id).length > 0);
+          const danglingDensities = densityList.filter(
+            d => !allSelectedMolecules.filter(m => m.id === d.id).length > 0
+          );
           if (danglingDensities && danglingDensities.length > 0) {
             notSelectedMols.push(danglingDensities);
           }
@@ -825,7 +835,7 @@ export const ObservationCmpList = memo(({ }) => {
     if (surfaceList.includes(data.id)) {
       selectedMolecule.push(data);
     }
-    if (densityList.includes(data.id)) {
+    if (densityList.some(d => d.id === data.id)) {
       selectedMolecule.push(data);
     }
     if (vectorOnList.includes(data.id)) {
@@ -1252,8 +1262,9 @@ export const ObservationCmpList = memo(({ }) => {
                     {filter.priorityOrder.map(attr => (
                       <Grid item key={`Mol-Tooltip-${attr}`}>
                         <Tooltip
-                          title={`${filter.filter[attr].minValue}-${filter.filter[attr].maxValue} ${filter.filter[attr].order === 1 ? '\u2191' : '\u2193'
-                            }`}
+                          title={`${filter.filter[attr].minValue}-${filter.filter[attr].maxValue} ${
+                            filter.filter[attr].order === 1 ? '\u2191' : '\u2193'
+                          }`}
                           placement="top"
                         >
                           <Chip size="small" label={attr} style={{ backgroundColor: getAttrDefinition(attr).color }} />
@@ -1387,8 +1398,9 @@ export const ObservationCmpList = memo(({ }) => {
           </Tooltip>
         )}
         <Grid style={{ marginTop: '4px' }}>
-          <Typography variant="caption">{`Selected: ${allSelectedMolecules ? allSelectedMolecules.length : 0
-            }`}</Typography>
+          <Typography variant="caption">{`Selected: ${
+            allSelectedMolecules ? allSelectedMolecules.length : 0
+          }`}</Typography>
         </Grid>
         <Grid style={{ marginTop: '4px' }}>
           <Typography variant="caption" style={{ paddingLeft: 3 }}>
@@ -1486,7 +1498,6 @@ export const ObservationCmpList = memo(({ }) => {
                   complexList={complexList}
                   surfaceList={surfaceList}
                   densityList={densityList}
-                  densityListCustom={densityListCustom}
                   qualityList={qualityList}
                   vectorOnList={vectorOnList}
                   informationList={informationList}

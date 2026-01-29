@@ -1,6 +1,6 @@
 import { Button, ButtonGroup, Grid, makeStyles } from '@material-ui/core';
 import { ArrowDropDown } from '@material-ui/icons';
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { TabPanel } from '../common/Tabs';
 import { CustomDatasetList } from '../datasets/customDatasetList';
@@ -10,6 +10,9 @@ import { setSelectedDatasetIndex, setTabValue } from '../datasets/redux/actions'
 import { SelectedCompoundList } from '../datasets/selectedCompoundsList';
 import { CompoundList } from './compounds/compoundList';
 import { SummaryView } from './summary/summaryView';
+import { layoutItemNames } from '../../reducers/layout/constants';
+import { setPanelsExpanded } from '../../reducers/layout/actions';
+import { Panel } from '../common';
 
 const useStyles = makeStyles(theme => ({
   rhsWrapperWithCloseCompoundSet: {
@@ -41,7 +44,7 @@ const useStyles = makeStyles(theme => ({
   }
 }));
 
-export const RHS = ({}) => {
+export const RHS = ({ expandHandler }) => {
   const classes = useStyles();
 
   const dispatch = useDispatch();
@@ -76,43 +79,57 @@ export const RHS = ({}) => {
   };
 
   return (
-    <div
-      className={
-        compoundSetExpand === true ? classes.rhsWrapperWithOpenCompoundSet : classes.rhsWrapperWithCloseCompoundSet
-      }
+    <Panel
+      //   ref={ref}
+      hasHeader
+      hasExpansion
+      defaultExpanded
+      // title={selectedDataset ? selectedDataset.title : "Graphs"}
+      onExpandChange={useCallback(
+        expanded => {
+          dispatch(setPanelsExpanded(layoutItemNames.COMPOUNDS_VIEW, expanded));
+          expandHandler && expandHandler(expanded);
+        },
+        [dispatch, expandHandler]
+      )}
     >
-      <Grid container direction="column" className={classes.rhs}>
-        <ButtonGroup
-          color="primary"
-          variant="contained"
-          aria-label="outlined primary button group"
-          className={classes.tabButtonGroup}
-        >
-          <Button
-            size="small"
-            variant={getTabValue() === 0 ? 'contained' : 'text'}
-            onClick={() => dispatch(setTabValue(tabValue, 0, 'Vector selector', getTabName()))}
-            style={{ width: '33%' }}
+      <div
+        className={
+          compoundSetExpand === true ? classes.rhsWrapperWithOpenCompoundSet : classes.rhsWrapperWithCloseCompoundSet
+        }
+      >
+        <Grid container direction="column" className={classes.rhs}>
+          <ButtonGroup
+            color="primary"
+            variant="contained"
+            aria-label="outlined primary button group"
+            className={classes.tabButtonGroup}
           >
-            Vector selector
-          </Button>
-          <Button
-            size="small"
-            variant={getTabValue() === 1 ? 'contained' : 'text'}
-            onClick={() => dispatch(setTabValue(tabValue, 1, 'Selected compounds', getTabName()))}
-            style={{ width: '33%' }}
-          >
-            Selected compounds
-          </Button>
-          <Button
-            size="small"
-            variant={getTabValue() >= 2 ? 'contained' : 'text'}
-            onClick={() => dispatch(setTabValue(tabValue, 2, currentDataset?.title, getTabName()))}
-            style={{ width: '33%' }}
-          >
-            Compound sets
-          </Button>
-          {/*} <Button
+            <Button
+              size="small"
+              variant={getTabValue() === 0 ? 'contained' : 'text'}
+              onClick={() => dispatch(setTabValue(tabValue, 0, 'Vector selector', getTabName()))}
+              style={{ width: '33%' }}
+            >
+              Vector selector
+            </Button>
+            <Button
+              size="small"
+              variant={getTabValue() === 1 ? 'contained' : 'text'}
+              onClick={() => dispatch(setTabValue(tabValue, 1, 'Selected compounds', getTabName()))}
+              style={{ width: '33%' }}
+            >
+              Selected compounds
+            </Button>
+            <Button
+              size="small"
+              variant={getTabValue() >= 2 ? 'contained' : 'text'}
+              onClick={() => dispatch(setTabValue(tabValue, 2, currentDataset?.title, getTabName()))}
+              style={{ width: '33%' }}
+            >
+              Compound sets
+            </Button>
+            {/*} <Button
             variant="text"
             size="small"
             onClick={() => {
@@ -122,8 +139,8 @@ export const RHS = ({}) => {
           >
             <ArrowDropDown />
           </Button>*/}
-        </ButtonGroup>
-        {/*<DatasetSelectorMenuButton
+          </ButtonGroup>
+          {/*<DatasetSelectorMenuButton
           anchorRef={anchorRefDatasetDropdown}
           open={openDatasetDropdown}
           setOpen={setOpenDatasetDropdown}
@@ -131,32 +148,33 @@ export const RHS = ({}) => {
           selectedDatasetIndex={selectedDatasetIndex}
           setSelectedDatasetIndex={setSelectedDatasetIndex}
           />*/}
-        <TabPanel value={getTabValue()} index={0} className={classes.tabPanel}>
-          {/* Vector selector */}
-          <Grid container direction="column" className={classes.rhsContainer}>
-            <Grid item className={classes.summaryView}>
-              <SummaryView />
-            </Grid>
-            <Grid item>
-              <CompoundList />
-            </Grid>
-          </Grid>
-        </TabPanel>
-        <TabPanel value={getTabValue()} index={1} className={classes.tabPanel}>
-          <SelectedCompoundList />
-        </TabPanel>
-        {customDatasets.map((dataset, index) => {
-          return (
-            <TabPanel key={index + 2} value={getTabValue()} index={index + 2} className={classes.tabPanel}>
-              <Grid item style={{ height: compoundSetExpand?.compoundSets === true ? '85%' : '98%' }}>
-                <CompoundSetList />
-                <div key="place for resizer" style={{ paddingTop: '10px' }}></div>
-                <CustomDatasetList dataset={dataset} isActive={sidesOpen.RHS && index === selectedDatasetIndex} />
+          <TabPanel value={getTabValue()} index={0} className={classes.tabPanel}>
+            {/* Vector selector */}
+            <Grid container direction="column" className={classes.rhsContainer}>
+              <Grid item className={classes.summaryView}>
+                <SummaryView />
               </Grid>
-            </TabPanel>
-          );
-        })}
-      </Grid>
-    </div>
+              <Grid item>
+                <CompoundList />
+              </Grid>
+            </Grid>
+          </TabPanel>
+          <TabPanel value={getTabValue()} index={1} className={classes.tabPanel}>
+            <SelectedCompoundList />
+          </TabPanel>
+          {customDatasets.map((dataset, index) => {
+            return (
+              <TabPanel key={index + 2} value={getTabValue()} index={index + 2} className={classes.tabPanel}>
+                <Grid item style={{ height: compoundSetExpand?.compoundSets === true ? '85%' : '98%' }}>
+                  <CompoundSetList />
+                  <div key="place for resizer" style={{ paddingTop: '10px' }}></div>
+                  <CustomDatasetList dataset={dataset} isActive={sidesOpen.RHS && index === selectedDatasetIndex} />
+                </Grid>
+              </TabPanel>
+            );
+          })}
+        </Grid>
+      </div>
+    </Panel>
   );
 };

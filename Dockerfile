@@ -13,5 +13,11 @@ ENV APP_ROOT /frontend
 WORKDIR ${APP_ROOT}/static
 COPY . ${APP_ROOT}/
 WORKDIR ${APP_ROOT}
-RUN yarn install && \
+
+# Ensure yarn.lock exists and then enforce frozen lockfile
+RUN if [ ! -f yarn.lock ]; then \
+        echo "ERROR: yarn.lock is missing. Refusing to install dependencies." >&2; \
+        exit 1; \
+    fi && \
+    yarn install --frozen-lockfile && \
     yarn run build

@@ -106,6 +106,7 @@ export const TargetList = memo(({ list = [], title = 'Target list', authRequired
     tas: false,
     initDate: false,
     lastUpdatedDate: false,
+    dataVersion: false,
     shortName: false,
     longName: false,
     organism: false,
@@ -122,6 +123,7 @@ export const TargetList = memo(({ list = [], title = 'Target list', authRequired
     tas: 110,
     initDate: 90,
     lastUpdatedDate: 90,
+    dataVersion: 90,
     shortName: 110,
     longName: 110,
     organism: 110,
@@ -213,6 +215,12 @@ export const TargetList = memo(({ list = [], title = 'Target list', authRequired
         order: 0,
         value: '',
         title: 'Organism'
+      },
+      dataVersion: {
+        priority: 8,
+        order: 0,
+        value: 0,
+        title: 'Data version'
       }
       // externalURL: {
       //   priority: 0,
@@ -288,6 +296,8 @@ export const TargetList = memo(({ list = [], title = 'Target list', authRequired
         return target.long_name.toLowerCase().includes(filterValue.toLowerCase());
       case 'organism':
         return target.organism.toLowerCase().includes(filterValue.toLowerCase());
+      case 'dataVersion':
+        return target.data_version ? filterValue[0] <= target.data_version && filterValue[1] >= target.data_version : true;
     }
     return false;
   };
@@ -308,6 +318,8 @@ export const TargetList = memo(({ list = [], title = 'Target list', authRequired
         return a.long_name.toLowerCase() < b.long_name.toLowerCase() ? -1 : 1;
       case 'organism':
         return a.organism.toLowerCase() < b.organism.toLowerCase() ? -1 : 1;
+      case 'dataVersion':
+        return a.data_version < b.data_version ? -1 : 1;
     }
     return 0;
   };
@@ -449,7 +461,11 @@ export const TargetList = memo(({ list = [], title = 'Target list', authRequired
           <TableCell key={'9'} align="left" style={{ padding: '0px', margin: '0px' }}>
             <a href={target.external_url} target="_blank">{target.external_url_display_name}</a>
           </TableCell>,
-          <TableCell key={'10'} style={{ width: '2px', padding: '0px', margin: '0px' }}></TableCell>
+          <TableCell key={'10'} style={{ width: '2px', padding: '0px', margin: '0px' }}></TableCell>,
+          <TableCell key={'15'} align="center" style={{ padding: '0px', margin: '0px' }}>
+            {target.data_version}
+          </TableCell>,
+          <TableCell key={'16'} style={{ width: '2px', padding: '0px', margin: '0px' }}></TableCell>
         ])}
         {DJANGO_CONTEXT['authenticated'] && !target.isLegacy && <TableCell style={{ width: '2px', padding: '0px', margin: '0px' }}>
           <IconButton
@@ -971,6 +987,41 @@ export const TargetList = memo(({ list = [], title = 'Target list', authRequired
                       borderRadius: '3px'
                     }}
                     onMouseDown={() => handleMouseDownResizer('externalURL')}
+                  ></div>
+                </div>,
+
+                <TableCell key={'11'}
+                  className={classes.tableHeader}
+                // style={{ width: panelWidthForColumns.externalURL, padding: '0px', paddingLeft: '5px', verticalAlign: 'center' }}
+                >
+                  Data version
+                </TableCell>,
+                <div key={'12'} style={{ display: 'flex' }}>
+                  <div className={classes.arrowsWrapper}>
+                    <IconButton
+                      style={{ padding: '0px', verticalAlign: 'center' }}
+                      onClick={() => handleHeaderSort('dataVersion')}
+                    >
+                      <Tooltip title="Sort" className={classes.sortButton}>
+                        {filter.filter.dataVersion?.order === -1 ? (
+                          <KeyboardArrowDown />
+                        ) : filter.filter.dataVersion?.order === 1 ? (
+                          <KeyboardArrowUp />
+                        ) : (
+                          <UnfoldMore />
+                        )}
+                      </Tooltip>
+                    </IconButton>
+                  </div>
+                  <div
+                    style={{
+                      cursor: 'col-resize',
+                      width: 4,
+                      height: '21px',
+                      backgroundColor: '#cccccc',
+                      borderRadius: '3px'
+                    }}
+                    onMouseDown={() => handleMouseDownResizer('dataVersion')}
                   ></div>
                 </div>
               ])}
