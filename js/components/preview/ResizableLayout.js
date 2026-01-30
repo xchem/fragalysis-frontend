@@ -13,6 +13,7 @@ import { RHS } from './rhs';
 import { setResizableLayout, setActualRhsWidth } from '../../reducers/selection/actions';
 import { PlotlyView } from './plotly/plotlyView';
 import { layoutItemNames } from '../../reducers/layout/constants';
+import { TooltipPathProvider } from '../tooltip/TooltipPathContext';
 
 const useStyles = makeStyles(theme => ({
   root: { display: 'flex', height: '100%' },
@@ -75,15 +76,17 @@ export const ResizableLayout = ({ gridRef, nglPortal }) => {
         id: 'snapshot',
         group: 'lhs',
         component: (
-          <SnapshotList
-            expandHandler={expanded => {
-              if (expanded) {
-                mutateSuggestedHeight('snapshot', null);
-              } else {
-                mutateSuggestedHeight('snapshot', 25);
-              }
-            }}
-          />
+          <TooltipPathProvider path="snapshotList">
+            <SnapshotList
+              expandHandler={expanded => {
+                if (expanded) {
+                  mutateSuggestedHeight('snapshot', null);
+                } else {
+                  mutateSuggestedHeight('snapshot', 25);
+                }
+              }}
+            />
+          </TooltipPathProvider>
         ),
         min: MIN_HEIGHTS.snapshot,
         initialPct: 25
@@ -92,15 +95,17 @@ export const ResizableLayout = ({ gridRef, nglPortal }) => {
         id: 'tagDetails',
         group: 'lhs',
         component: (
-          <TagDetails
-            expandHandler={expanded => {
-              if (expanded) {
-                mutateSuggestedHeight('tagDetails', null);
-              } else {
-                mutateSuggestedHeight('tagDetails', 25);
-              }
-            }}
-          />
+          <TooltipPathProvider path="tagDetails">
+            <TagDetails
+              expandHandler={expanded => {
+                if (expanded) {
+                  mutateSuggestedHeight('tagDetails', null);
+                } else {
+                  mutateSuggestedHeight('tagDetails', 25);
+                }
+              }}
+            />
+          </TooltipPathProvider>
         ),
         min: MIN_HEIGHTS.tagDetails,
         initialPct: 20
@@ -121,26 +126,34 @@ export const ResizableLayout = ({ gridRef, nglPortal }) => {
       {
         id: layoutItemNames.PLOTLY_VIEW,
         group: 'rhs',
-        component: <PlotlyView expandHandler={expanded => {
-          if (expanded) {
-            mutateSuggestedRHSHeight(layoutItemNames.PLOTLY_VIEW, null);
-          } else {
-            mutateSuggestedRHSHeight(layoutItemNames.PLOTLY_VIEW, 25);
-          }
-        }} />,
+        component: (
+          <PlotlyView
+            expandHandler={expanded => {
+              if (expanded) {
+                mutateSuggestedRHSHeight(layoutItemNames.PLOTLY_VIEW, null);
+              } else {
+                mutateSuggestedRHSHeight(layoutItemNames.PLOTLY_VIEW, 25);
+              }
+            }}
+          />
+        ),
         min: MIN_HEIGHTS.plotlyView,
         initialPct: 30
       },
       {
         id: layoutItemNames.COMPOUNDS_VIEW,
         group: 'rhs',
-        component: <RHS expandHandler={expanded => {
-          if (expanded) {
-            mutateSuggestedRHSHeight(layoutItemNames.COMPOUNDS_VIEW, null);
-          } else {
-            mutateSuggestedRHSHeight(layoutItemNames.COMPOUNDS_VIEW, 25);
-          }
-        }} />,
+        component: (
+          <RHS
+            expandHandler={expanded => {
+              if (expanded) {
+                mutateSuggestedRHSHeight(layoutItemNames.COMPOUNDS_VIEW, null);
+              } else {
+                mutateSuggestedRHSHeight(layoutItemNames.COMPOUNDS_VIEW, 25);
+              }
+            }}
+          />
+        ),
         min: MIN_HEIGHTS.rhs,
         initialPct: 70
       }
@@ -439,7 +452,8 @@ export const ResizableLayout = ({ gridRef, nglPortal }) => {
 
       if (!variableIdx.length) return next;
 
-      const baseSum = variableIdx.reduce((s, i) => s + (lastVariableRHSHeights.current[rhsPanels[i].id] ?? prev[i]), 0) || 1;
+      const baseSum =
+        variableIdx.reduce((s, i) => s + (lastVariableRHSHeights.current[rhsPanels[i].id] ?? prev[i]), 0) || 1;
 
       variableIdx.forEach(i => {
         const remembered = lastVariableRHSHeights.current[rhsPanels[i].id] ?? prev[i];
@@ -485,7 +499,9 @@ export const ResizableLayout = ({ gridRef, nglPortal }) => {
         <div className={classes.ngl}>
           <OutPortal node={nglPortal} />
         </div>
-        <ViewerControls />
+        <TooltipPathProvider path="viewerControls">
+          <ViewerControls />
+        </TooltipPathProvider>
       </div>
 
       {sidesOpen.RHS && (

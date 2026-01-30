@@ -16,8 +16,7 @@ import {
   Avatar,
   Box,
   ButtonGroup,
-  LinearProgress,
-  Tooltip
+  LinearProgress
 } from '@material-ui/core';
 import {
   PowerSettingsNew,
@@ -47,7 +46,6 @@ import { ComputeSize } from '../../utils/computeSize';
 import { DJANGO_CONTEXT } from '../../utils/djangoContext';
 // import { useDisableUserInteraction } from '../helpers/useEnableUserInteracion';
 import { useHistory } from 'react-router-dom';
-import { IssueReport } from '../userFeedback/issueReport';
 import { FundersModal } from '../funders/fundersModal';
 // eslint-disable-next-line import/extensions
 import { version } from '../../../package.json';
@@ -81,6 +79,8 @@ import moment from 'moment';
 import { ToastContext } from '../toast';
 import { api, METHOD } from '../../utils/api';
 import { QualityStatusService } from '../preview/molecule/moleculeView/qualityStatus/QualityStatusService';
+import { TooltipPathProvider } from '../tooltip/TooltipPathContext';
+import RichTooltip from '../tooltip/RichTooltip';
 
 const useStyles = makeStyles(theme => ({
   padding: {
@@ -124,7 +124,7 @@ const useStyles = makeStyles(theme => ({
   }
 }));
 
-export default memo(
+export const Header = memo(
   forwardRef(({ headerHeight = 0, setHeaderHeight, isFundersLink = false }, ref) => {
     const dispatch = useDispatch();
     let history = useHistory();
@@ -391,7 +391,7 @@ export default memo(
               {discourseAvailable && (
                 <ButtonGroup variant="text" size="small">
                   {targetDiscourseVisible && (
-                    <Tooltip title="Go to target category on Discourse">
+                    <RichTooltip path="discourseTarget">
                       <Button
                         startIcon={<Chat />}
                         variant="text"
@@ -410,10 +410,10 @@ export default memo(
                             });
                         }}
                       ></Button>
-                    </Tooltip>
+                    </RichTooltip>
                   )}
                   {projectDiscourseVisible && (
-                    <Tooltip title="Go to project topic on Discourse">
+                    <RichTooltip path="discourseCategory">
                       <Button
                         startIcon={<QuestionAnswer />}
                         variant="text"
@@ -432,7 +432,7 @@ export default memo(
                             });
                         }}
                       ></Button>
-                    </Tooltip>
+                    </RichTooltip>
                   )}
                 </ButtonGroup>
               )}
@@ -440,11 +440,11 @@ export default memo(
             <ServicesStatusWrapper />
             <QualityStatusService />
             <Grid item>
-              <Tooltip title={'Introduction to the Fragalysis application'}>
+              <RichTooltip path="help">
                 <Button onClick={() => openLink(URLS.helpPage)} startIcon={<HelpOutline />} variant="text" size="small">
                   Help
                 </Button>
-              </Tooltip>
+              </RichTooltip>
             </Grid>
             <Grid item>
               <Grid container direction="row" justifyContent="flex-start" alignItems="center" spacing={1}>
@@ -453,7 +453,7 @@ export default memo(
                     {!layouts[selectedLayoutName].static && (
                       <>
                         <Grid item>
-                          <Tooltip title={layoutLocked ? 'Unlock layout' : 'Lock layout'}>
+                          <RichTooltip path={layoutLocked ? 'layout.unlockLayout' : 'layout.lockLayout'}>
                             <Button
                               onClick={() => {
                                 dispatch(lockLayout(!layoutLocked));
@@ -461,11 +461,11 @@ export default memo(
                             >
                               {layoutLocked ? <Lock /> : <LockOpen />}
                             </Button>
-                          </Tooltip>
+                          </RichTooltip>
                         </Grid>
 
                         <Grid item>
-                          <Tooltip title="Reset layout">
+                          <RichTooltip path="layout.resetLayout">
                             <Button
                               className={classes.resetLayoutButton}
                               onClick={() => {
@@ -474,69 +474,69 @@ export default memo(
                             >
                               <Restore />
                             </Button>
-                          </Tooltip>
+                          </RichTooltip>
                         </Grid>
                       </>
                     )}
                     <Grid item>
-                      <ChangeLayoutButton className={classes.resetLayoutButton}>
-                        <Layers />
-                      </ChangeLayoutButton>
+                      <TooltipPathProvider path="layout.changeLayout">
+                        <ChangeLayoutButton className={classes.resetLayoutButton}>
+                          <Layers />
+                        </ChangeLayoutButton>
+                      </TooltipPathProvider>
                     </Grid>
                   </>
                 )}
+                <Grid item></Grid>
                 <Grid item>
-                  <IssueReport />
-                </Grid>
-                <Grid item>
-                  <Tooltip title={COMPANIES.xchem.title}>
+                  <RichTooltip path={'xchem'} values={{ companyTitle: COMPANIES.xchem.title }}>
                     <img
                       src={get_logo(COMPANIES.xchem.image)}
                       height="20"
                       className={classes.clickableImage}
                       onClick={() => openLink(COMPANIES.xchem.link)}
                     />
-                  </Tooltip>
+                  </RichTooltip>
                 </Grid>
                 <Grid item>
-                  <Tooltip title={COMPANIES.diamond.title}>
+                  <RichTooltip path={'diamond'} values={{ companyTitle: COMPANIES.diamond.title }}>
                     <img
                       src={get_logo(COMPANIES.diamond.image)}
                       height="20"
                       className={classes.clickableImage}
                       onClick={() => openLink(COMPANIES.diamond.link)}
                     />
-                  </Tooltip>
+                  </RichTooltip>
                 </Grid>
                 <Grid item>
-                  <Tooltip title={COMPANIES.asap.title}>
+                  <RichTooltip path={'asap'} values={{ companyTitle: COMPANIES.asap.title }}>
                     <img
                       src={get_logo(COMPANIES.asap.image)}
                       height="20"
                       className={classes.clickableImage}
                       onClick={() => openLink(COMPANIES.asap.link)}
                     />
-                  </Tooltip>
+                  </RichTooltip>
                 </Grid>
                 <Grid item>
-                  <Tooltip title={COMPANIES.fragmentScreen.title}>
+                  <RichTooltip path={'fragmentScreen'} values={{ companyTitle: COMPANIES.fragmentScreen.title }}>
                     <img
                       src={get_logo(COMPANIES.fragmentScreen.image)}
                       height="20"
                       className={classes.clickableImage}
                       onClick={() => openLink(COMPANIES.fragmentScreen.link)}
                     />
-                  </Tooltip>
+                  </RichTooltip>
                 </Grid>
                 <Grid item>
-                  <Tooltip title={COMPANIES.cmd.title}>
+                  <RichTooltip path={'cmd'} values={{ companyTitle: COMPANIES.cmd.title }}>
                     <img
                       src={get_logo(COMPANIES.cmd.image)}
                       height="20"
                       className={classes.clickableImage}
                       onClick={() => openLink(COMPANIES.cmd.link)}
                     />
-                  </Tooltip>
+                  </RichTooltip>
                 </Grid>
                 <Grid item>
                   <Button
@@ -552,7 +552,9 @@ export default memo(
             </Grid>
           </Grid>
         </AppBar>
-        <FundersModal openModal={openFunders} onModalClose={() => setOpenFunders(false)} />
+        <TooltipPathProvider path="funders">
+          <FundersModal openModal={openFunders} onModalClose={() => setOpenFunders(false)} />
+        </TooltipPathProvider>
         <TargetSettingsModal openModal={openTargetSettings} onModalClose={() => setOpenTargetSettings(false)} />
         <DiscourseErrorModal openModal={openDiscourseError} />
         <Drawer

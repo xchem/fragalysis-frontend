@@ -14,6 +14,9 @@ import { ErrorBoundary } from './errorHandling/errorBoundary';
 import { ToastProvider } from './toast';
 import { LoadingProvider } from './loading';
 import { RDKitProvider } from './rdkit/RDKitContext';
+import { TooltipPathProvider } from './tooltip/TooltipPathContext';
+import { TooltipProvider } from './tooltip/TooltipContext';
+import { tootlipProvider } from './tooltip/resolver';
 
 const Root = memo(() => {
   return (
@@ -21,17 +24,21 @@ const Root = memo(() => {
       <CssBaseline>
         <ThemeProvider theme={getTheme()}>
           <RDKitProvider>
-            <ToastProvider>
-              <LoadingProvider>
-                <HeaderProvider>
-                  <NglProvider>
-                    <BrowserRouter>
-                      <Routes />
-                    </BrowserRouter>
-                  </NglProvider>
-                </HeaderProvider>
-              </LoadingProvider>
-            </ToastProvider>
+            <TooltipProvider provider={tootlipProvider}>
+              <TooltipPathProvider path="fragalysis">
+                <ToastProvider>
+                  <LoadingProvider>
+                    <HeaderProvider>
+                      <NglProvider>
+                        <BrowserRouter>
+                          <Routes />
+                        </BrowserRouter>
+                      </NglProvider>
+                    </HeaderProvider>
+                  </LoadingProvider>
+                </ToastProvider>
+              </TooltipPathProvider>
+            </TooltipProvider>
           </RDKitProvider>
         </ThemeProvider>
       </CssBaseline>

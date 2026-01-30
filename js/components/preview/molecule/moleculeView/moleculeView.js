@@ -4,7 +4,7 @@
 
 import React, { memo, useEffect, useState, useRef, useContext, useCallback, useMemo } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { Button, Grid, makeStyles, Tooltip, IconButton, Popper, CircularProgress, Popover } from '@material-ui/core';
+import { Button, Grid, makeStyles, IconButton, Popper, CircularProgress, Popover, Tooltip } from '@material-ui/core';
 import { Panel } from '../../../common';
 import { MyLocation, Warning, Assignment, AssignmentTurnedIn } from '@material-ui/icons';
 import SVGInline from 'react-svg-inline';
@@ -71,6 +71,7 @@ import { useRDKit } from '../../../rdkit/RDKitContext';
 import { getCurrentTarget } from '../../../../reducers/api/selectors';
 import { DENSITY_MAP_TYPES, MAP_RENDERING_MODES } from '../utils/constants';
 import DensityButtonPopover from '../observationUnifiedView/table/views/DensityButtonPopover';
+import RichTooltip from '../../../tooltip/RichTooltip';
 
 const useStyles = makeStyles(theme => ({
   container: {
@@ -748,9 +749,9 @@ const MoleculeView = memo(
                         }}
                         style={{ padding: 0, paddingBottom: 3, marginRight: 5, position: 'right' }}
                       >
-                        <Tooltip title="Edit tag" className={classes.editButtonIcon}>
+                        <RichTooltip path="editTag" className={classes.editButtonIcon}>
                           <Edit />
-                        </Tooltip>
+                        </RichTooltip>
                       </IconButton>
                     </Grid>
                   </div>
@@ -810,9 +811,9 @@ const MoleculeView = memo(
                     }}
                     style={{ padding: 0, paddingBottom: 3, marginRight: 5, cursor: 'pointer' }}
                   >
-                    <Tooltip title="Edit tags" className={classes.editButtonIcon}>
+                    <RichTooltip path="editTags" className={classes.editButtonIcon}>
                       <Edit />
-                    </Tooltip>
+                    </RichTooltip>
                   </IconButton>
                 )}
               </Grid>
@@ -885,9 +886,9 @@ const MoleculeView = memo(
             }}
             style={{ padding: 0, paddingRight: 5, marginTop: -8, cursor: 'pointer' }}
           >
-            <Tooltip title="Edit tags" className={classes.editButtonIcon}>
+            <RichTooltip path="editTags" className={classes.editButtonIcon}>
               <Edit />
-            </Tooltip>
+            </RichTooltip>
           </IconButton>
         </Grid>
       );
@@ -1318,12 +1319,14 @@ const MoleculeView = memo(
               <Grid item container justifyContent="flex-start" alignItems="center" direction="row" xs>
                 <Grid item container justifyContent="space-between" direction="column" xs={3}>
                   {/* Title label */}
-                  <Tooltip
-                    title={
-                      data?.prefix_tooltip ??
-                      '-' + (data?.id === pose?.main_site_observation ? ' - main observation' : '')
-                    }
-                    placement="bottom-start"
+                  <RichTooltip
+                    path="title"
+                    values={{
+                      obsName:
+                        data?.prefix_tooltip ??
+                        '-' + (data?.id === pose?.main_site_observation ? ' - main observation' : '')
+                    }}
+                    // placement="bottom-start"
                   >
                     <Grid
                       item
@@ -1345,7 +1348,7 @@ const MoleculeView = memo(
                       <br />
                       {data?.compound_code}
                     </Grid>
-                  </Tooltip>
+                  </RichTooltip>
                   {/* Molecule properties */}
                   {getCalculatedProps().length > 0 && (
                     <Grid item container justifyContent="space-between" direction="row">
@@ -1360,7 +1363,7 @@ const MoleculeView = memo(
                         className={classes.fullHeight}
                       >
                         {getCalculatedProps().map(item => (
-                          <Tooltip title={item.name} key={item.name}>
+                          <RichTooltip path="propName" values={{ propName: item.name }} key={item.name}>
                             <Grid item className={classNames(classes.rightBorder, getValueMatchingClass(item))}>
                               {item.name === moleculeProperty.mw && Math.round(item.value)}
                               {item.name === moleculeProperty.logP && Math.round(item.value) /*.toPrecision(1)*/}
@@ -1370,7 +1373,7 @@ const MoleculeView = memo(
                                 item.name !== moleculeProperty.tpsa &&
                                 item.value}
                             </Grid>
-                          </Tooltip>
+                          </RichTooltip>
                         ))}
                       </Grid>
                     </Grid>
@@ -1387,7 +1390,7 @@ const MoleculeView = memo(
                       wrap="nowrap"
                       className={classes.contButtonsMargin}
                     >
-                      <Tooltip title="centre on">
+                      <RichTooltip path="centerOn">
                         <Grid item>
                           <Button
                             variant="outlined"
@@ -1400,8 +1403,8 @@ const MoleculeView = memo(
                             <MyLocation className={classes.myLocation} />
                           </Button>
                         </Grid>
-                      </Tooltip>
-                      <Tooltip title="all">
+                      </RichTooltip>
+                      <RichTooltip path="all">
                         <Grid item>
                           <Button
                             variant="outlined"
@@ -1437,8 +1440,8 @@ const MoleculeView = memo(
                             )}
                           </Button>
                         </Grid>
-                      </Tooltip>
-                      <Tooltip title="ligand">
+                      </RichTooltip>
+                      <RichTooltip path="ligand">
                         <Grid item>
                           <Button
                             variant="outlined"
@@ -1458,8 +1461,8 @@ const MoleculeView = memo(
                             )}
                           </Button>
                         </Grid>
-                      </Tooltip>
-                      <Tooltip title="sidechains">
+                      </RichTooltip>
+                      <RichTooltip path="sidechains">
                         <Grid item>
                           <Button
                             variant="outlined"
@@ -1479,8 +1482,8 @@ const MoleculeView = memo(
                             )}
                           </Button>
                         </Grid>
-                      </Tooltip>
-                      <Tooltip title="interactions">
+                      </RichTooltip>
+                      <RichTooltip path="interactions">
                         <Grid item>
                           {/* C stands for contacts now */}
                           <Button
@@ -1501,8 +1504,8 @@ const MoleculeView = memo(
                             )}
                           </Button>
                         </Grid>
-                      </Tooltip>
-                      <Tooltip title="surface">
+                      </RichTooltip>
+                      <RichTooltip path="surface">
                         <Grid item>
                           <Button
                             variant="outlined"
@@ -1522,9 +1525,9 @@ const MoleculeView = memo(
                             )}
                           </Button>
                         </Grid>
-                      </Tooltip>
-                      <Tooltip
-                        title="electron density"
+                      </RichTooltip>
+                      <RichTooltip
+                        path="electronDensity"
                         open={densityTooltipOpen}
                         onOpen={handleTooltipOpen}
                         onClose={handleTooltipClose}
@@ -1561,8 +1564,8 @@ const MoleculeView = memo(
                             <DensityButtonPopover mol={data} />
                           </Popover>
                         </Grid>
-                      </Tooltip>
-                      <Tooltip title="vectors">
+                      </RichTooltip>
+                      <RichTooltip path="vectors">
                         <Grid item>
                           <Button
                             variant="outlined"
@@ -1582,7 +1585,7 @@ const MoleculeView = memo(
                             )}
                           </Button>
                         </Grid>
-                      </Tooltip>
+                      </RichTooltip>
                     </Grid>
                   </Grid>
                   {/* Tags */}
@@ -1605,13 +1608,10 @@ const MoleculeView = memo(
                         ? tagTypeObject?.tag_prefix.replace(getTagType('CanonSites')?.tag_prefix, '')
                         : tagTypeObject?.tag_prefix;
                     return (
-                      <Tooltip
+                      <RichTooltip
                         key={`tag-category-${tagCategory}`}
-                        title={
-                          <div style={{ whiteSpace: 'pre-line' }}>
-                            {PLURAL_TO_SINGULAR[tagCategory]} - {tagTypeObject.tag}
-                          </div>
-                        }
+                        path="tagName"
+                        values={{ tagName: `${PLURAL_TO_SINGULAR[tagCategory]} - ${tagTypeObject.tag}` }}
                       >
                         <Grid
                           item
@@ -1625,7 +1625,7 @@ const MoleculeView = memo(
                         >
                           {tagLabel}
                         </Grid>
-                      </Tooltip>
+                      </RichTooltip>
                     );
                   })}
                 </Grid>
@@ -1646,18 +1646,18 @@ const MoleculeView = memo(
                 {svg_image}
                 <div className={classes.imageActions}>
                   {moleculeTooltipOpen && (
-                    <Tooltip title={!isCopied ? 'Copy smiles' : 'Copied'}>
+                    <RichTooltip path={!isCopied ? 'copySmiles.copy' : 'copySmiles.copied'}>
                       <IconButton className={classes.copyIcon} onClick={setCopied}>
                         {!isCopied ? <Assignment /> : <AssignmentTurnedIn />}
                       </IconButton>
-                    </Tooltip>
+                    </RichTooltip>
                   )}
                   {warningIconVisible && (
-                    <Tooltip title="Warning">
+                    <RichTooltip path="warning">
                       <IconButton className={classes.warningIcon} onClick={() => onQuality()}>
                         <Warning />
                       </IconButton>
-                    </Tooltip>
+                    </RichTooltip>
                   )}
                 </div>
               </div>
@@ -1667,7 +1667,11 @@ const MoleculeView = memo(
             <Grid item container alignItems="center" wrap="nowrap">
               {XCA_TAGS_CATEGORIES.map((tagCategory, index) => {
                 return (
-                  <Tooltip title={`${PLURAL_TO_SINGULAR[tagCategory]} - ${getTagTooltip(tagCategory)}`} key={index}>
+                  <RichTooltip
+                    path="tagCategory"
+                    values={{ tagCategory: `${PLURAL_TO_SINGULAR[tagCategory]} - ${getTagTooltip(tagCategory)}` }}
+                    key={index}
+                  >
                     <Grid
                       item
                       align="center"
@@ -1676,10 +1680,10 @@ const MoleculeView = memo(
                     >
                       {getTagLabel(tagCategory)}
                     </Grid>
-                  </Tooltip>
+                  </RichTooltip>
                 );
               })}
-              <Tooltip title={'CentroidRes'}>
+              <RichTooltip path={'centroidRes'}>
                 <Grid
                   item
                   align="center"
@@ -1688,19 +1692,22 @@ const MoleculeView = memo(
                 >
                   {centroidRes}
                 </Grid>
-              </Tooltip>
-              <Tooltip title={'LongCode'}>
+              </RichTooltip>
+              <RichTooltip path={'longCode'}>
                 <Grid item align="center" className={classes.categoryCell} style={{ minWidth: headerWidths.LongCode }}>
                   {data.longcode}
                 </Grid>
-              </Tooltip>
-              <Tooltip title={experimentalPath.length > 0 ? experimentalPath : 'empty path'}>
+              </RichTooltip>
+              <RichTooltip
+                path={experimentalPath.length > 0 ? 'experimentalPath.path' : 'experimentalPath.noPath'}
+                values={{ path: experimentalPath }}
+              >
                 <Grid item align="center" style={{ minWidth: headerWidths.Path }}>
                   <IconButton color="inherit" onClick={copyExperimentalPaths} size="small">
                     <ContentCopyRounded fontSize="small" />
                   </IconButton>
                 </Grid>
-              </Tooltip>
+              </RichTooltip>
             </Grid>
           )}
         </Grid>

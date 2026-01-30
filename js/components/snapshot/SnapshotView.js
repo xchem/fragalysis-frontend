@@ -7,7 +7,6 @@ import {
   Button,
   makeStyles,
   IconButton,
-  Tooltip,
   ButtonBase
 } from '@material-ui/core';
 import StarIcon from '@material-ui/icons/Star';
@@ -25,6 +24,7 @@ import { addToastMessage } from '../../reducers/selection/actions';
 import { changeSnapshot, saveAndShareSnapshot } from './redux/dispatchActions';
 import { VIEWS } from '../../constants/constants';
 import { NglContext } from '../nglView/nglProvider';
+import RichTooltip from '../tooltip/RichTooltip';
 
 const useStyles = makeStyles(theme => ({
   root: {
@@ -194,7 +194,7 @@ const SnapshotView = ({ snapshot }) => {
       </CardContent>
 
       <div className={classes.buttonGroup}>
-        <Tooltip title={DJANGO_CONTEXT.pk || isCreatedThisSession ? 'Rename this snapshot' : 'Please log in to rename'}>
+        <RichTooltip path={DJANGO_CONTEXT.pk || isCreatedThisSession ? 'rename.rename' : 'rename.login'}>
           <span>
             <Button
               variant="contained"
@@ -206,15 +206,15 @@ const SnapshotView = ({ snapshot }) => {
               RENAME
             </Button>
           </span>
-        </Tooltip>
-        <Tooltip title={'Share this snapshot URL'}>
+        </RichTooltip>
+        <RichTooltip path="share">
           <span>
             <Button variant="contained" color="primary" size="small" onClick={onShareClick}>
               SHARE
             </Button>
           </span>
-        </Tooltip>
-        <Tooltip title={DJANGO_CONTEXT.pk || isCreatedThisSession ? 'Update this snapshot' : 'Please log in to update'}>
+        </RichTooltip>
+        <RichTooltip path={DJANGO_CONTEXT.pk || isCreatedThisSession ? 'update.update' : 'update.login'}>
           <span>
             <Button
               variant="contained"
@@ -226,7 +226,7 @@ const SnapshotView = ({ snapshot }) => {
               UPDATE
             </Button>
           </span>
-        </Tooltip>
+        </RichTooltip>
       </div>
     </Card>
   );

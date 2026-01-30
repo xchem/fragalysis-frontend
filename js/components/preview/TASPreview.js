@@ -8,6 +8,7 @@ import { getProjectForProjectName, getProjectsForSelectedTarget } from './redux/
 import { extractProjectFromURLParam } from './utils';
 import { ToastContext } from '../toast';
 import { DJANGO_CONTEXT } from '../../utils/djangoContext';
+import { TooltipPathProvider } from '../tooltip/TooltipPathContext';
 
 export const TASPreview = memo(props => {
   let match = useRouteMatch();
@@ -65,5 +66,9 @@ export const TASPreview = memo(props => {
     }
   }, [toastWarning]);
 
-  return <Preview isStateLoaded={false} hideProjects={true} {...props} />;
+  return (
+    <TooltipPathProvider path="preview">
+      <Preview isStateLoaded={false} hideProjects={true} {...props} />
+    </TooltipPathProvider>
+  );
 });

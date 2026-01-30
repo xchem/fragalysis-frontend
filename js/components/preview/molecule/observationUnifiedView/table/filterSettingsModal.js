@@ -3,8 +3,19 @@
  */
 
 import React, { memo, useCallback, useEffect, useRef, useState } from 'react';
-import { Button, Checkbox, Dialog, DialogActions, DialogContent, DialogTitle, Divider, FormControlLabel, Grid, IconButton, makeStyles, MenuItem, Radio, RadioGroup, Select, TextField, Typography } from '@material-ui/core';
-import { Tooltip } from '@mui/material';
+import {
+  Button,
+  Checkbox,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogTitle,
+  FormControlLabel,
+  Grid,
+  IconButton,
+  makeStyles,
+  Typography
+} from '@material-ui/core';
 import { Close } from '@mui/icons-material';
 import { useDispatch, useSelector } from 'react-redux';
 import { api, METHOD } from '../../../../../utils/api';
@@ -13,6 +24,7 @@ import { addToastMessage } from '../../../../../reducers/selection/actions';
 import { TOAST_LEVELS } from '../../../../toast/constants';
 import { getCurrentTarget } from '../../../../../reducers/api/selectors';
 import { setLHSExtraColumns } from '../../../../../reducers/api/actions';
+import RichTooltip from '../../../../tooltip/RichTooltip';
 
 const useStyles = makeStyles(theme => ({
   copyButton: {
@@ -102,16 +114,18 @@ export const FilterSettingsModal = memo(({ openModal, onModalClose }) => {
 
   const onSubmitForm = async () => {
     if (extraColumns) {
-      Promise.all(extraColumns.map(column =>
-        api({
-          url: `${base_url}/api/assay_data_property/${column.id}/`,
-          method: METHOD.PATCH,
-          data: {
-            visible: column.visible,
-            order: column.order
-          }
-        })
-      ))
+      Promise.all(
+        extraColumns.map(column =>
+          api({
+            url: `${base_url}/api/assay_data_property/${column.id}/`,
+            method: METHOD.PATCH,
+            data: {
+              visible: column.visible,
+              order: column.order
+            }
+          })
+        )
+      )
         .then(resp => {
           dispatch(setLHSExtraColumns(extraColumns));
           dispatch(addToastMessage({ text: `Columns updated successfully`, level: TOAST_LEVELS.SUCCESS }));
@@ -128,16 +142,12 @@ export const FilterSettingsModal = memo(({ openModal, onModalClose }) => {
 
   return (
     <Dialog open={openModal} onClose={onModalClose}>
-      <DialogTitle sx={{ m: 0, p: 2 }}>{editable ? "Edit LHS settings" : "LHS settings"}</DialogTitle>
-      <Tooltip title="Close editor">
-        <IconButton
-          color="inherit"
-          className={classes.headerButton}
-          onClick={onModalClose}
-        >
+      <DialogTitle sx={{ m: 0, p: 2 }}>{editable ? 'Edit LHS settings' : 'LHS settings'}</DialogTitle>
+      <RichTooltip path="closeEditor">
+        <IconButton color="inherit" className={classes.headerButton} onClick={onModalClose}>
           <Close />
         </IconButton>
-      </Tooltip>
+      </RichTooltip>
       <DialogContent dividers>
         <Grid container justifyContent="flex-start" direction="column" className={classes.root} spacing={2}>
           <Grid item container direction="column" justifyContent="space-between" alignItems="center" spacing={2}>
@@ -148,35 +158,59 @@ export const FilterSettingsModal = memo(({ openModal, onModalClose }) => {
               <Typography variant="body1">Order of columns</Typography>
             </Grid> */}
             <Grid item xs>
-              {editable ?
-                <Tooltip title="Drag and drop to reorder">
-                  <Grid item container direction="column" justifyContent="center" alignItems="flex-start" spacing={1} onDrop={e => e.preventDefault()} onDragOver={e => e.preventDefault()}>
-                    {extraColumns?.map((column, index) =>
-                      <Grid key={column.id} item className={classes.identifier}
+              {editable ? (
+                <RichTooltip path="dragAndDrop">
+                  <Grid
+                    item
+                    container
+                    direction="column"
+                    justifyContent="center"
+                    alignItems="flex-start"
+                    spacing={1}
+                    onDrop={e => e.preventDefault()}
+                    onDragOver={e => e.preventDefault()}
+                  >
+                    {extraColumns?.map((column, index) => (
+                      <Grid
+                        key={column.id}
+                        item
+                        className={classes.identifier}
                         draggable="true"
-                        onDragStart={() => draggedIdentifier.current = index}
-                        onDragEnter={() => draggedOverIdentifier.current = index}
+                        onDragStart={() => (draggedIdentifier.current = index)}
+                        onDragEnter={() => (draggedOverIdentifier.current = index)}
                         onDragEnd={handleSort}
                         onDragOver={e => e.preventDefault()}
                       >
-                        <FormControlLabel control={<Checkbox checked={column.visible} onChange={e => handleVisibilityChange(column, e.target.checked)} />} label={`${index + 1}. ${column.result_property}`} />
+                        <FormControlLabel
+                          control={
+                            <Checkbox
+                              checked={column.visible}
+                              onChange={e => handleVisibilityChange(column, e.target.checked)}
+                            />
+                          }
+                          label={`${index + 1}. ${column.result_property}`}
+                        />
                         {/* <Typography variant="body1">{`${index + 1}. ${column.result_property}`}</Typography> */}
                       </Grid>
-                    )}
+                    ))}
                   </Grid>
-                </Tooltip> :
+                </RichTooltip>
+              ) : (
                 <Grid item container direction="column" justifyContent="center" alignItems="flex-start" spacing={1}>
-                  {extraColumns?.map((column, index) =>
+                  {extraColumns?.map((column, index) => (
                     <Grid key={column.id} item>
-                      <FormControlLabel control={<Checkbox checked={column.visible} disabled={true} />} label={`${index + 1}. ${column.result_property}`} />
+                      <FormControlLabel
+                        control={<Checkbox checked={column.visible} disabled={true} />}
+                        label={`${index + 1}. ${column.result_property}`}
+                      />
                       {/* <Typography variant="body1">{`${index + 1}. ${column.result_property}`}</Typography> */}
                     </Grid>
-                  )}
+                  ))}
                 </Grid>
-              }
-              {extraColumns.length === 0 &&
+              )}
+              {extraColumns.length === 0 && (
                 <Typography variant="body1">no extra columns defined (no assay data uploaded)</Typography>
-              }
+              )}
             </Grid>
           </Grid>
         </Grid>

@@ -1,5 +1,5 @@
 import React, { forwardRef, memo, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
-import { CircularProgress, Grid, Popper, IconButton, Typography, Tooltip } from '@material-ui/core';
+import { CircularProgress, Grid, Popper, IconButton, Typography } from '@material-ui/core';
 import { ArrowLeft, ArrowRight, Close, KeyboardArrowDown } from '@material-ui/icons';
 import { makeStyles } from '@material-ui/styles';
 import { useDispatch, useSelector } from 'react-redux';
@@ -65,6 +65,8 @@ import {
 } from '../tags/utils/tagUtils';
 import { updateExistingTag } from '../tags/api/tagsApi';
 import { XCA_TAGS_CATEGORIES } from './moleculeView/moleculeView';
+import { TooltipPathProvider } from '../../tooltip/TooltipPathContext';
+import RichTooltip from '../../tooltip/RichTooltip';
 
 const MIN_PANEL_HEIGHT = 250;
 
@@ -910,7 +912,7 @@ export const ObservationsDialog = memo(
               onChange={setSearchString}
               disabled={!(isLoadingInspirationListOfMolecules === false && moleculeList)}
             />,
-            <Tooltip title="Close observations">
+            <RichTooltip path="close">
               <IconButton
                 color="inherit"
                 className={classes.headerButton}
@@ -924,7 +926,7 @@ export const ObservationsDialog = memo(
               >
                 <Close />
               </IconButton>
-            </Tooltip>
+            </RichTooltip>
           ]}
         >
           {isTagEditorOpenObs && (
@@ -956,7 +958,7 @@ export const ObservationsDialog = memo(
                       >
                         <Grid item>
                           <Grid container direction="row" justifyContent="flex-start" alignItems="center" wrap="nowrap">
-                            <Tooltip title="all ligands">
+                            <RichTooltip path="allLigands">
                               <Grid item>
                                 <Button
                                   variant="outlined"
@@ -972,8 +974,8 @@ export const ObservationsDialog = memo(
                                   L
                                 </Button>
                               </Grid>
-                            </Tooltip>
-                            <Tooltip title="all sidechains">
+                            </RichTooltip>
+                            <RichTooltip path="allSidechains">
                               <Grid item>
                                 <Button
                                   variant="outlined"
@@ -989,8 +991,8 @@ export const ObservationsDialog = memo(
                                   P
                                 </Button>
                               </Grid>
-                            </Tooltip>
-                            <Tooltip title="all interactions">
+                            </RichTooltip>
+                            <RichTooltip path="allInteractions">
                               <Grid item>
                                 {/* C stands for contacts now */}
                                 <Button
@@ -1007,7 +1009,7 @@ export const ObservationsDialog = memo(
                                   C
                                 </Button>
                               </Grid>
-                            </Tooltip>
+                            </RichTooltip>
                           </Grid>
                         </Grid>
                         <Grid item>
@@ -1075,13 +1077,13 @@ export const ObservationsDialog = memo(
                           </Grid>
                         )}
                       </Grid>
-                      <Tooltip title={expandView ? 'Show classic view' : 'Show expanded view'}>
+                      <RichTooltip path={expandView ? 'expandView.classic' : 'expandView.expanded'}>
                         <Grid item className={classes.popoutIcon}>
                           <IconButton color="inherit" size="small" onClick={() => setExpandView(!expandView)}>
                             {expandView ? <ArrowLeft /> : <ArrowRight />}
                           </IconButton>
                         </Grid>
-                      </Tooltip>
+                      </RichTooltip>
                     </Grid>
                   </Grid>
                 </Grid>
@@ -1095,37 +1097,39 @@ export const ObservationsDialog = memo(
                     const selected = allSelectedMolecules.some(molecule => molecule.id === data.id);
 
                     return (
-                      <GroupNglControlButtonsContext.Provider key={index} value={groupNglControlButtonsDisabledState}>
-                        <MoleculeView
-                          key={index}
-                          index={index}
-                          imageHeight={imgHeight}
-                          imageWidth={imgWidth}
-                          data={data}
-                          searchMoleculeGroup
-                          previousItemData={previousData}
-                          nextItemData={nextData}
-                          removeSelectedTypes={removeSelectedTypes}
-                          L={ligandList.includes(molecule.id)}
-                          P={proteinList.includes(molecule.id)}
-                          C={complexList.includes(molecule.id)}
-                          S={surfaceList.includes(molecule.id)}
-                          D={densityList.some(d => d.id === molecule.id)}
-                          Q={qualityList.includes(molecule.id)}
-                          V={vectorOnList.includes(molecule.id)}
-                          I={informationList.includes(data.id)}
-                          selected={selected}
-                          isTagEditorInvokedByMolecule={molForTagEditId.some(mid => mid === data.id)}
-                          disableL={selected && groupNglControlButtonsDisabledState.ligand}
-                          disableP={selected && groupNglControlButtonsDisabledState.protein}
-                          disableC={selected && groupNglControlButtonsDisabledState.complex}
-                          setRef={setTagEditorAnchorEl}
-                          hideImage={true}
-                          showExpandedView={expandView}
-                          headerWidths={headerWidths}
-                          setHeaderWidthsHandler={setHeaderWidthsHandler}
-                        />
-                      </GroupNglControlButtonsContext.Provider>
+                      <TooltipPathProvider path="observation">
+                        <GroupNglControlButtonsContext.Provider key={index} value={groupNglControlButtonsDisabledState}>
+                          <MoleculeView
+                            key={index}
+                            index={index}
+                            imageHeight={imgHeight}
+                            imageWidth={imgWidth}
+                            data={data}
+                            searchMoleculeGroup
+                            previousItemData={previousData}
+                            nextItemData={nextData}
+                            removeSelectedTypes={removeSelectedTypes}
+                            L={ligandList.includes(molecule.id)}
+                            P={proteinList.includes(molecule.id)}
+                            C={complexList.includes(molecule.id)}
+                            S={surfaceList.includes(molecule.id)}
+                            D={densityList.some(d => d.id === molecule.id)}
+                            Q={qualityList.includes(molecule.id)}
+                            V={vectorOnList.includes(molecule.id)}
+                            I={informationList.includes(data.id)}
+                            selected={selected}
+                            isTagEditorInvokedByMolecule={molForTagEditId.some(mid => mid === data.id)}
+                            disableL={selected && groupNglControlButtonsDisabledState.ligand}
+                            disableP={selected && groupNglControlButtonsDisabledState.protein}
+                            disableC={selected && groupNglControlButtonsDisabledState.complex}
+                            setRef={setTagEditorAnchorEl}
+                            hideImage={true}
+                            showExpandedView={expandView}
+                            headerWidths={headerWidths}
+                            setHeaderWidthsHandler={setHeaderWidthsHandler}
+                          />
+                        </GroupNglControlButtonsContext.Provider>
+                      </TooltipPathProvider>
                     );
                   })}
                 {!(moleculeList.length > 0) && (

@@ -1,18 +1,8 @@
 import React, { memo, useRef, useEffect, useCallback, useState, useMemo, useContext } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
-import {
-  Switch,
-  Typography,
-  makeStyles,
-  IconButton,
-  Tooltip,
-  Grid,
-  FormControlLabel,
-  CircularProgress
-} from '@material-ui/core';
+import { Switch, Typography, makeStyles, Grid, FormControlLabel, CircularProgress } from '@material-ui/core';
 import { withStyles } from '@material-ui/core/styles';
 import { blue } from '@material-ui/core/colors';
-import v4 from 'uuid/v4';
 import { Panel } from '../common';
 import { setPanelsExpanded } from '../../reducers/layout/actions';
 import { layoutItemNames } from '../../reducers/layout/constants';
@@ -27,6 +17,8 @@ import { NglContext } from '../nglView/nglProvider';
 import { TOAST_LEVELS } from '../toast/constants';
 import { addToastMessage } from '../../reducers/selection/actions';
 import InfiniteScroll from 'react-infinite-scroller';
+import RichTooltip from '../tooltip/RichTooltip';
+import { TooltipPathProvider } from '../tooltip/TooltipPathContext';
 
 export const heightOfBody = '172px';
 export const defaultHeaderPadding = 15;
@@ -306,7 +298,7 @@ const SnapshotList = memo(({ expandHandler = null }) => {
       headerActions={[
         <Grid container className={classes.headerContainer} key="snapshot-header">
           <Grid item xs={4}>
-            <Tooltip title={'Show only my snapshots. If unchecked, all snapshots will be shown.'}>
+            <RichTooltip path="mySnapshots">
               <FormControlLabel
                 className={classes.tagModeSwitch}
                 classes={{ label: classes.tagLabel }}
@@ -321,10 +313,10 @@ const SnapshotList = memo(({ expandHandler = null }) => {
                 }
                 label={'Only mine'}
               />
-            </Tooltip>
+            </RichTooltip>
           </Grid>
           <Grid item xs={4}>
-            <Tooltip title={'Show starred snapshots from other users.'}>
+            <RichTooltip path="showStarred">
               <FormControlLabel
                 className={classes.tagModeSwitch}
                 classes={{ label: classes.tagLabel }}
@@ -338,7 +330,7 @@ const SnapshotList = memo(({ expandHandler = null }) => {
                 }
                 label={'Show starred'}
               />
-            </Tooltip>
+            </RichTooltip>
           </Grid>
           <Grid item xs={4}>
             <SearchField
@@ -375,7 +367,9 @@ const SnapshotList = memo(({ expandHandler = null }) => {
             {itemsToBeDisplayed &&
               itemsToBeDisplayed.map(snapshot => (
                 <Grid item style={{ width: '100%' }} key={snapshot.id}>
-                  <SnapshotView snapshot={snapshot} />
+                  <TooltipPathProvider path="snapshot">
+                    <SnapshotView snapshot={snapshot} />
+                  </TooltipPathProvider>
                 </Grid>
               ))}
           </InfiniteScroll>

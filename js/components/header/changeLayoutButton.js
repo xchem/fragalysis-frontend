@@ -4,6 +4,7 @@ import { Layers } from '@material-ui/icons';
 import { useDispatch, useSelector } from 'react-redux';
 import { layouts } from '../../reducers/layout/layouts';
 import { setSelectedLayoutName } from '../../reducers/layout/actions';
+import RichTooltip from '../tooltip/RichTooltip';
 
 const useStyles = makeStyles(theme => ({
   root: {
@@ -24,11 +25,11 @@ export const ChangeLayoutButton = () => {
 
   return (
     <>
-      <Tooltip title="Change layout">
+      <RichTooltip path="button">
         <Button variant="contained" onClick={e => setAnchorEl(e.currentTarget)}>
           <Layers />
         </Button>
-      </Tooltip>
+      </RichTooltip>
       <Popover
         open={!!anchorEl}
         anchorEl={anchorEl}

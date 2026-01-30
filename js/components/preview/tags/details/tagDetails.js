@@ -5,7 +5,6 @@ import {
   Typography,
   makeStyles,
   IconButton,
-  Tooltip,
   Grid,
   FormControlLabel,
   CircularProgress
@@ -47,6 +46,8 @@ import { LoadingContext } from '../../../loading';
 import { EditTagsModal } from '../modal/editTagsModal';
 import { DJANGO_CONTEXT } from '../../../../utils/djangoContext';
 import v4 from 'uuid/v4';
+import RichTooltip from '../../../tooltip/RichTooltip';
+import { TooltipPathProvider } from '../../../tooltip/TooltipPathContext';
 
 export const heightOfBody = '172px';
 export const defaultHeaderPadding = 15;
@@ -373,13 +374,7 @@ const TagDetails = memo(({ expandHandler = null }) => {
       headerActions={[
         <Grid container className={classes.headerContainer}>
           <Grid item xs={4}>
-            <Tooltip
-              title={
-                tagMode
-                  ? 'Intersection: Only the compounds labelled with all the active tags will be selected'
-                  : 'Union: Any compound labelled with any of the active tags will be selected'
-              }
-            >
+            <RichTooltip path={tagMode ? 'mode.intersection' : 'mode.union'}>
               <FormControlLabel
                 className={classes.tagModeSwitch}
                 classes={{ label: classes.tagLabel }}
@@ -393,10 +388,10 @@ const TagDetails = memo(({ expandHandler = null }) => {
                 }
                 label={tagMode ? 'Intersection' : 'Union'}
               />
-            </Tooltip>
+            </RichTooltip>
           </Grid>
           <Grid item xs={4}>
-            <Tooltip title={tagDetailView ? 'Show Tag detail list with detail info' : 'Show Tag detail grid'}>
+            <RichTooltip path={tagDetailView ? 'view.list' : 'view.grid'}>
               <FormControlLabel
                 className={classes.tagModeSwitch}
                 classes={{ label: classes.tagLabel }}
@@ -410,7 +405,7 @@ const TagDetails = memo(({ expandHandler = null }) => {
                 }
                 label={tagDetailView ? 'Grid' : 'List'}
               />
-            </Tooltip>
+            </RichTooltip>
           </Grid>
           <Grid item xs={4}>
             <SearchField className={classes.search} id="search-tag-details" onChange={setSearchString} />
@@ -476,12 +471,14 @@ const TagDetails = memo(({ expandHandler = null }) => {
                 Edit tags
               </Button>
             </Grid>,
-            <EditTagsModal
-              key={v4()}
-              open={showEditTagsModal}
-              setOpenDialog={setShowEditTagsModal}
-              anchorEl={ref?.current}
-            />
+            <TooltipPathProvider path="editModal">
+              <EditTagsModal
+                key={v4()}
+                open={showEditTagsModal}
+                setOpenDialog={setShowEditTagsModal}
+                anchorEl={ref?.current}
+              />
+            </TooltipPathProvider>
           ]}
         </Grid>
       </div>
@@ -496,7 +493,7 @@ const TagDetails = memo(({ expandHandler = null }) => {
                   Tag name
                 </Typography>
                 <IconButton size="small" onClick={() => handleHeaderSort('name')}>
-                  <Tooltip title="Sort" className={classes.sortButton}>
+                  <RichTooltip path="sort" className={classes.sortButton}>
                     {[1, 2].includes(sortSwitch - offsetName) ? (
                       sortSwitch % offsetName < 2 ? (
                         <KeyboardArrowDown />
@@ -506,7 +503,7 @@ const TagDetails = memo(({ expandHandler = null }) => {
                     ) : (
                       <UnfoldMore />
                     )}
-                  </Tooltip>
+                  </RichTooltip>
                 </IconButton>
               </div>
             </div>
@@ -552,7 +549,7 @@ const TagDetails = memo(({ expandHandler = null }) => {
                 Tag name
               </Typography>
               <IconButton size="small" onClick={() => handleHeaderSort('name')}>
-                <Tooltip title="Sort" className={classes.sortButton}>
+                <RichTooltip path="sort" className={classes.sortButton}>
                   {[1, 2].includes(sortSwitch - offsetName) ? (
                     sortSwitch % offsetName < 2 ? (
                       <KeyboardArrowDown />
@@ -562,7 +559,7 @@ const TagDetails = memo(({ expandHandler = null }) => {
                   ) : (
                     <UnfoldMore />
                   )}
-                </Tooltip>
+                </RichTooltip>
               </IconButton>
             </div>
 
@@ -572,7 +569,7 @@ const TagDetails = memo(({ expandHandler = null }) => {
                 Category
               </Typography>
               <IconButton size="small" onClick={() => handleHeaderSort('category')}>
-                <Tooltip title="Sort" className={classes.sortButton}>
+                <RichTooltip path="sort" className={classes.sortButton}>
                   {[1, 2].includes(sortSwitch - offsetCategory) ? (
                     sortSwitch % offsetCategory < 2 ? (
                       <KeyboardArrowDown />
@@ -582,7 +579,7 @@ const TagDetails = memo(({ expandHandler = null }) => {
                   ) : (
                     <UnfoldMore />
                   )}
-                </Tooltip>
+                </RichTooltip>
               </IconButton>
             </div>
 
@@ -592,7 +589,7 @@ const TagDetails = memo(({ expandHandler = null }) => {
                 Creator
               </Typography>
               <IconButton size="small" onClick={() => handleHeaderSort('creator')}>
-                <Tooltip title="Sort" className={classes.sortButton}>
+                <RichTooltip path="sort" className={classes.sortButton}>
                   {[1, 2].includes(sortSwitch - offsetCreator) ? (
                     sortSwitch % offsetCreator < 2 ? (
                       <KeyboardArrowDown />
@@ -602,7 +599,7 @@ const TagDetails = memo(({ expandHandler = null }) => {
                   ) : (
                     <UnfoldMore />
                   )}
-                </Tooltip>
+                </RichTooltip>
               </IconButton>
             </div>
 
@@ -612,7 +609,7 @@ const TagDetails = memo(({ expandHandler = null }) => {
                 Date
               </Typography>
               <IconButton size="small" onClick={() => handleHeaderSort('date')}>
-                <Tooltip title="Sort" className={classes.sortButton}>
+                <RichTooltip path="sort" className={classes.sortButton}>
                   {[1, 2].includes(sortSwitch - offsetDate) ? (
                     sortSwitch % offsetDate < 2 ? (
                       <KeyboardArrowDown />
@@ -622,7 +619,7 @@ const TagDetails = memo(({ expandHandler = null }) => {
                   ) : (
                     <UnfoldMore />
                   )}
-                </Tooltip>
+                </RichTooltip>
               </IconButton>
             </div>
             <div></div>
