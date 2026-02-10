@@ -1222,8 +1222,8 @@ const MoleculeView = memo(
     };
 
     // let moleculeTitle = data?.code.replace(new RegExp(`${target_on_name}-`, 'i'), '');
-    // let moleculeTitle = data?.code;
-    let moleculeTitle = data?.code?.replaceAll(`${target_on_name}-`, '') || '';
+    let moleculeTitle = data?.code;
+    // let moleculeTitle = data?.code?.replaceAll(`${target_on_name}-`, '') || '';
     const moleculeTitleTruncated = moleculeTitle?.substring(0, 20) + (moleculeTitle?.length > 20 ? '...' : '') || '';
 
     const [isNameCopied, setNameCopied] = useClipboard(moleculeTitle, { successDuration: 5000 });

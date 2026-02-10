@@ -72,7 +72,7 @@ const MIN_PANEL_HEIGHT = 250;
 
 const useStyles = makeStyles(theme => ({
   paper: {
-    minWidth: 372,
+    minWidth: 500,
     minHeight: MIN_PANEL_HEIGHT,
     overflowY: 'hidden',
     resize: 'vertical'

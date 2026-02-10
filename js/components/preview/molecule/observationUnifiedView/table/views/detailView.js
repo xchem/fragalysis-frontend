@@ -1167,8 +1167,8 @@ export const DetailView = memo(({ data, handleRef, disableL, disableP, disableC,
   };
 
   // let moleculeTitle = data?.code.replace(new RegExp(`${target_on_name}-`, 'i'), '');
-  // let moleculeTitle = data.code;
-  let moleculeTitle = data?.code?.replaceAll(`${target_on_name}-`, '') || '';
+  let moleculeTitle = data.code;
+  // let moleculeTitle = data?.code?.replaceAll(`${target_on_name}-`, '') || '';
   if (observations?.length > 0 && observations[0].compound_code) {
     moleculeTitle += ` - ${observations[0].compound_code}`;
   }
@@ -1257,9 +1257,7 @@ export const DetailView = memo(({ data, handleRef, disableL, disableP, disableC,
             path="code"
             values={{ code: getMainObservation()?.code?.replaceAll(`${target_on_name}-`, '') || '' }}
           >
-            <span className={classes.moleculeTitleLabelMain}>
-              {getMainObservation()?.code?.replaceAll(`${target_on_name}-`, '') || ''}
-            </span>
+            <span className={classes.moleculeTitleLabelMain}>{getMainObservation()?.code || ''}</span>
           </RichTooltip>
           <br />
           <RichTooltip path="displayName" values={{ displayName: getDisplayName() || '' }}>
