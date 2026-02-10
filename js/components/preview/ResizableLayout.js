@@ -14,6 +14,7 @@ import { setResizableLayout, setActualRhsWidth } from '../../reducers/selection/
 import { PlotlyView } from './plotly/plotlyView';
 import { layoutItemNames } from '../../reducers/layout/constants';
 import { TooltipPathProvider } from '../tooltip/TooltipPathContext';
+import RhsCmpList from './molecule/rhsCmpList';
 
 const useStyles = makeStyles(theme => ({
   root: { display: 'flex', height: '100%' },
@@ -35,7 +36,8 @@ const MIN_HEIGHTS = {
   tagDetails: 25,
   hitNavigator: 120,
   plotlyView: 25,
-  rhs: 25
+  rhs: 120,
+  rhsTagDetails: 25
 };
 
 export const ResizableLayout = ({ gridRef, nglPortal }) => {
@@ -138,13 +140,31 @@ export const ResizableLayout = ({ gridRef, nglPortal }) => {
           />
         ),
         min: MIN_HEIGHTS.plotlyView,
-        initialPct: 30
+        initialPct: 20
+      },
+      {
+        id: layoutItemNames.RHS_TAG_DETAILS,
+        group: 'rhs',
+        component: (
+          <TagDetails
+            isRHS={true}
+            expandHandler={expanded => {
+              if (expanded) {
+                mutateSuggestedRHSHeight(layoutItemNames.RHS_TAG_DETAILS, null);
+              } else {
+                mutateSuggestedRHSHeight(layoutItemNames.RHS_TAG_DETAILS, 25);
+              }
+            }}
+          />
+        ),
+        min: MIN_HEIGHTS.rhsTagDetails,
+        initialPct: 25
       },
       {
         id: layoutItemNames.COMPOUNDS_VIEW,
         group: 'rhs',
         component: (
-          <RHS
+          <RhsCmpList
             expandHandler={expanded => {
               if (expanded) {
                 mutateSuggestedRHSHeight(layoutItemNames.COMPOUNDS_VIEW, null);
@@ -155,7 +175,7 @@ export const ResizableLayout = ({ gridRef, nglPortal }) => {
           />
         ),
         min: MIN_HEIGHTS.rhs,
-        initialPct: 70
+        initialPct: 55
       }
     ],
     [mutateSuggestedRHSHeight]

@@ -265,58 +265,123 @@ export const loadNewDataSets = targetId => async (dispatch, getState) => {
   });
 };
 
+/**
+ * TODO rework this
+ */
 export const loadDatasetCompoundsWithScores = (datasetsToLoad = null) => (dispatch, getState) => {
   const datasets = datasetsToLoad ? datasetsToLoad : getState().datasetsReducers.datasets;
+  const targetId = getState().apiReducers.target_on;
+  const allMoleculeLists = getState().apiReducers.all_mol_lists;
   return Promise.all(
     datasets.map(dataset =>
       // Hint for develop purposes add param &limit=20
-      api({ url: `${base_url}/api/compound-mols-scores/?computed_set=${dataset.id}` })
+      api({ url: `${base_url}/api/compound-sets/?name=${dataset.title}&target=${targetId}` })
         .then(async response => {
+          const loadedDataset = response.data.results[0];
           // -----> add 'site_observation_code' to molecules whereas '/compound-molecules' has more molecule info so far, can be removed later
-          const compondMolecules = await api({ url: `${base_url}/api/compound-molecules/?compound_set=${dataset.id}` });
-          const compondMoleculesMap = {};
-          compondMolecules.data.results.forEach(
-            molecule =>
-              (compondMoleculesMap[molecule.name] = {
-                site_observation_code: molecule.site_observation_code,
-                pdb_info: molecule.pdb_info
-              })
+          const compondMolecules = allMoleculeLists.filter(molecule => loadedDataset.site_observations.includes(molecule.id));
+          console.log('loadedDataset.site_observations', loadedDataset.site_observations);
+          console.log('compondMolecules', compondMolecules);
+          const datasetMolecules = [];
+          compondMolecules.forEach(
+            molecule => datasetMolecules.push({
+              id: molecule.id,
+              // sdf_info: molecule.??,
+              name: molecule.virtual_name,
+              smiles: molecule.smiles,
+              pdb_info: molecule.virtual_pdb_info,
+              compound: molecule.cmd,
+              // compound_set: molecule.??,
+              computed_inspirations: molecule.computed_inspirations,
+              numerical_scores: { '_id': molecule.id },
+              text_scores: {},
+              site_observation_code: molecule.code,
+              isCustomPdb: !!!molecule.code
+            })
           );
-          response.data.results.forEach(molecule => {
-            if (compondMoleculesMap.hasOwnProperty(molecule.name)) {
-              molecule['site_observation_code'] = compondMoleculesMap[molecule.name].site_observation_code;
-              molecule['pdb_info'] = compondMoleculesMap[molecule.name].pdb_info;
-              molecule['isCustomPdb'] = !!!compondMoleculesMap[molecule.name].site_observation_code;
-            }
-          });
+          // compondMolecules.forEach(molecule => {
+          //   if (compondMoleculesMap.hasOwnProperty(molecule.name)) {
+          //     molecule['site_observation_code'] = compondMoleculesMap[molecule.name].virtual_name;
+          //     molecule['pdb_info'] = compondMoleculesMap[molecule.name].virtual_pdb_info;
+          //     molecule['isCustomPdb'] = !!!compondMoleculesMap[molecule.name].virtual_name;
+          //     molecule['numerical_scores'] = {};
+          //   }
+          // });
           // <-----
           dispatch(
             addMoleculeList(
               dataset.id,
-              response.data.results.sort((a, b) => a.id - b.id)
+              datasetMolecules.sort((a, b) => a.id - b.id)
             )
           );
 
-          return api({ url: `${base_url}/api/compound-scores/?computed_set=${dataset.id}` }).then(res => {
-            if (res && res.data && res.data.results && res.data.results.length > 0) {
-              const scores = res?.data?.results;
-              let lastScore = scores.reduce((a, b) => ({ id: Math.max(a.id, b.id), name: '', description: '' }));
-              scores.unshift({ id: lastScore.id + 1, name: '_id', description: 'id of the compound' });
-              dispatch(
-                updateFilterShowedScoreProperties({
-                  datasetID: dataset.id,
-                  scoreList: scores?.slice(0, DEFAULT_COUNT_OF_VISIBLE_SCORES)
-                })
-              );
-              scores?.map(item => {
-                dispatch(appendToScoreDatasetMap(dataset.id, item));
-              });
-            }
-          });
+          // return api({ url: `${base_url}/api/compound-scores/?computed_set=${dataset.id}` }).then(res => {
+          //   if (res && res.data && res.data.results && res.data.results.length > 0) {
+          //     const scores = res?.data?.results;
+          //     let lastScore = scores.reduce((a, b) => ({ id: Math.max(a.id, b.id), name: '', description: '' }));
+          //     scores.unshift({ id: lastScore.id + 1, name: '_id', description: 'id of the compound' });
+          //     dispatch(
+          //       updateFilterShowedScoreProperties({
+          //         datasetID: dataset.id,
+          //         scoreList: scores?.slice(0, DEFAULT_COUNT_OF_VISIBLE_SCORES)
+          //       })
+          //     );
+          //     scores?.map(item => {
+          //       dispatch(appendToScoreDatasetMap(dataset.id, item));
+          //     });
+          //   }
+          // });
         })
         .catch(err => {
           console.log(`failed to load compounds for ${dataset}`, err);
         })
+      // api({ url: `${base_url}/api/compound-mols-scores/?computed_set=${dataset.id}` })
+      //   .then(async response => {
+      //     // -----> add 'site_observation_code' to molecules whereas '/compound-molecules' has more molecule info so far, can be removed later
+      //     const compondMolecules = await api({ url: `${base_url}/api/compound-molecules/?compound_set=${dataset.id}` });
+      //     const compondMoleculesMap = {};
+      //     compondMolecules.data.results.forEach(
+      //       molecule =>
+      //         (compondMoleculesMap[molecule.name] = {
+      //           site_observation_code: molecule.site_observation_code,
+      //           pdb_info: molecule.pdb_info
+      //         })
+      //     );
+      //     response.data.results.forEach(molecule => {
+      //       if (compondMoleculesMap.hasOwnProperty(molecule.name)) {
+      //         molecule['site_observation_code'] = compondMoleculesMap[molecule.name].site_observation_code;
+      //         molecule['pdb_info'] = compondMoleculesMap[molecule.name].pdb_info;
+      //         molecule['isCustomPdb'] = !!!compondMoleculesMap[molecule.name].site_observation_code;
+      //       }
+      //     });
+      //     // <-----
+      //     dispatch(
+      //       addMoleculeList(
+      //         dataset.id,
+      //         response.data.results.sort((a, b) => a.id - b.id)
+      //       )
+      //     );
+
+      //     return api({ url: `${base_url}/api/compound-scores/?computed_set=${dataset.id}` }).then(res => {
+      //       if (res && res.data && res.data.results && res.data.results.length > 0) {
+      //         const scores = res?.data?.results;
+      //         let lastScore = scores.reduce((a, b) => ({ id: Math.max(a.id, b.id), name: '', description: '' }));
+      //         scores.unshift({ id: lastScore.id + 1, name: '_id', description: 'id of the compound' });
+      //         dispatch(
+      //           updateFilterShowedScoreProperties({
+      //             datasetID: dataset.id,
+      //             scoreList: scores?.slice(0, DEFAULT_COUNT_OF_VISIBLE_SCORES)
+      //           })
+      //         );
+      //         scores?.map(item => {
+      //           dispatch(appendToScoreDatasetMap(dataset.id, item));
+      //         });
+      //       }
+      //     });
+      //   })
+      //   .catch(err => {
+      //     console.log(`failed to load compounds for ${dataset}`, err);
+      //   })
     )
   );
 };

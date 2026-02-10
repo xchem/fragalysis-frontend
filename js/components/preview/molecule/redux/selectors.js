@@ -11,6 +11,7 @@ const getTagCategoryList = state => state.apiReducers.categoryList;
 const getDisplayAllMolecules = state => state.selectionReducers.displayAllMolecules;
 const getDisplayUntaggedMolecules = state => state.selectionReducers.displayUntaggedMolecules;
 export const getLHSCompoundsList = state => state.apiReducers.lhs_compounds_list;
+export const getRHSCompoundsList = state => state.apiReducers.rhs_compounds_list;
 
 const getProteinList = state => state.selectionReducers.proteinList;
 const getComplexList = state => state.selectionReducers.complexList;

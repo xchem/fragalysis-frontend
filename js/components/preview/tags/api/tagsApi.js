@@ -19,6 +19,73 @@ export const getTags = async targetId => {
   });
 };
 
+/**
+ * TODO this just generates some tags from datasets for rhs
+ * @param {int} targetId
+ * @returns
+ */
+export const generateRHSTags = async targetId => {
+  let tags = [];
+  /*
+-- tag
+    id: 10
+    site_observations: [..]
+    tag: "x0407/D/802"
+    short_tag: "1a - x0407/D/802"
+    tag_prefix: "1a"
+    upload_name: "1a - LYSRSCPZ-x0407/D/802"
+    create_date: "2026-01-21T18:32:15.065870Z"
+    colour: null
+    discourse_url: null
+    help_text: null
+    additional_info: null
+    hidden: true
+    category: 1
+    target: 1
+    user: null
+    mol_group: 10
+-- dataset
+    "id": 1,
+    "name": "FFF_algos-2026-01-21-A",
+    "submitted_sdf": "http://127.0.0.1:8080/media/CpKRS_filtered_merges%20(2).sdf",
+    "written_sdf_filename": "/code/media/computed_set_data/FFF_algos-2026-01-21-A_upload_1_CpKRS_filtered_merges (2).sdf",
+    "spec_version": 1.2,
+    "method_url": "https://hippo.winokan.com",
+    "method": "FFF_algos",
+    "upload_date": "2026-01-21",
+    "md_ordinal": 1,
+    "upload_datetime": "2026-01-21T19:24:44.052653Z",
+    "target": 1,
+    "submitter": 1,
+    "owner_user": 3,
+    "computed_molecules": [],
+    "site_observations": [..]
+  */
+  const result = await api({ url: `${base_url}/api/compound-sets/?target=${targetId}` }).then(response => {
+    if (response?.data) {
+      return response.data.results;
+    }
+  });
+  result?.map(dataset => {
+    tags.push({
+      rhs: true,
+      id: `rhs-${dataset.id}`,
+      tag: dataset.name,
+      short_tag: `rhs-${dataset.name}`,
+      tag_prefix: 'rhs',
+      upload_name: `rhs-${dataset.name}`,
+      create_date: dataset.upload_datetime,
+      colour: null,
+      hidden: false,
+      category: 8, // TODO other
+      target: targetId,
+      user: dataset.owner_user,
+      site_observations: dataset.site_observations
+    });
+  });
+  return tags;
+};
+
 export const getTagCategories = async () => {
   return api({ url: `${base_url}/api/tag_category/` }).then(response => {
     if (response?.data) {

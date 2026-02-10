@@ -51,6 +51,14 @@ import DensityButtonPopover from './DensityButtonPopover';
 import RichTooltip from '../../../../../tooltip/RichTooltip';
 import { tootlipProvider } from '../../../../../tooltip/resolver';
 import { TooltipPathProvider } from '../../../../../tooltip/TooltipPathContext';
+import { isAnyInspirationTurnedOn } from '../../../../../datasets/redux/selectors';
+import { clickOnInspirations, getInspirationsForMol } from '../../../../../datasets/redux/dispatchActions';
+import {
+  setCrossReferenceCompoundName,
+  setInspirationDialogAction,
+  setIsOpenCrossReferenceDialog
+} from '../../../../../datasets/redux/actions';
+import { isCompoundFromVectorSelector } from '../../../../compounds/redux/dispatchActions';
 
 const useStyles = makeStyles(theme => ({
   container: {
@@ -395,9 +403,18 @@ const useStyles = makeStyles(theme => ({
   }
 }));
 
-export const DetailView = memo(({ data, handleRef, disableL, disableP, disableC, observations }) => {
+export const DetailView = memo(({ data, handleRef, disableL, disableP, disableC, observations, isRHS = false }) => {
   const [densityPopoverAnchor, setDensityPopoverAnchor] = useState(null);
   const [densityPopoverOpen, setDensityPopoverOpen] = useState(false);
+
+  const [loadingInspiration, setLoadingInspiration] = useState(false);
+  const [loadingReference, setLoadingReference] = useState(false);
+
+  // TODO
+  const datasetID = null;
+  const showCrossReferenceModal = false;
+  const hideFButton = false;
+  const inSelectedCompoundsList = false;
 
   const handleDensityPopoverClose = () => {
     setDensityPopoverOpen(false);
@@ -539,6 +556,12 @@ export const DetailView = memo(({ data, handleRef, disableL, disableP, disableC,
   const vectorOnList = useSelector(state => state.selectionReducers.vectorOnList);
   // const currentTarget = useSelector(state => getCurrentTarget(state));
   const aliasOrder = useSelector(state => state.apiReducers.target_on_aliases);
+
+  const isAnyInspirationOn = useSelector(state =>
+    isAnyInspirationTurnedOn(state, (data && data.computed_inspirations) || [])
+  );
+  const allInspirations = useSelector(state => state.datasetsReducers.allInspirations);
+  const isFromVectorSelector = isCompoundFromVectorSelector(data);
 
   const activeTarget = useSelector(state => getCurrentTarget(state));
   const defaultMapType = activeTarget?.settings?.electron_density_map_type || DENSITY_MAP_TYPES.EVENT;
@@ -1185,7 +1208,7 @@ export const DetailView = memo(({ data, handleRef, disableL, disableP, disableC,
     (shortened = false) => {
       const mainObservation = getMainObservation();
       let displayName = '';
-      const defaultName = mainObservation?.compound_code;
+      const defaultName = isRHS ? mainObservation?.virtual_name : mainObservation?.compound_code;
 
       if (aliasOrder) {
         for (let index = 0; index < aliasOrder.length; index++) {
@@ -1219,7 +1242,15 @@ export const DetailView = memo(({ data, handleRef, disableL, disableP, disableC,
 
       return displayName;
     },
-    [aliasOrder, getMainObservation]
+    [aliasOrder, getMainObservation, isRHS]
+  );
+
+  const getDisplayTitle = useCallback(
+    () =>
+      isRHS
+        ? getMainObservation()?.virtual_identifier
+        : getMainObservation()?.code?.replaceAll(`${target_on_name}-`, ''),
+    [target_on_name, getMainObservation, isRHS]
   );
 
   const [anchorElTable, setAnchorElTable] = useState(null);
@@ -1232,6 +1263,159 @@ export const DetailView = memo(({ data, handleRef, disableL, disableP, disableC,
     setTableIsOpen(false);
   };
   const popoverOpen = Boolean(anchorElTable) || tableIsOpen;
+
+  const generateLastButtons = () => {
+    return !isRHS ? (
+      <>
+        <RichTooltip
+          path="electronDensity"
+          open={densityTooltipOpen}
+          onOpen={handleTooltipOpen}
+          onClose={handleTooltipClose}
+          disableHoverListener={densityPopoverOpen}
+          disableFocusListener={densityPopoverOpen}
+          disableTouchListener={densityPopoverOpen}
+        >
+          <Grid item>
+            <Button
+              variant="outlined"
+              className={classNames(classes.contColButton, {
+                [classes.contColButtonSelected]: isDensityOn
+              })}
+              onClick={() => onDensity()}
+              onContextMenu={handleDensityButtonContextMenu}
+              disabled={!hasMap || disableMoleculeNglControlButtons.density}
+            >
+              D
+              {loadingDensity && (
+                <CircularProgress
+                  className={classNames(classes.buttonLoadingOverlay, {
+                    [classes.buttonSelectedLoadingOverlay]: isDensityOn
+                  })}
+                />
+              )}
+            </Button>
+
+            <Popover
+              open={densityPopoverOpen}
+              anchorEl={densityPopoverAnchor}
+              onClose={handleDensityPopoverClose}
+              anchorOrigin={{ vertical: 'center', horizontal: 'right' }}
+              transformOrigin={{ vertical: 'center', horizontal: 'left' }}
+            >
+              <DensityButtonPopover mol={getMainObservation()} />
+            </Popover>
+          </Grid>
+        </RichTooltip>
+        <RichTooltip path="vectors">
+          <Grid item>
+            <Button
+              variant="outlined"
+              className={classNames(classes.contColButton, {
+                [classes.contColButtonSelected]: isVectorOn
+              })}
+              onClick={() => onVector()}
+              disabled={disableMoleculeNglControlButtons.vector}
+            >
+              V
+              {loadingVector && (
+                <CircularProgress
+                  className={classNames(classes.buttonLoadingOverlay, {
+                    [classes.buttonSelectedLoadingOverlay]: isVectorOn
+                  })}
+                />
+              )}
+            </Button>
+          </Grid>
+        </RichTooltip>
+      </>
+    ) : (
+      <>
+        {!hideFButton && (
+          <RichTooltip title="computedInspirations">
+            <Grid item>
+              <Button
+                variant="outlined"
+                className={classNames(classes.contColButton, {
+                  [classes.contColButtonSelected]: isAnyInspirationOn
+                })}
+                onClick={() => {
+                  setLoadingInspiration(true);
+                  dispatch((dispatch, getState) => {
+                    dispatch(
+                      clickOnInspirations({
+                        datasetID,
+                        currentID,
+                        computed_inspirations: getInspirationsForMol(allInspirations, datasetID, currentID)
+                      })
+                    );
+                    dispatch(
+                      setInspirationDialogAction(
+                        datasetID,
+                        currentID,
+                        getInspirationsForMol(allInspirations, datasetID, currentID),
+                        true,
+                        0,
+                        [],
+                        inSelectedCompoundsList
+                      )
+                    );
+                  });
+                  // TODO
+                  // if (setRef) {
+                  //   setRef(outsideRef.current);
+                  // }
+                  setLoadingInspiration(false);
+                }}
+                disabled={isFromVectorSelector}
+              >
+                F
+                {loadingInspiration && (
+                  <CircularProgress
+                    className={classNames(classes.buttonLoadingOverlay, {
+                      [classes.buttonSelectedLoadingOverlay]: isAnyInspirationOn
+                    })}
+                  />
+                )}
+              </Button>
+            </Grid>
+          </RichTooltip>
+        )}
+        {showCrossReferenceModal && (
+          <RichTooltip path="crossReference">
+            <Grid item>
+              <Button
+                variant="outlined"
+                className={classNames(classes.contColButton, {
+                  // [classes.contColButtonSelected]: isAnyInspirationOn
+                })}
+                onClick={() => {
+                  setLoadingReference(true);
+                  dispatch(setCrossReferenceCompoundName(moleculeTitle));
+                  dispatch(setIsOpenCrossReferenceDialog(true));
+                  // TODO
+                  // if (setRef) {
+                  //   setRef(outsideRef.current);
+                  // }
+                  setLoadingReference(false);
+                }}
+                disabled={isFromVectorSelector}
+              >
+                X
+                {loadingReference && (
+                  <CircularProgress
+                    className={classNames(classes.buttonLoadingOverlay, {
+                      // [classes.buttonSelectedLoadingOverlay]: isAnyInspirationOn
+                    })}
+                  />
+                )}
+              </Button>
+            </Grid>
+          </RichTooltip>
+        )}
+      </>
+    );
+  };
 
   return (
     <Grid
@@ -1247,6 +1431,7 @@ export const DetailView = memo(({ data, handleRef, disableL, disableP, disableC,
         <Grid
           item
           container
+          direction="column"
           onCopy={e => {
             e.preventDefault();
             setNameCopied(moleculeTitle);
@@ -1461,67 +1646,7 @@ export const DetailView = memo(({ data, handleRef, disableL, disableP, disableC,
                 </Button>
               </Grid>
             </RichTooltip>
-            <RichTooltip
-              path="electronDensity"
-              open={densityTooltipOpen}
-              onOpen={handleTooltipOpen}
-              onClose={handleTooltipClose}
-              disableHoverListener={densityPopoverOpen}
-              disableFocusListener={densityPopoverOpen}
-              disableTouchListener={densityPopoverOpen}
-            >
-              <Grid item>
-                <Button
-                  variant="outlined"
-                  className={classNames(classes.contColButton, {
-                    [classes.contColButtonSelected]: isDensityOn
-                  })}
-                  onClick={() => onDensity()}
-                  onContextMenu={handleDensityButtonContextMenu}
-                  disabled={!hasMap || disableMoleculeNglControlButtons.density}
-                >
-                  D
-                  {loadingDensity && (
-                    <CircularProgress
-                      className={classNames(classes.buttonLoadingOverlay, {
-                        [classes.buttonSelectedLoadingOverlay]: isDensityOn
-                      })}
-                    />
-                  )}
-                </Button>
-
-                <Popover
-                  open={densityPopoverOpen}
-                  anchorEl={densityPopoverAnchor}
-                  onClose={handleDensityPopoverClose}
-                  anchorOrigin={{ vertical: 'center', horizontal: 'right' }}
-                  transformOrigin={{ vertical: 'center', horizontal: 'left' }}
-                >
-                  <DensityButtonPopover mol={getMainObservation()} />
-                </Popover>
-              </Grid>
-            </RichTooltip>
-            <RichTooltip path="vectors">
-              <Grid item>
-                <Button
-                  variant="outlined"
-                  className={classNames(classes.contColButton, {
-                    [classes.contColButtonSelected]: isVectorOn
-                  })}
-                  onClick={() => onVector()}
-                  disabled={disableMoleculeNglControlButtons.vector}
-                >
-                  V
-                  {loadingVector && (
-                    <CircularProgress
-                      className={classNames(classes.buttonLoadingOverlay, {
-                        [classes.buttonSelectedLoadingOverlay]: isVectorOn
-                      })}
-                    />
-                  )}
-                </Button>
-              </Grid>
-            </RichTooltip>
+            {generateLastButtons()}
           </Grid>
         </Grid>
         {generateTagPopover()}

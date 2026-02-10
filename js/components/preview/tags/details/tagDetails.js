@@ -48,6 +48,7 @@ import { DJANGO_CONTEXT } from '../../../../utils/djangoContext';
 import v4 from 'uuid/v4';
 import RichTooltip from '../../../tooltip/RichTooltip';
 import { TooltipPathProvider } from '../../../tooltip/TooltipPathContext';
+import { getLHSTags, getRHSTags } from '../../../../reducers/api/selectors';
 
 export const heightOfBody = '172px';
 export const defaultHeaderPadding = 15;
@@ -154,7 +155,7 @@ const useStyles = makeStyles(theme => ({
 /**
  * TagDetails is a wrapper panel for tags summary, their editing and creating new ones
  */
-const TagDetails = memo(({ expandHandler = null }) => {
+const TagDetails = memo(({ isRHS = false, expandHandler = null }) => {
   const classes = useStyles();
   const ref = useRef(null);
   const elementRef = useRef(null);
@@ -163,7 +164,10 @@ const TagDetails = memo(({ expandHandler = null }) => {
 
   const { moleculesAndTagsAreLoading } = useContext(LoadingContext);
 
-  const preTagList = useSelector(state => state.apiReducers.tagList);
+  const lhsTags = useSelector(state => getLHSTags(state));
+  const rhsTags = useSelector(state => getRHSTags(state));
+  const preTagList = isRHS ? rhsTags : lhsTags;
+
   const tagMode = useSelector(state => state.selectionReducers.tagFilteringMode);
   const displayAllMolecules = useSelector(state => state.selectionReducers.displayAllMolecules);
   const displayUntaggedMolecules = useSelector(state => state.selectionReducers.displayUntaggedMolecules);

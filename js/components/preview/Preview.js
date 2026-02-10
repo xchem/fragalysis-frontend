@@ -156,7 +156,7 @@ const Preview = memo(({ isStateLoaded, hideProjects, isSnapshot = false }) => {
      Loading datasets
    */
   useEffect(() => {
-    if (customDatasets.length === 0 && isTrackingRestoring === false && !rhsDataIsLoaded) {
+    if (customDatasets.length === 0 && isTrackingRestoring === false && !rhsDataIsLoaded && target_on && lhsDataIsLoaded) {
       dispatch(setMoleculeListIsLoading(true));
       dispatch(loadDataSets(target_on))
         .then(results => {
@@ -175,7 +175,7 @@ const Preview = memo(({ isStateLoaded, hideProjects, isSnapshot = false }) => {
           dispatch(setRHSDataIsLoaded(true));
         });
     }
-  }, [customDatasets.length, dispatch, target_on, isTrackingRestoring, rhsDataIsLoaded]);
+  }, [customDatasets.length, dispatch, target_on, isTrackingRestoring, rhsDataIsLoaded, lhsDataIsLoaded]);
 
   useEffect(() => {
     if (toastMessages?.length > 0) {

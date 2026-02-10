@@ -1,3 +1,5 @@
+import { createSelector } from "reselect";
+
 export const getMoleculeList = state => state.apiReducers.molecule_list;
 export const getAllMoleculeList = state => state.apiReducers.all_mol_lists;
 export const getCombinedTargetList = state => {
@@ -22,3 +24,5 @@ export const getCurrentTarget = state => {
 
   return targets?.find(target => target.id === target_on);
 };
+export const getLHSTags = createSelector(state => state.apiReducers.tagList, tagList => tagList.filter(tag => !!!tag.rhs));
+export const getRHSTags = createSelector(state => state.apiReducers.tagList, tagList => tagList.filter(tag => !!tag.rhs));

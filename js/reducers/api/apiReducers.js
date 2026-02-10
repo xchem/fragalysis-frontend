@@ -54,6 +54,7 @@ export const INITIAL_STATE = {
   all_data_loaded: false,
   isSnapshot: false,
   lhs_compounds_list: [], // this is list of poses where each contains compound and observations
+  rhs_compounds_list: [], // this is list of poses of rhs
   lhs_extra_columns: [],
   lhsDataIsLoading: false,
   lhsDataIsLoaded: false,
@@ -112,6 +113,7 @@ export const RESET_TARGET_STATE = {
   all_data_loaded: false,
   snapshotLoadingInProgress: false,
   lhs_compounds_list: [],
+  rhs_compounds_list: [],
   lhs_extra_columns: [],
   compound_identifiers: [],
   quality_statuses: [],
@@ -310,6 +312,9 @@ export default function apiReducers(state = INITIAL_STATE, action = {}) {
 
       return { ...state, lhs_compounds_list: [...newList] };
     }
+
+    case constants.SET_RHS_COMPOUNDS_LIST:
+      return { ...state, rhs_compounds_list: action.rhs_compounds_list };
 
     case constants.SET_PANNDA_EVENT_LIST:
       return Object.assign({}, state, {

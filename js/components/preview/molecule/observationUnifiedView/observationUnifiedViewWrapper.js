@@ -55,6 +55,7 @@ const ObservationUnifiedViewWrapper = memo(
   forwardRef(
     (
       {
+        isRHS = false,
         fragmentDisplayList,
         proteinList,
         complexList,
@@ -80,15 +81,14 @@ const ObservationUnifiedViewWrapper = memo(
 
       const containsAtLeastOne = (list, molsList) => {
         for (const mol in molsList) {
-          if (list.includes(mol.id)) {
+          if (list?.includes(mol.id)) {
             return true;
           }
         }
 
         return false;
       };
-
-      const { columns, handleColumnResize, getColumnWidth } = useColumns(50);
+      const { columns, handleColumnResize, getColumnWidth } = useColumns(50, isRHS);
       const { filteredItems, getColumnFilter } = useFilters(items, columns);
 
       return (
@@ -125,7 +125,7 @@ const ObservationUnifiedViewWrapper = memo(
           <TableBody>
             {filteredItems?.map((data, index) => {
               const molsForCmp = data.associatedObs;
-              const selected = allSelectedMolecules.some(molecule =>
+              const selected = allSelectedMolecules?.some(molecule =>
                 data.associatedObs.some(obs => obs.id === molecule.id)
               );
 
@@ -153,6 +153,7 @@ const ObservationUnifiedViewWrapper = memo(
                   observations={molsForCmp}
                   columns={columns}
                   getColumnWidth={getColumnWidth}
+                  isRHS={isRHS}
                 />
               );
             })}

@@ -20,6 +20,7 @@ export const layoutItemNames = {
   RESIZABLE: 'resizable',
   SNAPSHOT_LIST: 'snapshotList',
   PLOTLY_VIEW: 'plotlyView',
+  RHS_TAG_DETAILS: 'rhsTagDetails',
   COMPOUNDS_VIEW: 'compoundsView'
 };
 

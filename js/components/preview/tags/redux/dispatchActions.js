@@ -28,13 +28,14 @@ import {
   setTargetDataLoadingInProgress,
   setAllDataLoaded,
   setMoleculeTags,
-  setLHSCompoundsLIst,
+  setLHSCompoundsList,
   setCompoundIdentifiers,
   setDataAreDownloading,
   appendLigandData,
   setErrorOccuredDuringDownload,
   setDataAreDownloaded,
-  setLHSExtraColumns
+  setLHSExtraColumns,
+  setRHSCompoundsList
 } from '../../../../reducers/api/actions';
 import { setSortDialogOpen } from '../../molecule/redux/actions';
 import { resetCurrentCompoundsSettings } from '../../compounds/redux/actions';
@@ -47,7 +48,8 @@ import {
   getCanonSites,
   getCanonConformSites,
   getPoses,
-  getCompoundIdentifiers
+  getCompoundIdentifiers,
+  generateRHSTags
 } from '../api/tagsApi';
 import {
   getMoleculeTagForTag,
@@ -135,7 +137,7 @@ export const storeData = data => (dispatch, getState) => {
   dispatch(setTagSelectorData(categories, tags));
 
   let allMolecules = [];
-  data.molecules.forEach(mol => {});
+  data.molecules.forEach(mol => { });
 };
 
 /**
@@ -205,6 +207,7 @@ export const loadMoleculesAndTagsNew = targetId => async (dispatch, getState) =>
     dispatch(setDataAreDownloading(true));
     // console.log(`snapshotDebug - loadMoleculesAndTagsNew - before getTags`);
     let tags = await getTags(targetId);
+    const rhsTags = await generateRHSTags(targetId);
     let compoundIdentifiers = await getCompoundIdentifiers();
 
     let lhsExtraColumns = await getActivityColumns(targetId);
@@ -239,6 +242,7 @@ export const loadMoleculesAndTagsNew = targetId => async (dispatch, getState) =>
 
     // console.log(`snapshotDebug - loadMoleculesAndTagsNew - after getTags`);
     tags = tags.results;
+    tags = tags.concat(rhsTags);
     if (tags?.length > 0) {
       // console.log(`snapshotDebug - loadMoleculesAndTagsNew - no. of tags received: ${tags?.length}`);
       dispatch(setNoTagsReceived(false));
@@ -299,7 +303,8 @@ export const loadMoleculesAndTagsNew = targetId => async (dispatch, getState) =>
     // console.log(`snapshotDebug - loadMoleculesAndTagsNew - before getPoses`);
     return getPoses(targetId).then(poses => {
       // console.log(`snapshotDebug - loadMoleculesAndTagsNew - after getPoses`);
-      const modifiedPoses = [];
+      const modifiedLhsPoses = [];
+      const modifiedRhsPoses = [];
       // console.log(`snapshotDebug - loadMoleculesAndTagsNew - no. of poses received: ${poses?.length}`);
       poses?.forEach(pose => {
         const siteObs = allMolecules.filter(m => pose.site_observations.includes(m.id));
@@ -336,9 +341,14 @@ export const loadMoleculesAndTagsNew = targetId => async (dispatch, getState) =>
         });
         newObject['associatedObs'] = associatedObs;
 
-        modifiedPoses.push(newObject);
+        // rhs poses are not linked to an experiment
+        if (firstObs.experiment === null) {
+          modifiedRhsPoses.push(newObject);
+        } else {
+          modifiedLhsPoses.push(newObject);
+        }
       });
-      modifiedPoses.sort((a, b) => {
+      modifiedLhsPoses.sort((a, b) => {
         if (a.code < b.code) {
           return -1;
         }
@@ -347,8 +357,19 @@ export const loadMoleculesAndTagsNew = targetId => async (dispatch, getState) =>
         }
         return 0;
       });
-      dispatch(setLHSCompoundsLIst(modifiedPoses));
-      dispatch(setLHSExtraColumns(lhsExtraColumns));
+      modifiedRhsPoses.sort((a, b) => {
+        if (a.code < b.code) {
+          return -1;
+        }
+        if (a.code > b.code) {
+          return 1;
+        }
+        return 0;
+      });
+      dispatch(setLHSCompoundsList(modifiedLhsPoses));
+      dispatch(setRHSCompoundsList(modifiedRhsPoses));
+      // TODO there are assay columns for lhs and scores for rhs mixed together so do not set it atm
+      // dispatch(setLHSExtraColumns(lhsExtraColumns));
       // console.log(`snapshotDebug - loadMoleculesAndTagsNew - end of function`);
     });
   } catch (error) {

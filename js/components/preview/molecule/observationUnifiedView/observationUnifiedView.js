@@ -82,7 +82,8 @@ const ObservationUnifiedView = memo(
         disableC,
         observations,
         columns,
-        getColumnWidth
+        getColumnWidth,
+        isRHS = false
       },
       outsideRef
     ) => {
@@ -366,6 +367,7 @@ const ObservationUnifiedView = memo(
                   disableP={disableP}
                   disableC={disableC}
                   observations={observations}
+                  isRHS={isRHS}
                 />
               </TooltipPathProvider>
             );

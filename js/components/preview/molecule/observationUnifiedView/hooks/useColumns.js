@@ -1,8 +1,8 @@
 import { useCallback, useEffect, useState } from "react";
-import { COLUMN_TYPES, COLUMNS } from "../table";
+import { COLUMN_TYPES, COLUMNS, RHS_COLUMNS } from "../table";
 import { useSelector } from "react-redux";
 
-export const useColumns = (defaultWidth) => {
+export const useColumns = (defaultWidth, isRHS = false) => {
     const [columns, setColumns] = useState([]);
     const extraColumns = useSelector(state => state.apiReducers.lhs_extra_columns);
 
@@ -21,7 +21,7 @@ export const useColumns = (defaultWidth) => {
     useEffect(() => {
         // console.log('extraColumns', extraColumns);
         if (extraColumns && extraColumns.length > 0) {
-            const newColumns = [...COLUMNS];
+            const newColumns = [...(isRHS ? RHS_COLUMNS : COLUMNS)];
             extraColumns.forEach(column => {
                 if (!newColumns.some(col => col.name === column.name)) {
                     newColumns.push({
@@ -39,7 +39,7 @@ export const useColumns = (defaultWidth) => {
             setColumns(newColumns);
         } else {
             // set observation column width to fill hit navigator space better if there are no extra columns
-            const columns = COLUMNS;
+            const columns = isRHS ? RHS_COLUMNS : COLUMNS;
             columns.map(column => {
                 if (column.name === 'detail') {
                     column.width = 230;
@@ -48,7 +48,7 @@ export const useColumns = (defaultWidth) => {
             });
             setColumns(columns);
         }
-    }, [extraColumns, getColumnType]);
+    }, [extraColumns, getColumnType, isRHS]);
 
     const handleColumnResize = (name, widthChange) => {
         widthChange = Math.floor(widthChange);
