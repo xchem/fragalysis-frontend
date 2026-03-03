@@ -37,6 +37,7 @@ export const PeerReviewView = memo(({ data, index, selected, observations, mainO
     <Grid container justifyContent="space-between" direction="column" className={classes.site}>
       <Grid xs item>
         <MoleculeSelectCheckbox
+          id={"peer-review-molecule-selector-checkbox-" + index}
           moleculeID={currentID}
           checked={selected}
           className={classes.checkbox}

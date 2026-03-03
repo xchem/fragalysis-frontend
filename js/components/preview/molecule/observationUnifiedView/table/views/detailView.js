@@ -395,7 +395,7 @@ const useStyles = makeStyles(theme => ({
   }
 }));
 
-export const DetailView = memo(({ data, handleRef, disableL, disableP, disableC, observations }) => {
+export const DetailView = memo(({ data, index, handleRef, disableL, disableP, disableC, observations }) => {
   const [densityPopoverAnchor, setDensityPopoverAnchor] = useState(null);
   const [densityPopoverOpen, setDensityPopoverOpen] = useState(false);
 
@@ -1322,6 +1322,7 @@ export const DetailView = memo(({ data, handleRef, disableL, disableP, disableC,
             <RichTooltip path="centerOn">
               <Grid item>
                 <Button
+                  id={"detail-view-center-on-" + index}
                   variant="outlined"
                   className={classes.myLocationButton}
                   onClick={() => {
@@ -1336,6 +1337,7 @@ export const DetailView = memo(({ data, handleRef, disableL, disableP, disableC,
             <RichTooltip path="all">
               <Grid item>
                 <Button
+                  id={"detail-view-all-" + index}
                   variant="outlined"
                   className={classNames(
                     classes.contColButton,
@@ -1379,6 +1381,7 @@ export const DetailView = memo(({ data, handleRef, disableL, disableP, disableC,
             >
               <Grid item>
                 <Button
+                  id={"detail-view-ligand-" + index}
                   variant="outlined"
                   className={classNames(classes.contColButton, {
                     [classes.contColButtonSelected]: isLigandOn
@@ -1400,6 +1403,7 @@ export const DetailView = memo(({ data, handleRef, disableL, disableP, disableC,
             <RichTooltip path="sidechains">
               <Grid item>
                 <Button
+                  id={"detail-view-sidechains-" + index}
                   variant="outlined"
                   className={classNames(classes.contColButton, {
                     [classes.contColButtonSelected]: isProteinOn
@@ -1422,6 +1426,7 @@ export const DetailView = memo(({ data, handleRef, disableL, disableP, disableC,
               <Grid item>
                 {/* C stands for contacts now */}
                 <Button
+                  id={"detail-view-interactions-" + index}
                   variant="outlined"
                   className={classNames(classes.contColButton, {
                     [classes.contColButtonSelected]: isComplexOn
@@ -1443,6 +1448,7 @@ export const DetailView = memo(({ data, handleRef, disableL, disableP, disableC,
             <RichTooltip path="surface">
               <Grid item>
                 <Button
+                  id={"detail-view-surface-" + index}
                   variant="outlined"
                   className={classNames(classes.contColButton, {
                     [classes.contColButtonSelected]: isSurfaceOn
@@ -1472,6 +1478,7 @@ export const DetailView = memo(({ data, handleRef, disableL, disableP, disableC,
             >
               <Grid item>
                 <Button
+                  id={"detail-view-electron-density-" + index}
                   variant="outlined"
                   className={classNames(classes.contColButton, {
                     [classes.contColButtonSelected]: isDensityOn
@@ -1504,6 +1511,7 @@ export const DetailView = memo(({ data, handleRef, disableL, disableP, disableC,
             <RichTooltip path="vectors">
               <Grid item>
                 <Button
+                  id={"detail-view-vectors-" + index}
                   variant="outlined"
                   className={classNames(classes.contColButton, {
                     [classes.contColButtonSelected]: isVectorOn

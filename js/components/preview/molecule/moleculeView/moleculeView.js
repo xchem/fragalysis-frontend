@@ -1295,6 +1295,7 @@ const MoleculeView = memo(
           <Grid item container justifyContent="space-between" direction="column" className={classes.site}>
             <Grid item>
               <MoleculeSelectCheckbox
+                id={"observations-checkbox-" + index}
                 moleculeID={currentID}
                 checked={selected}
                 className={classes.checkbox}
@@ -1393,6 +1394,7 @@ const MoleculeView = memo(
                       <RichTooltip path="centerOn">
                         <Grid item>
                           <Button
+                            id={"observations-center-on-" + index}
                             variant="outlined"
                             className={classes.myLocationButton}
                             onClick={() => {
@@ -1407,6 +1409,7 @@ const MoleculeView = memo(
                       <RichTooltip path="all">
                         <Grid item>
                           <Button
+                            id={"observations-all-" + index}
                             variant="outlined"
                             className={classNames(
                               classes.contColButton,
@@ -1444,6 +1447,7 @@ const MoleculeView = memo(
                       <RichTooltip path="ligand">
                         <Grid item>
                           <Button
+                            id={"observations-ligand-" + index}
                             variant="outlined"
                             className={classNames(classes.contColButton, {
                               [classes.contColButtonSelected]: isLigandOn
@@ -1465,6 +1469,7 @@ const MoleculeView = memo(
                       <RichTooltip path="sidechains">
                         <Grid item>
                           <Button
+                            id={"observations-sidechains-" + index}
                             variant="outlined"
                             className={classNames(classes.contColButton, {
                               [classes.contColButtonSelected]: isProteinOn
@@ -1487,6 +1492,7 @@ const MoleculeView = memo(
                         <Grid item>
                           {/* C stands for contacts now */}
                           <Button
+                            id={"observations-interactions-" + index}
                             variant="outlined"
                             className={classNames(classes.contColButton, {
                               [classes.contColButtonSelected]: isComplexOn
@@ -1508,6 +1514,7 @@ const MoleculeView = memo(
                       <RichTooltip path="surface">
                         <Grid item>
                           <Button
+                            id={"observations-surface-" + index}
                             variant="outlined"
                             className={classNames(classes.contColButton, {
                               [classes.contColButtonSelected]: isSurfaceOn
@@ -1537,6 +1544,7 @@ const MoleculeView = memo(
                       >
                         <Grid item>
                           <Button
+                            id={"observations-electronDensity-" + index}
                             variant="outlined"
                             className={classNames(classes.contColButton, {
                               [classes.contColButtonSelected]: isDensityOn
@@ -1568,6 +1576,7 @@ const MoleculeView = memo(
                       <RichTooltip path="vectors">
                         <Grid item>
                           <Button
+                            id={"observations-vectors-" + index}
                             variant="outlined"
                             className={classNames(classes.contColButton, {
                               [classes.contColButtonSelected]: isVectorOn

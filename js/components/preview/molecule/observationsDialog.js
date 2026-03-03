@@ -961,6 +961,7 @@ export const ObservationsDialog = memo(
                             <RichTooltip path="allLigands">
                               <Grid item>
                                 <Button
+                                  id="observations-all-ligands"
                                   variant="outlined"
                                   className={classNames(classes.contColButton, {
                                     [classes.contColButtonSelected]: isLigandOnForClassname,
@@ -978,6 +979,7 @@ export const ObservationsDialog = memo(
                             <RichTooltip path="allSidechains">
                               <Grid item>
                                 <Button
+                                  id="observations-all-sidechains"
                                   variant="outlined"
                                   className={classNames(classes.contColButton, {
                                     [classes.contColButtonSelected]: isProteinOnForClassname,
@@ -996,6 +998,7 @@ export const ObservationsDialog = memo(
                               <Grid item>
                                 {/* C stands for contacts now */}
                                 <Button
+                                  id="observations-all-interactions"
                                   variant="outlined"
                                   className={classNames(classes.contColButton, {
                                     [classes.contColButtonSelected]: isComplexOnForClassname,
@@ -1014,6 +1017,7 @@ export const ObservationsDialog = memo(
                         </Grid>
                         <Grid item>
                           <Button
+                            id="observations-toogle-select-all"
                             onClick={handleSelectAllObservations}
                             color="inherit"
                             variant="text"
@@ -1026,6 +1030,7 @@ export const ObservationsDialog = memo(
                         </Grid>
                         <Grid item>
                           <Button
+                            id="observations-select-all-displayed"
                             onClick={handleSelectAllDisplayedObservations}
                             disabled={!(isLigandOn || isProteinOn || isComplexOn)}
                             color="inherit"
@@ -1079,7 +1084,7 @@ export const ObservationsDialog = memo(
                       </Grid>
                       <RichTooltip path={expandView ? 'expandView.classic' : 'expandView.expanded'}>
                         <Grid item className={classes.popoutIcon}>
-                          <IconButton color="inherit" size="small" onClick={() => setExpandView(!expandView)}>
+                          <IconButton id="observations-change-view" color="inherit" size="small" onClick={() => setExpandView(!expandView)}>
                             {expandView ? <ArrowLeft /> : <ArrowRight />}
                           </IconButton>
                         </Grid>

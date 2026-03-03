@@ -70,6 +70,7 @@ export const ViewerControls = memo(() => {
             color="primary"
             onClick={() => dispatch(turnSide('LHS', !sidesOpen.LHS))}
             className={classes.button}
+            id="open-lhs-button"
           >
             LHS
           </Button>

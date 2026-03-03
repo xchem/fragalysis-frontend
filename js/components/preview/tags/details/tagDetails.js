@@ -384,6 +384,7 @@ const TagDetails = memo(({ expandHandler = null }) => {
                     onChange={filteringModeSwitched}
                     name="tag-filtering-mode"
                     size="small"
+                    id="tag-intersection-union-switch"
                   />
                 }
                 label={tagMode ? 'Intersection' : 'Union'}
@@ -401,6 +402,7 @@ const TagDetails = memo(({ expandHandler = null }) => {
                     onChange={viewModeSwitched}
                     name="tag-filtering-mode"
                     size="small"
+                    id="tag-grid-list-switch"
                   />
                 }
                 label={tagDetailView ? 'Grid' : 'List'}
@@ -420,6 +422,7 @@ const TagDetails = memo(({ expandHandler = null }) => {
         <Grid container item spacing={2} style={{ paddingLeft: '70px' }}>
           <Grid item>
             <Button
+              id="tag-show-untagged-button"
               onClick={() => handleShowUntaggedMoleculesButton()}
               disabled={false}
               color="inherit"
@@ -433,6 +436,7 @@ const TagDetails = memo(({ expandHandler = null }) => {
           </Grid>
           <Grid item>
             <Button
+              id="tag-show-all-button"
               onClick={() => handleAllMoleculesButton()}
               disabled={false}
               color="inherit"
@@ -446,6 +450,7 @@ const TagDetails = memo(({ expandHandler = null }) => {
           </Grid>
           <Grid item>
             <Button
+              id="tag-select-all-button"
               onClick={() => handleSelectionButton(tagList)}
               disabled={false}
               color="inherit"

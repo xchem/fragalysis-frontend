@@ -309,6 +309,7 @@ const SnapshotList = memo(({ expandHandler = null }) => {
                     onChange={onlyMineSwitched}
                     name="snapshot-filtering-mine"
                     size="small"
+                    id="snapshot-only-mine-switch"
                   />
                 }
                 label={'Only mine'}
@@ -326,6 +327,7 @@ const SnapshotList = memo(({ expandHandler = null }) => {
                     onChange={hideStarredSwitched}
                     name="snapshot-filtering-starred"
                     size="small"
+                    id="snapshot-show-starred-switch"
                   />
                 }
                 label={'Show starred'}
@@ -375,7 +377,7 @@ const SnapshotList = memo(({ expandHandler = null }) => {
           </InfiniteScroll>
         </div>
         <div className={classes.newSnapshotButtonContainer}>
-          <div className={classes.newSnapshotButton} onClick={handleCreateSnapshotClick}>
+          <div className={classes.newSnapshotButton} onClick={handleCreateSnapshotClick} id="new-snapshot-button-id">
             <div className={classes.plusSign}>+</div>
             <Typography variant="body2">Click to create new snapshot</Typography>
           </div>

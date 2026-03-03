@@ -361,6 +361,7 @@ const ObservationUnifiedView = memo(
               <TooltipPathProvider path="pose">
                 <DetailView
                   data={data}
+                  index={index}
                   handleRef={handleRef}
                   disableL={disableL}
                   disableP={disableP}

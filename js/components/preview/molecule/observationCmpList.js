@@ -1247,6 +1247,7 @@ export const ObservationCmpList = memo(({}) => {
         <Grid style={{ marginTop: '4px' }}>
           <RichTooltip path="allLigands">
             <Button
+              id="hit-navigator-all-ligands"
               variant="outlined"
               className={classNames(classes.contColButton, {
                 [classes.contColButtonSelected]: isLigandOn === true,
@@ -1260,6 +1261,7 @@ export const ObservationCmpList = memo(({}) => {
           </RichTooltip>
           <RichTooltip path="allSidechains">
             <Button
+              id="hit-navigator-all-sidechains"
               variant="outlined"
               className={classNames(
                 allSelectedMolecules.length === 0 ? classes.contColButton : classes.contColButtonUnselected,
@@ -1277,6 +1279,7 @@ export const ObservationCmpList = memo(({}) => {
           <RichTooltip path="allInteractions">
             {/* C stands for contacts now */}
             <Button
+              id="hit-navigator-all-interactions"
               variant="outlined"
               className={classNames(
                 allSelectedMolecules.length === 0 ? classes.contColButton : classes.contColButtonUnselected,
@@ -1297,6 +1300,7 @@ export const ObservationCmpList = memo(({}) => {
           <RichTooltip path={selectAllHitsPressed ? 'allHits.deselectAllHits' : 'allHits.selectAllHits'}>
             <Grid item style={{ marginLeft: '2px' }} className={classes.selectButton}>
               <Button
+                id="hit-navigator-select-all-hits"
                 variant="outlined"
                 className={classNames(classes.contColButton, {
                   [classes.contColButtonSelected]: selectAllHitsPressed,
@@ -1317,6 +1321,7 @@ export const ObservationCmpList = memo(({}) => {
           <RichTooltip path="displayedHits.deselectDisplayedHits">
             <Grid item className={classes.selectButton}>
               <Button
+                id="hit-navigator-unselect-displayed-hits"
                 variant="outlined"
                 className={classNames(classes.contColButton, {
                   [classes.contColButtonSelected]: selectedDisplayHits,
@@ -1336,6 +1341,7 @@ export const ObservationCmpList = memo(({}) => {
           <RichTooltip path="displayedHits.selectDisplayedHits">
             <Grid item className={classes.selectButton}>
               <Button
+                id="hit-navigator-select-displayed-hits"
                 variant="outlined"
                 className={classNames(classes.contColButton, {
                   [classes.contColButtonSelected]: selectedDisplayHits,
@@ -1387,7 +1393,7 @@ export const ObservationCmpList = memo(({}) => {
         </Grid>
         <RichTooltip path={ascending ? 'sortOrder.ascending' : 'sortOrder.descending'}>
           <Grid style={{ marginTop: '4px' }}>
-            <Checkbox checked={ascending} onChange={handleAscendingChecked} size="small" style={{ padding: 0 }} />
+            <Checkbox id="hit-navigator-sorting-checkbox" checked={ascending} onChange={handleAscendingChecked} size="small" style={{ padding: 0 }} />
             <Typography variant="caption">
               {(selectAllHitsPressed && hitNavigatorWidth > 508) || (!selectAllHitsPressed && hitNavigatorWidth > 491)
                 ? 'Ascending'
@@ -1472,6 +1478,7 @@ export const ObservationCmpList = memo(({}) => {
                 <Grid item>
                   <ButtonGroup variant="text" size="medium" color="primary" aria-label="contained primary button group">
                     <Button
+                      id="hit-navigator-load-next-30"
                       className={classes.footerButton}
                       onClick={() => {
                         dispatch(setNextXMolecules(30));
@@ -1480,6 +1487,7 @@ export const ObservationCmpList = memo(({}) => {
                       Load next 30
                     </Button>
                     <Button
+                      id="hit-navigator-load-next-100"
                       className={classes.footerButton}
                       onClick={() => {
                         dispatch(setNextXMolecules(100));
@@ -1488,6 +1496,7 @@ export const ObservationCmpList = memo(({}) => {
                       Load next 100
                     </Button>
                     <Button
+                      id="hit-navigator-load-full-list"
                       className={classes.footerButton}
                       onClick={() => {
                         if (joinedMoleculeLists?.length > 300) {

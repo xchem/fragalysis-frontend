@@ -246,6 +246,7 @@ export const Header = memo(
       authListItem = (
         <ListItem
           button
+          id="login-button-id"
           onClick={() => {
             window.location.replace(URLS.login);
           }}
@@ -260,6 +261,7 @@ export const Header = memo(
       authListItem = (
         <ListItem
           button
+          id="logout-button-id"
           onClick={() => {
             window.location.replace(URLS.logout);
           }}
@@ -312,6 +314,7 @@ export const Header = memo(
             <Grid item>
               <ButtonGroup variant="text" size="small">
                 <Button
+                  id="open-menu-button"
                   key="menu"
                   onClick={() => {
                     setOpenMenu(true);
@@ -320,7 +323,11 @@ export const Header = memo(
                 >
                   Menu
                 </Button>
-                <Button onClick={() => setOpenTargetSettings(true)} disabled={!targetName || !DJANGO_CONTEXT.pk}>
+                <Button onClick={() => {
+                   console.log("som tu");
+                  setOpenTargetSettings(true)
+                  }} disabled={!targetName || !DJANGO_CONTEXT.pk}
+                >
                   <Typography variant="h5" color="textPrimary">
                     Fragalysis: <b id={'headerNavbarTitle'}>{headerNavbarTitle}</b>
                   </Typography>

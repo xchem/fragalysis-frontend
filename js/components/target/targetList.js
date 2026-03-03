@@ -408,24 +408,25 @@ export const TargetList = memo(({ list = [], title = 'Target list', authRequired
   }
 
   const render_item_method = useCallback(
-    target => {
+    (target, index) => {
       let preview;
       if (target.isLegacy) {
         preview = target.legacyUrl;
       } else {
         preview = `${URLS.target}${target.title}/${URL_TOKENS.target_access_string}/${target.project.target_access_string}`;
       }
+      target.elementId = `${title.replace(" ", "-").toLowerCase()}-item-${index}`
 
       return (
         <TableRow hover key={target.isLegacy ? target.title + 'Legacy' : `${target.id}-${target.title}`}>
           <TableCell align="left" style={{ padding: '0px', margin: '0px' }}>
             {target.isLegacy ? (
-              <a href={target.legacyUrl} target="new" style={{ wordBreak: 'break-all' }}>
+              <a href={target.legacyUrl} id={target.elementId} target="new" style={{ wordBreak: 'break-all' }}>
                 {target.display_name}
               </a>
             ) : (
               <>
-                <Link to={preview}>{target.display_name}</Link>
+                <Link to={preview} id={target.elementId}>{target.display_name}</Link>
               </>
             )}
           </TableCell>
@@ -648,7 +649,7 @@ export const TargetList = memo(({ list = [], title = 'Target list', authRequired
     // const combinations = getTargetProjectCombinations(targetList, projectsList);
     // const slice = combinations.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage);
     const slice = targetList.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage);
-    const result = slice.map(data => render_item_method(data));
+    const result = slice.map((data, index) => render_item_method(data, index));
 
     return slice.length > 0
       ? result
