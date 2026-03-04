@@ -1,14 +1,7 @@
 /**
  * Created by abradley on 14/03/2018.
  */
-import {
-  Grid,
-  Tooltip,
-  makeStyles,
-  CircularProgress,
-  IconButton,
-  ButtonGroup
-} from '@material-ui/core';
+import { Grid, Tooltip, makeStyles, CircularProgress, IconButton, ButtonGroup } from '@material-ui/core';
 import React, { useState, useEffect, memo, useRef, useContext, useCallback, useMemo } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { colourList, getRandomColor } from './utils/color';
@@ -75,6 +68,7 @@ import GroupDatasetNglControlButtonsContext from '../../datasets/groupDatasetNgl
 import { CrossReferenceDialog } from '../../datasets/crossReferenceDialog';
 import { getRHSCompoundsList } from './redux/selectors';
 import { setRHSCompoundsList } from '../../../reducers/api/actions';
+import { TooltipPathProvider } from '../../tooltip/TooltipPathContext';
 
 const useStyles = makeStyles(theme => ({
   container: {
@@ -405,7 +399,7 @@ const RhsCmpList = ({ expandHandler }) => {
               canonSiteConf: observation.canon_site_conf,
               canonSite: null,
               associatedObs: [{ ...observation }]
-            })
+            });
           }
         });
         dispatch(setRHSCompoundsList(generatedPoses));
@@ -664,13 +658,6 @@ const RhsCmpList = ({ expandHandler }) => {
     return data;
   };
 
-  // getting searched string to input filed
-  // let filterSearchString = '';
-  // const getSearchedString = () => {
-  //   filterSearchString = currentActionList.find(action => action.type === 'SEARCH_STRING');
-  // };
-  // getSearchedString();
-
   const actions = useMemo(
     () => [
       <SearchField
@@ -684,28 +671,6 @@ const RhsCmpList = ({ expandHandler }) => {
         disabled={isLoadingMoleculeList}
         searchString={searchString ?? ''}
       />
-      // <IconButton
-      //   className={classes.panelButton}
-      //   onClick={event => {
-      //     if (sortDialogOpen === false) {
-      //       setSortDialogAnchorEl(filterRef.current);
-      //       dispatch(setFilterDialogOpen(true));
-      //     } else {
-      //       setSortDialogAnchorEl(null);
-      //       dispatch(setFilterDialogOpen(false));
-      //     }
-      //   }}
-      //   color={'inherit'}
-      //   disabled={isLoadingMoleculeList}
-      // >
-      //   <Tooltip title="Filter/Sort">
-      //     <>
-      //       {/* fontSize does not change font here, but it disqualifies default font size so we do not need to !important */}
-      //       {isActiveFilter && <Circle className={classes.dotOverlay} fontSize="9px" color={'error'} />}
-      //       <FilterList />
-      //     </>
-      //   </Tooltip>
-      // </IconButton>,
     ],
     [classes, datasetID, dispatch, isLoadingMoleculeList, searchString]
   );
@@ -950,19 +915,10 @@ const RhsCmpList = ({ expandHandler }) => {
           setIsOpenAlert(false);
         }}
       />
-      {/* {isOpenInspirationDialog && (
-        <InspirationDialog open anchorEl={selectedMoleculeRef} datasetID={datasetID} ref={inspirationDialogRef} />
-      )}
-      {askLockCompoundsQuestion && isLockVisibleCompoundsDialogOpenGlobal && (
-        <LockVisibleCompoundsDialog
-          open
-          ref={lockVisibleCompoundsDialogRef}
-          anchorEl={lockCompoundsDialogAnchorE1}
-          datasetId={datasetID}
-        />
-      )} */}
       {isOpenCrossReferenceDialog && (
-        <CrossReferenceDialog open anchorEl={selectedMoleculeRef} ref={crossReferenceDialogRef} />
+        <TooltipPathProvider path="crossReferenceDialog">
+          <CrossReferenceDialog open anchorEl={selectedMoleculeRef} ref={crossReferenceDialogRef} />
+        </TooltipPathProvider>
       )}
       <Grid container direction="row" justifyContent="flex-start" className={classes.container}>
         <Grid item>
@@ -1180,10 +1136,10 @@ const RhsCmpList = ({ expandHandler }) => {
                         proteinList={proteinList}
                         complexList={complexList}
                         surfaceList={surfaceList}
-                      // densityList={densityList}
-                      // qualityList={qualityList}
-                      // vectorOnList={vectorOnList}
-                      // informationList={informationList}
+                        // densityList={densityList}
+                        // qualityList={qualityList}
+                        // vectorOnList={vectorOnList}
+                        // informationList={informationList}
                       />
                     </DndProvider>
                   </GroupDatasetNglControlButtonsContext.Provider>

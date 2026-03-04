@@ -188,6 +188,14 @@
             }
           }
         }
+      },
+      "rhsCompoundsView": {
+        "crossReferenceDialog": {
+          "close": "Close cross reference dialog",
+          "allLigands": "All ligands",
+          "allSidechains": "All sidechains",
+          "allInteractions": "All interactions"
+        }
       }
     },
     "header": {

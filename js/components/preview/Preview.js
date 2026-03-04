@@ -30,7 +30,6 @@ import { setCurrentLayout } from '../../reducers/layout/actions';
 import { layoutBreakpoints, layoutItemNames } from '../../reducers/layout/constants';
 import { useUpdateGridLayout } from './useUpdateGridLayout';
 import { createHtmlPortalNode, InPortal, OutPortal } from 'react-reverse-portal';
-import { RHS } from './rhs';
 import { ResizableLayout } from './ResizableLayout';
 import { loadMoleculesAndTagsNew } from './tags/redux/dispatchActions';
 import { getTagMolecules, getTags } from './tags/api/tagsApi';
@@ -156,7 +155,13 @@ const Preview = memo(({ isStateLoaded, hideProjects, isSnapshot = false }) => {
      Loading datasets
    */
   useEffect(() => {
-    if (customDatasets.length === 0 && isTrackingRestoring === false && !rhsDataIsLoaded && target_on && lhsDataIsLoaded) {
+    if (
+      customDatasets.length === 0 &&
+      isTrackingRestoring === false &&
+      !rhsDataIsLoaded &&
+      target_on &&
+      lhsDataIsLoaded
+    ) {
       dispatch(setMoleculeListIsLoading(true));
       dispatch(loadDataSets(target_on))
         .then(results => {
@@ -283,11 +288,7 @@ const Preview = memo(({ isStateLoaded, hideProjects, isSnapshot = false }) => {
         );
       }
       case layoutItemNames.RHS: {
-        return (
-          <div key="RHS">
-            <RHS />
-          </div>
-        );
+        return <div key="RHS">{/* <RHS /> */}</div>;
       }
       case layoutItemNames.VIEWER_CONTROLS: {
         return (

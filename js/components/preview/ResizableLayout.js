@@ -9,7 +9,6 @@ import SnapshotList from '../snapshot/snapshotList';
 import TagDetails from './tags/details/tagDetails';
 import HitNavigator from './molecule/hitNavigator';
 import { ViewerControls } from './viewerControls';
-import { RHS } from './rhs';
 import { setResizableLayout, setActualRhsWidth } from '../../reducers/selection/actions';
 import { PlotlyView } from './plotly/plotlyView';
 import { layoutItemNames } from '../../reducers/layout/constants';
@@ -129,15 +128,17 @@ export const ResizableLayout = ({ gridRef, nglPortal }) => {
         id: layoutItemNames.PLOTLY_VIEW,
         group: 'rhs',
         component: (
-          <PlotlyView
-            expandHandler={expanded => {
-              if (expanded) {
-                mutateSuggestedRHSHeight(layoutItemNames.PLOTLY_VIEW, null);
-              } else {
-                mutateSuggestedRHSHeight(layoutItemNames.PLOTLY_VIEW, 25);
-              }
-            }}
-          />
+          <TooltipPathProvider path="plotlyView">
+            <PlotlyView
+              expandHandler={expanded => {
+                if (expanded) {
+                  mutateSuggestedRHSHeight(layoutItemNames.PLOTLY_VIEW, null);
+                } else {
+                  mutateSuggestedRHSHeight(layoutItemNames.PLOTLY_VIEW, 25);
+                }
+              }}
+            />
+          </TooltipPathProvider>
         ),
         min: MIN_HEIGHTS.plotlyView,
         initialPct: 20
@@ -146,16 +147,18 @@ export const ResizableLayout = ({ gridRef, nglPortal }) => {
         id: layoutItemNames.RHS_TAG_DETAILS,
         group: 'rhs',
         component: (
-          <TagDetails
-            isRHS={true}
-            expandHandler={expanded => {
-              if (expanded) {
-                mutateSuggestedRHSHeight(layoutItemNames.RHS_TAG_DETAILS, null);
-              } else {
-                mutateSuggestedRHSHeight(layoutItemNames.RHS_TAG_DETAILS, 25);
-              }
-            }}
-          />
+          <TooltipPathProvider path="rhsTagDetails">
+            <TagDetails
+              isRHS={true}
+              expandHandler={expanded => {
+                if (expanded) {
+                  mutateSuggestedRHSHeight(layoutItemNames.RHS_TAG_DETAILS, null);
+                } else {
+                  mutateSuggestedRHSHeight(layoutItemNames.RHS_TAG_DETAILS, 25);
+                }
+              }}
+            />
+          </TooltipPathProvider>
         ),
         min: MIN_HEIGHTS.rhsTagDetails,
         initialPct: 25
@@ -164,15 +167,17 @@ export const ResizableLayout = ({ gridRef, nglPortal }) => {
         id: layoutItemNames.COMPOUNDS_VIEW,
         group: 'rhs',
         component: (
-          <RhsCmpList
-            expandHandler={expanded => {
-              if (expanded) {
-                mutateSuggestedRHSHeight(layoutItemNames.COMPOUNDS_VIEW, null);
-              } else {
-                mutateSuggestedRHSHeight(layoutItemNames.COMPOUNDS_VIEW, 25);
-              }
-            }}
-          />
+          <TooltipPathProvider path="rhsCompoundsView">
+            <RhsCmpList
+              expandHandler={expanded => {
+                if (expanded) {
+                  mutateSuggestedRHSHeight(layoutItemNames.COMPOUNDS_VIEW, null);
+                } else {
+                  mutateSuggestedRHSHeight(layoutItemNames.COMPOUNDS_VIEW, 25);
+                }
+              }}
+            />
+          </TooltipPathProvider>
         ),
         min: MIN_HEIGHTS.rhs,
         initialPct: 55

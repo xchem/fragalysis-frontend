@@ -1,5 +1,5 @@
 import React, { forwardRef, memo, useContext, useEffect } from 'react';
-import { CircularProgress, Grid, Popper, IconButton, Typography, Tooltip } from '@material-ui/core';
+import { CircularProgress, Grid, Popper, IconButton, Typography } from '@material-ui/core';
 import { Close } from '@material-ui/icons';
 import { makeStyles } from '@material-ui/styles';
 import { useDispatch, useSelector } from 'react-redux';
@@ -33,6 +33,7 @@ import { HTML5Backend } from 'react-dnd-html5-backend';
 import { setDeselectedAllByType, setSelectedAllByType } from './redux/actions';
 import useDisableDatasetNglControlButtons from './useDisableDatasetNglControlButtons';
 import GroupDatasetNglControlButtonsContext from './groupDatasetNglControlButtonsContext';
+import RichTooltip from '../tooltip/RichTooltip';
 
 const addType = {
   ligand: addDatasetLigand,
@@ -286,7 +287,7 @@ export const CrossReferenceDialog = memo(
                 title="Cross Reference"
                 className={classes.paper}
                 headerActions={[
-                  <Tooltip title="Close cross reference dialog">
+                  <RichTooltip path="close">
                     <IconButton
                       color="inherit"
                       className={classes.headerButton}
@@ -294,12 +295,18 @@ export const CrossReferenceDialog = memo(
                     >
                       <Close />
                     </IconButton>
-                  </Tooltip>
+                  </RichTooltip>
                 ]}
               >
                 {isLoadingCrossReferenceScores === false && moleculeList && (
                   <>
-                    <Grid container justifyContent="flex-start" direction="row" className={classes.molHeader} wrap="nowrap">
+                    <Grid
+                      container
+                      justifyContent="flex-start"
+                      direction="row"
+                      className={classes.molHeader}
+                      wrap="nowrap"
+                    >
                       <Grid item container justifyContent="flex-start" direction="row">
                         {selectedMolecules.length > 0 && (
                           <Grid item>
@@ -311,7 +318,7 @@ export const CrossReferenceDialog = memo(
                               wrap="nowrap"
                               className={classes.contButtonsMargin}
                             >
-                              <Tooltip title="all ligands">
+                              <RichTooltip path="allLigands">
                                 <Grid item>
                                   <Button
                                     variant="outlined"
@@ -325,8 +332,8 @@ export const CrossReferenceDialog = memo(
                                     L
                                   </Button>
                                 </Grid>
-                              </Tooltip>
-                              <Tooltip title="all sidechains">
+                              </RichTooltip>
+                              <RichTooltip path="allSidechains">
                                 <Grid item>
                                   <Button
                                     variant="outlined"
@@ -340,8 +347,8 @@ export const CrossReferenceDialog = memo(
                                     P
                                   </Button>
                                 </Grid>
-                              </Tooltip>
-                              <Tooltip title="all interactions">
+                              </RichTooltip>
+                              <RichTooltip path="allInteractions">
                                 <Grid item>
                                   {/* C stands for contacts now */}
                                   <Button
@@ -356,7 +363,7 @@ export const CrossReferenceDialog = memo(
                                     C
                                   </Button>
                                 </Grid>
-                              </Tooltip>
+                              </RichTooltip>
                             </Grid>
                           </Grid>
                         )}
