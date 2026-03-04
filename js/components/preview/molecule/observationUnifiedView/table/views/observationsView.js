@@ -56,6 +56,7 @@ export const ObservationsView = memo(({ data, observations, isAnyObservationOn, 
       <Grid item xs>
         <RichTooltip path="showObservations">
           <Button
+            id="open-observation-button"
             variant="outlined"
             className={classNames(classes.contColButtonMenu, {
               [classes.contColButtonMenuSelected]: isAnyObservationOn && observations.length > 1

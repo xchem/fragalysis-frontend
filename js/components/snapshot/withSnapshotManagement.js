@@ -73,6 +73,7 @@ export const withSnapshotManagement = WrappedComponent => {
       }
       setHeaderButtons([
         <Button
+          id="header-share-button"
           key="shareSnapshot"
           color="primary"
           size="small"
