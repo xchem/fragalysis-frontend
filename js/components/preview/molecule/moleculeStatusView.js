@@ -46,11 +46,9 @@ export default memo(({ type, data }) => {
   let valueElement = <div />;
   switch (type) {
     case molStatusTypes.CONFIDENCE:
-      // TODO: decide color based on provided data
       valueElement = <div className={classes.valueElement} style={{ backgroundColor: 'green' }} />;
       break;
     case molStatusTypes.QUALITY:
-      // TODO: decide color based on provided data
       valueElement = (
         <Grid container alignItems="center" direction="column" justifyContent="center" style={{ color: 'orange' }}>
           <Grid item className={classes.qualCircle} style={{ backgroundColor: 'orange' }} />

@@ -340,7 +340,6 @@ export const ObservationsDialog = memo(
     const isProteinOn = proteinList.some(moleculeID => moleculeList.some(molecule => molecule.id === moleculeID));
     const isComplexOn = complexList.some(moleculeID => moleculeList.some(molecule => molecule.id === moleculeID));
 
-    // TODO: refactor from this line (duplicity in datasetMoleculeList.js)
     const isLigandOnForClassname = changeButtonClassname(
       ligandList.filter(moleculeID => allSelectedMolecules.find(molecule => molecule.id === moleculeID) !== undefined),
       allSelectedMolecules
@@ -1184,7 +1183,6 @@ export const ObservationsDialog = memo(
                         <Grid item className={classes.dropdownItem} onClick={() => handleManageGrouping(0)}>
                           new pose from selection
                         </Grid>
-                        {/* TODO just a placeholder for poses here */}
                         {compatiblePoses?.map(pose => (
                           <Grid item className={classes.dropdownItem} onClick={() => handleManageGrouping(pose.id)}>
                             move selection to {pose.display_name}

@@ -957,10 +957,6 @@ export const ObservationCmpList = memo(({}) => {
     vector: removeVector
   };
 
-  // TODO: "currentMolecules" do not need to correspondent to selections in {type}List
-  // TODO: so this could lead to inconsistend behaviour while scrolling
-  // TODO: maybe change "currentMolecules.forEach" to "{type}List.forEach"
-
   const removeSelectedType = (type, skipTracking = false) => {
     if (type === 'ligand') {
       allSelectedMolecules.forEach(molecule => {

@@ -196,7 +196,6 @@ export const InspirationDialog = memo(
       molecule => moleculesToEditIds.includes(molecule?.id) /* || molForTagEditId.some(mid => molecule.id === mid)*/
     );
 
-    // TODO: refactor from this line (duplicity in datasetMoleculeList.js)
     const isLigandOn = changeButtonClassname(
       ligandList.filter(moleculeID => allSelectedMolecules.find(molecule => molecule.id === moleculeID) !== undefined),
       allSelectedMolecules
@@ -332,8 +331,6 @@ export const InspirationDialog = memo(
     };
 
     const groupNglControlButtonsDisabledState = useDisableNglControlButtons(allSelectedMolecules);
-
-    //  TODO refactor to this line
 
     return (
       <Popper id={id} open={open} anchorEl={anchorEl} placement="left-start" ref={ref}>

@@ -502,10 +502,6 @@ const RhsCmpList = ({ expandHandler }) => {
     surface: removeSurface
   };
 
-  // TODO: "currentMolecules" do not need to correspondent to selections in {type}List
-  // TODO: so this could lead to inconsistend behaviour while scrolling
-  // TODO: maybe change "currentMolecules.forEach" to "{type}List.forEach"
-
   const removeSelectedType = (type, skipTracking) => {
     for (const cid of lockedMolecules) {
       let molecule = getCompoundForId(cid);
