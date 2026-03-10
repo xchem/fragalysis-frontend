@@ -241,4 +241,4 @@ UI Mode - Opens the Cypress Test Runner interface.
 `npm run runner`
 Headless Mode
 Runs the tests in the terminal without opening the UI.
-`npx cypress run --e2e --browser chrome`
+`npx cypress run --e2e`
