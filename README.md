@@ -219,3 +219,26 @@ Deploy given stack to one of the dev stacks execute job there, connect you local
 like described above, and you can debug refresh and initial download of the result file.
 
 But remember, you need to make it to the job table or project history (where refresh button is located) **before** the job is finished in squonk otherwise the result file will be downloaded during the intial load of the preview component, so you would not be able to debug refresh feature.
+
+
+## Cypress tests
+To run the automated Cypress tests, you need to:
+
+1. Set Environment Variables to .env file
+CYPRESS_LOGIN=your_login
+CYPRESS_PASSWORD=your_password
+
+2. Install Dependencies
+Make sure you have Node.js installed. Then install project dependencies:
+`npm install`
+
+3. The Cypress tests can run against either a remote environment.
+By default, the tests run against the remote URL defined in cypress.config.ts - baseurl.
+
+4. Running Cypress Tests
+You can run the Cypress tests in two modes:
+UI Mode - Opens the Cypress Test Runner interface.
+`npm run runner`
+Headless Mode
+Runs the tests in the terminal without opening the UI.
+`npx cypress run --e2e --browser chrome`
