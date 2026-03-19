@@ -49,7 +49,7 @@ export const generateCompoundMolObject = (sdf_info, identifier) => ({
 export const generateMoleculeObject = (data, colourToggle, datasetID) => async dispatch => {
   if (data) {
     return {
-      name: `${data.code || data.name}_${OBJECT_TYPE.LIGAND}${datasetID ? '_' + datasetID : ''}`,
+      name: `${data.code || data.virtual_name}_${OBJECT_TYPE.LIGAND}${datasetID ? '_' + datasetID : ''}`,
       OBJECT_TYPE: OBJECT_TYPE.LIGAND,
       colour: colourToggle,
       sdf_info: (await dispatch(getLigandData(data))) || data.sdf_info,
@@ -91,16 +91,16 @@ export const generateHitProteinObject = (data, colourToggle, base_url, datasetID
 
   if (data && data.apo_file) {
     prot_url = data.apo_file;
-  } else if (data.pdb_info) {
+  } else if (data.virtual_pdb_info) {
     if (location.protocol === 'https:') {
-      prot_url = data.pdb_info.replace('http://', 'https://');
+      prot_url = data.virtual_pdb_info.replace('http://', 'https://');
     } else {
-      prot_url = data.pdb_info;
+      prot_url = data.virtual_pdb_info;
     }
   }
 
   return {
-    name: `${data.code || data.name}_${OBJECT_TYPE.HIT_PROTEIN}${datasetID ? '_' + datasetID : ''}`,
+    name: `${data.code || data.virtual_name}_${OBJECT_TYPE.HIT_PROTEIN}${datasetID ? '_' + datasetID : ''}`,
     OBJECT_TYPE: OBJECT_TYPE.HIT_PROTEIN,
     sdf_info: (await dispatch(getLigandData(data))) || data.sdf_info,
     colour: colourToggle,
@@ -116,16 +116,16 @@ export const generateComplexObject = (data, colourToggle, base_url, datasetID) =
 
   if (data && data.apo_file) {
     prot_url = data.apo_file;
-  } else if (data.pdb_info) {
+  } else if (data.virtual_pdb_info) {
     if (location.protocol === 'https:') {
-      prot_url = data.pdb_info.replace('http://', 'https://');
+      prot_url = data.virtual_pdb_info.replace('http://', 'https://');
     } else {
-      prot_url = data.pdb_info;
+      prot_url = data.virtual_pdb_info;
     }
   }
 
   return {
-    name: `${data.code || data.name}_${OBJECT_TYPE.COMPLEX}${datasetID ? '_' + datasetID : ''}`,
+    name: `${data.code || data.virtual_name}_${OBJECT_TYPE.COMPLEX}${datasetID ? '_' + datasetID : ''}`,
     OBJECT_TYPE: OBJECT_TYPE.COMPLEX,
     sdf_info: (await dispatch(getLigandData(data))) || data.sdf_info,
     colour: colourToggle,
@@ -141,15 +141,15 @@ export const generateSurfaceObject = (data, colourToggle, base_url, datasetID) =
 
   if (data && data.apo_file) {
     prot_url = data.apo_file;
-  } else if (data.pdb_info) {
+  } else if (data.virtual_pdb_info) {
     if (location.protocol === 'https:') {
-      prot_url = data.pdb_info.replace('http://', 'https://');
+      prot_url = data.virtual_pdb_info.replace('http://', 'https://');
     } else {
-      prot_url = data.pdb_info;
+      prot_url = data.virtual_pdb_info;
     }
   }
   return {
-    name: `${data.code || data.name}_${OBJECT_TYPE.SURFACE}${datasetID ? '_' + datasetID : ''}`,
+    name: `${data.code || data.virtual_name}_${OBJECT_TYPE.SURFACE}${datasetID ? '_' + datasetID : ''}`,
     OBJECT_TYPE: OBJECT_TYPE.SURFACE,
     sdf_info: (await dispatch(getLigandData(data))) || data.sdf_info,
     colour: colourToggle,
@@ -170,7 +170,7 @@ export const generateDensityObject = (data, densityObject) => async dispatch => 
 
   if (data && data.apo_file) {
     prot_url = data.apo_file;
-  } else if (data.pdb_info) {
+  } else if (data.virtual_pdb_info) {
     if (location.protocol === 'https:') {
       prot_url = data.pdb_info.replace('http://', 'https://');
     } else {
@@ -203,7 +203,7 @@ export const generateDensityObject = (data, densityObject) => async dispatch => 
   }
 
   return {
-    name: `${data.code || data.name}_${OBJECT_TYPE.DENSITY}`,
+    name: `${data.code || data.virtual_name}_${OBJECT_TYPE.DENSITY}`,
     OBJECT_TYPE: OBJECT_TYPE.DENSITY,
     sdf_info: (await dispatch(getLigandData(data))) || data.sdf_info,
     event_url,
@@ -221,13 +221,13 @@ export const generateDensityObject = (data, densityObject) => async dispatch => 
 
 export const generateMoleculeId = data => ({
   id: data.id,
-  name: data.code,
+  name: data.code || data.virtual_name,
   isInspiration: data.isInspiration || false
 });
 
 export const generateMoleculeCompoundId = data => ({
   id: data.id,
-  name: data.name,
+  name: data.name || data.virtual_name,
   isCrossReference: data.isCrossReference
 });
 

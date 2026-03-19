@@ -38,7 +38,8 @@ export const useDisplayLigandLHS = () => {
       const colourToggle = getRandomColor(data);
       // const currentOrientation = stage.viewerControls.getOrientation();
 
-      dispatch(appendFragmentDisplayList(generateMoleculeId(data)));
+      const molId = generateMoleculeId(data);
+      dispatch(appendFragmentDisplayList(molId));
 
       let moleculeObject = await dispatch(generateMoleculeObject(data, colourToggle));
       let qualityInformation = dispatch(readQualityInformation(moleculeObject.name, moleculeObject.sdf_info));
@@ -49,7 +50,7 @@ export const useDisplayLigandLHS = () => {
         qualityInformation.badids &&
         qualityInformation.badids.length !== 0;
       if (hasAdditionalInformation) {
-        dispatch(appendQualityList(generateMoleculeId(data)));
+        dispatch(appendQualityList(molId));
       }
 
       return dispatch(

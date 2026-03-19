@@ -137,7 +137,7 @@ export const storeData = data => (dispatch, getState) => {
   dispatch(setTagSelectorData(categories, tags));
 
   let allMolecules = [];
-  data.molecules.forEach(mol => { });
+  data.molecules.forEach(mol => {});
 };
 
 /**
@@ -426,7 +426,7 @@ export const getLigandData = obs => async (dispatch, getState) => {
   }
 
   // const path = obs.ligand_mol || obs.associatedObs.ligand_mol;
-  let path = obs.ligand_mol;
+  let path = obs.ligand_mol || obs.virtual_ligand_mol;
 
   if (!path) {
     // console.error(`getLigandData - No ligand_mol path provided for observation ID: ${obs.id}`);

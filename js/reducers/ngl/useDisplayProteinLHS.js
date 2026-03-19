@@ -33,7 +33,8 @@ export const useDisplayProteinLHS = () => {
       if (!data) return;
       const colourToggle = getRandomColor(data);
 
-      dispatch(appendProteinList(generateMoleculeId(data)));
+      const molId = generateMoleculeId(data);
+      dispatch(appendProteinList(molId));
       const hitProteinObject = await dispatch(generateHitProteinObject(data, colourToggle, base_url));
       const qualityInformation = dispatch(readQualityInformation(hitProteinObject.name, hitProteinObject.sdf_info));
 
@@ -43,7 +44,7 @@ export const useDisplayProteinLHS = () => {
         qualityInformation.badproteinids &&
         qualityInformation.badproteinids.length !== 0;
       if (hasAdditionalInformation) {
-        dispatch(appendQualityList(generateMoleculeId(data), true));
+        dispatch(appendQualityList(molId, true));
       }
 
       return dispatch(

@@ -264,7 +264,13 @@ export const datasetsReducers = (state = INITIAL_STATE, action = {}) => {
     case constants.ADD_MOLECULELIST:
       // initialize also control containers
       const initializedState = initializeContainerLists(state, action.payload.datasetID);
-      action.payload.moleculeList.forEach(mol => (mol.numerical_scores['_id'] = mol.id));
+      action.payload.moleculeList.forEach(mol => {
+        if (mol.hasOwnProperty('numerical_scores')) {
+          mol.numerical_scores['_id'] = mol.id;
+        } else {
+          mol.numerical_scores = { _id: mol.id };
+        }
+      });
       return Object.assign({}, initializedState, {
         moleculeLists: { ...initializedState.moleculeLists, [action.payload.datasetID]: action.payload.moleculeList }
       });

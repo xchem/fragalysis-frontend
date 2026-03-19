@@ -169,7 +169,7 @@ const Preview = memo(({ isStateLoaded, hideProjects, isSnapshot = false }) => {
             let defaultDataset = results[0]?.name;
             dispatch(setSelectedDatasetIndex(0, 0, defaultDataset, defaultDataset, true));
           }
-          return dispatch(loadDatasetCompoundsWithScores());
+          return dispatch(loadDatasetCompoundsWithScores(results));
         })
         .catch(error => {
           throw new Error(error);
