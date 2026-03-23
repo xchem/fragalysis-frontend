@@ -45,10 +45,8 @@ import {
   selectAllVisibleObservations,
   searchForObservations
 } from './redux/dispatchActions';
-import { DEFAULT_FILTER, PREDEFINED_FILTERS } from '../../../reducers/selection/constants';
 import { Edit, FilterList } from '@material-ui/icons';
 import { getLHSCompoundsList, selectAllMoleculeList, selectJoinedMoleculeList } from './redux/selectors';
-import { MOL_ATTRIBUTES } from './redux/constants';
 import {
   setFilter,
   setMolListToEdit,
@@ -71,7 +69,7 @@ import { useRouteMatch } from 'react-router-dom';
 import { setSortDialogOpen, setSearchStringOfHitNavigator } from './redux/actions';
 import { AlertModal } from '../../common/Modal/AlertModal';
 import { TagEditor } from '../tags/modal/tagEditor';
-import { getMoleculeForId, selectTag } from '../tags/redux/dispatchActions';
+import { getMoleculeForId } from '../tags/redux/dispatchActions';
 import SearchField from '../../common/Components/SearchField';
 import useDisableNglControlButtons from './useDisableNglControlButtons';
 import { extractTargetFromURLParam } from '../utils';
@@ -325,12 +323,6 @@ export const ObservationCmpList = memo(
     const [currentPage, setCurrentPage] = useState(0);
     const [itemsToBeDisplayed, setItemsToBeDisplayed] = useState([]);
     const [sortSettingsChanged, setSortSettingsChanged] = useState(false);
-
-    const [sortDialogAnchorEl, setSortDialogAnchorEl] = useState(null);
-    const oldUrl = useRef('');
-    const setOldUrl = url => {
-      oldUrl.current = url;
-    };
     const list_type = listType.MOLECULE;
 
     const selectedAll = useRef(false);
@@ -341,8 +333,6 @@ export const ObservationCmpList = memo(
     const isObservationDialogOpen = useSelector(instanceConfig.selectIsObservationDialogOpen || (() => false));
     const searchSettingsDialogOpen = useSelector(instanceConfig.selectSearchSettingsDialogOpen || (() => false));
     const areLSHCompoundsInitialized = useSelector(instanceConfig.selectAreLHSCompoundsInitialized || (() => false));
-
-    const [predefinedFilter, setPredefinedFilter] = useState(filter !== undefined ? filter.predefined : DEFAULT_FILTER);
 
     const [ascending, setAscending] = useState(true);
     const handleAscendingChecked = event => {
@@ -472,7 +462,6 @@ export const ObservationCmpList = memo(
     const { moleculesAndTagsAreLoading } = useContext(LoadingContext);
     const majorViewStage = getNglView(VIEWS.MAJOR_VIEW) && getNglView(VIEWS.MAJOR_VIEW).stage;
 
-    const filterRef = useRef();
     const tagEditorRef = useRef();
     const scrollBarRef = useRef();
     const hitNavigatorRef = useRef();
@@ -625,11 +614,7 @@ export const ObservationCmpList = memo(
       setItemsToBeDisplayed(filteredLHSCompoundsList.slice(0, currentPage * moleculesPerPage));
     };
 
-    const { addMoleculeViewRef, setScrollToMoleculeId, getNode } = useScrollToSelectedPose(
-      moleculesPerPage,
-      setCurrentPage,
-      loadMolecules
-    );
+    const { addMoleculeViewRef } = useScrollToSelectedPose(moleculesPerPage, setCurrentPage, loadMolecules);
 
     useEffect(() => {
       if (nextXMolecules || sortSettingsChanged) {
@@ -735,16 +720,6 @@ export const ObservationCmpList = memo(
     //     dispatch(setSortDialogOpen(false));
     //   }
     // }, [dispatch, joinedMoleculeListsCopy.length]);
-
-    const handleFilterChange = filter => {
-      const filterSet = Object.assign({}, filter);
-      for (let attr of MOL_ATTRIBUTES) {
-        if (filterSet.filter[attr.key].priority === undefined || filterSet.filter[attr.key].priority === '') {
-          filterSet.filter[attr.key].priority = 0;
-        }
-      }
-      handlers.setFilter(filterSet);
-    };
 
     const allSelectedMolecules = useMemo(
       () => allMoleculesList.filter(molecule => moleculesToEditIds.includes(molecule.id)),
@@ -852,34 +827,6 @@ export const ObservationCmpList = memo(
     });
     const uniqueSelectedMoleculeForHitNavigator = [...new Set(selectedMolecule)];
 
-    const changePredefinedFilter = event => {
-      let newFilter = Object.assign({}, filter);
-
-      const preFilterKey = event.target.value;
-      setPredefinedFilter(preFilterKey);
-
-      if (preFilterKey !== 'none') {
-        newFilter.active = true;
-        newFilter.predefined = preFilterKey;
-        Object.keys(PREDEFINED_FILTERS[preFilterKey].filter).forEach(attr => {
-          const maxValue = PREDEFINED_FILTERS[preFilterKey].filter[attr];
-          newFilter.filter[attr].maxValue = maxValue;
-          newFilter.filter[attr].max = newFilter.filter[attr].max < maxValue ? maxValue : newFilter.filter[attr].max;
-        });
-        handlers.setFilter(newFilter);
-      } else {
-        // close filter dialog options
-        setSortDialogAnchorEl(null);
-        handlers.setSortDialogOpen(false);
-        // reset filter
-        handlers.setFilter(undefined);
-        newFilter = handlers.initializeFilter(object_selection, joinedMoleculeLists);
-      }
-      // currently do not filter molecules by excluding them
-      /*setFilteredCount(getFilteredMoleculesCount(getListedMolecules(object_selection, cached_mol_lists), newFilter));
-      handleFilterChange(newFilter);*/
-    };
-
     const joinedGivenMatch = useCallback(
       givenList => {
         return givenList.filter(element => allSelectedMolecules.filter(element2 => element2.id === element).length > 0)
@@ -942,16 +889,6 @@ export const ObservationCmpList = memo(
     const isProteinOn = changeButtonClassname(proteinList, joinedProteinMatchLength);
     const isComplexOn = changeButtonClassname(complexList, joinedComplexMatchLength);
 
-    const addType = {
-      ligand: handlers.addLigand,
-      protein: handlers.addHitProtein,
-      complex: handlers.addComplex,
-      surface: handlers.addSurface,
-      quality: handlers.addQuality,
-      density: handlers.addDensity,
-      vector: handlers.addVector
-    };
-
     const removeType = {
       ligand: handlers.removeLigand,
       protein: handlers.removeHitProtein,
@@ -976,39 +913,27 @@ export const ObservationCmpList = memo(
       selectedAll.current = false;
     };
 
-    const removeSelectedTypes = useCallback(
-      (skipMolecules = [], skipTracking = false) => {
-        handlers.removeSelectedTypesInHitNavigator(skipMolecules, majorViewStage, skipTracking);
-      },
-      [handlers, majorViewStage]
-    );
-
-    const selectMoleculeTags = moleculeTagsSet => {
-      const moleculeTags = tags.filter(tag => moleculeTagsSet.includes(tag.id));
-      moleculeTags.forEach(tag => {
-        handlers.selectTag(tag);
-      });
-    };
-
     const addNewType = (type, skipTracking = false) => {
       handlers.addNewType(type, allSelectedMolecules, majorViewStage, skipTracking);
     };
 
-    const ucfirst = string => {
-      return string.charAt(0).toUpperCase() + string.slice(1);
-    };
-
     const onButtonToggle = (type, calledFromSelectAll = false) => {
+      const isTypeOn = {
+        ligand: isLigandOn,
+        protein: isProteinOn,
+        complex: isComplexOn
+      }[type];
+
       setLastProcessedLPCType(type);
       if (calledFromSelectAll === true && selectedAll.current === true) {
         // REDO
-        if (eval('is' + ucfirst(type) + 'On') === false) {
+        if (isTypeOn === false) {
           addNewType(type, true);
         }
       } else if (calledFromSelectAll && selectedAll.current === false) {
         removeSelectedType(type, true);
       } else if (!calledFromSelectAll) {
-        if (eval('is' + ucfirst(type) + 'On') === false) {
+        if (isTypeOn === false) {
           let molecules = getSelectedMoleculesByType(type, true);
           if (molecules && molecules.length > 100) {
             setIsOpenLPCAlert(true);
@@ -1093,15 +1018,12 @@ export const ObservationCmpList = memo(
       <IconButton
         onClick={event => {
           if (sortDialogOpen === false) {
-            setSortDialogAnchorEl(event.currentTarget);
             handlers.setSortDialogOpen(true);
           } else {
-            setSortDialogAnchorEl(null);
             handlers.setSortDialogOpen(false);
           }
         }}
         color={'inherit'}
-        // disabled={predefinedFilter !== 'none'}
         disabled={DJANGO_CONTEXT['username'] === 'NOT_LOGGED_IN'}
       >
         <RichTooltip path="lhsSettings">
@@ -1202,7 +1124,6 @@ export const ObservationCmpList = memo(
             <FilterSettingsModal
               openModal={sortDialogOpen}
               onModalClose={() => {
-                setSortDialogAnchorEl(null);
                 handlers.setSortDialogOpen(false);
               }}
             />
@@ -1555,7 +1476,6 @@ export const ObservationCmpListLHS = memo(({}) => {
       removeDensity: (...args) => dispatch(removeDensity(...args)),
       removeVector: (...args) => dispatch(removeVector(...args)),
       removeSelectedTypesInHitNavigator: (...args) => dispatch(removeSelectedTypesInHitNavigator(...args)),
-      selectTag: tag => dispatch(selectTag(tag)),
       addNewType: (type, selectedMolecules, majorViewStage, skipTracking = false) => {
         const addType = {
           ligand: addLigand,
