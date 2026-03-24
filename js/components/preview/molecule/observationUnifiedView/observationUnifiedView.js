@@ -14,8 +14,7 @@ import {
   getQualityInformation,
   withDisabledMoleculeNglControlButton,
   getCategoryById,
-  generateAndStoreMolImage,
-  getMolImage
+  generateAndStoreMolImage
 } from '../redux/dispatchActions';
 import { setObservationsForLHSCmp } from '../../../../reducers/selection/actions';
 import { MOL_TYPE } from '../redux/constants';
@@ -34,6 +33,7 @@ import { TextView } from './table/views/textView';
 import { COLUMN_TYPES } from './table';
 import { NumericView } from './table/views';
 import { TooltipPathProvider } from '../../../tooltip/TooltipPathContext';
+import { LHS_OBSERVATION_VIEW_CONFIG } from './viewConfigs';
 
 const useStyles = makeStyles(theme => ({
   container: {
@@ -83,7 +83,7 @@ const ObservationUnifiedView = memo(
         observations,
         columns,
         getColumnWidth,
-        isRHS = false
+        viewConfig = LHS_OBSERVATION_VIEW_CONFIG
       },
       outsideRef
     ) => {
@@ -102,14 +102,9 @@ const ObservationUnifiedView = memo(
       const viewParams = useSelector(state => state.nglReducers.viewParams);
       const tagList = useSelector(state => state.apiReducers.tagList);
       const tagCategories = useSelector(state => state.apiReducers.categoryList);
-      const tagEditorOpen = useSelector(state => state.selectionReducers.tagEditorOpened);
       const filteredSmilesQuery = useSelector(state => getFilterSmileQuery(state));
 
       const isObservationDialogOpen = useSelector(state => state.selectionReducers.isObservationDialogOpen);
-
-      const [tagEditModalOpenNew, setTagEditModalOpenNew] = useState(tagEditorOpen);
-
-      const [hasMap, setHasMap] = useState(false);
 
       const { getNglView } = useContext(NglContext);
       const stage = getNglView(VIEWS.MAJOR_VIEW) && getNglView(VIEWS.MAJOR_VIEW).stage;
@@ -182,16 +177,6 @@ const ObservationUnifiedView = memo(
         return result;
       };
 
-      useEffect(() => {
-        for (let i = 0; i < observations.length; i++) {
-          const obs = observations[i];
-          if (obs?.proteinData?.diff_info || obs?.proteinData?.sigmaa_info || obs?.proteinData?.event_info) {
-            setHasMap(true);
-            break;
-          }
-        }
-      }, [observations]);
-
       const fragmentDisplayList = useSelector(state => state.selectionReducers.fragmentDisplayList);
       const proteinList = useSelector(state => state.selectionReducers.proteinList);
       const complexList = useSelector(state => state.selectionReducers.complexList);
@@ -219,10 +204,6 @@ const ObservationUnifiedView = memo(
       );
 
       const moleculeImgRef = useRef(null);
-
-      useEffect(() => {
-        setTagEditModalOpenNew(tagEditorOpen);
-      }, [tagEditorOpen]);
 
       const resolveTagBackgroundColor = useCallback(
         tag => {
@@ -367,7 +348,7 @@ const ObservationUnifiedView = memo(
                   disableP={disableP}
                   disableC={disableC}
                   observations={observations}
-                  isRHS={isRHS}
+                  viewConfig={viewConfig}
                 />
               </TooltipPathProvider>
             );

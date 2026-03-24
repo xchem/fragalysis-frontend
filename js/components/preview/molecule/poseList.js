@@ -13,7 +13,7 @@ import {
   Checkbox
 } from '@material-ui/core';
 import React, { useState, useEffect, useCallback, memo, useRef, useContext, useMemo } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
+import { useSelector } from 'react-redux';
 import { colourList } from './utils/color';
 import { filterMolecules } from './moleculeListSortFilterDialog';
 import InfiniteScroll from 'react-infinite-scroller';
@@ -252,6 +252,7 @@ export const PoseList = memo(
     lhsCompoundsList,
     proteinsHasLoaded,
     searchSettings,
+    viewConfig,
     handlers = {},
     instanceConfig = {}
   }) => {
@@ -1264,6 +1265,7 @@ export const PoseList = memo(
                   useWindow={false}
                 >
                   <ObservationUnifiedViewWrapper
+                    viewConfig={viewConfig}
                     items={itemsToBeDisplayed}
                     allSelectedMolecules={allSelectedMolecules}
                     addMoleculeViewRef={addMoleculeViewRef}

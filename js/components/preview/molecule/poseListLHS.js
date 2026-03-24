@@ -48,6 +48,7 @@ import { initializeFilter } from '../../../reducers/selection/dispatchActions';
 import { setSortDialogOpen, setSearchStringOfHitNavigator } from './redux/actions';
 import { getMoleculeForId } from '../tags/redux/dispatchActions';
 import { PoseList } from './poseList';
+import { LHS_OBSERVATION_VIEW_CONFIG } from './observationUnifiedView/viewConfigs';
 export const PoseListLHS = memo(({}) => {
   const dispatch = useDispatch();
 
@@ -230,6 +231,7 @@ export const PoseListLHS = memo(({}) => {
       lhsCompoundsList={lhsCompoundsList}
       proteinsHasLoaded={proteinsHasLoaded}
       searchSettings={searchSettings}
+      viewConfig={LHS_OBSERVATION_VIEW_CONFIG}
       handlers={handlers}
       instanceConfig={instanceConfig}
     />

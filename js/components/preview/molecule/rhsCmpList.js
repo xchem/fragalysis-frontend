@@ -69,6 +69,7 @@ import { CrossReferenceDialog } from '../../datasets/crossReferenceDialog';
 import { getRHSCompoundsList } from './redux/selectors';
 import { setRHSCompoundsList } from '../../../reducers/api/actions';
 import { TooltipPathProvider } from '../../tooltip/TooltipPathContext';
+import { RHS_OBSERVATION_VIEW_CONFIG } from './observationUnifiedView/viewConfigs';
 
 const useStyles = makeStyles(theme => ({
   container: {
@@ -1123,7 +1124,7 @@ const RhsCmpList = ({ expandHandler }) => {
                   <GroupDatasetNglControlButtonsContext.Provider value={groupDatasetsNglControlButtonsDisabledState}>
                     <DndProvider backend={HTML5Backend}>
                       <ObservationUnifiedViewWrapper
-                        isRHS={true}
+                        viewConfig={RHS_OBSERVATION_VIEW_CONFIG}
                         items={currentMolecules}
                         // allSelectedMolecules={allSelectedMolecules}
                         addMoleculeViewRef={addMoleculeViewRef}

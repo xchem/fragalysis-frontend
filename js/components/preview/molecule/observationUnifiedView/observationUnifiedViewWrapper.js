@@ -11,6 +11,7 @@ import { TableResizer } from './table/tableResizer';
 import { jsmeSetup } from '@loschmidt/jsme-react';
 import RichTooltip from '../../../tooltip/RichTooltip';
 import { TooltipPathProvider } from '../../../tooltip/TooltipPathContext';
+import { LHS_OBSERVATION_VIEW_CONFIG } from './viewConfigs';
 
 const useStyles = makeStyles(theme => ({
   table: {
@@ -55,7 +56,7 @@ const ObservationUnifiedViewWrapper = memo(
   forwardRef(
     (
       {
-        isRHS = false,
+        viewConfig = LHS_OBSERVATION_VIEW_CONFIG,
         fragmentDisplayList,
         proteinList,
         complexList,
@@ -88,7 +89,7 @@ const ObservationUnifiedViewWrapper = memo(
 
         return false;
       };
-      const { columns, handleColumnResize, getColumnWidth } = useColumns(50, isRHS);
+      const { columns, handleColumnResize, getColumnWidth } = useColumns(50, viewConfig);
       const { filteredItems, getColumnFilter } = useFilters(items, columns);
 
       return (
@@ -153,7 +154,7 @@ const ObservationUnifiedViewWrapper = memo(
                   observations={molsForCmp}
                   columns={columns}
                   getColumnWidth={getColumnWidth}
-                  isRHS={isRHS}
+                  viewConfig={viewConfig}
                 />
               );
             })}
