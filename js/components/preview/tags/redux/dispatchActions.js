@@ -60,6 +60,7 @@ import {
 import { DJANGO_CONTEXT } from '../../../../utils/djangoContext';
 import { TOAST_LEVELS } from '../../../toast/constants';
 import { getActivityColumns, getActivityData } from '../../molecule/observationUnifiedView/api';
+import v4 from 'uuid/v4';
 
 export const setTagSelectorData = (categories, tags) => dispatch => {
   dispatch(setCategoryList(categories));
@@ -300,6 +301,32 @@ export const loadMoleculesAndTagsNew = targetId => async (dispatch, getState) =>
     dispatch(setCompoundIdentifiers(compoundIdentifiers));
     dispatch(setAllDataLoaded(true));
 
+    //now let's create poses for RHS
+    // const rhsObservations = allMolecules.filter(mol => mol.experiment === null);
+    // const generatedPoses = [];
+    // rhsObservations.forEach(obs => {
+    //   const existingPose = generatedPoses.find(p => p.display_name === obs.name);
+    //   if (!existingPose) {
+    //     generatedPoses.push({
+    //       id: v4(),
+    //       // id: 'virtual-' + observation.id,
+    //       // id: observation.id + 1000,
+    //       display_name: obs.name,
+    //       canon_site: null,
+    //       compound: obs.cmpd,
+    //       main_site_observation: obs.id,
+    //       site_observations: [obs.id],
+    //       main_site_observation_cmpd_code: obs.cmpd_code,
+    //       smiles: obs.smiles,
+    //       code: obs.code,
+    //       canonSiteConf: obs.canon_site_conf,
+    //       canonSite: null,
+    //       associatedObs: [{ ...obs }]
+    //     });
+    //   } else {
+    //   }
+    // });
+
     // console.log(`snapshotDebug - loadMoleculesAndTagsNew - before getPoses`);
     return getPoses(targetId).then(poses => {
       // console.log(`snapshotDebug - loadMoleculesAndTagsNew - after getPoses`);
@@ -341,7 +368,7 @@ export const loadMoleculesAndTagsNew = targetId => async (dispatch, getState) =>
         });
         newObject['associatedObs'] = associatedObs;
 
-        // rhs poses are not linked to an experiment
+        // rhs poses are not linked to an experiment - currently this can't happen because there are no poses for rhs virtual observations
         if (firstObs.experiment === null) {
           modifiedRhsPoses.push(newObject);
         } else {

@@ -1,8 +1,9 @@
 /**
  * Created by abradley on 14/03/2018.
  */
-import React, { memo, useMemo } from 'react';
+import React, { memo, useMemo, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
+import { v4 } from 'uuid';
 import { colourList } from './utils/color';
 import {
   addVector,
@@ -27,7 +28,7 @@ import {
   selectAllVisibleObservations,
   searchForObservations
 } from './redux/dispatchActions';
-import { getLHSCompoundsList, selectAllMoleculeList, selectJoinedMoleculeList } from './redux/selectors';
+import { getRHSCompoundsList, selectAllMoleculeList } from './redux/selectors';
 import {
   setFilter,
   setMolListToEdit,
@@ -47,15 +48,25 @@ import {
 import { initializeFilter } from '../../../reducers/selection/dispatchActions';
 import { setSortDialogOpen, setSearchStringOfHitNavigator } from './redux/actions';
 import { getMoleculeForId } from '../tags/redux/dispatchActions';
+import { setRHSCompoundsList } from '../../../reducers/api/actions';
 import { PoseList } from './poseList';
-import { LHS_OBSERVATION_VIEW_CONFIG } from './observationUnifiedView/viewConfigs';
-export const PoseListLHS = memo(({}) => {
+import { RHS_OBSERVATION_VIEW_CONFIG } from './observationUnifiedView/viewConfigs';
+
+// TODO: expandHandler is not yet forwarded — PoseList's Panel does not support hasExpansion.
+// To restore layout resizing on collapse, add hasExpansion + onExpandChange to PoseList's Panel
+// and wire expandHandler through handlers or as a direct prop.
+export const PoseListRHS = memo(({ expandHandler: _expandHandler }) => {
   const dispatch = useDispatch();
 
+  // RHS-specific dataset state
+  const datasetID = useSelector(state => state.datasetsReducers.datasets[0]?.id);
+  const currentMoleculeList = useSelector(state => state.datasetsReducers.moleculeLists[datasetID] || []);
+  const rhsCompoundsList = useSelector(state => getRHSCompoundsList(state));
+
+  // Shared state (same as PoseListLHS)
   const nextXMolecules = useSelector(state => state.selectionReducers.nextXMolecules);
   const searchString = useSelector(state => state.previewReducers.molecule.searchStringLHS);
   const filter = useSelector(state => state.selectionReducers.filter);
-  const getJoinedMoleculeList = useSelector(state => selectJoinedMoleculeList(state));
   const allMoleculesList = useSelector(state => selectAllMoleculeList(state));
   const dataAreDownloading = useSelector(state => state.apiReducers.dataAreDownloading);
   const dataAreDownloaded = useSelector(state => state.apiReducers.dataAreDownloaded);
@@ -79,14 +90,53 @@ export const PoseListLHS = memo(({}) => {
   const tags = useSelector(state => state.apiReducers.tagList);
   const noTagsReceived = useSelector(state => state.apiReducers.noTagsReceived);
   const categories = useSelector(state => state.apiReducers.categoryList);
-  const lhsDataIsLoaded = useSelector(state => state.apiReducers.lhsDataIsLoaded);
+  const rhsDataIsLoaded = useSelector(state => state.apiReducers.rhsDataIsLoaded);
   const observationsForLHSCmp = useSelector(state => state.selectionReducers.observationsForLHSCmp);
-  const lhsCompoundsList = useSelector(state => getLHSCompoundsList(state));
   const proteinsHasLoaded = useSelector(state => state.nglReducers.proteinsHasLoaded);
   const searchSettings = useSelector(state => state.selectionReducers.searchSettings);
 
+  // When rhs_compounds_list is empty but the dataset molecule list is not, generate virtual poses.
+  // This is a fallback for when poses were not populated by loadMoleculesAndTagsNew.
+  useEffect(() => {
+    if (!rhsCompoundsList || rhsCompoundsList.length === 0) {
+      const generatedPoses = [];
+      if (currentMoleculeList?.length > 0) {
+        currentMoleculeList.forEach(m => {
+          const observation = allMoleculesList?.find(mol => mol.id === m.id);
+          if (observation) {
+            generatedPoses.push({
+              id: v4(),
+              display_name: m.name,
+              canon_site: null,
+              compound: observation.cmpd,
+              main_site_observation: observation.id,
+              site_observations: [observation.id],
+              main_site_observation_cmpd_code: observation.cmpd_code,
+              smiles: observation.smiles,
+              code: observation.code,
+              canonSiteConf: observation.canon_site_conf,
+              canonSite: null,
+              associatedObs: [{ ...observation }]
+            });
+          }
+        });
+        if (generatedPoses.length > 0) {
+          dispatch(setRHSCompoundsList(generatedPoses));
+        }
+      }
+    }
+  }, [rhsCompoundsList, currentMoleculeList, allMoleculesList, dispatch]);
+
+  // For RHS, the joined molecule list is the observations from all_mol_lists that correspond
+  // to the dataset's currentMoleculeList (rather than the tag-filtered selectJoinedMoleculeList).
+  const getJoinedMoleculeList = useMemo(() => {
+    if (!allMoleculesList || !currentMoleculeList) return [];
+    return allMoleculesList.filter(mol => currentMoleculeList.some(m => m.id === mol.id));
+  }, [allMoleculesList, currentMoleculeList]);
+
   const handlers = useMemo(
     () => ({
+      // TODO: Create a dedicated setRHSIsFullyRendered action in selection/actions.js
       setFullyRendered: value => dispatch(setLHSIsFullyRendered(value)),
       addToastMessage: payload => dispatch(addToastMessage(payload)),
       searchForObservations: (searchTerm, observations, settings) =>
@@ -94,6 +144,8 @@ export const PoseListLHS = memo(({}) => {
       setNextXMolecules: value => dispatch(setNextXMolecules(value)),
       getMoleculeForId: moleculeId => dispatch(getMoleculeForId(moleculeId)),
       applyDirectSelection: majorViewStage => dispatch(applyDirectSelection(majorViewStage)),
+      // TODO: Create a dedicated setRHSCompoundsInitialized action + areRHSCompoundsInitialized flag
+      // to avoid sharing state with LHS initialization
       setCompoundsInitialized: value => dispatch(setLHSCompoundsInitialized(value)),
       initializeFilter: (objectSelection, joinedMolecules) =>
         dispatch(initializeFilter(objectSelection, joinedMolecules)),
@@ -181,52 +233,7 @@ export const PoseListLHS = memo(({}) => {
       selectAllHits: (allFilteredLhsCompounds, unselect) =>
         dispatch(selectAllHits(allFilteredLhsCompounds, setNextXMolecules, unselect)),
       selectAllVisibleObservations: (visibleObservations, setNextXMoleculesFn, unselect) =>
-        dispatch(selectAllVisibleObservations(visibleObservations, setNextXMoleculesFn, unselect)),
-      onInitialize: ({
-        majorViewStage,
-        target,
-        joinedMoleculeLists,
-        areLSHCompoundsInitialized,
-        proteinsHasLoaded,
-        all_mol_lists,
-        lhsCompoundsList,
-        directAccessProcessed,
-        directDisplay,
-        object_selection,
-        tags,
-        categories,
-        noTagsReceived
-      }) => {
-        if (
-          (proteinsHasLoaded === true || proteinsHasLoaded === null) &&
-          all_mol_lists?.length > 0 &&
-          lhsCompoundsList?.length > 0
-        ) {
-          if (!directAccessProcessed && directDisplay && directDisplay.molecules && directDisplay.molecules.length > 0) {
-            dispatch(applyDirectSelection(majorViewStage));
-            dispatch(setLHSCompoundsInitialized(true));
-          }
-          if (
-            majorViewStage &&
-            all_mol_lists &&
-            target !== undefined &&
-            !areLSHCompoundsInitialized &&
-            tags &&
-            tags.length > 0 &&
-            categories &&
-            categories.length > 0
-          ) {
-            dispatch(initializeFilter(object_selection, joinedMoleculeLists));
-            dispatch(initializeMolecules(majorViewStage));
-            dispatch(setLHSCompoundsInitialized(true));
-          }
-          if (majorViewStage && all_mol_lists && target !== undefined && !areLSHCompoundsInitialized && noTagsReceived) {
-            dispatch(initializeFilter(object_selection, joinedMoleculeLists));
-            dispatch(initializeMolecules(majorViewStage));
-            dispatch(setLHSCompoundsInitialized(true));
-          }
-        }
-      }
+        dispatch(selectAllVisibleObservations(visibleObservations, setNextXMoleculesFn, unselect))
     }),
     [dispatch]
   );
@@ -236,6 +243,7 @@ export const PoseListLHS = memo(({}) => {
       selectSortDialogOpen: state => state.previewReducers.molecule.sortDialogOpen,
       selectIsObservationDialogOpen: state => state.selectionReducers.isObservationDialogOpen,
       selectSearchSettingsDialogOpen: state => state.selectionReducers.searchSettingsDialogOpen,
+      // TODO: Create areRHSCompoundsInitialized flag in selectionReducers to avoid sharing LHS state
       selectAreLHSCompoundsInitialized: state => state.selectionReducers.areLSHCompoundsInitialized,
       tagEditorOpenActionCreator: setTagEditorOpen
     }),
@@ -271,12 +279,12 @@ export const PoseListLHS = memo(({}) => {
       tags={tags}
       noTagsReceived={noTagsReceived}
       categories={categories}
-      lhsDataIsLoaded={lhsDataIsLoaded}
+      lhsDataIsLoaded={rhsDataIsLoaded}
       observationsForLHSCmp={observationsForLHSCmp}
-      lhsCompoundsList={lhsCompoundsList}
+      lhsCompoundsList={rhsCompoundsList || []}
       proteinsHasLoaded={proteinsHasLoaded}
       searchSettings={searchSettings}
-      viewConfig={LHS_OBSERVATION_VIEW_CONFIG}
+      viewConfig={RHS_OBSERVATION_VIEW_CONFIG}
       handlers={handlers}
       instanceConfig={instanceConfig}
     />

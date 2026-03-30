@@ -338,6 +338,7 @@ const useStyles = makeStyles(theme => ({
   }
 }));
 
+//TODO: delte this in the end - now it's reimplemented via PoseListRHS
 const RhsCmpList = ({ expandHandler }) => {
   const classes = useStyles();
   const dispatch = useDispatch();

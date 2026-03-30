@@ -24,7 +24,6 @@ import { NglContext } from '../../nglView/nglProvider';
 import classNames from 'classnames';
 import { Edit, FilterList } from '@material-ui/icons';
 import { setTagEditorOpen } from '../../../reducers/selection/actions';
-import * as listType from '../../../constants/listTypes';
 import { useRouteMatch } from 'react-router-dom';
 import { AlertModal } from '../../common/Modal/AlertModal';
 import { TagEditor } from '../tags/modal/tagEditor';
@@ -266,7 +265,7 @@ export const PoseList = memo(
     const [currentPage, setCurrentPage] = useState(0);
     const [itemsToBeDisplayed, setItemsToBeDisplayed] = useState([]);
     const [sortSettingsChanged, setSortSettingsChanged] = useState(false);
-    const list_type = listType.MOLECULE;
+
 
     const selectedAll = useRef(false);
     const allMolListsLength = all_mol_lists?.length || 0;
@@ -600,51 +599,36 @@ export const PoseList = memo(
     }
 
     useEffect(() => {
-      if (
-        (proteinsHasLoaded === true || proteinsHasLoaded === null) &&
-        all_mol_lists?.length > 0 &&
-        lhsCompoundsList?.length > 0
-      ) {
-        if (!directAccessProcessed && directDisplay && directDisplay.molecules && directDisplay.molecules.length > 0) {
-          handlers.applyDirectSelection(majorViewStage);
-          handlers.setCompoundsInitialized(true);
-        }
-        if (
-          majorViewStage &&
-          all_mol_lists &&
-          target !== undefined &&
-          !areLSHCompoundsInitialized &&
-          tags &&
-          tags.length > 0 &&
-          categories &&
-          categories.length > 0
-        ) {
-          handlers.initializeFilter(object_selection, joinedMoleculeLists);
-          handlers.initializeMolecules(majorViewStage);
-          handlers.setCompoundsInitialized(true);
-        }
-        if (majorViewStage && all_mol_lists && target !== undefined && !areLSHCompoundsInitialized && noTagsReceived) {
-          handlers.initializeFilter(object_selection, joinedMoleculeLists);
-          handlers.initializeMolecules(majorViewStage);
-          handlers.setCompoundsInitialized(true);
-        }
-      }
+      handlers.onInitialize?.({
+        majorViewStage,
+        target,
+        joinedMoleculeLists,
+        areLSHCompoundsInitialized,
+        proteinsHasLoaded,
+        all_mol_lists,
+        lhsCompoundsList,
+        directAccessProcessed,
+        directDisplay,
+        object_selection,
+        tags,
+        categories,
+        noTagsReceived
+      });
     }, [
-      list_type,
-      lhsCompoundsList,
-      majorViewStage,
       handlers,
+      majorViewStage,
       target,
-      proteinsHasLoaded,
       joinedMoleculeLists,
+      areLSHCompoundsInitialized,
+      proteinsHasLoaded,
       all_mol_lists,
-      directDisplay,
+      lhsCompoundsList,
       directAccessProcessed,
+      directDisplay,
       object_selection,
       tags,
       categories,
-      noTagsReceived,
-      areLSHCompoundsInitialized
+      noTagsReceived
     ]);
 
     const joinedMoleculeListsCopy = useMemo(() => [...joinedMoleculeLists], [joinedMoleculeLists]);

@@ -13,7 +13,7 @@ import { setResizableLayout, setActualRhsWidth } from '../../reducers/selection/
 import { PlotlyView } from './plotly/plotlyView';
 import { layoutItemNames } from '../../reducers/layout/constants';
 import { TooltipPathProvider } from '../tooltip/TooltipPathContext';
-import RhsCmpList from './molecule/rhsCmpList';
+import { PoseListRHS } from './molecule/poseListRHS';
 
 const useStyles = makeStyles(theme => ({
   root: { display: 'flex', height: '100%' },
@@ -168,7 +168,7 @@ export const ResizableLayout = ({ gridRef, nglPortal }) => {
         group: 'rhs',
         component: (
           <TooltipPathProvider path="rhsCompoundsView">
-            <RhsCmpList
+            <PoseListRHS
               expandHandler={expanded => {
                 if (expanded) {
                   mutateSuggestedRHSHeight(layoutItemNames.COMPOUNDS_VIEW, null);
