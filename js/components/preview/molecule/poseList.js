@@ -13,7 +13,7 @@ import {
   Checkbox
 } from '@material-ui/core';
 import React, { useState, useEffect, useCallback, memo, useRef, useContext, useMemo } from 'react';
-import { useSelector } from 'react-redux';
+import { useSelector, useDispatch } from 'react-redux';
 import { colourList } from './utils/color';
 import { filterMolecules } from './moleculeListSortFilterDialog';
 import InfiniteScroll from 'react-infinite-scroller';
@@ -23,7 +23,7 @@ import { VIEWS } from '../../../constants/constants';
 import { NglContext } from '../../nglView/nglProvider';
 import classNames from 'classnames';
 import { Edit, FilterList } from '@material-ui/icons';
-import { setTagEditorOpen } from '../../../reducers/selection/actions';
+import { setTagEditorOpen, setObservationsDialogSide } from '../../../reducers/selection/actions';
 import { useRouteMatch } from 'react-router-dom';
 import { AlertModal } from '../../common/Modal/AlertModal';
 import { TagEditor } from '../tags/modal/tagEditor';
@@ -253,8 +253,10 @@ export const PoseList = memo(
     searchSettings,
     viewConfig,
     handlers = {},
-    instanceConfig = {}
+    instanceConfig = {},
+    expandHandler = null
   }) => {
+    const dispatch = useDispatch();
     const classes = useStyles();
     let match = useRouteMatch();
     let target = match && match.params && extractTargetFromURLParam(match.params[0]);
@@ -274,6 +276,8 @@ export const PoseList = memo(
     const isObservationDialogOpen = useSelector(instanceConfig.selectIsObservationDialogOpen || (() => false));
     const searchSettingsDialogOpen = useSelector(instanceConfig.selectSearchSettingsDialogOpen || (() => false));
     const areLSHCompoundsInitialized = useSelector(instanceConfig.selectAreLHSCompoundsInitialized || (() => false));
+    const observationsDialogSide = useSelector(state => state.selectionReducers.observationsDialogSide);
+    const instanceSide = instanceConfig.instanceSide || 'lhs';
 
     const [ascending, setAscending] = useState(true);
     const handleAscendingChecked = event => {
@@ -781,8 +785,24 @@ export const PoseList = memo(
       return compounds;
     }, [joinedMoleculeLists, lhsCompoundsList, sortOptions, sortOption, ascending]);
 
+    // Claim dialog ownership when this instance contains the compound the dialog was opened for.
+    // This prevents the other side's cleanup from closing a dialog it doesn't own.
     useEffect(() => {
       if (isObservationDialogOpen && observationsForLHSCmp?.length > 0 && lhsDataIsLoaded) {
+        const cmpId = observationsForLHSCmp[0].cmpd;
+        const cmp = filteredLHSCompoundsList.find(c => c.compound === cmpId);
+        if (cmp && observationsDialogSide !== instanceSide) {
+          dispatch(setObservationsDialogSide(instanceSide));
+        }
+      } else if (!isObservationDialogOpen && observationsDialogSide === instanceSide) {
+        dispatch(setObservationsDialogSide(null));
+      }
+    }, [isObservationDialogOpen, filteredLHSCompoundsList, observationsForLHSCmp, lhsDataIsLoaded, observationsDialogSide, instanceSide, dispatch]);
+
+    // Close dialog if its compound is no longer visible in this instance's list,
+    // but only if this instance owns the dialog.
+    useEffect(() => {
+      if (instanceSide === observationsDialogSide && isObservationDialogOpen && observationsForLHSCmp?.length > 0 && lhsDataIsLoaded) {
         const cmpId = observationsForLHSCmp[0].cmpd;
         const cmp = filteredLHSCompoundsList.find(c => c.compound === cmpId);
         if (!cmp) {
@@ -791,7 +811,7 @@ export const PoseList = memo(
           handlers.setPoseIdForObservationsDialog(0);
         }
       }
-    }, [isObservationDialogOpen, filteredLHSCompoundsList, observationsForLHSCmp, handlers, lhsDataIsLoaded]);
+    }, [instanceSide, observationsDialogSide, isObservationDialogOpen, filteredLHSCompoundsList, observationsForLHSCmp, handlers, lhsDataIsLoaded]);
 
     const newMolsToEdit = [];
     allMoleculesList.forEach(cm => {
@@ -992,8 +1012,23 @@ export const PoseList = memo(
       }
     }, [currentPage, filteredLHSCompoundsList, itemsToBeDisplayed.length]);
 
+    const handleExpandChange = useCallback(
+      expanded => {
+        if (expandHandler) expandHandler(expanded);
+      },
+      [expandHandler]
+    );
+
     return (
-      <Panel hasHeader title="Hit navigator" headerActions={actions} ref={hitNavigatorRef}>
+      <Panel
+        hasHeader
+        title="Hit navigator"
+        headerActions={actions}
+        ref={hitNavigatorRef}
+        hasExpansion={!!expandHandler}
+        defaultExpanded
+        onExpandChange={handleExpandChange}
+      >
         <AlertModal
           title="Are you sure?"
           description={`Loading of ${joinedMoleculeLists?.length} may take a long time`}
@@ -1023,7 +1058,7 @@ export const PoseList = memo(
         {searchSettingsDialogOpen && (
           <SearchSettingsDialog openDialog={searchSettingsDialogOpen} setOpenDialog={openSearchSettingsDialog} />
         )}
-        {isObservationDialogOpen && (
+        {isObservationDialogOpen && instanceSide === observationsDialogSide && (
           <TooltipPathProvider path="observationsDialog">
             <ObservationsDialog open={isObservationDialogOpen} anchorEl={tagEditorAnchorEl} ref={tagEditorRef} />
           </TooltipPathProvider>

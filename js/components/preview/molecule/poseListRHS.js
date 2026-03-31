@@ -35,10 +35,10 @@ import {
   setNextXMolecules,
   setObservationsForLHSCmp,
   setOpenObservationsDialog,
-  setLHSCompoundsInitialized,
+  setRHSCompoundsInitialized,
   setPoseIdForObservationsDialog,
   setSearchSettingsDialogOpen,
-  setLHSIsFullyRendered,
+  setRHSIsFullyRendered,
   setSelectedAllByType,
   setDeselectedAllByType,
   setTagEditorOpen,
@@ -52,10 +52,7 @@ import { setRHSCompoundsList } from '../../../reducers/api/actions';
 import { PoseList } from './poseList';
 import { RHS_OBSERVATION_VIEW_CONFIG } from './observationUnifiedView/viewConfigs';
 
-// TODO: expandHandler is not yet forwarded — PoseList's Panel does not support hasExpansion.
-// To restore layout resizing on collapse, add hasExpansion + onExpandChange to PoseList's Panel
-// and wire expandHandler through handlers or as a direct prop.
-export const PoseListRHS = memo(({ expandHandler: _expandHandler }) => {
+export const PoseListRHS = memo(({ expandHandler }) => {
   const dispatch = useDispatch();
 
   // RHS-specific dataset state
@@ -136,17 +133,14 @@ export const PoseListRHS = memo(({ expandHandler: _expandHandler }) => {
 
   const handlers = useMemo(
     () => ({
-      // TODO: Create a dedicated setRHSIsFullyRendered action in selection/actions.js
-      setFullyRendered: value => dispatch(setLHSIsFullyRendered(value)),
+      setFullyRendered: value => dispatch(setRHSIsFullyRendered(value)),
       addToastMessage: payload => dispatch(addToastMessage(payload)),
       searchForObservations: (searchTerm, observations, settings) =>
         dispatch(searchForObservations(searchTerm, observations, settings)),
       setNextXMolecules: value => dispatch(setNextXMolecules(value)),
       getMoleculeForId: moleculeId => dispatch(getMoleculeForId(moleculeId)),
       applyDirectSelection: majorViewStage => dispatch(applyDirectSelection(majorViewStage)),
-      // TODO: Create a dedicated setRHSCompoundsInitialized action + areRHSCompoundsInitialized flag
-      // to avoid sharing state with LHS initialization
-      setCompoundsInitialized: value => dispatch(setLHSCompoundsInitialized(value)),
+      setCompoundsInitialized: value => dispatch(setRHSCompoundsInitialized(value)),
       initializeFilter: (objectSelection, joinedMolecules) =>
         dispatch(initializeFilter(objectSelection, joinedMolecules)),
       initializeMolecules: majorViewStage => dispatch(initializeMolecules(majorViewStage)),
@@ -243,9 +237,9 @@ export const PoseListRHS = memo(({ expandHandler: _expandHandler }) => {
       selectSortDialogOpen: state => state.previewReducers.molecule.sortDialogOpen,
       selectIsObservationDialogOpen: state => state.selectionReducers.isObservationDialogOpen,
       selectSearchSettingsDialogOpen: state => state.selectionReducers.searchSettingsDialogOpen,
-      // TODO: Create areRHSCompoundsInitialized flag in selectionReducers to avoid sharing LHS state
-      selectAreLHSCompoundsInitialized: state => state.selectionReducers.areLSHCompoundsInitialized,
-      tagEditorOpenActionCreator: setTagEditorOpen
+      selectAreLHSCompoundsInitialized: state => state.selectionReducers.areRHSCompoundsInitialized,
+      tagEditorOpenActionCreator: setTagEditorOpen,
+      instanceSide: 'rhs'
     }),
     []
   );
@@ -287,6 +281,7 @@ export const PoseListRHS = memo(({ expandHandler: _expandHandler }) => {
       viewConfig={RHS_OBSERVATION_VIEW_CONFIG}
       handlers={handlers}
       instanceConfig={instanceConfig}
+      expandHandler={expandHandler}
     />
   );
 });

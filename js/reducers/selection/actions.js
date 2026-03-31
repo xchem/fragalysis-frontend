@@ -414,6 +414,13 @@ export const setObservationDialogAction = (poseId, observations, open, prevPoseI
   };
 };
 
+export const setObservationsDialogSide = side => {
+  return {
+    type: constants.SET_OBSERVATIONS_DIALOG_SIDE,
+    side: side
+  };
+};
+
 export const setObservationsForLHSCmp = observations => {
   return {
     type: constants.SET_OBSERVATIONS_FOR_LHS_CMP,
@@ -438,6 +445,13 @@ export const setMoleculeForTagEdit = molIds => {
 export const setLHSCompoundsInitialized = isInitialized => {
   return {
     type: constants.SET_LHS_COMPOUNDS_INITIALIZED,
+    isInitialized: isInitialized
+  };
+};
+
+export const setRHSCompoundsInitialized = isInitialized => {
+  return {
+    type: constants.SET_RHS_COMPOUNDS_INITIALIZED,
     isInitialized: isInitialized
   };
 };
@@ -654,6 +668,13 @@ export const setSearchSettings = settings => {
 export const setLHSIsFullyRendered = isFullyRendered => {
   return {
     type: constants.SET_LHS_IS_FULLY_RENDERED,
+    isFullyRendered: isFullyRendered
+  };
+};
+
+export const setRHSIsFullyRendered = isFullyRendered => {
+  return {
+    type: constants.SET_RHS_IS_FULLY_RENDERED,
     isFullyRendered: isFullyRendered
   };
 };

@@ -237,7 +237,8 @@ export const PoseListLHS = memo(({}) => {
       selectIsObservationDialogOpen: state => state.selectionReducers.isObservationDialogOpen,
       selectSearchSettingsDialogOpen: state => state.selectionReducers.searchSettingsDialogOpen,
       selectAreLHSCompoundsInitialized: state => state.selectionReducers.areLSHCompoundsInitialized,
-      tagEditorOpenActionCreator: setTagEditorOpen
+      tagEditorOpenActionCreator: setTagEditorOpen,
+      instanceSide: 'lhs'
     }),
     []
   );

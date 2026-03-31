@@ -54,8 +54,10 @@ export const INITIAL_STATE = {
   isObservationDialogOpen: false,
   observationsForLHSCmp: [],
   poseIdForObservationsDialog: 0,
+  observationsDialogSide: null,
 
   areLSHCompoundsInitialized: false,
+  areRHSCompoundsInitialized: false,
   toastMessages: [],
   isScrollFiredForLHS: false,
   targetToEdit: null,
@@ -80,6 +82,7 @@ export const INITIAL_STATE = {
     }
   },
   lhsIsFullyRendered: false,
+  rhsIsFullyRendered: false,
 
   unifiedFilter: {},
   isCoordinateFilterApplied: false,
@@ -93,6 +96,9 @@ export function selectionReducers(state = INITIAL_STATE, action = {}) {
   switch (action.type) {
     case constants.SET_LHS_IS_FULLY_RENDERED:
       return { ...state, lhsIsFullyRendered: action.isFullyRendered };
+
+    case constants.SET_RHS_IS_FULLY_RENDERED:
+      return { ...state, rhsIsFullyRendered: action.isFullyRendered };
 
     case constants.SET_SEARCH_SETTINGS_DIALOG_OPEN:
       return { ...state, searchSettingsDialogOpen: action.isOpen };
@@ -241,6 +247,9 @@ export function selectionReducers(state = INITIAL_STATE, action = {}) {
         poseIdForObservationsDialog: action.poseId
       };
 
+    case constants.SET_OBSERVATIONS_DIALOG_SIDE:
+      return { ...state, observationsDialogSide: action.side };
+
     case constants.SET_OBSERVATIONS_FOR_LHS_CMP:
       return { ...state, observationsForLHSCmp: [...action.observations] };
 
@@ -328,6 +337,9 @@ export function selectionReducers(state = INITIAL_STATE, action = {}) {
 
     case constants.SET_LHS_COMPOUNDS_INITIALIZED:
       return { ...state, areLSHCompoundsInitialized: action.isInitialized };
+
+    case constants.SET_RHS_COMPOUNDS_INITIALIZED:
+      return { ...state, areRHSCompoundsInitialized: action.isInitialized };
 
     case constants.SET_VECTOR_ON_LIST:
       let newVectorOnList = new Set();
