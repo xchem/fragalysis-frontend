@@ -1,15 +1,8 @@
 import React, { forwardRef, Fragment, memo, useEffect, useState } from 'react';
-import {
-  Paper as MaterialPaper,
-  makeStyles,
-  Grid,
-  IconButton,
-  Typography,
-  CircularProgress,
-  Tooltip
-} from '@material-ui/core';
+import { Paper as MaterialPaper, makeStyles, Grid, IconButton, Typography, CircularProgress } from '@material-ui/core';
 import ExpandMore from '@material-ui/icons/ExpandMore';
 import ExpandLess from '@material-ui/icons/ExpandLess';
+import RichTooltip from '../../../tooltip/RichTooltip';
 
 const useStyles = makeStyles(theme => ({
   root: {
@@ -131,7 +124,7 @@ export const Panel = memo(
             <div className={secondaryBackground ? classes.headerSecondary : classes.header}>
               <Grid
                 container
-                justifyContent={title ? "space-between" : "flex-end"}
+                justifyContent={title ? 'space-between' : 'flex-end'}
                 direction="row"
                 alignItems="center"
                 className={classes.headerGrid}
@@ -139,11 +132,11 @@ export const Panel = memo(
                 {title && (
                   <Grid item className={classes.headerTitle}>
                     {withTooltip ? (
-                      <Tooltip title={title}>
+                      <RichTooltip absolutePath path="fragalysis.components.panel.title" values={{ title: title }}>
                         <Typography className={classes.title} variant="h6" color="inherit" noWrap>
                           {title}
                         </Typography>
-                      </Tooltip>
+                      </RichTooltip>
                     ) : (
                       <Typography className={classes.title} variant="h6" color="inherit" noWrap>
                         {title}
@@ -154,7 +147,8 @@ export const Panel = memo(
                 {(headerActions || hasExpansion) && (
                   <Grid item>
                     <Grid container direction="row" className={classes.actionsContainer}>
-                      {headerActions && headerActions.map((action, index) => <Fragment key={`action-${index}`}>{action}</Fragment>)}
+                      {headerActions &&
+                        headerActions.map((action, index) => <Fragment key={`action-${index}`}>{action}</Fragment>)}
                       {hasExpansion && (
                         <IconButton className={classes.button} onClick={handleTitleButtonClick} color="inherit">
                           {expanded ? <ExpandLess /> : <ExpandMore />}

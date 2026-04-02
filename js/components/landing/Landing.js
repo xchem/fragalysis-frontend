@@ -16,6 +16,7 @@ import { EditTargetDialog } from '../target/editTargetDialog';
 import { TOAST_LEVELS } from '../toast/constants';
 import { TargetSettingsModal } from '../target/targetSettingsModal';
 import { setEditTargetDialogOpen } from '../target/redux/actions';
+import { TooltipPathProvider } from '../tooltip/TooltipPathContext';
 
 const useStyles = makeStyles(theme => ({
   root: {
@@ -173,7 +174,7 @@ const Landing = memo(
     }, [isResizing, handleMouseMove, handleMouseUp]);
 
     return (
-      <>
+      <TooltipPathProvider path="targetLists">
         <Grid container className={classes.root}>
           <Grid item style={{ width: publicTargetListWidth }}>
             <TargetList list={publicTargets} title={'Public targets'} />
@@ -210,7 +211,7 @@ const Landing = memo(
           </Grid>
         </Grid>
         <TargetSettingsModal openModal={isEditTargetDialogOpen} onModalClose={onModalClose} isTargetOn={false} />
-      </>
+      </TooltipPathProvider>
     );
   }
 );

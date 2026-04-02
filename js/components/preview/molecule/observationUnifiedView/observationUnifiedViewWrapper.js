@@ -3,12 +3,14 @@
  */
 
 import React, { memo, forwardRef } from 'react';
-import { makeStyles, Table, TableBody, TableCell, TableHead, TableRow, Tooltip } from '@material-ui/core';
+import { makeStyles, Table, TableBody, TableCell, TableHead, TableRow } from '@material-ui/core';
 import ObservationUnifiedView from './observationUnifiedView';
 import { useColumns } from './hooks/useColumns';
 import { useFilters } from './hooks';
 import { TableResizer } from './table/tableResizer';
 import { jsmeSetup } from '@loschmidt/jsme-react';
+import RichTooltip from '../../../tooltip/RichTooltip';
+import { TooltipPathProvider } from '../../../tooltip/TooltipPathContext';
 
 const useStyles = makeStyles(theme => ({
   table: {
@@ -86,42 +88,6 @@ const ObservationUnifiedViewWrapper = memo(
         return false;
       };
 
-      // const extraColumns = useSelector(state => state.apiReducers.lhs_extra_columns);
-      // const [definedColumns, setDefinedColumns] = useState(COLUMNS);
-
-      // const getColumnType = useCallback((name) => {
-      //   switch (name) {
-      //     case 'text':
-      //       return COLUMN_TYPES.TEXT;
-      //     case 'float':
-      //     case 'integer':
-      //       return COLUMN_TYPES.NUMBER;
-      //     default:
-      //       return COLUMN_TYPES.CUSTOM;
-      //   }
-      // }, []);
-
-      // useEffect(() => {
-      //   console.log('extraColumns', extraColumns);
-      //   if (extraColumns && extraColumns.length > 0) {
-      //     const newColumns = [...COLUMNS];
-      //     extraColumns.forEach(column => {
-      //       if (!newColumns.some(col => col.name === column.name)) {
-      //         newColumns.push({
-      //           name: column.name,
-      //           displayName: column.name,
-      //           type: getColumnType(column.type),
-      //           width: 22,
-      //           resizable: true
-      //         });
-      //       }
-      //     });
-      //     setDefinedColumns(newColumns);
-      //   } else {
-      //     setDefinedColumns(COLUMNS);
-      //   }
-      // }, [extraColumns, getColumnType]);
-
       const { columns, handleColumnResize, getColumnWidth } = useColumns(50);
       const { filteredItems, getColumnFilter } = useFilters(items, columns);
 
@@ -138,10 +104,10 @@ const ObservationUnifiedViewWrapper = memo(
                       style={{ maxWidth: getColumnWidth(name) }}
                       className={classes.headerCell}
                     >
-                      <Tooltip title={displayName} placement="top">
+                      <RichTooltip path="propertyDisplayName" values={{ displayName: displayName }}>
                         <div className={classes.resizerParent}>
                           {displayName}
-                          {getColumnFilter(type, name)}
+                          <TooltipPathProvider path="filters">{getColumnFilter(type, name)}</TooltipPathProvider>
                           {resizable && (
                             <TableResizer
                               className={classes.resizer}
@@ -149,7 +115,7 @@ const ObservationUnifiedViewWrapper = memo(
                             />
                           )}
                         </div>
-                      </Tooltip>
+                      </RichTooltip>
                     </TableCell>
                   )
                 );

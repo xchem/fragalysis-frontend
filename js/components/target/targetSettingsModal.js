@@ -2,7 +2,7 @@
  * This is a modal window for target settings
  */
 
-import React, { memo, useCallback, useContext, useEffect, useRef, useState } from 'react';
+import React, { memo, useCallback, useEffect, useRef, useState } from 'react';
 import {
   Button,
   Dialog,
@@ -14,16 +14,12 @@ import {
   Grid,
   IconButton,
   makeStyles,
-  MenuItem,
   Radio,
   RadioGroup,
-  Select,
   TextField,
   Typography
 } from '@material-ui/core';
-import { Tooltip } from '@mui/material';
 import { Close } from '@mui/icons-material';
-import { ToastContext } from '../toast';
 import { base_url } from '../routes/constants';
 import { api, METHOD } from '../../utils/api';
 import { useDispatch, useSelector } from 'react-redux';
@@ -32,6 +28,7 @@ import { addToastMessage } from '../../reducers/selection/actions';
 import { replaceTarget, setTargetOnAliases, setTargetOnName } from '../../reducers/api/actions';
 import { getCurrentTarget } from '../../reducers/api/selectors';
 import { DENSITY_MAP_TYPES, MAP_RENDERING_MODES } from '../preview/molecule/utils/constants';
+import RichTooltip from '../tooltip/RichTooltip';
 
 const useStyles = makeStyles(theme => ({
   copyButton: {
@@ -228,11 +225,11 @@ export const TargetSettingsModal = memo(({ openModal, onModalClose, isTargetOn =
   return (
     <Dialog open={openModal} onClose={onModalClose}>
       <DialogTitle sx={{ m: 0, p: 2 }}>{editable ? 'Edit target settings' : 'Target settings'}</DialogTitle>
-      <Tooltip title="Close editor">
+      <RichTooltip absolutePath path="fragalysis.components.targetSettings.close">
         <IconButton color="inherit" className={classes.headerButton} onClick={onModalClose}>
           <Close />
         </IconButton>
-      </Tooltip>
+      </RichTooltip>
       <DialogContent dividers>
         <Grid container justifyContent="flex-start" direction="column" className={classes.root} spacing={2}>
           <Grid item container direction="row" justifyContent="space-between" alignItems="center" spacing={2}>
@@ -362,7 +359,7 @@ export const TargetSettingsModal = memo(({ openModal, onModalClose, isTargetOn =
             </Grid>
             <Grid item xs>
               {editable ? (
-                <Tooltip title="Drag and drop to reorder">
+                <RichTooltip absolutePath path="fragalysis.components.targetSettings.dragAndDrop">
                   <Grid
                     item
                     container
@@ -388,7 +385,7 @@ export const TargetSettingsModal = memo(({ openModal, onModalClose, isTargetOn =
                       </Grid>
                     ))}
                   </Grid>
-                </Tooltip>
+                </RichTooltip>
               ) : (
                 <Grid item container direction="column" justifyContent="center" alignItems="flex-start" spacing={1}>
                   {identifierTypes?.map((type, index) => (

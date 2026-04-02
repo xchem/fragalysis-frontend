@@ -6,7 +6,6 @@ import React, { memo, useCallback, useContext, useEffect, useMemo, useRef, useSt
 import { makeStyles, useTheme } from '@material-ui/core';
 import NGLView from '../nglView/nglView';
 import HitNavigator from './molecule/hitNavigator';
-import TagSelector from './tags/tagSelector';
 import TagDetails from './tags/details/tagDetails';
 import { withUpdatingTarget } from '../target/withUpdatingTarget';
 import { VIEWS } from '../../constants/constants';
@@ -67,6 +66,7 @@ import { DataDownloadProgressDialog } from '../loading/DataDownloadProgressDialo
 import layout from '../../reducers/layout/layouts/draggable';
 import SnapshotList from '../snapshot/snapshotList';
 import SnapshotSavingProgressDialog from '../snapshot/modals/snapshotSavingProgressDialog';
+import { TooltipPathProvider } from '../tooltip/TooltipPathContext';
 
 const ReactGridLayout = WidthProvider(ResponsiveGridLayout);
 
@@ -258,16 +258,14 @@ const Preview = memo(({ isStateLoaded, hideProjects, isSnapshot = false }) => {
       case layoutItemNames.TAG_DETAILS: {
         return (
           <div key="tagDetails">
-            <TagDetails />
+            <TooltipPathProvider path="tagDetails">
+              <TagDetails />
+            </TooltipPathProvider>
           </div>
         );
       }
       case layoutItemNames.HIT_LIST_FILTER: {
-        return (
-          <div key="hitListFilter">
-            <TagSelector />
-          </div>
-        );
+        return <div key="hitListFilter"></div>;
       }
       case layoutItemNames.HIT_NAVIGATOR: {
         return (
@@ -348,7 +346,9 @@ const Preview = memo(({ isStateLoaded, hideProjects, isSnapshot = false }) => {
       <NewSnapshotModal />
       <ModalShareSnapshot />
       <SaveSnapshotBeforeExit />
-      <DownloadStructureDialog />
+      <TooltipPathProvider path="downloadStructures">
+        <DownloadStructureDialog />
+      </TooltipPathProvider>
       <PickProjectModal />
       <EditSnapshotDialog />
       <RenderingProgressDialog />

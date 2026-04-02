@@ -33,6 +33,7 @@ import { PeerReviewView } from './table/views/peerReviewView';
 import { TextView } from './table/views/textView';
 import { COLUMN_TYPES } from './table';
 import { NumericView } from './table/views';
+import { TooltipPathProvider } from '../../../tooltip/TooltipPathContext';
 
 const useStyles = makeStyles(theme => ({
   container: {
@@ -345,69 +346,90 @@ const ObservationUnifiedView = memo(
         switch (column.type) {
           case COLUMN_TYPES.PEER_REVIEW:
             return (
-              <PeerReviewView
-                data={data}
-                index={index}
-                selected={selected}
-                observations={observations}
-                mainObservation={getMainObservation()}
-              />
+              <TooltipPathProvider path="peerReview">
+                <PeerReviewView
+                  data={data}
+                  index={index}
+                  selected={selected}
+                  observations={observations}
+                  mainObservation={getMainObservation()}
+                />
+              </TooltipPathProvider>
             );
           case COLUMN_TYPES.OBSERVATION:
             return (
-              <DetailView
-                data={data}
-                handleRef={handleRef}
-                disableL={disableL}
-                disableP={disableP}
-                disableC={disableC}
-                observations={observations}
-              />
+              <TooltipPathProvider path="pose">
+                <DetailView
+                  data={data}
+                  index={index}
+                  handleRef={handleRef}
+                  disableL={disableL}
+                  disableP={disableP}
+                  disableC={disableC}
+                  observations={observations}
+                />
+              </TooltipPathProvider>
             );
           case COLUMN_TYPES.MOLECULE:
             return (
-              <ImageView
-                moleculeImgRef={moleculeImgRef}
-                img_data={img_data}
-                warningIconVisible={warningIconVisible}
-                current_style={current_style}
-                imageHeight={imageHeight}
-                imageWidth={imageWidth}
-                onQuality={onQuality}
-              />
+              <TooltipPathProvider path="image">
+                <ImageView
+                  moleculeImgRef={moleculeImgRef}
+                  img_data={img_data}
+                  warningIconVisible={warningIconVisible}
+                  current_style={current_style}
+                  imageHeight={imageHeight}
+                  imageWidth={imageWidth}
+                  onQuality={onQuality}
+                />
+              </TooltipPathProvider>
             );
           case COLUMN_TYPES.CANON_SITE:
             return (
-              <CanonSiteView
-                resolveTagBackgroundColor={resolveTagBackgroundColor}
-                resolveTagForegroundColor={resolveTagForegroundColor}
-                canonSitesTag={getCanonSitesTag()}
-              />
+              <TooltipPathProvider path="canonSite">
+                <CanonSiteView
+                  resolveTagBackgroundColor={resolveTagBackgroundColor}
+                  resolveTagForegroundColor={resolveTagForegroundColor}
+                  canonSitesTag={getCanonSitesTag()}
+                />
+              </TooltipPathProvider>
             );
           case COLUMN_TYPES.CONFORMER_SITE:
             return (
-              <ConformerSiteView
-                tagList={tagList}
-                observations={observations}
-                conformerSitesCategory={getConformerSitesTagCategory()}
-                canonSitesTag={getCanonSitesTag()}
-                resolveTagBackgroundColor={resolveTagBackgroundColor}
-                resolveTagForegroundColor={resolveTagForegroundColor}
-              />
+              <TooltipPathProvider path="conformerSite">
+                <ConformerSiteView
+                  tagList={tagList}
+                  observations={observations}
+                  conformerSitesCategory={getConformerSitesTagCategory()}
+                  canonSitesTag={getCanonSitesTag()}
+                  resolveTagBackgroundColor={resolveTagBackgroundColor}
+                  resolveTagForegroundColor={resolveTagForegroundColor}
+                />
+              </TooltipPathProvider>
             );
           case COLUMN_TYPES.OBSERVATIONS:
             return (
-              <ObservationsView
-                data={data}
-                observations={observations}
-                isAnyObservationOn={isAnyObservationOn}
-                handleRef={handleRef}
-              />
+              <TooltipPathProvider path="observationsView">
+                <ObservationsView
+                  data={data}
+                  observations={observations}
+                  isAnyObservationOn={isAnyObservationOn}
+                  handleRef={handleRef}
+                />
+              </TooltipPathProvider>
             );
           case COLUMN_TYPES.NUMBER:
-            return <NumericView data={data} column={column} />;
+            return (
+              <TooltipPathProvider path="numericView">
+                <NumericView data={data} column={column} />
+              </TooltipPathProvider>
+            );
           default:
-            return <TextView data={data} column={column} />;
+            return (
+              <TooltipPathProvider path="textView">
+                <TextView data={data} column={column} />
+              </TooltipPathProvider>
+            );
         }
       };
 

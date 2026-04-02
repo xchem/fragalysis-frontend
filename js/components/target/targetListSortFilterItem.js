@@ -204,6 +204,7 @@ const TargetListSortFilterItem = memo(props => {
                       onChange={event => onChange(property, 'value', [moment(event).format('YYYY-MM-DD'), ''])}
                       placeholderText="YYYY-MM-DD"
                       value={filter[property].value[0]}
+                      id={"date-picker-" + property + "-from"}
                     />
                   </Grid>
 
@@ -218,12 +219,13 @@ const TargetListSortFilterItem = memo(props => {
                       onChange={event => onChange(property, 'value', ['', moment(event).format('YYYY-MM-DD')])}
                       placeholderText="YYYY-MM-DD"
                       value={filter[property].value[1]}
+                      id={"date-picker-" + property + "-to"}
                     />
                   </Grid>
                 </Grid>
               ) : (
                 <TextField
-                  id="textFieldInput"
+                  id={"textFieldInput-" + property}
                   placeholder="Search"
                   onChange={event => onChange(property, 'value', event.target.value)}
                   key={property}
@@ -248,6 +250,7 @@ const TargetListSortFilterItem = memo(props => {
                       onChange={event => onChange(property, 'value', [moment(event).format('YYYY-MM-DD'), ''])}
                       placeholderText="YYYY-MM-DD"
                       value={filter[property].value[0]}
+                      id={"date-picker-" + property + "-from"}
                     />
                   </Grid>
                   <Grid item style={{ width: gridDateFromWidth }} className={classNames(classes.dateFont)}>
@@ -261,12 +264,13 @@ const TargetListSortFilterItem = memo(props => {
                       onChange={event => onChange(property, 'value', ['', moment(event).format('YYYY-MM-DD')])}
                       placeholderText="YYYY-MM-DD"
                       value={filter[property].value[1]}
+                      id={"date-picker-" + property + "-to"}
                     />
                   </Grid>
                 </Grid>
               ) : (
                 <TextField
-                  id="textFieldInput"
+                  id={"textFieldInput-" + property}
                   placeholder="Search"
                   onChange={event => onChange(property, 'value', event.target.value)}
                   key={property}

@@ -1,4 +1,4 @@
-import React, { memo, useCallback, useContext, useEffect, useMemo, useState } from 'react';
+import React, { memo, useCallback, useEffect, useMemo, useState } from 'react';
 import {
   Checkbox,
   FormControl,
@@ -8,19 +8,18 @@ import {
   makeStyles,
   Radio,
   RadioGroup,
-  TextField,
-  Tooltip
+  TextField
 } from '@material-ui/core';
 import { FilterWrapper } from './filterWrapper';
 import { Search, SwitchAccessShortcut } from '@mui/icons-material';
 import { Jsme } from '@loschmidt/jsme-react';
-import { Button, Paper } from '@mui/material';
+import { Button } from '@mui/material';
 import { filterLHSCompounds } from '../../api';
 import { useDispatch, useSelector } from 'react-redux';
 import { setUnifiedFilterItem } from '../../../../../../reducers/selection/actions';
-import SVGInline from 'react-svg-inline';
 import { useRDKit } from '../../../../../rdkit/RDKitContext';
 import { getFilterSmileQuery } from '../../../../../../reducers/selection/selectors';
+import RichTooltip from '../../../../../tooltip/RichTooltip';
 // import { Editor } from "ketcher-react";
 
 const useStyles = makeStyles(theme => ({
@@ -221,14 +220,14 @@ export const MoleculeFilter = memo(({ onFilterChange }) => {
             labelPlacement="start"
           />
           {/* <FormControlLabel control={<TextField value={smiles} />} label="SMILES/SMARTs query" labelPlacement="start" /> */}
-          <Tooltip title="Update editor from SMILES/SMARTs query">
+          <RichTooltip path="moleculeFilter.updateEditor">
             <IconButton color="primary" onClick={handleApplyInputSmiles}>
               <SwitchAccessShortcut />
             </IconButton>
-          </Tooltip>
+          </RichTooltip>
         </Grid>
         <Grid item xs>
-          <Tooltip title="Apply filter">
+          <RichTooltip path="moleculeFilter.applyFilter">
             <Button
               color="primary"
               // disabled={false}
@@ -239,7 +238,7 @@ export const MoleculeFilter = memo(({ onFilterChange }) => {
             >
               Apply filter
             </Button>
-          </Tooltip>
+          </RichTooltip>
           {filterValue.smiles && <span className={classes.smilesLabel}>for {filterValue.smiles}</span>}
         </Grid>
       </Grid>

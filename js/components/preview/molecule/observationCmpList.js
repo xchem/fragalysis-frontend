@@ -4,7 +4,6 @@
 import {
   Grid,
   Chip,
-  Tooltip,
   makeStyles,
   CircularProgress,
   Divider,
@@ -19,7 +18,7 @@ import React, { useState, useEffect, useCallback, memo, useRef, useContext, useM
 import { useDispatch, useSelector } from 'react-redux';
 import MoleculeView from './moleculeView';
 import { colourList } from './utils/color';
-import { MoleculeListSortFilterDialog, filterMolecules, getAttrDefinition } from './moleculeListSortFilterDialog';
+import { filterMolecules, getAttrDefinition } from './moleculeListSortFilterDialog';
 import InfiniteScroll from 'react-infinite-scroller';
 import { Button } from '../../common/Inputs/Button';
 import { Panel } from '../../common/Surfaces/Panel';
@@ -97,6 +96,8 @@ import { use } from 'react';
 import { TOAST_LEVELS } from '../../toast/constants';
 import { FilterSettingsModal } from './observationUnifiedView/table';
 import ObservationUnifiedViewWrapper from './observationUnifiedView/observationUnifiedViewWrapper';
+import RichTooltip from '../../tooltip/RichTooltip';
+import { TooltipPathProvider } from '../../tooltip/TooltipPathContext';
 
 const useStyles = makeStyles(theme => ({
   container: {
@@ -1122,9 +1123,9 @@ export const ObservationCmpList = memo(({}) => {
         }
       }}
     >
-      <Tooltip title="Edit tags">
+      <RichTooltip path="editTags">
         <Edit />
-      </Tooltip>
+      </RichTooltip>
     </IconButton>,
     <IconButton
       onClick={event => {
@@ -1140,9 +1141,9 @@ export const ObservationCmpList = memo(({}) => {
       // disabled={predefinedFilter !== 'none'}
       disabled={DJANGO_CONTEXT['username'] === 'NOT_LOGGED_IN'}
     >
-      <Tooltip title="LHS settings">
+      <RichTooltip path="lhsSettings">
         <FilterList />
-      </Tooltip>
+      </RichTooltip>
     </IconButton>
   ];
 
@@ -1218,7 +1219,9 @@ export const ObservationCmpList = memo(({}) => {
         <SearchSettingsDialog openDialog={searchSettingsDialogOpen} setOpenDialog={openSearchSettingsDialog} />
       )}
       {isObservationDialogOpen && (
-        <ObservationsDialog open={isObservationDialogOpen} anchorEl={tagEditorAnchorEl} ref={tagEditorRef} />
+        <TooltipPathProvider path="observationsDialog">
+          <ObservationsDialog open={isObservationDialogOpen} anchorEl={tagEditorAnchorEl} ref={tagEditorRef} />
+        </TooltipPathProvider>
       )}
       {isTagEditorOpen && (
         <TagEditor
@@ -1229,119 +1232,75 @@ export const ObservationCmpList = memo(({}) => {
           ref={tagEditorRef}
         />
       )}
-      {/* {sortDialogOpen && (
-        <MoleculeListSortFilterDialog
-          open={sortDialogOpen}
-          anchorEl={sortDialogAnchorEl}
-          filter={filter}
-          setSortDialogAnchorEl={setSortDialogAnchorEl}
-          joinedMoleculeLists={joinedMoleculeListsCopy}
-        />
-      )} */}
       {sortDialogOpen && (
-        <FilterSettingsModal
-          openModal={sortDialogOpen}
-          onModalClose={() => {
-            setSortDialogAnchorEl(null);
-            dispatch(setSortDialogOpen(false));
-          }}
-        />
+        <TooltipPathProvider path="filterSettings">
+          <FilterSettingsModal
+            openModal={sortDialogOpen}
+            onModalClose={() => {
+              setSortDialogAnchorEl(null);
+              dispatch(setSortDialogOpen(false));
+            }}
+          />
+        </TooltipPathProvider>
       )}
-      <div ref={filterRef}>
-        {isActiveFilter && (
-          <>
-            <div className={classes.filterSection}>
-              <Grid container spacing={1}>
-                <Grid item xs={1} container alignItems="center">
-                  <Typography variant="subtitle2" className={classes.filterTitle}>
-                    Filters
-                  </Typography>
-                </Grid>
-                <Grid item xs={11}>
-                  <Grid container direction="row" justifyContent="flex-start" spacing={1}>
-                    {filter.priorityOrder.map(attr => (
-                      <Grid item key={`Mol-Tooltip-${attr}`}>
-                        <Tooltip
-                          title={`${filter.filter[attr].minValue}-${filter.filter[attr].maxValue} ${
-                            filter.filter[attr].order === 1 ? '\u2191' : '\u2193'
-                          }`}
-                          placement="top"
-                        >
-                          <Chip size="small" label={attr} style={{ backgroundColor: getAttrDefinition(attr).color }} />
-                        </Tooltip>
-                      </Grid>
-                    ))}
-                  </Grid>
-                </Grid>
-              </Grid>
-            </div>
-            <Divider />
-          </>
-        )}
-      </div>
       <Grid container spacing={1}>
         <Grid style={{ marginTop: '4px' }}>
-          <Tooltip title="all ligands" style={{ marginLeft: '1px' }}>
-            {/* Tooltip should not have disabled element as a direct child */}
-            <>
-              <Button
-                variant="outlined"
-                className={classNames(classes.contColButton, {
-                  [classes.contColButtonSelected]: isLigandOn === true,
-                  [classes.contColButtonHalfSelected]: isLigandOn === null
-                })}
-                onClick={() => onButtonToggle('ligand')}
-                disabled={groupNglControlButtonsDisabledState.ligand || allSelectedMolecules.length === 0}
-              >
-                L
-              </Button>
-            </>
-          </Tooltip>
-          <Tooltip title="all sidechains" style={{ marginLeft: '1px' }}>
-            {/* Tooltip should not have disabled element as a direct child */}
-            <>
-              <Button
-                variant="outlined"
-                className={classNames(
-                  allSelectedMolecules.length === 0 ? classes.contColButton : classes.contColButtonUnselected,
-                  {
-                    [classes.contColButtonSelected]: isProteinOn,
-                    [classes.contColButtonHalfSelected]: isProteinOn === null
-                  }
-                )}
-                onClick={() => onButtonToggle('protein')}
-                disabled={groupNglControlButtonsDisabledState.protein || allSelectedMolecules.length === 0}
-              >
-                P
-              </Button>
-            </>
-          </Tooltip>
-          <Tooltip title="all interactions" style={{ marginLeft: '1px' }}>
-            {/* Tooltip should not have disabled element as a direct child */}
-            <>
-              {/* C stands for contacts now */}
-              <Button
-                variant="outlined"
-                className={classNames(
-                  allSelectedMolecules.length === 0 ? classes.contColButton : classes.contColButtonUnselected,
-                  {
-                    [classes.contColButtonSelected]: isComplexOn,
-                    [classes.contColButtonHalfSelected]: isComplexOn === null
-                  }
-                )}
-                onClick={() => onButtonToggle('complex')}
-                disabled={groupNglControlButtonsDisabledState.complex || allSelectedMolecules.length === 0}
-              >
-                C
-              </Button>
-            </>
-          </Tooltip>
+          <RichTooltip path="allLigands">
+            <Button
+              id="hit-navigator-all-ligands"
+              variant="outlined"
+              className={classNames(classes.contColButton, {
+                [classes.contColButtonSelected]: isLigandOn === true,
+                [classes.contColButtonHalfSelected]: isLigandOn === null
+              })}
+              onClick={() => onButtonToggle('ligand')}
+              disabled={groupNglControlButtonsDisabledState.ligand || allSelectedMolecules.length === 0}
+            >
+              L
+            </Button>
+          </RichTooltip>
+          <RichTooltip path="allSidechains">
+            <Button
+              id="hit-navigator-all-sidechains"
+              variant="outlined"
+              className={classNames(
+                allSelectedMolecules.length === 0 ? classes.contColButton : classes.contColButtonUnselected,
+                {
+                  [classes.contColButtonSelected]: isProteinOn,
+                  [classes.contColButtonHalfSelected]: isProteinOn === null
+                }
+              )}
+              onClick={() => onButtonToggle('protein')}
+              disabled={groupNglControlButtonsDisabledState.protein || allSelectedMolecules.length === 0}
+            >
+              P
+            </Button>
+          </RichTooltip>
+          <RichTooltip path="allInteractions">
+            {/* C stands for contacts now */}
+            <Button
+              id="hit-navigator-all-interactions"
+              variant="outlined"
+              className={classNames(
+                allSelectedMolecules.length === 0 ? classes.contColButton : classes.contColButtonUnselected,
+                {
+                  [classes.contColButtonSelected]: isComplexOn,
+                  [classes.contColButtonHalfSelected]: isComplexOn === null
+                }
+              )}
+              onClick={() => onButtonToggle('complex')}
+              disabled={groupNglControlButtonsDisabledState.complex || allSelectedMolecules.length === 0}
+            >
+              C
+            </Button>
+          </RichTooltip>
         </Grid>
 
         {
-          <Tooltip title={selectAllHitsPressed ? 'Unselect all hits' : 'Select all hits'}>
+          <RichTooltip path={selectAllHitsPressed ? 'allHits.deselectAllHits' : 'allHits.selectAllHits'}>
             <Grid item style={{ marginLeft: '2px' }} className={classes.selectButton}>
               <Button
+                id="hit-navigator-select-all-hits"
                 variant="outlined"
                 className={classNames(classes.contColButton, {
                   [classes.contColButtonSelected]: selectAllHitsPressed,
@@ -1356,12 +1315,13 @@ export const ObservationCmpList = memo(({}) => {
                 {selectAllHitsPressed ? 'Unselect all hits' : 'Select all hits'}
               </Button>
             </Grid>
-          </Tooltip>
+          </RichTooltip>
         }
         {selectedDisplayHits === true ? (
-          <Tooltip title={'Unselect displayed hits'}>
+          <RichTooltip path="displayedHits.deselectDisplayedHits">
             <Grid item className={classes.selectButton}>
               <Button
+                id="hit-navigator-unselect-displayed-hits"
                 variant="outlined"
                 className={classNames(classes.contColButton, {
                   [classes.contColButtonSelected]: selectedDisplayHits,
@@ -1376,11 +1336,12 @@ export const ObservationCmpList = memo(({}) => {
                 Unselect displayed hits
               </Button>
             </Grid>
-          </Tooltip>
+          </RichTooltip>
         ) : (
-          <Tooltip title={'Select displayed hits'}>
+          <RichTooltip path="displayedHits.selectDisplayedHits">
             <Grid item className={classes.selectButton}>
               <Button
+                id="hit-navigator-select-displayed-hits"
                 variant="outlined"
                 className={classNames(classes.contColButton, {
                   [classes.contColButtonSelected]: selectedDisplayHits,
@@ -1395,7 +1356,7 @@ export const ObservationCmpList = memo(({}) => {
                 Select displayed hits
               </Button>
             </Grid>
-          </Tooltip>
+          </RichTooltip>
         )}
         <Grid style={{ marginTop: '4px' }}>
           <Typography variant="caption">{`Selected: ${
@@ -1408,7 +1369,10 @@ export const ObservationCmpList = memo(({}) => {
           </Typography>
         </Grid>
         <Grid style={{ marginTop: '4px', marginLeft: '4px' }}>
-          <Tooltip title={sortOption ? sortOptions[sortOption].title : 'Sort by'}>
+          <RichTooltip
+            path={sortOption ? 'sort.sortOption' : 'sort.sortBy'}
+            values={{ sortOption: sortOptions[sortOption].title }}
+          >
             <Select
               value={sortOption}
               onChange={event => {
@@ -1425,18 +1389,18 @@ export const ObservationCmpList = memo(({}) => {
                 </MenuItem>
               ))}
             </Select>
-          </Tooltip>
+          </RichTooltip>
         </Grid>
-        <Tooltip title={ascending ? 'Ascending' : 'Descending'}>
+        <RichTooltip path={ascending ? 'sortOrder.ascending' : 'sortOrder.descending'}>
           <Grid style={{ marginTop: '4px' }}>
-            <Checkbox checked={ascending} onChange={handleAscendingChecked} size="small" style={{ padding: 0 }} />
+            <Checkbox id="hit-navigator-sorting-checkbox" checked={ascending} onChange={handleAscendingChecked} size="small" style={{ padding: 0 }} />
             <Typography variant="caption">
               {(selectAllHitsPressed && hitNavigatorWidth > 508) || (!selectAllHitsPressed && hitNavigatorWidth > 491)
                 ? 'Ascending'
                 : 'ASC'}
             </Typography>
           </Grid>
-        </Tooltip>
+        </RichTooltip>
       </Grid>
       <Grid container spacing={1} direction="column" justifyContent="flex-start" className={classes.container}>
         <Grid item>
@@ -1514,6 +1478,7 @@ export const ObservationCmpList = memo(({}) => {
                 <Grid item>
                   <ButtonGroup variant="text" size="medium" color="primary" aria-label="contained primary button group">
                     <Button
+                      id="hit-navigator-load-next-30"
                       className={classes.footerButton}
                       onClick={() => {
                         dispatch(setNextXMolecules(30));
@@ -1522,6 +1487,7 @@ export const ObservationCmpList = memo(({}) => {
                       Load next 30
                     </Button>
                     <Button
+                      id="hit-navigator-load-next-100"
                       className={classes.footerButton}
                       onClick={() => {
                         dispatch(setNextXMolecules(100));
@@ -1530,6 +1496,7 @@ export const ObservationCmpList = memo(({}) => {
                       Load next 100
                     </Button>
                     <Button
+                      id="hit-navigator-load-full-list"
                       className={classes.footerButton}
                       onClick={() => {
                         if (joinedMoleculeLists?.length > 300) {

@@ -3,9 +3,14 @@
  */
 import React, { memo } from 'react';
 import { ObservationCmpList } from './observationCmpList';
+import { TooltipPathProvider } from '../../tooltip/TooltipPathContext';
 
 const HitNavigator = memo(({}) => {
-  return <ObservationCmpList />;
+  return (
+    <TooltipPathProvider path="hitnavigator">
+      <ObservationCmpList />
+    </TooltipPathProvider>
+  );
 });
 
 export default HitNavigator;
