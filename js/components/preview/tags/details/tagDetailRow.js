@@ -1,13 +1,11 @@
 import React, { memo, useState, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { CATEGORY_TYPE_BY_ID, PLURAL_TO_SINGULAR } from '../../../../constants/constants';
+import { PLURAL_TO_SINGULAR } from '../../../../constants/constants';
 import TagView from '../tagView';
 import { getDefaultTagDiscoursePostText } from '../utils/tagUtils';
-import { DJANGO_CONTEXT } from '../../../../utils/djangoContext';
-import { updateTagProp, selectTag, unselectTag, removeSelectedTag, addSelectedTag } from '../redux/dispatchActions';
-import { Tooltip, makeStyles, Button, Typography, IconButton, Fab } from '@material-ui/core';
-import { Edit, Forum } from '@material-ui/icons';
-import { isURL } from '../../../../utils/common';
+import { updateTagProp, removeSelectedTag, addSelectedTag } from '../redux/dispatchActions';
+import { makeStyles, Button, Typography, Fab } from '@material-ui/core';
+import { Forum } from '@material-ui/icons';
 import classNames from 'classnames';
 import {
   createTagPost,
@@ -18,6 +16,7 @@ import {
 import { setTagToEdit, appendToMolListToEdit, removeFromMolListToEdit } from '../../../../reducers/selection/actions';
 import { setOpenDiscourseErrorModal } from '../../../../reducers/api/actions';
 import { getCategoryById } from '../../molecule/redux/dispatchActions';
+import RichTooltip from '../../../tooltip/RichTooltip';
 
 const useStyles = makeStyles(theme => ({
   contColButton: {
@@ -169,14 +168,13 @@ const TagDetailRow = memo(({ tag, moleculesToEditIds, moleculesToEdit }) => {
       ></TagView>
 
       {/* category */}
-      <Tooltip title={getTagCategoryName()}>
+      <RichTooltip path="tagCategory" values={{ tagCategory: getTagCategoryName() }}>
         <Typography className={classes.text} variant="body2" noWrap>
           {getTagCategoryName()}
         </Typography>
-      </Tooltip>
-
+      </RichTooltip>
       {/* select hits button */}
-      <Tooltip title="Select hits">
+      <RichTooltip path={hasSelectedMolecule() ? 'selectHits.unselectHits' : 'selectHits.selectHits'}>
         <Button
           variant="outlined"
           className={classNames(classes.contColButton, {
@@ -188,10 +186,10 @@ const TagDetailRow = memo(({ tag, moleculesToEditIds, moleculesToEdit }) => {
         >
           {hasSelectedMolecule() ? 'Unselect hits' : 'Select hits'}
         </Button>
-      </Tooltip>
+      </RichTooltip>
 
       {/* discourse button */}
-      <Tooltip title="Discourse link">
+      <RichTooltip path="discourseLink">
         {/* Tooltip should not have disabled element as a direct child */}
         <>
           <Fab
@@ -220,7 +218,7 @@ const TagDetailRow = memo(({ tag, moleculesToEditIds, moleculesToEdit }) => {
             <Forum className={classes.discourseButtonIcon} />
           </Fab>
         </>
-      </Tooltip>
+      </RichTooltip>
 
       {/* user */}
       <Typography className={classes.text} variant="body2">
@@ -237,18 +235,6 @@ const TagDetailRow = memo(({ tag, moleculesToEditIds, moleculesToEdit }) => {
 
       {/* edit button */}
       <div></div>
-      {/* <IconButton
-        variant="contained"
-        className={classes.editButton}
-        size="small"
-        onClick={() => handleEditTag(tag)}
-        disabled={!DJANGO_CONTEXT.pk}
-        aria-label="edit tag"
-      >
-        <Tooltip title="Edit" className={classes.editButtonIcon}>
-          <Edit />
-        </Tooltip>
-      </IconButton> */}
     </>
   );
 });

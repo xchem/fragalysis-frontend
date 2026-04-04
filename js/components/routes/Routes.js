@@ -1,6 +1,6 @@
 import React, { memo, useContext, useEffect } from 'react';
 import { Box, makeStyles, useTheme } from '@material-ui/core';
-import Header from '../header';
+import { Header } from '../header';
 import { Route, Switch, useLocation, useRouteMatch } from 'react-router-dom';
 import { Management } from '../management/management';
 import Tindspect from '../tindspect/Tindspect';
@@ -17,6 +17,7 @@ import { setSnapshotJustSaved } from '../snapshot/redux/actions';
 import { useDispatch } from 'react-redux';
 import { DirectDownload } from '../direct/directDownload';
 import { TASPreview } from '../preview/TASPreview';
+import { TooltipPathProvider } from '../tooltip/TooltipPathContext';
 
 const useStyles = makeStyles(theme => ({
   content: {
@@ -51,7 +52,9 @@ const Routes = memo(() => {
 
   return (
     <Box height="100vh" width="100%" margin={0} display="flex" flexDirection="column">
-      <Header headerHeight={headerHeight} setHeaderHeight={setHeaderHeight} isFundersLink={!!isFunders?.isExact} />
+      <TooltipPathProvider path="header">
+        <Header headerHeight={headerHeight} setHeaderHeight={setHeaderHeight} isFundersLink={!!isFunders?.isExact} />
+      </TooltipPathProvider>
       <Box className={classes.content} minHeight={contentHeight} width={contentWidth}>
         <Switch>
           <Route exact path={`${URLS.projects}:projectId`}>
@@ -67,7 +70,9 @@ const Routes = memo(() => {
             <Tindspect />
           </Route>
           <Route exact path={URLS.landing}>
-            <Landing />
+            <TooltipPathProvider path="landing">
+              <Landing />
+            </TooltipPathProvider>
           </Route>
           <Route exact path={`${URLS.snapshot}:sessionUUID`}>
             <SessionRedirect />
@@ -78,7 +83,9 @@ const Routes = memo(() => {
             render={routeProps => <TASPreview hideProjects resetSelection {...routeProps} />}
           /> */}
           <Route exact path={URLS.funders}>
-            <Landing />
+            <TooltipPathProvider path="landing">
+              <Landing />
+            </TooltipPathProvider>
           </Route>
           {/* <Route exact path={URLS.funders}>
             <Funders />

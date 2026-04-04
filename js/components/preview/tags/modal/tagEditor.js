@@ -1,5 +1,5 @@
 import React, { forwardRef, memo, useEffect, useState, useRef } from 'react';
-import { Grid, Popper, IconButton, Tooltip, makeStyles, FormControlLabel, Switch } from '@material-ui/core';
+import { Grid, Popper, IconButton, makeStyles, FormControlLabel, Switch } from '@material-ui/core';
 import { Panel } from '../../../common';
 import { Close } from '@material-ui/icons';
 import { useDispatch, useSelector } from 'react-redux';
@@ -32,6 +32,7 @@ import { TaggingInProgressModal } from './taggingInProgressModal';
 import { withStyles } from '@material-ui/core/styles';
 import { blue } from '@material-ui/core/colors';
 import { getCategoryById } from '../../molecule/redux/dispatchActions';
+import RichTooltip from '../../../tooltip/RichTooltip';
 
 const useStyles = makeStyles(theme => ({
   paper: {
@@ -337,8 +338,11 @@ export const TagEditor = memo(
           className={classes.paper}
           style={{ width: assignTagView ? '240px' : '310px' }}
           headerActions={[
-            <Tooltip
-              title={assignTagView ? 'Show Assign tags grid' : 'Show Assign tags list'}
+            <RichTooltip
+              absolutePath
+              path={
+                assignTagView ? 'fragalysis.components.tagEditor.showGrid' : 'fragalysis.components.tagEditor.showList'
+              }
               style={{ paddingRight: assignTagView ? '40px' : '110px' }}
             >
               <FormControlLabel
@@ -354,8 +358,8 @@ export const TagEditor = memo(
                 }
                 label={assignTagView ? 'List' : 'Grid'}
               />
-            </Tooltip>,
-            <Tooltip title="Close editor">
+            </RichTooltip>,
+            <RichTooltip absolutePath path="fragalysis.components.tagEditor.close">
               <IconButton
                 color="inherit"
                 className={classes.headerButton}
@@ -364,7 +368,7 @@ export const TagEditor = memo(
               >
                 <Close />
               </IconButton>
-            </Tooltip>
+            </RichTooltip>
           ]}
         >
           <TaggingInProgressModal

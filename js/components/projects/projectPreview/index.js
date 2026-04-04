@@ -20,6 +20,7 @@ import {
   setReapplyOrientation,
   setSnapshotOrientationApplied
 } from '../../../reducers/ngl/actions';
+import { TooltipPathProvider } from '../../tooltip/TooltipPathContext';
 
 export const ProjectPreview = memo(({}) => {
   const { toast } = useContext(ToastContext);
@@ -191,15 +192,17 @@ export const ProjectPreview = memo(({}) => {
   );
 
   return canShow === true && isSnapshotLoaded.current !== undefined ? (
-    <Preview
-      isSnapshot={true}
-      isStateLoaded={isSnapshotLoaded.current !== null}
-      hideProjects={
-        DJANGO_CONTEXT['pk'] === undefined ||
-        (DJANGO_CONTEXT['pk'] !== undefined &&
-          (currentSessionProject.projectID === null || currentSessionProject.authorID === null))
-      }
-    />
+    <TooltipPathProvider path="preview">
+      <Preview
+        isSnapshot={true}
+        isStateLoaded={isSnapshotLoaded.current !== null}
+        hideProjects={
+          DJANGO_CONTEXT['pk'] === undefined ||
+          (DJANGO_CONTEXT['pk'] !== undefined &&
+            (currentSessionProject.projectID === null || currentSessionProject.authorID === null))
+        }
+      />
+    </TooltipPathProvider>
   ) : (
     <LegacySnapshotModal open={showLegacySnapshotModal} project={projectId} snapshot={snapshotId} />
   );

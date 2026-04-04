@@ -81,6 +81,7 @@ const DownloadPdb = memo(({ targetOn, targetOnName, key }) => {
   } else {
     return (
       <Button
+        id="header-download-structure-button"
         key={key}
         color="primary"
         disabled={false}

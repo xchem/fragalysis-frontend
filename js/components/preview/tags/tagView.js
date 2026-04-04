@@ -1,6 +1,6 @@
 import React, { memo, useState, useEffect } from 'react';
-import { Grid, makeStyles, Chip, Tooltip, Avatar } from '@material-ui/core';
-import { Edit, Check } from '@material-ui/icons';
+import { Grid, makeStyles, Chip } from '@material-ui/core';
+import { Edit } from '@material-ui/icons';
 import { useDispatch, useSelector } from 'react-redux';
 import { getFontColorByBackgroundColor } from '../../../utils/colors';
 import { TagEditModal } from './modal/tagEditModal';
@@ -8,6 +8,7 @@ import classNames from 'classnames';
 import { setAssignTagView } from '../../../reducers/selection/actions';
 import { getCategoryById } from '../molecule/redux/dispatchActions';
 import { DEFAULT_TAG_COLOR } from './utils/tagUtils';
+import RichTooltip from '../../tooltip/RichTooltip';
 
 const useStyles = makeStyles(theme => ({
   tagItem: {
@@ -294,9 +295,9 @@ const TagView = memo(
     return (
       <>
         <Grid className={classNames(classes.tagItem, { [classes.tagDetailsItem]: isTagEditor })}>
-          <Tooltip title={originalTagData.tag} placement="top">
+          <RichTooltip absolutePath path="fragalysis.components.tagView.name" values={{ tagName: originalTagData.tag }}>
             <Chip {...generateProps()} />
-          </Tooltip>
+          </RichTooltip>
         </Grid>
         <TagEditModal openDialog={tagEditModalOpen} setOpenDialog={setTagEditModalOpen} tag={tag} />
       </>

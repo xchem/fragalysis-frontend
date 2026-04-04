@@ -8,6 +8,7 @@ import { loadTargetList } from '../target/redux/dispatchActions';
 import { setCurrentProject, setOpenPickProjectModal } from '../target/redux/actions';
 import { getProjectForProjectName, getProjectsForTargetDisp } from '../preview/redux/dispatchActions';
 import { URLS } from '../routes/constants';
+import { TooltipPathProvider } from '../tooltip/TooltipPathContext';
 
 export const DirectDisplay = memo(props => {
   let match = useRouteMatch();
@@ -161,5 +162,9 @@ export const DirectDisplay = memo(props => {
     }
   }, [targetIdList, directDisplay, dispatch]);
 
-  return <Preview isStateLoaded={false} hideProjects={true} />;
+  return (
+    <TooltipPathProvider path="preview">
+      <Preview isStateLoaded={false} hideProjects={true} />
+    </TooltipPathProvider>
+  );
 });

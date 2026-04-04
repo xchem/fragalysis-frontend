@@ -1,0 +1,238 @@
+{
+  "fragalysis": {
+    "landing": {
+      "targetLists": {
+        "filterSort": "Filter/Sort",
+        "includeTargetName": "Include Target name in Search",
+        "includeTAS": "Include Target access string in Search",
+        "sort": "Sort",
+        "sortFilterDialog": {
+          "clear": "Clear filter",
+          "close": "Close filter"
+        }
+      }
+    },
+    "preview": {
+      "downloadStructures": {
+        "copyJson": "Get a json for a POST request (`{{base_url}}/api/download_structures/`) that will generate a FILE_URL.\n\n Download your data at `{{base_url}}/api/download_structures/?file_url=<FILE_URL>`",
+        "showExamples": "Navigates to github thread with curl and python examples."
+      },
+      "viewerControls": {
+        "lhs": {
+          "open": "'Open left hand side",
+          "close": "Close left hand side"
+        },
+        "settings": "Settings controls",
+        "display": "Display controls",
+        "mouse": "Mouse controls",
+        "rhs": {
+          "open": "Open right hand side",
+          "close": "Close right hand side"
+        }
+      },
+      "snapshotList": {
+        "mySnapshots": "Show only my snapshots. If unchecked, all snapshots will be shown.",
+        "showStarred": "Show starred snapshots from other users.",
+        "snapshot": {
+          "rename": {
+            "rename": "Rename this snapshot",
+            "login": "You need to be logged in to rename snapshots."
+          },
+          "share": "Share this snapshot URL",
+          "update": {
+            "update": "Update this snapshot",
+            "login": "You need to be logged in to update snapshots."
+          }
+        }
+      },
+      "tagDetails": {
+        "mode": {
+          "intersection": "Intersection: Only the compounds labelled with all the active tags will be selected",
+          "union": "Union: Any compound labelled with any of the active tags will be selected"
+        },
+        "view": {
+          "list": "Show Tag detail list with detail info",
+          "grid": "Show Tag detail grid"
+        },
+        "sort": "Sort",
+        "tagCategory": "{{tagCategory}}",
+        "selectHits": {
+          "selectHits": "Select hits",
+          "unselectHits": "Unselect hits"
+        },
+        "discourseLink": "Discourse link",
+        "editModal": {
+          "close": "Close editor",
+          "uploadName": "{{uploadName}}"
+        }
+      },
+      "hitnavigator": {
+        "pose": {
+          "copyDataTable": {
+            "copySmiles": "Click to copy value of smiles",
+            "copyObservationCode": "Click to copy value of observation code",
+            "copyPrefixTooltip": "Click to copy value of prefix_tooltip",
+            "copyAlias": "Click to copy value of {{alias}}"
+          },
+          "tags": {
+            "editTag": "Edit tag",
+            "editTags": "Edit tags"
+          },
+          "code": "{{code}}",
+          "displayName": "{{displayName}}",
+          "centerOn": "Center on",
+          "all": "All",
+          "ligand": "Ligand",
+          "sidechains": "Sidechains",
+          "interactions": "Interactions",
+          "surface": "Surface",
+          "electronDensity": "Electron density",
+          "vectors": "Vectors"
+        },
+        "image": {
+          "warning": "Warning"
+        },
+        "peerReview": {
+          "summaryTooltip": {
+            "user": {
+              "userName": "{{user}}",
+              "noUser": "No user"
+            },
+            "addReviews": "Add reviews"
+          },
+          "setMainStatus": "Set main status",
+          "addPeerReview": "Add peer review",
+          "comment": "{{comment}}"
+        },
+        "canonSite": {
+          "title": "CanonSite - {{canonSiteName}}"
+        },
+        "conformerSite": {
+          "title": "ConformerSite - {{conformerSiteName}}"
+        },
+        "observationsView": {
+          "showObservations": "Show Observations"
+        },
+        "numericView": {
+          "numericValue": "{{value}}"
+        },
+        "textView": {
+          "textValue": "{{value}}"
+        },
+        "filters": {
+          "moleculeFilter": {
+            "updateEditor": "Update editor from SMILES/SMARTs query",
+            "applyFilter": "Apply filter"
+          }
+        },
+        "propertyDisplayName": "{{displayName}}",
+        "editTags": "Edit tags",
+        "lhsSettings": "LHS settings",
+        "allLigands": "All ligands",
+        "allSidechains": "All sidechains",
+        "allInteractions": "All interactions",
+        "allHits": {
+          "selectAllHits": "Select all hits",
+          "deselectAllHits": "Deselect all hits"
+        },
+        "displayedHits": {
+          "selectDisplayedHits": "Select displayed hits",
+          "deselectDisplayedHits": "Deselect displayed hits"
+        },
+        "sort": {
+          "sortBy": "Sort by",
+          "sortOption": "{{sortOption}}"
+        },
+        "sortOrder": {
+          "ascending": "Ascending",
+          "descending": "Descending"
+        },
+        "filterSettings": {
+          "closeEditor": "Close editor",
+          "dragAndDrop": "Drag and drop to reorder"
+        },
+        "observationsDialog": {
+          "close": "Close observations",
+          "allLigands": "All ligands",
+          "allSidechains": "All sidechains",
+          "allInteractions": "All interactions",
+          "expandView": {
+            "classic": "Show classic view",
+            "expanded": "Show expanded view"
+          },
+          "observation": {
+            "editTag": "Edit tag",
+            "editTags": "Edit tags",
+            "title": "{{obsName}}",
+            "propName": "{{propName}}",
+            "centerOn": "Center on",
+            "all": "All",
+            "ligand": "Ligand",
+            "sidechains": "Sidechains",
+            "interactions": "Interactions",
+            "surface": "Surface",
+            "electronDensity": "Electron density",
+            "vectors": "Vectors",
+            "copySmiles": {
+              "copy": "Copy smiles",
+              "copied": "Copied"
+            },
+            "warning": "warning",
+            "tagCategory": "{{tagCategory}}",
+            "tagName": "{{tagName}}",
+            "centroidRes": "CentroidRes",
+            "longCode": "LongCode",
+            "experimentalPath": {
+              "path": "{{path}}",
+              "noPath": "empty path"
+            }
+          }
+        }
+      }
+    },
+    "header": {
+      "funders": {
+        "copy": "Click to copy link to this window",
+        "companyFunding": "{{companyTitle}}",
+        "companyContributor": "{{companyTitle}}"
+      },
+      "discourseTarget": "Go to target category on Discourse",
+      "discourseCategory": "Go to project topic on Discourse",
+      "help": "Introduction to the Fragalysis application",
+      "layout": {
+        "lockLayout": "Lock layout",
+        "unlockLayout": "Unlock layout",
+        "resetLayout": "Reset layout",
+        "changeLayout": {
+          "button": "Change layout"
+        }
+      },
+      "xchem": "{{companyTitle}}",
+      "diamond": "{{companyTitle}}",
+      "asap": "{{companyTitle}}",
+      "fragmentScreen": "{{companyTitle}}",
+      "cmd": "{{companyTitle}}"
+    },
+    "components": {
+      "filterWrapper": {
+        "closeFilter": "Close filter",
+        "resetFilter": "Reset filter"
+      },
+      "tagView": {
+        "name": "{{tagName}}"
+      },
+      "tagEditor": {
+        "showGrid": "Show Assign tags grid",
+        "showList": "Show Assign tags list",
+        "close": "Close editor"
+      },
+      "targetSettings": {
+        "close": "Close editor",
+        "dragAndDrop": "Drag and drop to reorder"
+      },
+      "panel": {
+        "title": "{{title}}"
+      }
+    }
+  }
+}

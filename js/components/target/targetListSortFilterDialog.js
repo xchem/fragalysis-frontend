@@ -1,26 +1,14 @@
-import React, { memo, useState, useEffect, useCallback } from 'react';
+import React, { memo } from 'react';
 import PropTypes from 'prop-types';
-import { Popper, Tooltip, IconButton } from '@material-ui/core';
+import { Popper, IconButton } from '@material-ui/core';
 import { Close, Delete } from '@material-ui/icons';
 import Grid from '@material-ui/core/Grid';
 import TargetListSortFilterItem from './targetListSortFilterItem';
 import WarningIcon from '@material-ui/icons/Warning';
 import { makeStyles } from '@material-ui/styles';
-import { useDispatch, useSelector } from 'react-redux';
 import { TARGETS_ATTR } from './redux/constants';
 import { Panel } from '../common/Surfaces/Panel';
-import {
-  setSortTargetDialogOpen,
-  setListOfFilteredTargets,
-  setListOfTargets,
-  setDefaultFilter,
-  setListOfFilteredTargetsByDate
-} from './redux/actions';
-import { setTargetFilter } from '../../reducers/selection/actions';
-import { debounce } from 'lodash';
-import { compareTargetAsc } from './sortTargets/sortTargets';
-import { MOCK_LIST_OF_TARGETS } from './MOCK';
-import { getCombinedTargetList } from '../../reducers/api/selectors';
+import RichTooltip from '../tooltip/RichTooltip';
 
 const useStyles = makeStyles(theme => ({
   title: {
@@ -117,20 +105,16 @@ export const TargetListSortFilterDialog = memo(
           title={`Target list filter`}
           className={classes.paper}
           headerActions={[
-            <Tooltip title="Clear filter">
+            <RichTooltip path="clear">
               <IconButton onClick={resetFilter} color="inherit" className={classes.headerButton}>
                 <Delete />
               </IconButton>
-            </Tooltip>,
-            <Tooltip title="Close filter">
-              <IconButton
-                onClick={onClose}
-                color="inherit"
-                className={classes.headerButton}
-              >
+            </RichTooltip>,
+            <RichTooltip path="close">
+              <IconButton onClick={onClose} color="inherit" className={classes.headerButton}>
                 <Close />
               </IconButton>
-            </Tooltip>
+            </RichTooltip>
           ]}
         >
           {prioWarning && (

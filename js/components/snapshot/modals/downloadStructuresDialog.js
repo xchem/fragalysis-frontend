@@ -17,7 +17,6 @@ import {
   Typography,
   Select,
   MenuItem,
-  Tooltip,
   Paper
 } from '@material-ui/core';
 import { selectJoinedMoleculeList } from '../../preview/molecule/redux/selectors';
@@ -44,7 +43,7 @@ import { appendToDownloadTags } from '../../../reducers/api/actions';
 import { getTagByName } from '../../preview/tags/api/tagsApi';
 import { withStyles } from '@material-ui/core/styles';
 import { ToastContext } from '../../toast';
-import { th } from 'date-fns/locale';
+import RichTooltip from '../../tooltip/RichTooltip';
 
 const useStyles = makeStyles(theme => ({
   root: {
@@ -774,15 +773,7 @@ export const DownloadStructureDialog = memo(({}) => {
           >
             {fileSize ? `Download - ${fileSize}` : 'Download'}
           </Button>
-          <Tooltip
-            title={
-              <Paper>
-                <Typography varian="h6">
-                  {`Get a json for a POST request (${base_url}/api/download_structures/) that will generate a FILE_URL. Download your data at ${base_url}/api/download_structures/?file_url=<FILE_URL>`}
-                </Typography>
-              </Paper>
-            }
-          >
+          <RichTooltip path="copyJson" values={{ base_url: base_url }}>
             <Button
               className={classes.button}
               color="primary"
@@ -792,8 +783,8 @@ export const DownloadStructureDialog = memo(({}) => {
             >
               (For coders) Copy JSON for API call
             </Button>
-          </Tooltip>
-          <Tooltip title="Navigates to github thread with curl and python examples.">
+          </RichTooltip>
+          <RichTooltip path="showExamples">
             <Button
               className={classes.button}
               color="primary"
@@ -803,7 +794,7 @@ export const DownloadStructureDialog = memo(({}) => {
             >
               Show Examples
             </Button>
-          </Tooltip>
+          </RichTooltip>
           <Button
             className={classes.closeButton}
             onClick={() => {
@@ -817,4 +808,3 @@ export const DownloadStructureDialog = memo(({}) => {
     </Modal>
   );
 });
-

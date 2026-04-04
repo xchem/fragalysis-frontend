@@ -16,16 +16,13 @@ import {
   IconButton,
   InputAdornment,
   TextField,
-  Tooltip,
   Typography
 } from '@material-ui/core';
 import { Link } from 'react-router-dom';
 import { URLS } from '../routes/constants';
 import { Edit } from '@material-ui/icons';
 import { URL_TOKENS } from '../direct/constants';
-import {
-  setEditTargetDialogOpen
-} from './redux/actions';
+import { setEditTargetDialogOpen } from './redux/actions';
 import {
   compareTargetAsc,
   compareTargetDesc,
@@ -35,19 +32,15 @@ import {
   compareInitDateDesc
 } from './sortTargets/sortTargets';
 import { TargetListSortFilterDialog } from './targetListSortFilterDialog';
-import {
-  Search,
-  KeyboardArrowDown,
-  KeyboardArrowUp,
-  UnfoldMore,
-  FilterList
-} from '@material-ui/icons';
+import { Search, KeyboardArrowDown, KeyboardArrowUp, UnfoldMore, FilterList } from '@material-ui/icons';
 import { setTargetToEdit } from '../../reducers/selection/actions';
 import { TARGETS_ATTR } from './redux/constants';
 import { getTargetProjectCombinations } from './redux/dispatchActions';
 import moment from 'moment';
 import { DJANGO_CONTEXT } from '../../utils/djangoContext';
 import { Panel } from '../common';
+import RichTooltip from '../tooltip/RichTooltip';
+import { TooltipPathProvider } from '../tooltip/TooltipPathContext';
 
 const useStyles = makeStyles(theme => ({
   table: {
@@ -116,7 +109,7 @@ export const TargetList = memo(({ list = [], title = 'Target list', authRequired
     setIsResizingForColumns({
       ...isResizingForColumns,
       [column]: isResizing
-    })
+    });
   };
   const [panelWidthForColumns, setPanelWidthForColumns] = useState({
     target: 110,
@@ -133,7 +126,7 @@ export const TargetList = memo(({ list = [], title = 'Target list', authRequired
     setPanelWidthForColumns({
       ...panelWidthForColumns,
       [column]: width
-    })
+    });
   };
   const [panelWidth, setPanelWidth] = useState(110);
   const [panelWidthForTargetAccessString, setPanelWidthForTargetAccessString] = useState(140);
@@ -297,7 +290,9 @@ export const TargetList = memo(({ list = [], title = 'Target list', authRequired
       case 'organism':
         return target.organism.toLowerCase().includes(filterValue.toLowerCase());
       case 'dataVersion':
-        return target.data_version ? filterValue[0] <= target.data_version && filterValue[1] >= target.data_version : true;
+        return target.data_version
+          ? filterValue[0] <= target.data_version && filterValue[1] >= target.data_version
+          : true;
     }
     return false;
   };
@@ -338,8 +333,7 @@ export const TargetList = memo(({ list = [], title = 'Target list', authRequired
         if (newFilter[property].value) {
           filteredList = filteredList.filter(target => {
             return filterProperty(target, property, newFilter[property].value);
-          }
-          );
+          });
         }
         // apply ordering
         if (newFilter[property].order !== 0) {
@@ -355,9 +349,11 @@ export const TargetList = memo(({ list = [], title = 'Target list', authRequired
 
       console.log('pre searchString', searchString, checkedTarget, checkedTargetAccessString);
       if (searchString && (checkedTarget || checkedTargetAccessString)) {
-        filteredList = filteredList.filter(item =>
-          checkedTarget && item.display_name.toLowerCase().includes(searchString.toLowerCase())
-          || checkedTargetAccessString && item.project.target_access_string.toLowerCase().includes(searchString.toLowerCase())
+        filteredList = filteredList.filter(
+          item =>
+            (checkedTarget && item.display_name.toLowerCase().includes(searchString.toLowerCase())) ||
+            (checkedTargetAccessString &&
+              item.project.target_access_string.toLowerCase().includes(searchString.toLowerCase()))
         );
         setTargetList(filteredList);
       } else {
@@ -411,76 +407,84 @@ export const TargetList = memo(({ list = [], title = 'Target list', authRequired
     }
   }
 
-  const render_item_method = useCallback(target => {
-    let preview;
-    if (target.isLegacy) {
-      preview = target.legacyUrl;
-    } else {
-      preview = `${URLS.target}${target.title}/${URL_TOKENS.target_access_string}/${target.project.target_access_string}`;
-    }
+  const render_item_method = useCallback(
+    (target, index) => {
+      let preview;
+      if (target.isLegacy) {
+        preview = target.legacyUrl;
+      } else {
+        preview = `${URLS.target}${target.title}/${URL_TOKENS.target_access_string}/${target.project.target_access_string}`;
+      }
+      target.elementId = `${title.replace(" ", "-").toLowerCase()}-item-${index}`
 
-    return (
-      <TableRow hover key={target.isLegacy ? target.title + 'Legacy' : `${target.id}-${target.title}`}>
-        <TableCell align="left" style={{ padding: '0px', margin: '0px' }} >
-          {target.isLegacy ? (
-            <a href={target.legacyUrl} target="new" style={{ wordBreak: 'break-all' }}>
-              {target.display_name}
-            </a>
-          ) : (
-            <>
-              <Link to={preview}>{target.display_name}</Link>
-            </>
+      return (
+        <TableRow hover key={target.isLegacy ? target.title + 'Legacy' : `${target.id}-${target.title}`}>
+          <TableCell align="left" style={{ padding: '0px', margin: '0px' }}>
+            {target.isLegacy ? (
+              <a href={target.legacyUrl} id={target.elementId} target="new" style={{ wordBreak: 'break-all' }}>
+                {target.display_name}
+              </a>
+            ) : (
+              <>
+                <Link to={preview} id={target.elementId}>{target.display_name}</Link>
+              </>
+            )}
+          </TableCell>
+          <TableCell style={{ width: '2px', padding: '0px', margin: '0px' }}></TableCell>
+          {legacy === false && [
+            <TableCell key={'14'} align="left" style={{ padding: '0px', margin: '0px' }}>
+              {target.project.target_access_string}
+            </TableCell>,
+            <TableCell key={'13'} style={{ width: '2px', padding: '0px', margin: '0px' }}></TableCell>,
+            <TableCell key={'12'} align="left" style={{ padding: '0px', margin: '0px' }}>
+              {moment(target.project.init_date).format('YYYY-MM-DD')}
+            </TableCell>,
+            <TableCell key={'11'} style={{ width: '2px', padding: '0px', margin: '0px' }}></TableCell>,
+            <TableCell key={'1'} align="left" style={{ padding: '0px', margin: '0px' }}>
+              {target.last_updated ? moment(target.last_updated).format('YYYY-MM-DD') : ''}
+            </TableCell>,
+            <TableCell key={'2'} style={{ width: '2px', padding: '0px', margin: '0px' }}></TableCell>,
+            <TableCell key={'3'} align="left" style={{ padding: '0px', margin: '0px' }}>
+              {target.short_name}
+            </TableCell>,
+            <TableCell key={'4'} style={{ width: '2px', padding: '0px', margin: '0px' }}></TableCell>,
+            <TableCell key={'5'} align="left" style={{ padding: '0px', margin: '0px' }}>
+              {target.long_name}
+            </TableCell>,
+            <TableCell key={'6'} style={{ width: '2px', padding: '0px', margin: '0px' }}></TableCell>,
+            <TableCell key={'7'} align="left" style={{ padding: '0px', margin: '0px' }}>
+              {target.organism}
+            </TableCell>,
+            <TableCell key={'8'} style={{ width: '2px', padding: '0px', margin: '0px' }}></TableCell>,
+            <TableCell key={'9'} align="left" style={{ padding: '0px', margin: '0px' }}>
+              <a href={target.external_url} target="_blank">
+                {target.external_url_display_name}
+              </a>
+            </TableCell>,
+            <TableCell key={'10'} style={{ width: '2px', padding: '0px', margin: '0px' }}></TableCell>,
+            <TableCell key={'15'} align="center" style={{ padding: '0px', margin: '0px' }}>
+              {target.data_version}
+            </TableCell>,
+            <TableCell key={'16'} style={{ width: '2px', padding: '0px', margin: '0px' }}></TableCell>
+          ]}
+          {DJANGO_CONTEXT['authenticated'] && !target.isLegacy && (
+            <TableCell style={{ width: '2px', padding: '0px', margin: '0px' }}>
+              <IconButton
+                style={{ padding: '0px' }}
+                onClick={() => {
+                  dispatch(setTargetToEdit(target));
+                  dispatch(setEditTargetDialogOpen(true));
+                }}
+              >
+                <Edit style={{ height: '15px' }} />
+              </IconButton>
+            </TableCell>
           )}
-        </TableCell>
-        <TableCell style={{ width: '2px', padding: '0px', margin: '0px' }}></TableCell>
-        {legacy === false && ([
-          <TableCell key={'14'} align="left" style={{ padding: '0px', margin: '0px' }}>
-            {target.project.target_access_string}
-          </TableCell>,
-          <TableCell key={'13'} style={{ width: '2px', padding: '0px', margin: '0px' }}></TableCell>,
-          <TableCell key={'12'} align="left" style={{ padding: '0px', margin: '0px' }}>
-            {moment(target.project.init_date).format('YYYY-MM-DD')}
-          </TableCell>,
-          <TableCell key={'11'} style={{ width: '2px', padding: '0px', margin: '0px' }}></TableCell>,
-          <TableCell key={'1'} align="left" style={{ padding: '0px', margin: '0px' }}>
-            {target.last_updated ? moment(target.last_updated).format('YYYY-MM-DD') : ''}
-          </TableCell>,
-          <TableCell key={'2'} style={{ width: '2px', padding: '0px', margin: '0px' }}></TableCell>,
-          <TableCell key={'3'} align="left" style={{ padding: '0px', margin: '0px' }}>
-            {target.short_name}
-          </TableCell>,
-          <TableCell key={'4'} style={{ width: '2px', padding: '0px', margin: '0px' }}></TableCell>,
-          <TableCell key={'5'} align="left" style={{ padding: '0px', margin: '0px' }}>
-            {target.long_name}
-          </TableCell>,
-          <TableCell key={'6'} style={{ width: '2px', padding: '0px', margin: '0px' }}></TableCell>,
-          <TableCell key={'7'} align="left" style={{ padding: '0px', margin: '0px' }}>
-            {target.organism}
-          </TableCell>,
-          <TableCell key={'8'} style={{ width: '2px', padding: '0px', margin: '0px' }}></TableCell>,
-          <TableCell key={'9'} align="left" style={{ padding: '0px', margin: '0px' }}>
-            <a href={target.external_url} target="_blank">{target.external_url_display_name}</a>
-          </TableCell>,
-          <TableCell key={'10'} style={{ width: '2px', padding: '0px', margin: '0px' }}></TableCell>,
-          <TableCell key={'15'} align="center" style={{ padding: '0px', margin: '0px' }}>
-            {target.data_version}
-          </TableCell>,
-          <TableCell key={'16'} style={{ width: '2px', padding: '0px', margin: '0px' }}></TableCell>
-        ])}
-        {DJANGO_CONTEXT['authenticated'] && !target.isLegacy && <TableCell style={{ width: '2px', padding: '0px', margin: '0px' }}>
-          <IconButton
-            style={{ padding: '0px' }}
-            onClick={() => {
-              dispatch(setTargetToEdit(target));
-              dispatch(setEditTargetDialogOpen(true));
-            }}
-          >
-            <Edit style={{ height: '15px' }} />
-          </IconButton>
-        </TableCell>}
-      </TableRow>
-    );
-  }, [dispatch, legacy]);
+        </TableRow>
+      );
+    },
+    [dispatch, legacy]
+  );
 
   // window height for showing rows per page
   const [windowHeight, setWindowHeight] = useState(window.innerHeight);
@@ -515,11 +519,14 @@ export const TargetList = memo(({ list = [], title = 'Target list', authRequired
     setIsResizing(true);
   };
 
-  const handleMouseMove = useCallback(e => {
-    if (!isResizing) return;
-    const deltaX = e.clientX - 20;
-    setPanelWidth(deltaX);
-  }, [isResizing]);
+  const handleMouseMove = useCallback(
+    e => {
+      if (!isResizing) return;
+      const deltaX = e.clientX - 20;
+      setPanelWidth(deltaX);
+    },
+    [isResizing]
+  );
 
   const handleMouseUp = useCallback(() => {
     setIsResizing(false);
@@ -544,11 +551,14 @@ export const TargetList = memo(({ list = [], title = 'Target list', authRequired
     panelWidth !== undefined ? setPanelWidth(panelWidth) : setPanelWidth(130);
   };
 
-  const handleMouseMoveTargetAccessString = useCallback(e => {
-    if (!isResizingTargetAccessString) return;
-    const deltaX = e.clientX - 140;
-    setPanelWidthForTargetAccessString(deltaX);
-  }, [isResizingTargetAccessString]);
+  const handleMouseMoveTargetAccessString = useCallback(
+    e => {
+      if (!isResizingTargetAccessString) return;
+      const deltaX = e.clientX - 140;
+      setPanelWidthForTargetAccessString(deltaX);
+    },
+    [isResizingTargetAccessString]
+  );
 
   const handleMouseUpTargetAccessString = useCallback(() => {
     setIsResizingTargetAccessString(false);
@@ -567,7 +577,7 @@ export const TargetList = memo(({ list = [], title = 'Target list', authRequired
   }, [isResizingTargetAccessString, handleMouseMoveTargetAccessString, handleMouseUpTargetAccessString]);
   // END RESIZER FOR TARGET ACCESS STRING COLUMN
 
-  const handleMouseDownResizer = (column) => {
+  const handleMouseDownResizer = column => {
     updateIsResizingForColumn(column, true);
     //panelWidth !== undefined ? setPanelWidth(panelWidth) : setPanelWidth(130);
   };
@@ -639,15 +649,17 @@ export const TargetList = memo(({ list = [], title = 'Target list', authRequired
     // const combinations = getTargetProjectCombinations(targetList, projectsList);
     // const slice = combinations.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage);
     const slice = targetList.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage);
-    const result = slice.map(data => render_item_method(data));
+    const result = slice.map((data, index) => render_item_method(data, index));
 
-    return slice.length > 0 ? result : [
-      <TableRow key="empty">
-        <TableCell colSpan={16} align="center">
-          {needsAuthentication ? 'You need to log in to view your targets' : 'No targets found'}
-        </TableCell>
-      </TableRow>
-    ];
+    return slice.length > 0
+      ? result
+      : [
+          <TableRow key="empty">
+            <TableCell colSpan={16} align="center">
+              {needsAuthentication ? 'You need to log in to view your targets' : 'No targets found'}
+            </TableCell>
+          </TableRow>
+        ];
   }, [targetList, page, rowsPerPage, render_item_method, needsAuthentication]);
 
   if (target_id_list) {
@@ -656,48 +668,50 @@ export const TargetList = memo(({ list = [], title = 'Target list', authRequired
         hasHeader
         title={title}
         bodyOverflow
-        headerActions={!needsAuthentication && [
-          <TextField
-            className={classes.search}
-            id="input-with-icon-textfield"
-            placeholder="Search"
-            size="small"
-            color="primary"
-            InputProps={{
-              startAdornment: (
-                <InputAdornment position="start">
-                  <Search />
-                </InputAdornment>
-              )
-            }}
-            onChange={handleSearch}
-          />,
-          <IconButton
-            onClick={event => {
-              if (filterDialogOpen === false || filterDialogOpen === undefined) {
-                setSortDialogAnchorEl(event.currentTarget);
-                setFilterDialogOpen(true);
-              } else {
-                setSortDialogAnchorEl(null);
-                setFilterDialogOpen(false);
-              }
-            }}
-            color={'inherit'}
-          >
-            <Tooltip title="Filter/Sort">
-              <FilterList />
-            </Tooltip>
-          </IconButton>
-        ]}
+        headerActions={
+          !needsAuthentication && [
+            <TextField
+              className={classes.search}
+              id="input-with-icon-textfield"
+              placeholder="Search"
+              size="small"
+              color="primary"
+              InputProps={{
+                startAdornment: (
+                  <InputAdornment position="start">
+                    <Search />
+                  </InputAdornment>
+                )
+              }}
+              onChange={handleSearch}
+            />,
+            <IconButton
+              onClick={event => {
+                if (filterDialogOpen === false || filterDialogOpen === undefined) {
+                  setSortDialogAnchorEl(event.currentTarget);
+                  setFilterDialogOpen(true);
+                } else {
+                  setSortDialogAnchorEl(null);
+                  setFilterDialogOpen(false);
+                }
+              }}
+              color={'inherit'}
+            >
+              <RichTooltip path="filterSort">
+                <FilterList />
+              </RichTooltip>
+            </IconButton>
+          ]
+        }
       >
         <Table className={classes.table} aria-label="a dense table">
           <TableHead>
             <TableRow>
               <TableCell
                 className={classes.tableHeader}
-              // style={{ width: panelWidthForColumns.target, padding: '0px' }}
+                // style={{ width: panelWidthForColumns.target, padding: '0px' }}
               >
-                <Tooltip title="Include Target name in Search">
+                <RichTooltip path="includeTargetName">
                   <Typography variant="inherit">
                     <input
                       type="checkbox"
@@ -707,7 +721,7 @@ export const TargetList = memo(({ list = [], title = 'Target list', authRequired
                     />
                     {newFilter.target.title}
                   </Typography>
-                </Tooltip>
+                </RichTooltip>
               </TableCell>
               <div style={{ display: 'flex' }}>
                 <div>
@@ -715,7 +729,7 @@ export const TargetList = memo(({ list = [], title = 'Target list', authRequired
                     style={{ padding: '0px', paddingRight: '5px' }}
                     onClick={() => handleHeaderSort('target')}
                   >
-                    <Tooltip title="Sort" className={classes.sortButton}>
+                    <RichTooltip path="sort" className={classes.sortButton}>
                       {newFilter.target.order === -1 ? (
                         <KeyboardArrowDown />
                       ) : newFilter.target.order === 1 ? (
@@ -723,7 +737,7 @@ export const TargetList = memo(({ list = [], title = 'Target list', authRequired
                       ) : (
                         <UnfoldMore />
                       )}
-                    </Tooltip>
+                    </RichTooltip>
                   </IconButton>
                 </div>
                 <div
@@ -737,12 +751,13 @@ export const TargetList = memo(({ list = [], title = 'Target list', authRequired
                   onMouseDown={handleMouseDown}
                 ></div>
               </div>
-              {legacy === false && ([
-                <TableCell key={20}
+              {legacy === false && [
+                <TableCell
+                  key={20}
                   className={classes.tableHeader}
-                // style={{ width: panelWidthForColumns.tas, padding: '0px' }}
+                  // style={{ width: panelWidthForColumns.tas, padding: '0px' }}
                 >
-                  <Tooltip title="Include Target access string in Search">
+                  <RichTooltip path="includeTAS">
                     <Typography variant="inherit">
                       <input
                         type="checkbox"
@@ -752,15 +767,12 @@ export const TargetList = memo(({ list = [], title = 'Target list', authRequired
                       />
                       {newFilter.tas.title}
                     </Typography>
-                  </Tooltip>
+                  </RichTooltip>
                 </TableCell>,
                 <div key={21} style={{ display: 'flex' }}>
                   <div>
-                    <IconButton
-                      style={{ padding: '0px', paddingRight: '5px' }}
-                      onClick={() => handleHeaderSort('tas')}
-                    >
-                      <Tooltip title="Sort" className={classes.sortButton}>
+                    <IconButton style={{ padding: '0px', paddingRight: '5px' }} onClick={() => handleHeaderSort('tas')}>
+                      <RichTooltip path="sort" className={classes.sortButton}>
                         {newFilter.tas.order === -1 ? (
                           <KeyboardArrowDown />
                         ) : newFilter.tas.order === 1 ? (
@@ -768,7 +780,7 @@ export const TargetList = memo(({ list = [], title = 'Target list', authRequired
                         ) : (
                           <UnfoldMore />
                         )}
-                      </Tooltip>
+                      </RichTooltip>
                     </IconButton>
                   </div>
                   <div
@@ -783,9 +795,10 @@ export const TargetList = memo(({ list = [], title = 'Target list', authRequired
                   ></div>
                 </div>,
 
-                <TableCell key={22}
+                <TableCell
+                  key={22}
                   className={classes.tableHeader}
-                // style={{ width: panelWidthForColumns.initDate, padding: '0px', paddingLeft: '5px', verticalAlign: 'center' }}
+                  // style={{ width: panelWidthForColumns.initDate, padding: '0px', paddingLeft: '5px', verticalAlign: 'center' }}
                 >
                   {newFilter.initDate.title}
                 </TableCell>,
@@ -795,7 +808,7 @@ export const TargetList = memo(({ list = [], title = 'Target list', authRequired
                       style={{ padding: '0px', verticalAlign: 'center' }}
                       onClick={() => handleHeaderSort('initDate')}
                     >
-                      <Tooltip title="Sort" className={classes.sortButton}>
+                      <RichTooltip path="sort" className={classes.sortButton}>
                         {newFilter.initDate.order === -1 ? (
                           <KeyboardArrowDown />
                         ) : newFilter.initDate.order === 1 ? (
@@ -803,7 +816,7 @@ export const TargetList = memo(({ list = [], title = 'Target list', authRequired
                         ) : (
                           <UnfoldMore />
                         )}
-                      </Tooltip>
+                      </RichTooltip>
                     </IconButton>
                   </div>
                   <div
@@ -817,9 +830,10 @@ export const TargetList = memo(({ list = [], title = 'Target list', authRequired
                     onMouseDown={handleMouseDownResizerInitDate}
                   ></div>
                 </div>,
-                <TableCell key={'1'}
+                <TableCell
+                  key={'1'}
                   className={classes.tableHeader}
-                // style={{ width: panelWidthForColumns.lastUpdatedDate, padding: '0px', paddingLeft: '5px', verticalAlign: 'center' }}
+                  // style={{ width: panelWidthForColumns.lastUpdatedDate, padding: '0px', paddingLeft: '5px', verticalAlign: 'center' }}
                 >
                   {newFilter.lastUpdatedDate.title}
                 </TableCell>,
@@ -829,7 +843,7 @@ export const TargetList = memo(({ list = [], title = 'Target list', authRequired
                       style={{ padding: '0px', verticalAlign: 'center' }}
                       onClick={() => handleHeaderSort('lastUpdatedDate')}
                     >
-                      <Tooltip title="Sort" className={classes.sortButton}>
+                      <RichTooltip path="sort" className={classes.sortButton}>
                         {newFilter.lastUpdatedDate?.order === -1 ? (
                           <KeyboardArrowDown />
                         ) : newFilter.lastUpdatedDate?.order === 1 ? (
@@ -837,7 +851,7 @@ export const TargetList = memo(({ list = [], title = 'Target list', authRequired
                         ) : (
                           <UnfoldMore />
                         )}
-                      </Tooltip>
+                      </RichTooltip>
                     </IconButton>
                   </div>
                   <div
@@ -852,9 +866,10 @@ export const TargetList = memo(({ list = [], title = 'Target list', authRequired
                   ></div>
                 </div>,
 
-                <TableCell key={'3'}
+                <TableCell
+                  key={'3'}
                   className={classes.tableHeader}
-                // style={{ width: panelWidthForColumns.shortName, padding: '0px', paddingLeft: '5px', verticalAlign: 'center' }}
+                  // style={{ width: panelWidthForColumns.shortName, padding: '0px', paddingLeft: '5px', verticalAlign: 'center' }}
                 >
                   {newFilter.shortName.title}
                 </TableCell>,
@@ -864,7 +879,7 @@ export const TargetList = memo(({ list = [], title = 'Target list', authRequired
                       style={{ padding: '0px', verticalAlign: 'center' }}
                       onClick={() => handleHeaderSort('shortName')}
                     >
-                      <Tooltip title="Sort" className={classes.sortButton}>
+                      <RichTooltip path="sort" className={classes.sortButton}>
                         {newFilter.shortName.order === -1 ? (
                           <KeyboardArrowDown />
                         ) : newFilter.shortName.order === 1 ? (
@@ -872,7 +887,7 @@ export const TargetList = memo(({ list = [], title = 'Target list', authRequired
                         ) : (
                           <UnfoldMore />
                         )}
-                      </Tooltip>
+                      </RichTooltip>
                     </IconButton>
                   </div>
                   <div
@@ -886,9 +901,10 @@ export const TargetList = memo(({ list = [], title = 'Target list', authRequired
                     onMouseDown={() => handleMouseDownResizer('shortName')}
                   ></div>
                 </div>,
-                <TableCell key={'5'}
+                <TableCell
+                  key={'5'}
                   className={classes.tableHeader}
-                // style={{ width: panelWidthForColumns.longName, padding: '0px', paddingLeft: '5px', verticalAlign: 'center' }}
+                  // style={{ width: panelWidthForColumns.longName, padding: '0px', paddingLeft: '5px', verticalAlign: 'center' }}
                 >
                   {newFilter.longName.title}
                 </TableCell>,
@@ -898,7 +914,7 @@ export const TargetList = memo(({ list = [], title = 'Target list', authRequired
                       style={{ padding: '0px', verticalAlign: 'center' }}
                       onClick={() => handleHeaderSort('longName')}
                     >
-                      <Tooltip title="Sort" className={classes.sortButton}>
+                      <RichTooltip path="sort" className={classes.sortButton}>
                         {newFilter.longName.order === -1 ? (
                           <KeyboardArrowDown />
                         ) : newFilter.longName.order === 1 ? (
@@ -906,7 +922,7 @@ export const TargetList = memo(({ list = [], title = 'Target list', authRequired
                         ) : (
                           <UnfoldMore />
                         )}
-                      </Tooltip>
+                      </RichTooltip>
                     </IconButton>
                   </div>
                   <div
@@ -920,9 +936,10 @@ export const TargetList = memo(({ list = [], title = 'Target list', authRequired
                     onMouseDown={() => handleMouseDownResizer('longName')}
                   ></div>
                 </div>,
-                <TableCell key={'7'}
+                <TableCell
+                  key={'7'}
                   className={classes.tableHeader}
-                // style={{ width: panelWidthForColumns.organism, padding: '0px', paddingLeft: '5px', verticalAlign: 'center' }}
+                  // style={{ width: panelWidthForColumns.organism, padding: '0px', paddingLeft: '5px', verticalAlign: 'center' }}
                 >
                   {newFilter.organism.title}
                 </TableCell>,
@@ -932,7 +949,7 @@ export const TargetList = memo(({ list = [], title = 'Target list', authRequired
                       style={{ padding: '0px', verticalAlign: 'center' }}
                       onClick={() => handleHeaderSort('organism')}
                     >
-                      <Tooltip title="Sort" className={classes.sortButton}>
+                      <RichTooltip path="sort" className={classes.sortButton}>
                         {newFilter.organism.order === -1 ? (
                           <KeyboardArrowDown />
                         ) : newFilter.organism.order === 1 ? (
@@ -940,7 +957,7 @@ export const TargetList = memo(({ list = [], title = 'Target list', authRequired
                         ) : (
                           <UnfoldMore />
                         )}
-                      </Tooltip>
+                      </RichTooltip>
                     </IconButton>
                   </div>
                   <div
@@ -955,9 +972,10 @@ export const TargetList = memo(({ list = [], title = 'Target list', authRequired
                   ></div>
                 </div>,
 
-                <TableCell key={'9'}
+                <TableCell
+                  key={'9'}
                   className={classes.tableHeader}
-                // style={{ width: panelWidthForColumns.externalURL, padding: '0px', paddingLeft: '5px', verticalAlign: 'center' }}
+                  // style={{ width: panelWidthForColumns.externalURL, padding: '0px', paddingLeft: '5px', verticalAlign: 'center' }}
                 >
                   External URL
                 </TableCell>,
@@ -967,7 +985,7 @@ export const TargetList = memo(({ list = [], title = 'Target list', authRequired
                       style={{ padding: '0px', verticalAlign: 'center' }}
                       onClick={() => handleHeaderSort('externalURL')}
                     >
-                      <Tooltip title="Sort" className={classes.sortButton}>
+                      <RichTooltip path="sort" className={classes.sortButton}>
                         {filter.filter.externalURL?.order === -1 ? (
                           <KeyboardArrowDown />
                         ) : filter.filter.externalURL?.order === 1 ? (
@@ -975,7 +993,7 @@ export const TargetList = memo(({ list = [], title = 'Target list', authRequired
                         ) : (
                           <UnfoldMore />
                         )}
-                      </Tooltip>
+                      </RichTooltip>
                     </IconButton>
                   </div>
                   <div
@@ -990,9 +1008,10 @@ export const TargetList = memo(({ list = [], title = 'Target list', authRequired
                   ></div>
                 </div>,
 
-                <TableCell key={'11'}
+                <TableCell
+                  key={'11'}
                   className={classes.tableHeader}
-                // style={{ width: panelWidthForColumns.externalURL, padding: '0px', paddingLeft: '5px', verticalAlign: 'center' }}
+                  // style={{ width: panelWidthForColumns.externalURL, padding: '0px', paddingLeft: '5px', verticalAlign: 'center' }}
                 >
                   Data version
                 </TableCell>,
@@ -1002,7 +1021,7 @@ export const TargetList = memo(({ list = [], title = 'Target list', authRequired
                       style={{ padding: '0px', verticalAlign: 'center' }}
                       onClick={() => handleHeaderSort('dataVersion')}
                     >
-                      <Tooltip title="Sort" className={classes.sortButton}>
+                      <RichTooltip path="sort" className={classes.sortButton}>
                         {filter.filter.dataVersion?.order === -1 ? (
                           <KeyboardArrowDown />
                         ) : filter.filter.dataVersion?.order === 1 ? (
@@ -1010,7 +1029,7 @@ export const TargetList = memo(({ list = [], title = 'Target list', authRequired
                         ) : (
                           <UnfoldMore />
                         )}
-                      </Tooltip>
+                      </RichTooltip>
                     </IconButton>
                   </div>
                   <div
@@ -1024,15 +1043,16 @@ export const TargetList = memo(({ list = [], title = 'Target list', authRequired
                     onMouseDown={() => handleMouseDownResizer('dataVersion')}
                   ></div>
                 </div>
-              ])}
+              ]}
 
-              {DJANGO_CONTEXT['authenticated'] && legacy === false &&
+              {DJANGO_CONTEXT['authenticated'] && legacy === false && (
                 <TableCell
                   className={classes.tableHeader}
-                // style={{ width: 50, paddingLeft: '5px', verticalAlign: 'center' }}
+                  // style={{ width: 50, paddingLeft: '5px', verticalAlign: 'center' }}
                 >
                   Edit
-                </TableCell>}
+                </TableCell>
+              )}
             </TableRow>
           </TableHead>
           <TableBody>{itemsToRender()}</TableBody>
@@ -1054,14 +1074,16 @@ export const TargetList = memo(({ list = [], title = 'Target list', authRequired
           </TableFooter>
         </Table>
         {filterDialogOpen && (
-          <TargetListSortFilterDialog
-            open={filterDialogOpen}
-            anchorEl={sortDialogAnchorEl}
-            filter={newFilter}
-            resetFilter={() => setNewFilter(initFilterState)}
-            setFilter={updateFilter}
-            onClose={() => setFilterDialogOpen(false)}
-          />
+          <TooltipPathProvider path="sortFilterDialog">
+            <TargetListSortFilterDialog
+              open={filterDialogOpen}
+              anchorEl={sortDialogAnchorEl}
+              filter={newFilter}
+              resetFilter={() => setNewFilter(initFilterState)}
+              setFilter={updateFilter}
+              onClose={() => setFilterDialogOpen(false)}
+            />
+          </TooltipPathProvider>
         )}
       </Panel>
     );

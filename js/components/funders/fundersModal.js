@@ -10,6 +10,7 @@ import { Tooltip } from '@mui/material';
 import { URLS } from '../routes/constants';
 import { ContentCopyRounded } from '@mui/icons-material';
 import { ToastContext } from '../toast';
+import RichTooltip from '../tooltip/RichTooltip';
 
 const COLUMNS = 5;
 const MAX_IMAGE_HEIGHT = 81;
@@ -26,8 +27,8 @@ const useStyles = makeStyles(theme => ({
     cursor: 'pointer',
     // xs like styling to custom number of columns
     flexGrow: 0,
-    maxWidth: (100 / COLUMNS) + '%',
-    flexBasis: (100 / COLUMNS) + '%'
+    maxWidth: 100 / COLUMNS + '%',
+    flexBasis: 100 / COLUMNS + '%'
   },
   // https://material-ui.com/components/grid/
   img: {
@@ -66,30 +67,38 @@ export const FundersModal = memo(({ openModal, onModalClose }) => {
 
   return (
     <Modal otherClasses={classes.customModal} open={openModal} onClose={() => onModalClose()}>
-      <Tooltip title={'Click to copy link to this window'} >
-        <Button color="inherit" endIcon={<ContentCopyRounded />} onClick={copyFundersLink} className={classes.copyButton}>
+      <RichTooltip path="copy">
+        <Button
+          color="inherit"
+          endIcon={<ContentCopyRounded />}
+          onClick={copyFundersLink}
+          className={classes.copyButton}
+          // style={{ whiteSpace: 'nowrap' }}
+        >
           Copy URL
         </Button>
-      </Tooltip>
+      </RichTooltip>
       <Typography variant="h5">Funding and support:</Typography>
       <Grid container direction="row" justifyContent="center" alignItems="center" columns={5}>
-        {FUNDING.map((company, i) =>
-          <Tooltip title={company.title} key={`funding-${i}`}>
+        {FUNDING.map((company, i) => (
+          <RichTooltip path="companyFunding" key={`funding-${i}`} values={{ companyTitle: company.title }}>
             <Grid key={`funding-${i}`} item className={classes.imageItem} onClick={() => openLink(company.link)}>
               <img src={get_logo(company.image)} className={classes.img} alt={company.title} />
             </Grid>
-          </Tooltip>
-        )}
+          </RichTooltip>
+        ))}
       </Grid>
-      <Typography variant="h5" className={classes.contributors}>Contributors and collaborators:</Typography>
+      <Typography variant="h5" className={classes.contributors}>
+        Contributors and collaborators:
+      </Typography>
       <Grid container direction="row" justifyContent="center" alignItems="center" columns={5}>
-        {CONTRIBUTORS.map((company, i) =>
-          <Tooltip title={company.title} key={`contributor-${i}`}>
+        {CONTRIBUTORS.map((company, i) => (
+          <RichTooltip path="companyContributor" key={`contributor-${i}`} values={{ companyTitle: company.title }}>
             <Grid item className={classes.imageItem} onClick={() => openLink(company.link)}>
               <img src={get_logo(company.image)} className={classes.img} alt={company.title} />
             </Grid>
-          </Tooltip>
-        )}
+          </RichTooltip>
+        ))}
       </Grid>
     </Modal>
   );
