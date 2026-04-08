@@ -12,7 +12,6 @@ import {
 import { Panel } from '../../../common/Surfaces/Panel';
 import TagDetailRow from './tagDetailRow';
 import TagGridRows from './tagGridRows';
-import NewTagDetailRow from './newTagDetailRow';
 import {
   compareTagsAsc,
   compareTagsDesc,
@@ -29,16 +28,13 @@ import { getMoleculeForId } from '../redux/dispatchActions';
 import classNames from 'classnames';
 import SearchField from '../../../common/Components/SearchField';
 import { setPanelsExpanded } from '../../../../reducers/layout/actions';
-import { layoutItemNames } from '../../../../reducers/layout/constants';
 import { withStyles } from '@material-ui/core/styles';
 import { blue } from '@material-ui/core/colors';
 import {
   setTagFilteringMode,
   setDisplayAllMolecules,
   setDisplayUntaggedMolecules,
-  setTagDetailView,
-  setTagEditorOpen,
-  setMoleculeForTagEdit
+  setTagDetailView
 } from '../../../../reducers/selection/actions';
 import { selectAllTags, clearAllTags } from '../redux/dispatchActions';
 import { Button } from '../../../common/Inputs/Button';
@@ -48,7 +44,6 @@ import { DJANGO_CONTEXT } from '../../../../utils/djangoContext';
 import v4 from 'uuid/v4';
 import RichTooltip from '../../../tooltip/RichTooltip';
 import { TooltipPathProvider } from '../../../tooltip/TooltipPathContext';
-import { getLHSTags, getRHSTags } from '../../../../reducers/api/selectors';
 
 export const heightOfBody = '172px';
 export const defaultHeaderPadding = 15;
@@ -153,77 +148,88 @@ const useStyles = makeStyles(theme => ({
 }));
 
 /**
- * TagDetails is a wrapper panel for tags summary, their editing and creating new ones
+ * TagDetails is a fully injectable presentational panel for tag summary, editing, and creation.
+ *
+ * This component is side-agnostic: all side-specific behavior is injected via props.
+ * No boolean decision trees; all rendering and behavior comes from explicit prop injection.
+ *
+ * @param {Array} preTagList - Required. The filtered tag list from Redux (e.g., from getLHSTags or getRHSTags selector).
+ * @param {string} panelLayoutItemName - Required. The layout item key for panel expansion/collapse dispatch (e.g., layoutItemNames.TAG_DETAILS or layoutItemNames.RHS_TAG_DETAILS).
+ * @param {Function} [expandHandler] - Optional callback fired when panel expands/collapses.
+ * @param {React.Component} [TagDetailRowComponent] - Optional custom row component for list view. Defaults to TagDetailRow.
+ * @param {React.Component} [TagGridRowsComponent] - Optional custom row component for grid view. Defaults to TagGridRows.
  */
-const TagDetails = memo(({ isRHS = false, expandHandler = null }) => {
-  const classes = useStyles();
-  const ref = useRef(null);
-  const elementRef = useRef(null);
-  const dispatch = useDispatch();
-  const [sortSwitch, setSortSwitch] = useState(0);
+const TagDetails = memo(
+  ({
+    expandHandler = null,
+    preTagList,
+    panelLayoutItemName,
+    TagDetailRowComponent = TagDetailRow,
+    TagGridRowsComponent = TagGridRows
+  }) => {
+    const classes = useStyles();
+    const ref = useRef(null);
+    const elementRef = useRef(null);
+    const dispatch = useDispatch();
+    const [sortSwitch, setSortSwitch] = useState(0);
 
-  const { moleculesAndTagsAreLoading } = useContext(LoadingContext);
+    const { moleculesAndTagsAreLoading } = useContext(LoadingContext);
 
-  const lhsTags = useSelector(state => getLHSTags(state));
-  const rhsTags = useSelector(state => getRHSTags(state));
-  const preTagList = isRHS ? rhsTags : lhsTags;
+    const tagMode = useSelector(state => state.selectionReducers.tagFilteringMode);
+    const displayAllMolecules = useSelector(state => state.selectionReducers.displayAllMolecules);
+    const displayUntaggedMolecules = useSelector(state => state.selectionReducers.displayUntaggedMolecules);
+    let tagDetailView = useSelector(state => state.selectionReducers.tagDetailView);
+    const tagCategories = useSelector(state => state.apiReducers.categoryList);
+    const selectedTagList = useSelector(state => state.selectionReducers.selectedTagList);
 
-  const tagMode = useSelector(state => state.selectionReducers.tagFilteringMode);
-  const displayAllMolecules = useSelector(state => state.selectionReducers.displayAllMolecules);
-  const displayUntaggedMolecules = useSelector(state => state.selectionReducers.displayUntaggedMolecules);
-  let tagDetailView = useSelector(state => state.selectionReducers.tagDetailView);
-  const resizableLayout = useSelector(state => state.selectionReducers.resizableLayout);
-  const tagCategories = useSelector(state => state.apiReducers.categoryList);
-  const selectedTagList = useSelector(state => state.selectionReducers.selectedTagList);
+    const [tagList, setTagList] = useState([]);
+    const [selectAll, setSelectAll] = useState(true);
+    const [showEditTagsModal, setShowEditTagsModal] = useState(false);
+    const [searchString, setSearchString] = useState(null);
 
-  const [tagList, setTagList] = useState([]);
-  const [selectAll, setSelectAll] = useState(true);
-  const [showEditTagsModal, setShowEditTagsModal] = useState(false);
-  const [searchString, setSearchString] = useState(null);
+    const [allTagsAreSelected, setAllTagsAreSelected] = useState(false);
 
-  const [allTagsAreSelected, setAllTagsAreSelected] = useState(false);
+    tagDetailView = tagDetailView?.tagDetailView === undefined ? tagDetailView : tagDetailView.tagDetailView;
 
-  tagDetailView = tagDetailView?.tagDetailView === undefined ? tagDetailView : tagDetailView.tagDetailView;
-
-  useEffect(() => {
-    if (tagList.length === selectedTagList.length) {
-      setAllTagsAreSelected(true);
-    } else {
-      setAllTagsAreSelected(false);
-    }
-  }, [tagList, selectedTagList]);
-
-  const filteredTagList = useMemo(() => {
-    if (searchString) {
-      return tagList.filter(tag => tag.tag.toLowerCase().includes(searchString.toLowerCase()));
-    }
-    return tagList;
-  }, [searchString, tagList]);
-
-  useEffect(() => {
-    const categoriesToRemove = getCategoriesToBeRemovedFromTagDetails(tagCategories);
-    const newTagList = preTagList.filter(t => {
-      if (t.hidden === true || t.additional_info?.downloadName || categoriesToRemove.some(c => c.id === t.category)) {
-        return false;
+    useEffect(() => {
+      if (tagList.length === selectedTagList.length) {
+        setAllTagsAreSelected(true);
       } else {
-        return true;
+        setAllTagsAreSelected(false);
       }
-    });
-    setTagList([...newTagList].sort(compareTagsAsc));
-    return () => {
-      setTagList([]);
-    };
-  }, [preTagList, tagCategories]);
+    }, [tagList, selectedTagList]);
 
-  const moleculesToEditIds = useSelector(state => state.selectionReducers.moleculesToEdit);
-  const moleculesToEdit =
-    moleculesToEditIds &&
-    moleculesToEditIds.length > 0 &&
-    !(moleculesToEditIds.length === 1 && moleculesToEditIds[0] === null)
-      ? moleculesToEditIds.map(id => dispatch(getMoleculeForId(id)))
-      : [];
+    const filteredTagList = useMemo(() => {
+      if (searchString) {
+        return tagList.filter(tag => tag.tag.toLowerCase().includes(searchString.toLowerCase()));
+      }
+      return tagList;
+    }, [searchString, tagList]);
 
-  /*const moleculesToEditIds = useSelector(state => state.selectionReducers.moleculesToEdit);
+    useEffect(() => {
+      const categoriesToRemove = getCategoriesToBeRemovedFromTagDetails(tagCategories);
+      const newTagList = preTagList.filter(t => {
+        if (t.hidden === true || t.additional_info?.downloadName || categoriesToRemove.some(c => c.id === t.category)) {
+          return false;
+        } else {
+          return true;
+        }
+      });
+      setTagList([...newTagList].sort(compareTagsAsc));
+      return () => {
+        setTagList([]);
+      };
+    }, [preTagList, tagCategories]);
+
+    const moleculesToEditIds = useSelector(state => state.selectionReducers.moleculesToEdit);
+    const moleculesToEdit =
+      moleculesToEditIds &&
+      moleculesToEditIds.length > 0 &&
+      !(moleculesToEditIds.length === 1 && moleculesToEditIds[0] === null)
+        ? moleculesToEditIds.map(id => dispatch(getMoleculeForId(id)))
+        : [];
+
+    /*const moleculesToEditIds = useSelector(state => state.selectionReducers.moleculesToEdit);
   const [moleculesToEdit, setMoleculesToEdit] = useState([]);
   useEffect(() => {
     if (moleculesToEditIds && moleculesToEditIds.length > 0 && !(moleculesToEditIds.length === 1 && moleculesToEditIds[0] === null)) {
@@ -234,266 +240,322 @@ const TagDetails = memo(({ isRHS = false, expandHandler = null }) => {
     return () => { setMoleculesToEdit([]) };
   }, [moleculesToEditIds, dispatch]);*/
 
-  const offsetName = 10;
-  const offsetCategory = 20;
-  const offsetCreator = 30;
-  const offsetDate = 40;
-  const handleHeaderSort = useCallback(
-    type => {
-      switch (type) {
-        case 'name':
-          if (sortSwitch === offsetName + 1) {
-            // change direction
-            setTagList([...tagList].sort(compareTagsAsc));
-            setSortSwitch(sortSwitch + 1);
-          } else if (sortSwitch === offsetName + 2) {
-            // reset sort
-            setTagList([...tagList].sort(compareTagsAsc));
-            setSortSwitch(0);
-          } else {
-            // start sorting
-            setTagList([...tagList].sort(compareTagsDesc));
-            setSortSwitch(offsetName + 1);
-          }
-          break;
-        case 'category':
-          if (sortSwitch === offsetCategory + 1) {
-            // change direction
-            setTagList([...tagList].sort(compareTagsByCategoryAsc));
-            setSortSwitch(sortSwitch + 1);
-          } else if (sortSwitch === offsetCategory + 2) {
-            // reset sort
-            setTagList([...tagList].sort(compareTagsAsc));
-            setSortSwitch(0);
-          } else {
-            // start sorting
-            setTagList([...tagList].sort(compareTagsByCategoryDesc));
-            setSortSwitch(offsetCategory + 1);
-          }
-          break;
-        case 'creator':
-          if (sortSwitch === offsetCreator + 1) {
-            // change direction
-            setTagList([...tagList].sort(compareTagsByCreatorAsc));
-            setSortSwitch(sortSwitch + 1);
-          } else if (sortSwitch === offsetCreator + 2) {
-            // reset sort
-            setTagList([...tagList].sort(compareTagsAsc));
-            setSortSwitch(0);
-          } else {
-            // start sorting
-            setTagList([...tagList].sort(compareTagsByCreatorDesc));
-            setSortSwitch(offsetCreator + 1);
-          }
-          break;
-        case 'date':
-          if (sortSwitch === offsetDate + 1) {
-            // change direction
-            setTagList([...tagList].sort(compareTagsByDateAsc));
-            setSortSwitch(sortSwitch + 1);
-          } else if (sortSwitch === offsetDate + 2) {
-            // reset sort
-            setTagList([...tagList].sort(compareTagsAsc));
-            setSortSwitch(0);
-          } else {
-            // start sorting
-            setTagList([...tagList].sort(compareTagsByDateDesc));
-            setSortSwitch(offsetDate + 1);
-          }
-          break;
-        default:
-          // tagList = tagList.sort(compareTagsAsc);
-          break;
-      }
-    },
-    [sortSwitch, tagList]
-  );
-
-  const filteringModeSwitched = () => {
-    dispatch(setTagFilteringMode(!tagMode));
-  };
-
-  const viewModeSwitched = () => {
-    dispatch(setTagDetailView(!tagDetailView));
-  };
-
-  const TagModeSwitch = withStyles({
-    // '& .MuiFormControlLabel-root': {
-    //   marginLeft: '0px',
-    //   marginRight: '0px'
-    // },
-    switchBase: {
-      color: blue[300],
-      '&$checked': {
-        color: blue[500]
+    const offsetName = 10;
+    const offsetCategory = 20;
+    const offsetCreator = 30;
+    const offsetDate = 40;
+    const handleHeaderSort = useCallback(
+      type => {
+        switch (type) {
+          case 'name':
+            if (sortSwitch === offsetName + 1) {
+              // change direction
+              setTagList([...tagList].sort(compareTagsAsc));
+              setSortSwitch(sortSwitch + 1);
+            } else if (sortSwitch === offsetName + 2) {
+              // reset sort
+              setTagList([...tagList].sort(compareTagsAsc));
+              setSortSwitch(0);
+            } else {
+              // start sorting
+              setTagList([...tagList].sort(compareTagsDesc));
+              setSortSwitch(offsetName + 1);
+            }
+            break;
+          case 'category':
+            if (sortSwitch === offsetCategory + 1) {
+              // change direction
+              setTagList([...tagList].sort(compareTagsByCategoryAsc));
+              setSortSwitch(sortSwitch + 1);
+            } else if (sortSwitch === offsetCategory + 2) {
+              // reset sort
+              setTagList([...tagList].sort(compareTagsAsc));
+              setSortSwitch(0);
+            } else {
+              // start sorting
+              setTagList([...tagList].sort(compareTagsByCategoryDesc));
+              setSortSwitch(offsetCategory + 1);
+            }
+            break;
+          case 'creator':
+            if (sortSwitch === offsetCreator + 1) {
+              // change direction
+              setTagList([...tagList].sort(compareTagsByCreatorAsc));
+              setSortSwitch(sortSwitch + 1);
+            } else if (sortSwitch === offsetCreator + 2) {
+              // reset sort
+              setTagList([...tagList].sort(compareTagsAsc));
+              setSortSwitch(0);
+            } else {
+              // start sorting
+              setTagList([...tagList].sort(compareTagsByCreatorDesc));
+              setSortSwitch(offsetCreator + 1);
+            }
+            break;
+          case 'date':
+            if (sortSwitch === offsetDate + 1) {
+              // change direction
+              setTagList([...tagList].sort(compareTagsByDateAsc));
+              setSortSwitch(sortSwitch + 1);
+            } else if (sortSwitch === offsetDate + 2) {
+              // reset sort
+              setTagList([...tagList].sort(compareTagsAsc));
+              setSortSwitch(0);
+            } else {
+              // start sorting
+              setTagList([...tagList].sort(compareTagsByDateDesc));
+              setSortSwitch(offsetDate + 1);
+            }
+            break;
+          default:
+            // tagList = tagList.sort(compareTagsAsc);
+            break;
+        }
       },
-      '&$checked + $track': {
-        backgroundColor: blue[500]
-      }
-    },
-    checked: {},
-    track: {}
-  })(Switch);
+      [sortSwitch, tagList]
+    );
 
-  const handleAllMoleculesButton = () => {
-    dispatch(setDisplayUntaggedMolecules(false));
-    dispatch(setDisplayAllMolecules(!displayAllMolecules));
-  };
+    const filteringModeSwitched = () => {
+      dispatch(setTagFilteringMode(!tagMode));
+    };
 
-  const handleShowUntaggedMoleculesButton = () => {
-    dispatch(setDisplayAllMolecules(false));
-    setSelectAll(true);
-    dispatch(clearAllTags());
-    dispatch(setDisplayUntaggedMolecules(!displayUntaggedMolecules));
-  };
+    const viewModeSwitched = () => {
+      dispatch(setTagDetailView(!tagDetailView));
+    };
 
-  const handleSelectionButton = tagsToSelect => {
-    dispatch(setDisplayUntaggedMolecules(false));
-    if (selectAll) {
-      dispatch(selectAllTags(tagsToSelect));
-    } else {
-      dispatch(clearAllTags());
-    }
-    setSelectAll(!selectAll);
-  };
-
-  const handleEditTagsButton = () => {
-    setShowEditTagsModal(!showEditTagsModal);
-  };
-
-  return (
-    <Panel
-      ref={ref}
-      hasHeader
-      hasExpansion
-      defaultExpanded
-      title="Tag Details"
-      onExpandChange={useCallback(
-        expanded => {
-          dispatch(setPanelsExpanded(layoutItemNames.TAG_DETAILS, expanded));
-          expandHandler && expandHandler(expanded);
+    const TagModeSwitch = withStyles({
+      // '& .MuiFormControlLabel-root': {
+      //   marginLeft: '0px',
+      //   marginRight: '0px'
+      // },
+      switchBase: {
+        color: blue[300],
+        '&$checked': {
+          color: blue[500]
         },
-        [dispatch, expandHandler]
-      )}
-      headerActions={[
-        <Grid container className={classes.headerContainer}>
-          <Grid item xs={4}>
-            <RichTooltip path={tagMode ? 'mode.intersection' : 'mode.union'}>
-              <FormControlLabel
-                className={classes.tagModeSwitch}
-                classes={{ label: classes.tagLabel }}
-                control={
-                  <TagModeSwitch
-                    checked={tagMode}
-                    onChange={filteringModeSwitched}
-                    name="tag-filtering-mode"
-                    size="small"
-                  />
-                }
-                label={tagMode ? 'Intersection' : 'Union'}
-              />
-            </RichTooltip>
+        '&$checked + $track': {
+          backgroundColor: blue[500]
+        }
+      },
+      checked: {},
+      track: {}
+    })(Switch);
+
+    const handleAllMoleculesButton = () => {
+      dispatch(setDisplayUntaggedMolecules(false));
+      dispatch(setDisplayAllMolecules(!displayAllMolecules));
+    };
+
+    const handleShowUntaggedMoleculesButton = () => {
+      dispatch(setDisplayAllMolecules(false));
+      setSelectAll(true);
+      dispatch(clearAllTags());
+      dispatch(setDisplayUntaggedMolecules(!displayUntaggedMolecules));
+    };
+
+    const handleSelectionButton = tagsToSelect => {
+      dispatch(setDisplayUntaggedMolecules(false));
+      if (selectAll) {
+        dispatch(selectAllTags(tagsToSelect));
+      } else {
+        dispatch(clearAllTags());
+      }
+      setSelectAll(!selectAll);
+    };
+
+    const handleEditTagsButton = () => {
+      setShowEditTagsModal(!showEditTagsModal);
+    };
+
+    return (
+      <Panel
+        ref={ref}
+        hasHeader
+        hasExpansion
+        defaultExpanded
+        title="Tag Details"
+        onExpandChange={useCallback(
+          expanded => {
+            dispatch(setPanelsExpanded(panelLayoutItemName, expanded));
+            expandHandler && expandHandler(expanded);
+          },
+          [dispatch, expandHandler, panelLayoutItemName]
+        )}
+        headerActions={[
+          <Grid container className={classes.headerContainer}>
+            <Grid item xs={4}>
+              <RichTooltip path={tagMode ? 'mode.intersection' : 'mode.union'}>
+                <FormControlLabel
+                  className={classes.tagModeSwitch}
+                  classes={{ label: classes.tagLabel }}
+                  control={
+                    <TagModeSwitch
+                      checked={tagMode}
+                      onChange={filteringModeSwitched}
+                      name="tag-filtering-mode"
+                      size="small"
+                    />
+                  }
+                  label={tagMode ? 'Intersection' : 'Union'}
+                />
+              </RichTooltip>
+            </Grid>
+            <Grid item xs={4}>
+              <RichTooltip path={tagDetailView ? 'view.list' : 'view.grid'}>
+                <FormControlLabel
+                  className={classes.tagModeSwitch}
+                  classes={{ label: classes.tagLabel }}
+                  control={
+                    <TagModeSwitch
+                      checked={tagDetailView}
+                      onChange={viewModeSwitched}
+                      name="tag-filtering-mode"
+                      size="small"
+                    />
+                  }
+                  label={tagDetailView ? 'Grid' : 'List'}
+                />
+              </RichTooltip>
+            </Grid>
+            <Grid item xs={4}>
+              <SearchField className={classes.search} id="search-tag-details" onChange={setSearchString} />
+            </Grid>
+            <Grid item xs={4}></Grid>
           </Grid>
-          <Grid item xs={4}>
-            <RichTooltip path={tagDetailView ? 'view.list' : 'view.grid'}>
-              <FormControlLabel
-                className={classes.tagModeSwitch}
-                classes={{ label: classes.tagLabel }}
-                control={
-                  <TagModeSwitch
-                    checked={tagDetailView}
-                    onChange={viewModeSwitched}
-                    name="tag-filtering-mode"
-                    size="small"
-                  />
-                }
-                label={tagDetailView ? 'Grid' : 'List'}
-              />
-            </RichTooltip>
-          </Grid>
-          <Grid item xs={4}>
-            <SearchField className={classes.search} id="search-tag-details" onChange={setSearchString} />
-          </Grid>
-          <Grid item xs={4}></Grid>
-        </Grid>
-      ]}
-    >
-      <div>
-        {/* MUI5 rowSpacing is not available in current version of MUI */}
-        {/* <Grid container item rowSpacing={1} spacing={2} style={{ paddingLeft: '70px' }}> */}
-        <Grid container item spacing={2} style={{ paddingLeft: '70px' }}>
-          <Grid item>
-            <Button
-              onClick={() => handleShowUntaggedMoleculesButton()}
-              disabled={false}
-              color="inherit"
-              variant="text"
-              size="small"
-              data-id="showUntaggedHitsButton"
-              className={displayUntaggedMolecules ? classes.contColButtonSelected : classes.contColButton}
-            >
-              Show untagged hits
-            </Button>
-          </Grid>
-          <Grid item>
-            <Button
-              onClick={() => handleAllMoleculesButton()}
-              disabled={false}
-              color="inherit"
-              variant="text"
-              size="small"
-              data-id="showAllHitsButton"
-              className={displayAllMolecules ? classes.contColButtonSelected : classes.contColButton}
-            >
-              Show all hits
-            </Button>
-          </Grid>
-          <Grid item>
-            <Button
-              onClick={() => handleSelectionButton(tagList)}
-              disabled={false}
-              color="inherit"
-              variant="text"
-              size="small"
-              data-id="tagSelectionButton"
-              className={!allTagsAreSelected ? classes.contColButton : classes.contColButtonSelected}
-            >
-              Select all tags
-            </Button>
-          </Grid>
-          {DJANGO_CONTEXT.pk && [
-            <Grid key={v4()} item>
+        ]}
+      >
+        <div>
+          {/* MUI5 rowSpacing is not available in current version of MUI */}
+          {/* <Grid container item rowSpacing={1} spacing={2} style={{ paddingLeft: '70px' }}> */}
+          <Grid container item spacing={2} style={{ paddingLeft: '70px' }}>
+            <Grid item>
               <Button
-                onClick={() => handleEditTagsButton()}
+                onClick={() => handleShowUntaggedMoleculesButton()}
                 disabled={false}
                 color="inherit"
                 variant="text"
                 size="small"
-                data-id="editTagsButton"
-                className={classes.contColButton}
+                data-id="showUntaggedHitsButton"
+                className={displayUntaggedMolecules ? classes.contColButtonSelected : classes.contColButton}
               >
-                Edit tags
+                Show untagged hits
               </Button>
-            </Grid>,
-            <TooltipPathProvider path="editModal">
-              <EditTagsModal
-                key={v4()}
-                open={showEditTagsModal}
-                setOpenDialog={setShowEditTagsModal}
-                anchorEl={ref?.current}
-              />
-            </TooltipPathProvider>
-          ]}
-        </Grid>
-      </div>
-      <div ref={elementRef} className={classes.containerExpanded} style={{ height: tagDetailView ? '89%' : '93%' }}>
-        {tagDetailView ? (
-          <>
+            </Grid>
+            <Grid item>
+              <Button
+                onClick={() => handleAllMoleculesButton()}
+                disabled={false}
+                color="inherit"
+                variant="text"
+                size="small"
+                data-id="showAllHitsButton"
+                className={displayAllMolecules ? classes.contColButtonSelected : classes.contColButton}
+              >
+                Show all hits
+              </Button>
+            </Grid>
+            <Grid item>
+              <Button
+                onClick={() => handleSelectionButton(tagList)}
+                disabled={false}
+                color="inherit"
+                variant="text"
+                size="small"
+                data-id="tagSelectionButton"
+                className={!allTagsAreSelected ? classes.contColButton : classes.contColButtonSelected}
+              >
+                Select all tags
+              </Button>
+            </Grid>
+            {DJANGO_CONTEXT.pk && [
+              <Grid key={v4()} item>
+                <Button
+                  onClick={() => handleEditTagsButton()}
+                  disabled={false}
+                  color="inherit"
+                  variant="text"
+                  size="small"
+                  data-id="editTagsButton"
+                  className={classes.contColButton}
+                >
+                  Edit tags
+                </Button>
+              </Grid>,
+              <TooltipPathProvider path="editModal">
+                <EditTagsModal
+                  key={v4()}
+                  open={showEditTagsModal}
+                  setOpenDialog={setShowEditTagsModal}
+                  anchorEl={ref?.current}
+                />
+              </TooltipPathProvider>
+            ]}
+          </Grid>
+        </div>
+        <div ref={elementRef} className={classes.containerExpanded} style={{ height: tagDetailView ? '89%' : '93%' }}>
+          {tagDetailView ? (
+            <>
+              <div className={classes.container} id="tagName">
+                {/* START grid view */}
+                {/* tag name */}
+                <div className={classes.columnLabel}>
+                  <Typography className={classes.columnTitleGrid} variant="inherit">
+                    Tag name
+                  </Typography>
+                  <IconButton size="small" onClick={() => handleHeaderSort('name')}>
+                    <RichTooltip path="sort" className={classes.sortButton}>
+                      {[1, 2].includes(sortSwitch - offsetName) ? (
+                        sortSwitch % offsetName < 2 ? (
+                          <KeyboardArrowDown />
+                        ) : (
+                          <KeyboardArrowUp />
+                        )
+                      ) : (
+                        <UnfoldMore />
+                      )}
+                    </RichTooltip>
+                  </IconButton>
+                </div>
+              </div>
+
+              <Grid container spacing={0} style={{ marginBottom: 'auto' }}>
+                {filteredTagList &&
+                  filteredTagList.map((tag, idx) => {
+                    return (
+                      <Grid
+                        item
+                        key={idx}
+                        style={{
+                          verticalAlign: 'bottom',
+                          display: 'contents',
+                          justifyContent: 'center',
+                          height: '100%',
+                          alignItems: 'center'
+                        }}
+                      >
+                        <TagGridRowsComponent
+                          tag={tag}
+                          moleculesToEditIds={moleculesToEditIds}
+                          moleculesToEdit={moleculesToEdit}
+                          key={tag.id}
+                        />
+                      </Grid>
+                    );
+                  })}
+                {moleculesAndTagsAreLoading && (
+                  <Grid container direction="row" justifyContent="center">
+                    <Grid item>
+                      <CircularProgress />
+                    </Grid>
+                  </Grid>
+                )}
+              </Grid>
+            </>
+          ) : (
             <div className={classes.container} id="tagName">
-              {/* START grid view */}
               {/* tag name */}
               <div className={classes.columnLabel}>
-                <Typography className={classes.columnTitleGrid} variant="inherit">
+                <Typography className={classes.columnTitle} variant="subtitle1">
                   Tag name
                 </Typography>
                 <IconButton size="small" onClick={() => handleHeaderSort('name')}>
@@ -510,150 +572,95 @@ const TagDetails = memo(({ isRHS = false, expandHandler = null }) => {
                   </RichTooltip>
                 </IconButton>
               </div>
-            </div>
 
-            <Grid container spacing={0} style={{ marginBottom: 'auto' }}>
+              {/* category */}
+              <div className={classNames(classes.columnLabel, classes.categoryLabel)}>
+                <Typography className={classes.columnTitle} variant="subtitle1">
+                  Category
+                </Typography>
+                <IconButton size="small" onClick={() => handleHeaderSort('category')}>
+                  <RichTooltip path="sort" className={classes.sortButton}>
+                    {[1, 2].includes(sortSwitch - offsetCategory) ? (
+                      sortSwitch % offsetCategory < 2 ? (
+                        <KeyboardArrowDown />
+                      ) : (
+                        <KeyboardArrowUp />
+                      )
+                    ) : (
+                      <UnfoldMore />
+                    )}
+                  </RichTooltip>
+                </IconButton>
+              </div>
+
+              {/* creator */}
+              <div className={classNames(classes.columnLabel, classes.creatorLabel)}>
+                <Typography className={classes.columnTitle} variant="subtitle1">
+                  Creator
+                </Typography>
+                <IconButton size="small" onClick={() => handleHeaderSort('creator')}>
+                  <RichTooltip path="sort" className={classes.sortButton}>
+                    {[1, 2].includes(sortSwitch - offsetCreator) ? (
+                      sortSwitch % offsetCreator < 2 ? (
+                        <KeyboardArrowDown />
+                      ) : (
+                        <KeyboardArrowUp />
+                      )
+                    ) : (
+                      <UnfoldMore />
+                    )}
+                  </RichTooltip>
+                </IconButton>
+              </div>
+
+              {/* date */}
+              <div className={classNames(classes.columnLabel, classes.dateLabel)}>
+                <Typography className={classes.columnTitle} variant="subtitle1">
+                  Date
+                </Typography>
+                <IconButton size="small" onClick={() => handleHeaderSort('date')}>
+                  <RichTooltip path="sort" className={classes.sortButton}>
+                    {[1, 2].includes(sortSwitch - offsetDate) ? (
+                      sortSwitch % offsetDate < 2 ? (
+                        <KeyboardArrowDown />
+                      ) : (
+                        <KeyboardArrowUp />
+                      )
+                    ) : (
+                      <UnfoldMore />
+                    )}
+                  </RichTooltip>
+                </IconButton>
+              </div>
+              <div></div>
+
               {filteredTagList &&
                 filteredTagList.map((tag, idx) => {
                   return (
-                    <Grid
-                      item
-                      key={idx}
-                      style={{
-                        verticalAlign: 'bottom',
-                        display: 'contents',
-                        justifyContent: 'center',
-                        height: '100%',
-                        alignItems: 'center'
-                      }}
-                    >
-                      <TagGridRows
-                        tag={tag}
-                        moleculesToEditIds={moleculesToEditIds}
-                        moleculesToEdit={moleculesToEdit}
-                        key={tag.id}
-                      />
-                    </Grid>
+                    <TagDetailRowComponent
+                      tag={tag}
+                      moleculesToEditIds={moleculesToEditIds}
+                      moleculesToEdit={moleculesToEdit}
+                      key={tag.id}
+                    />
                   );
                 })}
               {moleculesAndTagsAreLoading && (
-                <Grid container direction="row" justifyContent="center">
+                <Grid container direction="row" justifyContent="center" style={{ gridColumn: '1 / -1' }}>
                   <Grid item>
                     <CircularProgress />
                   </Grid>
                 </Grid>
               )}
-            </Grid>
-          </>
-        ) : (
-          <div className={classes.container} id="tagName">
-            {/* tag name */}
-            <div className={classes.columnLabel}>
-              <Typography className={classes.columnTitle} variant="subtitle1">
-                Tag name
-              </Typography>
-              <IconButton size="small" onClick={() => handleHeaderSort('name')}>
-                <RichTooltip path="sort" className={classes.sortButton}>
-                  {[1, 2].includes(sortSwitch - offsetName) ? (
-                    sortSwitch % offsetName < 2 ? (
-                      <KeyboardArrowDown />
-                    ) : (
-                      <KeyboardArrowUp />
-                    )
-                  ) : (
-                    <UnfoldMore />
-                  )}
-                </RichTooltip>
-              </IconButton>
             </div>
-
-            {/* category */}
-            <div className={classNames(classes.columnLabel, classes.categoryLabel)}>
-              <Typography className={classes.columnTitle} variant="subtitle1">
-                Category
-              </Typography>
-              <IconButton size="small" onClick={() => handleHeaderSort('category')}>
-                <RichTooltip path="sort" className={classes.sortButton}>
-                  {[1, 2].includes(sortSwitch - offsetCategory) ? (
-                    sortSwitch % offsetCategory < 2 ? (
-                      <KeyboardArrowDown />
-                    ) : (
-                      <KeyboardArrowUp />
-                    )
-                  ) : (
-                    <UnfoldMore />
-                  )}
-                </RichTooltip>
-              </IconButton>
-            </div>
-
-            {/* creator */}
-            <div className={classNames(classes.columnLabel, classes.creatorLabel)}>
-              <Typography className={classes.columnTitle} variant="subtitle1">
-                Creator
-              </Typography>
-              <IconButton size="small" onClick={() => handleHeaderSort('creator')}>
-                <RichTooltip path="sort" className={classes.sortButton}>
-                  {[1, 2].includes(sortSwitch - offsetCreator) ? (
-                    sortSwitch % offsetCreator < 2 ? (
-                      <KeyboardArrowDown />
-                    ) : (
-                      <KeyboardArrowUp />
-                    )
-                  ) : (
-                    <UnfoldMore />
-                  )}
-                </RichTooltip>
-              </IconButton>
-            </div>
-
-            {/* date */}
-            <div className={classNames(classes.columnLabel, classes.dateLabel)}>
-              <Typography className={classes.columnTitle} variant="subtitle1">
-                Date
-              </Typography>
-              <IconButton size="small" onClick={() => handleHeaderSort('date')}>
-                <RichTooltip path="sort" className={classes.sortButton}>
-                  {[1, 2].includes(sortSwitch - offsetDate) ? (
-                    sortSwitch % offsetDate < 2 ? (
-                      <KeyboardArrowDown />
-                    ) : (
-                      <KeyboardArrowUp />
-                    )
-                  ) : (
-                    <UnfoldMore />
-                  )}
-                </RichTooltip>
-              </IconButton>
-            </div>
-            <div></div>
-
-            {filteredTagList &&
-              filteredTagList.map((tag, idx) => {
-                return (
-                  <TagDetailRow
-                    tag={tag}
-                    moleculesToEditIds={moleculesToEditIds}
-                    moleculesToEdit={moleculesToEdit}
-                    key={tag.id}
-                  />
-                );
-              })}
-            {moleculesAndTagsAreLoading && (
-              <Grid container direction="row" justifyContent="center" style={{ gridColumn: '1 / -1' }}>
-                <Grid item>
-                  <CircularProgress />
-                </Grid>
-              </Grid>
-            )}
-          </div>
-        )}
-      </div>
-      {/* <div style={{ paddingBottom: resizableLayout === true ? '17px' : '0px' }}>
+          )}
+        </div>
+        {/* <div style={{ paddingBottom: resizableLayout === true ? '17px' : '0px' }}>
         <NewTagDetailRow moleculesToEditIds={moleculesToEditIds} moleculesToEdit={moleculesToEdit} />
       </div> */}
-    </Panel>
-  );
-});
+      </Panel>
+    );
+  }
+);
 
 export default TagDetails;

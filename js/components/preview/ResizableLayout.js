@@ -6,7 +6,8 @@ import { OutPortal } from 'react-reverse-portal';
 
 import { Resizer } from './resizer';
 import SnapshotList from '../snapshot/snapshotList';
-import TagDetails from './tags/details/tagDetails';
+import { TagDetailsLHS } from './tags/details/tagDetailsLHS';
+import { TagDetailsRHS } from './tags/details/tagDetailsRHS';
 import HitNavigator from './molecule/hitNavigator';
 import { ViewerControls } from './viewerControls';
 import { setResizableLayout, setActualRhsWidth } from '../../reducers/selection/actions';
@@ -97,7 +98,7 @@ export const ResizableLayout = ({ gridRef, nglPortal }) => {
         group: 'lhs',
         component: (
           <TooltipPathProvider path="tagDetails">
-            <TagDetails
+            <TagDetailsLHS
               expandHandler={expanded => {
                 if (expanded) {
                   mutateSuggestedHeight('tagDetails', null);
@@ -148,8 +149,7 @@ export const ResizableLayout = ({ gridRef, nglPortal }) => {
         group: 'rhs',
         component: (
           <TooltipPathProvider path="rhsTagDetails">
-            <TagDetails
-              isRHS={true}
+            <TagDetailsRHS
               expandHandler={expanded => {
                 if (expanded) {
                   mutateSuggestedRHSHeight(layoutItemNames.RHS_TAG_DETAILS, null);

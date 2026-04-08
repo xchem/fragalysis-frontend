@@ -6,7 +6,7 @@ import React, { memo, useCallback, useContext, useEffect, useMemo, useRef, useSt
 import { makeStyles, useTheme } from '@material-ui/core';
 import NGLView from '../nglView/nglView';
 import HitNavigator from './molecule/hitNavigator';
-import TagDetails from './tags/details/tagDetails';
+import { TagDetailsLHS } from './tags/details/tagDetailsLHS';
 import { withUpdatingTarget } from '../target/withUpdatingTarget';
 import { VIEWS } from '../../constants/constants';
 import { withLoadingProtein } from './withLoadingProtein';
@@ -264,7 +264,7 @@ const Preview = memo(({ isStateLoaded, hideProjects, isSnapshot = false }) => {
         return (
           <div key="tagDetails">
             <TooltipPathProvider path="tagDetails">
-              <TagDetails />
+              <TagDetailsLHS />
             </TooltipPathProvider>
           </div>
         );
