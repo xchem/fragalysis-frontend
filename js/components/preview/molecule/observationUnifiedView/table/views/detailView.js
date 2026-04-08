@@ -51,12 +51,15 @@ import DensityButtonPopover from './DensityButtonPopover';
 import RichTooltip from '../../../../../tooltip/RichTooltip';
 import { TooltipPathProvider } from '../../../../../tooltip/TooltipPathContext';
 import { isAnyInspirationTurnedOn } from '../../../../../datasets/redux/selectors';
-import { clickOnInspirations, getInspirationsForMol } from '../../../../../datasets/redux/dispatchActions';
 import {
   setCrossReferenceCompoundName,
-  setInspirationDialogAction,
   setIsOpenCrossReferenceDialog
 } from '../../../../../datasets/redux/actions';
+import {
+  setIsObsInspirationDialogOpen,
+  setObsInspirationDialogObsIds,
+  setObsInspirationDialogPoseId
+} from '../../../../../../reducers/selection/actions';
 import { isCompoundFromVectorSelector } from '../../../../compounds/redux/dispatchActions';
 import { LHS_OBSERVATION_VIEW_CONFIG } from '../../viewConfigs';
 
@@ -404,18 +407,26 @@ const useStyles = makeStyles(theme => ({
 }));
 
 export const DetailView = memo(
-  ({ data, handleRef, disableL, disableP, disableC, observations, viewConfig = LHS_OBSERVATION_VIEW_CONFIG }) => {
+  ({
+    data,
+    handleRef,
+    disableL,
+    disableP,
+    disableC,
+    observations,
+    viewConfig = LHS_OBSERVATION_VIEW_CONFIG
+  }) => {
     const [densityPopoverAnchor, setDensityPopoverAnchor] = useState(null);
     const [densityPopoverOpen, setDensityPopoverOpen] = useState(false);
 
     const [loadingInspiration, setLoadingInspiration] = useState(false);
     const [loadingReference, setLoadingReference] = useState(false);
 
-    // TODO
-    const datasetID = null;
     const showCrossReferenceModal = false;
-    const hideFButton = false;
-    const inSelectedCompoundsList = false;
+    const hideFButton = viewConfig.kind === 'lhs';
+
+    const isObsInspirationDialogOpen = useSelector(state => state.selectionReducers.isObsInspirationDialogOpen);
+    const obsInspirationDialogPoseId = useSelector(state => state.selectionReducers.obsInspirationDialogPoseId);
 
     const handleDensityPopoverClose = () => {
       setDensityPopoverOpen(false);
@@ -559,7 +570,6 @@ export const DetailView = memo(
     const isAnyInspirationOn = useSelector(state =>
       isAnyInspirationTurnedOn(state, (data && data.computed_inspirations) || [])
     );
-    const allInspirations = useSelector(state => state.datasetsReducers.allInspirations);
     const isFromVectorSelector = isCompoundFromVectorSelector(data);
 
     const activeTarget = useSelector(state => getCurrentTarget(state));
@@ -1334,30 +1344,17 @@ export const DetailView = memo(
                   })}
                   onClick={() => {
                     setLoadingInspiration(true);
-                    dispatch((dispatch, getState) => {
-                      dispatch(
-                        clickOnInspirations({
-                          datasetID,
-                          currentID,
-                          computed_inspirations: getInspirationsForMol(allInspirations, datasetID, currentID)
-                        })
-                      );
-                      dispatch(
-                        setInspirationDialogAction(
-                          datasetID,
-                          currentID,
-                          getInspirationsForMol(allInspirations, datasetID, currentID),
-                          true,
-                          0,
-                          [],
-                          inSelectedCompoundsList
-                        )
-                      );
-                    });
-                    // TODO
-                    // if (setRef) {
-                    //   setRef(outsideRef.current);
-                    // }
+                    const computedInspirations =
+                      getMainObservation()?.computed_inspirations || data.computed_inspirations || [];
+                    if (!isObsInspirationDialogOpen || obsInspirationDialogPoseId !== currentID) {
+                      handleRef();
+                      dispatch(setObsInspirationDialogObsIds(computedInspirations));
+                      dispatch(setObsInspirationDialogPoseId(currentID));
+                      dispatch(setIsObsInspirationDialogOpen(true));
+                    } else {
+                      dispatch(setIsObsInspirationDialogOpen(false));
+                      dispatch(setObsInspirationDialogPoseId(0));
+                    }
                     setLoadingInspiration(false);
                   }}
                   disabled={isFromVectorSelector}

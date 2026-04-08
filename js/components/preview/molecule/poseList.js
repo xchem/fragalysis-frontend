@@ -33,6 +33,7 @@ import { extractTargetFromURLParam } from '../utils';
 import { LoadingContext } from '../../loading';
 import { DJANGO_CONTEXT } from '../../../utils/djangoContext';
 import { ObservationsDialog } from './observationsDialog';
+import { ObservationInspirationDialog } from './observationInspirationDialog';
 import { useScrollToSelectedPose } from './useScrollToSelectedPose';
 import { SearchSettingsDialog } from './searchSettingsDialog';
 import { TOAST_LEVELS } from '../../toast/constants';
@@ -278,6 +279,7 @@ export const PoseList = memo(
     const areLSHCompoundsInitialized = useSelector(instanceConfig.selectAreLHSCompoundsInitialized || (() => false));
     const observationsDialogSide = useSelector(state => state.selectionReducers.observationsDialogSide);
     const instanceSide = instanceConfig.instanceSide || 'lhs';
+    const isObsInspirationDialogOpen = useSelector(state => state.selectionReducers.isObsInspirationDialogOpen);
 
     const [ascending, setAscending] = useState(true);
     const handleAscendingChecked = event => {
@@ -400,6 +402,7 @@ export const PoseList = memo(
     const majorViewStage = getNglView(VIEWS.MAJOR_VIEW) && getNglView(VIEWS.MAJOR_VIEW).stage;
 
     const tagEditorRef = useRef();
+    const inspirationDialogRef = useRef();
     const scrollBarRef = useRef();
     const hitNavigatorRef = useRef();
     const [tagEditorAnchorEl, setTagEditorAnchorEl] = useState(null);
@@ -1062,6 +1065,13 @@ export const PoseList = memo(
           <TooltipPathProvider path="observationsDialog">
             <ObservationsDialog open={isObservationDialogOpen} anchorEl={tagEditorAnchorEl} ref={tagEditorRef} />
           </TooltipPathProvider>
+        )}
+        {isObsInspirationDialogOpen && instanceSide === 'rhs' && (
+          <ObservationInspirationDialog
+            open={isObsInspirationDialogOpen}
+            anchorEl={tagEditorAnchorEl}
+            ref={inspirationDialogRef}
+          />
         )}
         {isTagEditorOpen && (
           <TagEditor

@@ -414,6 +414,21 @@ export const setObservationDialogAction = (poseId, observations, open, prevPoseI
   };
 };
 
+export const setIsObsInspirationDialogOpen = open => ({
+  type: constants.SET_IS_OBS_INSPIRATION_DIALOG_OPEN,
+  open
+});
+
+export const setObsInspirationDialogObsIds = ids => ({
+  type: constants.SET_OBS_INSPIRATION_DIALOG_OBS_IDS,
+  ids
+});
+
+export const setObsInspirationDialogPoseId = poseId => ({
+  type: constants.SET_OBS_INSPIRATION_DIALOG_POSE_ID,
+  poseId
+});
+
 export const setObservationsDialogSide = side => {
   return {
     type: constants.SET_OBSERVATIONS_DIALOG_SIDE,

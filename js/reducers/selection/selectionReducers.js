@@ -55,6 +55,9 @@ export const INITIAL_STATE = {
   observationsForLHSCmp: [],
   poseIdForObservationsDialog: 0,
   observationsDialogSide: null,
+  isObsInspirationDialogOpen: false,
+  obsInspirationDialogObsIds: [],
+  obsInspirationDialogPoseId: 0,
 
   areLSHCompoundsInitialized: false,
   areRHSCompoundsInitialized: false,
@@ -249,6 +252,15 @@ export function selectionReducers(state = INITIAL_STATE, action = {}) {
 
     case constants.SET_OBSERVATIONS_DIALOG_SIDE:
       return { ...state, observationsDialogSide: action.side };
+
+    case constants.SET_IS_OBS_INSPIRATION_DIALOG_OPEN:
+      return { ...state, isObsInspirationDialogOpen: action.open };
+
+    case constants.SET_OBS_INSPIRATION_DIALOG_OBS_IDS:
+      return { ...state, obsInspirationDialogObsIds: [...(action.ids || [])] };
+
+    case constants.SET_OBS_INSPIRATION_DIALOG_POSE_ID:
+      return { ...state, obsInspirationDialogPoseId: action.poseId };
 
     case constants.SET_OBSERVATIONS_FOR_LHS_CMP:
       return { ...state, observationsForLHSCmp: [...action.observations] };
