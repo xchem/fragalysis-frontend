@@ -49,6 +49,22 @@ export const INITIAL_STATE = {
   displayUntaggedMolecules: false,
   nextXMolecules: 0,
 
+  // Side-specific tag filtering state for LHS
+  lhs_tagFilteringMode: false,
+  lhs_displayAllMolecules: false,
+  lhs_displayUntaggedMolecules: false,
+  lhs_tagDetailView: false,
+
+  // Side-specific tag filtering state for RHS
+  rhs_tagFilteringMode: false,
+  rhs_displayAllMolecules: false,
+  rhs_displayUntaggedMolecules: false,
+  rhs_tagDetailView: false,
+
+  // Side-specific selected tags
+  lhs_selectedTagList: [],
+  rhs_selectedTagList: [],
+
   showDisplayedMolecules: true,
 
   isObservationDialogOpen: false,
@@ -583,6 +599,79 @@ export function selectionReducers(state = INITIAL_STATE, action = {}) {
 
     case constants.SET_TAG_DETAIL_VIEW:
       return { ...state, tagDetailView: action.payload };
+
+    // Side-specific tag filtering actions
+    case constants.SET_LHS_TAG_FILTERING_MODE:
+      return { ...state, lhs_tagFilteringMode: action.mode };
+
+    case constants.SET_RHS_TAG_FILTERING_MODE:
+      return { ...state, rhs_tagFilteringMode: action.mode };
+
+    case constants.SET_LHS_DISPLAY_ALL_MOLECULES:
+      return { ...state, lhs_displayAllMolecules: action.displayAllMolecules };
+
+    case constants.SET_RHS_DISPLAY_ALL_MOLECULES:
+      return { ...state, rhs_displayAllMolecules: action.displayAllMolecules };
+
+    case constants.SET_LHS_DISPLAY_UNTAGGED_MOLECULES:
+      return { ...state, lhs_displayUntaggedMolecules: action.displayUntaggedMolecules };
+
+    case constants.SET_RHS_DISPLAY_UNTAGGED_MOLECULES:
+      return { ...state, rhs_displayUntaggedMolecules: action.displayUntaggedMolecules };
+
+    case constants.SET_LHS_TAG_DETAIL_VIEW:
+      return { ...state, lhs_tagDetailView: action.tagDetailView };
+
+    case constants.SET_RHS_TAG_DETAIL_VIEW:
+      return { ...state, rhs_tagDetailView: action.tagDetailView };
+
+    case constants.SET_LHS_SELECTED_TAGS:
+      return { ...state, lhs_selectedTagList: action.tagList };
+
+    case constants.SET_RHS_SELECTED_TAGS:
+      return { ...state, rhs_selectedTagList: action.tagList };
+
+    case constants.APPEND_LHS_SELECTED_TAG:
+      return { ...state, lhs_selectedTagList: [...new Set([...state.lhs_selectedTagList, action.item])] };
+
+    case constants.APPEND_RHS_SELECTED_TAG:
+      return { ...state, rhs_selectedTagList: [...new Set([...state.rhs_selectedTagList, action.item])] };
+
+    case constants.REMOVE_LHS_SELECTED_TAG: {
+      let filtered = new Set(state.lhs_selectedTagList);
+      if (filtered.has(action.item)) {
+        filtered.delete(action.item);
+      } else {
+        let tagToDelete = null;
+        filtered.forEach(tag => {
+          if (tag.id === action.item.id) {
+            tagToDelete = tag;
+          }
+        });
+        if (tagToDelete) {
+          filtered.delete(tagToDelete);
+        }
+      }
+      return { ...state, lhs_selectedTagList: [...filtered] };
+    }
+
+    case constants.REMOVE_RHS_SELECTED_TAG: {
+      let filtered = new Set(state.rhs_selectedTagList);
+      if (filtered.has(action.item)) {
+        filtered.delete(action.item);
+      } else {
+        let tagToDelete = null;
+        filtered.forEach(tag => {
+          if (tag.id === action.item.id) {
+            tagToDelete = tag;
+          }
+        });
+        if (tagToDelete) {
+          filtered.delete(tagToDelete);
+        }
+      }
+      return { ...state, rhs_selectedTagList: [...filtered] };
+    }
 
     case constants.SET_RESIZABLE_LAYOUT:
       return Object.assign({}, state, { resizableLayout: action.payload });

@@ -51,7 +51,8 @@ import { addImageToCache, disableMoleculeNglControlButton, enableMoleculeNglCont
 import { OBJECT_TYPE, DENSITY_MAPS, NGL_PARAMS } from '../../../nglView/constants';
 import { getRepresentationsByType } from '../../../nglView/generatingObjects';
 import { readQualityInformation } from '../../../nglView/renderingHelpers';
-import { addSelectedTag, getLigandData } from '../../tags/redux/dispatchActions';
+import { getLigandData } from '../../tags/redux/dispatchActions';
+import { appendRHSSelectedTag, appendLHSSelectedTag } from '../../../../reducers/selection/actions';
 import { selectJoinedMoleculeList } from './selectors';
 import { compareTagsAsc } from '../../tags/utils/tagUtils';
 import { createPoseApi, updatePoseApi } from '../api/poseApi';
@@ -475,7 +476,7 @@ export const initializeMolecules = majorView => (dispatch, getState) => {
       const firstTag = dispatch(getFirstTagAlphabetically());
       let firstMolecule = null;
       if (firstTag) {
-        dispatch(addSelectedTag(firstTag));
+        dispatch(appendLHSSelectedTag(firstTag));
         // firstMolecule = dispatch(getFirstMoleculeForTag(firstTag.id));
       } else if (noTagsReceived) {
         // firstMolecule = dispatch(getFirstMolecule());
@@ -516,6 +517,33 @@ export const getFirstTagAlphabetically = () => (dispatch, getState) => {
   });
   const sortedTags = newTagList.sort(compareTagsAsc);
   return sortedTags && sortedTags.length > 0 ? sortedTags[0] : null;
+};
+
+export const getFirstRHSTagAlphabetically = () => (dispatch, getState) => {
+  const state = getState();
+  const tagsList = state.apiReducers.tagList;
+  const newTagList = tagsList.filter(t => {
+    if (t.additional_info?.downloadName || t.hidden || !t.rhs) {
+      return false;
+    } else {
+      return true;
+    }
+  });
+  const sortedTags = [...newTagList].sort(compareTagsAsc);
+  return sortedTags && sortedTags.length > 0 ? sortedTags[0] : null;
+};
+
+export const initializeRHSMolecules = () => (dispatch, getState) => {
+  const state = getState();
+  const isSnapshot = state.apiReducers.isSnapshot;
+  const isDirectDisplay = Object.keys(state.apiReducers.direct_access || {})?.length > 0;
+
+  if (!isSnapshot && !isDirectDisplay) {
+    const firstTag = dispatch(getFirstRHSTagAlphabetically());
+    if (firstTag) {
+      dispatch(appendRHSSelectedTag(firstTag));
+    }
+  }
 };
 
 export const getFirstMolOfFirstCompound = tag => (dispatch, getState) => {

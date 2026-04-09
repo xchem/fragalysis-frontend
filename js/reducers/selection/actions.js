@@ -591,6 +591,107 @@ export const setTagDetailView = tagDetailView => {
   };
 };
 
+// Side-specific tag filtering actions
+export const setLHSTagFilteringMode = mode => {
+  return {
+    type: constants.SET_LHS_TAG_FILTERING_MODE,
+    mode: mode
+  };
+};
+
+export const setRHSTagFilteringMode = mode => {
+  return {
+    type: constants.SET_RHS_TAG_FILTERING_MODE,
+    mode: mode
+  };
+};
+
+export const setLHSDisplayAllMolecules = displayAllMolecules => {
+  return {
+    type: constants.SET_LHS_DISPLAY_ALL_MOLECULES,
+    displayAllMolecules: displayAllMolecules
+  };
+};
+
+export const setRHSDisplayAllMolecules = displayAllMolecules => {
+  return {
+    type: constants.SET_RHS_DISPLAY_ALL_MOLECULES,
+    displayAllMolecules: displayAllMolecules
+  };
+};
+
+export const setLHSDisplayUntaggedMolecules = displayUntaggedMolecules => {
+  return {
+    type: constants.SET_LHS_DISPLAY_UNTAGGED_MOLECULES,
+    displayUntaggedMolecules: displayUntaggedMolecules
+  };
+};
+
+export const setRHSDisplayUntaggedMolecules = displayUntaggedMolecules => {
+  return {
+    type: constants.SET_RHS_DISPLAY_UNTAGGED_MOLECULES,
+    displayUntaggedMolecules: displayUntaggedMolecules
+  };
+};
+
+export const setLHSTagDetailView = tagDetailView => {
+  return {
+    type: constants.SET_LHS_TAG_DETAIL_VIEW,
+    tagDetailView: tagDetailView
+  };
+};
+
+export const setRHSTagDetailView = tagDetailView => {
+  return {
+    type: constants.SET_RHS_TAG_DETAIL_VIEW,
+    tagDetailView: tagDetailView
+  };
+};
+
+// Side-specific tag selection for LHS
+export const setLHSSelectedTags = tagList => {
+  return {
+    type: constants.SET_LHS_SELECTED_TAGS,
+    tagList: tagList
+  };
+};
+
+export const appendLHSSelectedTag = tag => {
+  return {
+    type: constants.APPEND_LHS_SELECTED_TAG,
+    item: tag
+  };
+};
+
+export const removeLHSSelectedTag = tag => {
+  return {
+    type: constants.REMOVE_LHS_SELECTED_TAG,
+    item: tag
+  };
+};
+
+// Side-specific tag selection for RHS
+export const setRHSSelectedTags = tagList => {
+  return {
+    type: constants.SET_RHS_SELECTED_TAGS,
+    tagList: tagList
+  };
+};
+
+export const appendRHSSelectedTag = tag => {
+  return {
+    type: constants.APPEND_RHS_SELECTED_TAG,
+    item: tag
+  };
+};
+
+export const removeRHSSelectedTag = tag => {
+  return {
+    type: constants.REMOVE_RHS_SELECTED_TAG,
+    item: tag
+  };
+};
+
 export const setResizableLayout = projects => ({
   type: constants.SET_RESIZABLE_LAYOUT,
   payload: projects

@@ -30,12 +30,6 @@ import SearchField from '../../../common/Components/SearchField';
 import { setPanelsExpanded } from '../../../../reducers/layout/actions';
 import { withStyles } from '@material-ui/core/styles';
 import { blue } from '@material-ui/core/colors';
-import {
-  setTagFilteringMode,
-  setDisplayAllMolecules,
-  setDisplayUntaggedMolecules,
-  setTagDetailView
-} from '../../../../reducers/selection/actions';
 import { selectAllTags, clearAllTags } from '../redux/dispatchActions';
 import { Button } from '../../../common/Inputs/Button';
 import { LoadingContext } from '../../../loading';
@@ -147,25 +141,23 @@ const useStyles = makeStyles(theme => ({
   }
 }));
 
-/**
- * TagDetails is a fully injectable presentational panel for tag summary, editing, and creation.
- *
- * This component is side-agnostic: all side-specific behavior is injected via props.
- * No boolean decision trees; all rendering and behavior comes from explicit prop injection.
- *
- * @param {Array} preTagList - Required. The filtered tag list from Redux (e.g., from getLHSTags or getRHSTags selector).
- * @param {string} panelLayoutItemName - Required. The layout item key for panel expansion/collapse dispatch (e.g., layoutItemNames.TAG_DETAILS or layoutItemNames.RHS_TAG_DETAILS).
- * @param {Function} [expandHandler] - Optional callback fired when panel expands/collapses.
- * @param {React.Component} [TagDetailRowComponent] - Optional custom row component for list view. Defaults to TagDetailRow.
- * @param {React.Component} [TagGridRowsComponent] - Optional custom row component for grid view. Defaults to TagGridRows.
- */
 const TagDetails = memo(
   ({
     expandHandler = null,
     preTagList,
     panelLayoutItemName,
     TagDetailRowComponent = TagDetailRow,
-    TagGridRowsComponent = TagGridRows
+    TagGridRowsComponent = TagGridRows,
+    tagFilteringMode,
+    displayAllMolecules,
+    displayUntaggedMolecules,
+    tagDetailView,
+    onTagFilteringModeChange = () => {},
+    onDisplayAllMoleculesChange = () => {},
+    onDisplayUntaggedMoleculesChange = () => {},
+    onTagDetailViewChange = () => {},
+    onSelectAllTags = () => {},
+    onClearAllTags = () => {}
   }) => {
     const classes = useStyles();
     const ref = useRef(null);
@@ -175,10 +167,7 @@ const TagDetails = memo(
 
     const { moleculesAndTagsAreLoading } = useContext(LoadingContext);
 
-    const tagMode = useSelector(state => state.selectionReducers.tagFilteringMode);
-    const displayAllMolecules = useSelector(state => state.selectionReducers.displayAllMolecules);
-    const displayUntaggedMolecules = useSelector(state => state.selectionReducers.displayUntaggedMolecules);
-    let tagDetailView = useSelector(state => state.selectionReducers.tagDetailView);
+    // Tag filtering state is now injected via props for side-specificity
     const tagCategories = useSelector(state => state.apiReducers.categoryList);
     const selectedTagList = useSelector(state => state.selectionReducers.selectedTagList);
 
@@ -188,8 +177,6 @@ const TagDetails = memo(
     const [searchString, setSearchString] = useState(null);
 
     const [allTagsAreSelected, setAllTagsAreSelected] = useState(false);
-
-    tagDetailView = tagDetailView?.tagDetailView === undefined ? tagDetailView : tagDetailView.tagDetailView;
 
     useEffect(() => {
       if (tagList.length === selectedTagList.length) {
@@ -316,11 +303,11 @@ const TagDetails = memo(
     );
 
     const filteringModeSwitched = () => {
-      dispatch(setTagFilteringMode(!tagMode));
+      onTagFilteringModeChange(!tagFilteringMode);
     };
 
     const viewModeSwitched = () => {
-      dispatch(setTagDetailView(!tagDetailView));
+      onTagDetailViewChange(!tagDetailView);
     };
 
     const TagModeSwitch = withStyles({
@@ -342,23 +329,23 @@ const TagDetails = memo(
     })(Switch);
 
     const handleAllMoleculesButton = () => {
-      dispatch(setDisplayUntaggedMolecules(false));
-      dispatch(setDisplayAllMolecules(!displayAllMolecules));
+      onDisplayUntaggedMoleculesChange(false);
+      onDisplayAllMoleculesChange(!displayAllMolecules);
     };
 
     const handleShowUntaggedMoleculesButton = () => {
-      dispatch(setDisplayAllMolecules(false));
+      onDisplayAllMoleculesChange(false);
       setSelectAll(true);
-      dispatch(clearAllTags());
-      dispatch(setDisplayUntaggedMolecules(!displayUntaggedMolecules));
+      onClearAllTags();
+      onDisplayUntaggedMoleculesChange(!displayUntaggedMolecules);
     };
 
     const handleSelectionButton = tagsToSelect => {
-      dispatch(setDisplayUntaggedMolecules(false));
+      onDisplayUntaggedMoleculesChange(false);
       if (selectAll) {
-        dispatch(selectAllTags(tagsToSelect));
+        onSelectAllTags(tagsToSelect);
       } else {
-        dispatch(clearAllTags());
+        onClearAllTags();
       }
       setSelectAll(!selectAll);
     };
@@ -384,19 +371,19 @@ const TagDetails = memo(
         headerActions={[
           <Grid container className={classes.headerContainer}>
             <Grid item xs={4}>
-              <RichTooltip path={tagMode ? 'mode.intersection' : 'mode.union'}>
+              <RichTooltip path={tagFilteringMode ? 'mode.intersection' : 'mode.union'}>
                 <FormControlLabel
                   className={classes.tagModeSwitch}
                   classes={{ label: classes.tagLabel }}
                   control={
                     <TagModeSwitch
-                      checked={tagMode}
+                      checked={tagFilteringMode}
                       onChange={filteringModeSwitched}
                       name="tag-filtering-mode"
                       size="small"
                     />
                   }
-                  label={tagMode ? 'Intersection' : 'Union'}
+                  label={tagFilteringMode ? 'Intersection' : 'Union'}
                 />
               </RichTooltip>
             </Grid>

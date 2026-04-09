@@ -4,6 +4,12 @@ import { PLURAL_TO_SINGULAR } from '../../../../constants/constants';
 import TagView from '../tagView';
 import { getDefaultTagDiscoursePostText } from '../utils/tagUtils';
 import { updateTagProp, removeSelectedTag, addSelectedTag } from '../redux/dispatchActions';
+import {
+  appendRHSSelectedTag,
+  removeRHSSelectedTag,
+  appendLHSSelectedTag,
+  removeLHSSelectedTag
+} from '../../../../reducers/selection/actions';
 import { makeStyles, Button, Typography, Fab } from '@material-ui/core';
 import { Forum } from '@material-ui/icons';
 import classNames from 'classnames';
@@ -84,13 +90,17 @@ const useStyles = makeStyles(theme => ({
 /**
  * TagDetailRow represents a row of TagDetails panel summary
  */
-const TagDetailRow = memo(({ tag, moleculesToEditIds, moleculesToEdit }) => {
+const TagDetailRow = memo(({ tag, moleculesToEditIds, moleculesToEdit, side = 'shared' }) => {
   const classes = useStyles();
   const dispatch = useDispatch();
   const [allMoleculesOfTag, setAllMoleculesOfTag] = useState([]);
 
   const targetName = useSelector(state => state.apiReducers.target_on_name);
-  const selectedTagList = useSelector(state => state.selectionReducers.selectedTagList);
+  const selectedTagList = useSelector(state => {
+    if (side === 'rhs') return state.selectionReducers.rhs_selectedTagList;
+    if (side === 'lhs') return state.selectionReducers.lhs_selectedTagList;
+    return state.selectionReducers.selectedTagList;
+  });
   const allMolList = useSelector(state => state.apiReducers.all_mol_lists);
   const tagList = useSelector(state => state.apiReducers.tagList);
 
@@ -136,10 +146,14 @@ const TagDetailRow = memo(({ tag, moleculesToEditIds, moleculesToEdit }) => {
   };
 
   const handleTagClick = (selected, tag) => {
+    const removeAction =
+      side === 'rhs' ? removeRHSSelectedTag : side === 'lhs' ? removeLHSSelectedTag : removeSelectedTag;
+    const addAction = side === 'rhs' ? appendRHSSelectedTag : side === 'lhs' ? appendLHSSelectedTag : addSelectedTag;
+
     if (selected) {
-      dispatch(removeSelectedTag(tag));
+      dispatch(removeAction(tag));
     } else {
-      dispatch(addSelectedTag(tag));
+      dispatch(addAction(tag));
     }
   };
 

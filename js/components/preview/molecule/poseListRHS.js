@@ -18,7 +18,7 @@ import {
   removeDensity,
   addLigand,
   removeLigand,
-  initializeMolecules,
+  initializeRHSMolecules,
   applyDirectSelection,
   addQuality,
   removeQuality,
@@ -28,7 +28,7 @@ import {
   selectAllVisibleObservations,
   searchForObservations
 } from './redux/dispatchActions';
-import { getRHSCompoundsList, selectAllMoleculeList } from './redux/selectors';
+import { getRHSCompoundsList, selectAllMoleculeList, selectJoinedMoleculeListRHS } from './redux/selectors';
 import {
   setFilter,
   setMolListToEdit,
@@ -124,12 +124,13 @@ export const PoseListRHS = memo(({ expandHandler }) => {
     }
   }, [rhsCompoundsList, currentMoleculeList, allMoleculesList, dispatch]);
 
-  // For RHS, the joined molecule list is the observations from all_mol_lists that correspond
-  // to the dataset's currentMoleculeList (rather than the tag-filtered selectJoinedMoleculeList).
+  // For RHS, select molecules using RHS-specific tag-filtering logic,
+  // then intersect with the dataset's currentMoleculeList.
+  const tagFilteredJoinedMolecules = useSelector(state => selectJoinedMoleculeListRHS(state));
   const getJoinedMoleculeList = useMemo(() => {
-    if (!allMoleculesList || !currentMoleculeList) return [];
-    return allMoleculesList.filter(mol => currentMoleculeList.some(m => m.id === mol.id));
-  }, [allMoleculesList, currentMoleculeList]);
+    if (!tagFilteredJoinedMolecules || !currentMoleculeList) return [];
+    return tagFilteredJoinedMolecules.filter(mol => currentMoleculeList.some(m => m.id === mol.id));
+  }, [tagFilteredJoinedMolecules, currentMoleculeList]);
 
   const handlers = useMemo(
     () => ({
@@ -143,7 +144,62 @@ export const PoseListRHS = memo(({ expandHandler }) => {
       setCompoundsInitialized: value => dispatch(setRHSCompoundsInitialized(value)),
       initializeFilter: (objectSelection, joinedMolecules) =>
         dispatch(initializeFilter(objectSelection, joinedMolecules)),
-      initializeMolecules: majorViewStage => dispatch(initializeMolecules(majorViewStage)),
+      onInitialize: ({
+        majorViewStage,
+        target,
+        joinedMoleculeLists,
+        areLSHCompoundsInitialized,
+        proteinsHasLoaded,
+        all_mol_lists,
+        lhsCompoundsList,
+        directAccessProcessed,
+        directDisplay,
+        object_selection,
+        tags,
+        categories,
+        noTagsReceived
+      }) => {
+        if (
+          (proteinsHasLoaded === true || proteinsHasLoaded === null) &&
+          all_mol_lists?.length > 0 &&
+          (lhsCompoundsList?.length > 0 || currentMoleculeList?.length > 0)
+        ) {
+          if (
+            !directAccessProcessed &&
+            directDisplay &&
+            directDisplay.molecules &&
+            directDisplay.molecules.length > 0
+          ) {
+            dispatch(applyDirectSelection(majorViewStage));
+            dispatch(setRHSCompoundsInitialized(true));
+          }
+          if (
+            majorViewStage &&
+            all_mol_lists &&
+            target !== undefined &&
+            !areLSHCompoundsInitialized &&
+            tags &&
+            tags.length > 0 &&
+            categories &&
+            categories.length > 0
+          ) {
+            dispatch(initializeFilter(object_selection, joinedMoleculeLists));
+            dispatch(initializeRHSMolecules());
+            dispatch(setRHSCompoundsInitialized(true));
+          }
+          if (
+            majorViewStage &&
+            all_mol_lists &&
+            target !== undefined &&
+            !areLSHCompoundsInitialized &&
+            noTagsReceived
+          ) {
+            dispatch(initializeFilter(object_selection, joinedMoleculeLists));
+            dispatch(initializeRHSMolecules());
+            dispatch(setRHSCompoundsInitialized(true));
+          }
+        }
+      },
       setFilter: filterValue => dispatch(setFilter(filterValue)),
       setObservationsForLHSCmp: observations => dispatch(setObservationsForLHSCmp(observations)),
       setOpenObservationsDialog: open => dispatch(setOpenObservationsDialog(open)),
@@ -229,7 +285,7 @@ export const PoseListRHS = memo(({ expandHandler }) => {
       selectAllVisibleObservations: (visibleObservations, setNextXMoleculesFn, unselect) =>
         dispatch(selectAllVisibleObservations(visibleObservations, setNextXMoleculesFn, unselect))
     }),
-    [dispatch]
+    [dispatch, currentMoleculeList]
   );
 
   const instanceConfig = useMemo(

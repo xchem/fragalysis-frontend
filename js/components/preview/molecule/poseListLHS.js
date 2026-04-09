@@ -27,7 +27,7 @@ import {
   selectAllVisibleObservations,
   searchForObservations
 } from './redux/dispatchActions';
-import { getLHSCompoundsList, selectAllMoleculeList, selectJoinedMoleculeList } from './redux/selectors';
+import { getLHSCompoundsList, selectAllMoleculeList, selectJoinedMoleculeListLHS } from './redux/selectors';
 import {
   setFilter,
   setMolListToEdit,
@@ -55,7 +55,7 @@ export const PoseListLHS = memo(({}) => {
   const nextXMolecules = useSelector(state => state.selectionReducers.nextXMolecules);
   const searchString = useSelector(state => state.previewReducers.molecule.searchStringLHS);
   const filter = useSelector(state => state.selectionReducers.filter);
-  const getJoinedMoleculeList = useSelector(state => selectJoinedMoleculeList(state));
+  const getJoinedMoleculeList = useSelector(state => selectJoinedMoleculeListLHS(state));
   const allMoleculesList = useSelector(state => selectAllMoleculeList(state));
   const dataAreDownloading = useSelector(state => state.apiReducers.dataAreDownloading);
   const dataAreDownloaded = useSelector(state => state.apiReducers.dataAreDownloaded);
@@ -202,7 +202,12 @@ export const PoseListLHS = memo(({}) => {
           all_mol_lists?.length > 0 &&
           lhsCompoundsList?.length > 0
         ) {
-          if (!directAccessProcessed && directDisplay && directDisplay.molecules && directDisplay.molecules.length > 0) {
+          if (
+            !directAccessProcessed &&
+            directDisplay &&
+            directDisplay.molecules &&
+            directDisplay.molecules.length > 0
+          ) {
             dispatch(applyDirectSelection(majorViewStage));
             dispatch(setLHSCompoundsInitialized(true));
           }
@@ -220,7 +225,13 @@ export const PoseListLHS = memo(({}) => {
             dispatch(initializeMolecules(majorViewStage));
             dispatch(setLHSCompoundsInitialized(true));
           }
-          if (majorViewStage && all_mol_lists && target !== undefined && !areLSHCompoundsInitialized && noTagsReceived) {
+          if (
+            majorViewStage &&
+            all_mol_lists &&
+            target !== undefined &&
+            !areLSHCompoundsInitialized &&
+            noTagsReceived
+          ) {
             dispatch(initializeFilter(object_selection, joinedMoleculeLists));
             dispatch(initializeMolecules(majorViewStage));
             dispatch(setLHSCompoundsInitialized(true));

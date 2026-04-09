@@ -4,6 +4,8 @@ import { CATEGORY_TYPE } from '../../../../constants/constants';
 
 const getAllMolecules = state => state.apiReducers.all_mol_lists;
 const getAllSelectedTags = state => state.selectionReducers.selectedTagList;
+const getLHSSelectedTags = state => state.selectionReducers.lhs_selectedTagList;
+const getRHSSelectedTags = state => state.selectionReducers.rhs_selectedTagList;
 const getTagFilteringMode = state => state.selectionReducers.tagFilteringMode;
 const getNoTagsReceived = state => state.apiReducers.noTagsReceived;
 const getTagList = state => state.apiReducers.tagList;
@@ -136,6 +138,225 @@ export const selectJoinedMoleculeList = createSelector(
       if (a.code > b.code) {
         return 1;
       }
+      return 0;
+    });
+    return allMoleculesList;
+  }
+);
+
+const getLHSTagFilteringMode = state => state.selectionReducers.lhs_tagFilteringMode;
+const getRHSTagFilteringMode = state => state.selectionReducers.rhs_tagFilteringMode;
+const getLHSDisplayAllMolecules = state => state.selectionReducers.lhs_displayAllMolecules;
+const getRHSDisplayAllMolecules = state => state.selectionReducers.rhs_displayAllMolecules;
+const getLHSDisplayUntaggedMolecules = state => state.selectionReducers.lhs_displayUntaggedMolecules;
+const getRHSDisplayUntaggedMolecules = state => state.selectionReducers.rhs_displayUntaggedMolecules;
+
+export const selectJoinedMoleculeListLHS = createSelector(
+  getAllMolecules,
+  getLHSSelectedTags,
+  getLHSTagFilteringMode,
+  getNoTagsReceived,
+  getTagList,
+  getTagCategoryList,
+  getLHSDisplayAllMolecules,
+  getLHSDisplayUntaggedMolecules,
+  getIsCoordinateFilterApplied,
+  getCoordinateFilterResults,
+  (
+    all_mol_lists,
+    selectedTagList,
+    filteringMode,
+    noTagsReceived,
+    tagList,
+    categoryList,
+    displayAllMolecules,
+    displayUntaggedMolecules,
+    isCoordinateFilterApplied,
+    coordinateFilterResults
+  ) => {
+    let allMoleculesList = [];
+
+    if (!displayUntaggedMolecules) {
+      let inputMols = [];
+      if (isCoordinateFilterApplied) {
+        inputMols = all_mol_lists.filter(mol => coordinateFilterResults.includes(mol.id));
+      } else {
+        inputMols = [...all_mol_lists];
+      }
+      if (!noTagsReceived && !displayAllMolecules) {
+        let tagListToUse = selectedTagList;
+
+        if (!filteringMode) {
+          tagListToUse.forEach(tag => {
+            let filteredMols = inputMols.filter(mol => {
+              let foundTag = mol.tags_set.filter(t => t === tag.id);
+              return foundTag && foundTag.length > 0;
+            });
+            filteredMols.forEach(mol => {
+              let found = allMoleculesList.filter(addedMol => addedMol.id === mol.id);
+              if (!found || found.length === 0) {
+                allMoleculesList.push(mol);
+              }
+            });
+          });
+        } else {
+          inputMols.forEach(mol => {
+            let foundAllTags = false;
+            for (let i = 0; i < selectedTagList.length; i++) {
+              let tag = selectedTagList[i];
+              let foundTagId = mol.tags_set.find(tid => tid === tag.id);
+              if (!foundTagId) {
+                break;
+              }
+              if (i === selectedTagList.length - 1 && foundTagId) {
+                foundAllTags = true;
+              }
+            }
+            if (foundAllTags) {
+              allMoleculesList.push(mol);
+            }
+          });
+        }
+      } else {
+        if (all_mol_lists) {
+          allMoleculesList = [...all_mol_lists];
+        }
+      }
+    } else {
+      if (all_mol_lists) {
+        allMoleculesList = all_mol_lists.filter(mol => {
+          const categories = [];
+          Object.entries(CATEGORY_TYPE).forEach(([key, categName]) => {
+            const categ = categoryList.find(c => c.category === categName);
+            if (categ) categories.push({ ...categ });
+          });
+
+          let hasCuratorTags = false;
+          categories.some(categ => {
+            mol.tags_set.some(tagId => {
+              const tag = tagList.find(t => t.id === tagId);
+              if (!tag.hidden && tag?.category === categ.id) {
+                hasCuratorTags = true;
+                return true;
+              }
+            });
+            return hasCuratorTags;
+          });
+
+          return !mol.tags_set || mol.tags_set.length === 0 || !hasCuratorTags;
+        });
+      }
+    }
+
+    allMoleculesList.sort((a, b) => {
+      if (a.code < b.code) return -1;
+      if (a.code > b.code) return 1;
+      return 0;
+    });
+    return allMoleculesList;
+  }
+);
+
+export const selectJoinedMoleculeListRHS = createSelector(
+  getAllMolecules,
+  getRHSSelectedTags,
+  getRHSTagFilteringMode,
+  getNoTagsReceived,
+  getTagList,
+  getTagCategoryList,
+  getRHSDisplayAllMolecules,
+  getRHSDisplayUntaggedMolecules,
+  getIsCoordinateFilterApplied,
+  getCoordinateFilterResults,
+  (
+    all_mol_lists,
+    selectedTagList,
+    filteringMode,
+    noTagsReceived,
+    tagList,
+    categoryList,
+    displayAllMolecules,
+    displayUntaggedMolecules,
+    isCoordinateFilterApplied,
+    coordinateFilterResults
+  ) => {
+    let allMoleculesList = [];
+
+    if (!displayUntaggedMolecules) {
+      let inputMols = [];
+      if (isCoordinateFilterApplied) {
+        inputMols = all_mol_lists.filter(mol => coordinateFilterResults.includes(mol.id));
+      } else {
+        inputMols = [...all_mol_lists];
+      }
+      if (!noTagsReceived && !displayAllMolecules) {
+        let tagListToUse = selectedTagList;
+
+        if (!filteringMode) {
+          tagListToUse.forEach(tag => {
+            let filteredMols = inputMols.filter(mol => {
+              let foundTag = mol.tags_set.filter(t => t === tag.id);
+              return foundTag && foundTag.length > 0;
+            });
+            filteredMols.forEach(mol => {
+              let found = allMoleculesList.filter(addedMol => addedMol.id === mol.id);
+              if (!found || found.length === 0) {
+                allMoleculesList.push(mol);
+              }
+            });
+          });
+        } else {
+          inputMols.forEach(mol => {
+            let foundAllTags = false;
+            for (let i = 0; i < selectedTagList.length; i++) {
+              let tag = selectedTagList[i];
+              let foundTagId = mol.tags_set.find(tid => tid === tag.id);
+              if (!foundTagId) {
+                break;
+              }
+              if (i === selectedTagList.length - 1 && foundTagId) {
+                foundAllTags = true;
+              }
+            }
+            if (foundAllTags) {
+              allMoleculesList.push(mol);
+            }
+          });
+        }
+      } else {
+        if (all_mol_lists) {
+          allMoleculesList = [...all_mol_lists];
+        }
+      }
+    } else {
+      if (all_mol_lists) {
+        allMoleculesList = all_mol_lists.filter(mol => {
+          const categories = [];
+          Object.entries(CATEGORY_TYPE).forEach(([key, categName]) => {
+            const categ = categoryList.find(c => c.category === categName);
+            if (categ) categories.push({ ...categ });
+          });
+
+          let hasCuratorTags = false;
+          categories.some(categ => {
+            mol.tags_set.some(tagId => {
+              const tag = tagList.find(t => t.id === tagId);
+              if (!tag.hidden && tag?.category === categ.id) {
+                hasCuratorTags = true;
+                return true;
+              }
+            });
+            return hasCuratorTags;
+          });
+
+          return !mol.tags_set || mol.tags_set.length === 0 || !hasCuratorTags;
+        });
+      }
+    }
+
+    allMoleculesList.sort((a, b) => {
+      if (a.code < b.code) return -1;
+      if (a.code > b.code) return 1;
       return 0;
     });
     return allMoleculesList;
