@@ -23,7 +23,7 @@ import { VIEWS } from '../../../constants/constants';
 import { NglContext } from '../../nglView/nglProvider';
 import classNames from 'classnames';
 import { Edit, FilterList } from '@material-ui/icons';
-import { setTagEditorOpen, setObservationsDialogSide } from '../../../reducers/selection/actions';
+import { setTagEditorOpen, setObservationsDialogSide, setIsLHSCmpTagEdit } from '../../../reducers/selection/actions';
 import { useRouteMatch } from 'react-router-dom';
 import { AlertModal } from '../../common/Modal/AlertModal';
 import { TagEditor } from '../tags/modal/tagEditor';
@@ -269,7 +269,6 @@ export const PoseList = memo(
     const [itemsToBeDisplayed, setItemsToBeDisplayed] = useState([]);
     const [sortSettingsChanged, setSortSettingsChanged] = useState(false);
 
-
     const selectedAll = useRef(false);
     const allMolListsLength = all_mol_lists?.length || 0;
 
@@ -278,6 +277,7 @@ export const PoseList = memo(
     const searchSettingsDialogOpen = useSelector(instanceConfig.selectSearchSettingsDialogOpen || (() => false));
     const areLSHCompoundsInitialized = useSelector(instanceConfig.selectAreLHSCompoundsInitialized || (() => false));
     const observationsDialogSide = useSelector(state => state.selectionReducers.observationsDialogSide);
+    const isLHSCmpTagEdit = useSelector(state => state.selectionReducers.isLHSCmpTagEdit);
     const instanceSide = instanceConfig.instanceSide || 'lhs';
     const isObsInspirationDialogOpen = useSelector(state => state.selectionReducers.isObsInspirationDialogOpen);
 
@@ -407,6 +407,13 @@ export const PoseList = memo(
     const hitNavigatorRef = useRef();
     const [tagEditorAnchorEl, setTagEditorAnchorEl] = useState(null);
     const [hitNavigatorWidth, setHitNavigatorWidth] = useState(0);
+    const isTagEditorForCurrentSide = instanceSide === 'lhs' ? isLHSCmpTagEdit : !isLHSCmpTagEdit;
+
+    useEffect(() => {
+      if (!isTagEditorOpen || !isTagEditorForCurrentSide) {
+        setTagEditorAnchorEl(null);
+      }
+    }, [isTagEditorOpen, isTagEditorForCurrentSide]);
 
     useEffect(() => {
       if (hitNavigatorRef && hitNavigatorRef.current) {
@@ -800,12 +807,25 @@ export const PoseList = memo(
       } else if (!isObservationDialogOpen && observationsDialogSide === instanceSide) {
         dispatch(setObservationsDialogSide(null));
       }
-    }, [isObservationDialogOpen, filteredLHSCompoundsList, observationsForLHSCmp, lhsDataIsLoaded, observationsDialogSide, instanceSide, dispatch]);
+    }, [
+      isObservationDialogOpen,
+      filteredLHSCompoundsList,
+      observationsForLHSCmp,
+      lhsDataIsLoaded,
+      observationsDialogSide,
+      instanceSide,
+      dispatch
+    ]);
 
     // Close dialog if its compound is no longer visible in this instance's list,
     // but only if this instance owns the dialog.
     useEffect(() => {
-      if (instanceSide === observationsDialogSide && isObservationDialogOpen && observationsForLHSCmp?.length > 0 && lhsDataIsLoaded) {
+      if (
+        instanceSide === observationsDialogSide &&
+        isObservationDialogOpen &&
+        observationsForLHSCmp?.length > 0 &&
+        lhsDataIsLoaded
+      ) {
         const cmpId = observationsForLHSCmp[0].cmpd;
         const cmp = filteredLHSCompoundsList.find(c => c.compound === cmpId);
         if (!cmp) {
@@ -814,7 +834,15 @@ export const PoseList = memo(
           handlers.setPoseIdForObservationsDialog(0);
         }
       }
-    }, [instanceSide, observationsDialogSide, isObservationDialogOpen, filteredLHSCompoundsList, observationsForLHSCmp, handlers, lhsDataIsLoaded]);
+    }, [
+      instanceSide,
+      observationsDialogSide,
+      isObservationDialogOpen,
+      filteredLHSCompoundsList,
+      observationsForLHSCmp,
+      handlers,
+      lhsDataIsLoaded
+    ]);
 
     const newMolsToEdit = [];
     allMoleculesList.forEach(cm => {
@@ -943,6 +971,7 @@ export const PoseList = memo(
         onClick={event => {
           if (isTagEditorOpen === false) {
             setTagEditorAnchorEl(event.currentTarget);
+            dispatch(setIsLHSCmpTagEdit(instanceSide === 'lhs'));
             handlers.setIsTagGlobalEdit(true);
             handlers.setTagEditorOpen(true);
           } else {
@@ -1073,7 +1102,7 @@ export const PoseList = memo(
             ref={inspirationDialogRef}
           />
         )}
-        {isTagEditorOpen && (
+        {isTagEditorOpen && isTagEditorForCurrentSide && !!tagEditorAnchorEl && (
           <TagEditor
             open={isTagEditorOpen}
             closeDisabled={anyControlButtonDisabled}

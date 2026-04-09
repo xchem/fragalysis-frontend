@@ -51,10 +51,7 @@ import DensityButtonPopover from './DensityButtonPopover';
 import RichTooltip from '../../../../../tooltip/RichTooltip';
 import { TooltipPathProvider } from '../../../../../tooltip/TooltipPathContext';
 import { isAnyInspirationTurnedOn } from '../../../../../datasets/redux/selectors';
-import {
-  setCrossReferenceCompoundName,
-  setIsOpenCrossReferenceDialog
-} from '../../../../../datasets/redux/actions';
+import { setCrossReferenceCompoundName, setIsOpenCrossReferenceDialog } from '../../../../../datasets/redux/actions';
 import {
   setIsObsInspirationDialogOpen,
   setObsInspirationDialogObsIds,
@@ -407,15 +404,7 @@ const useStyles = makeStyles(theme => ({
 }));
 
 export const DetailView = memo(
-  ({
-    data,
-    handleRef,
-    disableL,
-    disableP,
-    disableC,
-    observations,
-    viewConfig = LHS_OBSERVATION_VIEW_CONFIG
-  }) => {
+  ({ data, handleRef, disableL, disableP, disableC, observations, viewConfig = LHS_OBSERVATION_VIEW_CONFIG }) => {
     const [densityPopoverAnchor, setDensityPopoverAnchor] = useState(null);
     const [densityPopoverOpen, setDensityPopoverOpen] = useState(false);
 
@@ -424,6 +413,7 @@ export const DetailView = memo(
 
     const showCrossReferenceModal = false;
     const hideFButton = viewConfig.kind === 'lhs';
+    const isRHSView = viewConfig.kind === 'rhs';
 
     const isObsInspirationDialogOpen = useSelector(state => state.selectionReducers.isObsInspirationDialogOpen);
     const obsInspirationDialogPoseId = useSelector(state => state.selectionReducers.obsInspirationDialogPoseId);
@@ -467,10 +457,13 @@ export const DetailView = memo(
     const tagList = useSelector(state => state.apiReducers.tagList);
     const tagCategories = useSelector(state => state.apiReducers.categoryList);
     const tagEditorOpen = useSelector(state => state.selectionReducers.tagEditorOpened);
+    const molForTagEditId = useSelector(state => state.selectionReducers.molForTagEdit);
 
     const isObservationDialogOpen = useSelector(state => state.selectionReducers.isObservationDialogOpen);
 
-    const [tagEditModalOpenNew, setTagEditModalOpenNew] = useState(tagEditorOpen);
+    // True only when the tag editor was opened specifically for this row
+    const isRowTagEditorOpen =
+      tagEditorOpen && (molForTagEditId || []).some(id => observations.some(obs => obs.id === id));
 
     const [hasMap, setHasMap] = useState(false);
 
@@ -599,10 +592,6 @@ export const DetailView = memo(
 
     const open = tagPopoverOpen ? true : false;
 
-    useEffect(() => {
-      setTagEditModalOpenNew(tagEditorOpen);
-    }, [tagEditorOpen]);
-
     const handlePopoverOpen = event => {
       setTagPopoverOpen(event.currentTarget);
     };
@@ -680,7 +669,6 @@ export const DetailView = memo(
       });
 
       const allTagsLength = allData.length > 9 ? 9 : allData.length;
-      const popperPadding = 250; // allTagsLength > 1 ? 250 : 420;
 
       return modifiedObjects?.length > 0 ? (
         <Grid item>
@@ -728,14 +716,12 @@ export const DetailView = memo(
                         color={'inherit'}
                         disabled={!modifiedObjects}
                         onClick={() => {
-                          if (tagEditModalOpenNew) {
-                            setTagEditModalOpenNew(false);
-                            dispatch(setTagEditorOpen(!tagEditModalOpenNew));
+                          if (isRowTagEditorOpen) {
+                            dispatch(setTagEditorOpen(false));
                             dispatch(setMoleculeForTagEdit([]));
                             dispatch(setIsLHSCmpTagEdit(false));
                           } else {
-                            dispatch(setIsLHSCmpTagEdit(true));
-                            setTagEditModalOpenNew(true);
+                            dispatch(setIsLHSCmpTagEdit(!isRHSView));
                             dispatch(setMoleculeForTagEdit(observations.map(obs => obs.id)));
                             dispatch(setTagEditorOpen(true));
                             handleRef();
@@ -791,14 +777,12 @@ export const DetailView = memo(
                       color={'inherit'}
                       disabled={!modifiedObjects}
                       onClick={() => {
-                        if (tagEditModalOpenNew) {
-                          setTagEditModalOpenNew(false);
-                          dispatch(setTagEditorOpen(!tagEditModalOpenNew));
+                        if (isRowTagEditorOpen) {
+                          dispatch(setTagEditorOpen(false));
                           dispatch(setMoleculeForTagEdit([]));
                           dispatch(setIsLHSCmpTagEdit(false));
                         } else {
-                          dispatch(setIsLHSCmpTagEdit(true));
-                          setTagEditModalOpenNew(true);
+                          dispatch(setIsLHSCmpTagEdit(!isRHSView));
                           dispatch(setMoleculeForTagEdit(observations.map(obs => obs.id)));
                           dispatch(setTagEditorOpen(true));
                           handleRef();
@@ -823,7 +807,12 @@ export const DetailView = memo(
               style={{ fontSize: '10px', display: 'flex' }}
               component={'div'}
             >
-              <Popper open={open} placement="right-start" anchorEl={tagPopoverOpen} style={{ display: 'flex' }}>
+              <Popper
+                open={open}
+                placement={isRHSView ? 'left-start' : 'right-start'}
+                anchorEl={tagPopoverOpen}
+                style={{ display: 'flex' }}
+              >
                 <Panel
                   secondaryBackground
                   className={classes.paper}
@@ -831,7 +820,8 @@ export const DetailView = memo(
                     background: '',
                     width: '320px',
                     display: 'flex',
-                    transform: 'translate(' + popperPadding + 'px, -10%)'
+                    marginLeft: isRHSView ? 0 : 8,
+                    marginRight: isRHSView ? 8 : 0
                   }}
                 >
                   <Grid alignItems="center" direction="row" container>
@@ -868,14 +858,12 @@ export const DetailView = memo(
             color={'inherit'}
             disabled={!modifiedObjects}
             onClick={() => {
-              if (tagEditModalOpenNew) {
-                setTagEditModalOpenNew(false);
-                dispatch(setTagEditorOpen(!tagEditModalOpenNew));
+              if (isRowTagEditorOpen) {
+                dispatch(setTagEditorOpen(false));
                 dispatch(setMoleculeForTagEdit([]));
                 dispatch(setIsLHSCmpTagEdit(false));
               } else {
-                dispatch(setIsLHSCmpTagEdit(true));
-                setTagEditModalOpenNew(true);
+                dispatch(setIsLHSCmpTagEdit(!isRHSView));
                 dispatch(setMoleculeForTagEdit(observations.map(obs => obs.id)));
                 dispatch(setTagEditorOpen(true));
                 handleRef();
@@ -899,13 +887,14 @@ export const DetailView = memo(
       dispatch,
       getCanonSitesTagCategory,
       getConformerSitesTagCategory,
+      isRHSView,
       observations,
       open,
       resolveTagBackgroundColor,
       resolveTagForegroundColor,
       handleRef,
       tagCategories,
-      tagEditModalOpenNew,
+      isRowTagEditorOpen,
       tagEditorOpen,
       tagList,
       tagPopoverOpen
