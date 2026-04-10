@@ -23,7 +23,7 @@ import { VIEWS } from '../../../constants/constants';
 import { NglContext } from '../../nglView/nglProvider';
 import classNames from 'classnames';
 import { Edit, FilterList } from '@material-ui/icons';
-import { setTagEditorOpen, setObservationsDialogSide, setIsLHSCmpTagEdit } from '../../../reducers/selection/actions';
+import { setTagEditorOpen, setObservationsDialogSide } from '../../../reducers/selection/actions';
 import { useRouteMatch } from 'react-router-dom';
 import { AlertModal } from '../../common/Modal/AlertModal';
 import { TagEditor } from '../tags/modal/tagEditor';
@@ -253,6 +253,7 @@ export const PoseList = memo(
     proteinsHasLoaded,
     searchSettings,
     viewConfig,
+    isTagEditorForCurrentSide = false,
     handlers = {},
     instanceConfig = {},
     expandHandler = null
@@ -277,7 +278,6 @@ export const PoseList = memo(
     const searchSettingsDialogOpen = useSelector(instanceConfig.selectSearchSettingsDialogOpen || (() => false));
     const areLSHCompoundsInitialized = useSelector(instanceConfig.selectAreLHSCompoundsInitialized || (() => false));
     const observationsDialogSide = useSelector(state => state.selectionReducers.observationsDialogSide);
-    const isLHSCmpTagEdit = useSelector(state => state.selectionReducers.isLHSCmpTagEdit);
     const instanceSide = instanceConfig.instanceSide || 'lhs';
     const isObsInspirationDialogOpen = useSelector(state => state.selectionReducers.isObsInspirationDialogOpen);
 
@@ -407,8 +407,6 @@ export const PoseList = memo(
     const hitNavigatorRef = useRef();
     const [tagEditorAnchorEl, setTagEditorAnchorEl] = useState(null);
     const [hitNavigatorWidth, setHitNavigatorWidth] = useState(0);
-    const isTagEditorForCurrentSide = instanceSide === 'lhs' ? isLHSCmpTagEdit : !isLHSCmpTagEdit;
-
     useEffect(() => {
       if (!isTagEditorOpen || !isTagEditorForCurrentSide) {
         setTagEditorAnchorEl(null);
@@ -971,7 +969,7 @@ export const PoseList = memo(
         onClick={event => {
           if (isTagEditorOpen === false) {
             setTagEditorAnchorEl(event.currentTarget);
-            dispatch(setIsLHSCmpTagEdit(instanceSide === 'lhs'));
+            handlers.setIsTagEditorForCurrentSide();
             handlers.setIsTagGlobalEdit(true);
             handlers.setTagEditorOpen(true);
           } else {

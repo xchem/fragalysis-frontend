@@ -43,6 +43,7 @@ import {
   setDeselectedAllByType,
   setTagEditorOpen,
   setIsTagGlobalEdit,
+  setIsLHSCmpTagEdit,
   addToastMessage
 } from '../../../reducers/selection/actions';
 import { initializeFilter } from '../../../reducers/selection/dispatchActions';
@@ -77,6 +78,8 @@ export const PoseListRHS = memo(({ expandHandler }) => {
   const vectorOnList = useSelector(state => state.selectionReducers.vectorOnList);
   const informationList = useSelector(state => state.selectionReducers.informationList);
   const isTagEditorOpen = useSelector(state => state.selectionReducers.tagEditorOpened);
+  const isLHSCmpTagEdit = useSelector(state => state.selectionReducers.isLHSCmpTagEdit);
+  const isTagEditorForCurrentSide = !isLHSCmpTagEdit;
   const molForTagEditId = useSelector(state => state.selectionReducers.molForTagEdit);
   const moleculesToEditIds = useSelector(state => state.selectionReducers.moleculesToEdit);
   const isGlobalEdit = useSelector(state => state.selectionReducers.isGlobalEdit);
@@ -279,6 +282,7 @@ export const PoseListRHS = memo(({ expandHandler }) => {
       setSearchString: value => dispatch(setSearchStringOfHitNavigator(value)),
       setIsTagGlobalEdit: value => dispatch(setIsTagGlobalEdit(value)),
       setTagEditorOpen: value => dispatch(setTagEditorOpen(value)),
+      setIsTagEditorForCurrentSide: () => dispatch(setIsLHSCmpTagEdit(false)),
       setSortDialogOpen: value => dispatch(setSortDialogOpen(value)),
       selectAllHits: (allFilteredLhsCompounds, unselect) =>
         dispatch(selectAllHits(allFilteredLhsCompounds, setNextXMolecules, unselect)),
@@ -335,6 +339,7 @@ export const PoseListRHS = memo(({ expandHandler }) => {
       proteinsHasLoaded={proteinsHasLoaded}
       searchSettings={searchSettings}
       viewConfig={RHS_OBSERVATION_VIEW_CONFIG}
+      isTagEditorForCurrentSide={isTagEditorForCurrentSide}
       handlers={handlers}
       instanceConfig={instanceConfig}
       expandHandler={expandHandler}
