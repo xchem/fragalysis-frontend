@@ -3,7 +3,6 @@
  */
 import { constants } from './constants';
 import { savingStateConst } from '../../components/snapshot/constants';
-import { tags } from '../../components/preview/tags/redux/tempData';
 
 export const INITIAL_STATE = {
   project: undefined,
@@ -301,6 +300,28 @@ export default function apiReducers(state = INITIAL_STATE, action = {}) {
       });
 
       return { ...state, lhs_compounds_list: [...newList] };
+    }
+
+    case constants.UPDATE_RHS_COMPOUND: {
+      let newList = [...state.rhs_compounds_list];
+      const indexOfCmp = newList.findIndex(c => c.id === action.cmp.id);
+      if (indexOfCmp >= 0) {
+        newList[indexOfCmp] = { ...action.cmp };
+      } else {
+        newList.push(action.cmp);
+      }
+
+      newList.sort((a, b) => {
+        if (a.code < b.code) {
+          return -1;
+        }
+        if (a.code > b.code) {
+          return 1;
+        }
+        return 0;
+      });
+
+      return { ...state, rhs_compounds_list: [...newList] };
     }
 
     case constants.REMOVE_LHS_COMPOUND: {

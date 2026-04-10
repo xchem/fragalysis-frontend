@@ -228,7 +228,7 @@ const useStyles = makeStyles(theme => ({
 }));
 
 export const ObservationsDialog = memo(
-  forwardRef(({ open = false, anchorEl }, ref) => {
+  forwardRef(({ open = false, anchorEl, tagEditorProps = {} }, ref) => {
     const dispatch = useDispatch();
 
     const id = open ? 'simple-popover-compound-inspirations' : undefined;
@@ -930,6 +930,7 @@ export const ObservationsDialog = memo(
         >
           {isTagEditorOpenObs && (
             <TagEditor
+              {...tagEditorProps}
               open={isTagEditorOpenObs}
               closeDisabled={anyControlButtonDisabled}
               setOpenDialog={setTagEditorOpenObs}

@@ -43,11 +43,13 @@ import {
   setTagEditorOpen,
   setIsTagGlobalEdit,
   setIsLHSCmpTagEdit,
+  updateMoleculeInLHSObservations,
   addToastMessage
 } from '../../../reducers/selection/actions';
 import { initializeFilter } from '../../../reducers/selection/dispatchActions';
 import { setSortDialogOpen, setSearchStringOfHitNavigator } from './redux/actions';
 import { getMoleculeForId } from '../tags/redux/dispatchActions';
+import { updateLHSCompound } from '../../../reducers/api/actions';
 import { PoseList } from './poseList';
 import { LHS_OBSERVATION_VIEW_CONFIG } from './observationUnifiedView/viewConfigs';
 export const PoseListLHS = memo(({}) => {
@@ -181,6 +183,9 @@ export const PoseListLHS = memo(({}) => {
       setIsTagGlobalEdit: value => dispatch(setIsTagGlobalEdit(value)),
       setTagEditorOpen: value => dispatch(setTagEditorOpen(value)),
       setIsTagEditorForCurrentSide: () => dispatch(setIsLHSCmpTagEdit(true)),
+      resetTagEditorSide: () => dispatch(setIsLHSCmpTagEdit(false)),
+      updateTagEditorCompound: cmp => dispatch(updateLHSCompound(cmp)),
+      updateMoleculeInTagEditorObservations: mol => dispatch(updateMoleculeInLHSObservations(mol)),
       setSortDialogOpen: value => dispatch(setSortDialogOpen(value)),
       selectAllHits: (allFilteredLhsCompounds, unselect) =>
         dispatch(selectAllHits(allFilteredLhsCompounds, setNextXMolecules, unselect)),

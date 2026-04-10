@@ -203,6 +203,13 @@ export const updateLHSCompound = cmp => {
   };
 };
 
+export const updateRHSCompound = cmp => {
+  return {
+    type: constants.UPDATE_RHS_COMPOUND,
+    cmp: cmp
+  };
+};
+
 export const removeLHSCompound = cmp => {
   return {
     type: constants.REMOVE_LHS_COMPOUND,

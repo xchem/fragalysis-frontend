@@ -3,20 +3,11 @@ import { Grid, Popper, IconButton, makeStyles, FormControlLabel, Switch } from '
 import { Panel } from '../../../common';
 import { Close } from '@material-ui/icons';
 import { useDispatch, useSelector } from 'react-redux';
-import {
-  updateLHSCompound,
-  updateMoleculeInMolLists,
-  updateMoleculeTag,
-  updateTag
-} from '../../../../reducers/api/actions';
-import { getMoleculeForId } from '../redux/dispatchActions';
+import { updateMoleculeInMolLists, updateMoleculeTag, updateTag } from '../../../../reducers/api/actions';
 import {
   setMoleculeForTagEdit,
   setIsTagGlobalEdit,
-  setAssignTagView,
-  setTagEditorOpen,
-  setIsLHSCmpTagEdit,
-  updateMoleculeInLHSObservations
+  setAssignTagView
 } from '../../../../reducers/selection/actions';
 import { updateExistingTag } from '../api/tagsApi';
 import { DJANGO_CONTEXT } from '../../../../utils/djangoContext';
@@ -122,48 +113,50 @@ const useStyles = makeStyles(theme => ({
   }
 }));
 
-export const TagEditor = memo(
-  forwardRef(({ open = false, anchorEl, setOpenDialog, closeDisabled }, tagEditorRef) => {
+const TagEditorComponent = (
+  {
+    open = false,
+    anchorEl,
+    setOpenDialog,
+    closeDisabled,
+    compounds = [],
+    molForTagEditId = [],
+    moleculesToEditIds = [],
+    isGlobalEdit = false,
+    getMoleculeForId = () => null,
+    updateCompound = () => {},
+    updateMoleculeInObservations = () => {},
+    resetTagEditorSide = () => {}
+  },
+  tagEditorRef
+) => {
     const id = open ? 'simple-popover-mols-tag-editor' : undefined;
     const classes = useStyles();
     const dispatch = useDispatch();
     const refForOutsideClick = useRef(null);
     let moleculeTags = useSelector(state => state.apiReducers.moleculeTags);
-    const allMolecules = useSelector(state => state.apiReducers.all_mol_lists);
-    const isTagGlobalEdit = useSelector(state => state.selectionReducers.isGlobalEdit);
-    const isLHSCmpTagEdit = useSelector(state => state.selectionReducers.isLHSCmpTagEdit);
-    const molId = useSelector(state => state.selectionReducers.molForTagEdit);
     const targetId = useSelector(state => state.apiReducers.target_on);
-
-    const moleculesToEditIdsSt = useSelector(state => state.selectionReducers.moleculesToEdit) || [];
-
-    const lhsCompounds = useSelector(state => state.apiReducers.lhs_compounds_list);
 
     const [taggingInProgress, setTaggingInProgress] = useState(false);
     const [isError, setIsError] = useState(false);
     const [molsLeftForTagging, setMolsLeftForTagging] = useState(0);
 
-    let moleculesToEditIds = [];
-    if (moleculesToEditIdsSt.length === 0 || !isTagGlobalEdit) {
-      moleculesToEditIds.push(...molId);
+    let selectedMoleculeIds = [];
+    if ((moleculesToEditIds || []).length === 0 || !isGlobalEdit) {
+      selectedMoleculeIds.push(...(molForTagEditId || []));
     } else {
-      moleculesToEditIds = [...moleculesToEditIdsSt];
+      selectedMoleculeIds = [...moleculesToEditIds];
     }
 
-    const moleculesToEdit = moleculesToEditIds.map(id => dispatch(getMoleculeForId(id)));
+    const moleculesToEdit = selectedMoleculeIds.map(id => getMoleculeForId(id)).filter(Boolean);
     let poses = [];
     moleculesToEdit?.forEach(m => {
-      const pose = lhsCompounds.find(p => p.site_observations.includes(m.id));
+      const pose = compounds.find(p => p.site_observations?.includes(m?.id));
       if (pose && !poses.find(p => p.id === pose.id)) {
         poses.push(pose);
       }
     });
-    // if (moleculesToEdit?.length > 0) {
-    //   const firstMolToEdit = moleculesToEdit[0];
-    //   const cmpId = firstMolToEdit.cmpd;
-    //   lhsCmp = lhsCompounds?.find(c => c.compound === cmpId && firstMolToEdit.canon_site_conf === c.canonSiteConf);
-    // }
-    moleculeTags = moleculeTags.sort(compareTagsAsc);
+    moleculeTags = [...moleculeTags].sort(compareTagsAsc);
     const assignTagEditorOpen = useSelector(state => state.selectionReducers.tagEditorOpened);
 
     const assignTagView = useSelector(state => state.selectionReducers.assignTagView);
@@ -177,7 +170,7 @@ export const TagEditor = memo(
 
     const handleOutsideClick = e => {
       if (refForOutsideClick.current && !refForOutsideClick.current.contains(e.target)) {
-        assignTagEditorOpen === true ? (dispatch(setTagEditorOpen(false)), dispatch(setMoleculeForTagEdit([]))) : '';
+        assignTagEditorOpen === true ? (dispatch(setOpenDialog(false)), dispatch(setMoleculeForTagEdit([]))) : '';
       }
     };
 
@@ -187,16 +180,20 @@ export const TagEditor = memo(
         dispatch(setOpenDialog(false));
         dispatch(setMoleculeForTagEdit([]));
         dispatch(setIsTagGlobalEdit(false));
-        dispatch(setIsLHSCmpTagEdit(false));
+        resetTagEditorSide();
       }
     };
 
     const updateCmp = (cmp, obs) => {
-      let newCmp = { ...cmp };
+      if (!obs || !Array.isArray(cmp?.associatedObs)) {
+        return;
+      }
+
+      let newCmp = { ...cmp, associatedObs: [...cmp.associatedObs] };
       const index = newCmp.associatedObs.findIndex(o => o.id === obs.id);
       if (index >= 0) {
         newCmp.associatedObs[index] = obs;
-        dispatch(updateLHSCompound(newCmp));
+        updateCompound(newCmp);
       }
     };
 
@@ -222,7 +219,7 @@ export const TagEditor = memo(
             const pose = poses.find(p => p.site_observations.includes(m.id));
             updateCmp(pose, newMol);
             dispatch(updateMoleculeInMolLists(newMol));
-            dispatch(updateMoleculeInLHSObservations(newMol));
+            updateMoleculeInObservations(newMol);
             const moleculeTag = getMoleculeTagForTag(moleculeTags, tag.id);
 
             let mtObject = molTagObjects.find(mto => mto.tag === tag.tag);
@@ -257,7 +254,7 @@ export const TagEditor = memo(
               const pose = poses.find(p => p.site_observations.includes(m.id));
               updateCmp(pose, newMol);
               dispatch(updateMoleculeInMolLists(newMol));
-              dispatch(updateMoleculeInLHSObservations(newMol));
+              updateMoleculeInObservations(newMol);
               const moleculeTag = getMoleculeTagForTag(moleculeTags, tag.id);
               let mtObject = molTagObjects.find(mto => mto.tag === tag.tag);
               if (mtObject) {
@@ -383,5 +380,6 @@ export const TagEditor = memo(
         </Panel>
       </Popper>
     );
-  })
-);
+};
+
+export const TagEditor = memo(forwardRef(TagEditorComponent));

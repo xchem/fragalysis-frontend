@@ -18,6 +18,17 @@ describe("testing selection reducer's actions", () => {
     expect(result.cached_mol_lists).toStrictEqual(cached_mol_lists);
   });
 
+  it('should update rhs compound', () => {
+    expect.hasAssertions();
+    const currentCompound = { id: 1, code: 'rhs-a' };
+    const updatedCompound = { id: 1, code: 'rhs-b', associatedObs: [{ id: 12, tags_set: [3] }] };
+    const state = { ...initialState, rhs_compounds_list: [currentCompound] };
+    let result = apiReducers(state, apiActions.updateRHSCompound(updatedCompound));
+
+    expect(result.rhs_compounds_list).toHaveLength(1);
+    expect(result.rhs_compounds_list[0]).toStrictEqual(updatedCompound);
+  });
+
   it('should set saving state', () => {
     expect.hasAssertions();
     const savingState = 'in progress';
@@ -126,7 +137,7 @@ describe("testing selection reducer's actions", () => {
       target_on: 'apiReducers.target_on',
       target_id: 'apiReducers.target_id',
       molecule_list: 'apiReducers.molecule_list',
-      cached_mol_lists: 'apiReducers.cached_mol_lists',
+      cached_mol_lists: { 1: ['apiReducers.cached_mol_lists'] },
       mol_group_list: 'apiReducers.mol_group_list',
       mol_group_on: 'apiReducers.mol_group_on',
       hotspot_list: 'apiReducers.hotspot_list',
@@ -143,9 +154,11 @@ describe("testing selection reducer's actions", () => {
       pandda_site_list: 'apiReducers.pandda_site_list'
     };
     let result = apiReducers(initialState, apiActions.reloadApiState(apiState));
-    Object.keys(apiState).forEach(key => {
+    const { cached_mol_lists, ...scalarApiState } = apiState;
+    Object.keys(scalarApiState).forEach(key => {
       expect(result[key]).toBe(apiState[key]);
     });
+    expect(result.cached_mol_lists).toStrictEqual(cached_mol_lists);
   });
 
   it('should reset target state', () => {

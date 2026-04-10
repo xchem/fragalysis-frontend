@@ -406,6 +406,16 @@ export const PoseList = memo(
     const scrollBarRef = useRef();
     const hitNavigatorRef = useRef();
     const [tagEditorAnchorEl, setTagEditorAnchorEl] = useState(null);
+    const tagEditorProps = {
+      compounds: lhsCompoundsList || [],
+      molForTagEditId,
+      moleculesToEditIds,
+      isGlobalEdit,
+      getMoleculeForId: handlers.getMoleculeForId,
+      updateCompound: handlers.updateTagEditorCompound,
+      updateMoleculeInObservations: handlers.updateMoleculeInTagEditorObservations,
+      resetTagEditorSide: handlers.resetTagEditorSide
+    };
     const [hitNavigatorWidth, setHitNavigatorWidth] = useState(0);
     useEffect(() => {
       if (!isTagEditorOpen || !isTagEditorForCurrentSide) {
@@ -1090,7 +1100,12 @@ export const PoseList = memo(
         )}
         {isObservationDialogOpen && instanceSide === observationsDialogSide && (
           <TooltipPathProvider path="observationsDialog">
-            <ObservationsDialog open={isObservationDialogOpen} anchorEl={tagEditorAnchorEl} ref={tagEditorRef} />
+            <ObservationsDialog
+              open={isObservationDialogOpen}
+              anchorEl={tagEditorAnchorEl}
+              tagEditorProps={tagEditorProps}
+              ref={tagEditorRef}
+            />
           </TooltipPathProvider>
         )}
         {isObsInspirationDialogOpen && instanceSide === 'rhs' && (
@@ -1102,6 +1117,7 @@ export const PoseList = memo(
         )}
         {isTagEditorOpen && isTagEditorForCurrentSide && !!tagEditorAnchorEl && (
           <TagEditor
+            {...tagEditorProps}
             open={isTagEditorOpen}
             closeDisabled={anyControlButtonDisabled}
             setOpenDialog={instanceConfig.tagEditorOpenActionCreator || setTagEditorOpen}
