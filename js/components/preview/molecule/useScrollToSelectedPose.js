@@ -1,130 +1,208 @@
-import { useCallback, useEffect, useState } from 'react';
-import { useDispatch, useSelector, shallowEqual } from 'react-redux';
-import { setScrollFiredForLHS } from '../../../reducers/selection/actions';
-import { getLHSCompoundsList } from './redux/selectors';
-import { tr } from 'date-fns/locale';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+
+const EMPTY_LIST = [];
+
+export const getPoseObservationIds = pose => {
+  if (Array.isArray(pose?.associatedObs) && pose.associatedObs.length > 0) {
+    return pose.associatedObs.map(observation => observation.id);
+  }
+
+  return Array.isArray(pose?.site_observations) ? pose.site_observations : EMPTY_LIST;
+};
+
+export const getRequiredPageForIndex = (index, moleculesPerPage) => Math.floor(index / moleculesPerPage) + 1;
+
+export const findFirstScrollablePose = ({
+  poses = EMPTY_LIST,
+  prioritizedPoseId = null,
+  selectedObservationIds = EMPTY_LIST
+}) => {
+  if (!Array.isArray(poses) || poses.length === 0) {
+    return null;
+  }
+
+  if (prioritizedPoseId !== null && prioritizedPoseId !== undefined) {
+    const prioritizedIndex = poses.findIndex(pose => pose.id === prioritizedPoseId);
+    if (prioritizedIndex >= 0) {
+      return {
+        poseId: poses[prioritizedIndex].id,
+        index: prioritizedIndex
+      };
+    }
+  }
+
+  if (!selectedObservationIds.length) {
+    return null;
+  }
+
+  const selectedObservationIdsSet = new Set(selectedObservationIds);
+  const selectedIndex = poses.findIndex(pose =>
+    getPoseObservationIds(pose).some(observationId => selectedObservationIdsSet.has(observationId))
+  );
+
+  if (selectedIndex < 0) {
+    return null;
+  }
+
+  return {
+    poseId: poses[selectedIndex].id,
+    index: selectedIndex
+  };
+};
+
+export const elementIsVisibleInContainer = (element, container, partiallyVisible = false) => {
+  if (!element) {
+    return false;
+  }
+
+  const elementRect = element.getBoundingClientRect();
+
+  if (!container) {
+    const viewportRect = {
+      top: 0,
+      left: 0,
+      bottom: window.innerHeight,
+      right: window.innerWidth
+    };
+
+    return partiallyVisible
+      ? elementRect.bottom > viewportRect.top &&
+          elementRect.top < viewportRect.bottom &&
+          elementRect.right > viewportRect.left &&
+          elementRect.left < viewportRect.right
+      : elementRect.top >= viewportRect.top &&
+          elementRect.left >= viewportRect.left &&
+          elementRect.bottom <= viewportRect.bottom &&
+          elementRect.right <= viewportRect.right;
+  }
+
+  const containerRect = container.getBoundingClientRect();
+
+  return partiallyVisible
+    ? elementRect.bottom > containerRect.top &&
+        elementRect.top < containerRect.bottom &&
+        elementRect.right > containerRect.left &&
+        elementRect.left < containerRect.right
+    : elementRect.top >= containerRect.top &&
+        elementRect.left >= containerRect.left &&
+        elementRect.bottom <= containerRect.bottom &&
+        elementRect.right <= containerRect.right;
+};
 
 /**
- * A hook which scrolls to the first selected pose when a snapshot is loaded.
+ * Scrolls the shared pose list to the first relevant pose when a snapshot is restored.
  */
-export const useScrollToSelectedPose = (moleculesPerPage, setCurrentPage, loadMolecules) => {
-  const dispatch = useDispatch();
-
-  const poses = useSelector(state => getLHSCompoundsList(state), shallowEqual);
-  const ligands = useSelector(state => state.selectionReducers.fragmentDisplayList);
-  const proteins = useSelector(state => state.selectionReducers.proteinList);
-  const complexes = useSelector(state => state.selectionReducers.complexList);
-  const surfaces = useSelector(state => state.selectionReducers.surfaceList);
-  const densityList = useSelector(state => state.selectionReducers.densityList);
-  const vectorOnList = useSelector(state => state.selectionReducers.vectorOnList);
-
-  const isObservationsDialogOpen = useSelector(state => state.selectionReducers.isObservationDialogOpen);
-
-  const poseIdForObservationsDialog = useSelector(state => state.selectionReducers.poseIdForObservationsDialog);
-
-  const scrollFired = useSelector(state => state.selectionReducers.isScrollFiredForLHS);
-
+export const useScrollToSelectedPose = ({
+  poses = EMPTY_LIST,
+  moleculesPerPage,
+  setCurrentPage,
+  scrollContainerRef,
+  isDataLoaded = false,
+  isObservationsDialogOpen = false,
+  poseIdForObservationsDialog = null,
+  shouldPrioritizeObservationsDialogPose = true,
+  ligandIds = EMPTY_LIST,
+  proteinIds = EMPTY_LIST,
+  complexIds = EMPTY_LIST,
+  surfaceIds = EMPTY_LIST,
+  densityList = EMPTY_LIST,
+  vectorIds = EMPTY_LIST
+}) => {
   const [moleculeViewRefs, setMoleculeViewRefs] = useState({});
   const [scrollToMoleculeId, setScrollToMoleculeId] = useState(null);
+  const hasHandledInitialScrollRef = useRef(false);
 
-  const lhsDataIsLoaded = useSelector(state => state.apiReducers.lhsDataIsLoaded);
+  const prioritizedPoseId =
+    shouldPrioritizeObservationsDialogPose && isObservationsDialogOpen ? poseIdForObservationsDialog : null;
 
-  // First pass, iterates over all the molecules and checks if any of them is selected. If it is,
-  // it saves the ID of the molecule and determines how many pages of molecules should be displayed.
-  // This is done only once.
-  // This also gets reset on snapshot change.
+  const selectedObservationIds = useMemo(
+    () => [
+      ...ligandIds,
+      ...proteinIds,
+      ...complexIds,
+      ...surfaceIds,
+      ...vectorIds,
+      ...densityList.map(density => density.id)
+    ],
+    [ligandIds, proteinIds, complexIds, surfaceIds, vectorIds, densityList]
+  );
+
   useEffect(() => {
-    if (!scrollFired) {
-      if (isObservationsDialogOpen && poseIdForObservationsDialog) {
-        for (let i = 0; i < poses.length; i++) {
-          const pose = poses[i];
-          if (pose.id === poseIdForObservationsDialog) {
-            setCurrentPage(i / moleculesPerPage + 1);
-            setScrollToMoleculeId(poseIdForObservationsDialog);
-            loadMolecules && loadMolecules(true);
-            break;
-          }
-        }
-      } else if (
-        ligands?.length ||
-        proteins?.length ||
-        complexes?.length ||
-        surfaces?.length ||
-        densityList?.length ||
-        vectorOnList?.length
-      ) {
-        for (let i = 0; i < poses.length; i++) {
-          const pose = poses[i];
-          const molsForCmp = pose.associatedObs;
-
-          if (
-            containsAtLeastOne(ligands, molsForCmp) ||
-            containsAtLeastOne(proteins, molsForCmp) ||
-            containsAtLeastOne(complexes, molsForCmp) ||
-            containsAtLeastOne(surfaces, molsForCmp) ||
-            containsAtLeastOneDensity(densityList, molsForCmp) ||
-            containsAtLeastOne(vectorOnList, molsForCmp)
-          ) {
-            setCurrentPage(i / moleculesPerPage + 1);
-            setScrollToMoleculeId(pose.id);
-            loadMolecules && loadMolecules(true);
-            break;
-          }
-        }
-      }
+    if (!isDataLoaded) {
+      hasHandledInitialScrollRef.current = false;
+      setScrollToMoleculeId(null);
+      setMoleculeViewRefs({});
     }
+  }, [isDataLoaded]);
 
-    if (lhsDataIsLoaded) {
-      dispatch(setScrollFiredForLHS(true));
-    }
-  }, [
-    dispatch,
-    poses,
-    moleculesPerPage,
-    scrollFired,
-    setCurrentPage,
-    ligands,
-    proteins,
-    complexes,
-    surfaces,
-    densityList.length,
-    densityList,
-    vectorOnList,
-    poseIdForObservationsDialog,
-    isObservationsDialogOpen,
-    lhsDataIsLoaded,
-    loadMolecules
-  ]);
-
-  // Second pass, once the list of molecules is displayed and the refs to their DOM nodes have been
-  // obtained, scroll to the the saved molecule from the first pass.
-  // setTimeout might be necessary for the scrolling to happen.
   useEffect(() => {
-    if (scrollToMoleculeId !== null) {
-      const node = moleculeViewRefs[scrollToMoleculeId];
-      if (node) {
-        setScrollToMoleculeId(null);
-        if (!elementIsVisibleInViewport(node)) {
-          setTimeout(() => {
-            node.scrollIntoView();
-          });
-        }
-      }
+    if (!isDataLoaded || hasHandledInitialScrollRef.current || !poses.length) {
+      return;
     }
-  }, [moleculeViewRefs, scrollToMoleculeId]);
 
-  const elementIsVisibleInViewport = (el, partiallyVisible = false) => {
-    const { top, left, bottom, right } = el.getBoundingClientRect();
-    const { innerHeight, innerWidth } = window;
-    return partiallyVisible
-      ? ((top > 0 && top < innerHeight) || (bottom > 0 && bottom < innerHeight)) &&
-          ((left > 0 && left < innerWidth) || (right > 0 && right < innerWidth))
-      : top >= 0 && left >= 0 && bottom <= innerHeight && right <= innerWidth;
-  };
+    hasHandledInitialScrollRef.current = true;
+
+    const targetPose = findFirstScrollablePose({
+      poses,
+      prioritizedPoseId,
+      selectedObservationIds
+    });
+
+    if (!targetPose) {
+      return;
+    }
+
+    setCurrentPage(currentPage => {
+      const requiredPage = getRequiredPageForIndex(targetPose.index, moleculesPerPage);
+      return currentPage >= requiredPage ? currentPage : requiredPage;
+    });
+    setScrollToMoleculeId(targetPose.poseId);
+  }, [isDataLoaded, poses, prioritizedPoseId, selectedObservationIds, setCurrentPage, moleculesPerPage]);
+
+  useEffect(() => {
+    if (scrollToMoleculeId === null) {
+      return;
+    }
+
+    const node = moleculeViewRefs[scrollToMoleculeId];
+    if (!node) {
+      return;
+    }
+
+    setScrollToMoleculeId(null);
+
+    if (!elementIsVisibleInContainer(node, scrollContainerRef?.current, true)) {
+      const animationFrameId = window.requestAnimationFrame(() => {
+        node.scrollIntoView({
+          block: 'nearest',
+          inline: 'nearest'
+        });
+      });
+
+      return () => {
+        window.cancelAnimationFrame(animationFrameId);
+      };
+    }
+  }, [moleculeViewRefs, scrollToMoleculeId, scrollContainerRef]);
 
   const addMoleculeViewRef = useCallback((moleculeId, node) => {
     setMoleculeViewRefs(prevRefs => {
-      if (prevRefs.hasOwnProperty(moleculeId) || !node) return prevRefs;
+      const currentNode = prevRefs[moleculeId];
+
+      if (!node) {
+        if (!Object.prototype.hasOwnProperty.call(prevRefs, moleculeId)) {
+          return prevRefs;
+        }
+
+        const nextRefs = { ...prevRefs };
+        delete nextRefs[moleculeId];
+        return nextRefs;
+      }
+
+      if (currentNode === node) {
+        return prevRefs;
+      }
+
       return {
         ...prevRefs,
         [moleculeId]: node
@@ -138,26 +216,6 @@ export const useScrollToSelectedPose = (moleculesPerPage, setCurrentPage, loadMo
     },
     [moleculeViewRefs]
   );
-
-  const containsAtLeastOne = (list, molsList) => {
-    for (const mol of molsList) {
-      if (list.includes(mol.id)) {
-        return true;
-      }
-    }
-
-    return false;
-  };
-
-  const containsAtLeastOneDensity = (list, molsList) => {
-    for (const mol of molsList) {
-      if (list.some(d => d.id === mol.id)) {
-        return true;
-      }
-    }
-
-    return false;
-  };
 
   return { addMoleculeViewRef, setScrollToMoleculeId, getNode };
 };

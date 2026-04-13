@@ -278,6 +278,7 @@ export const PoseList = memo(
     const searchSettingsDialogOpen = useSelector(instanceConfig.selectSearchSettingsDialogOpen || (() => false));
     const areLSHCompoundsInitialized = useSelector(instanceConfig.selectAreLHSCompoundsInitialized || (() => false));
     const observationsDialogSide = useSelector(state => state.selectionReducers.observationsDialogSide);
+    const poseIdForObservationsDialog = useSelector(state => state.selectionReducers.poseIdForObservationsDialog);
     const instanceSide = instanceConfig.instanceSide || 'lhs';
     const isObsInspirationDialogOpen = useSelector(state => state.selectionReducers.isObsInspirationDialogOpen);
 
@@ -560,16 +561,12 @@ export const PoseList = memo(
       joinedMoleculeLists = filterMolecules(joinedMoleculeLists, filter);
     }
 
-    const loadNextMolecules = () => {
-      setCurrentPage(currentPage + 1);
-      setItemsToBeDisplayed(filteredLHSCompoundsList.slice(0, (currentPage + 1) * moleculesPerPage));
-    };
+    const loadNextMolecules = useCallback(() => {
+      const newCurrentPage = currentPage + 1;
 
-    const loadMolecules = () => {
-      setItemsToBeDisplayed(filteredLHSCompoundsList.slice(0, currentPage * moleculesPerPage));
-    };
-
-    const { addMoleculeViewRef } = useScrollToSelectedPose(moleculesPerPage, setCurrentPage, loadMolecules);
+      setCurrentPage(newCurrentPage);
+      setItemsToBeDisplayed(filteredLHSCompoundsList.slice(0, newCurrentPage * moleculesPerPage));
+    }, [currentPage, filteredLHSCompoundsList, moleculesPerPage]);
 
     useEffect(() => {
       if (nextXMolecules || sortSettingsChanged) {
@@ -802,6 +799,24 @@ export const PoseList = memo(
       compounds.sort((a, b) => sortOptions[sortOption].handler(a, b, ascending));
       return compounds;
     }, [joinedMoleculeLists, lhsCompoundsList, sortOptions, sortOption, ascending]);
+
+    const { addMoleculeViewRef } = useScrollToSelectedPose({
+      poses: filteredLHSCompoundsList,
+      moleculesPerPage,
+      setCurrentPage,
+      scrollContainerRef: scrollBarRef,
+      isDataLoaded: lhsDataIsLoaded,
+      isObservationsDialogOpen: isObservationDialogOpen,
+      poseIdForObservationsDialog,
+      shouldPrioritizeObservationsDialogPose:
+        observationsDialogSide === null || observationsDialogSide === instanceSide,
+      ligandIds: fragmentDisplayList,
+      proteinIds: proteinList,
+      complexIds: complexList,
+      surfaceIds: surfaceList,
+      densityList,
+      vectorIds: vectorOnList
+    });
 
     // Claim dialog ownership when this instance contains the compound the dialog was opened for.
     // This prevents the other side's cleanup from closing a dialog it doesn't own.
