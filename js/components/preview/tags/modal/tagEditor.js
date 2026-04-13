@@ -215,7 +215,7 @@ const TagEditorComponent = (
         if (selected) {
           moleculesToEdit.forEach(m => {
             let newMol = { ...m };
-            newMol.tags_set = newMol.tags_set.filter(id => id !== tag.id);
+            newMol.tags_set = (newMol.tags_set || []).filter(id => id !== tag.id);
             const pose = poses.find(p => p.site_observations.includes(m.id));
             updateCmp(pose, newMol);
             dispatch(updateMoleculeInMolLists(newMol));
@@ -248,9 +248,9 @@ const TagEditorComponent = (
           });
         } else {
           moleculesToEdit.forEach(m => {
-            if (!m.tags_set.some(id => id === tag.id)) {
+            if (!(m.tags_set || []).some(id => id === tag.id)) {
               let newMol = { ...m };
-              newMol.tags_set.push(tag.id);
+              newMol.tags_set = [...(newMol.tags_set || []), tag.id];
               const pose = poses.find(p => p.site_observations.includes(m.id));
               updateCmp(pose, newMol);
               dispatch(updateMoleculeInMolLists(newMol));

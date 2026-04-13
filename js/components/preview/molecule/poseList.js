@@ -1046,11 +1046,14 @@ export const PoseList = memo(
     useEffect(() => {
       //if something goes wrong and we are displaying what we shoudn't we need to reset itemsToBeDisplayed to proper slice of filteredLHSCompoundsList
       //kind of hacky solution but I think it's good failsafe
-      const whatToDisplay = filteredLHSCompoundsList?.slice(0, currentPage * moleculesPerPage);
-      if (itemsToBeDisplayed?.length !== whatToDisplay?.length) {
-        setItemsToBeDisplayed([...whatToDisplay]);
-      }
-    }, [currentPage, filteredLHSCompoundsList, itemsToBeDisplayed.length]);
+      const whatToDisplay = filteredLHSCompoundsList?.slice(0, currentPage * moleculesPerPage) || [];
+      setItemsToBeDisplayed(currentItems => {
+        const displayedItemsChanged =
+          currentItems?.length !== whatToDisplay.length ||
+          currentItems.some((item, index) => item !== whatToDisplay[index]);
+        return displayedItemsChanged ? [...whatToDisplay] : currentItems;
+      });
+    }, [currentPage, filteredLHSCompoundsList, moleculesPerPage]);
 
     const handleExpandChange = useCallback(
       expanded => {
