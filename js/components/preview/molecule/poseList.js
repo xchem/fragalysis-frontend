@@ -460,11 +460,14 @@ export const PoseList = memo(
       if (searchString) {
         setCurrentPage(0);
         setItemsToBeDisplayed([]);
-        return handlers.searchForObservations(searchString, allMoleculesList, searchSettings);
+        return (
+          handlers.searchHitNavigator?.(searchString, getJoinedMoleculeList, lhsCompoundsList, searchSettings) ??
+          handlers.searchForObservations(searchString, getJoinedMoleculeList, searchSettings)
+        );
       } else {
         return getJoinedMoleculeList;
       }
-    }, [searchString, handlers, allMoleculesList, getJoinedMoleculeList, searchSettings]);
+    }, [searchString, handlers, getJoinedMoleculeList, lhsCompoundsList, searchSettings]);
 
     const addSelectedMoleculesFromUnselectedSites = useCallback(
       (joinedMoleculeLists, list) => {

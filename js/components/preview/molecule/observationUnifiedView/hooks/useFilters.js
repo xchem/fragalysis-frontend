@@ -7,15 +7,36 @@ import { ObservationFilter } from "../table/filters/observationFilter";
 import { MoleculeFilter } from "../table/filters/moleculeFilter";
 import { useSelector } from "react-redux";
 import { QUALITY_STATUSES } from "../../moleculeView/qualityStatus/constants";
-import { getAllDisplayedLHSCompounds } from "../../redux/selectors";
+import { getAllDisplayedObservationIds } from "../../redux/selectors";
 import { DJANGO_CONTEXT } from "../../../../../utils/djangoContext";
 
-export const useFilters = (initialItems, columns) => {
+export const useFilters = (initialItems, columns, viewConfig = {}) => {
     const [filters, setFilters] = useState({});
     const [sortings, setSortings] = useState({});
     const allStatuses = useSelector(state => state.apiReducers.quality_statuses);
-    const displayedLHSMoleculeList = useSelector(state => getAllDisplayedLHSCompounds(state));
-    const showDisplayedMolecules = useSelector(state => state.selectionReducers.showDisplayedMolecules);
+    const displayedObservationIds = useSelector(state =>
+        viewConfig.getDisplayedObservationIds?.(state) ?? getAllDisplayedObservationIds(state)
+    );
+    const showDisplayedMolecules = useSelector(state =>
+        viewConfig.getShowDisplayedMolecules?.(state) ?? state.selectionReducers.showDisplayedMolecules
+    );
+
+    const getMainObservation = useCallback(item => {
+        return item?.associatedObs?.find(observation => observation.id === item?.main_site_observation) || item?.associatedObs?.[0] || null;
+    }, []);
+
+    const getObservationCode = useCallback(item => {
+        return viewConfig.getObservationCode?.(item) ?? getMainObservation(item)?.code ?? item?.display_name ?? '';
+    }, [getMainObservation, viewConfig]);
+
+    const getCompoundCode = useCallback(item => {
+        return viewConfig.getCompoundCode?.(item) ?? item?.main_site_observation_cmpd_code ?? '';
+    }, [viewConfig]);
+
+    const getCompoundAliases = useCallback(item => {
+        return viewConfig.getCompoundAliases?.(item) ??
+            [getCompoundCode(item), ...(getMainObservation(item)?.identifiers?.map(identifier => identifier.name) || [])].filter(Boolean);
+    }, [getCompoundCode, getMainObservation, viewConfig]);
 
     const getActivityDataNumericValue = useCallback((item, name) => {
         const activityDataSet = item?.activityData?.filter(activity => activity.property_name === name).map(activity => activity.raw_value) || [];
@@ -205,18 +226,17 @@ export const useFilters = (initialItems, columns) => {
         };
 
         if (filterSettings.observationCode) {
-            const observationCode = item.display_name || '';
+            const observationCode = getObservationCode(item);
             if (filterSet(observationCode)) return true;
         }
 
         if (filterSettings.compoundCode) {
-            const compoundCode = item.main_site_observation_cmpd_code || '';
+            const compoundCode = getCompoundCode(item);
             if (filterSet(compoundCode)) return true;
         }
 
         if (filterSettings.compoundAliases) {
-            const mainObservation = item.associatedObs.find(o => o.id === item.main_site_observation);
-            const compoundAliases = [item.main_site_observation_cmpd_code].concat(mainObservation?.identifiers?.map(o => o.name) || []);
+            const compoundAliases = getCompoundAliases(item);
             if (compoundAliases.some(compoundAlias => filterSet(compoundAlias))) return true;
         }
 
@@ -224,11 +244,14 @@ export const useFilters = (initialItems, columns) => {
     };
 
     const filterByMolecule = (item, name, filterSettings) => {
-        if (filterSettings.filteredCompounds === null) {
-            return true;
-        }
-        return filterSettings.filteredCompounds.length === 0 ? false
-            : filterSettings.filteredCompounds.includes(filterSettings.structureType === 'compound' ? item.compound : item.main_site_observation);
+        return viewConfig.matchesMoleculeFilter?.(item, filterSettings)
+            ?? (
+                filterSettings.filteredCompounds === null
+                    ? true
+                    : filterSettings.filteredCompounds.length === 0
+                        ? false
+                        : filterSettings.filteredCompounds.includes(filterSettings.structureType === 'compound' ? item.compound : item.main_site_observation)
+            );
     };
 
     // filter logic for each column type
@@ -293,8 +316,16 @@ export const useFilters = (initialItems, columns) => {
     const sortByObservation = (a, b, name, sortValue) => {
         const type = sortValue.enabled;
         // 0: None, 1: Observation / pose shortcode, 2: Compound aliases, 3: Compound ID
-        const valueA = a[type === 1 ? 'main_site_observation_cmpd_code' : type === 2 ? 'display_name' : 'id'];
-        const valueB = b[type === 1 ? 'main_site_observation_cmpd_code' : type === 2 ? 'display_name' : 'id'];
+        const valueA = type === 1
+            ? getObservationCode(a)
+            : type === 2
+                ? getCompoundCode(a)
+                : getCompoundAliases(a).join(', ');
+        const valueB = type === 1
+            ? getObservationCode(b)
+            : type === 2
+                ? getCompoundCode(b)
+                : getCompoundAliases(b).join(', ');
         return sortValue.order === ORDER.ASC ? valueA.localeCompare(valueB, undefined, { numeric: true, sensitivity: 'base' })
             : valueB.localeCompare(valueA, undefined, { numeric: true, sensitivity: 'base' });
     };
@@ -327,7 +358,9 @@ export const useFilters = (initialItems, columns) => {
         let items = initialItems.filter(item =>
             columns.every(col => {
                 // always show displayed hits
-                if (showDisplayedMolecules && displayedLHSMoleculeList.includes(item.main_site_observation)) return true;
+                const isDisplayedItem = viewConfig.matchesDisplayedObservations?.(item, displayedObservationIds)
+                    ?? displayedObservationIds.includes(item.main_site_observation);
+                if (showDisplayedMolecules && isDisplayedItem) return true;
                 const value = filters[col.name];
                 if (value === undefined) return true;
                 const fn = filterFunctions[col.type];
@@ -344,7 +377,7 @@ export const useFilters = (initialItems, columns) => {
             }).reduce((acc, curr) => acc + curr, 0)
         );
         return items;
-    }, [initialItems, columns, filterFunctions, sortFunctions, filters, sortings, showDisplayedMolecules, displayedLHSMoleculeList]);
+    }, [initialItems, columns, filterFunctions, sortFunctions, filters, sortings, showDisplayedMolecules, displayedObservationIds, viewConfig]);
 
     const getColumnFilter = (type, name) => {
         switch (type) {
@@ -357,9 +390,9 @@ export const useFilters = (initialItems, columns) => {
             case COLUMN_TYPES.PEER_REVIEW:
                 return <PeerReviewFilter onFilterChange={v => handleColumnFilter(name, v)} onSortingChange={v => handleColumnSorting(name, v)} />;
             case COLUMN_TYPES.OBSERVATION:
-                return <ObservationFilter onFilterChange={v => handleColumnFilter(name, v)} onSortingChange={v => handleColumnSorting(name, v)} />;
+                return <ObservationFilter viewConfig={viewConfig} onFilterChange={v => handleColumnFilter(name, v)} onSortingChange={v => handleColumnSorting(name, v)} />;
             case COLUMN_TYPES.MOLECULE:
-                return <MoleculeFilter onFilterChange={v => handleColumnFilter(name, v)} onSortingChange={v => handleColumnSorting(name, v)} />;
+                return <MoleculeFilter viewConfig={viewConfig} onFilterChange={v => handleColumnFilter(name, v)} onSortingChange={v => handleColumnSorting(name, v)} />;
             default:
                 return null;
             // return <DefaultFilter />;

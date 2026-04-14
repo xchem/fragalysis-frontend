@@ -51,7 +51,7 @@ import { setSortDialogOpen, setSearchStringOfHitNavigator } from './redux/action
 import { getMoleculeForId } from '../tags/redux/dispatchActions';
 import { updateLHSCompound } from '../../../reducers/api/actions';
 import { PoseList } from './poseList';
-import { LHS_OBSERVATION_VIEW_CONFIG } from './observationUnifiedView/viewConfigs';
+import { LHS_OBSERVATION_VIEW_CONFIG, buildObservationViewConfig } from './observationUnifiedView/viewConfigs';
 export const PoseListLHS = memo(({}) => {
   const dispatch = useDispatch();
 
@@ -96,6 +96,8 @@ export const PoseListLHS = memo(({}) => {
       addToastMessage: payload => dispatch(addToastMessage(payload)),
       searchForObservations: (searchTerm, observations, settings) =>
         dispatch(searchForObservations(searchTerm, observations, settings)),
+      searchHitNavigator: (searchTerm, joinedMoleculeList, compoundsList, settings) =>
+        dispatch(searchForObservations(searchTerm, joinedMoleculeList, settings)),
       setNextXMolecules: value => dispatch(setNextXMolecules(value)),
       getMoleculeForId: moleculeId => dispatch(getMoleculeForId(moleculeId)),
       applyDirectSelection: majorViewStage => dispatch(applyDirectSelection(majorViewStage)),
@@ -179,7 +181,7 @@ export const PoseListLHS = memo(({}) => {
       setSelectedAllByType: (type, molecules) => dispatch(setSelectedAllByType(type, molecules)),
       setDeselectedAllByType: (type, molecules) => dispatch(setDeselectedAllByType(type, molecules)),
       setSearchSettingsDialogOpen: open => dispatch(setSearchSettingsDialogOpen(open)),
-      setSearchString: value => dispatch(setSearchStringOfHitNavigator(value)),
+      setSearchString: value => dispatch(setSearchStringOfHitNavigator(value, 'lhs')),
       setIsTagGlobalEdit: value => dispatch(setIsTagGlobalEdit(value)),
       setTagEditorOpen: value => dispatch(setTagEditorOpen(value)),
       setIsTagEditorForCurrentSide: () => dispatch(setIsLHSCmpTagEdit(true)),
@@ -263,6 +265,8 @@ export const PoseListLHS = memo(({}) => {
     []
   );
 
+  const viewConfig = useMemo(() => buildObservationViewConfig(LHS_OBSERVATION_VIEW_CONFIG), []);
+
   return (
     <PoseList
       nextXMolecules={nextXMolecules}
@@ -297,7 +301,7 @@ export const PoseListLHS = memo(({}) => {
       lhsCompoundsList={lhsCompoundsList}
       proteinsHasLoaded={proteinsHasLoaded}
       searchSettings={searchSettings}
-      viewConfig={LHS_OBSERVATION_VIEW_CONFIG}
+      viewConfig={viewConfig}
       isTagEditorForCurrentSide={isTagEditorForCurrentSide}
       handlers={handlers}
       instanceConfig={instanceConfig}

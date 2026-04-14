@@ -66,6 +66,8 @@ export const INITIAL_STATE = {
   rhs_selectedTagList: [],
 
   showDisplayedMolecules: true,
+  showDisplayedMoleculesLHS: true,
+  showDisplayedMoleculesRHS: true,
 
   isObservationDialogOpen: false,
   observationsForLHSCmp: [],
@@ -104,11 +106,22 @@ export const INITIAL_STATE = {
   rhsIsFullyRendered: false,
 
   unifiedFilter: {},
+  activeCoordinateFilterSide: 'lhs',
   isCoordinateFilterApplied: false,
+  isCoordinateFilterAppliedLHS: false,
+  isCoordinateFilterAppliedRHS: false,
   coordinateFilterResults: [],
+  coordinateFilterResultsLHS: [],
+  coordinateFilterResultsRHS: [],
   sphereCoordinates: null,
+  sphereCoordinatesLHS: null,
+  sphereCoordinatesRHS: null,
   coordinateRadius: 5, // in Angstroms,
-  sphereRendered: false
+  coordinateRadiusLHS: 5,
+  coordinateRadiusRHS: 5,
+  sphereRendered: false,
+  sphereRenderedLHS: false,
+  sphereRenderedRHS: false
 };
 
 export function selectionReducers(state = INITIAL_STATE, action = {}) {
@@ -591,7 +604,12 @@ export function selectionReducers(state = INITIAL_STATE, action = {}) {
       return { ...state, nextXMolecules: action.nextXMolecules };
 
     case constants.SET_SHOW_DISPLAYED_MOLECULES: {
-      return { ...state, showDisplayedMolecules: action.showDisplayedMolecules };
+      const side = action.side === 'rhs' ? 'RHS' : 'LHS';
+      return {
+        ...state,
+        ...(action.side === 'rhs' ? {} : { showDisplayedMolecules: action.showDisplayedMolecules }),
+        [`showDisplayedMolecules${side}`]: action.showDisplayedMolecules
+      };
     }
 
     case constants.SET_ASSIGN_TAGS_VIEW:
@@ -693,34 +711,55 @@ export function selectionReducers(state = INITIAL_STATE, action = {}) {
       unifiedFilter[action.key] = { ...action.value };
       return { ...state, unifiedFilter: JSON.parse(JSON.stringify(unifiedFilter)) };
 
-    case constants.SET_COORDINATE_FILTER_RESULTS:
+    case constants.SET_ACTIVE_COORDINATE_FILTER_SIDE:
       return {
         ...state,
-        coordinateFilterResults: action.results
+        activeCoordinateFilterSide: action.side === 'rhs' ? 'rhs' : 'lhs'
+      };
+
+    case constants.SET_COORDINATE_FILTER_RESULTS:
+      const coordinateResultsSide = action.side === 'rhs' ? 'RHS' : 'LHS';
+      return {
+        ...state,
+        activeCoordinateFilterSide: action.side === 'rhs' ? 'rhs' : 'lhs',
+        coordinateFilterResults: action.results,
+        [`coordinateFilterResults${coordinateResultsSide}`]: action.results
       };
 
     case constants.SET_IS_COORDINATE_FILTER_APPLIED:
+      const coordinateAppliedSide = action.side === 'rhs' ? 'RHS' : 'LHS';
       return {
         ...state,
-        isCoordinateFilterApplied: action.isApplied
+        activeCoordinateFilterSide: action.side === 'rhs' ? 'rhs' : 'lhs',
+        isCoordinateFilterApplied: action.isApplied,
+        [`isCoordinateFilterApplied${coordinateAppliedSide}`]: action.isApplied
       };
 
     case constants.SET_SPHERE_COORDINATE:
+      const sphereCoordinateSide = action.side === 'rhs' ? 'RHS' : 'LHS';
       return {
         ...state,
-        sphereCoordinates: action.coordinate
+        activeCoordinateFilterSide: action.side === 'rhs' ? 'rhs' : 'lhs',
+        sphereCoordinates: action.coordinate,
+        [`sphereCoordinates${sphereCoordinateSide}`]: action.coordinate
       };
 
     case constants.SET_COORDINATE_RADIUS:
+      const coordinateRadiusSide = action.side === 'rhs' ? 'RHS' : 'LHS';
       return {
         ...state,
-        coordinateRadius: action.radius
+        activeCoordinateFilterSide: action.side === 'rhs' ? 'rhs' : 'lhs',
+        coordinateRadius: action.radius,
+        [`coordinateRadius${coordinateRadiusSide}`]: action.radius
       };
 
     case constants.SET_SPHERE_RENDERED:
+      const sphereRenderedSide = action.side === 'rhs' ? 'RHS' : 'LHS';
       return {
         ...state,
-        sphereRendered: action.isRendered
+        activeCoordinateFilterSide: action.side === 'rhs' ? 'rhs' : 'lhs',
+        sphereRendered: action.isRendered,
+        [`sphereRendered${sphereRenderedSide}`]: action.isRendered
       };
 
     // Cases like: @@redux/INIT

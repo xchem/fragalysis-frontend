@@ -30,7 +30,10 @@ export const enableMoleculeNglControlButton = (moleculeId, type) => ({
   payload: { moleculeId, type }
 });
 
-export const setSearchStringOfHitNavigator = (searchStringHitNavigator) => ({
+export const setSearchStringOfHitNavigator = (searchStringHitNavigator, side = 'lhs') => ({
   type: constants.SET_SEARCH_STRING_HIT_NAVIGATOR,
-  payload: searchStringHitNavigator
+  payload: {
+    value: searchStringHitNavigator,
+    side
+  }
 });

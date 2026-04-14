@@ -7,7 +7,8 @@ export const INITIAL_STATE = {
 
   // disables NGL control buttons for molecules
   disableNglControlButtons: {}, // moleculeID.nglButtonDisableState,
-  searchStringLHS: ''
+  searchStringLHS: '',
+  searchStringRHS: ''
 };
 
 export const molecule = (state = INITIAL_STATE, action = {}) => {
@@ -69,9 +70,15 @@ export const molecule = (state = INITIAL_STATE, action = {}) => {
     }
 
     case constants.SET_SEARCH_STRING_HIT_NAVIGATOR: {
+      const payload =
+        typeof action.payload === 'object' && action.payload !== null
+          ? action.payload
+          : { value: action.payload, side: 'lhs' };
+      const side = payload.side === 'rhs' ? 'RHS' : 'LHS';
+
       return {
         ...state,
-        searchStringLHS: action.payload
+        [`searchString${side}`]: payload.value
       };
     }
 

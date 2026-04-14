@@ -38,7 +38,7 @@ const useStyles = makeStyles(theme => ({
 }));
 
 export const FilterWrapper = memo(
-  ({ title, children, isActive = false, handleReset = null, onHoverComponent = null }) => {
+  ({ title, children, isActive = false, handleReset = null, onHoverComponent = null, onOpen = null }) => {
     const ref = useRef(null);
     const classes = useStyles();
 
@@ -55,7 +55,11 @@ export const FilterWrapper = memo(
     };
 
     const handleEditTagsButton = () => {
-      setShowEditTagsModal(!showEditTagsModal);
+      const willOpen = !showEditTagsModal;
+      if (willOpen) {
+        onOpen && onOpen();
+      }
+      setShowEditTagsModal(willOpen);
     };
 
     return (

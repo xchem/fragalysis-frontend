@@ -24,7 +24,7 @@ export const getActivityColumns = async targetId => {
  * @param {Object} data
  * @returns [<filtered_compounds>]
  */
-export const filterLHSCompounds = async data => {
+export const filterCompoundsByStructure = async data => {
     // const { target, target_access_string, query, is_substructure, is_smarts, use_chirality, structure_type } = data;
     const jsonString = JSON.stringify(data);
     return api({
@@ -37,3 +37,5 @@ export const filterLHSCompounds = async data => {
         }
     }).catch(err => console.log(err));;
 };
+
+export const filterLHSCompounds = filterCompoundsByStructure;

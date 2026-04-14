@@ -24,6 +24,14 @@ const getVectorOnList = state => state.selectionReducers.vectorOnList;
 
 const getIsCoordinateFilterApplied = state => state.selectionReducers.isCoordinateFilterApplied;
 const getCoordinateFilterResults = state => state.selectionReducers.coordinateFilterResults;
+const getLHSIsCoordinateFilterApplied = state =>
+  state.selectionReducers.isCoordinateFilterAppliedLHS ?? state.selectionReducers.isCoordinateFilterApplied;
+const getRHSIsCoordinateFilterApplied = state =>
+  state.selectionReducers.isCoordinateFilterAppliedRHS ?? state.selectionReducers.isCoordinateFilterApplied;
+const getLHSCoordinateFilterResults = state =>
+  state.selectionReducers.coordinateFilterResultsLHS ?? state.selectionReducers.coordinateFilterResults;
+const getRHSCoordinateFilterResults = state =>
+  state.selectionReducers.coordinateFilterResultsRHS ?? state.selectionReducers.coordinateFilterResults;
 
 export const selectJoinedMoleculeList = createSelector(
   getAllMolecules,
@@ -160,8 +168,8 @@ export const selectJoinedMoleculeListLHS = createSelector(
   getTagCategoryList,
   getLHSDisplayAllMolecules,
   getLHSDisplayUntaggedMolecules,
-  getIsCoordinateFilterApplied,
-  getCoordinateFilterResults,
+  getLHSIsCoordinateFilterApplied,
+  getLHSCoordinateFilterResults,
   (
     all_mol_lists,
     selectedTagList,
@@ -266,8 +274,8 @@ export const selectJoinedMoleculeListRHS = createSelector(
   getTagCategoryList,
   getRHSDisplayAllMolecules,
   getRHSDisplayUntaggedMolecules,
-  getIsCoordinateFilterApplied,
-  getCoordinateFilterResults,
+  getRHSIsCoordinateFilterApplied,
+  getRHSCoordinateFilterResults,
   (
     all_mol_lists,
     selectedTagList,
@@ -385,7 +393,7 @@ export const selectAllMoleculeList = createSelector(getAllMolecules, all_mol_lis
   return all_mol_lists;
 });
 
-export const getAllDisplayedLHSCompounds = createSelector(
+export const getAllDisplayedObservationIds = createSelector(
   getProteinList,
   getComplexList,
   getFragmentDisplayList,
@@ -415,3 +423,5 @@ export const getAllDisplayedLHSCompounds = createSelector(
     return [...new Set(allSelectedMolecules)];
   }
 );
+
+export const getAllDisplayedLHSCompounds = getAllDisplayedObservationIds;

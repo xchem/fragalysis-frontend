@@ -14,7 +14,7 @@ import { FilterWrapper } from './filterWrapper';
 import { Search, SwitchAccessShortcut } from '@mui/icons-material';
 import { Jsme } from '@loschmidt/jsme-react';
 import { Button } from '@mui/material';
-import { filterLHSCompounds } from '../../api';
+import { filterCompoundsByStructure } from '../../api';
 import { useDispatch, useSelector } from 'react-redux';
 import { setUnifiedFilterItem } from '../../../../../../reducers/selection/actions';
 import { useRDKit } from '../../../../../rdkit/RDKitContext';
@@ -35,7 +35,7 @@ const useStyles = makeStyles(theme => ({
   }
 }));
 
-export const MoleculeFilter = memo(({ onFilterChange }) => {
+export const MoleculeFilter = memo(({ onFilterChange, viewConfig = {} }) => {
   const classes = useStyles();
   const dispatch = useDispatch();
   const { RDKitModule } = useRDKit();
@@ -43,7 +43,6 @@ export const MoleculeFilter = memo(({ onFilterChange }) => {
   const SUBSTRUCTURE = 'substructure';
   const EXACT = 'exact';
 
-  const targetOnName = useSelector(state => state.apiReducers.target_on_name);
   const targetOnId = useSelector(state => state.apiReducers.target_on);
   const targetList = useSelector(state => state.apiReducers.target_id_list);
   const targetAccessString = useSelector(state => state.targetReducers.currentProject?.target_access_string);
@@ -96,7 +95,9 @@ export const MoleculeFilter = memo(({ onFilterChange }) => {
   };
 
   const handleApplyFilter = () => {
-    filterLHSCompounds({
+    const applyMoleculeFilter = viewConfig.applyMoleculeFilter || filterCompoundsByStructure;
+
+    applyMoleculeFilter({
       target: targetOnTitle,
       target_access_string: targetAccessString,
       query: filterValue.smiles,
@@ -143,7 +144,7 @@ export const MoleculeFilter = memo(({ onFilterChange }) => {
     return <div style={{ width, height }} dangerouslySetInnerHTML={{ __html: svg }}></div>;
   }, [RDKitModule, filteredSmilesQuery]);
 
-  const [options, setOptions] = useState(['query,fullScreenIcon']);
+  const [options] = useState(['query,fullScreenIcon']);
 
   return (
     <FilterWrapper

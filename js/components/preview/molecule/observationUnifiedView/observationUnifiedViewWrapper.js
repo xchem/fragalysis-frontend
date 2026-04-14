@@ -90,7 +90,7 @@ const ObservationUnifiedViewWrapper = memo(
         return false;
       };
       const { columns, handleColumnResize, getColumnWidth } = useColumns(50, viewConfig);
-      const { filteredItems, getColumnFilter } = useFilters(items, columns);
+      const { filteredItems, getColumnFilter } = useFilters(items, columns, viewConfig);
 
       return (
         <Table className={classes.table}>

@@ -577,10 +577,11 @@ export const setNextXMolecules = nextXMolecules => {
   };
 };
 
-export const setShowDisplayedMolecules = showDisplayedMolecules => {
+export const setShowDisplayedMolecules = (showDisplayedMolecules, side = 'lhs') => {
   return {
     type: constants.SET_SHOW_DISPLAYED_MOLECULES,
-    showDisplayedMolecules: showDisplayedMolecules
+    showDisplayedMolecules: showDisplayedMolecules,
+    side
   };
 };
 
@@ -803,37 +804,49 @@ export const setUnifiedFilterItem = (key, value) => {
   };
 };
 
-export const setIsCoordinateFilterApplied = isApplied => {
+export const setActiveCoordinateFilterSide = side => {
+  return {
+    type: constants.SET_ACTIVE_COORDINATE_FILTER_SIDE,
+    side
+  };
+};
+
+export const setIsCoordinateFilterApplied = (isApplied, side = 'lhs') => {
   return {
     type: constants.SET_IS_COORDINATE_FILTER_APPLIED,
-    isApplied
+    isApplied,
+    side
   };
 };
 
-export const setCoordinateFilterResults = results => {
+export const setCoordinateFilterResults = (results, side = 'lhs') => {
   return {
     type: constants.SET_COORDINATE_FILTER_RESULTS,
-    results
+    results,
+    side
   };
 };
 
-export const setSphereCoordinate = coordinate => {
+export const setSphereCoordinate = (coordinate, side = 'lhs') => {
   return {
     type: constants.SET_SPHERE_COORDINATE,
-    coordinate
+    coordinate,
+    side
   };
 };
 
-export const setCoordinateRadius = radius => {
+export const setCoordinateRadius = (radius, side = 'lhs') => {
   return {
     type: constants.SET_COORDINATE_RADIUS,
-    radius
+    radius,
+    side
   };
 };
 
-export const setSphereRendered = isRendered => {
+export const setSphereRendered = (isRendered, side = 'lhs') => {
   return {
     type: constants.SET_SPHERE_RENDERED,
-    isRendered
+    isRendered,
+    side
   };
 };

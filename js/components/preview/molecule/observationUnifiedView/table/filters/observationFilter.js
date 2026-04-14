@@ -11,6 +11,7 @@ import {
 } from '@material-ui/core';
 import { FilterWrapper } from './filterWrapper';
 import {
+  setActiveCoordinateFilterSide,
   setCoordinateFilterResults,
   setCoordinateRadius,
   setIsCoordinateFilterApplied,
@@ -39,11 +40,15 @@ const useStyles = makeStyles(theme => ({
   }
 }));
 
-export const ObservationFilter = memo(({ onFilterChange, onSortingChange }) => {
+export const ObservationFilter = memo(({ onFilterChange, onSortingChange, viewConfig = {} }) => {
   const classes = useStyles();
   const dispatch = useDispatch();
+  const side = viewConfig.kind === 'rhs' ? 'rhs' : 'lhs';
+  const filterKey = viewConfig.getObservationFilterKey?.() ?? 'detail';
 
-  const showDisplayedMolecules = useSelector(state => state.selectionReducers.showDisplayedMolecules);
+  const showDisplayedMolecules = useSelector(state =>
+    viewConfig.getShowDisplayedMolecules?.(state) ?? state.selectionReducers.showDisplayedMolecules
+  );
   const unifiedFilter = useSelector(state => state.selectionReducers.unifiedFilter);
 
   const initFilterValue = {
@@ -67,11 +72,13 @@ export const ObservationFilter = memo(({ onFilterChange, onSortingChange }) => {
 
   const [initialized, setInitialized] = useState(false);
 
-  const handleFilterChangeHandler = handleObservationFilterChange(setFilterValue, onFilterChange);
+  const handleFilterChangeHandler = handleObservationFilterChange(setFilterValue, onFilterChange, filterKey);
 
-  const coordinateFilterApplied = useSelector(state => state.selectionReducers.isCoordinateFilterApplied);
+  const coordinateFilterApplied = useSelector(state =>
+    viewConfig.getIsCoordinateFilterApplied?.(state) ?? state.selectionReducers.isCoordinateFilterApplied
+  );
 
-  const filterDetail = unifiedFilter?.detail;
+  const filterDetail = unifiedFilter?.[filterKey];
 
   useEffect(() => {
     if (!initialized) {
@@ -79,13 +86,13 @@ export const ObservationFilter = memo(({ onFilterChange, onSortingChange }) => {
         setFilterValue(filterDetail);
       } else {
         setFilterValue(initFilterValue);
-        dispatch(setUnifiedFilterItem('detail', initFilterValue));
+        dispatch(setUnifiedFilterItem(filterKey, initFilterValue));
       }
       setInitialized(true);
     } else if (filterDetail) {
       setFilterValue(filterDetail);
     }
-  }, [dispatch, filterDetail, initFilterValue, initialized]);
+  }, [dispatch, filterDetail, filterKey, initFilterValue, initialized]);
 
   const handleSortingChange = (property, value) => {
     const newSortingValue = {
@@ -108,13 +115,20 @@ export const ObservationFilter = memo(({ onFilterChange, onSortingChange }) => {
   return (
     <FilterWrapper
       title="Advanced Search"
+      onOpen={() => {
+        dispatch(setActiveCoordinateFilterSide(side));
+      }}
       handleReset={() => {
         setFilterValue(initFilterValue);
         setSortingValue(initSortingValue);
         onFilterChange(initFilterValue);
         onSortingChange(initSortingValue);
-        dispatch(setUnifiedFilterItem('detail', initFilterValue));
-        dispatch(setShowDisplayedMolecules(true));
+        dispatch(setUnifiedFilterItem(filterKey, initFilterValue));
+        dispatch(setShowDisplayedMolecules(true, side));
+        dispatch(setCoordinateFilterResults([], side));
+        dispatch(setIsCoordinateFilterApplied(false, side));
+        dispatch(setSphereCoordinate(null, side));
+        dispatch(setCoordinateRadius('', side));
       }}
       isActive={isFilterActive()}
     >
@@ -126,7 +140,7 @@ export const ObservationFilter = memo(({ onFilterChange, onSortingChange }) => {
               <Checkbox
                 checked={filterValue.alwaysShowDisplayedHits}
                 onChange={e => {
-                  dispatch(setShowDisplayedMolecules(e.target.checked));
+                  dispatch(setShowDisplayedMolecules(e.target.checked, side));
                   dispatch(handleFilterChangeHandler(filterValue, 'alwaysShowDisplayedHits', e.target.checked));
                 }}
               />
@@ -143,10 +157,11 @@ export const ObservationFilter = memo(({ onFilterChange, onSortingChange }) => {
               <Checkbox
                 checked={filterValue.coordinateSearch}
                 onChange={e => {
-                  dispatch(setCoordinateFilterResults([]));
-                  dispatch(setIsCoordinateFilterApplied(false));
-                  dispatch(setSphereCoordinate(null));
-                  dispatch(setCoordinateRadius(''));
+                  dispatch(setActiveCoordinateFilterSide(side));
+                  dispatch(setCoordinateFilterResults([], side));
+                  dispatch(setIsCoordinateFilterApplied(false, side));
+                  dispatch(setSphereCoordinate(null, side));
+                  dispatch(setCoordinateRadius('', side));
                   dispatch(handleFilterChangeHandler(filterValue, 'coordinateSearch', e.target.checked));
                 }}
               />

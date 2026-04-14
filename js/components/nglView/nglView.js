@@ -59,19 +59,40 @@ const NglView = memo(
 
     const targetId = useSelector(state => state.apiReducers.target_on);
 
-    const sphereCoordinates = useSelector(state => state.selectionReducers.sphereCoordinates);
-    const coordinateRadius = useSelector(state => state.selectionReducers.coordinateRadius);
     const unifiedFilter = useSelector(state => state.selectionReducers.unifiedFilter);
-    const isCoordinateFilterApplied = useSelector(state => state.selectionReducers.isCoordinateFilterApplied);
-    const sphereRendered = useSelector(state => state.selectionReducers.sphereRendered);
+    const activeCoordinateFilterSide = useSelector(state => state.selectionReducers.activeCoordinateFilterSide || 'lhs');
+    const isCoordinateFilterApplied = useSelector(state =>
+      activeCoordinateFilterSide === 'rhs'
+        ? (state.selectionReducers.isCoordinateFilterAppliedRHS ?? state.selectionReducers.isCoordinateFilterApplied)
+        : (state.selectionReducers.isCoordinateFilterAppliedLHS ?? state.selectionReducers.isCoordinateFilterApplied)
+    );
+    const activeSphereCoordinates = useSelector(state =>
+      activeCoordinateFilterSide === 'rhs'
+        ? (state.selectionReducers.sphereCoordinatesRHS ?? state.selectionReducers.sphereCoordinates)
+        : (state.selectionReducers.sphereCoordinatesLHS ?? state.selectionReducers.sphereCoordinates)
+    );
+    const activeCoordinateRadius = useSelector(state =>
+      activeCoordinateFilterSide === 'rhs'
+        ? (state.selectionReducers.coordinateRadiusRHS ?? state.selectionReducers.coordinateRadius)
+        : (state.selectionReducers.coordinateRadiusLHS ?? state.selectionReducers.coordinateRadius)
+    );
 
-    const isCoordinateFilterPermitted = unifiedFilter?.detail?.coordinateSearch === true;
+    const isCoordinateFilterPermitted =
+      unifiedFilter?.detail?.coordinateSearch === true || unifiedFilter?.detailRHS?.coordinateSearch === true;
     const isCoordinateFilterPermittedRef = useRef(isCoordinateFilterPermitted);
+    const activeCoordinateFilterSideRef = useRef(activeCoordinateFilterSide);
     // Keep ref up to date
     useEffect(() => {
       isCoordinateFilterPermittedRef.current = isCoordinateFilterPermitted;
     }, [isCoordinateFilterPermitted]);
-    // console.log('unifiedFilter?.detail?.coordinateSearch:', unifiedFilter?.detail?.coordinateSearch);
+    useEffect(() => {
+      activeCoordinateFilterSideRef.current = activeCoordinateFilterSide;
+    }, [activeCoordinateFilterSide]);
+    useEffect(() => {
+      if (!popoverOpen) {
+        setRadius(String(activeCoordinateRadius ?? defaultRadius));
+      }
+    }, [activeCoordinateFilterSide, activeCoordinateRadius, defaultRadius, popoverOpen]);
     const rendererDomElement = stage?.viewer?.renderer?.domElement;
     const mousePosition = stage?.mouseObserver?.position;
 
@@ -118,8 +139,8 @@ const NglView = memo(
         .then(response => {
           if (response?.data?.results) {
             const ids = response.data.results.map(item => item.id);
-            dispatch(selectionActions.setCoordinateFilterResults(ids));
-            dispatch(selectionActions.setIsCoordinateFilterApplied(true));
+            dispatch(selectionActions.setCoordinateFilterResults(ids, activeCoordinateFilterSideRef.current));
+            dispatch(selectionActions.setIsCoordinateFilterApplied(true, activeCoordinateFilterSideRef.current));
             // console.log('Site Observation IDs within radius:', ids);
           }
         })
@@ -170,8 +191,8 @@ const NglView = memo(
         if (!pos) return;
 
         lastOriginRef.current = pos;
-        dispatch(selectionActions.setSphereCoordinate(pos));
-        dispatch(selectionActions.setCoordinateRadius(radius));
+        dispatch(selectionActions.setSphereCoordinate(pos, activeCoordinateFilterSideRef.current));
+        dispatch(selectionActions.setCoordinateRadius(radius, activeCoordinateFilterSideRef.current));
         // ensureSphereAt(pos, parseRadius(radius));
 
         // Anchor popover to mouse cursor using NGL's mouseObserver
@@ -191,31 +212,31 @@ const NglView = memo(
 
     useEffect(() => {
       if (!ready) return;
-      if (sphereCoordinates && isCoordinateFilterPermitted /* && !sphereRendered*/) {
+      if (activeSphereCoordinates && isCoordinateFilterPermitted /* && !sphereRendered*/) {
         if (sphereCompRef.current) {
           stage.removeComponent(sphereCompRef.current);
         }
-        dispatch(selectionActions.setSphereRendered(true));
-        ensureSphereAt(sphereCoordinates, parseRadius(coordinateRadius));
+        dispatch(selectionActions.setSphereRendered(true, activeCoordinateFilterSide));
+        ensureSphereAt(activeSphereCoordinates, parseRadius(activeCoordinateRadius));
       } else {
-        if (!sphereCoordinates && sphereCompRef.current && sphereRendered) {
+        if (!activeSphereCoordinates && sphereCompRef.current) {
           try {
             stage.removeComponent(sphereCompRef.current);
-            dispatch(selectionActions.setSphereRendered(false));
+            dispatch(selectionActions.setSphereRendered(false, activeCoordinateFilterSide));
           } catch (e) {
             console.error(e);
           }
         }
       }
     }, [
-      coordinateRadius,
+      activeCoordinateFilterSide,
+      activeCoordinateRadius,
+      activeSphereCoordinates,
       dispatch,
       ensureSphereAt,
       isCoordinateFilterPermitted,
       parseRadius,
       ready,
-      sphereCoordinates,
-      sphereRendered,
       stage
     ]);
 
@@ -344,8 +365,8 @@ const NglView = memo(
             <Button
               onClick={() => {
                 if (!isCoordinateFilterApplied) {
-                  dispatch(selectionActions.setSphereCoordinate(null));
-                  dispatch(selectionActions.setCoordinateRadius(''));
+                  dispatch(selectionActions.setSphereCoordinate(null, activeCoordinateFilterSide));
+                  dispatch(selectionActions.setCoordinateRadius('', activeCoordinateFilterSide));
                 }
                 setPopoverOpen(false);
               }}

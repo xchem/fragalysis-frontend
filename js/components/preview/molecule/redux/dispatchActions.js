@@ -1311,7 +1311,7 @@ export const isMainObservation = observation => (dispatch, getState) => {
   return !!poses?.some(pose => pose?.main_site_observation === observation?.id);
 };
 
-export const handleObservationFilterChange = (setFilterValueFn, onFilterChangeFn) => (
+export const handleObservationFilterChange = (setFilterValueFn, onFilterChangeFn, filterKey = 'detail') => (
   filterValue,
   property,
   value
@@ -1322,5 +1322,5 @@ export const handleObservationFilterChange = (setFilterValueFn, onFilterChangeFn
   };
   setFilterValueFn && setFilterValueFn(newFilterValue);
   onFilterChangeFn && onFilterChangeFn(newFilterValue);
-  dispatch(setUnifiedFilterItem('detail', newFilterValue));
+  dispatch(setUnifiedFilterItem(filterKey, newFilterValue));
 };

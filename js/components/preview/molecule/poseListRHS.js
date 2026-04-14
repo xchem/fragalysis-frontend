@@ -52,7 +52,7 @@ import { setSortDialogOpen, setSearchStringOfHitNavigator } from './redux/action
 import { getMoleculeForId } from '../tags/redux/dispatchActions';
 import { setRHSCompoundsList, updateRHSCompound } from '../../../reducers/api/actions';
 import { PoseList } from './poseList';
-import { RHS_OBSERVATION_VIEW_CONFIG } from './observationUnifiedView/viewConfigs';
+import { RHS_OBSERVATION_VIEW_CONFIG, buildObservationViewConfig } from './observationUnifiedView/viewConfigs';
 
 export const PoseListRHS = memo(({ expandHandler }) => {
   const dispatch = useDispatch();
@@ -64,7 +64,7 @@ export const PoseListRHS = memo(({ expandHandler }) => {
 
   // Shared state (same as PoseListLHS)
   const nextXMolecules = useSelector(state => state.selectionReducers.nextXMolecules);
-  const searchString = useSelector(state => state.previewReducers.molecule.searchStringLHS);
+  const searchString = useSelector(state => state.previewReducers.molecule.searchStringRHS);
   const filter = useSelector(state => state.selectionReducers.filter);
   const allMoleculesList = useSelector(state => selectAllMoleculeList(state));
   const dataAreDownloading = useSelector(state => state.apiReducers.dataAreDownloading);
@@ -142,6 +142,61 @@ export const PoseListRHS = memo(({ expandHandler }) => {
       addToastMessage: payload => dispatch(addToastMessage(payload)),
       searchForObservations: (searchTerm, observations, settings) =>
         dispatch(searchForObservations(searchTerm, observations, settings)),
+      searchHitNavigator: (searchTerm, joinedMoleculeList, compoundsList, settings) => {
+        const normalizedSearchTerm = searchTerm?.toLowerCase().trim();
+
+        if (!normalizedSearchTerm) {
+          return joinedMoleculeList;
+        }
+
+        const matchedObservationIds = new Set(
+          dispatch(searchForObservations(searchTerm, joinedMoleculeList, settings)).map(observation => observation.id)
+        );
+
+        const visibleObservationIds = new Set(joinedMoleculeList.map(observation => observation.id));
+        const searchBy = settings?.searchBy || {};
+        const shouldMatchPoseName = searchBy.shortcode !== false;
+        const shouldMatchCompoundCode = searchBy.compoundId !== false;
+        const shouldMatchAliases = searchBy.aliases !== false;
+
+        (compoundsList || []).forEach(compound => {
+          const associatedObservations = compound?.associatedObs || [];
+          const mainObservation =
+            associatedObservations.find(observation => observation.id === compound.main_site_observation) ||
+            associatedObservations[0];
+
+          const hasVisibleObservation = associatedObservations.some(observation => visibleObservationIds.has(observation.id));
+          if (!hasVisibleObservation) {
+            return;
+          }
+
+          const poseNames = [compound?.code, compound?.display_name, mainObservation?.code, mainObservation?.virtual_name]
+            .filter(Boolean)
+            .map(value => value.toLowerCase());
+          const compoundCodes = [compound?.main_site_observation_cmpd_code, mainObservation?.compound_code]
+            .filter(Boolean)
+            .map(value => value.toLowerCase());
+          const aliases = (mainObservation?.identifiers || [])
+            .map(identifier => identifier?.name)
+            .filter(Boolean)
+            .map(value => value.toLowerCase());
+
+          const isMatched =
+            (shouldMatchPoseName && poseNames.some(value => value.includes(normalizedSearchTerm))) ||
+            (shouldMatchCompoundCode && compoundCodes.some(value => value.includes(normalizedSearchTerm))) ||
+            (shouldMatchAliases && aliases.some(value => value.includes(normalizedSearchTerm)));
+
+          if (isMatched) {
+            associatedObservations.forEach(observation => {
+              if (visibleObservationIds.has(observation.id)) {
+                matchedObservationIds.add(observation.id);
+              }
+            });
+          }
+        });
+
+        return joinedMoleculeList.filter(observation => matchedObservationIds.has(observation.id));
+      },
       setNextXMolecules: value => dispatch(setNextXMolecules(value)),
       getMoleculeForId: moleculeId => dispatch(getMoleculeForId(moleculeId)),
       applyDirectSelection: majorViewStage => dispatch(applyDirectSelection(majorViewStage)),
@@ -280,7 +335,7 @@ export const PoseListRHS = memo(({ expandHandler }) => {
       setSelectedAllByType: (type, molecules) => dispatch(setSelectedAllByType(type, molecules)),
       setDeselectedAllByType: (type, molecules) => dispatch(setDeselectedAllByType(type, molecules)),
       setSearchSettingsDialogOpen: open => dispatch(setSearchSettingsDialogOpen(open)),
-      setSearchString: value => dispatch(setSearchStringOfHitNavigator(value)),
+      setSearchString: value => dispatch(setSearchStringOfHitNavigator(value, 'rhs')),
       setIsTagGlobalEdit: value => dispatch(setIsTagGlobalEdit(value)),
       setTagEditorOpen: value => dispatch(setTagEditorOpen(value)),
       setIsTagEditorForCurrentSide: () => dispatch(setIsLHSCmpTagEdit(false)),
@@ -307,6 +362,8 @@ export const PoseListRHS = memo(({ expandHandler }) => {
     }),
     []
   );
+
+  const viewConfig = useMemo(() => buildObservationViewConfig(RHS_OBSERVATION_VIEW_CONFIG), []);
 
   return (
     <PoseList
@@ -342,7 +399,7 @@ export const PoseListRHS = memo(({ expandHandler }) => {
       lhsCompoundsList={rhsCompoundsList || []}
       proteinsHasLoaded={proteinsHasLoaded}
       searchSettings={searchSettings}
-      viewConfig={RHS_OBSERVATION_VIEW_CONFIG}
+      viewConfig={viewConfig}
       isTagEditorForCurrentSide={isTagEditorForCurrentSide}
       handlers={handlers}
       instanceConfig={instanceConfig}
