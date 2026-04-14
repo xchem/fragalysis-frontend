@@ -470,6 +470,11 @@ export const reloadDatasetsReducer = savedDatasetsReducers => {
   };
 };
 
+export const setDatasetsStateFromSnapshot = datasetsReducers => ({
+  type: constants.SET_DATASETS_STATE_FROM_SNAPSHOT,
+  payload: datasetsReducers
+});
+
 export const resetDatasetsState = () => {
   return {
     type: constants.RESET_DATASETS_STATE

@@ -1,10 +1,8 @@
 import React, { memo, useEffect, useState } from 'react';
 import { LoadingContext } from './LoadingContext';
 import { LinearProgress, makeStyles } from '@material-ui/core';
-import { useDispatch, useSelector } from 'react-redux';
+import { useSelector } from 'react-redux';
 import { howManyInQueueRendered, howManyInQueueRenderedDataset } from '../../reducers/ngl/utils';
-import { setIsSnapshot } from '../../reducers/api/actions';
-import { setIsSnapshotRendering, setNglViewFromSnapshotRendered } from '../../reducers/ngl/actions';
 
 const useStyles = makeStyles(theme => ({
   loadingProgress: {
@@ -17,10 +15,8 @@ const useStyles = makeStyles(theme => ({
 }));
 
 export const LoadingProvider = memo(props => {
-  const dispatch = useDispatch();
   const [moleculesAndTagsAreLoading, setMoleculesAndTagsAreLoading] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  const [snapshotProgress, setSnapshotProgress] = useState(0);
 
   const isSnapshotRendering = useSelector(state => state.nglReducers.isSnapshotRendering);
   const objectsInSnapshotToBeRendered = useSelector(state => state.nglReducers.objectsInSnapshotToBeRendered);
@@ -35,17 +31,13 @@ export const LoadingProvider = memo(props => {
     const lhs = howManyInQueueRendered(toBeDisplayedListLHS);
     const rhs = howManyInQueueRenderedDataset(toBeDisplayedListRHS);
     const combined = lhs + rhs;
+    const totalItemsToRender =
+      toBeDisplayedListLHS.length +
+      Object.keys(toBeDisplayedListRHS).reduce((acc, key) => acc + toBeDisplayedListRHS[key].length, 0);
+    const shouldShowSingleItemRendering = !isSnapshotRendering && combined < totalItemsToRender;
 
-    if (
-      !isSnapshotRendering &&
-      !isSingleItemRendering &&
-      combined <
-        toBeDisplayedListLHS.length +
-          Object.keys(toBeDisplayedListRHS).reduce((acc, key) => acc + toBeDisplayedListRHS[key].length, 0)
-    ) {
-      setIsSingleItemRendering(true);
-    } else if (!isSnapshotRendering && isSingleItemRendering) {
-      setIsSingleItemRendering(false);
+    if (isSingleItemRendering !== shouldShowSingleItemRendering) {
+      setIsSingleItemRendering(shouldShowSingleItemRendering);
     } else {
       // if (combined < objectsInSnapshotToBeRendered) {
       //   //snapshot is still rendering
@@ -61,7 +53,6 @@ export const LoadingProvider = memo(props => {
   }, [
     toBeDisplayedListLHS,
     toBeDisplayedListRHS,
-    dispatch,
     objectsInSnapshotToBeRendered,
     isSnapshotRendering,
     isSingleItemRendering
@@ -85,7 +76,7 @@ export const LoadingProvider = memo(props => {
           variant="determinate"
           color="secondary"
           className={classes.loadingProgress}
-          value={snapshotProgress}
+          value={0}
         />
       )}
     </LoadingContext.Provider>

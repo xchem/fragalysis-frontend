@@ -53,15 +53,7 @@ export const RenderingProgressDialog = () => {
 
   return (
     <Dialog
-      open={
-        (!!console.log(
-          `RenderingProgressDialog - isSnapshotRendering: ${isSnapshotRendering}, isNGLQueueEmpty: ${isNGLQueueEmpty} result: ${isSnapshotRendering &&
-            !isNGLQueueEmpty}`
-        ) ||
-          true) &&
-        isSnapshotRendering &&
-        !isNGLQueueEmpty
-      }
+      open={isSnapshotRendering && !isNGLQueueEmpty}
       aria-labelledby="rendering-progress-dialog-title"
     >
       <DialogTitle id="rendering-progress-dialog-title">Snapshot loading progress</DialogTitle>

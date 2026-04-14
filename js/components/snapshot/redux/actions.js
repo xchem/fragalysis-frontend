@@ -90,3 +90,8 @@ export const setSnapshotIsSaving = isSaving => ({
   type: constants.SET_SNAPSHOT_IS_SAVING,
   payload: isSaving
 });
+
+export const setSwitchingSnapshotWithinProject = switching => ({
+  type: constants.SET_SWITCHING_SNAPSHOT_WITHIN_PROJECT,
+  payload: switching
+});

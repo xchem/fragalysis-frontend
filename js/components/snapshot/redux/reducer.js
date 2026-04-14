@@ -29,13 +29,17 @@ export const INITIAL_STATE = {
   isSnapshotEditDialogOpen: false,
   snapshotToBeEdited: null,
   snapshotsCreatedThisSession: [],
-  isSnapshotSaving: false
+  isSnapshotSaving: false,
+  switchingSnapshotWithinProject: false
 };
 
 export const snapshotReducers = (state = INITIAL_STATE, action = {}) => {
   switch (action.type) {
     case constants.SET_SNAPSHOT_IS_SAVING:
       return { ...state, isSnapshotSaving: action.payload };
+
+    case constants.SET_SWITCHING_SNAPSHOT_WITHIN_PROJECT:
+      return { ...state, switchingSnapshotWithinProject: action.payload };
 
     case constants.APPEND_TO_SNAPSHOTS_CREATED_THIS_SESSION:
       return { ...state, snapshotsCreatedThisSession: [...state.snapshotsCreatedThisSession, action.payload] };

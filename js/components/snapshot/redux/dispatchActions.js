@@ -20,7 +20,8 @@ import {
   setOpenSnapshotSavingDialog,
   setSharedSnapshot,
   setSnapshotIsSaving,
-  setSnapshotJustSaved
+  setSnapshotJustSaved,
+  setSwitchingSnapshotWithinProject
 } from './actions';
 import { setDialogCurrentStep } from '../../snapshot/redux/actions';
 import { DJANGO_CONTEXT } from '../../../utils/djangoContext';
@@ -30,7 +31,9 @@ import { ProjectCreationType, SnapshotType } from '../../projects/redux/constant
 import moment from 'moment';
 import {
   setIsSnapshotRendering,
+  setIsNGLQueueEmpty,
   setNglObjectsInSnapshotToBeRendered,
+  setNglStateFromCurrentSnapshot,
   setProteinLoadingState,
   setReapplyOrientation
 } from '../../../reducers/ngl/actions';
@@ -40,6 +43,7 @@ import { resetCurrentSnapshot, setCurrentSnapshot } from '../../projects/redux/a
 import { selectFirstMolGroup } from '../../preview/moleculeGroups/redux/dispatchActions';
 import {
   reloadDatasetsReducer,
+  setDatasetsStateFromSnapshot,
   setToBeDisplayedListForDataset,
   setToBeDisplayedLists,
   updateInToBeDisplayedListForDataset
@@ -59,12 +63,16 @@ import {
   deepMergeWithPriorityAndWhiteList
 } from '../../../utils/objectUtils';
 import {
-  SNAPSHOT_VALUES_NOT_TO_BE_DELETED_SWITCHING_TARGETS,
   SNAPSHOT_VALUES_TO_BE_DELETED,
-  SNAPSHOT_VALUES_TO_BE_DELETED_SWITCHING_SNAPSHOTS
+  SNAPSHOT_VALUES_NOT_TO_BE_DELETED_SWITCHING_TARGETS,
+  createSnapshotStateForSaving,
+  mergeSnapshotStateWithCurrentData,
+  prepareSwitchingSnapshotRenderState
 } from './utilitySnapshotShapes';
 import { setEntireState } from '../../../reducers/actions';
 import { VIEWS } from '../../../constants/constants';
+import { setCurrentLayout, setDefaultLayout, setPanelsExpanded, setSelectedLayoutName } from '../../../reducers/layout/actions';
+import { turnSide } from '../../preview/viewerControls/redux/actions';
 import { fr } from 'date-fns/locale';
 import { DEFAULT_SCREENSHOT_RESOLUTION, SCREENSHOT_TYPE } from '../constants';
 // import { display } from 'html2canvas/dist/types/css/property-descriptors/display';
@@ -508,40 +516,31 @@ export const saveAndShareSnapshot = (
 export const getCleanStateForSnapshot = () => (dispatch, getState) => {
   const state = getState();
 
-  let snapshotData = {};
+  return createSnapshotStateForSaving(state);
+};
 
-  let notToBeCopiedClone = deepClone(SNAPSHOT_VALUES_NOT_TO_BE_DELETED_SWITCHING_TARGETS);
-  delete notToBeCopiedClone.apiReducers.target_id_list;
+const applySnapshotStateWithoutFullRefresh = (dispatch, newState) => {
+  dispatch(setSwitchingSnapshotWithinProject(!!newState.snapshotReducers?.switchingSnapshotWithinProject));
+  dispatch(reloadSelectionReducer(newState.selectionReducers));
+  dispatch(setDatasetsStateFromSnapshot(newState.datasetsReducers));
+  dispatch(setNglStateFromCurrentSnapshot(newState.nglReducers));
 
-  snapshotData = deepMergeWithPriorityAndBlackList({}, state, notToBeCopiedClone);
-  snapshotData = deepClone(snapshotData);
-  snapshotData = deepMergeWithPriority({ ...snapshotData }, notToBeCopiedClone);
-  snapshotData = deepMergeWithPriority({ ...snapshotData }, SNAPSHOT_VALUES_TO_BE_DELETED);
-  snapshotData.nglReducers.snapshotNglOrientation = { ...snapshotData.nglReducers.nglOrientations };
-  //this is because we don't want the first ligand to be centered but we always want to apply snapshot orientation
-  snapshotData.selectionReducers.toBeDisplayedList = snapshotData.selectionReducers.toBeDisplayedList.map(obj => ({
-    ...obj,
-    center: false,
-    rendered: false
-  }));
-  let toBeDisplayedRHS = {};
-  let numberOfItemsRHS = 0;
-  Object.keys(snapshotData.datasetsReducers.toBeDisplayedList).forEach(datasetID => {
-    toBeDisplayedRHS[datasetID] = snapshotData.datasetsReducers.toBeDisplayedList[datasetID].map(obj => ({
-      ...obj,
-      center: false,
-      rendered: false
-    }));
-    numberOfItemsRHS += toBeDisplayedRHS[datasetID].length;
-  });
-  snapshotData.datasetsReducers.toBeDisplayedList = toBeDisplayedRHS;
-  snapshotData.nglReducers.objectsInSnapshotToBeRendered =
-    snapshotData.selectionReducers.toBeDisplayedList.length + numberOfItemsRHS;
-  snapshotData.nglReducers.isSnapshotRendering = true;
-  snapshotData.nglReducers.nglViewFromSnapshotRendered = false;
-  snapshotData.nglReducers.isNGLQueueEmpty = false;
+  if (newState.previewReducers) {
+    dispatch(reloadPreviewReducer(newState.previewReducers));
+    Object.entries(newState.previewReducers.viewerControls?.sidesOpen || {}).forEach(([side, open]) => {
+      dispatch(turnSide(side, open, true));
+    });
+  }
 
-  return snapshotData;
+  if (newState.layoutReducers) {
+    dispatch(setSelectedLayoutName(newState.layoutReducers.selectedLayoutName));
+    dispatch(setDefaultLayout(newState.layoutReducers.defaultLayout));
+    dispatch(setCurrentLayout(newState.layoutReducers.currentLayout));
+
+    Object.entries(newState.layoutReducers.panelsExpanded || {}).forEach(([panel, expanded]) => {
+      dispatch(setPanelsExpanded(panel, expanded));
+    });
+  }
 };
 
 export const changeSnapshot = (projectID, snapshotID, stage, fromJobExec = false, loadingSnapshot = false) => async (
@@ -569,43 +568,47 @@ export const changeSnapshot = (projectID, snapshotID, stage, fromJobExec = false
 
   if (!fromJobExec) {
     //orientation animation
-    const newOrientation = snapshotState.nglReducers.nglOrientations[VIEWS.MAJOR_VIEW];
-    //log with timestamp
-    console.log(`Switch - Before smooth animation: ${new Date().toLocaleTimeString()}`);
-    await stage.animationControls.orient(newOrientation.elements, 2000); //.then(() => {
-    console.log(`Switch - After smooth animation: ${new Date().toLocaleTimeString()}`);
+    const newOrientation = snapshotState?.nglReducers?.nglOrientations?.[VIEWS.MAJOR_VIEW];
+    if (stage && newOrientation?.elements) {
+      //log with timestamp
+      console.log(`Switch - Before smooth animation: ${new Date().toLocaleTimeString()}`);
+      await stage.animationControls.orient(newOrientation.elements, 2000); //.then(() => {
+      console.log(`Switch - After smooth animation: ${new Date().toLocaleTimeString()}`);
+    }
   }
 
-  dispatch(
-    setCurrentSnapshot({
-      id: snapshotResponse.data.id,
-      type: snapshotResponse.data.type,
-      title: snapshotResponse.data.title,
-      author: snapshotResponse.data.author,
-      description: snapshotResponse.data.description,
-      created: snapshotResponse.data.created,
-      children: snapshotResponse.data.children,
-      parent: snapshotResponse.data.parent,
-      data: snapshotResponse.data.data
-    })
-  );
-
-  let currentState = getState();
+  let currentState = deepClone(getState());
+  let snapshotStateToApply = deepClone(snapshotState);
   let toBeDisplayedLHSNewDeepCopy = null;
   let toBeDisplayedRHSNewDeepCopy = null;
+
+  snapshotStateToApply.selectionReducers = {
+    ...(snapshotStateToApply.selectionReducers || {}),
+    toBeDisplayedList: [...(snapshotStateToApply.selectionReducers?.toBeDisplayedList || [])]
+  };
+  snapshotStateToApply.datasetsReducers = {
+    ...(snapshotStateToApply.datasetsReducers || {}),
+    toBeDisplayedList: { ...(snapshotStateToApply.datasetsReducers?.toBeDisplayedList || {}) }
+  };
+
   if (loadingSnapshot) {
     currentState.snapshotReducers.switchingSnapshotWithinProject = false;
-    snapshotState.snapshotReducers.switchingSnapshotWithinProject = false;
+    snapshotStateToApply.snapshotReducers = {
+      ...(snapshotStateToApply.snapshotReducers || {}),
+      switchingSnapshotWithinProject: false
+    };
   }
   if (!fromJobExec) {
     currentState.snapshotReducers.switchingSnapshotWithinProject = true;
-    snapshotState.snapshotReducers.switchingSnapshotWithinProject = true;
-    snapshotState.nglReducers.isNGLQueueEmpty = false;
+    snapshotStateToApply.snapshotReducers = {
+      ...(snapshotStateToApply.snapshotReducers || {}),
+      switchingSnapshotWithinProject: true
+    };
 
     const toBeDisplayedLHSCurrent = currentState.selectionReducers.toBeDisplayedList;
     const toBeDisplayedRHSCurrent = currentState.datasetsReducers.toBeDisplayedList;
-    const toBeDisplayedLHSNew = snapshotState.selectionReducers.toBeDisplayedList;
-    const toBeDisplayedRHSNew = snapshotState.datasetsReducers.toBeDisplayedList;
+    const toBeDisplayedLHSNew = snapshotStateToApply.selectionReducers.toBeDisplayedList;
+    const toBeDisplayedRHSNew = snapshotStateToApply.datasetsReducers.toBeDisplayedList;
 
     //remove LHS stuff that is not in the new snapshot
     const toBeNoLongerDisplayedLHS = toBeDisplayedLHSCurrent.filter(
@@ -642,18 +645,64 @@ export const changeSnapshot = (projectID, snapshotID, stage, fromJobExec = false
   }
 
   currentState = getState();
-  // const copyOfCurrentState = deepClone(currentState);
+  currentState = deepClone(currentState);
   console.log(`RenderingProgressDialog - merging state`);
-  const newState = deepMergeWithPriorityAndBlackList(
-    // copyOfCurrentState,
-    currentState,
-    snapshotState,
-    SNAPSHOT_VALUES_NOT_TO_BE_DELETED_SWITCHING_TARGETS
+  const newState = mergeSnapshotStateWithCurrentData(currentState, snapshotStateToApply);
+
+  newState.apiReducers = {
+    ...newState.apiReducers,
+    isSnapshot: true,
+    snapshotLoadingInProgress: false
+  };
+
+  if (!fromJobExec) {
+    newState.selectionReducers = {
+      ...newState.selectionReducers,
+      toBeDisplayedList: toBeDisplayedLHSNewDeepCopy
+    };
+    newState.datasetsReducers = {
+      ...newState.datasetsReducers,
+      toBeDisplayedList: toBeDisplayedRHSNewDeepCopy
+    };
+
+    Object.assign(newState, prepareSwitchingSnapshotRenderState(currentState, newState));
+    newState.nglReducers = {
+      ...newState.nglReducers,
+      isSnapshotRendering: false,
+      objectsInSnapshotToBeRendered: 0,
+      isNGLQueueEmpty: true
+    };
+  }
+
+  if (!fromJobExec) {
+    applySnapshotStateWithoutFullRefresh(dispatch, newState);
+    dispatch(setIsSnapshotRendering(false));
+    dispatch(setNglObjectsInSnapshotToBeRendered(0));
+    dispatch(setIsNGLQueueEmpty(true));
+  } else {
+    dispatch(setEntireState(newState));
+  }
+  dispatch(
+    setCurrentSnapshot({
+      id: snapshotResponse.data.id,
+      type: snapshotResponse.data.type,
+      title: snapshotResponse.data.title,
+      author: snapshotResponse.data.author,
+      description: snapshotResponse.data.description,
+      created: snapshotResponse.data.created,
+      children: snapshotResponse.data.children,
+      parent: snapshotResponse.data.parent,
+      data: snapshotResponse.data.data
+    })
   );
 
   if (!fromJobExec) {
-    dispatch(setToBeDisplayedList(toBeDisplayedLHSNewDeepCopy));
-    dispatch(setToBeDisplayedLists(toBeDisplayedRHSNewDeepCopy));
+    requestAnimationFrame(() => {
+      dispatch(setSwitchingSnapshotWithinProject(false));
+      dispatch(setSnapshotLoadingInProgress(false));
+    });
+  } else {
+    dispatch(setSnapshotLoadingInProgress(false));
   }
 
   return snapshotResponse;

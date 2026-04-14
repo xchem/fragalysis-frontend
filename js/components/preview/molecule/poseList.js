@@ -1041,10 +1041,6 @@ export const PoseList = memo(
       listItemOffset < filteredLHSCompoundsList?.length ||
       (listItemOffset > filteredLHSCompoundsList?.length &&
         itemsToBeDisplayed?.length < filteredLHSCompoundsList?.length);
-    console.log(
-      `Infinity scroll: listItemOffset: ${listItemOffset}, currentPage: ${currentPage}, moleculesPerPage: ${moleculesPerPage}, nextXMolecules: ${nextXMolecules}, canLoadMore: ${canLoadMore}, listItemOffset: ${listItemOffset}, filteredLHSCompoundsList: ${filteredLHSCompoundsList.length}`
-    );
-
     useEffect(() => {
       let updatedCurrentPage = currentPage;
       if (filteredLHSCompoundsList?.length < currentPage * moleculesPerPage) {

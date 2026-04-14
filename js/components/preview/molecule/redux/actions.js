@@ -6,7 +6,7 @@ export const setSortDialogOpen = isOpen => ({
 });
 
 export const reloadMoleculeReducer = newState => ({
-  type: constants.SET_SORT_DIALOG_OPEN,
+  type: constants.RELOAD_REDUCER,
   payload: newState
 });
 

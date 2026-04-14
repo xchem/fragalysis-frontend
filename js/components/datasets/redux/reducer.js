@@ -645,6 +645,9 @@ export const datasetsReducers = (state = INITIAL_STATE, action = {}) => {
 
       return Object.assign({}, state, lists);
 
+    case constants.SET_DATASETS_STATE_FROM_SNAPSHOT:
+      return Object.assign({}, state, { ...action.payload });
+
     case constants.RESET_DATASETS_STATE:
       const datasetsLists = {
         ligandLists: reloadLists([], 'ligandLists'),

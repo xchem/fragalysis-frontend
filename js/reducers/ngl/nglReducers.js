@@ -66,7 +66,7 @@ export default function nglReducers(state = INITIAL_STATE, action = {}) {
       return { ...state, objectsInSnapshotToBeRendered: action.noOfobjects };
 
     case CONSTANTS.SET_IS_SNAPSHOT_RENDERING:
-      return { ...state, isSnapshotRendering: action.isSnapshotRendering };
+      return { ...state, isSnapshotRendering: action.isSnapshotRendering ?? action.isRendering };
 
     case CONSTANTS.SET_SKIP_ORIENTATION_CHANGE:
       return { ...state, skipOrientationChange: action.skip };
