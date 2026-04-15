@@ -248,60 +248,6 @@
             }
           }
         }
-      },
-      "inspirationDialog": {
-        "close": "Close inspirations",
-        "allLigands": "All ligands",
-        "allSidechains": "All sidechains",
-        "allInteractions": "All interactions",
-        "openReference": "Open reference",
-        "observation": {
-          "editTag": "Edit tag",
-          "editTags": "Edit tags",
-          "title": "{{obsName}}",
-          "propName": "{{propName}}",
-          "centerOn": "Center on",
-          "all": "All",
-          "ligand": "Ligand",
-          "sidechains": "Sidechains",
-          "interactions": "Interactions",
-          "surface": "Surface",
-          "electronDensity": "Electron density",
-          "vectors": "Vectors",
-          "copySmiles": {
-            "copy": "Copy smiles",
-            "copied": "Copied"
-          },
-          "warning": "Warning",
-          "tagCategory": "{{tagCategory}}",
-          "tagName": "{{tagName}}",
-          "centroidRes": "CentroidRes",
-          "longCode": "LongCode",
-          "experimentalPath": {
-            "path": "{{path}}",
-            "noPath": "empty path"
-          }
-        }
-      },
-      "jobTable": {
-        "selection": {
-          "selectAllRows": "Select all rows",
-          "selectRow": "Select row"
-        },
-        "sorting": {
-          "sortBy": "Sort by {{columnName}}"
-        }
-      },
-      "compoundsView": {
-        "compoundCard": {
-          "details": "Compound details",
-          "compoundId": "{{compoundId}}"
-        }
-      },
-      "projectHistory": {
-        "jobConfigurationDialog": {
-          "help": "Show help for this job configuration"
-        }
       }
     },
     "header": {
