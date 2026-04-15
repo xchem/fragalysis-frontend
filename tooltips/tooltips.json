@@ -14,7 +14,10 @@
     },
     "preview": {
       "downloadStructures": {
-        "copyJson": "Get a json for a POST request (`{{base_url}}/api/download_structures/`) that will generate a FILE_URL.\n\n Download your data at `{{base_url}}/api/download_structures/?file_url=<FILE_URL>`",
+        "copyJson": {
+          "text": "Get a json for a POST request (`{{base_url}}/api/download_structures/`) that will generate a FILE_URL.\n\n Download your data at `{{base_url}}/api/download_structures/?file_url=<FILE_URL>`",
+          "showHelp": true
+        },
         "showExamples": "Navigates to github thread with curl and python examples."
       },
       "viewerControls": {
