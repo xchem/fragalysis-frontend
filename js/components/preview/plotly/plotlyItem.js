@@ -4,10 +4,10 @@ import {
   CardContent,
   Typography,
   Button,
-  makeStyles,
-  Tooltip
+  makeStyles
 } from '@material-ui/core';
 import moment from 'moment';
+import RichTooltip from '../../tooltip/RichTooltip';
 
 const useStyles = makeStyles(theme => ({
   root: {
@@ -109,13 +109,13 @@ export const PlotlyItem = ({ item, onShowClick }) => {
       </CardContent>
 
       <div className={classes.buttonGroup}>
-        <Tooltip title={'Show this graph'}>
+        <RichTooltip path="showGraph">
           <span>
             <Button variant="contained" color="primary" size="small" onClick={onShowClick}>
               SHOW
             </Button>
           </span>
-        </Tooltip>
+        </RichTooltip>
       </div>
     </Card>
   );

@@ -4,7 +4,7 @@
 
 import React, { memo, useEffect, useState, useRef, useContext, forwardRef } from 'react';
 import { useDispatch, useSelector, shallowEqual } from 'react-redux';
-import { Grid, Button, makeStyles, Tooltip, IconButton, CircularProgress } from '@material-ui/core';
+import { Grid, Button, makeStyles, IconButton, CircularProgress } from '@material-ui/core';
 import {
   ClearOutlined,
   CheckOutlined,
@@ -94,6 +94,8 @@ import { LockVisibleCompoundsDialog } from '../lockVisibleCompoundsDialog';
 import { fabClasses } from '@mui/material';
 import useClipboard from 'react-use-clipboard';
 import { useRDKit } from '../../rdkit/RDKitContext';
+import RichTooltip from '../../tooltip/RichTooltip';
+import { TooltipPathProvider } from '../../tooltip/TooltipPathContext';
 
 const useStyles = makeStyles(theme => ({
   container: {
@@ -1035,22 +1037,23 @@ const DatasetMoleculeView = memo(
       const groupMoleculeLPCControlButtonDisabled = disableL || disableP || disableC;
 
       return (
-        <>
-          <Grid
-            container
-            justifyContent="space-between"
-            direction="row"
-            className={classNames(classes.container, dragDropEnabled ? classes.dragDropCursor : undefined)}
-            wrap="nowrap"
-            ref={node => {
-              if (outsideRef) {
-                outsideRef(data.id, node);
-              }
-              ref.current = node;
-            }}
-            data-handler-id={dragDropEnabled ? handlerId : undefined}
-            style={{ opacity }}
-          >
+        <TooltipPathProvider path="datasetMoleculeView">
+          <>
+            <Grid
+              container
+              justifyContent="space-between"
+              direction="row"
+              className={classNames(classes.container, dragDropEnabled ? classes.dragDropCursor : undefined)}
+              wrap="nowrap"
+              ref={node => {
+                if (outsideRef) {
+                  outsideRef(data.id, node);
+                }
+                ref.current = node;
+              }}
+              data-handler-id={dragDropEnabled ? handlerId : undefined}
+              style={{ opacity }}
+            >
             {askLockCompoundsQuestion &&
               isLockVisibleCompoundsDialogOpenLocal &&
               cmpForLocalLockVisibleCompoundsDialog?.id === currentID && (
@@ -1099,7 +1102,7 @@ const DatasetMoleculeView = memo(
                 className={!showCrossReferenceModal && hideFButton ? classes.widthOverflow : ''}
               >
                 <Grid item className={classes.inheritWidth}>
-                  <Tooltip title={moleculeTitle} placement="bottom-start">
+                  <RichTooltip path="moleculeTitle" values={{ moleculeTitle }} placement="bottom-start">
                     <div
                       className={classNames(classes.moleculeTitleLabel, isLocked && classes.selectedMolecule)}
                       onCopy={e => {
@@ -1109,13 +1112,13 @@ const DatasetMoleculeView = memo(
                     >
                       {moleculeTitle}
                     </div>
-                  </Tooltip>
+                  </RichTooltip>
                 </Grid>
                 {showDatasetName && (
                   <Grid item className={classes.inheritWidth}>
-                    <Tooltip title={datasetTitle} placement="bottom-start">
+                    <RichTooltip path="datasetTitle" values={{ datasetTitle }} placement="bottom-start">
                       <div className={classes.datasetTitleLabel}>{datasetTitle}</div>
-                    </Tooltip>
+                    </RichTooltip>
                   </Grid>
                 )}
               </Grid>
@@ -1129,7 +1132,7 @@ const DatasetMoleculeView = memo(
                   wrap="nowrap"
                   className={classes.contButtonsMargin}
                 >
-                  <Tooltip title="centre on">
+                  <RichTooltip path="controls.centerOn">
                     <Grid item>
                       <Button
                         variant="outlined"
@@ -1142,8 +1145,8 @@ const DatasetMoleculeView = memo(
                         <MyLocation className={classes.myLocation} />
                       </Button>
                     </Grid>
-                  </Tooltip>
-                  <Tooltip title="all">
+                  </RichTooltip>
+                  <RichTooltip path="controls.all">
                     <Grid item>
                       <Button
                         variant="outlined"
@@ -1184,8 +1187,8 @@ const DatasetMoleculeView = memo(
                         )}
                       </Button>
                     </Grid>
-                  </Tooltip>
-                  <Tooltip title="ligand">
+                  </RichTooltip>
+                  <RichTooltip path="controls.ligand">
                     <Grid item>
                       <Button
                         variant="outlined"
@@ -1208,8 +1211,8 @@ const DatasetMoleculeView = memo(
                         )}
                       </Button>
                     </Grid>
-                  </Tooltip>
-                  <Tooltip title="sidechains">
+                  </RichTooltip>
+                  <RichTooltip path="controls.sidechains">
                     <Grid item>
                       <Button
                         variant="outlined"
@@ -1237,8 +1240,8 @@ const DatasetMoleculeView = memo(
                         )}
                       </Button>
                     </Grid>
-                  </Tooltip>
-                  <Tooltip title="interactions">
+                  </RichTooltip>
+                  <RichTooltip path="controls.interactions">
                     <Grid item>
                       {/* C stands for contacts now */}
                       <Button
@@ -1267,8 +1270,8 @@ const DatasetMoleculeView = memo(
                         )}
                       </Button>
                     </Grid>
-                  </Tooltip>
-                  <Tooltip title="surface">
+                  </RichTooltip>
+                  <RichTooltip path="controls.surface">
                     <Grid item>
                       <Button
                         variant="outlined"
@@ -1291,9 +1294,9 @@ const DatasetMoleculeView = memo(
                         )}
                       </Button>
                     </Grid>
-                  </Tooltip>
+                  </RichTooltip>
                   {!hideFButton && (
-                    <Tooltip title="computed inspirations">
+                    <RichTooltip path="controls.computedInspirations">
                       <Grid item>
                         <Button
                           variant="outlined"
@@ -1339,10 +1342,10 @@ const DatasetMoleculeView = memo(
                           )}
                         </Button>
                       </Grid>
-                    </Tooltip>
+                    </RichTooltip>
                   )}
                   {showCrossReferenceModal && (
-                    <Tooltip title="cross reference">
+                    <RichTooltip path="controls.crossReference">
                       <Grid item>
                         <Button
                           variant="outlined"
@@ -1370,7 +1373,7 @@ const DatasetMoleculeView = memo(
                           )}
                         </Button>
                       </Grid>
-                    </Tooltip>
+                    </RichTooltip>
                   )}
                 </Grid>
               </Grid>
@@ -1396,7 +1399,15 @@ const DatasetMoleculeView = memo(
                           value = data[score.name];
                         }
                         return (
-                          <Tooltip title={`${score.name} - ${score.description} : ${value}`} key={score.name}>
+                          <RichTooltip
+                            path={score.description ? 'scoreProperty.withDescription' : 'scoreProperty.withoutDescription'}
+                            values={{
+                              scoreName: score.name,
+                              scoreDescription: score.description || '',
+                              value: value ?? '-'
+                            }}
+                            key={score.name}
+                          >
                             {(value && (
                               <Grid
                                 item
@@ -1417,7 +1428,7 @@ const DatasetMoleculeView = memo(
                                 -
                               </Grid>
                             )}
-                          </Tooltip>
+                          </RichTooltip>
                         );
                       })}
                   </Grid>
@@ -1425,7 +1436,7 @@ const DatasetMoleculeView = memo(
                     {Object.keys(compoundsColors).map(color => {
                       const colorIncluded = shoppingCartColors?.includes(color);
                       return (
-                        <Tooltip title={color} key={`${color}-${classes[data.id]}`} placement="top">
+                        <RichTooltip path="color" values={{ color }} key={`${color}-${classes[data.id]}`} placement="top">
                           <Grid>
                             <Button
                               id={color}
@@ -1442,7 +1453,7 @@ const DatasetMoleculeView = memo(
                               {' '}
                             </Button>
                           </Grid>
-                        </Tooltip>
+                        </RichTooltip>
                       );
                     })}
                   </Grid>
@@ -1493,31 +1504,32 @@ const DatasetMoleculeView = memo(
               {svg_image}
               <div className={classes.imageActions}>
                 {moleculeTooltipOpen && (
-                  <Tooltip title={!isCopied ? 'Copy smiles' : 'Copied'}>
+                  <RichTooltip path={!isCopied ? 'copySmiles.copy' : 'copySmiles.copied'}>
                     <IconButton className={classes.copyIcon} onClick={setCopied}>
                       {!isCopied ? <Assignment /> : <AssignmentTurnedIn />}
                     </IconButton>
-                  </Tooltip>
+                  </RichTooltip>
                 )}
                 {moleculeTooltipOpen && !inSelectedCompoundsList && (
-                  <Tooltip title={'Missing tooltip!'}>
+                  <RichTooltip path="addToSelection">
                     <IconButton className={classes.addToShoppingCartIcon} onClick={handleShoppingCartClick}>
                       <AddShoppingCartIcon />
                     </IconButton>
-                  </Tooltip>
+                  </RichTooltip>
                 )}
               </div>
             </div>
-          </Grid>
-          <SvgTooltip
-            open={moleculeTooltipOpen}
-            anchorEl={moleculeImgRef.current}
-            imgData={image}
-            width={imageWidth}
-            height={imageHeight}
-            placement="bottom-end"
-          />
-        </>
+            </Grid>
+            <SvgTooltip
+              open={moleculeTooltipOpen}
+              anchorEl={moleculeImgRef.current}
+              imgData={image}
+              width={imageWidth}
+              height={imageHeight}
+              placement="bottom-end"
+            />
+          </>
+        </TooltipPathProvider>
       );
     }
   )

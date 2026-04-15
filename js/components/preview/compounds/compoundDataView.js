@@ -2,7 +2,8 @@
  * Created by abradley on 15/03/2018.
  */
 import React, { memo } from 'react';
-import { Grid, Tooltip, makeStyles } from '@material-ui/core';
+import { Grid, makeStyles } from '@material-ui/core';
+import RichTooltip from '../../tooltip/RichTooltip';
 
 const useStyles = makeStyles(theme => ({
   container: {
@@ -46,9 +47,14 @@ export const CompoundDataView = memo(({ currentCompoundIds, isTooltip, index }) 
                   {isTooltip === true ? (
                     <div>{data}</div>
                   ) : (
-                    <Tooltip title={data} placement="top" PopperProps={{ disablePortal: true }}>
+                    <RichTooltip
+                      path="compoundCard.compoundId"
+                      values={{ compoundId: data }}
+                      placement="top"
+                      PopperProps={{ disablePortal: true }}
+                    >
                       <div className={classes.moleculeTitleLabel}>{data}</div>
-                    </Tooltip>
+                    </RichTooltip>
                   )}
                 </Grid>
               </Grid>

@@ -7,11 +7,12 @@ import { ToastContext } from '../../toast';
 import Plotly from 'plotly.js-dist-min';
 import { api } from '../../../utils/api';
 import { base_url } from '../../routes/constants';
-import { Button, Grid, Tooltip } from '@mui/material';
+import { Button, Grid } from '@mui/material';
 import { PlotlyItem } from './plotlyItem';
 import { Panel } from '../../common';
 import { setPanelsExpanded } from '../../../reducers/layout/actions';
 import { layoutItemNames } from '../../../reducers/layout/constants';
+import RichTooltip from '../../tooltip/RichTooltip';
 
 const useStyles = makeStyles(theme => ({
     viewWrapper: {
@@ -160,13 +161,21 @@ export const PlotlyView = memo(({ expandHandler, onResize }) => {
         )}
         headerActions={[
             <Grid container className={classes.headerContainer} key="plotly-header">
-                <Tooltip title={'Go back to list of graphs'}>
-                    <Grid item xs style={{ textAlign: 'right' }}>
-                        {selectedDataset && <Button className={classes.backButton} variant="contained" color="primary" size="small" onClick={() => setSelectedDataset(null)}>
-                            BACK TO LIST
-                        </Button>}
-                    </Grid>
-                </Tooltip>
+                <Grid item xs style={{ textAlign: 'right' }}>
+                    {selectedDataset && (
+                        <RichTooltip path="backToList">
+                            <Button
+                                className={classes.backButton}
+                                variant="contained"
+                                color="primary"
+                                size="small"
+                                onClick={() => setSelectedDataset(null)}
+                            >
+                                BACK TO LIST
+                            </Button>
+                        </RichTooltip>
+                    )}
+                </Grid>
             </Grid>
         ]}
     >

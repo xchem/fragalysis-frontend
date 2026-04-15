@@ -1324,7 +1324,7 @@ export const DetailView = memo(
       ) : (
         <>
           {!hideFButton && (
-            <RichTooltip title="computedInspirations">
+            <RichTooltip path="computedInspirations">
               <Grid item>
                 <Button
                   variant="outlined"

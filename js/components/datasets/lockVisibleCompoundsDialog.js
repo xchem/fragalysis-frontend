@@ -1,8 +1,9 @@
-import { Button, Grid, IconButton, Popper, Tooltip, Typography, makeStyles } from '@material-ui/core';
+import { Button, Grid, IconButton, Popper, Typography, makeStyles } from '@material-ui/core';
 import React, { forwardRef } from 'react';
 import { Panel } from '../common';
 import { Close } from '@material-ui/icons';
 import { useDispatch } from 'react-redux';
+import RichTooltip from '../tooltip/RichTooltip';
 import {
   setAskLockCompoundsQuestion,
   setAskLockSelectedCompoundsQuestion,
@@ -91,7 +92,7 @@ export const LockVisibleCompoundsDialog = forwardRef(
           title="Lock visible compounds"
           className={classes.paper}
           headerActions={[
-            <Tooltip title="Close dialog">
+            <RichTooltip path="lockVisibleCompoundsDialog.close">
               <IconButton
                 color="inherit"
                 className={classes.headerButton}
@@ -102,7 +103,7 @@ export const LockVisibleCompoundsDialog = forwardRef(
               >
                 <Close />
               </IconButton>
-            </Tooltip>
+            </RichTooltip>
           ]}
         >
           <Grid container direction="column">

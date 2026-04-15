@@ -53,6 +53,7 @@ import { getMoleculeForId } from '../tags/redux/dispatchActions';
 import { setRHSCompoundsList, updateRHSCompound } from '../../../reducers/api/actions';
 import { PoseList } from './poseList';
 import { RHS_OBSERVATION_VIEW_CONFIG, buildObservationViewConfig } from './observationUnifiedView/viewConfigs';
+import { TooltipPathProvider } from '../../tooltip/TooltipPathContext';
 
 export const PoseListRHS = memo(({ expandHandler }) => {
   const dispatch = useDispatch();
@@ -366,44 +367,46 @@ export const PoseListRHS = memo(({ expandHandler }) => {
   const viewConfig = useMemo(() => buildObservationViewConfig(RHS_OBSERVATION_VIEW_CONFIG), []);
 
   return (
-    <PoseList
-      nextXMolecules={nextXMolecules}
-      searchString={searchString}
-      filter={filter}
-      getJoinedMoleculeList={getJoinedMoleculeList}
-      allMoleculesList={allMoleculesList}
-      dataAreDownloading={dataAreDownloading}
-      dataAreDownloaded={dataAreDownloaded}
-      errorOccuredDuringDownload={errorOccuredDuringDownload}
-      proteinList={proteinList}
-      complexList={complexList}
-      fragmentDisplayList={fragmentDisplayList}
-      surfaceList={surfaceList}
-      densityList={densityList}
-      qualityList={qualityList}
-      vectorOnList={vectorOnList}
-      informationList={informationList}
-      isTagEditorOpen={isTagEditorOpen}
-      molForTagEditId={molForTagEditId}
-      moleculesToEditIds={moleculesToEditIds}
-      isGlobalEdit={isGlobalEdit}
-      object_selection={object_selection}
-      all_mol_lists={all_mol_lists}
-      directDisplay={directDisplay}
-      directAccessProcessed={directAccessProcessed}
-      tags={tags}
-      noTagsReceived={noTagsReceived}
-      categories={categories}
-      lhsDataIsLoaded={rhsDataIsLoaded}
-      observationsForLHSCmp={observationsForLHSCmp}
-      lhsCompoundsList={rhsCompoundsList || []}
-      proteinsHasLoaded={proteinsHasLoaded}
-      searchSettings={searchSettings}
-      viewConfig={viewConfig}
-      isTagEditorForCurrentSide={isTagEditorForCurrentSide}
-      handlers={handlers}
-      instanceConfig={instanceConfig}
-      expandHandler={expandHandler}
-    />
+    <TooltipPathProvider absolute path="fragalysis.preview.hitnavigator">
+      <PoseList
+        nextXMolecules={nextXMolecules}
+        searchString={searchString}
+        filter={filter}
+        getJoinedMoleculeList={getJoinedMoleculeList}
+        allMoleculesList={allMoleculesList}
+        dataAreDownloading={dataAreDownloading}
+        dataAreDownloaded={dataAreDownloaded}
+        errorOccuredDuringDownload={errorOccuredDuringDownload}
+        proteinList={proteinList}
+        complexList={complexList}
+        fragmentDisplayList={fragmentDisplayList}
+        surfaceList={surfaceList}
+        densityList={densityList}
+        qualityList={qualityList}
+        vectorOnList={vectorOnList}
+        informationList={informationList}
+        isTagEditorOpen={isTagEditorOpen}
+        molForTagEditId={molForTagEditId}
+        moleculesToEditIds={moleculesToEditIds}
+        isGlobalEdit={isGlobalEdit}
+        object_selection={object_selection}
+        all_mol_lists={all_mol_lists}
+        directDisplay={directDisplay}
+        directAccessProcessed={directAccessProcessed}
+        tags={tags}
+        noTagsReceived={noTagsReceived}
+        categories={categories}
+        lhsDataIsLoaded={rhsDataIsLoaded}
+        observationsForLHSCmp={observationsForLHSCmp}
+        lhsCompoundsList={rhsCompoundsList || []}
+        proteinsHasLoaded={proteinsHasLoaded}
+        searchSettings={searchSettings}
+        viewConfig={viewConfig}
+        isTagEditorForCurrentSide={isTagEditorForCurrentSide}
+        handlers={handlers}
+        instanceConfig={instanceConfig}
+        expandHandler={expandHandler}
+      />
+    </TooltipPathProvider>
   );
 });

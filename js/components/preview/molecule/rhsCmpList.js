@@ -1,7 +1,7 @@
 /**
  * Created by abradley on 14/03/2018.
  */
-import { Grid, Tooltip, makeStyles, CircularProgress, IconButton, ButtonGroup } from '@material-ui/core';
+import { Grid, makeStyles, CircularProgress, IconButton, ButtonGroup } from '@material-ui/core';
 import React, { useState, useEffect, memo, useRef, useContext, useCallback, useMemo } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { colourList, getRandomColor } from './utils/color';
@@ -69,6 +69,7 @@ import { CrossReferenceDialog } from '../../datasets/crossReferenceDialog';
 import { getRHSCompoundsList } from './redux/selectors';
 import { setRHSCompoundsList } from '../../../reducers/api/actions';
 import { TooltipPathProvider } from '../../tooltip/TooltipPathContext';
+import RichTooltip from '../../tooltip/RichTooltip';
 import { RHS_OBSERVATION_VIEW_CONFIG } from './observationUnifiedView/viewConfigs';
 
 const useStyles = makeStyles(theme => ({
@@ -931,20 +932,24 @@ const RhsCmpList = ({ expandHandler }) => {
               style={{ width: '100%' }}
             >
               <Grid item container justifyContent="flex-start" direction="row">
-                <Tooltip title="Total count of compounds">
+                <RichTooltip path="summary.totalCount" values={{ count: joinedMoleculeLists?.length || 0 }}>
                   <Grid item className={classes.rank}>
                     {`Total ${joinedMoleculeLists?.length}`}
                   </Grid>
-                </Tooltip>
+                </RichTooltip>
                 {datasetID &&
                   filteredScoreProperties &&
                   filteredScoreProperties[datasetID] &&
                   filteredScoreProperties[datasetID].map(score => (
-                    <Tooltip key={score.id} title={`${score.name} - ${score.description}`}>
+                    <RichTooltip
+                      key={score.id}
+                      path={score.description ? 'summary.score.withDescription' : 'summary.score.withoutDescription'}
+                      values={{ scoreName: score.name, scoreDescription: score.description || '' }}
+                    >
                       <Grid item className={classes.rightBorder}>
                         {score?.name?.substring(0, 4)}
                       </Grid>
-                    </Tooltip>
+                    </RichTooltip>
                   ))}
                 {lockedMolecules && (
                   <Grid item>
@@ -956,7 +961,7 @@ const RhsCmpList = ({ expandHandler }) => {
                       wrap="nowrap"
                       className={classes.contButtonsMargin}
                     >
-                      <Tooltip title="all ligands">
+                      <RichTooltip path="allLigands">
                         <Grid item>
                           <Button
                             variant="outlined"
@@ -977,8 +982,8 @@ const RhsCmpList = ({ expandHandler }) => {
                             L
                           </Button>
                         </Grid>
-                      </Tooltip>
-                      <Tooltip title="all sidechains">
+                      </RichTooltip>
+                      <RichTooltip path="allSidechains">
                         <Grid item>
                           <Button
                             variant="outlined"
@@ -994,8 +999,8 @@ const RhsCmpList = ({ expandHandler }) => {
                             P
                           </Button>
                         </Grid>
-                      </Tooltip>
-                      <Tooltip title="all interactions">
+                      </RichTooltip>
+                      <RichTooltip path="allInteractions">
                         <Grid item>
                           {/* C stands for contacts now */}
                           <Button
@@ -1012,7 +1017,7 @@ const RhsCmpList = ({ expandHandler }) => {
                             C
                           </Button>
                         </Grid>
-                      </Tooltip>
+                      </RichTooltip>
                     </Grid>
                   </Grid>
                 )}
@@ -1055,7 +1060,7 @@ const RhsCmpList = ({ expandHandler }) => {
                   </Grid>
                 </Grid>
                 <Grid item>
-                  <Tooltip title={selectAllPressed ? 'Unselect all' : 'Select all'}>
+                  <RichTooltip path={selectAllPressed ? 'selectAll.unselect' : 'selectAll.select'}>
                     <Grid item style={{ margin: '4px', marginLeft: '5px' }}>
                       <Button
                         variant="outlined"
@@ -1071,7 +1076,7 @@ const RhsCmpList = ({ expandHandler }) => {
                         {selectAllPressed ? 'Unselect all' : 'Select all'}
                       </Button>
                     </Grid>
-                  </Tooltip>
+                  </RichTooltip>
                 </Grid>
               </Grid>
             </Grid>

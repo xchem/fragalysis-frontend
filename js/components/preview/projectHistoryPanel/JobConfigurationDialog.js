@@ -4,7 +4,6 @@ import {
   ClickAwayListener,
   IconButton,
   MenuItem,
-  Tooltip,
   Typography,
   Paper,
   Modal,
@@ -40,6 +39,7 @@ import { VIEWS } from '../../../constants/constants';
 import { getSquonkProject } from '../redux/dispatchActions';
 import { extractRelativePath } from './utils';
 import { base_data_url } from '../../routes/constants';
+import RichTooltip from '../../tooltip/RichTooltip';
 
 const useStyles = makeStyles(theme => ({
   jobLauncherPopup: {
@@ -506,7 +506,9 @@ const JobConfigurationDialog = ({ snapshots }) => {
                       ))}
                   </Field>
                   <ClickAwayListener onClickAway={handleTooltipClose}>
-                    <Tooltip
+                    <RichTooltip
+                      absolutePath
+                      path="fragalysis.preview.projectHistory.jobConfigurationDialog.help"
                       PopperProps={{
                         disablePortal: true
                       }}
@@ -515,12 +517,11 @@ const JobConfigurationDialog = ({ snapshots }) => {
                       disableFocusListener
                       disableHoverListener
                       disableTouchListener
-                      title="Morbi ac enim quis magna lobortis pulvinar non id enim."
                     >
                       <IconButton aria-label="Help" size="medium" color="default" onClick={handleTooltipOpen}>
                         <HelpIcon />
                       </IconButton>
-                    </Tooltip>
+                    </RichTooltip>
                   </ClickAwayListener>
                   <Typography className={classes.typographyH}>Description</Typography>
                   <Typography align="justify" className={classes.marginTop5}>

@@ -19,7 +19,7 @@
       },
       "viewerControls": {
         "lhs": {
-          "open": "'Open left hand side",
+          "open": "Open left hand side",
           "close": "Close left hand side"
         },
         "settings": "Settings controls",
@@ -45,7 +45,32 @@
           }
         }
       },
+      "plotlyView": {
+        "backToList": "Go back to the list of graphs",
+        "showGraph": "Show this graph"
+      },
       "tagDetails": {
+        "mode": {
+          "intersection": "Intersection: Only the compounds labelled with all the active tags will be selected",
+          "union": "Union: Any compound labelled with any of the active tags will be selected"
+        },
+        "view": {
+          "list": "Show Tag detail list with detail info",
+          "grid": "Show Tag detail grid"
+        },
+        "sort": "Sort",
+        "tagCategory": "{{tagCategory}}",
+        "selectHits": {
+          "selectHits": "Select hits",
+          "unselectHits": "Unselect hits"
+        },
+        "discourseLink": "Discourse link",
+        "editModal": {
+          "close": "Close editor",
+          "uploadName": "{{uploadName}}"
+        }
+      },
+      "rhsTagDetails": {
         "mode": {
           "intersection": "Intersection: Only the compounds labelled with all the active tags will be selected",
           "union": "Union: Any compound labelled with any of the active tags will be selected"
@@ -87,7 +112,9 @@
           "interactions": "Interactions",
           "surface": "Surface",
           "electronDensity": "Electron density",
-          "vectors": "Vectors"
+          "vectors": "Vectors",
+          "computedInspirations": "Computed inspirations",
+          "crossReference": "Cross reference"
         },
         "image": {
           "warning": "Warning"
@@ -151,6 +178,39 @@
           "closeEditor": "Close editor",
           "dragAndDrop": "Drag and drop to reorder"
         },
+        "observationInspirationDialog": {
+          "close": "Close computed inspirations",
+          "allLigands": "All ligands",
+          "allSidechains": "All sidechains",
+          "allInteractions": "All interactions",
+          "observation": {
+            "editTag": "Edit tag",
+            "editTags": "Edit tags",
+            "title": "{{obsName}}",
+            "propName": "{{propName}}",
+            "centerOn": "Center on",
+            "all": "All",
+            "ligand": "Ligand",
+            "sidechains": "Sidechains",
+            "interactions": "Interactions",
+            "surface": "Surface",
+            "electronDensity": "Electron density",
+            "vectors": "Vectors",
+            "copySmiles": {
+              "copy": "Copy smiles",
+              "copied": "Copied"
+            },
+            "warning": "Warning",
+            "tagCategory": "{{tagCategory}}",
+            "tagName": "{{tagName}}",
+            "centroidRes": "CentroidRes",
+            "longCode": "LongCode",
+            "experimentalPath": {
+              "path": "{{path}}",
+              "noPath": "empty path"
+            }
+          }
+        },
         "observationsDialog": {
           "close": "Close observations",
           "allLigands": "All ligands",
@@ -177,7 +237,7 @@
               "copy": "Copy smiles",
               "copied": "Copied"
             },
-            "warning": "warning",
+            "warning": "Warning",
             "tagCategory": "{{tagCategory}}",
             "tagName": "{{tagName}}",
             "centroidRes": "CentroidRes",
@@ -189,12 +249,58 @@
           }
         }
       },
-      "rhsCompoundsView": {
-        "crossReferenceDialog": {
-          "close": "Close cross reference dialog",
-          "allLigands": "All ligands",
-          "allSidechains": "All sidechains",
-          "allInteractions": "All interactions"
+      "inspirationDialog": {
+        "close": "Close inspirations",
+        "allLigands": "All ligands",
+        "allSidechains": "All sidechains",
+        "allInteractions": "All interactions",
+        "openReference": "Open reference",
+        "observation": {
+          "editTag": "Edit tag",
+          "editTags": "Edit tags",
+          "title": "{{obsName}}",
+          "propName": "{{propName}}",
+          "centerOn": "Center on",
+          "all": "All",
+          "ligand": "Ligand",
+          "sidechains": "Sidechains",
+          "interactions": "Interactions",
+          "surface": "Surface",
+          "electronDensity": "Electron density",
+          "vectors": "Vectors",
+          "copySmiles": {
+            "copy": "Copy smiles",
+            "copied": "Copied"
+          },
+          "warning": "Warning",
+          "tagCategory": "{{tagCategory}}",
+          "tagName": "{{tagName}}",
+          "centroidRes": "CentroidRes",
+          "longCode": "LongCode",
+          "experimentalPath": {
+            "path": "{{path}}",
+            "noPath": "empty path"
+          }
+        }
+      },
+      "jobTable": {
+        "selection": {
+          "selectAllRows": "Select all rows",
+          "selectRow": "Select row"
+        },
+        "sorting": {
+          "sortBy": "Sort by {{columnName}}"
+        }
+      },
+      "compoundsView": {
+        "compoundCard": {
+          "details": "Compound details",
+          "compoundId": "{{compoundId}}"
+        }
+      },
+      "projectHistory": {
+        "jobConfigurationDialog": {
+          "help": "Show help for this job configuration"
         }
       }
     },

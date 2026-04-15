@@ -1,5 +1,5 @@
 import React, { forwardRef, memo, useCallback, useContext, useMemo, useRef, useState } from 'react';
-import { CircularProgress, Grid, Popper, IconButton, Typography, Tooltip } from '@material-ui/core';
+import { CircularProgress, Grid, Popper, IconButton, Typography } from '@material-ui/core';
 import { Close, Link } from '@material-ui/icons';
 import { makeStyles } from '@material-ui/styles';
 import { useDispatch, useSelector } from 'react-redux';
@@ -29,6 +29,8 @@ import { setSelectedAllByType, setDeselectedAllByType } from '../../reducers/sel
 import SearchField from '../common/Components/SearchField';
 import useDisableNglControlButtons from '../preview/molecule/useDisableNglControlButtons';
 import GroupNglControlButtonsContext from '../preview/molecule/groupNglControlButtonsContext';
+import RichTooltip from '../tooltip/RichTooltip';
+import { TooltipPathProvider } from '../tooltip/TooltipPathContext';
 
 const useStyles = makeStyles(theme => ({
   paper: {
@@ -333,47 +335,48 @@ export const InspirationDialog = memo(
     const groupNglControlButtonsDisabledState = useDisableNglControlButtons(allSelectedMolecules);
 
     return (
-      <Popper id={id} open={open} anchorEl={anchorEl} placement="left-start" ref={ref}>
-        <Panel
-          hasHeader
-          secondaryBackground
-          title="Inspirations"
-          className={classes.paper}
-          headerActions={[
-            <SearchField
-              className={classes.search}
-              id="search-inspiration-dialog"
-              placeholder="Search"
-              size="small"
-              onChange={setSearchString}
-              disabled={!(isLoadingInspirationListOfMolecules === false && moleculeList)}
-            />,
-            <Tooltip title="Close inspirations">
-              <IconButton
-                color="inherit"
-                className={classes.headerButton}
-                onClick={() => {
-                  dispatch(setIsOpenInspirationDialog(false));
-                  dispatch(setInspirationList(datasetID, []));
-                  dispatch(
-                    setInspirationDialogAction(
-                      datasetID,
-                      0,
-                      [],
-                      false,
-                      inspirationLists.hasOwnProperty(datasetID) && inspirationLists[datasetID].length > 0
-                        ? inspirationLists[datasetID][0]
-                        : 0,
-                      inspirationMoleculeDataList
-                    )
-                  );
-                }}
-              >
-                <Close />
-              </IconButton>
-            </Tooltip>
-          ]}
-        >
+      <TooltipPathProvider absolute path="fragalysis.preview.inspirationDialog">
+        <Popper id={id} open={open} anchorEl={anchorEl} placement="left-start" ref={ref}>
+          <Panel
+            hasHeader
+            secondaryBackground
+            title="Inspirations"
+            className={classes.paper}
+            headerActions={[
+              <SearchField
+                className={classes.search}
+                id="search-inspiration-dialog"
+                placeholder="Search"
+                size="small"
+                onChange={setSearchString}
+                disabled={!(isLoadingInspirationListOfMolecules === false && moleculeList)}
+              />,
+              <RichTooltip path="close">
+                <IconButton
+                  color="inherit"
+                  className={classes.headerButton}
+                  onClick={() => {
+                    dispatch(setIsOpenInspirationDialog(false));
+                    dispatch(setInspirationList(datasetID, []));
+                    dispatch(
+                      setInspirationDialogAction(
+                        datasetID,
+                        0,
+                        [],
+                        false,
+                        inspirationLists.hasOwnProperty(datasetID) && inspirationLists[datasetID].length > 0
+                          ? inspirationLists[datasetID][0]
+                          : 0,
+                        inspirationMoleculeDataList
+                      )
+                    );
+                  }}
+                >
+                  <Close />
+                </IconButton>
+              </RichTooltip>
+            ]}
+          >
           {isLoadingInspirationListOfMolecules === false && moleculeList && (
             <>
               <Grid container justifyContent="flex-start" direction="row" className={classes.molHeader} wrap="nowrap">
@@ -393,7 +396,7 @@ export const InspirationDialog = memo(
                         wrap="nowrap"
                         className={classes.contButtonsMargin}
                       >
-                        <Tooltip title="all ligands">
+                        <RichTooltip path="allLigands">
                           <Grid item>
                             <Button
                               variant="outlined"
@@ -407,8 +410,8 @@ export const InspirationDialog = memo(
                               L
                             </Button>
                           </Grid>
-                        </Tooltip>
-                        <Tooltip title="all sidechains">
+                        </RichTooltip>
+                        <RichTooltip path="allSidechains">
                           <Grid item>
                             <Button
                               variant="outlined"
@@ -422,8 +425,8 @@ export const InspirationDialog = memo(
                               P
                             </Button>
                           </Grid>
-                        </Tooltip>
-                        <Tooltip title="all interactions">
+                        </RichTooltip>
+                        <RichTooltip path="allInteractions">
                           <Grid item>
                             {/* C stands for contacts now */}
                             <Button
@@ -438,7 +441,7 @@ export const InspirationDialog = memo(
                               C
                             </Button>
                           </Grid>
-                        </Tooltip>
+                        </RichTooltip>
                       </Grid>
                     </Grid>
                   )}
@@ -456,31 +459,33 @@ export const InspirationDialog = memo(
 
                     return (
                       <GroupNglControlButtonsContext.Provider key={index} value={groupNglControlButtonsDisabledState}>
-                        <MoleculeView
-                          key={index}
-                          index={index}
-                          imageHeight={imgHeight}
-                          imageWidth={imgWidth}
-                          data={data}
-                          searchMoleculeGroup
-                          previousItemData={previousData}
-                          nextItemData={nextData}
-                          removeSelectedTypes={removeSelectedTypes}
-                          L={ligandList.includes(molecule.id)}
-                          P={proteinList.includes(molecule.id)}
-                          C={complexList.includes(molecule.id)}
-                          S={surfaceList.includes(molecule.id)}
-                          D={densityList.some(d => d.id === molecule.id)}
-                          Q={qualityList.includes(molecule.id)}
-                          V={vectorOnList.includes(molecule.id)}
-                          I={informationList.includes(data.id)}
-                          selected={selected}
-                          isTagEditorInvokedByMolecule={molForTagEditId.some(mid => data.id === mid)}
-                          disableL={selected && groupNglControlButtonsDisabledState.ligand}
-                          disableP={selected && groupNglControlButtonsDisabledState.protein}
-                          disableC={selected && groupNglControlButtonsDisabledState.complex}
-                          setRef={setTagEditorAnchorEl}
-                        />
+                        <TooltipPathProvider path="observation">
+                          <MoleculeView
+                            key={index}
+                            index={index}
+                            imageHeight={imgHeight}
+                            imageWidth={imgWidth}
+                            data={data}
+                            searchMoleculeGroup
+                            previousItemData={previousData}
+                            nextItemData={nextData}
+                            removeSelectedTypes={removeSelectedTypes}
+                            L={ligandList.includes(molecule.id)}
+                            P={proteinList.includes(molecule.id)}
+                            C={complexList.includes(molecule.id)}
+                            S={surfaceList.includes(molecule.id)}
+                            D={densityList.some(d => d.id === molecule.id)}
+                            Q={qualityList.includes(molecule.id)}
+                            V={vectorOnList.includes(molecule.id)}
+                            I={informationList.includes(data.id)}
+                            selected={selected}
+                            isTagEditorInvokedByMolecule={molForTagEditId.some(mid => data.id === mid)}
+                            disableL={selected && groupNglControlButtonsDisabledState.ligand}
+                            disableP={selected && groupNglControlButtonsDisabledState.protein}
+                            disableC={selected && groupNglControlButtonsDisabledState.complex}
+                            setRef={setTagEditorAnchorEl}
+                          />
+                        </TooltipPathProvider>
                       </GroupNglControlButtonsContext.Provider>
                     );
                   })}
@@ -503,7 +508,7 @@ export const InspirationDialog = memo(
                           <Typography variant="body2">Design-set rationale URL</Typography>
                         </Grid>
                         <Grid item>
-                          <Tooltip title="Open">
+                          <RichTooltip path="openReference">
                             <IconButton
                               className={classes.panelButton}
                               color={'inherit'}
@@ -511,7 +516,7 @@ export const InspirationDialog = memo(
                             >
                               <Link />
                             </IconButton>
-                          </Tooltip>
+                          </RichTooltip>
                         </Grid>
                       </Grid>
                     )}
@@ -540,8 +545,9 @@ export const InspirationDialog = memo(
               </Grid>
             </Grid>
           )}
-        </Panel>
-      </Popper>
+          </Panel>
+        </Popper>
+      </TooltipPathProvider>
     );
   })
 );

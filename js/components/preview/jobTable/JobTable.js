@@ -11,8 +11,7 @@ import {
   TableCell,
   TableHead,
   TableRow,
-  TableSortLabel,
-  Tooltip
+  TableSortLabel
 } from '@material-ui/core';
 import { Button } from '../../common/Inputs/Button';
 import { DynamicFeed, Refresh, ViewColumn } from '@material-ui/icons';
@@ -33,6 +32,8 @@ import { isSquonkProjectAccessible } from '../projectHistoryPanel/utils';
 import { DJANGO_CONTEXT } from '../../../utils/djangoContext';
 import { URLS, base_url } from '../../routes/constants';
 import { updateClipboard } from '../../snapshot/helpers';
+import RichTooltip from '../../tooltip/RichTooltip';
+import { TooltipPathProvider } from '../../tooltip/TooltipPathContext';
 
 const useStyles = makeStyles(theme => ({
   root: {
@@ -269,18 +270,18 @@ export const JobTable = ({ expanded, onExpanded, onTabChange }) => {
             const { title, ...rest } = getToggleAllRowsSelectedProps();
 
             return (
-              <Tooltip title="Select all rows">
+              <RichTooltip path="selection.selectAllRows">
                 <Checkbox className={classes.checkbox} {...rest} />
-              </Tooltip>
+              </RichTooltip>
             );
           },
           Cell: ({ row }) => {
             const { title, ...rest } = row.getToggleRowSelectedProps();
 
             return (
-              <Tooltip title="Select row">
+              <RichTooltip path="selection.selectRow">
                 <Checkbox className={classes.checkbox} {...rest} />
-              </Tooltip>
+              </RichTooltip>
             );
           }
         },
@@ -293,44 +294,45 @@ export const JobTable = ({ expanded, onExpanded, onTabChange }) => {
   }, [dispatch, selectedFlatRows]);
 
   return (
-    <div className={classes.root}>
-      <Panel
-        hasHeader
-        title="Job Table"
-        headerActions={[
-          <Button
-            color="inherit"
-            variant="text"
-            size="small"
-            onClick={() => dispatch(refreshJobsData())}
-            startIcon={<Refresh />}
-          >
-            Refresh
-          </Button>,
-          <Button
-            color="inherit"
-            variant="text"
-            size="small"
-            onClick={event => setColumnSelectorAnchor(event.currentTarget)}
-            startIcon={<ViewColumn />}
-          >
-            Visible columns
-          </Button>,
-          <Button
-            color="inherit"
-            variant="text"
-            size="small"
-            onClick={() => onTabChange('projectHistory')}
-            startIcon={<DynamicFeed />}
-          >
-            Project History
-          </Button>
-        ]}
-        hasExpansion
-        defaultExpanded={expanded}
-        onExpandChange={expanded => onExpanded(expanded)}
-      >
-        <div className={classes.containerExpanded}>
+    <TooltipPathProvider absolute path="fragalysis.preview.jobTable">
+      <div className={classes.root}>
+        <Panel
+          hasHeader
+          title="Job Table"
+          headerActions={[
+            <Button
+              color="inherit"
+              variant="text"
+              size="small"
+              onClick={() => dispatch(refreshJobsData())}
+              startIcon={<Refresh />}
+            >
+              Refresh
+            </Button>,
+            <Button
+              color="inherit"
+              variant="text"
+              size="small"
+              onClick={event => setColumnSelectorAnchor(event.currentTarget)}
+              startIcon={<ViewColumn />}
+            >
+              Visible columns
+            </Button>,
+            <Button
+              color="inherit"
+              variant="text"
+              size="small"
+              onClick={() => onTabChange('projectHistory')}
+              startIcon={<DynamicFeed />}
+            >
+              Project History
+            </Button>
+          ]}
+          hasExpansion
+          defaultExpanded={expanded}
+          onExpandChange={expanded => onExpanded(expanded)}
+        >
+          <div className={classes.containerExpanded}>
           <Table className={classes.table} {...getTableProps()}>
             <TableHead>
               {headerGroups.map(headerGroup => (
@@ -341,7 +343,11 @@ export const JobTable = ({ expanded, onExpanded, onTabChange }) => {
                       const { title, ...rest } = column.getSortByToggleProps();
 
                       return (
-                        <Tooltip title={`Sort by ${column.displayName}`} {...column.getHeaderProps()}>
+                        <RichTooltip
+                          path="sorting.sortBy"
+                          values={{ columnName: column.displayName }}
+                          {...column.getHeaderProps()}
+                        >
                           <TableCell {...rest}>
                             <div className={classes.flexCell}>
                               {column.render('Header')}
@@ -352,7 +358,7 @@ export const JobTable = ({ expanded, onExpanded, onTabChange }) => {
                               />
                             </div>
                           </TableCell>
-                        </Tooltip>
+                        </RichTooltip>
                       );
                     }
                     return <TableCell {...column.getHeaderProps()}>{column.render('Header')}</TableCell>;
@@ -415,8 +421,9 @@ export const JobTable = ({ expanded, onExpanded, onTabChange }) => {
               ))}
             </FormGroup>
           </Popover>
-        </div>
-      </Panel>
-    </div>
+          </div>
+        </Panel>
+      </div>
+    </TooltipPathProvider>
   );
 };

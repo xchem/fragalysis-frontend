@@ -1,9 +1,11 @@
 import React, { forwardRef, memo, useCallback, useContext, useRef, useState } from 'react';
-import { CircularProgress, Grid, Popper, IconButton, Tooltip, Typography } from '@material-ui/core';
+import { CircularProgress, Grid, Popper, IconButton, Typography } from '@material-ui/core';
 import { Close } from '@material-ui/icons';
 import { makeStyles } from '@material-ui/styles';
 import { useDispatch, useSelector } from 'react-redux';
 import { Panel } from '../../common/Surfaces/Panel';
+import RichTooltip from '../../tooltip/RichTooltip';
+import { TooltipPathProvider } from '../../tooltip/TooltipPathContext';
 import {
   setIsObsInspirationDialogOpen,
   setObsInspirationDialogObsIds,
@@ -238,11 +240,11 @@ export const ObservationInspirationDialog = memo(
           title="Computed Inspirations"
           className={classes.paper}
           headerActions={[
-            <Tooltip key="close" title="Close">
+            <RichTooltip key="close" path="close">
               <IconButton color="inherit" className={classes.headerButton} onClick={handleClose}>
                 <Close />
               </IconButton>
-            </Tooltip>
+            </RichTooltip>
           ]}
         >
           <Grid container justifyContent="flex-start" direction="row" className={classes.molHeader} wrap="nowrap">
@@ -256,7 +258,7 @@ export const ObservationInspirationDialog = memo(
                   wrap="nowrap"
                   className={classes.contButtonsMargin}
                 >
-                  <Tooltip title="all ligands">
+                  <RichTooltip path="allLigands">
                     <Grid item>
                       <Button
                         variant="outlined"
@@ -270,8 +272,8 @@ export const ObservationInspirationDialog = memo(
                         L
                       </Button>
                     </Grid>
-                  </Tooltip>
-                  <Tooltip title="all sidechains">
+                  </RichTooltip>
+                  <RichTooltip path="allSidechains">
                     <Grid item>
                       <Button
                         variant="outlined"
@@ -285,8 +287,8 @@ export const ObservationInspirationDialog = memo(
                         P
                       </Button>
                     </Grid>
-                  </Tooltip>
-                  <Tooltip title="all interactions">
+                  </RichTooltip>
+                  <RichTooltip path="allInteractions">
                     <Grid item>
                       <Button
                         variant="outlined"
@@ -300,7 +302,7 @@ export const ObservationInspirationDialog = memo(
                         C
                       </Button>
                     </Grid>
-                  </Tooltip>
+                  </RichTooltip>
                 </Grid>
               </Grid>
             )}
@@ -317,29 +319,31 @@ export const ObservationInspirationDialog = memo(
 
                 return (
                   <GroupNglControlButtonsContext.Provider key={molecule.id} value={groupNglControlButtonsDisabledState}>
-                    <MoleculeView
-                      index={index}
-                      imageHeight={49}
-                      imageWidth={150}
-                      data={data}
-                      searchMoleculeGroup
-                      previousItemData={previousData}
-                      nextItemData={nextData}
-                      removeSelectedTypes={removeSelectedTypes}
-                      L={ligandList.includes(molecule.id)}
-                      P={proteinList.includes(molecule.id)}
-                      C={complexList.includes(molecule.id)}
-                      S={surfaceList.includes(molecule.id)}
-                      D={densityList.some(d => d.id === molecule.id)}
-                      Q={qualityList.includes(molecule.id)}
-                      V={vectorOnList.includes(molecule.id)}
-                      I={informationList.includes(molecule.id)}
-                      selected={selected}
-                      isTagEditorInvokedByMolecule={molForTagEditId.some(mid => molecule.id === mid)}
-                      disableL={selected && groupNglControlButtonsDisabledState.ligand}
-                      disableP={selected && groupNglControlButtonsDisabledState.protein}
-                      disableC={selected && groupNglControlButtonsDisabledState.complex}
-                    />
+                    <TooltipPathProvider path="observation">
+                      <MoleculeView
+                        index={index}
+                        imageHeight={49}
+                        imageWidth={150}
+                        data={data}
+                        searchMoleculeGroup
+                        previousItemData={previousData}
+                        nextItemData={nextData}
+                        removeSelectedTypes={removeSelectedTypes}
+                        L={ligandList.includes(molecule.id)}
+                        P={proteinList.includes(molecule.id)}
+                        C={complexList.includes(molecule.id)}
+                        S={surfaceList.includes(molecule.id)}
+                        D={densityList.some(d => d.id === molecule.id)}
+                        Q={qualityList.includes(molecule.id)}
+                        V={vectorOnList.includes(molecule.id)}
+                        I={informationList.includes(molecule.id)}
+                        selected={selected}
+                        isTagEditorInvokedByMolecule={molForTagEditId.some(mid => molecule.id === mid)}
+                        disableL={selected && groupNglControlButtonsDisabledState.ligand}
+                        disableP={selected && groupNglControlButtonsDisabledState.protein}
+                        disableC={selected && groupNglControlButtonsDisabledState.complex}
+                      />
+                    </TooltipPathProvider>
                   </GroupNglControlButtonsContext.Provider>
                 );
               })}

@@ -33,6 +33,7 @@ import { getCanLoadMoreCompounds, getCompoundListOffset } from './redux/selector
 import { NglContext } from '../../nglView/nglProvider';
 import { VIEWS } from '../../../constants/constants';
 import classNames from 'classnames';
+import { TooltipPathProvider } from '../../tooltip/TooltipPathContext';
 
 const useStyles = makeStyles(theme => ({
   textField: {
@@ -141,97 +142,99 @@ export const CompoundList = memo(() => {
   }
 
   return (
-    <Panel hasHeader title={headerMessage} ref={panelRef}>
-      {currentCompounds && (
-        <Box width="100%">
-          <Grid container direction="row" justifyContent="space-between" alignItems="center">
-            {Object.keys(compoundsColors).map(item => (
-              <Grid item key={item}>
-                <TextField
-                  InputProps={{
-                    readOnly: editedColorGroup !== item,
-                    endAdornment: (
-                      <InputAdornment position="end">
-                        <IconButton
-                          className={
-                            editedColorGroup !== item ? classes.editClassNameIcon : classes.editClassNameIconSelected
-                          }
-                          color={'inherit'}
-                          value={`${item}`}
-                          onClick={e => {
-                            dispatch(onStartEditColorClassName(e));
-                            inputRefs[item].current.focus();
-                            inputRefs[item].current.select();
-                          }}
-                        >
-                          <Edit />
-                        </IconButton>
-                      </InputAdornment>
-                    ),
-                    startAdornment: (
-                      <InputAdornment position="start">
-                        <Checkbox
-                          className={classes.classCheckbox}
-                          key={`CHCK_${item}`}
-                          value={`${item}`}
-                          onChange={e => dispatch(onChangeCompoundClassCheckbox(e))}
-                          checked={currentCompoundClass === item}
-                        ></Checkbox>
-                      </InputAdornment>
-                    )
-                  }}
-                  autoComplete="off"
-                  inputRef={inputRefs[item]}
-                  id={`${item}`}
-                  key={`CLASS_${item}`}
-                  variant="standard"
-                  className={classNames(
-                    classes.textField,
-                    classes[item],
-                    currentCompoundClass === item && classes.selectedInput
-                  )}
-                  onChange={e => dispatch(onChangeCompoundClassValue(e))}
-                  onKeyDown={e => dispatch(onKeyDownCompoundClass(e))}
-                  onClick={e => dispatch(onClickCompoundClass(e))}
-                  value={inputs[item] || ''}
-                />
-              </Grid>
-            ))}
-          </Grid>
-          <Grid container justifyContent="space-between" className={classes.infinityContainer}>
-            <Box width="inherit" overflow="auto">
-              <InfiniteScroll
-                pageStart={0}
-                loadMore={() => dispatch(loadNextPageOfCompounds())}
-                hasMore={canLoadMoreCompounds}
-                loader={
-                  <div className="loader" key={`loader_${0}`}>
-                    <div className={classes.paddingProgress}>
-                      <CircularProgress />
+    <TooltipPathProvider absolute path="fragalysis.preview.compoundsView">
+      <Panel hasHeader title={headerMessage} ref={panelRef}>
+        {currentCompounds && (
+          <Box width="100%">
+            <Grid container direction="row" justifyContent="space-between" alignItems="center">
+              {Object.keys(compoundsColors).map(item => (
+                <Grid item key={item}>
+                  <TextField
+                    InputProps={{
+                      readOnly: editedColorGroup !== item,
+                      endAdornment: (
+                        <InputAdornment position="end">
+                          <IconButton
+                            className={
+                              editedColorGroup !== item ? classes.editClassNameIcon : classes.editClassNameIconSelected
+                            }
+                            color={'inherit'}
+                            value={`${item}`}
+                            onClick={e => {
+                              dispatch(onStartEditColorClassName(e));
+                              inputRefs[item].current.focus();
+                              inputRefs[item].current.select();
+                            }}
+                          >
+                            <Edit />
+                          </IconButton>
+                        </InputAdornment>
+                      ),
+                      startAdornment: (
+                        <InputAdornment position="start">
+                          <Checkbox
+                            className={classes.classCheckbox}
+                            key={`CHCK_${item}`}
+                            value={`${item}`}
+                            onChange={e => dispatch(onChangeCompoundClassCheckbox(e))}
+                            checked={currentCompoundClass === item}
+                          ></Checkbox>
+                        </InputAdornment>
+                      )
+                    }}
+                    autoComplete="off"
+                    inputRef={inputRefs[item]}
+                    id={`${item}`}
+                    key={`CLASS_${item}`}
+                    variant="standard"
+                    className={classNames(
+                      classes.textField,
+                      classes[item],
+                      currentCompoundClass === item && classes.selectedInput
+                    )}
+                    onChange={e => dispatch(onChangeCompoundClassValue(e))}
+                    onKeyDown={e => dispatch(onKeyDownCompoundClass(e))}
+                    onClick={e => dispatch(onClickCompoundClass(e))}
+                    value={inputs[item] || ''}
+                  />
+                </Grid>
+              ))}
+            </Grid>
+            <Grid container justifyContent="space-between" className={classes.infinityContainer}>
+              <Box width="inherit" overflow="auto">
+                <InfiniteScroll
+                  pageStart={0}
+                  loadMore={() => dispatch(loadNextPageOfCompounds())}
+                  hasMore={canLoadMoreCompounds}
+                  loader={
+                    <div className="loader" key={`loader_${0}`}>
+                      <div className={classes.paddingProgress}>
+                        <CircularProgress />
+                      </div>
                     </div>
-                  </div>
-                }
-                useWindow={false}
-                className={classes.compoundList}
-              >
-                {currentCompounds.slice(0, compoundsListOffset).map((data, index) => {
-                  return <CompoundView key={index} height={100} width={100} data={data} index={index} />;
-                })}
-              </InfiniteScroll>
-            </Box>
-          </Grid>
-          <Button color="primary" onClick={() => dispatch(selectAllCompounds())} startIcon={<SelectAll />}>
-            Select All
-          </Button>
-          <Button
-            color="primary"
-            onClick={() => dispatch(clearAllSelectedCompounds(majorViewStage))}
-            startIcon={<Delete />}
-          >
-            Clear Selection
-          </Button>
-        </Box>
-      )}
-    </Panel>
+                  }
+                  useWindow={false}
+                  className={classes.compoundList}
+                >
+                  {currentCompounds.slice(0, compoundsListOffset).map((data, index) => {
+                    return <CompoundView key={index} height={100} width={100} data={data} index={index} />;
+                  })}
+                </InfiniteScroll>
+              </Box>
+            </Grid>
+            <Button color="primary" onClick={() => dispatch(selectAllCompounds())} startIcon={<SelectAll />}>
+              Select All
+            </Button>
+            <Button
+              color="primary"
+              onClick={() => dispatch(clearAllSelectedCompounds(majorViewStage))}
+              startIcon={<Delete />}
+            >
+              Clear Selection
+            </Button>
+          </Box>
+        )}
+      </Panel>
+    </TooltipPathProvider>
   );
 });

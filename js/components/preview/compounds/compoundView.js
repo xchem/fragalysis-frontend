@@ -2,7 +2,7 @@
  * Created by abradley on 15/03/2018.
  */
 import React, { memo, useEffect, useContext, useState } from 'react';
-import { Tooltip, makeStyles } from '@material-ui/core';
+import { makeStyles } from '@material-ui/core';
 import { useDispatch, useSelector } from 'react-redux';
 import SVGInline from 'react-svg-inline';
 import { VIEWS } from '../../../constants/constants';
@@ -10,6 +10,7 @@ import { NglContext } from '../../nglView/nglProvider';
 import { compoundsColors } from './redux/constants';
 import { handleClickOnCompound, loadCompoundImageData } from './redux/dispatchActions';
 import { CompoundDataView } from './compoundDataView';
+import RichTooltip from '../../tooltip/RichTooltip';
 
 export const loadingCompoundImage = `<svg xmlns="http://www.w3.org/2000/svg" version="1.1" width="100px" height="100px"><g>
   <circle cx="50" cy="50" fill="none" stroke="#3f51b5" stroke-width="4" r="26" stroke-dasharray="150.79644737231007 52.26548245743669" transform="rotate(238.988 50 50)">
@@ -95,13 +96,14 @@ export const CompoundView = memo(({ height, width, data, index }) => {
         }}
         style={current_style}
       >
-        <Tooltip
+        <RichTooltip
+          path="compoundCard.details"
           PopperProps={{ disablePortal: true }}
           placement="top"
           title={<CompoundDataView currentCompoundIds={currentCompoundIds} isTooltip={true} index={index} />}
         >
           <SVGInline svg={image} />
-        </Tooltip>
+        </RichTooltip>
         <CompoundDataView currentCompoundIds={currentCompoundIds} isTooltip={false} index={index} />
       </div>
     </div>

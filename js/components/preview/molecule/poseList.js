@@ -1126,11 +1126,13 @@ export const PoseList = memo(
           </TooltipPathProvider>
         )}
         {isObsInspirationDialogOpen && instanceSide === 'rhs' && (
-          <ObservationInspirationDialog
-            open={isObsInspirationDialogOpen}
-            anchorEl={tagEditorAnchorEl}
-            ref={inspirationDialogRef}
-          />
+          <TooltipPathProvider path="observationInspirationDialog">
+            <ObservationInspirationDialog
+              open={isObsInspirationDialogOpen}
+              anchorEl={tagEditorAnchorEl}
+              ref={inspirationDialogRef}
+            />
+          </TooltipPathProvider>
         )}
         {isTagEditorOpen && isTagEditorForCurrentSide && !!tagEditorAnchorEl && (
           <TagEditor
