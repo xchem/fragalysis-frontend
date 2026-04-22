@@ -81,6 +81,7 @@ const ObservationUnifiedView = memo(
         disableP,
         disableC,
         observations,
+        ligandRepresentations = undefined,
         columns,
         getColumnWidth,
         viewConfig = LHS_OBSERVATION_VIEW_CONFIG
@@ -294,7 +295,7 @@ const ObservationUnifiedView = memo(
       const removeSelectedQuality = () => {
         const selectedObs = getAllObservationsSelectedInList(qualityList);
         for (const obs of selectedObs) {
-          dispatch(removeQuality(stage, obs, colourToggle));
+          dispatch(removeQuality(stage, obs, colourToggle, false, ligandRepresentations));
         }
       };
 
@@ -304,7 +305,7 @@ const ObservationUnifiedView = memo(
             const firstObs = getMainObservation();
             if (firstObs) {
               const color = getRandomColor(firstObs);
-              await dispatch(addQuality(stage, firstObs, color));
+              await dispatch(addQuality(stage, firstObs, color, false, ligandRepresentations));
             }
           })
         );
@@ -348,6 +349,7 @@ const ObservationUnifiedView = memo(
                   disableP={disableP}
                   disableC={disableC}
                   observations={observations}
+                  ligandRepresentations={ligandRepresentations}
                   viewConfig={viewConfig}
                 />
               </TooltipPathProvider>

@@ -95,7 +95,7 @@ const useStyles = makeStyles(theme => ({
 }));
 
 export const ObservationInspirationDialog = memo(
-  forwardRef(({ open = false, anchorEl }, ref) => {
+  forwardRef(({ open = false, anchorEl, ligandRepresentations = undefined }, ref) => {
     const id = open ? 'obs-inspiration-dialog' : undefined;
     const classes = useStyles();
     const dispatch = useDispatch();
@@ -179,7 +179,17 @@ export const ObservationInspirationDialog = memo(
           async () => {
             const promises = allSelectedMolecules.map(mol =>
               type === 'ligand'
-                ? dispatch(addType[type](stage, mol, colourList[mol.id % colourList.length], false, true, skipTracking))
+                ? dispatch(
+                    addType[type](
+                      stage,
+                      mol,
+                      colourList[mol.id % colourList.length],
+                      false,
+                      true,
+                      skipTracking,
+                      ligandRepresentations
+                    )
+                  )
                 : dispatch(addType[type](stage, mol, colourList[mol.id % colourList.length], skipTracking))
             );
             await Promise.all(promises);

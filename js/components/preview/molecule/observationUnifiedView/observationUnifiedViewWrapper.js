@@ -57,6 +57,7 @@ const ObservationUnifiedViewWrapper = memo(
     (
       {
         viewConfig = LHS_OBSERVATION_VIEW_CONFIG,
+        ligandRepresentations = undefined,
         fragmentDisplayList,
         proteinList,
         complexList,
@@ -152,6 +153,7 @@ const ObservationUnifiedViewWrapper = memo(
                   disableP={false}
                   disableC={false}
                   observations={molsForCmp}
+                  ligandRepresentations={ligandRepresentations}
                   columns={columns}
                   getColumnWidth={getColumnWidth}
                   viewConfig={viewConfig}

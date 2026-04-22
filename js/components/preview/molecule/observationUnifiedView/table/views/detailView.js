@@ -404,7 +404,16 @@ const useStyles = makeStyles(theme => ({
 }));
 
 export const DetailView = memo(
-  ({ data, handleRef, disableL, disableP, disableC, observations, viewConfig = LHS_OBSERVATION_VIEW_CONFIG }) => {
+  ({
+    data,
+    handleRef,
+    disableL,
+    disableP,
+    disableC,
+    observations,
+    ligandRepresentations = undefined,
+    viewConfig = LHS_OBSERVATION_VIEW_CONFIG
+  }) => {
     const [densityPopoverAnchor, setDensityPopoverAnchor] = useState(null);
     const [densityPopoverOpen, setDensityPopoverOpen] = useState(false);
 
@@ -909,7 +918,7 @@ export const DetailView = memo(
           const firstObs = getMainObservation();
           if (firstObs) {
             const color = getRandomColor(firstObs);
-            await dispatch(addLigand(stage, firstObs, color, false, true, skipTracking));
+            await dispatch(addLigand(stage, firstObs, color, false, true, skipTracking, ligandRepresentations));
           }
         })
       );

@@ -253,6 +253,7 @@ export const PoseList = memo(
     proteinsHasLoaded,
     searchSettings,
     viewConfig,
+    ligandRepresentations = undefined,
     isTagEditorForCurrentSide = false,
     handlers = {},
     instanceConfig = {},
@@ -909,7 +910,7 @@ export const PoseList = memo(
     };
 
     const addNewType = (type, skipTracking = false) => {
-      handlers.addNewType(type, allSelectedMolecules, majorViewStage, skipTracking);
+      handlers.addNewType(type, allSelectedMolecules, majorViewStage, skipTracking, ligandRepresentations);
     };
 
     const onButtonToggle = (type, calledFromSelectAll = false) => {
@@ -1121,6 +1122,7 @@ export const PoseList = memo(
               open={isObservationDialogOpen}
               anchorEl={tagEditorAnchorEl}
               tagEditorProps={tagEditorProps}
+              ligandRepresentations={ligandRepresentations}
               ref={tagEditorRef}
             />
           </TooltipPathProvider>
@@ -1130,6 +1132,7 @@ export const PoseList = memo(
             <ObservationInspirationDialog
               open={isObsInspirationDialogOpen}
               anchorEl={tagEditorAnchorEl}
+              ligandRepresentations={ligandRepresentations}
               ref={inspirationDialogRef}
             />
           </TooltipPathProvider>
@@ -1357,6 +1360,7 @@ export const PoseList = memo(
                 >
                   <ObservationUnifiedViewWrapper
                     viewConfig={viewConfig}
+                    ligandRepresentations={ligandRepresentations}
                     items={itemsToBeDisplayed}
                     allSelectedMolecules={allSelectedMolecules}
                     addMoleculeViewRef={addMoleculeViewRef}

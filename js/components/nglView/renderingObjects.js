@@ -8,6 +8,7 @@ import {
 import { concatStructures, Selection, Shape, Matrix4 } from 'ngl';
 import { loadQualityFromFile } from './renderingHelpers';
 import { getPdb } from './renderingFile';
+import { ensureSurfaceWorkerDisabled } from './surfaceRepresentationUtils';
 import { setNglViewParams } from '../../reducers/ngl/actions';
 import { NGL_PARAMS, QUALITY_TYPES } from './constants/index';
 import { VIEWS } from '../../constants/constants';
@@ -218,19 +219,22 @@ const showComplex = ({ stage, input_dict, object_name, representations, orientat
 
 const showSurface = ({ stage, input_dict, object_name, representations, orientationMatrix }) => {
   return stage.loadFile(input_dict.prot_url, { name: object_name, ext: 'pdb', defaultAssembly: 'BU1' }).then(comp => {
-    const reprArray =
+    // Keep molecular surfaces off the NGL worker path; the generated worker blob can fail in our bundle.
+    const reprArray = ensureSurfaceWorkerDisabled(
       representations ||
-      createRepresentationsArray([
-        createRepresentationStructure(MOL_REPRESENTATION.surface, {
-          sele: 'polymer',
-          colorScheme: 'electrostatic',
-          // colorDomain: [-0.3, 0.3],
-          surfaceType: 'av',
-          radiusType: 'vdw',
-          opacity: 0.74,
-          colorValue: input_dict.colour
-        })
-      ]);
+        createRepresentationsArray([
+          createRepresentationStructure(MOL_REPRESENTATION.surface, {
+            sele: 'polymer',
+            colorScheme: 'electrostatic',
+            // colorDomain: [-0.3, 0.3],
+            surfaceType: 'av',
+            radiusType: 'vdw',
+            opacity: 0.74,
+            colorValue: input_dict.colour,
+            useWorker: false
+          })
+        ])
+    );
 
     return Promise.resolve(assignRepresentationArrayToComp(reprArray, comp));
   });

@@ -446,11 +446,11 @@ export const addQuality = (stage, data, colourToggle, skipTracking = false, repr
   return dispatch(addLigand(stage, data, colourToggle, false, true, true, representations));
 };
 
-export const removeQuality = (stage, data, colourToggle, skipTracking = false) => dispatch => {
+export const removeQuality = (stage, data, colourToggle, skipTracking = false, representations = undefined) => dispatch => {
   dispatch(removeFromFragmentDisplayList(generateMoleculeId(data)));
   dispatch(removeFromQualityList(generateMoleculeId(data)));
   dispatch(updateInToBeDisplayedList({ id: data.id, display: false, type: NGL_OBJECTS.LIGAND }));
-  dispatch(addLigand(stage, data, colourToggle, false, false, true));
+  dispatch(addLigand(stage, data, colourToggle, false, false, true, representations));
   dispatch(removeFromQualityList(generateMoleculeId(data), skipTracking));
 };
 

@@ -125,7 +125,13 @@ export const PoseListLHS = memo(({}) => {
       removeDensity: (...args) => dispatch(removeDensity(...args)),
       removeVector: (...args) => dispatch(removeVector(...args)),
       removeSelectedTypesInHitNavigator: (...args) => dispatch(removeSelectedTypesInHitNavigator(...args)),
-      addNewType: (type, selectedMolecules, majorViewStage, skipTracking = false) => {
+      addNewType: (
+        type,
+        selectedMolecules,
+        majorViewStage,
+        skipTracking = false,
+        ligandRepresentations = undefined
+      ) => {
         const addType = {
           ligand: addLigand,
           protein: addHitProtein,
@@ -158,7 +164,8 @@ export const PoseListLHS = memo(({}) => {
                         colourList[molecule.id % colourList.length],
                         false,
                         true,
-                        skipTracking
+                        skipTracking,
+                        ligandRepresentations
                       )
                     )
                   );

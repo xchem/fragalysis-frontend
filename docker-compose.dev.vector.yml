@@ -100,6 +100,7 @@ services:
       OIDC_RP_CLIENT_SECRET: ${OIDC_RP_CLIENT_SECRET}
       OIDC_RP_CLIENT_ID: "fragalysis-local"
       OIDC_RENEW_ID_TOKEN_EXPIRY_MINUTES: 210
+      OIDC_CLAIM_USERNAME_FIELD: "preferred_username"
       # ISPYB_HOST: ispybdbproxy.diamond.ac.uk
       ISPYB_PORT: 4306
       ISPYB_USER: ${ISPYB_USER}
@@ -175,6 +176,7 @@ services:
       OIDC_AS_CLIENT_ID: ${OIDC_AS_CLIENT_ID:-account-server-api}
       OIDC_DM_CLIENT_ID: ${OIDC_DM_CLIENT_ID:-data-manager-api}
       OIDC_RENEW_ID_TOKEN_EXPIRY_MINUTES: "210"
+      OIDC_CLAIM_USERNAME_FIELD: "preferred_username"
       # Public target access strings?
       # A comma-separated list of Project titles.
       PUBLIC_TAS: ${PUBLIC_TAS:-lb18145-1}

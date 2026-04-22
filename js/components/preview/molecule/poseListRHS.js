@@ -54,6 +54,18 @@ import { setRHSCompoundsList, updateRHSCompound } from '../../../reducers/api/ac
 import { PoseList } from './poseList';
 import { RHS_OBSERVATION_VIEW_CONFIG, buildObservationViewConfig } from './observationUnifiedView/viewConfigs';
 import { TooltipPathProvider } from '../../tooltip/TooltipPathContext';
+import { MOL_REPRESENTATION } from '../../nglView/constants';
+
+const RHS_LIGAND_REPRESENTATIONS = [
+  {
+    type: MOL_REPRESENTATION.licorice,
+    params: {
+      colorScheme: 'element',
+      multipleBond: true,
+      radiusSize: 0.11
+    }
+  }
+];
 
 export const PoseListRHS = memo(({ expandHandler }) => {
   const dispatch = useDispatch();
@@ -280,7 +292,13 @@ export const PoseListRHS = memo(({ expandHandler }) => {
       removeDensity: (...args) => dispatch(removeDensity(...args)),
       removeVector: (...args) => dispatch(removeVector(...args)),
       removeSelectedTypesInHitNavigator: (...args) => dispatch(removeSelectedTypesInHitNavigator(...args)),
-      addNewType: (type, selectedMolecules, majorViewStage, skipTracking = false) => {
+      addNewType: (
+        type,
+        selectedMolecules,
+        majorViewStage,
+        skipTracking = false,
+        ligandRepresentations = undefined
+      ) => {
         const addType = {
           ligand: addLigand,
           protein: addHitProtein,
@@ -313,7 +331,8 @@ export const PoseListRHS = memo(({ expandHandler }) => {
                         colourList[molecule.id % colourList.length],
                         false,
                         true,
-                        skipTracking
+                        skipTracking,
+                        ligandRepresentations
                       )
                     )
                   );
@@ -402,6 +421,7 @@ export const PoseListRHS = memo(({ expandHandler }) => {
         proteinsHasLoaded={proteinsHasLoaded}
         searchSettings={searchSettings}
         viewConfig={viewConfig}
+        ligandRepresentations={RHS_LIGAND_REPRESENTATIONS}
         isTagEditorForCurrentSide={isTagEditorForCurrentSide}
         handlers={handlers}
         instanceConfig={instanceConfig}

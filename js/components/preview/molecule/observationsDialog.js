@@ -228,7 +228,7 @@ const useStyles = makeStyles(theme => ({
 }));
 
 export const ObservationsDialog = memo(
-  forwardRef(({ open = false, anchorEl, tagEditorProps = {} }, ref) => {
+  forwardRef(({ open = false, anchorEl, tagEditorProps = {}, ligandRepresentations = undefined }, ref) => {
     const dispatch = useDispatch();
 
     const id = open ? 'simple-popover-compound-inspirations' : undefined;
@@ -407,7 +407,8 @@ export const ObservationsDialog = memo(
                       colourList[molecule.id % colourList.length],
                       false,
                       true,
-                      skipTracking
+                      skipTracking,
+                      ligandRepresentations
                     )
                   )
                 );
