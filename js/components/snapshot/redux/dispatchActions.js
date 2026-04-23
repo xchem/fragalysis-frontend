@@ -6,6 +6,7 @@ import {
 } from '../../../reducers/api/actions';
 import {
   reloadSelectionReducer,
+  setLHSIsFullyRendered,
   setToBeDisplayedList,
   updateInToBeDisplayedList
 } from '../../../reducers/selection/actions';
@@ -547,8 +548,15 @@ export const changeSnapshot = (projectID, snapshotID, stage, fromJobExec = false
   dispatch,
   getState
 ) => {
+  const isSwitchingSnapshotWithinProject = !fromJobExec && !loadingSnapshot;
+  if (isSwitchingSnapshotWithinProject) {
+    dispatch(setSwitchingSnapshotWithinProject(true));
+  }
   dispatch(setSnapshotLoadingInProgress(true));
   dispatch(setIsSnapshot(true));
+  if (loadingSnapshot || fromJobExec) {
+    dispatch(setLHSIsFullyRendered(false));
+  }
   // A hacky way of changing the URL without triggering react-router
   if (!fromJobExec) {
     window.history.replaceState(null, null, `${URLS.projects}${projectID}/${snapshotID}`);

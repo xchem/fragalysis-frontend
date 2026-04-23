@@ -44,7 +44,12 @@ import {
 import { PickProjectModal } from './PickProjectModal';
 import { withLoadingProjects } from '../target/withLoadingProjects';
 import { setOpenSnapshotSavingDialog } from '../snapshot/redux/actions';
-import { setTagEditorOpen, setMoleculeForTagEdit, setToastMessages } from '../../reducers/selection/actions';
+import {
+  setTagEditorOpen,
+  setMoleculeForTagEdit,
+  setToastMessages,
+  setLHSIsFullyRendered
+} from '../../reducers/selection/actions';
 import { LoadingContext } from '../loading';
 import { ToastContext } from '../toast';
 import { TOAST_LEVELS } from '../toast/constants';
@@ -144,6 +149,7 @@ const Preview = memo(({ isStateLoaded, hideProjects, isSnapshot = false }) => {
 
   useEffect(() => {
     if (target_on /*&& !isSnapshot*/ && !lhsDataIsLoaded) {
+      dispatch(setLHSIsFullyRendered(false));
       dispatch(loadMoleculesAndTagsNew(target_on)).then(() => {
         dispatch(setLHSDataIsLoading(false));
         dispatch(setLHSDataIsLoaded(true));

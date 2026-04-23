@@ -82,6 +82,8 @@ const ObservationUnifiedView = memo(
         disableC,
         observations,
         ligandRepresentations = undefined,
+        onVisualReady = undefined,
+        waitForVisualCompletion = false,
         columns,
         getColumnWidth,
         viewConfig = LHS_OBSERVATION_VIEW_CONFIG
@@ -97,6 +99,7 @@ const ObservationUnifiedView = memo(
       const dispatch = useDispatch();
 
       const { RDKitModule } = useRDKit();
+      const hasReportedVisualReadyRef = useRef(false);
 
       const [img_data, setImg_data] = useState(img_data_init);
 
@@ -111,6 +114,19 @@ const ObservationUnifiedView = memo(
       const stage = getNglView(VIEWS.MAJOR_VIEW) && getNglView(VIEWS.MAJOR_VIEW).stage;
 
       const poseIdForObservationsDialog = useSelector(state => state.selectionReducers.poseIdForObservationsDialog);
+
+      useEffect(() => {
+        hasReportedVisualReadyRef.current = false;
+      }, [currentID]);
+
+      const reportVisualReady = useCallback(() => {
+        if (hasReportedVisualReadyRef.current || !onVisualReady || currentID === undefined) {
+          return;
+        }
+
+        hasReportedVisualReadyRef.current = true;
+        onVisualReady(currentID);
+      }, [currentID, onVisualReady]);
 
       useEffect(() => {
         if (isObservationDialogOpen && poseIdForObservationsDialog === currentID) {
@@ -256,16 +272,49 @@ const ObservationUnifiedView = memo(
       // componentDidMount
       useEffect(() => {
         const obs = getMainObservation();
-        if (RDKitModule && obs) {
+        let isEffectActive = true;
+        let fallbackTimeoutId = null;
+
+        if (!waitForVisualCompletion || !obs) {
+          reportVisualReady();
+          return undefined;
+        }
+
+        fallbackTimeoutId = window.setTimeout(() => {
+          if (isEffectActive) {
+            reportVisualReady();
+          }
+        }, 2000);
+
+        if (RDKitModule) {
           // dispatch(getMolImage(obs.id, MOL_TYPE.HIT, imageWidth, imageHeight)).then(i => {
           //   setImg_data(i);
           // });
           dispatch(
             generateAndStoreMolImage(obs, MOL_TYPE.HIT, imageWidth, imageHeight, RDKitModule, filteredSmilesQuery)
-          ).then(i => {
-            i && setImg_data(i.toString());
-          });
+          )
+            .then(i => {
+              if (!isEffectActive) {
+                return;
+              }
+
+              if (i) {
+                setImg_data(i.toString());
+              }
+            })
+            .finally(() => {
+              if (isEffectActive) {
+                reportVisualReady();
+              }
+            });
         }
+
+        return () => {
+          isEffectActive = false;
+          if (fallbackTimeoutId !== null) {
+            window.clearTimeout(fallbackTimeoutId);
+          }
+        };
       }, [
         data.id,
         data.smiles,
@@ -274,7 +323,9 @@ const ObservationUnifiedView = memo(
         dispatch,
         getMainObservation,
         RDKitModule,
-        filteredSmilesQuery
+        filteredSmilesQuery,
+        reportVisualReady,
+        waitForVisualCompletion
       ]);
 
       useEffect(() => {

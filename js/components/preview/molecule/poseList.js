@@ -270,6 +270,7 @@ export const PoseList = memo(
     const [currentPage, setCurrentPage] = useState(0);
     const [itemsToBeDisplayed, setItemsToBeDisplayed] = useState([]);
     const [sortSettingsChanged, setSortSettingsChanged] = useState(false);
+    const [visuallyReadyPoseIds, setVisuallyReadyPoseIds] = useState(() => new Set());
 
     const selectedAll = useRef(false);
     const allMolListsLength = all_mol_lists?.length || 0;
@@ -354,17 +355,6 @@ export const PoseList = memo(
     };
 
     useEffect(() => {
-      if (!dataAreDownloading && dataAreDownloaded /*all_mol_lists?.length > 0*/) {
-        requestAnimationFrame(() => {
-          // Add another frame just to be sure rendering is done
-          requestAnimationFrame(() => {
-            handlers.setFullyRendered(true);
-          });
-        });
-      }
-    }, [dataAreDownloading, all_mol_lists, handlers, dataAreDownloaded]);
-
-    useEffect(() => {
       if (dataAreDownloaded && !errorOccuredDuringDownload && allMolListsLength <= 0) {
         handlers.addToastMessage({
           text: `Target data downloaded but no molecules found. This is usually caused by network issues so please try again later. If the issue persists, please contact us.`,
@@ -424,6 +414,35 @@ export const PoseList = memo(
         setTagEditorAnchorEl(null);
       }
     }, [isTagEditorOpen, isTagEditorForCurrentSide]);
+
+    useEffect(() => {
+      if (dataAreDownloading || !dataAreDownloaded) {
+        setVisuallyReadyPoseIds(new Set());
+      }
+    }, [dataAreDownloaded, dataAreDownloading]);
+
+    const handlePoseVisuallyReady = useCallback(poseId => {
+      if (poseId === null || poseId === undefined) {
+        return;
+      }
+
+      setVisuallyReadyPoseIds(currentReadyPoseIds => {
+        if (currentReadyPoseIds.has(poseId)) {
+          return currentReadyPoseIds;
+        }
+
+        const nextReadyPoseIds = new Set(currentReadyPoseIds);
+        nextReadyPoseIds.add(poseId);
+        return nextReadyPoseIds;
+      });
+    }, []);
+
+    const readyVisiblePoseCount = useMemo(() => {
+      return itemsToBeDisplayed.reduce(
+        (count, pose) => count + (visuallyReadyPoseIds.has(pose.id) ? 1 : 0),
+        0
+      );
+    }, [itemsToBeDisplayed, visuallyReadyPoseIds]);
 
     useEffect(() => {
       if (hitNavigatorRef && hitNavigatorRef.current) {
@@ -804,7 +823,7 @@ export const PoseList = memo(
       return compounds;
     }, [joinedMoleculeLists, lhsCompoundsList, sortOptions, sortOption, ascending]);
 
-    const { addMoleculeViewRef } = useScrollToSelectedPose({
+    const { addMoleculeViewRef, registeredMoleculeViewCount } = useScrollToSelectedPose({
       poses: filteredLHSCompoundsList,
       moleculesPerPage,
       setCurrentPage,
@@ -821,6 +840,60 @@ export const PoseList = memo(
       densityList,
       vectorIds: vectorOnList
     });
+
+    useEffect(() => {
+      if (dataAreDownloading || !dataAreDownloaded || !areLSHCompoundsInitialized) {
+        return;
+      }
+
+      const expectedRenderedItemsCount =
+        currentPage > 0 ? Math.min(filteredLHSCompoundsList.length, currentPage * moleculesPerPage) : 0;
+      const hasRenderedVisibleSlice =
+        expectedRenderedItemsCount > 0 &&
+        registeredMoleculeViewCount >= expectedRenderedItemsCount &&
+        readyVisiblePoseCount >= expectedRenderedItemsCount;
+      const hasNoVisibleContent =
+        expectedRenderedItemsCount === 0 &&
+        registeredMoleculeViewCount === 0 &&
+        filteredLHSCompoundsList.length === 0 &&
+        lhsCompoundsList.length === 0 &&
+        joinedMoleculeLists.length === 0 &&
+        allMolListsLength === 0;
+
+      if (!hasRenderedVisibleSlice && !hasNoVisibleContent) {
+        return;
+      }
+
+      let outerAnimationFrameId = null;
+      let innerAnimationFrameId = null;
+
+      outerAnimationFrameId = requestAnimationFrame(() => {
+        innerAnimationFrameId = requestAnimationFrame(() => {
+          handlers.setFullyRendered(true);
+        });
+      });
+
+      return () => {
+        if (outerAnimationFrameId !== null) {
+          cancelAnimationFrame(outerAnimationFrameId);
+        }
+        if (innerAnimationFrameId !== null) {
+          cancelAnimationFrame(innerAnimationFrameId);
+        }
+      };
+    }, [
+      areLSHCompoundsInitialized,
+      currentPage,
+      dataAreDownloaded,
+      dataAreDownloading,
+      filteredLHSCompoundsList.length,
+      handlers,
+      joinedMoleculeLists.length,
+      lhsCompoundsList.length,
+      allMolListsLength,
+      readyVisiblePoseCount,
+      registeredMoleculeViewCount
+    ]);
 
     // Claim dialog ownership when this instance contains the compound the dialog was opened for.
     // This prevents the other side's cleanup from closing a dialog it doesn't own.
@@ -1364,6 +1437,7 @@ export const PoseList = memo(
                     items={itemsToBeDisplayed}
                     allSelectedMolecules={allSelectedMolecules}
                     addMoleculeViewRef={addMoleculeViewRef}
+                    onPoseVisuallyReady={handlePoseVisuallyReady}
                     handleSetTagEditorAnchorEl={setTagEditorAnchorEl}
                     fragmentDisplayList={fragmentDisplayList}
                     proteinList={proteinList}

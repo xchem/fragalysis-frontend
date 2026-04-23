@@ -217,5 +217,10 @@ export const useScrollToSelectedPose = ({
     [moleculeViewRefs]
   );
 
-  return { addMoleculeViewRef, setScrollToMoleculeId, getNode };
+  return {
+    addMoleculeViewRef,
+    setScrollToMoleculeId,
+    getNode,
+    registeredMoleculeViewCount: Object.keys(moleculeViewRefs).length
+  };
 };

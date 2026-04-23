@@ -1,15 +1,24 @@
 import { Dialog, DialogContent, DialogTitle, LinearProgress, Typography } from '@material-ui/core';
-import React, { useState, useEffect, useContext } from 'react';
+import React from 'react';
 import { useSelector } from 'react-redux';
 
 export const DataDownloadProgressDialog = () => {
   const dataAreDownloading = useSelector(state => state.apiReducers.dataAreDownloading);
   const lhsIsFullyRendered = useSelector(state => state.selectionReducers.lhsIsFullyRendered);
   const errorOccuredDuringDownload = useSelector(state => state.apiReducers.errorOccuredDuringDownload);
+  const snapshotLoadingInProgress = useSelector(state => state.apiReducers.snapshotLoadingInProgress);
+  const isSnapshotRendering = useSelector(state => state.nglReducers.isSnapshotRendering) || false;
+  const isNGLQueueEmpty = useSelector(state => state.nglReducers.isNGLQueueEmpty);
+  const switchingSnapshotWithinProject = useSelector(state => state.snapshotReducers.switchingSnapshotWithinProject);
+
+  const snapshotRenderInProgress = snapshotLoadingInProgress || (isSnapshotRendering && !isNGLQueueEmpty);
+  const shouldShowRenderingDialog =
+    !switchingSnapshotWithinProject && (!lhsIsFullyRendered || snapshotRenderInProgress);
+  const shouldShowDialog = !errorOccuredDuringDownload && (dataAreDownloading || shouldShowRenderingDialog);
 
   return (
     <Dialog
-      open={(dataAreDownloading || !lhsIsFullyRendered) && !errorOccuredDuringDownload}
+      open={shouldShowDialog}
       aria-labelledby="data-download-progress-dialog-title"
     >
       <DialogTitle id="data-download-progress-dialog-title">

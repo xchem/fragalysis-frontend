@@ -12,6 +12,7 @@ import { jsmeSetup } from '@loschmidt/jsme-react';
 import RichTooltip from '../../../tooltip/RichTooltip';
 import { TooltipPathProvider } from '../../../tooltip/TooltipPathContext';
 import { LHS_OBSERVATION_VIEW_CONFIG } from './viewConfigs';
+import { COLUMN_TYPES } from './table';
 
 const useStyles = makeStyles(theme => ({
   table: {
@@ -69,6 +70,7 @@ const ObservationUnifiedViewWrapper = memo(
         items,
         allSelectedMolecules,
         addMoleculeViewRef,
+        onPoseVisuallyReady,
         handleSetTagEditorAnchorEl
       },
       outsideRef
@@ -92,6 +94,9 @@ const ObservationUnifiedViewWrapper = memo(
       };
       const { columns, handleColumnResize, getColumnWidth } = useColumns(50, viewConfig);
       const { filteredItems, getColumnFilter } = useFilters(items, columns, viewConfig);
+      const waitsForMoleculeImage = columns?.some(
+        column => column.visible && column.type === COLUMN_TYPES.MOLECULE
+      );
 
       return (
         <Table className={classes.table}>
@@ -154,6 +159,8 @@ const ObservationUnifiedViewWrapper = memo(
                   disableC={false}
                   observations={molsForCmp}
                   ligandRepresentations={ligandRepresentations}
+                  onVisualReady={onPoseVisuallyReady}
+                  waitForVisualCompletion={waitsForMoleculeImage}
                   columns={columns}
                   getColumnWidth={getColumnWidth}
                   viewConfig={viewConfig}
