@@ -86,7 +86,8 @@ const ObservationUnifiedView = memo(
         waitForVisualCompletion = false,
         columns,
         getColumnWidth,
-        viewConfig = LHS_OBSERVATION_VIEW_CONFIG
+        viewConfig = LHS_OBSERVATION_VIEW_CONFIG,
+        getComputedInspirations = undefined
       },
       outsideRef
     ) => {
@@ -402,6 +403,7 @@ const ObservationUnifiedView = memo(
                   observations={observations}
                   ligandRepresentations={ligandRepresentations}
                   viewConfig={viewConfig}
+                  getComputedInspirations={getComputedInspirations}
                 />
               </TooltipPathProvider>
             );

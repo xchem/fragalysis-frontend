@@ -1,7 +1,7 @@
 /**
  * Created by abradley on 14/03/2018.
  */
-import React, { memo, useMemo } from 'react';
+import React, { memo, useMemo, useCallback } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { colourList } from './utils/color';
 import {
@@ -52,6 +52,7 @@ import { getMoleculeForId } from '../tags/redux/dispatchActions';
 import { updateLHSCompound } from '../../../reducers/api/actions';
 import { PoseList } from './poseList';
 import { LHS_OBSERVATION_VIEW_CONFIG, buildObservationViewConfig } from './observationUnifiedView/viewConfigs';
+import { getDefaultComputedInspirations } from './utils/computedInspirations';
 export const PoseListLHS = memo(({}) => {
   const dispatch = useDispatch();
 
@@ -273,6 +274,10 @@ export const PoseListLHS = memo(({}) => {
   );
 
   const viewConfig = useMemo(() => buildObservationViewConfig(LHS_OBSERVATION_VIEW_CONFIG), []);
+  const getComputedInspirations = useCallback(
+    ({ data, observations }) => getDefaultComputedInspirations({ data, observations }),
+    []
+  );
 
   return (
     <PoseList
@@ -309,6 +314,7 @@ export const PoseListLHS = memo(({}) => {
       proteinsHasLoaded={proteinsHasLoaded}
       searchSettings={searchSettings}
       viewConfig={viewConfig}
+      getComputedInspirations={getComputedInspirations}
       isTagEditorForCurrentSide={isTagEditorForCurrentSide}
       handlers={handlers}
       instanceConfig={instanceConfig}

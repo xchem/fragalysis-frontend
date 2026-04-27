@@ -3,6 +3,32 @@ import { createTagPost, isDiscourseAvailable } from '../../../../utils/discourse
 import { base_url } from '../../../routes/constants';
 import { getDefaultTagDiscoursePostText } from '../utils/tagUtils';
 
+const getPaginatedResults = async url => {
+  const results = [];
+  let nextUrl = url;
+
+  while (nextUrl) {
+    const response = await api({ url: nextUrl });
+    const responseData = response?.data;
+
+    if (!responseData) {
+      break;
+    }
+
+    if (Array.isArray(responseData.results)) {
+      results.push(...responseData.results);
+      nextUrl = responseData.next;
+    } else if (Array.isArray(responseData)) {
+      results.push(...responseData);
+      nextUrl = null;
+    } else {
+      nextUrl = null;
+    }
+  }
+
+  return results;
+};
+
 // export const getAllData = targetId => {
 //   return api({ url: `${base_url}/api/target_molecules/${targetId}` }).then(response => {
 //     if (response?.data) {
@@ -80,10 +106,17 @@ export const generateRHSTags = async targetId => {
       category: 8, // TODO other
       target: targetId,
       user: dataset.owner_user,
-      site_observations: dataset.site_observations
+      site_observations: dataset.site_observations,
+      additional_info: {
+        computed_set: dataset.id
+      }
     });
   });
   return tags;
+};
+
+export const getComputedSetInspirationMappings = async targetId => {
+  return getPaginatedResults(`${base_url}/api/compound-sets/?computed_set__target=${targetId}`);
 };
 
 export const getTagCategories = async () => {

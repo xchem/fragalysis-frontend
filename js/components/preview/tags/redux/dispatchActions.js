@@ -49,7 +49,8 @@ import {
   getCanonConformSites,
   getPoses,
   getCompoundIdentifiers,
-  generateRHSTags
+  generateRHSTags,
+  getComputedSetInspirationMappings
 } from '../api/tagsApi';
 import {
   getMoleculeTagForTag,
@@ -209,6 +210,12 @@ export const loadMoleculesAndTagsNew = targetId => async (dispatch, getState) =>
     // console.log(`snapshotDebug - loadMoleculesAndTagsNew - before getTags`);
     let tags = await getTags(targetId);
     const rhsTags = await generateRHSTags(targetId);
+    let computedSetInspirationMappings = [];
+    try {
+      computedSetInspirationMappings = await getComputedSetInspirationMappings(targetId);
+    } catch (error) {
+      console.error('Failed to load computed set inspiration mappings', error);
+    }
     let compoundIdentifiers = await getCompoundIdentifiers();
 
     let lhsExtraColumns = await getActivityColumns(targetId);
@@ -259,6 +266,31 @@ export const loadMoleculesAndTagsNew = targetId => async (dispatch, getState) =>
     const data = await getAllDataNew(targetId);
     // console.log(`snapshotDebug - loadMoleculesAndTagsNew - after getAllDataNew`);
     // console.log(`snapshotDebug - loadMoleculesAndTagsNew - no. of molecules received: ${data?.results?.length}`);
+    const computedInspirationsByObservation = {};
+    computedSetInspirationMappings?.forEach(item => {
+      const siteObservationId = Number(item?.site_observation);
+      const computedInspirationId = Number(item?.computed_inspiration);
+      const computedSetId = Number(item?.computed_set);
+
+      if (
+        Number.isNaN(siteObservationId) ||
+        Number.isNaN(computedInspirationId) ||
+        Number.isNaN(computedSetId)
+      ) {
+        return;
+      }
+
+      if (!computedInspirationsByObservation[siteObservationId]) {
+        computedInspirationsByObservation[siteObservationId] = {};
+      }
+
+      if (!computedInspirationsByObservation[siteObservationId][computedSetId]) {
+        computedInspirationsByObservation[siteObservationId][computedSetId] = [];
+      }
+
+      computedInspirationsByObservation[siteObservationId][computedSetId].push(computedInspirationId);
+    });
+
     let allMolecules = [];
     data?.results?.forEach(mol => {
       let newObject = { ...mol };
@@ -274,6 +306,7 @@ export const loadMoleculesAndTagsNew = targetId => async (dispatch, getState) =>
       maps.event_info = mol.event_file;
       maps.sigmaa_info = mol.sigmaa_file;
       newObject['proteinData'] = maps;
+      newObject['computed_inspirations_by_set'] = computedInspirationsByObservation[mol.id] || null;
       newObject.identifiers = compoundIdentifiers.filter(identifier => identifier.compound === newObject.cmpd);
       if (newObject.ligand_mol_file) {
         delete newObject.ligand_mol_file;

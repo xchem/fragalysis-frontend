@@ -71,7 +71,8 @@ const ObservationUnifiedViewWrapper = memo(
         allSelectedMolecules,
         addMoleculeViewRef,
         onPoseVisuallyReady,
-        handleSetTagEditorAnchorEl
+        handleSetTagEditorAnchorEl,
+        getComputedInspirations = undefined
       },
       outsideRef
     ) => {
@@ -164,6 +165,7 @@ const ObservationUnifiedViewWrapper = memo(
                   columns={columns}
                   getColumnWidth={getColumnWidth}
                   viewConfig={viewConfig}
+                  getComputedInspirations={getComputedInspirations}
                 />
               );
             })}

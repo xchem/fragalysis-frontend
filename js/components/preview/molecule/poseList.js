@@ -253,6 +253,7 @@ export const PoseList = memo(
     proteinsHasLoaded,
     searchSettings,
     viewConfig,
+    getComputedInspirations = undefined,
     ligandRepresentations = undefined,
     isTagEditorForCurrentSide = false,
     handlers = {},
@@ -1447,6 +1448,7 @@ export const PoseList = memo(
                     qualityList={qualityList}
                     vectorOnList={vectorOnList}
                     informationList={informationList}
+                    getComputedInspirations={getComputedInspirations}
                   />
                 </InfiniteScroll>
               </Grid>

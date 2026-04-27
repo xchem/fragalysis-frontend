@@ -1,7 +1,7 @@
 /**
  * Created by abradley on 14/03/2018.
  */
-import React, { memo, useMemo, useEffect } from 'react';
+import React, { memo, useMemo, useEffect, useCallback } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { v4 } from 'uuid';
 import { colourList } from './utils/color';
@@ -55,6 +55,7 @@ import { PoseList } from './poseList';
 import { RHS_OBSERVATION_VIEW_CONFIG, buildObservationViewConfig } from './observationUnifiedView/viewConfigs';
 import { TooltipPathProvider } from '../../tooltip/TooltipPathContext';
 import { MOL_REPRESENTATION } from '../../nglView/constants';
+import { getDefaultComputedInspirations, getFilteredComputedInspirations } from './utils/computedInspirations';
 
 const RHS_LIGAND_REPRESENTATIONS = [
   {
@@ -102,6 +103,7 @@ export const PoseListRHS = memo(({ expandHandler }) => {
   const directDisplay = useSelector(state => state.apiReducers.direct_access);
   const directAccessProcessed = useSelector(state => state.apiReducers.direct_access_processed);
   const tags = useSelector(state => state.apiReducers.tagList);
+  const rhsSelectedTags = useSelector(state => state.selectionReducers.rhs_selectedTagList);
   const noTagsReceived = useSelector(state => state.apiReducers.noTagsReceived);
   const categories = useSelector(state => state.apiReducers.categoryList);
   const rhsDataIsLoaded = useSelector(state => state.apiReducers.rhsDataIsLoaded);
@@ -384,6 +386,21 @@ export const PoseListRHS = memo(({ expandHandler }) => {
   );
 
   const viewConfig = useMemo(() => buildObservationViewConfig(RHS_OBSERVATION_VIEW_CONFIG), []);
+  const getComputedInspirations = useCallback(
+    ({ data, observations = [] }) => {
+      const observation = observations.find(item => item.id === data?.main_site_observation) || data;
+      const computedInspirations = getDefaultComputedInspirations({ data, observations });
+
+      return getFilteredComputedInspirations(
+        {
+          ...observation,
+          computed_inspirations: computedInspirations
+        },
+        rhsSelectedTags
+      );
+    },
+    [rhsSelectedTags]
+  );
 
   return (
     <TooltipPathProvider absolute path="fragalysis.preview.hitnavigator">
@@ -421,6 +438,7 @@ export const PoseListRHS = memo(({ expandHandler }) => {
         proteinsHasLoaded={proteinsHasLoaded}
         searchSettings={searchSettings}
         viewConfig={viewConfig}
+        getComputedInspirations={getComputedInspirations}
         ligandRepresentations={RHS_LIGAND_REPRESENTATIONS}
         isTagEditorForCurrentSide={isTagEditorForCurrentSide}
         handlers={handlers}

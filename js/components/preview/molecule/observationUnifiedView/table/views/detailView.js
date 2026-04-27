@@ -2,7 +2,7 @@
  * Row in Hit navigator
  */
 
-import React, { memo, useEffect, useState, useRef, useContext, useCallback } from 'react';
+import React, { memo, useEffect, useState, useRef, useContext, useCallback, useMemo } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { Button, Grid, makeStyles, IconButton, Popper, CircularProgress } from '@material-ui/core';
 import { Panel } from '../../../../../common';
@@ -59,6 +59,7 @@ import {
 } from '../../../../../../reducers/selection/actions';
 import { isCompoundFromVectorSelector } from '../../../../compounds/redux/dispatchActions';
 import { LHS_OBSERVATION_VIEW_CONFIG } from '../../viewConfigs';
+import { getDefaultComputedInspirations } from '../../../utils/computedInspirations';
 
 const useStyles = makeStyles(theme => ({
   container: {
@@ -412,7 +413,8 @@ export const DetailView = memo(
     disableC,
     observations,
     ligandRepresentations = undefined,
-    viewConfig = LHS_OBSERVATION_VIEW_CONFIG
+    viewConfig = LHS_OBSERVATION_VIEW_CONFIG,
+    getComputedInspirations = undefined
   }) => {
     const [densityPopoverAnchor, setDensityPopoverAnchor] = useState(null);
     const [densityPopoverOpen, setDensityPopoverOpen] = useState(false);
@@ -568,10 +570,15 @@ export const DetailView = memo(
     const vectorOnList = useSelector(state => state.selectionReducers.vectorOnList);
     // const currentTarget = useSelector(state => getCurrentTarget(state));
     const aliasOrder = useSelector(state => state.apiReducers.target_on_aliases);
+    const computedInspirations = useMemo(() => {
+      if (getComputedInspirations) {
+        return getComputedInspirations({ data, observations });
+      }
 
-    const isAnyInspirationOn = useSelector(state =>
-      isAnyInspirationTurnedOn(state, (data && data.computed_inspirations) || [])
-    );
+      return getDefaultComputedInspirations({ data, observations });
+    }, [data, getComputedInspirations, observations]);
+
+    const isAnyInspirationOn = useSelector(state => isAnyInspirationTurnedOn(state, computedInspirations));
     const isFromVectorSelector = isCompoundFromVectorSelector(data);
 
     const activeTarget = useSelector(state => getCurrentTarget(state));
@@ -1342,8 +1349,6 @@ export const DetailView = memo(
                   })}
                   onClick={() => {
                     setLoadingInspiration(true);
-                    const computedInspirations =
-                      getMainObservation()?.computed_inspirations || data.computed_inspirations || [];
                     if (!isObsInspirationDialogOpen || obsInspirationDialogPoseId !== currentID) {
                       handleRef();
                       dispatch(setObsInspirationDialogObsIds(computedInspirations));
