@@ -18,23 +18,26 @@ const useStyles = makeStyles(theme => ({
   wrapper: {
     position: 'relative',
     height: '100%',
-    width: '100%',
-    '&:hover': {
-      cursor: 'pointer'
-    }
+    width: '100%'
+  },
+  statusTrigger: {
+    position: 'absolute',
+    top: 0,
+    left: 2,
+    height: 17,
+    width: 17,
+    cursor: 'pointer'
   },
   pizza: {
     height: 17,
     width: 17,
     borderRadius: '50%',
-    position: 'absolute',
-    // top: -9,
-    left: 2
+    position: 'absolute'
   },
   pizzaLight: {
     position: 'absolute',
     top: 1,
-    left: 3
+    left: 1
   }
 }));
 
@@ -103,64 +106,92 @@ export const QualityStatusWrapper = memo(({ data }) => {
     return gradient;
   }, [getStatusCount, latestPeerReviews.length]);
 
-  const peerReviewsButtonRef = useRef(null);
   const statusLightDivRef = useRef(null);
+  const closePopoverTimerRef = useRef(null);
+  const qualityStatusAnchorRef = useRef(null);
   const [anchorElModal, setAnchorElModal] = useState(null);
   const [anchorElQualityStatus, setAnchorElQualityStatus] = useState(null);
   const [tableIsOpen, setTableIsOpen] = useState(false);
 
-  const handleEditDialogOpen = useCallback(event => {
-    setAnchorElQualityStatus(event.currentTarget);
+  const clearClosePopoverTimer = useCallback(() => {
+    if (closePopoverTimerRef.current !== null) {
+      window.clearTimeout(closePopoverTimerRef.current);
+      closePopoverTimerRef.current = null;
+    }
   }, []);
+
+  const closeSummaryPopover = useCallback(() => {
+    clearClosePopoverTimer();
+    setAnchorElModal(null);
+    setTableIsOpen(false);
+  }, [clearClosePopoverTimer]);
+
+  useEffect(() => {
+    closeSummaryPopover();
+    qualityStatusAnchorRef.current = null;
+    setAnchorElQualityStatus(null);
+  }, [closeSummaryPopover, data.id, data.main_site_observation]);
+
+  useEffect(() => {
+    return () => clearClosePopoverTimer();
+  }, [clearClosePopoverTimer]);
+
+  const handleEditDialogOpen = useCallback(event => {
+    clearClosePopoverTimer();
+    qualityStatusAnchorRef.current = event.currentTarget;
+    setAnchorElQualityStatus(event.currentTarget);
+  }, [clearClosePopoverTimer]);
 
   const handleEditDialogOpenFromLight = useCallback(event => {
-    peerReviewsButtonRef.current?.click();
-  }, []);
+    clearClosePopoverTimer();
+    qualityStatusAnchorRef.current = event.currentTarget;
+    setAnchorElModal(statusLightDivRef.current || event.currentTarget);
+    setAnchorElQualityStatus(event.currentTarget);
+  }, [clearClosePopoverTimer]);
 
-  const isValidMouseEvent = event => {
-    // allow only pizza lights and its circle children gradient
-    return (
-      event.target?.classList.contains(classes.pizzaLight) ||
-      event.target?.classList.contains(classes.pizza) ||
-      event.target?.tagName === 'circle'
-    );
-  };
   const handleStatusMouseEnter = event => {
-    // chrome & edge fire mouseleave event after closing the modal so we need to check the target
-    if (isValidMouseEvent(event)) {
-      setAnchorElModal(statusLightDivRef?.current);
-    }
+    clearClosePopoverTimer();
+    setAnchorElModal(event.currentTarget);
   };
-  const handleStatusMouseLeave = event => {
-    if (!tableIsOpen && isValidMouseEvent(event)) {
-      setAnchorElModal(null);
-    }
+
+  const handleStatusMouseLeave = () => {
+    clearClosePopoverTimer();
+    closePopoverTimerRef.current = window.setTimeout(() => {
+      if (!qualityStatusAnchorRef.current) {
+        closeSummaryPopover();
+      }
+    }, 100);
   };
+
+  const handleQualityStatusSummaryTooltipEnter = useCallback(() => {
+    clearClosePopoverTimer();
+    setTableIsOpen(true);
+  }, [clearClosePopoverTimer]);
 
   const handleQualityStatusSummaryTooltipLeave = useCallback(() => {
     setTableIsOpen(false);
     if (!Boolean(anchorElQualityStatus)) {
-      setAnchorElModal(null);
+      closeSummaryPopover();
     }
-  }, [anchorElQualityStatus]);
+  }, [anchorElQualityStatus, closeSummaryPopover]);
 
   const handleModalPopoverClose = () => {
-    setAnchorElModal(null);
-    setTableIsOpen(false);
+    closeSummaryPopover();
   };
   const handleModalClose = () => {
     handleModalPopoverClose();
+    qualityStatusAnchorRef.current = null;
     setAnchorElQualityStatus(null);
   };
 
-  const popoverOpen = Boolean(anchorElQualityStatus) || Boolean(anchorElModal) || tableIsOpen;
+  const popoverOpen = Boolean(anchorElModal) || tableIsOpen;
 
   const getQualityStatusSummaryTooltip = useCallback(() => {
     return (
       <Table
         className={classes.posePropertiesTable}
         onMouseLeave={handleQualityStatusSummaryTooltipLeave}
-        onMouseEnter={() => setTableIsOpen(true)}
+        onMouseEnter={handleQualityStatusSummaryTooltipEnter}
       >
         <TableBody>
           <TableRow>
@@ -194,7 +225,7 @@ export const QualityStatusWrapper = memo(({ data }) => {
             })}
             <TableCell className={classes.posePropertiesTableCell}>
               <RichTooltip path="addReviews" title={'Add reviews'}>
-                <IconButton size="small" onClick={handleEditDialogOpen} ref={peerReviewsButtonRef}>
+                <IconButton size="small" onClick={handleEditDialogOpen}>
                   <MoreHoriz />
                 </IconButton>
               </RichTooltip>
@@ -210,25 +241,27 @@ export const QualityStatusWrapper = memo(({ data }) => {
     mainQualityStatus,
     classes.posePropertiesTable,
     classes.posePropertiesTableCell,
+    handleQualityStatusSummaryTooltipEnter,
     handleQualityStatusSummaryTooltipLeave
   ]);
 
   return (
-    <Grid
-      item
-      ref={statusLightDivRef}
-      className={classes.wrapper}
-      onMouseEnter={handleStatusMouseEnter}
-      onMouseLeave={handleStatusMouseLeave}
-    >
-      <div style={{ background: `conic-gradient(${pizzaGradient})` }} className={classes.pizza}></div>
-      <QualityStatusLight
-        status={mainQualityStatus}
-        props={{
-          className: classes.pizzaLight,
-          onClick: handleEditDialogOpenFromLight
-        }}
-      />
+    <Grid item className={classes.wrapper}>
+      <div
+        ref={statusLightDivRef}
+        className={classes.statusTrigger}
+        onMouseEnter={handleStatusMouseEnter}
+        onMouseLeave={handleStatusMouseLeave}
+      >
+        <div style={{ background: `conic-gradient(${pizzaGradient})` }} className={classes.pizza}></div>
+        <QualityStatusLight
+          status={mainQualityStatus}
+          props={{
+            className: classes.pizzaLight,
+            onClick: handleEditDialogOpenFromLight
+          }}
+        />
+      </div>
       <Popover
         id="mouse-over-popover"
         style={{ pointerEvents: 'none' }}
