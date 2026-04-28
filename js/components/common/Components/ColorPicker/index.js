@@ -1,8 +1,11 @@
 import React, { memo, useState, useEffect } from 'react';
-import { makeStyles, Popper } from '@material-ui/core';
+import { ClickAwayListener, makeStyles, Popper } from '@material-ui/core';
 import { SketchPicker } from 'react-color';
 
 const useStyles = makeStyles(theme => ({
+  root: {
+    display: 'inline-block'
+  },
   color: {
     width: '36px',
     height: '14px',
@@ -20,13 +23,6 @@ const useStyles = makeStyles(theme => ({
   popover: {
     position: 'absolute',
     zIndex: '10000'
-  },
-  cover: {
-    position: 'fixed',
-    top: '0px',
-    right: '0px',
-    bottom: '0px',
-    left: '0px'
   }
 }));
 
@@ -61,20 +57,25 @@ export const ColorPicker = memo(({ selectedColor, setSelectedColor, anchorEl, di
   };
 
   return (
-    <>
-      <Popper
-        id="electron-density-color-popper"
-        open={displayColorPicker}
-        anchorEl={anchorE1}
-        placement="left-start"
-        className={classes.popover}
-      >
-        <div className={classes.cover} onClick={handleClose} />
-        <SketchPicker color={color} onChange={handleChange} />
-      </Popper>
-      <div className={classes.swatch} onClick={handleClick} style={bgStyle}>
-        <div className={classes.color} style={bgStyle} />
+    <ClickAwayListener
+      mouseEvent={displayColorPicker ? 'onClick' : false}
+      touchEvent={displayColorPicker ? 'onTouchEnd' : false}
+      onClickAway={handleClose}
+    >
+      <div className={classes.root}>
+        <Popper
+          id="electron-density-color-popper"
+          open={displayColorPicker}
+          anchorEl={anchorE1}
+          placement="left-start"
+          className={classes.popover}
+        >
+          <SketchPicker color={color} onChange={handleChange} />
+        </Popper>
+        <div className={classes.swatch} onClick={handleClick} style={bgStyle}>
+          <div className={classes.color} style={bgStyle} />
+        </div>
       </div>
-    </>
+    </ClickAwayListener>
   );
 });
