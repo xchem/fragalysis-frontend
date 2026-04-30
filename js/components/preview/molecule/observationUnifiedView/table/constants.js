@@ -36,7 +36,7 @@ export const COLUMNS = [
     displayName: 'Observation',
     type: COLUMN_TYPES.OBSERVATION,
     minWidth: 172,
-    width: 182,
+    width: 230,
     resizable: true,
     visible: true,
     data_type: 'custom'
@@ -99,7 +99,7 @@ export const RHS_COLUMNS = [
     displayName: 'Observation',
     type: COLUMN_TYPES.OBSERVATION,
     minWidth: 172,
-    width: 182,
+    width: 230,
     resizable: true,
     visible: true,
     data_type: 'custom'

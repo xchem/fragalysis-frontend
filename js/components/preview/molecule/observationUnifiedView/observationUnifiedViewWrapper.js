@@ -2,8 +2,9 @@
  * Row in Hit navigator
  */
 
-import React, { memo, forwardRef } from 'react';
+import React, { memo, forwardRef, useMemo } from 'react';
 import { makeStyles, Table, TableBody, TableCell, TableHead, TableRow } from '@material-ui/core';
+import { useSelector } from 'react-redux';
 import ObservationUnifiedView from './observationUnifiedView';
 import { useColumns } from './hooks/useColumns';
 import { useFilters } from './hooks';
@@ -53,6 +54,71 @@ const useStyles = makeStyles(theme => ({
   }
 }));
 
+const DETAIL_WIDTH_BUFFER = 6;
+const DETAIL_TEXT_ACTION_BUFFER = 28;
+const DETAIL_CONTROLS_WIDTH = {
+  lhs: 116,
+  rhs: 100
+};
+
+let textMeasureCanvas = null;
+
+const getTextMeasureContext = () => {
+  if (typeof document === 'undefined') {
+    return null;
+  }
+
+  if (!textMeasureCanvas) {
+    textMeasureCanvas = document.createElement('canvas');
+  }
+
+  return textMeasureCanvas.getContext('2d');
+};
+
+const measureTextWidth = (text, font) => {
+  if (!text) {
+    return 0;
+  }
+
+  const context = getTextMeasureContext();
+
+  if (!context) {
+    return String(text).length * 8;
+  }
+
+  context.font = font;
+  return context.measureText(String(text)).width;
+};
+
+const getMainObservation = item =>
+  item?.associatedObs?.find(observation => observation.id === item?.main_site_observation) ||
+  item?.associatedObs?.[0] ||
+  null;
+
+const getDisplayName = (mainObservation, viewConfig, aliasOrder) => {
+  const defaultName = viewConfig.getDetailDefaultName?.(mainObservation) ?? mainObservation?.compound_code;
+
+  if (aliasOrder) {
+    for (let index = 0; index < aliasOrder.length; index++) {
+      const preferredIdentifierType = aliasOrder[index];
+
+      if (preferredIdentifierType === 'compound_code') {
+        return defaultName || '';
+      }
+
+      const searchedIdentifier = mainObservation?.identifiers?.find(
+        identifier => identifier.type === preferredIdentifierType
+      );
+
+      if (searchedIdentifier) {
+        return searchedIdentifier.name || '';
+      }
+    }
+  }
+
+  return defaultName || '';
+};
+
 const ObservationUnifiedViewWrapper = memo(
   forwardRef(
     (
@@ -72,6 +138,7 @@ const ObservationUnifiedViewWrapper = memo(
         addMoleculeViewRef,
         onPoseVisuallyReady,
         handleSetTagEditorAnchorEl,
+        availableWidth = 0,
         getComputedInspirations = undefined
       },
       outsideRef
@@ -80,6 +147,7 @@ const ObservationUnifiedViewWrapper = memo(
       const imgWidth = 150;
 
       const classes = useStyles();
+      const aliasOrder = useSelector(state => state.apiReducers.target_on_aliases);
 
       // setup jsme before to prevent window jumping when molecule filter opens first time
       jsmeSetup();
@@ -93,7 +161,28 @@ const ObservationUnifiedViewWrapper = memo(
 
         return false;
       };
-      const { columns, handleColumnResize, getColumnWidth } = useColumns(50, viewConfig);
+      const preferredDetailWidth = useMemo(() => {
+        const maxTextWidth = (items || []).reduce((maxWidth, item) => {
+          const mainObservation = getMainObservation(item);
+          const codeWidth = measureTextWidth(mainObservation?.code || '', '700 14.4px Roboto, Arial, sans-serif');
+          const displayNameWidth = measureTextWidth(
+            getDisplayName(mainObservation, viewConfig, aliasOrder),
+            '400 12.8px Roboto, Arial, sans-serif'
+          );
+
+          return Math.max(maxWidth, Math.max(codeWidth, displayNameWidth) + DETAIL_TEXT_ACTION_BUFFER);
+        }, 0);
+        const controlsWidth = DETAIL_CONTROLS_WIDTH[viewConfig.kind] || DETAIL_CONTROLS_WIDTH.lhs;
+
+        return Math.ceil(maxTextWidth + controlsWidth + DETAIL_WIDTH_BUFFER);
+      }, [aliasOrder, items, viewConfig]);
+
+      const { columns, handleColumnResize, getColumnWidth } = useColumns(
+        50,
+        viewConfig,
+        availableWidth,
+        preferredDetailWidth
+      );
       const { filteredItems, getColumnFilter } = useFilters(items, columns, viewConfig);
       const waitsForMoleculeImage = columns?.some(
         column => column.visible && column.type === COLUMN_TYPES.MOLECULE

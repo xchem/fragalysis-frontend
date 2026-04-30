@@ -76,9 +76,8 @@ const useStyles = makeStyles(theme => ({
   },
   contButtonsMargin: {
     // margin: theme.spacing(1) / 2,
-    margin: 3,
-    width: 'inherit',
-    marginTop: 2
+    margin: '2px 1px',
+    width: 'max-content'
     // border: 'solid 1px',
     // borderColor: theme.palette.background.divider,
     // borderStyle: 'solid none none none'
@@ -86,7 +85,10 @@ const useStyles = makeStyles(theme => ({
   buttonsTagsWrapper: {
     border: 'solid 1px',
     borderColor: theme.palette.background.divider,
-    borderStyle: 'solid solid solid none'
+    borderStyle: 'solid solid solid none',
+    flex: '0 0 auto',
+    width: 'auto',
+    minWidth: 'max-content'
   },
   contColMenu: {
     // ...theme.typography.button,
@@ -168,8 +170,15 @@ const useStyles = makeStyles(theme => ({
     position: 'relative',
     border: 'solid 1px',
     borderColor: theme.palette.background.divider,
-    borderStyle: 'solid none solid solid'
+    borderStyle: 'solid none solid solid',
+    flex: '1 1 auto',
+    width: 'auto',
+    minWidth: 0
     // width: 'inherit'
+  },
+  detailViewRoot: {
+    width: '100%',
+    minWidth: 0
   },
   image: {
     border: 'solid 1px',
@@ -219,15 +228,30 @@ const useStyles = makeStyles(theme => ({
   },
   moleculeTitleLabel: {
     paddingLeft: 3,
+    display: 'flex',
+    alignItems: 'center',
+    flexWrap: 'nowrap',
+    width: '100%',
+    height: '100%',
     // fontWeight: 400,
     overflow: 'hidden',
     whiteSpace: 'nowrap',
     textOverflow: 'ellipsis',
     lineHeight: '1.45',
     fontSize: '0.8rem',
-    letterSpacing: '0.02em'
+    letterSpacing: '0.02em',
+    minWidth: 0,
+    maxWidth: '100%'
+  },
+  moleculeTitleText: {
+    flex: '1 1 auto',
+    minWidth: 0,
+    overflow: 'hidden'
   },
   moleculeTitleLabelMain: {
+    display: 'block',
+    width: '100%',
+    boxSizing: 'border-box',
     fontWeight: 'bold',
     fontSize: '0.9rem',
     overflow: 'hidden',
@@ -235,6 +259,10 @@ const useStyles = makeStyles(theme => ({
     textOverflow: 'ellipsis'
   },
   moleculeTitleLabelSub: {
+    display: 'block',
+    width: '100%',
+    boxSizing: 'border-box',
+    minHeight: '1.45em',
     overflow: 'hidden',
     whiteSpace: 'nowrap',
     textOverflow: 'ellipsis'
@@ -388,18 +416,37 @@ const useStyles = makeStyles(theme => ({
     marginRight: 5,
     position: 'right'
   },
+  posePropertiesIconSlot: {
+    flex: '0 0 20px',
+    width: 20,
+    minWidth: 20,
+    alignSelf: 'stretch',
+    display: 'flex',
+    alignItems: 'flex-end',
+    justifyContent: 'center',
+    paddingBottom: 4,
+    boxSizing: 'border-box'
+  },
   posePropertiesTableIcon: {
-    position: 'absolute',
-    right: -17,
-    bottom: 5,
+    position: 'static',
     padding: 0,
+    width: 18,
+    height: 18,
+    minWidth: 18,
+    '& svg': {
+      fontSize: 15
+    },
     color: theme.palette.grey[500]
   },
   posePropertiesTableIconActive: {
-    position: 'absolute',
-    right: -17,
-    bottom: 5,
+    position: 'static',
     padding: 0,
+    width: 18,
+    height: 18,
+    minWidth: 18,
+    '& svg': {
+      fontSize: 15
+    },
     color: theme.palette.grey[700]
   }
 }));
@@ -1416,65 +1463,71 @@ export const DetailView = memo(
         justifyContent="space-between"
         direction="row"
         wrap="nowrap"
+        className={classes.detailViewRoot}
         data-lhs-compound-code={getMainObservation()?.compound_code || ''}
         data-lhs-observation-code={getMainObservation()?.code || ''}
       >
-        <Grid item container className={classes.detailsCol} justifyContent="space-evenly" direction="column" xs={4}>
+        <Grid item container className={classes.detailsCol} justifyContent="space-evenly" direction="column">
           {/* Title label */}
           <Grid
             item
             container
-            direction="column"
+            direction="row"
+            alignItems="center"
+            wrap="nowrap"
             onCopy={e => {
               e.preventDefault();
               setNameCopied(moleculeTitle);
             }}
             className={classes.moleculeTitleLabel}
           >
-            <RichTooltip
-              path="code"
-              values={{ code: getMainObservation()?.code?.replaceAll(`${target_on_name}-`, '') || '' }}
-            >
-              <span className={classes.moleculeTitleLabelMain}>{getMainObservation()?.code || ''}</span>
-            </RichTooltip>
-            <br />
-            <RichTooltip path="displayName" values={{ displayName: getDisplayName() || '' }}>
-              <span className={classes.moleculeTitleLabelSub}>{getDisplayName()}</span>
-            </RichTooltip>
-            <IconButton
-              className={popoverOpen ? classes.posePropertiesTableIconActive : classes.posePropertiesTableIcon}
-              onMouseEnter={handleTablePopoverOpen}
-              onMouseLeave={() => setAnchorElTable(null)}
-              ref={anchorElTable}
-            >
-              <Assignment />
-              <Popover
-                id="mouse-over-popover"
-                style={{ pointerEvents: 'none' }}
-                open={popoverOpen}
-                anchorEl={anchorElTable}
-                anchorOrigin={{
-                  vertical: 'center',
-                  horizontal: 'right'
-                }}
-                transformOrigin={{
-                  vertical: 'center',
-                  horizontal: 'left'
-                }}
-                onClose={handleTablePopoverClose}
-                disableRestoreFocus
+            <Grid item className={classes.moleculeTitleText}>
+              <RichTooltip
+                path="code"
+                values={{ code: getMainObservation()?.code?.replaceAll(`${target_on_name}-`, '') || '' }}
               >
-                <TooltipPathProvider path="copyDataTable">
-                  <CopyDataTable
-                    mainObservation={getMainObservation()}
-                    target_on_name={target_on_name}
-                    data={data}
-                    aliasOrder={aliasOrder}
-                    handleTableIsOpen={isOpen => setTableIsOpen(isOpen)}
-                  />
-                </TooltipPathProvider>
-              </Popover>
-            </IconButton>
+                <span className={classes.moleculeTitleLabelMain}>{getMainObservation()?.code || ''}</span>
+              </RichTooltip>
+              <RichTooltip path="displayName" values={{ displayName: getDisplayName() || '' }}>
+                <span className={classes.moleculeTitleLabelSub}>{getDisplayName()}</span>
+              </RichTooltip>
+            </Grid>
+            <Grid item className={classes.posePropertiesIconSlot}>
+              <IconButton
+                className={popoverOpen ? classes.posePropertiesTableIconActive : classes.posePropertiesTableIcon}
+                onMouseEnter={handleTablePopoverOpen}
+                onMouseLeave={() => setAnchorElTable(null)}
+                ref={anchorElTable}
+              >
+                <Assignment />
+                <Popover
+                  id="mouse-over-popover"
+                  style={{ pointerEvents: 'none' }}
+                  open={popoverOpen}
+                  anchorEl={anchorElTable}
+                  anchorOrigin={{
+                    vertical: 'center',
+                    horizontal: 'right'
+                  }}
+                  transformOrigin={{
+                    vertical: 'center',
+                    horizontal: 'left'
+                  }}
+                  onClose={handleTablePopoverClose}
+                  disableRestoreFocus
+                >
+                  <TooltipPathProvider path="copyDataTable">
+                    <CopyDataTable
+                      mainObservation={getMainObservation()}
+                      target_on_name={target_on_name}
+                      data={data}
+                      aliasOrder={aliasOrder}
+                      handleTableIsOpen={isOpen => setTableIsOpen(isOpen)}
+                    />
+                  </TooltipPathProvider>
+                </Popover>
+              </IconButton>
+            </Grid>
           </Grid>
         </Grid>
         {/* Tags */}
@@ -1484,7 +1537,6 @@ export const DetailView = memo(
           justifyContent="flex-start"
           alignItems="flex-end"
           direction="column"
-          xs={8}
           className={classes.buttonsTagsWrapper}
         >
           {/* Control Buttons A, L, C, V */}

@@ -44,10 +44,23 @@ import { TooltipPathProvider } from '../../tooltip/TooltipPathContext';
 
 const useStyles = makeStyles(theme => ({
   container: {
-    minHeight: '100px',
-    height: '100%',
-    width: 'inherit',
+    flex: '1 1 auto',
+    minHeight: 0,
+    height: 'auto',
+    width: '100%',
+    overflow: 'hidden',
+    flexWrap: 'nowrap',
     color: theme.palette.black
+  },
+  panelContent: {
+    display: 'flex',
+    flexDirection: 'column',
+    height: '100%',
+    minHeight: 0,
+    overflow: 'hidden'
+  },
+  toolbar: {
+    flex: '0 0 auto'
   },
   noOfSelectedHits: {
     marginLeft: '5px'
@@ -65,9 +78,15 @@ const useStyles = makeStyles(theme => ({
     width: 'fit-content'
   },
   gridItemList: {
-    overflow: 'auto',
-    height: `calc(99% - ${theme.spacing(6)}px - ${theme.spacing(2)}px)`,
+    flex: '1 1 auto',
+    minHeight: 0,
+    height: 'auto',
+    overflowY: 'auto',
+    overflowX: 'hidden',
     width: '100%'
+  },
+  footer: {
+    flex: '0 0 auto'
   },
   centered: {
     display: 'flex',
@@ -410,6 +429,7 @@ export const PoseList = memo(
       resetTagEditorSide: handlers.resetTagEditorSide
     };
     const [hitNavigatorWidth, setHitNavigatorWidth] = useState(0);
+    const [hitNavigatorListWidth, setHitNavigatorListWidth] = useState(0);
     useEffect(() => {
       if (!isTagEditorOpen || !isTagEditorForCurrentSide) {
         setTagEditorAnchorEl(null);
@@ -460,6 +480,23 @@ export const PoseList = memo(
         };
       }
     }, [hitNavigatorRef, hitNavigatorWidth]);
+
+    useEffect(() => {
+      if (scrollBarRef && scrollBarRef.current) {
+        const updateListWidth = () => {
+          const nextWidth = scrollBarRef.current.clientWidth;
+          setHitNavigatorListWidth(currentWidth => (currentWidth !== nextWidth ? nextWidth : currentWidth));
+        };
+        const resizeObserver = new ResizeObserver(updateListWidth);
+
+        updateListWidth();
+        resizeObserver.observe(scrollBarRef.current);
+
+        return function cleanup() {
+          resizeObserver.disconnect();
+        };
+      }
+    }, [itemsToBeDisplayed.length]);
 
     if (directDisplay && directDisplay.target) {
       target = directDisplay.target;
@@ -1161,77 +1198,78 @@ export const PoseList = memo(
         defaultExpanded
         onExpandChange={handleExpandChange}
       >
-        <AlertModal
-          title="Are you sure?"
-          description={`Loading of ${joinedMoleculeLists?.length} may take a long time`}
-          open={isOpenAlert}
-          handleOnOk={() => {
-            handlers.setNextXMolecules(joinedMoleculeLists?.length || 0);
-            setIsOpenAlert(false);
-          }}
-          handleOnCancel={() => {
-            setIsOpenAlert(false);
-          }}
-        />
-        <AlertModal
-          title="Are you sure?"
-          description={`Displaying of ${allSelectedMolecules?.length} may take a long time`}
-          open={isOpenLPCAlert}
-          handleOnOk={() => {
-            let molecules = getSelectedMoleculesByType(lastProcessedLPCType, true);
-            handlers.setSelectedAllByType(lastProcessedLPCType, molecules);
-            addNewType(lastProcessedLPCType, true);
-            setIsOpenLPCAlert(false);
-          }}
-          handleOnCancel={() => {
-            setIsOpenLPCAlert(false);
-          }}
-        />
-        {searchSettingsDialogOpen && (
-          <SearchSettingsDialog openDialog={searchSettingsDialogOpen} setOpenDialog={openSearchSettingsDialog} />
-        )}
-        {isObservationDialogOpen && instanceSide === observationsDialogSide && (
-          <TooltipPathProvider path="observationsDialog">
-            <ObservationsDialog
-              open={isObservationDialogOpen}
+        <div className={classes.panelContent}>
+          <AlertModal
+            title="Are you sure?"
+            description={`Loading of ${joinedMoleculeLists?.length} may take a long time`}
+            open={isOpenAlert}
+            handleOnOk={() => {
+              handlers.setNextXMolecules(joinedMoleculeLists?.length || 0);
+              setIsOpenAlert(false);
+            }}
+            handleOnCancel={() => {
+              setIsOpenAlert(false);
+            }}
+          />
+          <AlertModal
+            title="Are you sure?"
+            description={`Displaying of ${allSelectedMolecules?.length} may take a long time`}
+            open={isOpenLPCAlert}
+            handleOnOk={() => {
+              let molecules = getSelectedMoleculesByType(lastProcessedLPCType, true);
+              handlers.setSelectedAllByType(lastProcessedLPCType, molecules);
+              addNewType(lastProcessedLPCType, true);
+              setIsOpenLPCAlert(false);
+            }}
+            handleOnCancel={() => {
+              setIsOpenLPCAlert(false);
+            }}
+          />
+          {searchSettingsDialogOpen && (
+            <SearchSettingsDialog openDialog={searchSettingsDialogOpen} setOpenDialog={openSearchSettingsDialog} />
+          )}
+          {isObservationDialogOpen && instanceSide === observationsDialogSide && (
+            <TooltipPathProvider path="observationsDialog">
+              <ObservationsDialog
+                open={isObservationDialogOpen}
+                anchorEl={tagEditorAnchorEl}
+                tagEditorProps={tagEditorProps}
+                ligandRepresentations={ligandRepresentations}
+                ref={tagEditorRef}
+              />
+            </TooltipPathProvider>
+          )}
+          {isObsInspirationDialogOpen && instanceSide === 'rhs' && (
+            <TooltipPathProvider path="observationInspirationDialog">
+              <ObservationInspirationDialog
+                open={isObsInspirationDialogOpen}
+                anchorEl={tagEditorAnchorEl}
+                ligandRepresentations={ligandRepresentations}
+                ref={inspirationDialogRef}
+              />
+            </TooltipPathProvider>
+          )}
+          {isTagEditorOpen && isTagEditorForCurrentSide && !!tagEditorAnchorEl && (
+            <TagEditor
+              {...tagEditorProps}
+              open={isTagEditorOpen}
+              closeDisabled={anyControlButtonDisabled}
+              setOpenDialog={instanceConfig.tagEditorOpenActionCreator || setTagEditorOpen}
               anchorEl={tagEditorAnchorEl}
-              tagEditorProps={tagEditorProps}
-              ligandRepresentations={ligandRepresentations}
               ref={tagEditorRef}
             />
-          </TooltipPathProvider>
-        )}
-        {isObsInspirationDialogOpen && instanceSide === 'rhs' && (
-          <TooltipPathProvider path="observationInspirationDialog">
-            <ObservationInspirationDialog
-              open={isObsInspirationDialogOpen}
-              anchorEl={tagEditorAnchorEl}
-              ligandRepresentations={ligandRepresentations}
-              ref={inspirationDialogRef}
-            />
-          </TooltipPathProvider>
-        )}
-        {isTagEditorOpen && isTagEditorForCurrentSide && !!tagEditorAnchorEl && (
-          <TagEditor
-            {...tagEditorProps}
-            open={isTagEditorOpen}
-            closeDisabled={anyControlButtonDisabled}
-            setOpenDialog={instanceConfig.tagEditorOpenActionCreator || setTagEditorOpen}
-            anchorEl={tagEditorAnchorEl}
-            ref={tagEditorRef}
-          />
-        )}
-        {sortDialogOpen && (
-          <TooltipPathProvider path="filterSettings">
-            <FilterSettingsModal
-              openModal={sortDialogOpen}
-              onModalClose={() => {
-                handlers.setSortDialogOpen(false);
-              }}
-            />
-          </TooltipPathProvider>
-        )}
-        <Grid container spacing={1}>
+          )}
+          {sortDialogOpen && (
+            <TooltipPathProvider path="filterSettings">
+              <FilterSettingsModal
+                openModal={sortDialogOpen}
+                onModalClose={() => {
+                  handlers.setSortDialogOpen(false);
+                }}
+              />
+            </TooltipPathProvider>
+          )}
+        <Grid container spacing={1} className={classes.toolbar}>
           <Grid style={{ marginTop: '4px' }}>
             <RichTooltip path="allLigands">
               <Button
@@ -1406,14 +1444,7 @@ export const PoseList = memo(
             <>
               <Grid item className={classes.gridItemList} ref={scrollBarRef}>
                 <InfiniteScroll
-                  // getScrollParent={() =>
-                  //   dispatch(
-                  //     autoHideTagEditorDialogsOnScroll({
-                  //       tagEditorRef,
-                  //       scrollBarRef
-                  //     })
-                  //   )
-                  // }
+                  getScrollParent={() => scrollBarRef.current}
                   pageStart={0}
                   loadMore={loadNextMolecules}
                   hasMore={canLoadMore}
@@ -1439,6 +1470,7 @@ export const PoseList = memo(
                     allSelectedMolecules={allSelectedMolecules}
                     addMoleculeViewRef={addMoleculeViewRef}
                     onPoseVisuallyReady={handlePoseVisuallyReady}
+                    availableWidth={hitNavigatorListWidth}
                     handleSetTagEditorAnchorEl={setTagEditorAnchorEl}
                     fragmentDisplayList={fragmentDisplayList}
                     proteinList={proteinList}
@@ -1452,7 +1484,7 @@ export const PoseList = memo(
                   />
                 </InfiniteScroll>
               </Grid>
-              <Grid item>
+              <Grid item className={classes.footer}>
                 <Grid container justifyContent="space-between" alignItems="center" direction="row">
                   <Grid item>
                     <span
@@ -1508,6 +1540,7 @@ export const PoseList = memo(
             </Grid>
           )}
         </Grid>
+        </div>
       </Panel>
     );
   }

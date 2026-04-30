@@ -10,7 +10,7 @@ import { TagDetailsLHS } from './tags/details/tagDetailsLHS';
 import { TagDetailsRHS } from './tags/details/tagDetailsRHS';
 import HitNavigator from './molecule/hitNavigator';
 import { ViewerControls } from './viewerControls';
-import { setResizableLayout, setActualRhsWidth } from '../../reducers/selection/actions';
+import { setActualRhsWidth } from '../../reducers/selection/actions';
 import { PlotlyView } from './plotly/plotlyView';
 import { layoutItemNames } from '../../reducers/layout/constants';
 import { TooltipPathProvider } from '../tooltip/TooltipPathContext';
@@ -28,7 +28,8 @@ const useStyles = makeStyles(theme => ({
   ngl: { flex: 1, minHeight: 0 }
 }));
 
-const sideWidth = 492;
+const lhsInitialWidth = 570;
+const rhsInitialWidth = 520;
 const resizerSize = 20;
 
 const MIN_HEIGHTS = {
@@ -375,12 +376,12 @@ export const ResizableLayout = ({ gridRef, nglPortal }) => {
     [getTotalHeight, gridRef, rhsPanels, rememberRHSHeights]
   );
 
-  const [lhsW, setLhsW] = useState(sidesOpen.LHS ? sideWidth : 0);
-  const [rhsW, setRhsW] = useState(sidesOpen.RHS ? sideWidth : 0);
+  const [lhsW, setLhsW] = useState(sidesOpen.LHS ? lhsInitialWidth : 0);
+  const [rhsW, setRhsW] = useState(sidesOpen.RHS ? rhsInitialWidth : 0);
 
   useEffect(() => {
-    setLhsW(sidesOpen.LHS ? sideWidth : 0);
-    setRhsW(sidesOpen.RHS ? sideWidth : 0);
+    setLhsW(sidesOpen.LHS ? lhsInitialWidth : 0);
+    setRhsW(sidesOpen.RHS ? rhsInitialWidth : 0);
   }, [sidesOpen]);
 
   const onLhsResize = useCallback(
