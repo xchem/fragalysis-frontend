@@ -42,7 +42,7 @@ const DownloadPdb = memo(({ targetOn, targetOnName, key }) => {
   const openDownloadStructuresDialog = () => {
     getTags(target_on)
       .then(data => {
-        const sorted = data.results.sort(compareTagsAsc);
+        const sorted = (Array.isArray(data) ? data : data?.results || []).sort(compareTagsAsc);
         const downloadTags = [];
         sorted.forEach(molTag => {
           if (molTag.additional_info && molTag.additional_info.requestObject && molTag.additional_info.downloadName) {

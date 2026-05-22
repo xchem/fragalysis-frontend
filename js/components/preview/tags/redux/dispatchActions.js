@@ -49,14 +49,15 @@ import {
   getCanonConformSites,
   getPoses,
   getCompoundIdentifiers,
-  generateRHSTags,
   getComputedSetInspirationMappings
 } from '../api/tagsApi';
 import {
   getMoleculeTagForTag,
   createMoleculeTagObject,
   augumentTagObjectWithId,
-  compareTagsAsc
+  compareTagsAsc,
+  isTagVisibleOnSide,
+  TAG_META_CATEGORIES
 } from '../utils/tagUtils';
 import { DJANGO_CONTEXT } from '../../../../utils/djangoContext';
 import { TOAST_LEVELS } from '../../../toast/constants';
@@ -169,7 +170,10 @@ export const updateTagProp = (tag, value, prop) => (dispatch, getState) => {
       newTag.create_date,
       newTag.additional_info,
       moleculeTag.mol_group,
-      newTag.hidden
+      newTag.hidden,
+      newTag.tag_prefix,
+      newTag.upload_name,
+      newTag.meta_category
     );
     let augMolTagObject = augumentTagObjectWithId(newMolTag, tag.id);
     dispatch(updateMoleculeTag(augMolTagObject));
@@ -209,7 +213,6 @@ export const loadMoleculesAndTagsNew = targetId => async (dispatch, getState) =>
     dispatch(setDataAreDownloading(true));
     // console.log(`snapshotDebug - loadMoleculesAndTagsNew - before getTags`);
     let tags = await getTags(targetId);
-    const rhsTags = await generateRHSTags(targetId);
     let computedSetInspirationMappings = [];
     try {
       computedSetInspirationMappings = await getComputedSetInspirationMappings(targetId);
@@ -249,8 +252,7 @@ export const loadMoleculesAndTagsNew = targetId => async (dispatch, getState) =>
     // lhsExtraColumns = Object.values(tempExtraColumnsMap);
 
     // console.log(`snapshotDebug - loadMoleculesAndTagsNew - after getTags`);
-    tags = tags.results;
-    tags = tags.concat(rhsTags);
+    tags = Array.isArray(tags) ? tags : tags?.results || [];
     if (tags?.length > 0) {
       // console.log(`snapshotDebug - loadMoleculesAndTagsNew - no. of tags received: ${tags?.length}`);
       dispatch(setNoTagsReceived(false));
@@ -408,6 +410,47 @@ export const loadMoleculesAndTagsNew = targetId => async (dispatch, getState) =>
           modifiedLhsPoses.push(newObject);
         }
       });
+
+      tags
+        .filter(tag => isTagVisibleOnSide(tag, TAG_META_CATEGORIES.RHS))
+        .forEach(tag => {
+          const siteObs = allMolecules.filter(m => tag.site_observations?.includes(m.id));
+          const firstObs = siteObs[0];
+
+          const poseAlreadyExists = modifiedRhsPoses.some(pose =>
+            pose.site_observations?.some(id => tag.site_observations?.includes(id))
+          );
+
+          if (!firstObs || poseAlreadyExists) {
+            return;
+          }
+
+          const associatedObs = siteObs.sort((a, b) => {
+            if (a.code < b.code) {
+              return -1;
+            }
+            if (a.code > b.code) {
+              return 1;
+            }
+            return 0;
+          });
+
+          modifiedRhsPoses.push({
+            id: `rhs-tag-${tag.id}`,
+            display_name: tag.upload_name || tag.tag,
+            canon_site: null,
+            compound: firstObs.cmpd,
+            main_site_observation: firstObs.id,
+            site_observations: associatedObs.map(obs => obs.id),
+            main_site_observation_cmpd_code: firstObs.cmpd_code,
+            smiles: firstObs.smiles,
+            code: tag.upload_name || tag.tag,
+            canonSiteConf: firstObs.canon_site_conf,
+            canonSite: null,
+            associatedObs
+          });
+        });
+
       modifiedLhsPoses.sort((a, b) => {
         if (a.code < b.code) {
           return -1;

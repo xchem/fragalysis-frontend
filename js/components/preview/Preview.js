@@ -19,7 +19,12 @@ import { ModalShareSnapshot } from '../snapshot/modals/modalShareSnapshot';
 import { DownloadStructureDialog } from '../snapshot/modals/downloadStructuresDialog';
 //import HotspotList from '../hotspot/hotspotList';
 import { loadDatasetCompoundsWithScores, loadDataSets } from '../datasets/redux/dispatchActions';
-import { setMoleculeListIsLoading, setSelectedDatasetIndex, setAllInspirations } from '../datasets/redux/actions';
+import {
+  resetDatasetsState,
+  setMoleculeListIsLoading,
+  setSelectedDatasetIndex,
+  setAllInspirations
+} from '../datasets/redux/actions';
 import { prepareFakeFilterData } from './compounds/redux/dispatchActions';
 import { ViewerControls } from './viewerControls';
 
@@ -37,7 +42,11 @@ import { compareTagsAsc } from './tags/utils/tagUtils';
 import {
   setLHSDataIsLoaded,
   setLHSDataIsLoading,
+  setAllMolLists,
+  setCategoryList,
+  setLHSCompoundsList,
   setMoleculeTags,
+  setRHSCompoundsList,
   setRHSDataIsLoaded,
   setRHSDataIsLoading
 } from '../../reducers/api/actions';
@@ -111,6 +120,7 @@ const Preview = memo(({ isStateLoaded, hideProjects, isSnapshot = false }) => {
 
   const customDatasets = useSelector(state => state.datasetsReducers.datasets);
   const target_on = useSelector(state => state.apiReducers.target_on);
+  const sessionProjectId = useSelector(state => state.projectReducers.currentProject.projectID);
   const isTrackingRestoring = false; //useSelector(state => state.trackingReducers.isTrackingCompoundsRestoring);
 
   const all_mol_lists = useSelector(state => state.apiReducers.all_mol_lists);
@@ -134,6 +144,8 @@ const Preview = memo(({ isStateLoaded, hideProjects, isSnapshot = false }) => {
   const rhsDataIsLoaded = useSelector(state => state.apiReducers.rhsDataIsLoaded);
 
   const { setMoleculesAndTagsAreLoading } = useContext(LoadingContext);
+  const loadedTargetRef = useRef(null);
+  const loadedProjectRef = useRef(null);
 
   useDisplayLigandLHS();
   useDisplayProteinLHS();
@@ -148,14 +160,29 @@ const Preview = memo(({ isStateLoaded, hideProjects, isSnapshot = false }) => {
   useDisplaySurfaceRHS();
 
   useEffect(() => {
-    if (target_on /*&& !isSnapshot*/ && !lhsDataIsLoaded) {
+    const shouldLoadTarget =
+      target_on &&
+      (!lhsDataIsLoaded || loadedTargetRef.current !== target_on || loadedProjectRef.current !== sessionProjectId);
+
+    if (shouldLoadTarget) {
+      loadedTargetRef.current = target_on;
+      loadedProjectRef.current = sessionProjectId;
       dispatch(setLHSIsFullyRendered(false));
+      dispatch(setLHSDataIsLoading(true));
+      dispatch(setLHSDataIsLoaded(false));
+      dispatch(setRHSDataIsLoaded(false));
+      dispatch(setAllMolLists([]));
+      dispatch(setLHSCompoundsList([]));
+      dispatch(setRHSCompoundsList([]));
+      dispatch(setMoleculeTags([]));
+      dispatch(setCategoryList([]));
+      dispatch(resetDatasetsState());
       dispatch(loadMoleculesAndTagsNew(target_on)).then(() => {
         dispatch(setLHSDataIsLoading(false));
         dispatch(setLHSDataIsLoaded(true));
       });
     }
-  }, [dispatch, target_on, isSnapshot, setMoleculesAndTagsAreLoading, lhsDataIsLoaded]);
+  }, [dispatch, target_on, sessionProjectId, isSnapshot, setMoleculesAndTagsAreLoading, lhsDataIsLoaded]);
 
   /*
      Loading datasets

@@ -423,6 +423,7 @@ export const PoseList = memo(
       molForTagEditId,
       moleculesToEditIds,
       isGlobalEdit,
+      metaCategory: instanceConfig.metaCategory,
       getMoleculeForId: handlers.getMoleculeForId,
       updateCompound: handlers.updateTagEditorCompound,
       updateMoleculeInObservations: handlers.updateMoleculeInTagEditorObservations,
@@ -894,9 +895,7 @@ export const PoseList = memo(
         expectedRenderedItemsCount === 0 &&
         registeredMoleculeViewCount === 0 &&
         filteredLHSCompoundsList.length === 0 &&
-        lhsCompoundsList.length === 0 &&
-        joinedMoleculeLists.length === 0 &&
-        allMolListsLength === 0;
+        joinedMoleculeLists.length === 0;
 
       if (!hasRenderedVisibleSlice && !hasNoVisibleContent) {
         return;

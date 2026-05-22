@@ -1,6 +1,7 @@
 import { truncate } from 'lodash';
 import { createSelector } from 'reselect';
 import { CATEGORY_TYPE } from '../../../../constants/constants';
+import { TAG_META_CATEGORIES, isTagVisibleOnSide } from '../../tags/utils/tagUtils';
 
 const getAllMolecules = state => state.apiReducers.all_mol_lists;
 const getAllSelectedTags = state => state.selectionReducers.selectedTagList;
@@ -159,6 +160,30 @@ const getRHSDisplayAllMolecules = state => state.selectionReducers.rhs_displayAl
 const getLHSDisplayUntaggedMolecules = state => state.selectionReducers.lhs_displayUntaggedMolecules;
 const getRHSDisplayUntaggedMolecules = state => state.selectionReducers.rhs_displayUntaggedMolecules;
 
+const hasVisibleCuratorTag = (mol, tagList, categoryList, metaCategory = null) => {
+  const categories = [];
+  Object.entries(CATEGORY_TYPE).forEach(([key, categName]) => {
+    const categ = categoryList.find(c => c.category === categName);
+    if (categ) {
+      categories.push({ ...categ });
+    }
+  });
+
+  let hasCuratorTags = false;
+  categories.some(categ => {
+    mol.tags_set.some(tagId => {
+      const tag = tagList.find(t => t.id === tagId);
+      if (!tag.hidden && tag?.category === categ.id && isTagVisibleOnSide(tag, metaCategory)) {
+        hasCuratorTags = true;
+        return true;
+      }
+    });
+    return hasCuratorTags;
+  });
+
+  return hasCuratorTags;
+};
+
 export const selectJoinedMoleculeListLHS = createSelector(
   getAllMolecules,
   getLHSSelectedTags,
@@ -233,23 +258,7 @@ export const selectJoinedMoleculeListLHS = createSelector(
     } else {
       if (all_mol_lists) {
         allMoleculesList = all_mol_lists.filter(mol => {
-          const categories = [];
-          Object.entries(CATEGORY_TYPE).forEach(([key, categName]) => {
-            const categ = categoryList.find(c => c.category === categName);
-            if (categ) categories.push({ ...categ });
-          });
-
-          let hasCuratorTags = false;
-          categories.some(categ => {
-            mol.tags_set.some(tagId => {
-              const tag = tagList.find(t => t.id === tagId);
-              if (!tag.hidden && tag?.category === categ.id) {
-                hasCuratorTags = true;
-                return true;
-              }
-            });
-            return hasCuratorTags;
-          });
+          const hasCuratorTags = hasVisibleCuratorTag(mol, tagList, categoryList, TAG_META_CATEGORIES.LHS);
 
           return !mol.tags_set || mol.tags_set.length === 0 || !hasCuratorTags;
         });
@@ -339,23 +348,7 @@ export const selectJoinedMoleculeListRHS = createSelector(
     } else {
       if (all_mol_lists) {
         allMoleculesList = all_mol_lists.filter(mol => {
-          const categories = [];
-          Object.entries(CATEGORY_TYPE).forEach(([key, categName]) => {
-            const categ = categoryList.find(c => c.category === categName);
-            if (categ) categories.push({ ...categ });
-          });
-
-          let hasCuratorTags = false;
-          categories.some(categ => {
-            mol.tags_set.some(tagId => {
-              const tag = tagList.find(t => t.id === tagId);
-              if (!tag.hidden && tag?.category === categ.id) {
-                hasCuratorTags = true;
-                return true;
-              }
-            });
-            return hasCuratorTags;
-          });
+          const hasCuratorTags = hasVisibleCuratorTag(mol, tagList, categoryList, TAG_META_CATEGORIES.RHS);
 
           return !mol.tags_set || mol.tags_set.length === 0 || !hasCuratorTags;
         });

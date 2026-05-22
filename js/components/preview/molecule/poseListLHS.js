@@ -53,6 +53,7 @@ import { updateLHSCompound } from '../../../reducers/api/actions';
 import { PoseList } from './poseList';
 import { LHS_OBSERVATION_VIEW_CONFIG, buildObservationViewConfig } from './observationUnifiedView/viewConfigs';
 import { getDefaultComputedInspirations } from './utils/computedInspirations';
+import { TAG_META_CATEGORIES } from '../tags/utils/tagUtils';
 export const PoseListLHS = memo(({}) => {
   const dispatch = useDispatch();
 
@@ -268,7 +269,8 @@ export const PoseListLHS = memo(({}) => {
       selectSearchSettingsDialogOpen: state => state.selectionReducers.searchSettingsDialogOpen,
       selectAreLHSCompoundsInitialized: state => state.selectionReducers.areLSHCompoundsInitialized,
       tagEditorOpenActionCreator: setTagEditorOpen,
-      instanceSide: 'lhs'
+      instanceSide: 'lhs',
+      metaCategory: TAG_META_CATEGORIES.LHS
     }),
     []
   );

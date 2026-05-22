@@ -128,10 +128,10 @@ export const updateTarget = ({ targetName, projectName, setIsLoading, targetIdLi
         .then(response => {
           let promises = [];
           if (!isActionRestoring || isActionRestoring === false) {
-            if (!targetOn) {
+            if (targetOn !== response.data.target.id) {
               promises.push(dispatch(setTargetOn(response.data.target.id, true)));
             }
-            if (!currentSessionProject) {
+            if (!currentSessionProject || currentSessionProject.projectID !== response.data.id) {
               promises.push(
                 dispatch(
                   setCurrentProject({
@@ -145,7 +145,7 @@ export const updateTarget = ({ targetName, projectName, setIsLoading, targetIdLi
                 )
               );
             }
-            if (!currentProject) {
+            if (!currentProject || currentProject.id !== response.data.project.id) {
               promises.push(dispatch(setProject(response.data.project)));
             }
           }

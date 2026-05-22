@@ -29,7 +29,7 @@ const useStyles = makeStyles(theme => ({
  *  -if is- behaves as Assign tag element and assignes tags to hits
  *  -if is NOT- behaves as Hit filter element and filters hits in Hit navigator
  */
-const TagCategoryGridView = memo(({ name, tags, specialTags, clickCallback, disabled = false }) => {
+const TagCategoryGridView = memo(({ name, tags, specialTags, clickCallback, disabled = false, metaCategory = null }) => {
   const classes = useStyles();
   const selectedTagList = useSelector(state => state.selectionReducers.selectedTagList);
   const dispatch = useDispatch();
@@ -76,7 +76,7 @@ const TagCategoryGridView = memo(({ name, tags, specialTags, clickCallback, disa
     let partiallySelected = false;
     for (let i = 0; i < moleculesToEdit.length; i++) {
       const m = moleculesToEdit[i];
-      const tagsForMol = getAllTagsForMol(m, tagList);
+      const tagsForMol = getAllTagsForMol(m, tagList, metaCategory);
       if (tagsForMol && tagsForMol.some(t => t.id === tag.id)) {
         result = true;
         // break;

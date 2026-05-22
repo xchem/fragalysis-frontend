@@ -701,7 +701,7 @@ export const DetailView = memo(
 
     const generateTagPopover = useCallback(() => {
       // console.log('generateTagPopover');
-      const allTagsData = getAllTagsForLHSCmp(observations, tagList, tagCategories);
+      const allTagsData = getAllTagsForLHSCmp(observations, tagList, tagCategories, viewConfig.kind);
       const allData = allTagsData.filter(
         tagData =>
           !tagData.hidden &&
@@ -960,7 +960,8 @@ export const DetailView = memo(
       isRowTagEditorOpen,
       tagEditorOpen,
       tagList,
-      tagPopoverOpen
+      tagPopoverOpen,
+      viewConfig.kind
     ]);
 
     const addNewLigand = (skipTracking = false) => {

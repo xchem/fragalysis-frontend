@@ -54,7 +54,7 @@ import { readQualityInformation } from '../../../nglView/renderingHelpers';
 import { getLigandData } from '../../tags/redux/dispatchActions';
 import { appendRHSSelectedTag, appendLHSSelectedTag } from '../../../../reducers/selection/actions';
 import { selectJoinedMoleculeList } from './selectors';
-import { compareTagsAsc } from '../../tags/utils/tagUtils';
+import { compareTagsAsc, isTagVisibleOnSide, TAG_META_CATEGORIES } from '../../tags/utils/tagUtils';
 import { createPoseApi, updatePoseApi } from '../api/poseApi';
 import { NGL_OBJECTS } from '../../../../reducers/ngl/constants';
 // import { molFile, pdbApo } from './testData';
@@ -481,7 +481,9 @@ export const initializeMolecules = majorView => (dispatch, getState) => {
       } else if (noTagsReceived) {
         // firstMolecule = dispatch(getFirstMolecule());
       }
-      firstMolecule = dispatch(getFirstMolOfFirstCompound(firstTag));
+      if (firstTag) {
+        firstMolecule = dispatch(getFirstMolOfFirstCompound(firstTag));
+      }
       if (firstMolecule) {
         dispatch(addHitProtein(majorView, firstMolecule, colourList[firstMolecule.id % colourList.length], true)).then(
           () => {
@@ -509,7 +511,7 @@ export const getFirstTagAlphabetically = () => (dispatch, getState) => {
   const state = getState();
   const tagsList = state.apiReducers.tagList;
   const newTagList = tagsList.filter(t => {
-    if (t.additional_info?.downloadName || t.hidden) {
+    if (t.additional_info?.downloadName || t.hidden || !isTagVisibleOnSide(t, TAG_META_CATEGORIES.LHS)) {
       return false;
     } else {
       return true;
@@ -523,7 +525,7 @@ export const getFirstRHSTagAlphabetically = () => (dispatch, getState) => {
   const state = getState();
   const tagsList = state.apiReducers.tagList;
   const newTagList = tagsList.filter(t => {
-    if (t.additional_info?.downloadName || t.hidden || !t.rhs) {
+    if (t.additional_info?.downloadName || t.hidden || !isTagVisibleOnSide(t, TAG_META_CATEGORIES.RHS)) {
       return false;
     } else {
       return true;
@@ -547,6 +549,10 @@ export const initializeRHSMolecules = () => (dispatch, getState) => {
 };
 
 export const getFirstMolOfFirstCompound = tag => (dispatch, getState) => {
+  if (!tag) {
+    return null;
+  }
+
   const state = getState();
   const compoundsList = state.apiReducers.lhs_compounds_list;
   const firstCompound = compoundsList?.find(c => c.associatedObs.some(obs => obs.tags_set.includes(tag.id)));

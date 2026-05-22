@@ -123,6 +123,7 @@ const TagEditorComponent = (
     molForTagEditId = [],
     moleculesToEditIds = [],
     isGlobalEdit = false,
+    metaCategory = null,
     getMoleculeForId = () => null,
     updateCompound = () => {},
     updateMoleculeInObservations = () => {},
@@ -241,7 +242,8 @@ const TagEditorComponent = (
                 tag.mol_group,
                 tag.hidden,
                 tag.tag_prefix,
-                tag.upload_name
+                tag.upload_name,
+                tag.meta_category
               );
               molTagObjects.push(mtObject);
             }
@@ -273,7 +275,8 @@ const TagEditorComponent = (
                   tag.mol_group,
                   tag.hidden,
                   tag.tag_prefix,
-                  tag.upload_name
+                  tag.upload_name,
+                  tag.meta_category
                 );
                 molTagObjects.push(mtObject);
               }
@@ -375,7 +378,7 @@ const TagEditorComponent = (
             molsLeft={molsLeftForTagging}
           />
           <Grid className={classes.content}>
-            <TagCategory tagClickCallback={handleTagClick} disabled={!DJANGO_CONTEXT.pk} />
+            <TagCategory tagClickCallback={handleTagClick} disabled={!DJANGO_CONTEXT.pk} metaCategory={metaCategory} />
           </Grid>
         </Panel>
       </Popper>

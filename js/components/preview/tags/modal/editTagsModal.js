@@ -21,7 +21,8 @@ import {
   augumentTagObjectWithId,
   compareTagsByCategoryAndNameAsc,
   createMoleculeTagObject,
-  getEditNewTagCategories
+  getEditNewTagCategories,
+  TAG_META_CATEGORIES
 } from '../utils/tagUtils';
 import { ColorPicker } from '../../../common/Components/ColorPicker';
 import { DJANGO_CONTEXT } from '../../../../utils/djangoContext';
@@ -58,7 +59,7 @@ const useStyles = makeStyles(theme => ({
 
 const NEW_TAG = { id: -1, tag: '-- new tag --', category: DEFAULT_CATEGORY, colour: DEFAULT_TAG_COLOR };
 
-export const EditTagsModal = memo(({ open, anchorEl, setOpenDialog }) => {
+export const EditTagsModal = memo(({ open, anchorEl, setOpenDialog, metaCategory = TAG_META_CATEGORIES.LHS }) => {
   const classes = useStyles();
   const dispatch = useDispatch();
 
@@ -80,6 +81,7 @@ export const EditTagsModal = memo(({ open, anchorEl, setOpenDialog }) => {
   const [newTagLink, setNewTagLink] = useState('');
   const [newHidden, setNewHidden] = useState(false);
   const [newTagCategory, setNewTagCategory] = useState(DEFAULT_CATEGORY);
+  const [newMetaCategory, setNewMetaCategory] = useState(metaCategory);
 
   const getTagLabel = tag => {
     return tag.tag_prefix ? tag.tag_prefix + ' - ' + tag.tag : tag.tag;
@@ -136,8 +138,9 @@ export const EditTagsModal = memo(({ open, anchorEl, setOpenDialog }) => {
       setNewTagName(tag.tag);
       setNewTagLink(tag.discourse_url);
       setNewHidden(tag.hidden || false);
+      setNewMetaCategory(tag.meta_category || metaCategory);
     }
-  }, [getColourForTag, tag]);
+  }, [getColourForTag, metaCategory, tag]);
 
   const comboCategories = useMemo(() => {
     return getEditNewTagCategories(tagCategories);
@@ -173,6 +176,7 @@ export const EditTagsModal = memo(({ open, anchorEl, setOpenDialog }) => {
     setNewTagName('');
     setNewTagLink('');
     setNewHidden(false);
+    setNewMetaCategory(metaCategory);
     dispatch(setTagToEdit(null));
   };
 
@@ -194,6 +198,10 @@ export const EditTagsModal = memo(({ open, anchorEl, setOpenDialog }) => {
   const onHiddenForNewTagChange = useCallback(event => {
     setNewHidden(event.target.checked);
   }, []);
+
+  const onMetaCategoryForNewTagChange = event => {
+    setNewMetaCategory(event.target.value);
+  };
 
   const validateTag = () => {
     let valid = true;
@@ -217,7 +225,10 @@ export const EditTagsModal = memo(({ open, anchorEl, setOpenDialog }) => {
         new Date(),
         null,
         null,
-        newHidden
+        newHidden,
+        null,
+        null,
+        newMetaCategory
       );
       createNewTag(tagObject, targetName).then(molTag => {
         let augMolTagObject = augumentTagObjectWithId(
@@ -232,7 +243,11 @@ export const EditTagsModal = memo(({ open, anchorEl, setOpenDialog }) => {
             help_text: molTag.help_text,
             additional_info: molTag.additional_info,
             mol_group: molTag.mol_group,
-            hidden: molTag.hidden
+            hidden: molTag.hidden,
+            site_observations: molTag.site_observations,
+            tag_prefix: molTag.tag_prefix,
+            upload_name: molTag.upload_name,
+            meta_category: molTag.meta_category
           },
           molTag.id
         );
@@ -261,7 +276,8 @@ export const EditTagsModal = memo(({ open, anchorEl, setOpenDialog }) => {
               colour: newTagColor,
               tag: newTagName,
               discourse_url: newTagLink,
-              hidden: newHidden
+              hidden: newHidden,
+              meta_category: newMetaCategory
             }),
             newTagName,
             'tag'
@@ -275,7 +291,8 @@ export const EditTagsModal = memo(({ open, anchorEl, setOpenDialog }) => {
               colour: newTagColor,
               tag: newTagName,
               discourse_url: newTagLink,
-              hidden: newHidden
+              hidden: newHidden,
+              meta_category: newMetaCategory
             }),
             newTagName,
             'tag'
@@ -449,6 +466,15 @@ export const EditTagsModal = memo(({ open, anchorEl, setOpenDialog }) => {
                 onChange={onHiddenForNewTagChange}
                 disabled={isRestricted(tag)}
               />
+            )}
+          </Grid>
+          <Grid item container direction="row" alignItems="center" className={classes.row}>
+            {leftSide('Side')}
+            {rightSide(
+              <Select value={newMetaCategory || metaCategory} onChange={onMetaCategoryForNewTagChange}>
+                <MenuItem value={TAG_META_CATEGORIES.LHS}>LHS</MenuItem>
+                <MenuItem value={TAG_META_CATEGORIES.RHS}>RHS</MenuItem>
+              </Select>
             )}
           </Grid>
           <Grid item container direction="row" alignItems="center" className={classes.row}>

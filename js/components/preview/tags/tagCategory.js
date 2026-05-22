@@ -1,26 +1,22 @@
 import React, { memo } from 'react';
-import { Grid, makeStyles } from '@material-ui/core';
+import { Grid } from '@material-ui/core';
 import { useSelector } from 'react-redux';
 import TagCategoryView from './tagCategoryListView';
 import TagCategoryGridView from './tagCategoryGridView';
-import { CATEGORY_TYPE } from '../../../constants/constants';
-import { compareTagsAsc, getProhibitedCategoriesForEditIds } from './utils/tagUtils';
+import { compareTagsAsc, getProhibitedCategoriesForEditIds, isTagVisibleOnSide } from './utils/tagUtils';
 
-const useStyles = makeStyles(theme => ({
-  category: {
-    display: '-webkit-box'
-  }
-}));
-
-const TagCategory = memo(({ tagClickCallback, disabled = false }) => {
-  const classes = useStyles();
-
+const TagCategory = memo(({ tagClickCallback, disabled = false, metaCategory = null }) => {
   const categoryList = useSelector(state => state.apiReducers.categoryList);
   const listOfProhibitedCategories = getProhibitedCategoriesForEditIds(categoryList);
   let tagList = useSelector(state => state.apiReducers.tagList);
   tagList = tagList
     .filter(t => {
-      if (t.hidden || t.additional_info?.downloadName || listOfProhibitedCategories.some(cid => cid === t.category)) {
+      if (
+        t.hidden ||
+        t.additional_info?.downloadName ||
+        listOfProhibitedCategories.some(cid => cid === t.category) ||
+        !isTagVisibleOnSide(t, metaCategory)
+      ) {
         return false;
       } else {
         return true;
@@ -35,13 +31,13 @@ const TagCategory = memo(({ tagClickCallback, disabled = false }) => {
       {assignTagView === true ? (
         <>
           <Grid>
-            <TagCategoryView tags={tagList} clickCallback={tagClickCallback} disabled={disabled} />
+            <TagCategoryView tags={tagList} clickCallback={tagClickCallback} disabled={disabled} metaCategory={metaCategory} />
           </Grid>
         </>
       ) : (
         <>
           <Grid>
-            <TagCategoryGridView tags={tagList} clickCallback={tagClickCallback} disabled={disabled} />
+            <TagCategoryGridView tags={tagList} clickCallback={tagClickCallback} disabled={disabled} metaCategory={metaCategory} />
           </Grid>
         </>
       )}

@@ -56,6 +56,7 @@ import { RHS_OBSERVATION_VIEW_CONFIG, buildObservationViewConfig } from './obser
 import { TooltipPathProvider } from '../../tooltip/TooltipPathContext';
 import { MOL_REPRESENTATION } from '../../nglView/constants';
 import { getDefaultComputedInspirations, getFilteredComputedInspirations } from './utils/computedInspirations';
+import { TAG_META_CATEGORIES } from '../tags/utils/tagUtils';
 
 const RHS_LIGAND_REPRESENTATIONS = [
   {
@@ -68,6 +69,33 @@ const RHS_LIGAND_REPRESENTATIONS = [
   }
 ];
 
+const createRHSObservationPose = (pose, observation) => ({
+  ...pose,
+  id: `${pose.id}-${observation.id}`,
+  display_name: observation.code || observation.name || pose.display_name,
+  canon_site: pose.canon_site ?? null,
+  compound: observation.cmpd,
+  main_site_observation: observation.id,
+  site_observations: [observation.id],
+  main_site_observation_cmpd_code: observation.cmpd_code || observation.compound_code,
+  smiles: observation.smiles || pose.smiles,
+  code: observation.code || pose.code || pose.display_name,
+  canonSiteConf: observation.canon_site_conf,
+  canonSite: pose.canonSite ?? null,
+  associatedObs: [{ ...observation }]
+});
+
+const splitRHSPosesByObservation = poses =>
+  (poses || []).flatMap(pose => {
+    const associatedObs = pose.associatedObs || [];
+
+    if (associatedObs.length <= 1) {
+      return [pose];
+    }
+
+    return associatedObs.map(observation => createRHSObservationPose(pose, observation));
+  });
+
 export const PoseListRHS = memo(({ expandHandler }) => {
   const dispatch = useDispatch();
 
@@ -75,6 +103,7 @@ export const PoseListRHS = memo(({ expandHandler }) => {
   const datasetID = useSelector(state => state.datasetsReducers.datasets[0]?.id);
   const currentMoleculeList = useSelector(state => state.datasetsReducers.moleculeLists[datasetID] || []);
   const rhsCompoundsList = useSelector(state => getRHSCompoundsList(state));
+  const rhsPosesByObservation = useMemo(() => splitRHSPosesByObservation(rhsCompoundsList), [rhsCompoundsList]);
 
   // Shared state (same as PoseListLHS)
   const nextXMolecules = useSelector(state => state.selectionReducers.nextXMolecules);
@@ -147,7 +176,10 @@ export const PoseListRHS = memo(({ expandHandler }) => {
   // then intersect with the dataset's currentMoleculeList.
   const tagFilteredJoinedMolecules = useSelector(state => selectJoinedMoleculeListRHS(state));
   const getJoinedMoleculeList = useMemo(() => {
-    if (!tagFilteredJoinedMolecules || !currentMoleculeList) return [];
+    if (!tagFilteredJoinedMolecules) return [];
+    if (!currentMoleculeList || currentMoleculeList.length === 0) {
+      return tagFilteredJoinedMolecules;
+    }
     return tagFilteredJoinedMolecules.filter(mol => currentMoleculeList.some(m => m.id === mol.id));
   }, [tagFilteredJoinedMolecules, currentMoleculeList]);
 
@@ -380,7 +412,8 @@ export const PoseListRHS = memo(({ expandHandler }) => {
       selectSearchSettingsDialogOpen: state => state.selectionReducers.searchSettingsDialogOpen,
       selectAreLHSCompoundsInitialized: state => state.selectionReducers.areRHSCompoundsInitialized,
       tagEditorOpenActionCreator: setTagEditorOpen,
-      instanceSide: 'rhs'
+      instanceSide: 'rhs',
+      metaCategory: TAG_META_CATEGORIES.RHS
     }),
     []
   );
@@ -434,7 +467,7 @@ export const PoseListRHS = memo(({ expandHandler }) => {
         categories={categories}
         lhsDataIsLoaded={rhsDataIsLoaded}
         observationsForLHSCmp={observationsForLHSCmp}
-        lhsCompoundsList={rhsCompoundsList || []}
+        lhsCompoundsList={rhsPosesByObservation}
         proteinsHasLoaded={proteinsHasLoaded}
         searchSettings={searchSettings}
         viewConfig={viewConfig}

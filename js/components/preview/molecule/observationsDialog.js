@@ -742,7 +742,8 @@ export const ObservationsDialog = memo(
                 tag.mol_group,
                 tag.hidden,
                 tag.tag_prefix,
-                tag.upload_name
+                tag.upload_name,
+                tag.meta_category
               );
               molTagObjects.push(mtObject);
             }
@@ -809,7 +810,8 @@ export const ObservationsDialog = memo(
               tag.mol_group,
               tag.hidden,
               tag.tag_prefix,
-              tag.upload_name
+              tag.upload_name,
+              tag.meta_category
             );
             molTagObjects.push(mtObject);
           }

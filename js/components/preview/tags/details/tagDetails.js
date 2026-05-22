@@ -157,7 +157,8 @@ const TagDetails = memo(
     onDisplayUntaggedMoleculesChange = () => {},
     onTagDetailViewChange = () => {},
     onSelectAllTags = () => {},
-    onClearAllTags = () => {}
+    onClearAllTags = () => {},
+    metaCategory = null
   }) => {
     const classes = useStyles();
     const ref = useRef(null);
@@ -206,7 +207,7 @@ const TagDetails = memo(
       return () => {
         setTagList([]);
       };
-    }, [preTagList, tagCategories]);
+    }, [panelLayoutItemName, preTagList, tagCategories]);
 
     const moleculesToEditIds = useSelector(state => state.selectionReducers.moleculesToEdit);
     const moleculesToEdit =
@@ -474,6 +475,7 @@ const TagDetails = memo(
                   open={showEditTagsModal}
                   setOpenDialog={setShowEditTagsModal}
                   anchorEl={ref?.current}
+                  metaCategory={metaCategory}
                 />
               </TooltipPathProvider>
             ]}

@@ -1,4 +1,5 @@
 import { createSelector } from "reselect";
+import { TAG_META_CATEGORIES, isTagVisibleOnSide } from '../../components/preview/tags/utils/tagUtils';
 
 export const getMoleculeList = state => state.apiReducers.molecule_list;
 export const getAllMoleculeList = state => state.apiReducers.all_mol_lists;
@@ -24,5 +25,9 @@ export const getCurrentTarget = state => {
 
   return targets?.find(target => target.id === target_on);
 };
-export const getLHSTags = createSelector(state => state.apiReducers.tagList, tagList => tagList.filter(tag => !!!tag.rhs));
-export const getRHSTags = createSelector(state => state.apiReducers.tagList, tagList => tagList.filter(tag => !!tag.rhs));
+export const getLHSTags = createSelector(state => state.apiReducers.tagList, tagList =>
+  tagList.filter(tag => isTagVisibleOnSide(tag, TAG_META_CATEGORIES.LHS))
+);
+export const getRHSTags = createSelector(state => state.apiReducers.tagList, tagList =>
+  tagList.filter(tag => isTagVisibleOnSide(tag, TAG_META_CATEGORIES.RHS))
+);

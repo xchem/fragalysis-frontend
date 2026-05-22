@@ -13,6 +13,7 @@ import { selectAllTags, clearAllTags } from '../redux/dispatchActions';
 import TagDetails from './tagDetails';
 import { TagDetailRowRHS } from './tagDetailRowRHS';
 import { TagGridRowsRHS } from './tagGridRowsRHS';
+import { TAG_META_CATEGORIES } from '../utils/tagUtils';
 
 export const TagDetailsRHS = memo(({ expandHandler = null }) => {
   const dispatch = useDispatch();
@@ -78,6 +79,7 @@ export const TagDetailsRHS = memo(({ expandHandler = null }) => {
       onTagDetailViewChange={handleTagDetailViewChange}
       onSelectAllTags={handleSelectAllTags}
       onClearAllTags={handleClearAllTags}
+      metaCategory={TAG_META_CATEGORIES.RHS}
     />
   );
 });

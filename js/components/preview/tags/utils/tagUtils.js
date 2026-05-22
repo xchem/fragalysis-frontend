@@ -1,15 +1,30 @@
-import { is } from 'date-fns/locale';
 import {
   CATEGORY_TYPE_BY_ID,
   OBSERVATION_TAG_CATEGORIES,
   COMPOUND_PRIO_TAG_CATEGORIES,
   TAG_DETAILS_REMOVED_CATEGORIES,
-  NON_ASSIGNABLE_CATEGORIES,
-  CATEGORY_TYPE
+  NON_ASSIGNABLE_CATEGORIES
 } from '../../../../constants/constants';
 
 export const DEFAULT_TAG_COLOR = '#E0E0E0';
 export const DEFAULT_CATEGORY = 8;
+export const TAG_META_CATEGORIES = {
+  LHS: 'lhs',
+  RHS: 'rhs'
+};
+
+export const isTagVisibleOnSide = (tag, metaCategory) => {
+  if (!metaCategory) {
+    return true;
+  }
+
+  const tagMetaCategory = tag?.meta_category?.toLowerCase().trim();
+  if (!tagMetaCategory) {
+    return metaCategory === TAG_META_CATEGORIES.LHS;
+  }
+
+  return tagMetaCategory === metaCategory;
+};
 
 export const createMoleculeTagObject = (
   tagName,
@@ -24,7 +39,8 @@ export const createMoleculeTagObject = (
   molGroup = null,
   hidden = false,
   tag_prefix = null,
-  upload_name = null
+  upload_name = null,
+  meta_category = null
 ) => {
   return {
     tag: tagName,
@@ -40,7 +56,8 @@ export const createMoleculeTagObject = (
     mol_group: molGroup,
     hidden: hidden,
     tag_prefix: tag_prefix,
-    upload_name: upload_name
+    upload_name: upload_name,
+    meta_category: meta_category
   };
 };
 
@@ -68,8 +85,8 @@ export const compareTagsByCategoryAndName = (a, b, asc = true) => {
 };
 
 export const compareTagsByCategoryAndNameAsc = (a, b) => {
-  compareTagsByCategoryAndName(a, b, true);
-}
+  return compareTagsByCategoryAndName(a, b, true);
+};
 
 export const compareTagsAsc = (a, b) => {
   return compareTagsByCategoryAndName(a, b, true);
@@ -147,13 +164,13 @@ export const augumentTagObjectWithId = (tag, tagId) => {
   return { ...tag, id: tagId };
 };
 
-export const getAllTagsForMol = (mol, tagList) => {
+export const getAllTagsForMol = (mol, tagList, metaCategory = null) => {
   const result = [];
 
   mol.tags_set &&
     mol.tags_set.forEach(tagId => {
       let tag = tagList.filter(t => t.id === tagId);
-      if (tag && tag.length > 0) {
+      if (tag && tag.length > 0 && isTagVisibleOnSide(tag[0], metaCategory)) {
         result.push(tag[0]);
       }
     });
@@ -174,13 +191,13 @@ export const getObservationTagConfig = tagCategoryList => {
   return result;
 };
 
-export const getAllTagsForCategories = (obs, tagList, tagCategoryList) => {
+export const getAllTagsForCategories = (obs, tagList, tagCategoryList, metaCategory = null) => {
   const result = [];
 
   tagCategoryList.forEach(categ => {
     obs?.tags_set.find(tagId => {
       const tag = tagList.find(t => t.id === tagId);
-      if (tag?.category === categ.id) {
+      if (tag?.category === categ.id && isTagVisibleOnSide(tag, metaCategory)) {
         result.push(tag);
       }
     });
@@ -189,14 +206,14 @@ export const getAllTagsForCategories = (obs, tagList, tagCategoryList) => {
   return result;
 };
 
-export const getAllTagsForObservation = (obs, tagList, tagCategoryList) => {
+export const getAllTagsForObservation = (obs, tagList, tagCategoryList, metaCategory = null) => {
   const result = [];
 
   const categories = getObservationTagConfig(tagCategoryList);
   categories.forEach(categ => {
     obs?.tags_set.find(tagId => {
       const tag = tagList.find(t => t.id === tagId);
-      if (tag?.category === categ.id) {
+      if (tag?.category === categ.id && isTagVisibleOnSide(tag, metaCategory)) {
         result.push(tag);
       }
     });
@@ -213,7 +230,7 @@ export const getAllTagsForObservation = (obs, tagList, tagCategoryList) => {
  * @param {*} tagCategoryList
  * @returns
  */
-export const getAllTagsForObservationPopover = (obs, tagList, tagCategoryList) => {
+export const getAllTagsForObservationPopover = (obs, tagList, tagCategoryList, metaCategory = null) => {
   const result = [];
   const categories = [];
 
@@ -226,7 +243,7 @@ export const getAllTagsForObservationPopover = (obs, tagList, tagCategoryList) =
   categories.forEach(categ => {
     obs?.tags_set.find(tagId => {
       const tag = tagList.find(t => t.id === tagId);
-      if (!tag.hidden && tag?.category === categ.id) {
+      if (!tag.hidden && tag?.category === categ.id && isTagVisibleOnSide(tag, metaCategory)) {
         result.push(tag);
       }
     });
@@ -268,7 +285,7 @@ export const getCompoundPriorityTagConfig = (tagCategoryList, isSingleObs) => {
   return result;
 };
 
-export const getAllTagsForLHSCmp = (observations, tagList, tagCategoryList) => {
+export const getAllTagsForLHSCmp = (observations, tagList, tagCategoryList, metaCategory = null) => {
   let result = [];
 
   // const isSingleObs = !!(observations?.length <= 1);
@@ -281,7 +298,7 @@ export const getAllTagsForLHSCmp = (observations, tagList, tagCategoryList) => {
     observations?.forEach(obs =>
       obs?.tags_set.find(tagId => {
         const tag = tagList.find(t => t.id === tagId);
-        if (tag?.category === categ.id && !prioTags.some(t => t.id === tag.id)) {
+        if (tag?.category === categ.id && isTagVisibleOnSide(tag, metaCategory) && !prioTags.some(t => t.id === tag.id)) {
           prioTags.push(tag);
         }
       })
@@ -291,11 +308,12 @@ export const getAllTagsForLHSCmp = (observations, tagList, tagCategoryList) => {
   const restOfTheTags = [];
 
   observations?.forEach(obs => {
-    const obsPrioTags = getAllTagsForObservation(obs, tagList, tagCategoryList);
+    const obsPrioTags = getAllTagsForObservation(obs, tagList, tagCategoryList, metaCategory);
     obs?.tags_set.forEach(tagId => {
       let tag = tagList.find(t => t.id === tagId);
       if (
         tag &&
+        isTagVisibleOnSide(tag, metaCategory) &&
         !restOfTheTags.some(t => t.id === tag.id) &&
         !prioTags.some(t => t.id === tag.id) &&
         !obsPrioTags.some(t => t.id === tag.id)
