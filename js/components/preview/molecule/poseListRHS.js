@@ -72,6 +72,7 @@ const RHS_LIGAND_REPRESENTATIONS = [
 const createRHSObservationPose = (pose, observation) => ({
   ...pose,
   id: `${pose.id}-${observation.id}`,
+  parent_pose_id: pose.parent_pose_id || pose.id,
   display_name: observation.code || observation.name || pose.display_name,
   canon_site: pose.canon_site ?? null,
   compound: observation.cmpd,
@@ -85,8 +86,26 @@ const createRHSObservationPose = (pose, observation) => ({
   associatedObs: [{ ...observation }]
 });
 
+const getRHSObservationPoseObservation = pose =>
+  pose?.associatedObs?.find(observation => observation.id === pose.main_site_observation) || pose?.associatedObs?.[0];
+
+const isRHSObservationPoseChild = (pose, poses) => {
+  const observation = getRHSObservationPoseObservation(pose);
+
+  if (!observation) {
+    return false;
+  }
+
+  return poses.some(
+    parentPose =>
+      parentPose.id !== pose.id &&
+      parentPose.site_observations?.includes(observation.id) &&
+      (pose.parent_pose_id === parentPose.id || pose.id === `${parentPose.id}-${observation.id}`)
+  );
+};
+
 const splitRHSPosesByObservation = poses =>
-  (poses || []).flatMap(pose => {
+  (poses || []).filter(pose => !isRHSObservationPoseChild(pose, poses || [])).flatMap(pose => {
     const associatedObs = pose.associatedObs || [];
 
     if (associatedObs.length <= 1) {
@@ -95,6 +114,42 @@ const splitRHSPosesByObservation = poses =>
 
     return associatedObs.map(observation => createRHSObservationPose(pose, observation));
   });
+
+const updateRHSObservationPose = pose => (dispatch, getState) => {
+  const observation = getRHSObservationPoseObservation(pose);
+
+  if (!observation) {
+    dispatch(updateRHSCompound(pose));
+    return;
+  }
+
+  const rhsCompoundsList = getState().apiReducers.rhs_compounds_list || [];
+  const parentPose =
+    rhsCompoundsList.find(rhsPose => rhsPose.id === pose.parent_pose_id) ||
+    rhsCompoundsList.find(rhsPose => rhsPose.id === pose.id) ||
+    rhsCompoundsList.find(rhsPose => rhsPose.site_observations?.includes(observation.id));
+
+  if (!parentPose) {
+    dispatch(updateRHSCompound(pose));
+    return;
+  }
+
+  const associatedObs = parentPose.associatedObs || [];
+  const nextAssociatedObs = associatedObs.some(obs => obs.id === observation.id)
+    ? associatedObs.map(obs => (obs.id === observation.id ? observation : obs))
+    : [...associatedObs, observation];
+  const nextSiteObservations = parentPose.site_observations?.includes(observation.id)
+    ? parentPose.site_observations
+    : [...(parentPose.site_observations || []), observation.id];
+
+  dispatch(
+    updateRHSCompound({
+      ...parentPose,
+      associatedObs: nextAssociatedObs,
+      site_observations: nextSiteObservations
+    })
+  );
+};
 
 export const PoseListRHS = memo(({ expandHandler }) => {
   const dispatch = useDispatch();
@@ -394,7 +449,7 @@ export const PoseListRHS = memo(({ expandHandler }) => {
       setTagEditorOpen: value => dispatch(setTagEditorOpen(value)),
       setIsTagEditorForCurrentSide: () => dispatch(setIsLHSCmpTagEdit(false)),
       resetTagEditorSide: () => dispatch(setIsLHSCmpTagEdit(false)),
-      updateTagEditorCompound: cmp => dispatch(updateRHSCompound(cmp)),
+      updateTagEditorCompound: cmp => dispatch(updateRHSObservationPose(cmp)),
       updateMoleculeInTagEditorObservations: mol => dispatch(updateMoleculeInLHSObservations(mol)),
       setSortDialogOpen: value => dispatch(setSortDialogOpen(value)),
       selectAllHits: (allFilteredLhsCompounds, unselect) =>
