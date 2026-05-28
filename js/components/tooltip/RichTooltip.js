@@ -1,6 +1,6 @@
 // js/components/tooltip/RichTooltip.js
 
-import React, { memo, useEffect, useMemo, useRef, useState } from 'react';
+import React, { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Tooltip, makeStyles } from '@material-ui/core';
 import classNames from 'classnames';
 import Markdown from 'markdown-to-jsx';
@@ -136,7 +136,11 @@ const RichTooltip = memo(function RichTooltip({
   const fullPath = useMemo(() => resolve(path, { absolute: absolutePath }), [resolve, path, absolutePath]);
   // console.log(`FullPath: ${fullPath}`);
   const tooltipEntry = useMemo(() => getTooltip(tooltips, fullPath, fallback), [tooltips, fullPath, fallback]);
-  let resolvedTooltipEntry = useMemo(() => interpolate(tooltipEntry, values), [tooltipEntry, values]);
+  const resolvedTooltipEntry = useMemo(() => interpolate(tooltipEntry, values), [tooltipEntry, values]);
+  const hasTooltipText = Boolean(resolvedTooltipEntry && resolvedTooltipEntry.text && resolvedTooltipEntry.text.trim());
+  const showDebugPathOnly = !hasTooltipText && shiftDown;
+  const shouldShowTooltip = hasTooltipText || showDebugPathOnly;
+  const tooltipText = hasTooltipText ? resolvedTooltipEntry.text : fullPath;
   const mergedTransitionProps = useMemo(() => {
     return {
       timeout:
@@ -147,7 +151,7 @@ const RichTooltip = memo(function RichTooltip({
     };
   }, [transitionPropsProp]);
 
-  const openTooltip = event => {
+  const openTooltip = useCallback(event => {
     clearTimeout(popperLeaveTimerRef.current);
     popperLeaveTimerRef.current = null;
 
@@ -155,9 +159,9 @@ const RichTooltip = memo(function RichTooltip({
     isOpenRef.current = true;
     setIsOpen(true);
     if (onOpenProp) onOpenProp(event);
-  };
+  }, [onOpenProp]);
 
-  const closeTooltip = event => {
+  const closeTooltip = useCallback(event => {
     clearTimeout(popperLeaveTimerRef.current);
     popperLeaveTimerRef.current = null;
 
@@ -169,7 +173,7 @@ const RichTooltip = memo(function RichTooltip({
     isOpenRef.current = false;
     setIsOpen(false);
     if (onCloseProp) onCloseProp(event);
-  };
+  }, [onCloseProp]);
   const mergedPopperProps = {
     ...popperPropsProp,
     onMouseOver: event => {
@@ -212,14 +216,12 @@ const RichTooltip = memo(function RichTooltip({
   };
 
   useEffect(() => {
-    if (!isOpen) {
-      // Ensure it clears when tooltip closes
-      setShiftDown(false);
-      return;
-    }
-
     const onKeyDown = e => {
-      if (e.key === 'Shift') setShiftDown(true);
+      if (e.key !== 'Shift') return;
+      setShiftDown(true);
+      if (!hasTooltipText && (anchorHoveredRef.current || anchorFocusedRef.current)) {
+        openTooltip(e);
+      }
     };
 
     const onKeyUp = e => {
@@ -233,7 +235,13 @@ const RichTooltip = memo(function RichTooltip({
       window.removeEventListener('keydown', onKeyDown);
       window.removeEventListener('keyup', onKeyUp);
     };
-  }, [isOpen]);
+  }, [hasTooltipText, openTooltip]);
+
+  useEffect(() => {
+    if (!shouldShowTooltip && isOpenRef.current) {
+      closeTooltip();
+    }
+  }, [closeTooltip, shouldShowTooltip]);
 
   useEffect(() => {
     return () => {
@@ -247,12 +255,6 @@ const RichTooltip = memo(function RichTooltip({
     };
   }, []);
 
-  if (!resolvedTooltipEntry || !resolvedTooltipEntry.text) {
-    resolvedTooltipEntry = {
-      text: fullPath,
-      showHelp: false
-    };
-  }
   // if (!interpolatedMarkdown) return children;
 
   const childIsElement = React.isValidElement(children);
@@ -319,7 +321,7 @@ const RichTooltip = memo(function RichTooltip({
       enterDelay={enterDelay}
       leaveDelay={leaveDelay}
       interactive={interactive}
-      open={isOpen}
+      open={isOpen && shouldShowTooltip}
       PopperProps={mergedPopperProps}
       TransitionProps={mergedTransitionProps}
       classes={{ tooltip: classes.tooltip, arrow: classes.arrow }}
@@ -352,10 +354,10 @@ const RichTooltip = memo(function RichTooltip({
               }
             }}
           >
-            {resolvedTooltipEntry.text}
+            {tooltipText}
           </Markdown>
-          {resolvedTooltipEntry.showHelp && <div className={classes.footer}>{ALT_INTERACTION_HINT}</div>}
-          {isOpen && shiftDown && <div className={classes.debugPath}>{fullPath}</div>}
+          {hasTooltipText && resolvedTooltipEntry.showHelp && <div className={classes.footer}>{ALT_INTERACTION_HINT}</div>}
+          {hasTooltipText && isOpen && shiftDown && <div className={classes.debugPath}>{fullPath}</div>}
         </div>
       }
       {...tooltipProps}
