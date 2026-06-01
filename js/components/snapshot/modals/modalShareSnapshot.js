@@ -18,6 +18,7 @@ import { Button } from '../../common/Inputs/Button';
 import { updateClipboard } from '../helpers';
 import { setSharedSnapshot } from '../redux/actions';
 import { initSharedSnapshot } from '../redux/reducer';
+import RichTooltip from '../../tooltip/RichTooltip';
 
 const useStyles = makeStyles(theme => ({
   loading: {
@@ -57,15 +58,21 @@ export const ModalShareSnapshot = memo(({}) => {
             <a href={sharedSnapshot.url}>{sharedSnapshot.url}</a>
           </DialogContent>
           <DialogActions>
-            <Button onClick={() => updateClipboard(sharedSnapshot.url)} color="primary">
-              Copy link
-            </Button>
-            <Button style={{ width: '175px' }} onClick={openInNewTab} color="primary">
-              Open in new tab to test (recommended!)
-            </Button>
-            <Button onClick={closeModal} color="secondary">
-              Close
-            </Button>
+            <RichTooltip path="shareSnapshot.copyLink">
+              <Button onClick={() => updateClipboard(sharedSnapshot.url)} color="primary">
+                Copy link
+              </Button>
+            </RichTooltip>
+            <RichTooltip path="shareSnapshot.openInNewTab">
+              <Button style={{ width: '175px' }} onClick={openInNewTab} color="primary">
+                Open in new tab to test (recommended!)
+              </Button>
+            </RichTooltip>
+            <RichTooltip path="shareSnapshot.close">
+              <Button onClick={closeModal} color="secondary">
+                Close
+              </Button>
+            </RichTooltip>
           </DialogActions>
         </>
       ) : (

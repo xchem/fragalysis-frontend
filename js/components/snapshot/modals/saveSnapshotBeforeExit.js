@@ -7,6 +7,7 @@ import { NglContext } from '../../nglView/nglProvider';
 import { useRouteMatch } from 'react-router-dom';
 import { setIsOpenModalBeforeExit, setOpenSnapshotSavingDialog, setSelectedSnapshotToSwitch } from '../redux/actions';
 import { VIEWS } from '../../../constants/constants';
+import RichTooltip from '../../tooltip/RichTooltip';
 
 export const SaveSnapshotBeforeExit = memo(() => {
   const { nglViewList, getNglView } = useContext(NglContext);
@@ -45,12 +46,16 @@ export const SaveSnapshotBeforeExit = memo(() => {
         <DialogContentText>Please consider saving your changes because you can lose them.</DialogContentText>
       </DialogContent>
       <DialogActions>
-        <Button onClick={handleOnYes} color="primary">
-          Yes
-        </Button>
-        <Button onClick={handleOnNo} color="secondary">
-          No
-        </Button>
+        <RichTooltip path="saveSnapshotBeforeExit.yes">
+          <Button onClick={handleOnYes} color="primary">
+            Yes
+          </Button>
+        </RichTooltip>
+        <RichTooltip path="saveSnapshotBeforeExit.no">
+          <Button onClick={handleOnNo} color="secondary">
+            No
+          </Button>
+        </RichTooltip>
       </DialogActions>
     </Modal>
   );

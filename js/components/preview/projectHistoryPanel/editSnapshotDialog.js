@@ -10,6 +10,7 @@ import { addToastMessage } from '../../../reducers/selection/actions';
 import { TOAST_LEVELS } from '../../toast/constants';
 import { InputFieldAvatar } from '../../projects/projectModal/inputFieldAvatar';
 import { Description, Title } from '@material-ui/icons';
+import RichTooltip from '../../tooltip/RichTooltip';
 
 const useStyles = makeStyles(theme => ({
   body: {
@@ -166,14 +167,18 @@ export const EditSnapshotDialog = () => {
                   </Grid>
                   <Grid container justifyContent="flex-end" direction="row">
                     <Grid>
-                      <Button color="secondary" size="large" onClick={onClose}>
-                        Close
-                      </Button>
+                      <RichTooltip path="editSnapshot.close">
+                        <Button color="secondary" size="large" onClick={onClose}>
+                          Close
+                        </Button>
+                      </RichTooltip>
                     </Grid>
                     <Grid>
-                      <Button type="submit" color="primary" size="large">
-                        Submit
-                      </Button>
+                      <RichTooltip path="editSnapshot.submit">
+                        <Button type="submit" color="primary" size="large">
+                          Submit
+                        </Button>
+                      </RichTooltip>
                     </Grid>
                   </Grid>
                 </Form>

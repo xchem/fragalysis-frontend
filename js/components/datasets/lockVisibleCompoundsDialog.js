@@ -114,14 +114,18 @@ export const LockVisibleCompoundsDialog = forwardRef(
             </Grid>
             <Grid item container direction="row" justifyContent="flex-end">
               <Grid item>
-                <Button className={classes.buttonYes} onClick={handleYesClick}>
-                  Yes
-                </Button>
+                <RichTooltip path="lockVisibleCompoundsDialog.yes">
+                  <Button className={classes.buttonYes} onClick={handleYesClick}>
+                    Yes
+                  </Button>
+                </RichTooltip>
               </Grid>
               <Grid>
-                <Button className={classes.buttonNo} onClick={handleNoClick}>
-                  No
-                </Button>
+                <RichTooltip path="lockVisibleCompoundsDialog.no">
+                  <Button className={classes.buttonNo} onClick={handleNoClick}>
+                    No
+                  </Button>
+                </RichTooltip>
               </Grid>
             </Grid>
           </Grid>

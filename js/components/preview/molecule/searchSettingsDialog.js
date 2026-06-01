@@ -3,6 +3,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { Grid, makeStyles, Checkbox, Typography, FormControlLabel } from '@material-ui/core';
 import { Button, Modal } from '../../common';
 import { setSearchSettings } from '../../../reducers/selection/actions';
+import RichTooltip from '../../tooltip/RichTooltip';
 
 const useStyles = makeStyles(theme => ({
   body: {
@@ -99,14 +100,18 @@ export const SearchSettingsDialog = memo(({ openDialog, setOpenDialog }) => {
         </Grid>
         <Grid container justifyContent="flex-end" direction="row">
           <Grid item>
-            <Button color="secondary" onClick={handleCloseModal}>
-              Cancel
-            </Button>
+            <RichTooltip path="searchSettings.cancel">
+              <Button color="secondary" onClick={handleCloseModal}>
+                Cancel
+              </Button>
+            </RichTooltip>
           </Grid>
           <Grid item>
-            <Button color="primary" onClick={handleSaveButton}>
-              Save
-            </Button>
+            <RichTooltip path="searchSettings.save">
+              <Button color="primary" onClick={handleSaveButton}>
+                Save
+              </Button>
+            </RichTooltip>
           </Grid>
         </Grid>
       </>

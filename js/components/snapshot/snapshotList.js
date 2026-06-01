@@ -375,10 +375,12 @@ const SnapshotList = memo(({ expandHandler = null }) => {
           </InfiniteScroll>
         </div>
         <div className={classes.newSnapshotButtonContainer}>
-          <div className={classes.newSnapshotButton} onClick={handleCreateSnapshotClick}>
-            <div className={classes.plusSign}>+</div>
-            <Typography variant="body2">Click to create new snapshot</Typography>
-          </div>
+          <RichTooltip path="createSnapshot">
+            <div className={classes.newSnapshotButton} onClick={handleCreateSnapshotClick}>
+              <div className={classes.plusSign}>+</div>
+              <Typography variant="body2">Click to create new snapshot</Typography>
+            </div>
+          </RichTooltip>
         </div>
       </div>
     </Panel>

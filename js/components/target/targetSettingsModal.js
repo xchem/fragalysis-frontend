@@ -464,12 +464,16 @@ export const TargetSettingsModal = memo(({ openModal, onModalClose, isTargetOn =
         </Grid>
       </DialogContent>
       <DialogActions>
-        <Button autoFocus onClick={() => setEditable(!editable)}>
-          {editable ? 'Cancel' : 'Edit'}
-        </Button>
-        <Button autoFocus onClick={onSubmitForm} disabled={!editable || !displayName}>
-          {'Save changes'}
-        </Button>
+        <RichTooltip path={editable ? 'cancel' : 'edit'}>
+          <Button autoFocus onClick={() => setEditable(!editable)}>
+            {editable ? 'Cancel' : 'Edit'}
+          </Button>
+        </RichTooltip>
+        <RichTooltip path="saveChanges">
+          <Button autoFocus onClick={onSubmitForm} disabled={!editable || !displayName}>
+            {'Save changes'}
+          </Button>
+        </RichTooltip>
       </DialogActions>
     </Dialog>
   );

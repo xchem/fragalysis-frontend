@@ -15,6 +15,7 @@ import { RegisterNotice } from '../../discourse/RegisterNotice';
 
 import moment from 'moment';
 import { VIEWS } from '../../../constants/constants';
+import RichTooltip from '../../tooltip/RichTooltip';
 
 const useStyles = makeStyles(theme => ({
   body: {
@@ -197,14 +198,22 @@ export const NewSnapshotForm = memo(({ handleCloseModal }) => {
             </Grid>
             <Grid container justifyContent="flex-end" direction="row">
               <Grid item>
-                <Button color="secondary" disabled={isLoadingSnapshotDialog || isSubmitting} onClick={handleCloseModal}>
-                  Cancel
-                </Button>
+                <RichTooltip path="newSnapshot.cancel">
+                  <Button
+                    color="secondary"
+                    disabled={isLoadingSnapshotDialog || isSubmitting}
+                    onClick={handleCloseModal}
+                  >
+                    Cancel
+                  </Button>
+                </RichTooltip>
               </Grid>
               <Grid item>
-                <Button color="primary" onClick={submitForm} loading={isLoadingSnapshotDialog || isSubmitting}>
-                  Save
-                </Button>
+                <RichTooltip path="newSnapshot.save">
+                  <Button color="primary" onClick={submitForm} loading={isLoadingSnapshotDialog || isSubmitting}>
+                    Save
+                  </Button>
+                </RichTooltip>
               </Grid>
             </Grid>
           </Form>

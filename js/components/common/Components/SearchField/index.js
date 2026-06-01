@@ -3,6 +3,7 @@ import { makeStyles, TextField, InputAdornment, IconButton } from '@material-ui/
 import { Search } from '@material-ui/icons';
 import classNames from 'classnames';
 import { debounce } from 'lodash';
+import RichTooltip from '../../../tooltip/RichTooltip';
 
 const useStyles = makeStyles(theme => ({
   search: {
@@ -58,34 +59,36 @@ const SearchField = ({
   };
 
   return (
-    <TextField
-      className={classNames(classes.search, className)}
-      id={id}
-      placeholder={placeholder ?? 'Search tags'}
-      size={size}
-      InputProps={{
-        startAdornment: (
-          <InputAdornment position="start">
-            {searchIconAction ? (
-              <IconButton
-                color="inherit"
-                sx={{ pointerEvents: 'auto', cursor: 'pointer' }}
-                onClick={() => searchIconAction(true)}
-              >
+    <RichTooltip path="search">
+      <TextField
+        className={classNames(classes.search, className)}
+        id={id}
+        placeholder={placeholder ?? 'Search tags'}
+        size={size}
+        InputProps={{
+          startAdornment: (
+            <InputAdornment position="start">
+              {searchIconAction ? (
+                <IconButton
+                  color="inherit"
+                  sx={{ pointerEvents: 'auto', cursor: 'pointer' }}
+                  onClick={() => searchIconAction(true)}
+                >
+                  <Search color="inherit" />
+                </IconButton>
+              ) : (
                 <Search color="inherit" />
-              </IconButton>
-            ) : (
-              <Search color="inherit" />
-            )}
-          </InputAdornment>
-        ),
-        className: classes.input
-      }}
-      onChange={onChangeDebounced}
-      disabled={disabled}
-      defaultValue={value ?? ''}
-      key={value}
-    />
+              )}
+            </InputAdornment>
+          ),
+          className: classes.input
+        }}
+        onChange={onChangeDebounced}
+        disabled={disabled}
+        defaultValue={value ?? ''}
+        key={value}
+      />
+    </RichTooltip>
   );
 };
 

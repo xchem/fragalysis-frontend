@@ -14,6 +14,7 @@ import { switchBetweenSnapshots } from '../redux/dispatchActions';
 import { NglContext } from '../../nglView/nglProvider';
 import { useHistory } from 'react-router-dom';
 import { getSquonkProject } from '../redux/dispatchActions';
+import RichTooltip from '../../tooltip/RichTooltip';
 
 const useStyles = makeStyles(theme => ({
   jobLauncherPopup: {
@@ -219,35 +220,43 @@ const JobLauncherDialog = () => {
               </Paper>
             )}
             {!jobLauncherSquonkUrl && (
-              <Button disabled={isSubmitting} type="submit" color="primary" size="large">
-                {!isError ? 'Submit' : 'Retry'}
-              </Button>
+              <RichTooltip path={!isError ? 'jobLauncher.submit' : 'jobLauncher.retry'}>
+                <Button disabled={isSubmitting} type="submit" color="primary" size="large">
+                  {!isError ? 'Submit' : 'Retry'}
+                </Button>
+              </RichTooltip>
             )}
-            <Button onClick={onClose} color="primary" size="large">
-              Close
-            </Button>
-            {jobLauncherSquonkUrl && (
-              <Button onClick={() => window.open(jobLauncherSquonkUrl, '_blank')} color="secondary" size="large">
-                Open in Squonk
+            <RichTooltip path="jobLauncher.close">
+              <Button onClick={onClose} color="primary" size="large">
+                Close
               </Button>
+            </RichTooltip>
+            {jobLauncherSquonkUrl && (
+              <RichTooltip path="jobLauncher.openInSquonk">
+                <Button onClick={() => window.open(jobLauncherSquonkUrl, '_blank')} color="secondary" size="large">
+                  Open in Squonk
+                </Button>
+              </RichTooltip>
             )}
             {jobLauncherSquonkUrl && isDifferentSnapshot && (
-              <Button
-                onClick={() =>
-                  dispatch(
-                    switchBetweenSnapshots({
-                      nglViewList,
-                      projectID: currentSessionProjectID,
-                      snapshotID: jobLauncherData?.snapshot.id,
-                      history
-                    })
-                  )
-                }
-                color="secondary"
-                size="large"
-              >
-                Switch to snapshot
-              </Button>
+              <RichTooltip path="jobLauncher.switchToSnapshot">
+                <Button
+                  onClick={() =>
+                    dispatch(
+                      switchBetweenSnapshots({
+                        nglViewList,
+                        projectID: currentSessionProjectID,
+                        snapshotID: jobLauncherData?.snapshot.id,
+                        history
+                      })
+                    )
+                  }
+                  color="secondary"
+                  size="large"
+                >
+                  Switch to snapshot
+                </Button>
+              </RichTooltip>
             )}
           </JSONForm>
         </div>

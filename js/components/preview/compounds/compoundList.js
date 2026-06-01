@@ -34,6 +34,7 @@ import { NglContext } from '../../nglView/nglProvider';
 import { VIEWS } from '../../../constants/constants';
 import classNames from 'classnames';
 import { TooltipPathProvider } from '../../tooltip/TooltipPathContext';
+import RichTooltip from '../../tooltip/RichTooltip';
 
 const useStyles = makeStyles(theme => ({
   textField: {
@@ -154,31 +155,37 @@ export const CompoundList = memo(() => {
                       readOnly: editedColorGroup !== item,
                       endAdornment: (
                         <InputAdornment position="end">
-                          <IconButton
-                            className={
-                              editedColorGroup !== item ? classes.editClassNameIcon : classes.editClassNameIconSelected
-                            }
-                            color={'inherit'}
-                            value={`${item}`}
-                            onClick={e => {
-                              dispatch(onStartEditColorClassName(e));
-                              inputRefs[item].current.focus();
-                              inputRefs[item].current.select();
-                            }}
-                          >
-                            <Edit />
-                          </IconButton>
+                          <RichTooltip path="compoundClass.editName">
+                            <IconButton
+                              className={
+                                editedColorGroup !== item
+                                  ? classes.editClassNameIcon
+                                  : classes.editClassNameIconSelected
+                              }
+                              color={'inherit'}
+                              value={`${item}`}
+                              onClick={e => {
+                                dispatch(onStartEditColorClassName(e));
+                                inputRefs[item].current.focus();
+                                inputRefs[item].current.select();
+                              }}
+                            >
+                              <Edit />
+                            </IconButton>
+                          </RichTooltip>
                         </InputAdornment>
                       ),
                       startAdornment: (
                         <InputAdornment position="start">
-                          <Checkbox
-                            className={classes.classCheckbox}
-                            key={`CHCK_${item}`}
-                            value={`${item}`}
-                            onChange={e => dispatch(onChangeCompoundClassCheckbox(e))}
-                            checked={currentCompoundClass === item}
-                          ></Checkbox>
+                          <RichTooltip path="compoundClass.select">
+                            <Checkbox
+                              className={classes.classCheckbox}
+                              key={`CHCK_${item}`}
+                              value={`${item}`}
+                              onChange={e => dispatch(onChangeCompoundClassCheckbox(e))}
+                              checked={currentCompoundClass === item}
+                            ></Checkbox>
+                          </RichTooltip>
                         </InputAdornment>
                       )
                     }}
@@ -222,16 +229,20 @@ export const CompoundList = memo(() => {
                 </InfiniteScroll>
               </Box>
             </Grid>
-            <Button color="primary" onClick={() => dispatch(selectAllCompounds())} startIcon={<SelectAll />}>
-              Select All
-            </Button>
-            <Button
-              color="primary"
-              onClick={() => dispatch(clearAllSelectedCompounds(majorViewStage))}
-              startIcon={<Delete />}
-            >
-              Clear Selection
-            </Button>
+            <RichTooltip path="selectAll">
+              <Button color="primary" onClick={() => dispatch(selectAllCompounds())} startIcon={<SelectAll />}>
+                Select All
+              </Button>
+            </RichTooltip>
+            <RichTooltip path="clearSelection">
+              <Button
+                color="primary"
+                onClick={() => dispatch(clearAllSelectedCompounds(majorViewStage))}
+                startIcon={<Delete />}
+              >
+                Clear Selection
+              </Button>
+            </RichTooltip>
           </Box>
         )}
       </Panel>
