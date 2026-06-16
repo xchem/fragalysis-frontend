@@ -20,6 +20,8 @@ export const ORDER = {
   DESC: false
 };
 
+const DETAIL_MIN_WIDTH = 60;
+
 export const COLUMNS = [
   {
     name: 'peerReview',
@@ -35,7 +37,7 @@ export const COLUMNS = [
     name: 'detail',
     displayName: 'Observation',
     type: COLUMN_TYPES.OBSERVATION,
-    minWidth: 172,
+    minWidth: DETAIL_MIN_WIDTH,
     width: 230,
     resizable: true,
     visible: true,
@@ -98,7 +100,7 @@ export const RHS_COLUMNS = [
     name: 'detail',
     displayName: 'Observation',
     type: COLUMN_TYPES.OBSERVATION,
-    minWidth: 172,
+    minWidth: DETAIL_MIN_WIDTH,
     width: 230,
     resizable: true,
     visible: true,

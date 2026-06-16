@@ -39,20 +39,26 @@ const useStyles = makeStyles(theme => ({
   container: {
     padding: theme.spacing(1) / 4,
     color: 'black',
-    height: 54,
+    minHeight: BASE_ROW_HEIGHT,
     '& > td': {
       padding: 0,
-      height: '100%'
+      height: 'auto'
     },
     '& > td > div': {
-      height: '100%'
+      minHeight: BASE_ROW_HEIGHT
     }
+  },
+  cell: {
+    overflow: 'hidden',
+    verticalAlign: 'top'
   },
   siteOpenObservations: {
     // instead of coloring every specific part of border, just use inner shadow to fake it
     boxShadow: 'inset 0 0 0 2px ' + theme.palette.primary.main
   }
 }));
+
+const BASE_ROW_HEIGHT = 54;
 
 export const img_data_init = `<svg xmlns="http://www.w3.org/2000/svg" version="1.1" width="25px" height="25px"><g>
   <circle cx="50" cy="50" fill="none" stroke="#3f51b5" stroke-width="4" r="26" stroke-dasharray="150.79644737231007 52.26548245743669" transform="rotate(238.988 50 50)">
@@ -86,6 +92,9 @@ const ObservationUnifiedView = memo(
         waitForVisualCompletion = false,
         columns,
         getColumnWidth,
+        displayImageHeight = imageHeight,
+        displayImageWidth = imageWidth,
+        onDetailHeightChange = undefined,
         viewConfig = LHS_OBSERVATION_VIEW_CONFIG,
         getComputedInspirations = undefined
       },
@@ -222,6 +231,32 @@ const ObservationUnifiedView = memo(
       );
 
       const moleculeImgRef = useRef(null);
+      const detailContentRef = useRef(null);
+
+      useEffect(() => {
+        const detailContent = detailContentRef.current;
+
+        if (!detailContent || !onDetailHeightChange) {
+          return undefined;
+        }
+
+        const reportDetailHeight = () => {
+          onDetailHeightChange(currentID, detailContent.getBoundingClientRect().height);
+        };
+
+        reportDetailHeight();
+
+        const resizeObserver = new ResizeObserver(() => {
+          reportDetailHeight();
+        });
+
+        resizeObserver.observe(detailContent);
+
+        return () => {
+          resizeObserver.disconnect();
+          onDetailHeightChange(currentID, null);
+        };
+      }, [currentID, onDetailHeightChange]);
 
       const resolveTagBackgroundColor = useCallback(
         tag => {
@@ -396,6 +431,8 @@ const ObservationUnifiedView = memo(
               <TooltipPathProvider path="pose">
                 <DetailView
                   data={data}
+                  detailWidth={getColumnWidth(column.name)}
+                  detailContentRef={detailContentRef}
                   handleRef={handleRef}
                   disableL={disableL}
                   disableP={disableP}
@@ -417,6 +454,8 @@ const ObservationUnifiedView = memo(
                   current_style={current_style}
                   imageHeight={imageHeight}
                   imageWidth={imageWidth}
+                  displayImageHeight={displayImageHeight}
+                  displayImageWidth={displayImageWidth}
                   onQuality={onQuality}
                 />
               </TooltipPathProvider>
@@ -502,7 +541,11 @@ const ObservationUnifiedView = memo(
           {columns?.map(
             column =>
               column.visible && (
-                <TableCell key={column.name} style={{ maxWidth: getColumnWidth(column.name) }}>
+                <TableCell
+                  key={column.name}
+                  className={classes.cell}
+                  style={{ width: getColumnWidth(column.name), maxWidth: getColumnWidth(column.name) }}
+                >
                   {getProperView(column)}
                 </TableCell>
               )

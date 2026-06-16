@@ -7,7 +7,6 @@ import {
   CircularProgress,
   Typography,
   IconButton,
-  ButtonGroup,
   Select,
   MenuItem,
   Checkbox
@@ -60,7 +59,10 @@ const useStyles = makeStyles(theme => ({
     overflow: 'hidden'
   },
   toolbar: {
-    flex: '0 0 auto'
+    flex: '0 0 auto',
+    width: '100%',
+    minWidth: 0,
+    alignItems: 'flex-start'
   },
   noOfSelectedHits: {
     marginLeft: '5px'
@@ -86,7 +88,8 @@ const useStyles = makeStyles(theme => ({
     width: '100%'
   },
   footer: {
-    flex: '0 0 auto'
+    flex: '0 0 auto',
+    width: '100%'
   },
   centered: {
     display: 'flex',
@@ -199,7 +202,32 @@ const useStyles = makeStyles(theme => ({
     }
   },
   selectButton: {
-    padding: '4px 2px !important'
+    flex: '1 1 84px',
+    minWidth: 0,
+    maxWidth: '100%',
+    padding: '4px 2px !important',
+    '& .MuiButton-root': {
+      width: '100%',
+      minWidth: 0,
+      whiteSpace: 'normal',
+      lineHeight: 1.15
+    }
+  },
+  toolbarSmallButtons: {
+    flex: '0 0 auto',
+    marginTop: 4,
+    whiteSpace: 'nowrap'
+  },
+  toolbarTextItem: {
+    flex: '0 1 auto',
+    minWidth: 0,
+    marginTop: 4
+  },
+  toolbarSelectItem: {
+    flex: '0 1 75px',
+    minWidth: 0,
+    marginTop: 4,
+    marginLeft: 4
   },
   formControl: {
     color: 'inherit',
@@ -229,10 +257,32 @@ const useStyles = makeStyles(theme => ({
   total: {
     ...theme.typography.button,
     color: theme.palette.primary.main,
-    fontStyle: 'italic'
+    fontStyle: 'italic',
+    whiteSpace: 'normal'
+  },
+  footerRow: {
+    width: '100%'
+  },
+  footerSummary: {
+    flex: '1 1 92px',
+    minWidth: 0
+  },
+  footerActions: {
+    flex: '1 1 180px',
+    minWidth: 0
+  },
+  footerButtonGroup: {
+    display: 'flex',
+    flexWrap: 'wrap',
+    width: '100%'
   },
   footerButton: {
-    padding: '6px 7px'
+    flex: '1 1 74px',
+    minWidth: 0,
+    margin: '0 !important',
+    padding: '6px 7px',
+    whiteSpace: 'normal',
+    lineHeight: 1.15
   }
 }));
 let selectedDisplayHits = false;
@@ -1269,7 +1319,7 @@ export const PoseList = memo(
             </TooltipPathProvider>
           )}
         <Grid container spacing={1} className={classes.toolbar}>
-          <Grid style={{ marginTop: '4px' }}>
+          <Grid item className={classes.toolbarSmallButtons}>
             <RichTooltip path="allLigands">
               <Button
                 variant="outlined"
@@ -1320,7 +1370,7 @@ export const PoseList = memo(
 
           {
             <RichTooltip path={selectAllHitsPressed ? 'allHits.deselectAllHits' : 'allHits.selectAllHits'}>
-              <Grid item style={{ marginLeft: '2px' }} className={classes.selectButton}>
+              <Grid item className={classes.selectButton}>
                 <Button
                   variant="outlined"
                   className={classNames(classes.contColButton, {
@@ -1375,17 +1425,17 @@ export const PoseList = memo(
               </Grid>
             </RichTooltip>
           )}
-          <Grid style={{ marginTop: '4px' }}>
+          <Grid item className={classes.toolbarTextItem}>
             <Typography variant="caption">{`Selected: ${
               allSelectedMolecules ? allSelectedMolecules.length : 0
             }`}</Typography>
           </Grid>
-          <Grid style={{ marginTop: '4px' }}>
+          <Grid item className={classes.toolbarTextItem}>
             <Typography variant="caption" style={{ paddingLeft: 3 }}>
               Sort by
             </Typography>
           </Grid>
-          <Grid style={{ marginTop: '4px', marginLeft: '4px' }}>
+          <Grid item className={classes.toolbarSelectItem}>
             <RichTooltip
               path={sortOption ? 'sort.sortOption' : 'sort.sortBy'}
               values={{ sortOption: sortOptions[sortOption].title }}
@@ -1409,7 +1459,7 @@ export const PoseList = memo(
             </RichTooltip>
           </Grid>
           <RichTooltip path={ascending ? 'sortOrder.ascending' : 'sortOrder.descending'}>
-            <Grid style={{ marginTop: '4px' }}>
+            <Grid item className={classes.toolbarTextItem}>
               <Checkbox checked={ascending} onChange={handleAscendingChecked} size="small" style={{ padding: 0 }} />
               <Typography variant="caption">
                 {(selectAllHitsPressed && hitNavigatorWidth > 508) || (!selectAllHitsPressed && hitNavigatorWidth > 491)
@@ -1484,20 +1534,18 @@ export const PoseList = memo(
                 </InfiniteScroll>
               </Grid>
               <Grid item className={classes.footer}>
-                <Grid container justifyContent="space-between" alignItems="center" direction="row">
-                  <Grid item>
+                <Grid container alignItems="center" direction="row" className={classes.footerRow}>
+                  <Grid item className={classes.footerSummary}>
                     <span
                       className={classes.total}
                     >{`#Poses=${filteredLHSCompoundsList?.length}, #Obs=${joinedMoleculeLists?.length}`}</span>
                   </Grid>
-                  <Grid item>
-                    <ButtonGroup
-                      variant="text"
-                      size="medium"
-                      color="primary"
-                      aria-label="contained primary button group"
-                    >
+                  <Grid item className={classes.footerActions}>
+                    <div className={classes.footerButtonGroup} aria-label="contained primary button group">
                       <Button
+                        variant="text"
+                        size="medium"
+                        color="primary"
                         className={classes.footerButton}
                         onClick={() => {
                           handlers.setNextXMolecules(30);
@@ -1506,6 +1554,9 @@ export const PoseList = memo(
                         Load next 30
                       </Button>
                       <Button
+                        variant="text"
+                        size="medium"
+                        color="primary"
                         className={classes.footerButton}
                         onClick={() => {
                           handlers.setNextXMolecules(100);
@@ -1514,6 +1565,9 @@ export const PoseList = memo(
                         Load next 100
                       </Button>
                       <Button
+                        variant="text"
+                        size="medium"
+                        color="primary"
                         className={classes.footerButton}
                         onClick={() => {
                           if (joinedMoleculeLists?.length > 300) {
@@ -1525,7 +1579,7 @@ export const PoseList = memo(
                       >
                         Load full list
                       </Button>
-                    </ButtonGroup>
+                    </div>
                   </Grid>
                 </Grid>
               </Grid>

@@ -61,6 +61,64 @@ import { isCompoundFromVectorSelector } from '../../../../compounds/redux/dispat
 import { LHS_OBSERVATION_VIEW_CONFIG } from '../../viewConfigs';
 import { getDefaultComputedInspirations } from '../../../utils/computedInspirations';
 
+const DETAIL_TEXT_ACTION_BUFFER = 28;
+const DETAIL_SINGLE_CONTROL_WIDTH = 24;
+const DETAIL_CONTROLS_WIDTH = {
+  lhs: 116,
+  rhs: 100
+};
+const DETAIL_LOCATION_CONTROL_WIDTH = 22;
+const DETAIL_CONTROL_BUTTON_WIDTH = 13;
+
+const getPackedControlsWidth = (maxWidth, buttonWidths) => {
+  if (!buttonWidths.length) {
+    return DETAIL_SINGLE_CONTROL_WIDTH;
+  }
+
+  let lineWidth = 0;
+  let widestLine = 0;
+
+  buttonWidths.forEach(buttonWidth => {
+    if (lineWidth > 0 && lineWidth + buttonWidth > maxWidth) {
+      widestLine = Math.max(widestLine, lineWidth);
+      lineWidth = 0;
+    }
+
+    lineWidth += buttonWidth;
+  });
+
+  return Math.max(widestLine, lineWidth, DETAIL_SINGLE_CONTROL_WIDTH);
+};
+
+let textMeasureCanvas = null;
+
+const getTextMeasureContext = () => {
+  if (typeof document === 'undefined') {
+    return null;
+  }
+
+  if (!textMeasureCanvas) {
+    textMeasureCanvas = document.createElement('canvas');
+  }
+
+  return textMeasureCanvas.getContext('2d');
+};
+
+const measureTextWidth = (text, font) => {
+  if (!text) {
+    return 0;
+  }
+
+  const context = getTextMeasureContext();
+
+  if (!context) {
+    return String(text).length * 8;
+  }
+
+  context.font = font;
+  return context.measureText(String(text)).width;
+};
+
 const useStyles = makeStyles(theme => ({
   container: {
     padding: theme.spacing(1) / 4,
@@ -77,7 +135,10 @@ const useStyles = makeStyles(theme => ({
   contButtonsMargin: {
     // margin: theme.spacing(1) / 2,
     margin: '2px 1px',
-    width: 'max-content'
+    width: '100%',
+    minWidth: DETAIL_SINGLE_CONTROL_WIDTH,
+    maxWidth: '100%',
+    alignContent: 'flex-start'
     // border: 'solid 1px',
     // borderColor: theme.palette.background.divider,
     // borderStyle: 'solid none none none'
@@ -87,8 +148,10 @@ const useStyles = makeStyles(theme => ({
     borderColor: theme.palette.background.divider,
     borderStyle: 'solid solid solid none',
     flex: '0 0 auto',
-    width: 'auto',
-    minWidth: 'max-content'
+    width: DETAIL_CONTROLS_WIDTH.lhs,
+    minWidth: DETAIL_SINGLE_CONTROL_WIDTH,
+    maxWidth: '100%',
+    overflow: 'hidden'
   },
   contColMenu: {
     // ...theme.typography.button,
@@ -173,12 +236,14 @@ const useStyles = makeStyles(theme => ({
     borderStyle: 'solid none solid solid',
     flex: '1 1 auto',
     width: 'auto',
-    minWidth: 0
+    minWidth: 0,
+    overflow: 'hidden'
     // width: 'inherit'
   },
   detailViewRoot: {
     width: '100%',
-    minWidth: 0
+    minWidth: 0,
+    overflow: 'hidden'
   },
   image: {
     border: 'solid 1px',
@@ -232,21 +297,20 @@ const useStyles = makeStyles(theme => ({
     alignItems: 'center',
     flexWrap: 'nowrap',
     width: '100%',
-    height: '100%',
+    minHeight: '100%',
     // fontWeight: 400,
-    overflow: 'hidden',
-    whiteSpace: 'nowrap',
-    textOverflow: 'ellipsis',
+    overflow: 'visible',
     lineHeight: '1.45',
     fontSize: '0.8rem',
     letterSpacing: '0.02em',
     minWidth: 0,
-    maxWidth: '100%'
+    maxWidth: '100%',
+    overflowWrap: 'anywhere'
   },
   moleculeTitleText: {
     flex: '1 1 auto',
     minWidth: 0,
-    overflow: 'hidden'
+    overflow: 'visible'
   },
   moleculeTitleLabelMain: {
     display: 'block',
@@ -254,18 +318,18 @@ const useStyles = makeStyles(theme => ({
     boxSizing: 'border-box',
     fontWeight: 'bold',
     fontSize: '0.9rem',
-    overflow: 'hidden',
-    whiteSpace: 'nowrap',
-    textOverflow: 'ellipsis'
+    overflow: 'visible',
+    whiteSpace: 'normal',
+    overflowWrap: 'anywhere'
   },
   moleculeTitleLabelSub: {
     display: 'block',
     width: '100%',
     boxSizing: 'border-box',
     minHeight: '1.45em',
-    overflow: 'hidden',
-    whiteSpace: 'nowrap',
-    textOverflow: 'ellipsis'
+    overflow: 'visible',
+    whiteSpace: 'normal',
+    overflowWrap: 'anywhere'
   },
   checkbox: {
     padding: 0
@@ -454,6 +518,8 @@ const useStyles = makeStyles(theme => ({
 export const DetailView = memo(
   ({
     data,
+    detailWidth = 0,
+    detailContentRef = undefined,
     handleRef,
     disableL,
     disableP,
@@ -1309,6 +1375,61 @@ export const DetailView = memo(
       [aliasOrder, getMainObservation, viewConfig]
     );
 
+    const visibleControlButtonWidths = useMemo(() => {
+      const widths = [
+        DETAIL_LOCATION_CONTROL_WIDTH,
+        DETAIL_CONTROL_BUTTON_WIDTH,
+        DETAIL_CONTROL_BUTTON_WIDTH,
+        DETAIL_CONTROL_BUTTON_WIDTH,
+        DETAIL_CONTROL_BUTTON_WIDTH,
+        DETAIL_CONTROL_BUTTON_WIDTH
+      ];
+
+      if (shouldRenderDetailTrailingButtons) {
+        return widths.concat(DETAIL_CONTROL_BUTTON_WIDTH, DETAIL_CONTROL_BUTTON_WIDTH);
+      }
+
+      if (!hideFButton) {
+        widths.push(DETAIL_CONTROL_BUTTON_WIDTH);
+      }
+
+      if (showCrossReferenceModal) {
+        widths.push(DETAIL_CONTROL_BUTTON_WIDTH);
+      }
+
+      return widths;
+    }, [hideFButton, shouldRenderDetailTrailingButtons, showCrossReferenceModal]);
+
+    const detailLayout = useMemo(() => {
+      const availableWidth = Number(detailWidth) || 0;
+      const mainObservation = getMainObservation();
+      const codeWidth = measureTextWidth(mainObservation?.code || '', '700 14.4px Roboto, Arial, sans-serif');
+      const displayNameWidth = measureTextWidth(getDisplayName() || '', '400 12.8px Roboto, Arial, sans-serif');
+      const textWidth = Math.ceil(Math.max(codeWidth, displayNameWidth) + DETAIL_TEXT_ACTION_BUFFER);
+      const fullControlsWidth = DETAIL_CONTROLS_WIDTH[viewConfig.kind] || DETAIL_CONTROLS_WIDTH.lhs;
+
+      if (!availableWidth) {
+        return {
+          controlsWidth: fullControlsWidth,
+          textColumnWidth: undefined
+        };
+      }
+
+      const maxControlsWidth = Math.max(
+        DETAIL_SINGLE_CONTROL_WIDTH,
+        Math.min(fullControlsWidth, availableWidth - textWidth)
+      );
+      const controlsWidth =
+        maxControlsWidth >= fullControlsWidth
+          ? fullControlsWidth
+          : getPackedControlsWidth(maxControlsWidth, visibleControlButtonWidths);
+
+      return {
+        controlsWidth: Math.ceil(controlsWidth),
+        textColumnWidth: Math.max(DETAIL_SINGLE_CONTROL_WIDTH, availableWidth - controlsWidth)
+      };
+    }, [detailWidth, getDisplayName, getMainObservation, viewConfig.kind, visibleControlButtonWidths]);
+
     const [anchorElTable, setAnchorElTable] = useState(null);
     const [tableIsOpen, setTableIsOpen] = useState(false);
     const handleTablePopoverOpen = event => {
@@ -1464,11 +1585,22 @@ export const DetailView = memo(
         justifyContent="space-between"
         direction="row"
         wrap="nowrap"
+        ref={detailContentRef}
         className={classes.detailViewRoot}
         data-lhs-compound-code={getMainObservation()?.compound_code || ''}
         data-lhs-observation-code={getMainObservation()?.code || ''}
       >
-        <Grid item container className={classes.detailsCol} justifyContent="space-evenly" direction="column">
+        <Grid
+          item
+          container
+          className={classes.detailsCol}
+          justifyContent="space-evenly"
+          direction="column"
+          style={{
+            flexBasis: detailLayout.textColumnWidth,
+            maxWidth: detailLayout.textColumnWidth
+          }}
+        >
           {/* Title label */}
           <Grid
             item
@@ -1539,15 +1671,20 @@ export const DetailView = memo(
           alignItems="flex-end"
           direction="column"
           className={classes.buttonsTagsWrapper}
+          style={{
+            flexBasis: detailLayout.controlsWidth,
+            width: detailLayout.controlsWidth,
+            maxWidth: detailLayout.controlsWidth
+          }}
         >
           {/* Control Buttons A, L, C, V */}
-          <Grid item>
+          <Grid item style={{ width: '100%' }}>
             <Grid
               container
               direction="row"
               justifyContent="flex-start"
               alignItems="center"
-              wrap="nowrap"
+              wrap="wrap"
               className={classes.contButtonsMargin}
             >
               <RichTooltip path="centerOn">

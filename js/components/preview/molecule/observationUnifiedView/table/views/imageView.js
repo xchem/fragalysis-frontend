@@ -12,6 +12,14 @@ const useStyles = makeStyles(theme => ({
     borderStyle: 'solid solid solid none',
     position: 'relative'
   },
+  moleculeSvg: {
+    width: '100%',
+    height: '100%',
+    '& svg': {
+      width: '100%',
+      height: '100%'
+    }
+  },
 
   warningIcon: {
     padding: 0,
@@ -28,7 +36,17 @@ const useStyles = makeStyles(theme => ({
 }));
 
 export const ImageView = memo(
-  ({ moleculeImgRef, img_data, warningIconVisible, current_style, imageHeight, imageWidth, onQuality }) => {
+  ({
+    moleculeImgRef,
+    img_data,
+    warningIconVisible,
+    current_style,
+    imageHeight,
+    imageWidth,
+    displayImageHeight = imageHeight,
+    displayImageWidth = imageWidth,
+    onQuality
+  }) => {
     const [moleculeTooltipOpen, setMoleculeTooltipOpen] = useState(false);
     const classes = useStyles();
 
@@ -36,10 +54,10 @@ export const ImageView = memo(
       <SVGInline
         component="div"
         svg={img_data}
-        // className={classes.imageMargin}
+        className={classes.moleculeSvg}
         style={{
-          height: `${imageHeight}px`,
-          width: `${imageWidth}px`
+          height: `${displayImageHeight}px`,
+          width: `${displayImageWidth}px`
         }}
       />
     );
@@ -48,7 +66,8 @@ export const ImageView = memo(
       <div
         style={{
           ...current_style,
-          width: imageWidth
+          width: displayImageWidth,
+          height: displayImageHeight
         }}
         className={classes.image}
         onMouseEnter={() => setMoleculeTooltipOpen(true)}
@@ -69,8 +88,8 @@ export const ImageView = memo(
           open={moleculeTooltipOpen}
           anchorEl={moleculeImgRef.current}
           imgData={img_data}
-          width={imageWidth}
-          height={imageHeight}
+          width={displayImageWidth}
+          height={displayImageHeight}
         />
       </div>
     );

@@ -17,19 +17,23 @@ import { TooltipPathProvider } from '../tooltip/TooltipPathContext';
 import { PoseListRHS } from './molecule/poseListRHS';
 
 const useStyles = makeStyles(theme => ({
-  root: { display: 'flex', height: '100%' },
-  lhs: { height: '100%', minWidth: 470 },
+  root: { display: 'flex', height: '100%', overflow: 'hidden' },
+  lhs: { height: '100%', minWidth: SIDE_MIN_WIDTH, overflow: 'hidden' },
+  rhs: { minWidth: SIDE_MIN_WIDTH, overflow: 'hidden' },
   nglColumn: {
     display: 'flex',
     flexDirection: 'column',
     gap: theme.spacing(),
-    height: '100%'
+    height: '100%',
+    minWidth: 0
   },
   ngl: { flex: 1, minHeight: 0 }
 }));
 
 const lhsInitialWidth = 570;
 const rhsInitialWidth = 520;
+const SIDE_MIN_WIDTH = 300;
+const RHS_MAX_WIDTH = 900;
 const resizerSize = 20;
 
 const MIN_HEIGHTS = {
@@ -411,8 +415,8 @@ export const ResizableLayout = ({ gridRef, nglPortal }) => {
         }
         const actual = cw - clamp(adj, 0, cw);
         dispatch(setActualRhsWidth(actual));
-        if (actual < 480) return 480;
-        if (actual > 900) return 900;
+        if (actual < SIDE_MIN_WIDTH) return SIDE_MIN_WIDTH;
+        if (actual > RHS_MAX_WIDTH) return RHS_MAX_WIDTH;
         return actual;
       }),
     [gridRef, lhsW, sidesOpen.LHS, dispatch]
@@ -533,7 +537,7 @@ export const ResizableLayout = ({ gridRef, nglPortal }) => {
       {sidesOpen.RHS && (
         <>
           <Resizer onResize={onRhsResize} />
-          <div style={{ width: rhsW }}>
+          <div className={classes.rhs} style={{ width: rhsW }}>
             {/* <PlotlyView />
             <RHS /> */}
             {rhsPanels.map((p, i) => (

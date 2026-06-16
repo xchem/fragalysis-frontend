@@ -2,7 +2,7 @@
  * Row in Hit navigator
  */
 
-import React, { memo, forwardRef, useMemo } from 'react';
+import React, { memo, forwardRef, useCallback, useEffect, useMemo, useState } from 'react';
 import { makeStyles, Table, TableBody, TableCell, TableHead, TableRow } from '@material-ui/core';
 import { useSelector } from 'react-redux';
 import ObservationUnifiedView from './observationUnifiedView';
@@ -60,6 +60,7 @@ const DETAIL_CONTROLS_WIDTH = {
   lhs: 116,
   rhs: 100
 };
+const BASE_ROW_HEIGHT = 54;
 
 let textMeasureCanvas = null;
 
@@ -148,6 +149,7 @@ const ObservationUnifiedViewWrapper = memo(
 
       const classes = useStyles();
       const aliasOrder = useSelector(state => state.apiReducers.target_on_aliases);
+      const [detailHeightsByRowId, setDetailHeightsByRowId] = useState({});
 
       // setup jsme before to prevent window jumping when molecule filter opens first time
       jsmeSetup();
@@ -184,8 +186,80 @@ const ObservationUnifiedViewWrapper = memo(
         preferredDetailWidth
       );
       const { filteredItems, getColumnFilter } = useFilters(items, columns, viewConfig);
+      const filteredItemIds = useMemo(() => new Set((filteredItems || []).map(item => item.id)), [filteredItems]);
       const waitsForMoleculeImage = columns?.some(
         column => column.visible && column.type === COLUMN_TYPES.MOLECULE
+      );
+      const handleDetailHeightChange = useCallback((rowId, height) => {
+        if (rowId === undefined || rowId === null) {
+          return;
+        }
+
+        setDetailHeightsByRowId(currentHeights => {
+          if (height === null || height === undefined) {
+            if (currentHeights[rowId] === undefined) {
+              return currentHeights;
+            }
+
+            const nextHeights = { ...currentHeights };
+            delete nextHeights[rowId];
+            return nextHeights;
+          }
+
+          const roundedHeight = Math.ceil(height);
+
+          if (currentHeights[rowId] === roundedHeight) {
+            return currentHeights;
+          }
+
+          return {
+            ...currentHeights,
+            [rowId]: roundedHeight
+          };
+        });
+      }, []);
+
+      useEffect(() => {
+        setDetailHeightsByRowId(currentHeights => {
+          const nextHeights = {};
+          let changed = false;
+
+          Object.entries(currentHeights).forEach(([rowId, height]) => {
+            if (filteredItemIds.has(rowId) || filteredItemIds.has(Number(rowId))) {
+              nextHeights[rowId] = height;
+            } else {
+              changed = true;
+            }
+          });
+
+          return changed ? nextHeights : currentHeights;
+        });
+      }, [filteredItemIds]);
+
+      const displayImageSize = useMemo(() => {
+        const maxDetailHeight = (filteredItems || []).reduce(
+          (maxHeight, item) => Math.max(maxHeight, detailHeightsByRowId[item.id] || 0),
+          0
+        );
+        const displayHeight = maxDetailHeight > BASE_ROW_HEIGHT ? maxDetailHeight : imgHeight;
+        const displayWidth =
+          displayHeight > imgHeight ? Math.max(1, (imgWidth * imgHeight) / displayHeight) : imgWidth;
+
+        return {
+          height: displayHeight,
+          width: Math.round(displayWidth * 100) / 100
+        };
+      }, [detailHeightsByRowId, filteredItems, imgHeight, imgWidth]);
+
+      const getRenderedColumnWidth = useCallback(
+        name => {
+          if (name === 'molecule') {
+            return Math.ceil(displayImageSize.width);
+          }
+
+          return getColumnWidth(name);
+        },
+        [displayImageSize.width, getColumnWidth]
       );
 
       return (
@@ -197,8 +271,8 @@ const ObservationUnifiedViewWrapper = memo(
                   visible && (
                     <TableCell
                       key={name}
-                      width={getColumnWidth(name)}
-                      style={{ maxWidth: getColumnWidth(name) }}
+                      width={getRenderedColumnWidth(name)}
+                      style={{ width: getRenderedColumnWidth(name), maxWidth: getRenderedColumnWidth(name) }}
                       className={classes.headerCell}
                     >
                       <RichTooltip path="propertyDisplayName" values={{ displayName: displayName }}>
@@ -252,7 +326,10 @@ const ObservationUnifiedViewWrapper = memo(
                   onVisualReady={onPoseVisuallyReady}
                   waitForVisualCompletion={waitsForMoleculeImage}
                   columns={columns}
-                  getColumnWidth={getColumnWidth}
+                  getColumnWidth={getRenderedColumnWidth}
+                  displayImageHeight={displayImageSize.height}
+                  displayImageWidth={displayImageSize.width}
+                  onDetailHeightChange={handleDetailHeightChange}
                   viewConfig={viewConfig}
                   getComputedInspirations={getComputedInspirations}
                 />
