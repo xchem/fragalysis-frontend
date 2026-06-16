@@ -11,7 +11,7 @@ dotenv.config();
 
 export default defineConfig({
   e2e: {
-    baseUrl: "https://fragalysis-tibor-default.xchem-dev.diamond.ac.uk",
+    baseUrl: "https://fragalysis-simona-default.xchem-dev.diamond.ac.uk",
     env: {
       login: process.env.CYPRESS_LOGIN,
       password: process.env.CYPRESS_PASSWORD,
