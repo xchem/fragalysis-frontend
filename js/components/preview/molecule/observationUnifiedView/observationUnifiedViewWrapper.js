@@ -187,9 +187,7 @@ const ObservationUnifiedViewWrapper = memo(
       );
       const { filteredItems, getColumnFilter } = useFilters(items, columns, viewConfig);
       const filteredItemIds = useMemo(() => new Set((filteredItems || []).map(item => item.id)), [filteredItems]);
-      const waitsForMoleculeImage = columns?.some(
-        column => column.visible && column.type === COLUMN_TYPES.MOLECULE
-      );
+      const waitsForMoleculeImage = columns?.some(column => column.visible && column.type === COLUMN_TYPES.MOLECULE);
       const handleDetailHeightChange = useCallback((rowId, height) => {
         if (rowId === undefined || rowId === null) {
           return;
@@ -242,8 +240,7 @@ const ObservationUnifiedViewWrapper = memo(
           0
         );
         const displayHeight = maxDetailHeight > BASE_ROW_HEIGHT ? maxDetailHeight : imgHeight;
-        const displayWidth =
-          displayHeight > imgHeight ? Math.max(1, (imgWidth * imgHeight) / displayHeight) : imgWidth;
+        const displayWidth = displayHeight > imgHeight ? Math.max(1, (imgWidth * imgHeight) / displayHeight) : imgWidth;
 
         return {
           height: displayHeight,

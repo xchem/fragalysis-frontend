@@ -327,7 +327,8 @@ export const PoseList = memo(
     isTagEditorForCurrentSide = false,
     handlers = {},
     instanceConfig = {},
-    expandHandler = null
+    expandHandler = null,
+    navigatorTitle = 'Hit navigator'
   }) => {
     const dispatch = useDispatch();
     const classes = useStyles();
@@ -1240,7 +1241,7 @@ export const PoseList = memo(
     return (
       <Panel
         hasHeader
-        title="Hit navigator"
+        title={navigatorTitle}
         headerActions={actions}
         ref={hitNavigatorRef}
         hasExpansion={!!expandHandler}

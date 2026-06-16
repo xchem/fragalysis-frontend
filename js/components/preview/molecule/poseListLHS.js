@@ -320,6 +320,7 @@ export const PoseListLHS = memo(({}) => {
       isTagEditorForCurrentSide={isTagEditorForCurrentSide}
       handlers={handlers}
       instanceConfig={instanceConfig}
+      navigatorTitle="Hit navigator"
     />
   );
 });

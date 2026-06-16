@@ -71,7 +71,7 @@ export const ViewerControls = memo(() => {
             onClick={() => dispatch(turnSide('LHS', !sidesOpen.LHS))}
             className={classes.button}
           >
-            LHS
+            Hits
           </Button>
         </RichTooltip>
 
@@ -113,7 +113,7 @@ export const ViewerControls = memo(() => {
             onClick={() => dispatch(turnSide('RHS', !sidesOpen.RHS))}
             className={classes.button}
           >
-            RHS
+            Designs
           </Button>
         </RichTooltip>
       </div>

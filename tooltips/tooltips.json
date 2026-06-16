@@ -22,15 +22,15 @@
       },
       "viewerControls": {
         "lhs": {
-          "open": "Open left hand side",
-          "close": "Close left hand side"
+          "open": "Open hits panel",
+          "close": "Close hits panel"
         },
         "settings": "Settings controls",
         "display": "Display controls",
         "mouse": "Mouse controls",
         "rhs": {
-          "open": "Open right hand side",
-          "close": "Close right hand side"
+          "open": "Open designs panel",
+          "close": "Close designs panel"
         }
       },
       "snapshotList": {

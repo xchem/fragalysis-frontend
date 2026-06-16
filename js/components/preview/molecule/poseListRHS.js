@@ -532,6 +532,7 @@ export const PoseListRHS = memo(({ expandHandler }) => {
         handlers={handlers}
         instanceConfig={instanceConfig}
         expandHandler={expandHandler}
+        navigatorTitle="Design navigator"
       />
     </TooltipPathProvider>
   );
