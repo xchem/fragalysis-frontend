@@ -415,36 +415,63 @@ export const TargetList = memo(({ list = [], title = 'Target list', authRequired
       } else {
         preview = `${URLS.target}${target.title}/${URL_TOKENS.target_access_string}/${target.project.target_access_string}`;
       }
-      target.elementId = `${title.replace(" ", "-").toLowerCase()}-item-${index}`
-
+      const targetTitleId = `${title.replace(' ', '-').toLowerCase()}`;
+      target.elementId = targetTitleId;
       return (
         <TableRow hover key={target.isLegacy ? target.title + 'Legacy' : `${target.id}-${target.title}`}>
           <TableCell align="left" style={{ padding: '0px', margin: '0px' }}>
             {target.isLegacy ? (
-              <a href={target.legacyUrl} id={target.elementId} target="new" style={{ wordBreak: 'break-all' }}>
+              <a
+                href={target.legacyUrl}
+                id={targetTitleId + '-item-' + index}
+                target="new"
+                style={{ wordBreak: 'break-all' }}
+              >
                 {target.display_name}
               </a>
             ) : (
               <>
-                <Link to={preview} id={target.elementId}>{target.display_name}</Link>
+                <Link to={preview} id={target.elementId}>
+                  {target.display_name}
+                </Link>
               </>
             )}
           </TableCell>
           <TableCell style={{ width: '2px', padding: '0px', margin: '0px' }}></TableCell>
           {legacy === false && [
-            <TableCell key={'14'} align="left" style={{ padding: '0px', margin: '0px' }}>
+            <TableCell
+              key={'14'}
+              align="left"
+              style={{ padding: '0px', margin: '0px' }}
+              id={targetTitleId + '-tas-' + index}
+            >
               {target.project.target_access_string}
             </TableCell>,
             <TableCell key={'13'} style={{ width: '2px', padding: '0px', margin: '0px' }}></TableCell>,
-            <TableCell key={'12'} align="left" style={{ padding: '0px', margin: '0px' }}>
+            <TableCell
+              key={'12'}
+              align="left"
+              style={{ padding: '0px', margin: '0px' }}
+              id={targetTitleId + '-init_date-' + index}
+            >
               {moment(target.project.init_date).format('YYYY-MM-DD')}
             </TableCell>,
             <TableCell key={'11'} style={{ width: '2px', padding: '0px', margin: '0px' }}></TableCell>,
-            <TableCell key={'1'} align="left" style={{ padding: '0px', margin: '0px' }}>
+            <TableCell
+              key={'1'}
+              align="left"
+              style={{ padding: '0px', margin: '0px' }}
+              id={targetTitleId + '-last_updated-' + index}
+            >
               {target.last_updated ? moment(target.last_updated).format('YYYY-MM-DD') : ''}
             </TableCell>,
             <TableCell key={'2'} style={{ width: '2px', padding: '0px', margin: '0px' }}></TableCell>,
-            <TableCell key={'3'} align="left" style={{ padding: '0px', margin: '0px' }}>
+            <TableCell
+              key={'3'}
+              align="left"
+              style={{ padding: '0px', margin: '0px' }}
+              id={targetTitleId + '-short_name-' + index}
+            >
               {target.short_name}
             </TableCell>,
             <TableCell key={'4'} style={{ width: '2px', padding: '0px', margin: '0px' }}></TableCell>,
@@ -686,6 +713,7 @@ export const TargetList = memo(({ list = [], title = 'Target list', authRequired
               onChange={handleSearch}
             />,
             <IconButton
+              id={target_id_list[0]?.elementId + '-filter'}
               onClick={event => {
                 if (filterDialogOpen === false || filterDialogOpen === undefined) {
                   setSortDialogAnchorEl(event.currentTarget);

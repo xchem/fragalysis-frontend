@@ -293,8 +293,8 @@ export const useFilters = (initialItems, columns) => {
     const sortByObservation = (a, b, name, sortValue) => {
         const type = sortValue.enabled;
         // 0: None, 1: Observation / pose shortcode, 2: Compound aliases, 3: Compound ID
-        const valueA = a[type === 1 ? 'main_site_observation_cmpd_code' : type === 2 ? 'display_name' : 'id'];
-        const valueB = b[type === 1 ? 'main_site_observation_cmpd_code' : type === 2 ? 'display_name' : 'id'];
+        const valueA = a[type === 1 ? 'display_name' : type === 2 ? 'main_site_observation_cmpd_code' : 'id'];
+        const valueB = b[type === 1 ? 'display_name' : type === 2 ? 'main_site_observation_cmpd_code' : 'id'];
         return sortValue.order === ORDER.ASC ? valueA.localeCompare(valueB, undefined, { numeric: true, sensitivity: 'base' })
             : valueB.localeCompare(valueA, undefined, { numeric: true, sensitivity: 'base' });
     };

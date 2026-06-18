@@ -67,6 +67,7 @@ import layout from '../../reducers/layout/layouts/draggable';
 import SnapshotList from '../snapshot/snapshotList';
 import SnapshotSavingProgressDialog from '../snapshot/modals/snapshotSavingProgressDialog';
 import { TooltipPathProvider } from '../tooltip/TooltipPathContext';
+import { useDisplayArtefactsChainsLHS } from '../../reducers/ngl/useDiplayArtefactChainsLHS';
 
 const ReactGridLayout = WidthProvider(ResponsiveGridLayout);
 
@@ -137,6 +138,7 @@ const Preview = memo(({ isStateLoaded, hideProjects, isSnapshot = false }) => {
   useDisplaySurfaceLHS();
   useDisplayVectorLHS();
   useDisplayDensityLHS();
+  useDisplayArtefactsChainsLHS();
 
   useDisplayLigandRHS();
   useDisplayProteinRHS();

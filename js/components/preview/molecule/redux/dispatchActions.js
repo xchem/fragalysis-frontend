@@ -407,6 +407,32 @@ export const removeHitProtein = (stage, data, colourToggle, skipTracking = false
   dispatch(updateInToBeDisplayedList({ id: data.id, display: false, type: NGL_OBJECTS.PROTEIN }));
 };
 
+export const addArtefactChain = (
+  stage,
+  data,
+  colourToggle,
+  withQuality = false,
+  skipTracking = false,
+  representations = undefined,
+  preserveColour = false
+) => async dispatch => {
+  dispatch(
+    appendToBeDisplayedList({
+      type: NGL_OBJECTS.ARTEFACTS,
+      id: data.id,
+      display: true,
+      withQuality: withQuality,
+      representations: representations,
+      preserveColour: preserveColour,
+      center: false
+    })
+  );
+};
+
+export const removeArtefactChain = (stage, data, colourToggle, skipTracking = false) => dispatch => {
+  dispatch(updateInToBeDisplayedList({ id: data.id, display: false, type: NGL_OBJECTS.ARTEFACTS }));
+};
+
 export const addLigand = (
   stage,
   data,
@@ -484,7 +510,13 @@ export const initializeMolecules = majorView => (dispatch, getState) => {
       if (firstMolecule) {
         dispatch(addHitProtein(majorView, firstMolecule, colourList[firstMolecule.id % colourList.length], true)).then(
           () => {
-            dispatch(addLigand(majorView, firstMolecule, colourList[firstMolecule.id % colourList.length], true, true));
+            dispatch(
+              addArtefactChain(majorView, firstMolecule, colourList[firstMolecule.id % colourList.lenght], true, true)
+            ).then(() => {
+              dispatch(
+                addLigand(majorView, firstMolecule, colourList[firstMolecule.id % colourList.length], true, true)
+              );
+            });
           }
         );
       }

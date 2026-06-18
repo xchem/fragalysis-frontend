@@ -349,7 +349,7 @@ export const EditTagsModal = memo(({ open, anchorEl, setOpenDialog }) => {
   return (
     <Popper id={id} open={open} anchorEl={anchorEl} placement={'right-start'}>
       <Panel
-        title={'Edit tags'}
+        title={'Edit/show tags'}
         hasHeader
         secondaryBackground
         headerActions={[
@@ -447,7 +447,7 @@ export const EditTagsModal = memo(({ open, anchorEl, setOpenDialog }) => {
                 // className = { classes.checkboxHeader }
                 checked={newHidden}
                 onChange={onHiddenForNewTagChange}
-                disabled={isRestricted(tag)}
+                // disabled={isRestricted(tag)}
               />
             )}
           </Grid>
