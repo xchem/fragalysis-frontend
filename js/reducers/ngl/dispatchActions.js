@@ -33,7 +33,8 @@ import {
   removeFromProteinList,
   removeFromSurfaceList,
   removeFromDensityList,
-  removeFromDensityListType
+  removeFromDensityListType,
+  removeFromArtefactsChainList
 } from '../selection/actions';
 import { nglObjectDictionary } from '../../components/nglView/renderingObjects';
 import { VIEWS } from '../../constants/constants';
@@ -145,6 +146,9 @@ export const deleteObject = (target, stage, deleteFromSelections) => dispatch =>
           break;
         case SELECTION_TYPE.VECTOR:
           dispatch(removeFromVectorOnList(objectId));
+          break;
+        case SELECTION_TYPE.ARTEFACTS:
+          dispatch(removeFromArtefactsChainList(objectId));
           break;
       }
     }
