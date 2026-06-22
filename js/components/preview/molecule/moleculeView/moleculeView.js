@@ -34,7 +34,9 @@ import {
   getProteinData,
   withDisabledMoleculeNglControlButton,
   getCategoryById,
-  generateAndStoreMolImage
+  generateAndStoreMolImage,
+  removeArtefactChain,
+  addArtefactChain
 } from '../redux/dispatchActions';
 import {
   setSelectedAll,
@@ -42,7 +44,8 @@ import {
   setMoleculeForTagEdit,
   setTagEditorOpenObs,
   appendToMolListToEdit,
-  removeFromMolListToEdit
+  removeFromMolListToEdit,
+  removeProteinSettings
 } from '../../../../reducers/selection/actions';
 import { moleculeProperty } from '../helperConstants';
 import { centerOnLigandByMoleculeID } from '../../../../reducers/ngl/dispatchActions';
@@ -72,6 +75,7 @@ import { getCurrentTarget } from '../../../../reducers/api/selectors';
 import { DENSITY_MAP_TYPES, MAP_RENDERING_MODES } from '../utils/constants';
 import DensityButtonPopover from '../observationUnifiedView/table/views/DensityButtonPopover';
 import RichTooltip from '../../../tooltip/RichTooltip';
+import ProteinButtonPopover from '../observationUnifiedView/table/views/ProteinButtonPopover';
 
 const useStyles = makeStyles(theme => ({
   container: {
@@ -399,6 +403,7 @@ const MoleculeView = memo(
     Q,
     V,
     I,
+    A,
     isTagEditorInvokedByMolecule,
     isTagEditorOpen,
     selected,
@@ -442,8 +447,8 @@ const MoleculeView = memo(
     const isDensityOn = D;
     const isQualityOn = Q;
     const isVectorOn = V;
+    const isArtefactsChainOn = A;
     const hasAdditionalInformation = I;
-
     const allMolecules = useSelector(state => state.apiReducers.all_mol_lists);
     const allPoses = useSelector(state => state.apiReducers.lhs_compounds_list);
 
@@ -506,7 +511,8 @@ const MoleculeView = memo(
 
     const [densityPopoverAnchor, setDensityPopoverAnchor] = useState(null);
     const [densityPopoverOpen, setDensityPopoverOpen] = useState(false);
-
+    const [proteinPopoverAnchor, setProteinPopoverAnchor] = useState(null);
+    const [proteinPopoverOpen, setProteinPopoverOpen] = useState(false);
     // const handleDensityButtonContextMenu = event => {
     //   event.preventDefault();
     //   setDensityPopoverAnchor(event.currentTarget);
@@ -519,15 +525,16 @@ const MoleculeView = memo(
     };
 
     const [densityTooltipOpen, setDensityTooltipOpen] = React.useState(false);
+    const [proteinTooltipOpen, setProteinTooltipOpen] = React.useState(false);
 
-    const handleTooltipOpen = () => {
+    const handleDensityTooltipOpen = () => {
       // Don't open tooltip when the popover is open
       if (!densityPopoverOpen) {
         setDensityTooltipOpen(true);
       }
     };
 
-    const handleTooltipClose = () => {
+    const handleDensityTooltipClose = () => {
       setDensityTooltipOpen(false);
     };
 
@@ -541,6 +548,34 @@ const MoleculeView = memo(
       setDensityPopoverAnchor(event.currentTarget);
       setDensityPopoverOpen(true);
     };
+    const handleProteinButtonContextMenu = event => {
+      event.preventDefault();
+
+      setProteinTooltipOpen(false);
+
+      setProteinPopoverAnchor(event.currentTarget);
+      setProteinPopoverOpen(true);
+    };
+
+    const handleProteinPopoverClose = () => {
+      setProteinPopoverOpen(false);
+      setProteinPopoverAnchor(null);
+    };
+
+    const handleProteinTooltipOpen = () => {
+      if (!proteinPopoverOpen) {
+        setProteinTooltipOpen(true);
+      }
+    };
+
+    const handleProteinTooltipClose = () => {
+      setProteinTooltipOpen(false);
+    };
+
+    const [proteinSettings, setProteinSettings] = useState({
+      protein: true,
+      artefact: true
+    });
 
     useEffect(() => {
       setTagEditModalOpenNew(tagEditorOpenObs);
@@ -980,9 +1015,21 @@ const MoleculeView = memo(
         })
       );
     };
+    const addNewArtefactsChain = (skipTracking = false) => {
+      dispatch(
+        withDisabledMoleculeNglControlButton(currentID, 'protein', async () => {
+          await dispatch(addArtefactChain(stage, data, colourToggle, true, skipTracking));
+        })
+      );
+    };
+
+    const removeSelectedArtefactsChain = (skipTracking = false) => {
+      dispatch(removeArtefactChain(stage, data, colourToggle, skipTracking));
+      selectedAll.current = false;
+    };
 
     const [loadingProtein, setLoadingProtein] = useState(false);
-    const onProtein = calledFromSelectAll => {
+    const onProtein = (calledFromSelectAll, type = 'both') => {
       setLoadingProtein(true);
       if (calledFromSelectAll === true && selectedAll.current === true) {
         if (isProteinOn === false) {
@@ -991,10 +1038,48 @@ const MoleculeView = memo(
       } else if (calledFromSelectAll && selectedAll.current === false) {
         removeSelectedProtein(calledFromSelectAll);
       } else if (!calledFromSelectAll) {
-        if (isProteinOn === false) {
-          addNewProtein();
-        } else {
-          removeSelectedProtein();
+        switch (type) {
+          case 'protein':
+            if (isProteinOn) {
+              removeSelectedProtein(false);
+            } else if (isArtefactsChainOn) {
+              addNewProtein(false);
+            }
+            break;
+
+          case 'artefact':
+            if (isArtefactsChainOn) {
+              removeSelectedArtefactsChain();
+            } else if (isProteinOn) {
+              addNewArtefactsChain();
+            }
+            break;
+          case 'both':
+            if (proteinSettings.protein) {
+              if (!isProteinOn) {
+                addNewProtein(false);
+              } else {
+                removeSelectedProtein(false);
+              }
+            }
+            if (proteinSettings.artefact) {
+              if (!isArtefactsChainOn) {
+                addNewArtefactsChain();
+              } else {
+                removeSelectedArtefactsChain();
+              }
+            }
+            if (!proteinSettings.protein && !proteinSettings.artefact) {
+              dispatch(removeProteinSettings({ id: currentID }));
+
+              setProteinSettings({ protein: true, artefact: true });
+              addNewProtein(false);
+              addNewArtefactsChain();
+            }
+            break;
+
+          default:
+            break;
         }
       }
       setLoadingProtein(false);
@@ -1295,7 +1380,7 @@ const MoleculeView = memo(
           <Grid item container justifyContent="space-between" direction="column" className={classes.site}>
             <Grid item>
               <MoleculeSelectCheckbox
-                id={"observations-checkbox-" + index}
+                id={'observations-checkbox-' + index}
                 moleculeID={currentID}
                 checked={selected}
                 className={classes.checkbox}
@@ -1394,7 +1479,7 @@ const MoleculeView = memo(
                       <RichTooltip path="centerOn">
                         <Grid item>
                           <Button
-                            id={"observations-center-on-" + index}
+                            id={'observations-center-on-' + index}
                             variant="outlined"
                             className={classes.myLocationButton}
                             onClick={() => {
@@ -1409,7 +1494,7 @@ const MoleculeView = memo(
                       <RichTooltip path="all">
                         <Grid item>
                           <Button
-                            id={"observations-all-" + index}
+                            id={'observations-all-' + index}
                             variant="outlined"
                             className={classNames(
                               classes.contColButton,
@@ -1447,7 +1532,7 @@ const MoleculeView = memo(
                       <RichTooltip path="ligand">
                         <Grid item>
                           <Button
-                            id={"observations-ligand-" + index}
+                            id={'observations-ligand-' + index}
                             variant="outlined"
                             className={classNames(classes.contColButton, {
                               [classes.contColButtonSelected]: isLigandOn
@@ -1466,15 +1551,24 @@ const MoleculeView = memo(
                           </Button>
                         </Grid>
                       </RichTooltip>
-                      <RichTooltip path="sidechains">
+                      <RichTooltip
+                        path="sidechains"
+                        open={proteinTooltipOpen}
+                        onOpen={handleProteinTooltipOpen}
+                        onClose={handleProteinTooltipClose}
+                        disableHoverListener={proteinPopoverOpen}
+                        disableFocusListener={proteinPopoverOpen}
+                        disableTouchListener={proteinPopoverOpen}
+                      >
                         <Grid item>
                           <Button
-                            id={"observations-sidechains-" + index}
+                            id={'observations-sidechains-' + index}
                             variant="outlined"
                             className={classNames(classes.contColButton, {
-                              [classes.contColButtonSelected]: isProteinOn
+                              [classes.contColButtonSelected]: isProteinOn || isArtefactsChainOn
                             })}
-                            onClick={() => onProtein()}
+                            onClick={() => onProtein(undefined, 'both')}
+                            onContextMenu={handleProteinButtonContextMenu}
                             disabled={disableP || disableMoleculeNglControlButtons.protein}
                           >
                             P
@@ -1486,13 +1580,28 @@ const MoleculeView = memo(
                               />
                             )}
                           </Button>
+                          <Popover
+                            open={proteinPopoverOpen}
+                            anchorEl={proteinPopoverAnchor}
+                            onClose={handleProteinPopoverClose}
+                            anchorOrigin={{ vertical: 'center', horizontal: 'right' }}
+                            transformOrigin={{ vertical: 'center', horizontal: 'left' }}
+                          >
+                            <ProteinButtonPopover
+                              moleculeId={currentID}
+                              proteinSettings={proteinSettings}
+                              setProteinSettingsState={setProteinSettings}
+                              toogleProtein={onProtein}
+                              disabled={disableP || disableMoleculeNglControlButtons.protein}
+                            />
+                          </Popover>
                         </Grid>
                       </RichTooltip>
                       <RichTooltip path="interactions">
                         <Grid item>
                           {/* C stands for contacts now */}
                           <Button
-                            id={"observations-interactions-" + index}
+                            id={'observations-interactions-' + index}
                             variant="outlined"
                             className={classNames(classes.contColButton, {
                               [classes.contColButtonSelected]: isComplexOn
@@ -1514,7 +1623,7 @@ const MoleculeView = memo(
                       <RichTooltip path="surface">
                         <Grid item>
                           <Button
-                            id={"observations-surface-" + index}
+                            id={'observations-surface-' + index}
                             variant="outlined"
                             className={classNames(classes.contColButton, {
                               [classes.contColButtonSelected]: isSurfaceOn
@@ -1536,15 +1645,15 @@ const MoleculeView = memo(
                       <RichTooltip
                         path="electronDensity"
                         open={densityTooltipOpen}
-                        onOpen={handleTooltipOpen}
-                        onClose={handleTooltipClose}
+                        onOpen={handleDensityTooltipOpen}
+                        onClose={handleDensityTooltipClose}
                         disableHoverListener={densityPopoverOpen}
                         disableFocusListener={densityPopoverOpen}
                         disableTouchListener={densityPopoverOpen}
                       >
                         <Grid item>
                           <Button
-                            id={"observations-electronDensity-" + index}
+                            id={'observations-electronDensity-' + index}
                             variant="outlined"
                             className={classNames(classes.contColButton, {
                               [classes.contColButtonSelected]: isDensityOn
@@ -1576,7 +1685,7 @@ const MoleculeView = memo(
                       <RichTooltip path="vectors">
                         <Grid item>
                           <Button
-                            id={"observations-vectors-" + index}
+                            id={'observations-vectors-' + index}
                             variant="outlined"
                             className={classNames(classes.contColButton, {
                               [classes.contColButtonSelected]: isVectorOn

@@ -159,6 +159,28 @@ export const generateSurfaceObject = (data, colourToggle, base_url, datasetID) =
   };
 };
 
+//artefact chains
+export const generateArtefactChains = (data, colourToggle, datasetID) => async dispatch => {
+  let artefacts_url;
+
+  if (data && data.artefacts_file) {
+    artefacts_url = data.artefacts_file
+  } else if (data.pdb_info) {
+    artefacts_url = data.pdb_info.replace('http://', 'https://');
+  } else {
+    artefacts_url = data.pdb_info;
+  }
+  return {
+    name: `${data.code || data.name}_${OBJECT_TYPE.ARTEFACTS}${datasetID ? '_' + datasetID : ''}`,
+    OBJECT_TYPE: OBJECT_TYPE.ARTEFACTS,
+    sdf_info: (await dispatch(getLigandData(data))) || data.sdf_info,
+    colour: colourToggle,
+    artefacts_url,
+    moleculeId: data.id,
+    selectionType: SELECTION_TYPE.ARTEFACTS
+  };
+}
+
 // Density
 export const generateDensityObject = (data, densityObject) => async dispatch => {
   const proteinData = data && data.proteinData;

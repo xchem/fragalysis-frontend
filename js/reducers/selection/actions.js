@@ -104,6 +104,31 @@ export const removeFromProteinList = function(item, skipTracking = false) {
     skipTracking: skipTracking
   };
 };
+
+export const setArtefactChainList = function(artefactChainList, skipTracking = false) {
+  return {
+    type: constants.SET_ARTEFACTS_CHAIN_LIST,
+    artefactChainList: artefactChainList,
+    skipTracking
+  };
+};
+
+export const appendArtefactsChainList = function(item, skipTracking = false) {
+  return {
+    type: constants.APPEND_ARTEFACTS_CHAIN_LIST,
+    item: item,
+    skipTracking: skipTracking
+  };
+};
+
+export const removeFromArtefactsChainList = function(item, skipTracking = false) {
+  return {
+    type: constants.REMOVE_FROM_ARTEFACTS_CHAIN_LIST,
+    item: item,
+    skipTracking: skipTracking
+  };
+};
+
 export const setComplexList = function(complexList, skipTracking = false) {
   return {
     type: constants.SET_COMPLEX_LIST,
@@ -698,5 +723,29 @@ export const setSphereRendered = isRendered => {
   return {
     type: constants.SET_SPHERE_RENDERED,
     isRendered
+  };
+};
+
+export const setProteinSettings = (item, skipTracking = false) => {
+  return {
+    type: constants.SET_PROTEIN_SETTINGS,
+    item: item,
+    skipTracking
+  };
+};
+
+export const appendProteinSettings = (item, skipTracking = false) => {
+  return {
+    type: constants.APPEND_PROTEIN_SETTINGS,
+    item: item,
+    skipTracking
+  };
+};
+
+export const removeProteinSettings = (item, skipTracking = false) => {
+  return {
+    type: constants.REMOVE_FROM_PROTEIN_SETTINGS,
+    item: item,
+    skipTracking
   };
 };

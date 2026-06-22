@@ -37,6 +37,7 @@ export const SNAPSHOT_VALUES_TO_BE_DELETED = {
     densityListType: [],
     qualityList: [],
     vectorOnList: [],
+    artefactChainList: [],
     isScrollFiredForLHS: false
   },
   snapshotReducers: {
@@ -60,6 +61,7 @@ export const SNAPSHOT_VALUES_TO_BE_DELETED = {
     complexLists: {},
     surfaceLists: {},
     datasetScrolledMap: {},
+    artefactChainList: {},
     isSelectedDatasetScrolled: false
   },
   projectReducers: {
