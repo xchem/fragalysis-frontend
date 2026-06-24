@@ -14,6 +14,7 @@ import { compareTagsAsc } from '../preview/tags/utils/tagUtils';
 import { DJANGO_CONTEXT } from '../../utils/djangoContext';
 import { diffBetweenDatesInDays } from '../../utils/common';
 import { setDownloadTags } from '../../reducers/api/actions';
+import RichTooltip from '../tooltip/RichTooltip';
 
 const DownloadPdb = memo(({ targetOn, targetOnName, key }) => {
   const dispatch = useDispatch();
@@ -68,27 +69,33 @@ const DownloadPdb = memo(({ targetOn, targetOnName, key }) => {
 
   if (targetOnName === undefined) {
     return (
-      <Button key={key} color="primary" disabled startIcon={<Loop />}>
-        Loading...
-      </Button>
+      <RichTooltip path="downloadStructures">
+        <Button key={key} color="primary" disabled startIcon={<Loop />}>
+          Loading...
+        </Button>
+      </RichTooltip>
     );
   } else if (downloading === true) {
     return (
-      <Button key={key} color="primary" disabled startIcon={<CloudDownload />}>
-        Downloading...
-      </Button>
+      <RichTooltip path="downloadStructures">
+        <Button key={key} color="primary" disabled startIcon={<CloudDownload />}>
+          Downloading...
+        </Button>
+      </RichTooltip>
     );
   } else {
     return (
-      <Button
-        key={key}
-        color="primary"
-        disabled={false}
-        onClick={openDownloadStructuresDialog}
-        startIcon={<CloudDownload />}
-      >
-        Download structures
-      </Button>
+      <RichTooltip path="downloadStructures">
+        <Button
+          key={key}
+          color="primary"
+          disabled={false}
+          onClick={openDownloadStructuresDialog}
+          startIcon={<CloudDownload />}
+        >
+          Download structures
+        </Button>
+      </RichTooltip>
     );
   }
 });

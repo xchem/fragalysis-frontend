@@ -11,6 +11,7 @@ import { NglContext } from '../nglView/nglProvider';
 import { restoreSnapshotActions } from '../preview/moleculeGroups/redux/dispatchActions';
 import { extractTargetFromURLParam } from '../preview/utils';
 import { setDontShowShareSnapshot } from './redux/actions';
+import RichTooltip from '../tooltip/RichTooltip';
 
 /**
  * Created by ricgillams on 13/06/2018.
@@ -72,18 +73,21 @@ export const withSnapshotManagement = WrappedComponent => {
         }
       }
       setHeaderButtons([
-        <Button
-          key="shareSnapshot"
-          color="primary"
-          size="small"
-          startIcon={<Share />}
-          disabled={disableShareButton || false}
-          onClick={() => {
-            dispatch(saveAndShareSnapshot(nglViewList, true, {})).then(() => dispatch(setDontShowShareSnapshot(false)));
-          }}
-        >
-          Share
-        </Button>,
+        <RichTooltip key="shareSnapshot" path="shareSnapshot">
+          <Button
+            color="primary"
+            size="small"
+            startIcon={<Share />}
+            disabled={disableShareButton || false}
+            onClick={() => {
+              dispatch(saveAndShareSnapshot(nglViewList, true, {})).then(() =>
+                dispatch(setDontShowShareSnapshot(false))
+              );
+            }}
+          >
+            Share
+          </Button>
+        </RichTooltip>,
         <DownloadPdb key="download" />
       ]);
 

@@ -259,6 +259,11 @@
         "companyFunding": "{{companyTitle}}",
         "companyContributor": "{{companyTitle}}"
       },
+      "menu": "Open main menu",
+      "targetSettings": "Open target settings",
+      "saveSnapshot": "Save snapshot",
+      "shareSnapshot": "Share current view",
+      "downloadStructures": "Download structures",
       "discourseTarget": "Go to target category on Discourse",
       "discourseCategory": "Go to project topic on Discourse",
       "help": "Introduction to the Fragalysis application",

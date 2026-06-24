@@ -22,6 +22,7 @@ import {
   compareTagsByCategoryAndNameAsc,
   createMoleculeTagObject,
   getEditNewTagCategories,
+  isTagVisibleOnSide,
   TAG_META_CATEGORIES
 } from '../utils/tagUtils';
 import { ColorPicker } from '../../../common/Components/ColorPicker';
@@ -114,9 +115,19 @@ export const EditTagsModal = memo(({ open, anchorEl, setOpenDialog, metaCategory
     [dispatch]
   );
 
+  const resetTagToEditState = useCallback(() => {
+    setNewTagCategory(DEFAULT_CATEGORY);
+    setNewTagColor(DEFAULT_TAG_COLOR);
+    setNewTagName('');
+    setNewTagLink('');
+    setNewHidden(false);
+    setNewMetaCategory(metaCategory);
+    dispatch(setTagToEdit(null));
+  }, [dispatch, metaCategory]);
+
   useEffect(() => {
     const newTagList = preTagList.filter(t => {
-      if (t.additional_info?.downloadName) {
+      if (t.additional_info?.downloadName || !isTagVisibleOnSide(t, metaCategory)) {
         return false;
       } else {
         return true;
@@ -127,10 +138,15 @@ export const EditTagsModal = memo(({ open, anchorEl, setOpenDialog, metaCategory
       // dispatch(setTagToEdit(null)); // uncomment this to reset tag after update - clean up moved to resetTagToEditState
       setTags([NEW_TAG]);
     };
-  }, [preTagList, tagCategories]);
+  }, [preTagList, metaCategory]);
 
   useEffect(() => {
     if (tag) {
+      if (tag.id !== NEW_TAG.id && !isTagVisibleOnSide(tag, metaCategory)) {
+        resetTagToEditState();
+        return;
+      }
+
       if (tag.category) {
         setNewTagCategory(tag.category);
       }
@@ -140,7 +156,7 @@ export const EditTagsModal = memo(({ open, anchorEl, setOpenDialog, metaCategory
       setNewHidden(tag.hidden || false);
       setNewMetaCategory(tag.meta_category || metaCategory);
     }
-  }, [getColourForTag, metaCategory, tag]);
+  }, [getColourForTag, metaCategory, resetTagToEditState, tag]);
 
   const comboCategories = useMemo(() => {
     return getEditNewTagCategories(tagCategories);
@@ -169,16 +185,6 @@ export const EditTagsModal = memo(({ open, anchorEl, setOpenDialog, metaCategory
     }
     return count;
   }, [allMolList, tag]);
-
-  const resetTagToEditState = () => {
-    setNewTagCategory(DEFAULT_CATEGORY);
-    setNewTagColor(DEFAULT_TAG_COLOR);
-    setNewTagName('');
-    setNewTagLink('');
-    setNewHidden(false);
-    setNewMetaCategory(metaCategory);
-    dispatch(setTagToEdit(null));
-  };
 
   const onCategoryForNewTagChange = event => {
     setNewTagCategory(event.target.value);
@@ -472,8 +478,8 @@ export const EditTagsModal = memo(({ open, anchorEl, setOpenDialog, metaCategory
             {leftSide('Side')}
             {rightSide(
               <Select value={newMetaCategory || metaCategory} onChange={onMetaCategoryForNewTagChange}>
-                <MenuItem value={TAG_META_CATEGORIES.LHS}>LHS</MenuItem>
-                <MenuItem value={TAG_META_CATEGORIES.RHS}>RHS</MenuItem>
+                <MenuItem value={TAG_META_CATEGORIES.LHS}>Hits</MenuItem>
+                <MenuItem value={TAG_META_CATEGORIES.RHS}>Designs</MenuItem>
               </Select>
             )}
           </Grid>
