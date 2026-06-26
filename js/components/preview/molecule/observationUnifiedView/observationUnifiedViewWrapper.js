@@ -56,6 +56,7 @@ const useStyles = makeStyles(theme => ({
 
 const DETAIL_WIDTH_BUFFER = 6;
 const DETAIL_TEXT_ACTION_BUFFER = 28;
+const TABLE_WIDTH_RESERVE = 10;
 const DETAIL_CONTROLS_WIDTH = {
   lhs: 116,
   rhs: 100
@@ -240,13 +241,23 @@ const ObservationUnifiedViewWrapper = memo(
           0
         );
         const displayHeight = maxDetailHeight > BASE_ROW_HEIGHT ? maxDetailHeight : imgHeight;
-        const displayWidth = displayHeight > imgHeight ? Math.max(1, (imgWidth * imgHeight) / displayHeight) : imgWidth;
+        const nonMoleculeColumnsWidth = (columns || []).reduce((width, column) => {
+          if (!column.visible || column.name === 'molecule') {
+            return width;
+          }
+
+          return width + getColumnWidth(column.name);
+        }, 0);
+        const availableImageWidth = availableWidth
+          ? availableWidth - nonMoleculeColumnsWidth - TABLE_WIDTH_RESERVE
+          : imgWidth;
+        const displayWidth = Math.max(1, Math.min(imgWidth, availableImageWidth));
 
         return {
           height: displayHeight,
           width: Math.round(displayWidth * 100) / 100
         };
-      }, [detailHeightsByRowId, filteredItems, imgHeight, imgWidth]);
+      }, [availableWidth, columns, detailHeightsByRowId, filteredItems, getColumnWidth, imgHeight, imgWidth]);
 
       const getRenderedColumnWidth = useCallback(
         name => {

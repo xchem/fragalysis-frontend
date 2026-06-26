@@ -89,7 +89,9 @@ const useStyles = makeStyles(theme => ({
   },
   footer: {
     flex: '0 0 auto',
-    width: '100%'
+    width: '100%',
+    minWidth: 0,
+    overflow: 'hidden'
   },
   centered: {
     display: 'flex',
@@ -261,28 +263,47 @@ const useStyles = makeStyles(theme => ({
     whiteSpace: 'normal'
   },
   footerRow: {
-    width: '100%'
+    width: '100%',
+    minWidth: 0,
+    flexWrap: 'wrap',
+    overflow: 'hidden'
   },
   footerSummary: {
-    flex: '1 1 92px',
-    minWidth: 0
+    flex: '0 1 auto',
+    minWidth: 0,
+    maxWidth: '45%',
+    paddingRight: 4,
+    boxSizing: 'border-box'
   },
   footerActions: {
-    flex: '1 1 180px',
-    minWidth: 0
+    flex: '1 1 292px',
+    minWidth: 0,
+    maxWidth: '100%',
+    overflow: 'hidden'
   },
   footerButtonGroup: {
     display: 'flex',
     flexWrap: 'wrap',
-    width: '100%'
+    alignItems: 'flex-start',
+    justifyContent: 'flex-end',
+    columnGap: 6,
+    rowGap: 4,
+    width: '100%',
+    maxHeight: 48,
+    overflow: 'hidden'
   },
   footerButton: {
-    flex: '1 1 74px',
-    minWidth: 0,
+    flex: '0 0 94px',
+    height: 22,
+    minHeight: 0,
+    minWidth: 94,
+    maxWidth: '100%',
     margin: '0 !important',
-    padding: '6px 7px',
-    whiteSpace: 'normal',
-    lineHeight: 1.15
+    padding: '2px 4px',
+    fontSize: 12,
+    lineHeight: 1,
+    whiteSpace: 'nowrap',
+    overflow: 'hidden'
   }
 }));
 let selectedDisplayHits = false;
@@ -1586,7 +1607,7 @@ export const PoseList = memo(
                 </InfiniteScroll>
               </Grid>
               <Grid item className={classes.footer}>
-                <Grid container alignItems="center" direction="row" className={classes.footerRow}>
+                <Grid container alignItems="flex-start" direction="row" className={classes.footerRow}>
                   <Grid item className={classes.footerSummary}>
                     <span
                       className={classes.total}
