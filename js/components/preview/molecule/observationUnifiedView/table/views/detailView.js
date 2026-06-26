@@ -67,6 +67,7 @@ import { getDefaultComputedInspirations } from '../../../utils/computedInspirati
 
 const DETAIL_TEXT_ACTION_BUFFER = 28;
 const DETAIL_SINGLE_CONTROL_WIDTH = 24;
+const DETAIL_MIN_TEXT_WIDTH = 24;
 const DETAIL_CONTROLS_WIDTH = {
   lhs: 116,
   rhs: 100
@@ -241,13 +242,13 @@ const useStyles = makeStyles(theme => ({
     flex: '1 1 auto',
     width: 'auto',
     minWidth: 0,
-    overflow: 'hidden'
+    overflow: 'visible'
     // width: 'inherit'
   },
   detailViewRoot: {
     width: '100%',
     minWidth: 0,
-    overflow: 'hidden'
+    overflow: 'visible'
   },
   image: {
     border: 'solid 1px',
@@ -1502,7 +1503,7 @@ export const DetailView = memo(
       const mainObservation = getMainObservation();
       const codeWidth = measureTextWidth(mainObservation?.code || '', '700 14.4px Roboto, Arial, sans-serif');
       const displayNameWidth = measureTextWidth(getDisplayName() || '', '400 12.8px Roboto, Arial, sans-serif');
-      const textWidth = Math.ceil(Math.max(codeWidth, displayNameWidth) + DETAIL_TEXT_ACTION_BUFFER);
+      const preferredTextWidth = Math.ceil(Math.max(codeWidth, displayNameWidth) + DETAIL_TEXT_ACTION_BUFFER);
       const fullControlsWidth = DETAIL_CONTROLS_WIDTH[viewConfig.kind] || DETAIL_CONTROLS_WIDTH.lhs;
 
       if (!availableWidth) {
@@ -1514,7 +1515,7 @@ export const DetailView = memo(
 
       const maxControlsWidth = Math.max(
         DETAIL_SINGLE_CONTROL_WIDTH,
-        Math.min(fullControlsWidth, availableWidth - textWidth)
+        Math.min(fullControlsWidth, availableWidth - DETAIL_MIN_TEXT_WIDTH)
       );
       const controlsWidth =
         maxControlsWidth >= fullControlsWidth
@@ -1523,7 +1524,7 @@ export const DetailView = memo(
 
       return {
         controlsWidth: Math.ceil(controlsWidth),
-        textColumnWidth: Math.max(DETAIL_SINGLE_CONTROL_WIDTH, availableWidth - controlsWidth)
+        textColumnWidth: Math.max(DETAIL_MIN_TEXT_WIDTH, Math.min(preferredTextWidth, availableWidth - controlsWidth))
       };
     }, [detailWidth, getDisplayName, getMainObservation, viewConfig.kind, visibleControlButtonWidths]);
 
