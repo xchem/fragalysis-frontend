@@ -408,6 +408,32 @@ export const removeHitProtein = (stage, data, colourToggle, skipTracking = false
   dispatch(updateInToBeDisplayedList({ id: data.id, display: false, type: NGL_OBJECTS.PROTEIN }));
 };
 
+export const addArtefactChain = (
+  stage,
+  data,
+  colourToggle,
+  withQuality = false,
+  skipTracking = false,
+  representations = undefined,
+  preserveColour = false
+) => async dispatch => {
+  dispatch(
+    appendToBeDisplayedList({
+      type: NGL_OBJECTS.ARTEFACTS,
+      id: data.id,
+      display: true,
+      withQuality: withQuality,
+      representations: representations,
+      preserveColour: preserveColour,
+      center: false
+    })
+  );
+};
+
+export const removeArtefactChain = (stage, data, colourToggle, skipTracking = false) => dispatch => {
+  dispatch(updateInToBeDisplayedList({ id: data.id, display: false, type: NGL_OBJECTS.ARTEFACTS }));
+};
+
 export const addLigand = (
   stage,
   data,
@@ -487,7 +513,13 @@ export const initializeMolecules = majorView => (dispatch, getState) => {
       if (firstMolecule) {
         dispatch(addHitProtein(majorView, firstMolecule, colourList[firstMolecule.id % colourList.length], true)).then(
           () => {
-            dispatch(addLigand(majorView, firstMolecule, colourList[firstMolecule.id % colourList.length], true, true));
+            dispatch(
+              addArtefactChain(majorView, firstMolecule, colourList[firstMolecule.id % colourList.length], true, true)
+            ).then(() => {
+              dispatch(
+                addLigand(majorView, firstMolecule, colourList[firstMolecule.id % colourList.length], true, true)
+              );
+            });
           }
         );
       }
@@ -619,6 +651,7 @@ export const hideAllSelectedMolecules = (stage, currentMolecules, isHideAll, ski
   const vectorOnList = state.selectionReducers.vectorOnList;
   const surfaceList = state.selectionReducers.surfaceList;
   const proteinList = state.selectionReducers.proteinList;
+  const artefactsChainList = state.selectionReducers.artefactsChainList;
   const densityList = state.selectionReducers.densityList;
   const qualityList = state.selectionReducers.qualityList;
 
@@ -670,6 +703,14 @@ export const hideAllSelectedMolecules = (stage, currentMolecules, isHideAll, ski
     }
   });
 
+  artefactsChainList.forEach(moleculeId => {
+    const data = currentMolecules.find(molecule => molecule.id === moleculeId);
+    if (data) {
+      proteinDataList.push(data);
+      dispatch(removeArtefactChain(stage, data, colourList[0], skipTracking));
+    }
+  });
+
   densityList.forEach(d => {
     const data = currentMolecules.find(molecule => molecule.id === d.id);
     if (data) {
@@ -706,7 +747,13 @@ export const moveSelectedMolSettings = (stage, item, newItem, data, skipTracking
     }
     if (data.isProteinOn) {
       const proteinRepresentations = getRepresentationsByType(data.objectsInView, item, OBJECT_TYPE.HIT_PROTEIN);
-      promises.push(dispatch(addHitProtein(stage, newItem, data.colourToggle, skipTracking, proteinRepresentations)));
+      promises.push(dispatch(addHitProtein(stage, newItem, data.colourToggle, false, skipTracking, proteinRepresentations)));
+    }
+    if (data.isArtefactChainOn) {
+      const artefactChainRepresentations = getRepresentationsByType(data.objectsInView, item, OBJECT_TYPE.ARTEFACTS);
+      promises.push(
+        dispatch(addArtefactChain(stage, newItem, data.colourToggle, false, skipTracking, artefactChainRepresentations))
+      );
     }
     if (data.isComplexOn) {
       const complaxRepresentations = getRepresentationsByType(data.objectsInView, item, OBJECT_TYPE.COMPLEX);
@@ -737,6 +784,7 @@ export const removeSelectedMolTypes = (majorViewStage, molecules, skipTracking, 
   const vectorOnList = state.selectionReducers.vectorOnList;
   const surfaceList = state.selectionReducers.surfaceList;
   const proteinList = state.selectionReducers.proteinList;
+  const artefactsChainList = state.selectionReducers.artefactsChainList;
   const densityList = state.selectionReducers.densityList;
   const qualityList = state.selectionReducers.qualityList;
   let joinedMoleculeLists = molecules;
@@ -749,6 +797,22 @@ export const removeSelectedMolTypes = (majorViewStage, molecules, skipTracking, 
 
       dispatch(
         removeHitProtein(
+          majorViewStage,
+          foundedMolecule,
+          colourList[foundedMolecule.id % colourList.length],
+          skipTracking
+        )
+      );
+    }
+  });
+  artefactsChainList?.forEach(moleculeID => {
+    let foundedMolecule = joinedMoleculeLists?.find(mol => mol.id === moleculeID);
+
+    if (foundedMolecule) {
+      foundedMolecule = Object.assign({ isInspiration: isInspiration }, foundedMolecule);
+
+      dispatch(
+        removeArtefactChain(
           majorViewStage,
           foundedMolecule,
           colourList[foundedMolecule.id % colourList.length],
@@ -827,6 +891,7 @@ export const applyDirectSelection = stage => (dispatch, getState) => {
   const directDisplay = state.apiReducers.direct_access;
   const fragmentDisplayList = state.selectionReducers.fragmentDisplayList;
   const proteinList = state.selectionReducers.proteinList;
+  const artefactsChainList = state.selectionReducers.artefactsChainList;
   const complexList = state.selectionReducers.complexList;
   const surfaceList = state.selectionReducers.surfaceList;
   const vectorOnList = state.selectionReducers.vectorOnList;
@@ -845,6 +910,9 @@ export const applyDirectSelection = stage => (dispatch, getState) => {
           }
           if (m.P && !proteinList.includes(mol.id)) {
             dispatch(addHitProtein(stage, mol, colourList[mol.id % colourList.length]));
+          }
+          if (m.P && !artefactsChainList.includes(mol.id)) {
+            dispatch(addArtefactChain(stage, mol, colourList[mol.id % colourList.length]));
           }
           if (m.C && !complexList.includes(mol.id)) {
             dispatch(addComplex(stage, mol, colourList[mol.id % colourList.length]));

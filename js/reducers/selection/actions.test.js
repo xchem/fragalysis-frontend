@@ -1,4 +1,4 @@
-import selectionReducer, { INITIAL_STATE } from './selectionReducers';
+import { selectionReducers as selectionReducer, INITIAL_STATE } from './selectionReducers';
 import * as selectionActions from './actions';
 
 describe("testing selection reducer's actions", () => {
@@ -21,94 +21,6 @@ describe("testing selection reducer's actions", () => {
     expect(result.to_buy_list).toStrictEqual(to_buy_list);
   });
 
-  it('should set initial full graph', () => {
-    expect.hasAssertions();
-    const item = {
-      smiles: 'to_query',
-      id: 'to_query_pk',
-      sdf_info: 'to_query_sdf_info',
-      prot_id: 'to_query_prot'
-    };
-    let result = selectionReducer(initialState, selectionActions.setInitialFullGraph(item));
-
-    expect(result.to_query).toStrictEqual(item.smiles);
-    expect(result.to_query_pk).toStrictEqual(item.id);
-    expect(result.to_query_sdf_info).toStrictEqual(item.sdf_info);
-    expect(result.to_query_prot).toStrictEqual(item.prot_id);
-    expect(result.to_select).toStrictEqual({});
-    expect(result.querying).toStrictEqual(true);
-  });
-
-  it('should update full graph', () => {
-    expect.hasAssertions();
-    const initialItem = {
-      to_select: {},
-      to_query_pk: 'to_query_pk',
-      to_query_prot: 'to_query_prot',
-      to_query_sdf_info: 'to_query_sdf_info',
-      querying: true,
-      to_query: 'to_query'
-    };
-
-    const item = {
-      'Cc1cc([Xe])no1_2_REPLACE': {
-        addition: [
-          {
-            end: 'Cc1cc(CN(C)C(C)C(N)=O)no1',
-            change: 'CC(C(N)O)N(C)C[101Xe]'
-          },
-          {
-            end: 'Cc1cc(C(=O)NN=CC(C)(C)C)no1',
-            change: 'CC(C)(C)CNNC(O)[101Xe]'
-          },
-          {
-            end: 'Cc1cc(NCC(C)(C)C)no1',
-            change: 'CC(C)(C)CN[101Xe]'
-          }
-        ],
-        vector: 'CC1CCC([101Xe])C1'
-      }
-    };
-
-    let result = selectionReducer(Object.assign({}, initialState, initialItem), selectionActions.updateFullGraph(item));
-    expect(result.to_select).toStrictEqual(item);
-    expect(result.querying).toStrictEqual(false);
-
-    const item2 = {
-      'C[Xe].NC(=O)NCC[Xe]_2_LINKER': {
-        addition: [
-          {
-            end: 'Cc1csc(CCNC(N)=O)n1',
-            change: '[100Xe]C1CCC([101Xe])C1'
-          }
-        ],
-        vector: 'C[100Xe].NC(O)NCC[101Xe]'
-      }
-    };
-
-    result = selectionReducer(Object.assign({}, result), selectionActions.updateFullGraph(item2));
-
-    expect(result.to_select).not.toStrictEqual(item);
-    expect(result.to_select).toStrictEqual(item2);
-    expect(result.querying).toStrictEqual(false);
-  });
-
-  it('should set bond color map', () => {
-    expect.hasAssertions();
-    const item = { a: 4, b: 'abe' };
-
-    let result = selectionReducer(initialState, selectionActions.setBondColorMap(item));
-    expect(result.bondColorMap).toStrictEqual(item);
-  });
-
-  it('should set to query', () => {
-    expect.hasAssertions();
-    const item = { a: 4, b: 'abe' };
-
-    let result = selectionReducer(initialState, selectionActions.setToQuery(item));
-    expect(result.to_query).toStrictEqual(item);
-  });
-
   it('should set vector list', () => {
     expect.hasAssertions();
     const list = ['efg', 'rrgfd', 'ggg'];
@@ -120,19 +32,8 @@ describe("testing selection reducer's actions", () => {
   it('should select vector', () => {
     expect.hasAssertions();
     const vectorId = 'tempVector123';
-    const vectorKey = `${vectorId}_x34sgk&&40fk`;
-    const vectorValue = 45;
 
-    const initialData = {
-      // symbol '_' is important there
-      to_select: { [vectorKey]: vectorValue }
-    };
-
-    let result = selectionReducer(
-      Object.assign({}, initialState, initialData),
-      selectionActions.setCurrentVector(vectorId)
-    );
-    expect(result.this_vector_list).toStrictEqual({ [vectorKey]: vectorValue });
+    let result = selectionReducer(initialState, selectionActions.setCurrentVector(vectorId));
     expect(result.currentVector).toStrictEqual(vectorId);
   });
 
@@ -170,6 +71,30 @@ describe("testing selection reducer's actions", () => {
     expect(result.complexList).not.toContain(complexItem.id);
   });
 
+  it('should append and remove item in artefactsChainList', () => {
+    expect.hasAssertions();
+    const artefactItem = { id: 11 };
+    let result = selectionReducer(initialState, selectionActions.appendArtefactsChainList(artefactItem));
+    expect(result.artefactsChainList).toContain(artefactItem.id);
+
+    result = selectionReducer(initialState, selectionActions.removeFromArtefactsChainList(artefactItem));
+    expect(result.artefactsChainList).not.toContain(artefactItem.id);
+  });
+
+  it('should store protein settings by molecule id', () => {
+    expect.hasAssertions();
+    const proteinSetting = { id: 12, protein: true, artefact: false };
+    let result = selectionReducer(initialState, selectionActions.appendProteinSettings(proteinSetting));
+    expect(result.proteinSettings).toContainEqual(proteinSetting);
+
+    const updatedSetting = { id: 12, protein: false, artefact: true };
+    result = selectionReducer(result, selectionActions.appendProteinSettings(updatedSetting));
+    expect(result.proteinSettings).toStrictEqual([updatedSetting]);
+
+    result = selectionReducer(result, selectionActions.removeProteinSettings(updatedSetting));
+    expect(result.proteinSettings).toStrictEqual([]);
+  });
+
   it('should set vectorOnList', () => {
     expect.hasAssertions();
     const vectorOnList = [30, 40, 50, 60];
@@ -185,21 +110,21 @@ describe("testing selection reducer's actions", () => {
 
     result = selectionReducer(initialState, selectionActions.removeFromVectorOnList(newItem));
     expect(result.vectorOnList).not.toContain(newItem.id);
-    expect(result.currentVector).toBeUndefined();
+    expect(result.currentVector).toBeNull();
   });
 
   it('should reload selection reducer', () => {
     expect.hasAssertions();
     const vectorKey = 'abc';
     const savedSelectionReducers = {
-      to_select: {
-        1: 'send_obj.index',
-        [vectorKey]: 'send_obj.smiles',
-        3: { a: 'ff', b: 69 }
-      },
       currentVector: vectorKey,
       fragmentDisplayList: ['dfsd', 'dsgds', 12, 78],
+      proteinList: ['protein-1', 22],
+      artefactsChainList: ['artefact-1', 22],
       complexList: ['ffd', 556, '234'],
+      surfaceList: ['surface-1'],
+      densityList: [{ id: 'density-1', type: 'event' }],
+      proteinSettings: [{ id: 22, protein: true, artefact: false }],
       vectorOnList: [67, 99]
     };
 
@@ -208,35 +133,50 @@ describe("testing selection reducer's actions", () => {
       selectionActions.reloadSelectionReducer(savedSelectionReducers)
     );
 
-    expect(result.this_vector_list[result.currentVector]).toStrictEqual(
-      savedSelectionReducers.to_select[savedSelectionReducers.currentVector]
-    );
-
+    expect(result.currentVector).toStrictEqual(savedSelectionReducers.currentVector);
     expect(result.fragmentDisplayList).toStrictEqual(savedSelectionReducers.fragmentDisplayList);
+    expect(result.proteinList).toStrictEqual(savedSelectionReducers.proteinList);
+    expect(result.artefactsChainList).toStrictEqual(savedSelectionReducers.artefactsChainList);
     expect(result.complexList).toStrictEqual(savedSelectionReducers.complexList);
+    expect(result.surfaceList).toStrictEqual(savedSelectionReducers.surfaceList);
+    expect(result.densityList).toStrictEqual(savedSelectionReducers.densityList);
+    expect(result.proteinSettings).toStrictEqual(savedSelectionReducers.proteinSettings);
     expect(result.vectorOnList).toStrictEqual(savedSelectionReducers.vectorOnList);
   });
 
   it('should reset selection state', () => {
     expect.hasAssertions();
-    const vectorKey = 'abc';
-    const savedSelectionReducers = {
-      to_select: {
-        1: 'send_obj.index',
-        [vectorKey]: 'send_obj.smiles',
-        3: { a: 'ff', b: 69 }
-      },
-      currentVector: vectorKey,
+    const currentState = {
       fragmentDisplayList: ['dfsd', 'dsgds', 12, 78],
+      proteinList: ['protein-1'],
+      artefactsChainList: ['artefact-1'],
       complexList: ['ffd', 556, '234'],
-      vectorOnList: [67, 99]
+      surfaceList: ['surface-1'],
+      densityList: [{ id: 'density-1', type: 'event' }],
+      densityListType: [{ id: 'density-1', type: 'event' }],
+      qualityList: ['quality-1'],
+      vectorOnList: [67, 99],
+      informationList: [14],
+      moleculesToEdit: [123],
+      proteinSettings: [{ id: 1, protein: true, artefact: true }]
     };
 
     let result = selectionReducer(
-      Object.assign({}, initialState, { vectorOnList: ['aaaaa'], complexList: 'bbbb' }),
-      selectionActions.resetSelectionState(savedSelectionReducers)
+      Object.assign({}, initialState, currentState),
+      selectionActions.resetSelectionState()
     );
-    expect(result).toStrictEqual(INITIAL_STATE);
+    expect(result.fragmentDisplayList).toStrictEqual(currentState.fragmentDisplayList);
+    expect(result.proteinList).toStrictEqual(currentState.proteinList);
+    expect(result.artefactsChainList).toStrictEqual(currentState.artefactsChainList);
+    expect(result.complexList).toStrictEqual(currentState.complexList);
+    expect(result.surfaceList).toStrictEqual(currentState.surfaceList);
+    expect(result.densityList).toStrictEqual(currentState.densityList);
+    expect(result.densityListType).toStrictEqual(currentState.densityListType);
+    expect(result.qualityList).toStrictEqual(currentState.qualityList);
+    expect(result.vectorOnList).toStrictEqual(currentState.vectorOnList);
+    expect(result.informationList).toStrictEqual(currentState.informationList);
+    expect(result.moleculesToEdit).toStrictEqual(INITIAL_STATE.moleculesToEdit);
+    expect(result.proteinSettings).toStrictEqual(INITIAL_STATE.proteinSettings);
   });
 
   it('should set molecule group selection', () => {

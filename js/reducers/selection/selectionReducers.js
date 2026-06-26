@@ -17,6 +17,7 @@ export const INITIAL_STATE = {
   qualityList: [],
   informationList: [],
   vectorOnList: [],
+  artefactsChainList: [],
   mol_group_selection: [],
   object_selection: undefined,
   filter: undefined,
@@ -121,7 +122,8 @@ export const INITIAL_STATE = {
   coordinateRadiusRHS: 5,
   sphereRendered: false,
   sphereRenderedLHS: false,
-  sphereRenderedRHS: false
+  sphereRenderedRHS: false,
+  proteinSettings: []
 };
 
 export function selectionReducers(state = INITIAL_STATE, action = {}) {
@@ -254,6 +256,23 @@ export function selectionReducers(state = INITIAL_STATE, action = {}) {
       let diminishedProteinList = new Set(state.proteinList);
       diminishedProteinList.delete(action.item.id);
       return Object.assign({}, state, { proteinList: [...diminishedProteinList] });
+
+    case constants.SET_ARTEFACTS_CHAIN_LIST:
+      let newArtefactsChainList = new Set();
+      action.artefactsChainList.forEach(f => {
+        newArtefactsChainList.add(f);
+      });
+      return Object.assign({}, state, { artefactsChainList: [...newArtefactsChainList] });
+
+    case constants.APPEND_ARTEFACTS_CHAIN_LIST:
+      return Object.assign({}, state, {
+        artefactsChainList: [...new Set([...state.artefactsChainList, action.item.id])]
+      });
+
+    case constants.REMOVE_FROM_ARTEFACTS_CHAIN_LIST:
+      let diminishedArtefactsChainList = new Set(state.artefactsChainList);
+      diminishedArtefactsChainList.delete(action.item.id);
+      return Object.assign({}, state, { artefactsChainList: [...diminishedArtefactsChainList] });
 
     case constants.SET_COMPLEX_LIST:
       let newComplexList = new Set();
@@ -403,28 +422,32 @@ export function selectionReducers(state = INITIAL_STATE, action = {}) {
 
     case constants.RELOAD_SELECTION_REDUCER:
       let newFraments = new Set();
-      action.payload.fragmentDisplayList.forEach(f => {
+      (action.payload.fragmentDisplayList || []).forEach(f => {
         newFraments.add(f);
       });
       let newProteins = new Set();
-      action.payload.proteinList.forEach(p => {
+      (action.payload.proteinList || []).forEach(p => {
         newProteins.add(p);
       });
       let newComplexes = new Set();
-      action.payload.complexList.forEach(c => {
+      (action.payload.complexList || []).forEach(c => {
         newComplexes.add(c);
       });
       let newSurfaces = new Set();
-      action.payload.surfaceList.forEach(s => {
+      (action.payload.surfaceList || []).forEach(s => {
         newSurfaces.add(s);
       });
       let newDensities = new Set();
-      action.payload.densityList.forEach(d => {
+      (action.payload.densityList || []).forEach(d => {
         newDensities.add(d);
       });
       let newVectors = new Set();
-      action.payload.vectorOnList.forEach(v => {
+      (action.payload.vectorOnList || []).forEach(v => {
         newVectors.add(v);
+      });
+      let newArtefactsChain = new Set();
+      (action.payload.artefactsChainList || []).forEach(v => {
+        newArtefactsChain.add(v);
       });
 
       return Object.assign({}, state, {
@@ -434,7 +457,9 @@ export function selectionReducers(state = INITIAL_STATE, action = {}) {
         complexList: [...newComplexes],
         surfaceList: [...newSurfaces],
         densityList: [...newDensities],
-        vectorOnList: [...newVectors]
+        vectorOnList: [...newVectors],
+        artefactsChainList: [...newArtefactsChain],
+        proteinSettings: [...(action.payload.proteinSettings || [])]
       });
 
     case constants.RESET_SELECTION_STATE:
@@ -449,6 +474,7 @@ export function selectionReducers(state = INITIAL_STATE, action = {}) {
         densityListCustom,
         qualityList,
         vectorOnList,
+        artefactsChainList,
         informationList
       } = state;
       const newState = {
@@ -463,6 +489,7 @@ export function selectionReducers(state = INITIAL_STATE, action = {}) {
         densityListCustom,
         qualityList,
         vectorOnList,
+        artefactsChainList,
         informationList
       };
       return newState;
@@ -761,6 +788,22 @@ export function selectionReducers(state = INITIAL_STATE, action = {}) {
         sphereRendered: action.isRendered,
         [`sphereRendered${sphereRenderedSide}`]: action.isRendered
       };
+
+    case constants.SET_PROTEIN_SETTINGS:
+      return Object.assign({}, state, { proteinSettings: [...action.item] });
+
+    case constants.APPEND_PROTEIN_SETTINGS:
+      return Object.assign({}, state, {
+        proteinSettings: [
+          ...state.proteinSettings.filter(item => item.id !== action.item.id),
+          { ...action.item }
+        ]
+      });
+
+    case constants.REMOVE_FROM_PROTEIN_SETTINGS:
+      return Object.assign({}, state, {
+        proteinSettings: state.proteinSettings.filter(item => item.id !== action.item.id)
+      });
 
     // Cases like: @@redux/INIT
     default:

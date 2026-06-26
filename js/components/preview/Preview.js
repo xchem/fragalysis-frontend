@@ -68,6 +68,7 @@ import { useDisplayComplexLHS } from '../../reducers/ngl/useDisplayComplexLHS';
 import { useDisplaySurfaceLHS } from '../../reducers/ngl/useDisplaySurfacesLHS';
 import { useDisplayVectorLHS } from '../../reducers/ngl/useDisplayVectorLHS';
 import { useDisplayDensityLHS } from '../../reducers/ngl/useDisplayDensityLHS';
+import { useDisplayArtefactChainsLHS } from '../../reducers/ngl/useDisplayArtefactChainsLHS';
 import { useDisplayLigandRHS } from '../../reducers/ngl/useDisplayLigandRHS';
 import { useDisplayProteinRHS } from '../../reducers/ngl/useDisplayProteinRHS';
 import { useDisplayComplexRHS } from '../../reducers/ngl/useDisplayComplexRHS';
@@ -153,6 +154,7 @@ const Preview = memo(({ isStateLoaded, hideProjects, isSnapshot = false }) => {
   useDisplaySurfaceLHS();
   useDisplayVectorLHS();
   useDisplayDensityLHS();
+  useDisplayArtefactChainsLHS();
 
   useDisplayLigandRHS();
   useDisplayProteinRHS();

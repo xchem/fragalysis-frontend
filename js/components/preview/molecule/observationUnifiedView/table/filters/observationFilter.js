@@ -263,7 +263,7 @@ export const ObservationFilter = memo(({ onFilterChange, onSortingChange, viewCo
                 <FormControlLabel value={0} control={<Radio />} label="None" />
                 <FormControlLabel value={1} control={<Radio />} label="Observation code" />
                 <FormControlLabel value={2} control={<Radio />} label="Compound code" />
-                <FormControlLabel value={3} control={<Radio />} label="All compound aliases" />
+                {/* <FormControlLabel value={3} control={<Radio />} label="All compound aliases" /> */}
               </RadioGroup>
             </FormControl>
           </Grid>

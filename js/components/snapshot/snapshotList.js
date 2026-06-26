@@ -304,6 +304,7 @@ const SnapshotList = memo(({ expandHandler = null }) => {
                 classes={{ label: classes.tagLabel }}
                 control={
                   <SnapshotSwitch
+                    id="snapshot-only-mine-switch"
                     disabled={false /*!DJANGO_CONTEXT.pk && snapshotsCreatedThisSession.length === 0*/}
                     checked={onlyMine}
                     onChange={onlyMineSwitched}
@@ -322,6 +323,7 @@ const SnapshotList = memo(({ expandHandler = null }) => {
                 classes={{ label: classes.tagLabel }}
                 control={
                   <SnapshotSwitch
+                    id="snapshot-show-starred-switch"
                     checked={showStarredByOthers}
                     onChange={hideStarredSwitched}
                     name="snapshot-filtering-starred"
@@ -376,7 +378,11 @@ const SnapshotList = memo(({ expandHandler = null }) => {
         </div>
         <div className={classes.newSnapshotButtonContainer}>
           <RichTooltip path="createSnapshot">
-            <div className={classes.newSnapshotButton} onClick={handleCreateSnapshotClick}>
+            <div
+              id="new-snapshot-button-id"
+              className={classes.newSnapshotButton}
+              onClick={handleCreateSnapshotClick}
+            >
               <div className={classes.plusSign}>+</div>
               <Typography variant="body2">Click to create new snapshot</Typography>
             </div>

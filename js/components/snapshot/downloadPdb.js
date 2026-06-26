@@ -87,6 +87,7 @@ const DownloadPdb = memo(({ targetOn, targetOnName, key }) => {
     return (
       <RichTooltip path="downloadStructures">
         <Button
+          id="header-download-structure-button"
           key={key}
           color="primary"
           disabled={false}

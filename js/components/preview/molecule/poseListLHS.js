@@ -9,6 +9,8 @@ import {
   removeVector,
   addHitProtein,
   removeHitProtein,
+  addArtefactChain,
+  removeArtefactChain,
   addComplex,
   removeComplex,
   addSurface,
@@ -66,6 +68,7 @@ export const PoseListLHS = memo(({}) => {
   const dataAreDownloaded = useSelector(state => state.apiReducers.dataAreDownloaded);
   const errorOccuredDuringDownload = useSelector(state => state.apiReducers.errorOccuredDuringDownload);
   const proteinList = useSelector(state => state.selectionReducers.proteinList);
+  const artefactsChainList = useSelector(state => state.selectionReducers.artefactsChainList);
   const complexList = useSelector(state => state.selectionReducers.complexList);
   const fragmentDisplayList = useSelector(state => state.selectionReducers.fragmentDisplayList);
   const surfaceList = useSelector(state => state.selectionReducers.surfaceList);
@@ -126,6 +129,7 @@ export const PoseListLHS = memo(({}) => {
       removeQuality: (...args) => dispatch(removeQuality(...args)),
       removeDensity: (...args) => dispatch(removeDensity(...args)),
       removeVector: (...args) => dispatch(removeVector(...args)),
+      removeArtefactChain: (...args) => dispatch(removeArtefactChain(...args)),
       removeSelectedTypesInHitNavigator: (...args) => dispatch(removeSelectedTypesInHitNavigator(...args)),
       addNewType: (
         type,
@@ -137,6 +141,7 @@ export const PoseListLHS = memo(({}) => {
         const addType = {
           ligand: addLigand,
           protein: addHitProtein,
+          artefact: addArtefactChain,
           complex: addComplex,
           surface: addSurface,
           quality: addQuality,
@@ -171,6 +176,12 @@ export const PoseListLHS = memo(({}) => {
                       )
                     )
                   );
+                });
+              } else if (type === 'protein') {
+                selectedMolecules.forEach(molecule => {
+                  const colour = colourList[molecule.id % colourList.length];
+                  promises.push(dispatch(addHitProtein(majorViewStage, molecule, colour, true, skipTracking)));
+                  promises.push(dispatch(addArtefactChain(majorViewStage, molecule, colour, true, skipTracking)));
                 });
               } else {
                 selectedMolecules.forEach(molecule => {
@@ -292,6 +303,7 @@ export const PoseListLHS = memo(({}) => {
       dataAreDownloaded={dataAreDownloaded}
       errorOccuredDuringDownload={errorOccuredDuringDownload}
       proteinList={proteinList}
+      artefactsChainList={artefactsChainList}
       complexList={complexList}
       fragmentDisplayList={fragmentDisplayList}
       surfaceList={surfaceList}

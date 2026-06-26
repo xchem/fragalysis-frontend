@@ -206,6 +206,7 @@ const ObservationUnifiedView = memo(
 
       const fragmentDisplayList = useSelector(state => state.selectionReducers.fragmentDisplayList);
       const proteinList = useSelector(state => state.selectionReducers.proteinList);
+      const artefactsChainList = useSelector(state => state.selectionReducers.artefactsChainList);
       const complexList = useSelector(state => state.selectionReducers.complexList);
       const surfaceList = useSelector(state => state.selectionReducers.surfaceList);
       const densityList = useSelector(state => state.selectionReducers.densityList);
@@ -214,6 +215,7 @@ const ObservationUnifiedView = memo(
 
       const isLigandOn = isAtLeastOneObservationOnInList(fragmentDisplayList);
       const isProteinOn = isAtLeastOneObservationOnInList(proteinList);
+      const isArtefactChainOn = isAtLeastOneObservationOnInList(artefactsChainList);
       // C stands for contacts now
       const isComplexOn = isAtLeastOneObservationOnInList(complexList);
       const isSurfaceOn = isAtLeastOneObservationOnInList(surfaceList);
@@ -375,7 +377,7 @@ const ObservationUnifiedView = memo(
       };
       const not_selected_style = {};
       const current_style =
-        isLigandOn || isProteinOn || isComplexOn || isSurfaceOn || isDensityOn || isVectorOn
+        isLigandOn || isProteinOn || isArtefactChainOn || isComplexOn || isSurfaceOn || isDensityOn || isVectorOn
           ? selected_style
           : not_selected_style;
 
@@ -431,6 +433,7 @@ const ObservationUnifiedView = memo(
               <TooltipPathProvider path="pose">
                 <DetailView
                   data={data}
+                  index={index}
                   detailWidth={getColumnWidth(column.name)}
                   detailContentRef={detailContentRef}
                   handleRef={handleRef}

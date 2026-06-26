@@ -75,6 +75,7 @@ export const withSnapshotManagement = WrappedComponent => {
       setHeaderButtons([
         <RichTooltip key="shareSnapshot" path="shareSnapshot">
           <Button
+            id="header-share-button"
             color="primary"
             size="small"
             startIcon={<Share />}

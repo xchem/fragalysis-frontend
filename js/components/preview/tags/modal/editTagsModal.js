@@ -38,7 +38,6 @@ import {
 import { removeSelectedTag, updateTagProp } from '../redux/dispatchActions';
 import { getCategoryById } from '../../molecule/redux/dispatchActions';
 import { ToastContext } from '../../../toast';
-import { TAG_DETAILS_REMOVED_CATEGORIES } from '../../../../constants/constants';
 import { setTagToEdit } from '../../../../reducers/selection/actions';
 import RichTooltip from '../../../tooltip/RichTooltip';
 
@@ -91,12 +90,6 @@ export const EditTagsModal = memo(({ open, anchorEl, setOpenDialog, metaCategory
   const getTagCategory = tag => {
     const tagCategory = tagCategories.find(category => category.id === tag?.category);
     return tagCategory?.category || '';
-  };
-
-  const isRestricted = tag => {
-    return tagCategories.some(
-      category => TAG_DETAILS_REMOVED_CATEGORIES.includes(category.category) && category.id === tag?.category
-    );
   };
 
   const getColourForTag = useCallback(
@@ -372,7 +365,7 @@ export const EditTagsModal = memo(({ open, anchorEl, setOpenDialog, metaCategory
   return (
     <Popper id={id} open={open} anchorEl={anchorEl} placement={'right-start'}>
       <Panel
-        title={'Edit tags'}
+        title={'Edit/show tags'}
         hasHeader
         secondaryBackground
         headerActions={[
@@ -470,7 +463,7 @@ export const EditTagsModal = memo(({ open, anchorEl, setOpenDialog, metaCategory
                 // className = { classes.checkboxHeader }
                 checked={newHidden}
                 onChange={onHiddenForNewTagChange}
-                disabled={isRestricted(tag)}
+                // disabled={isRestricted(tag)}
               />
             )}
           </Grid>

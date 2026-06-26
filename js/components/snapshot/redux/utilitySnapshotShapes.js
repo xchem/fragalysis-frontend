@@ -134,6 +134,7 @@ export const SNAPSHOT_VALUES_TO_BE_DELETED = {
     densityListType: [],
     qualityList: [],
     vectorOnList: [],
+    artefactsChainList: [],
     ...SNAPSHOT_SELECTION_TRANSIENT_STATE
   },
   datasetsReducers: {
@@ -186,6 +187,7 @@ const SNAPSHOT_RUNTIME_STATE_TO_PRESERVE_WHEN_SWITCHING = {
     densityListType: [],
     qualityList: [],
     vectorOnList: [],
+    artefactsChainList: [],
     vector_list: [],
     compoundsOfVectors: {},
     bondColorMapOfVectors: {},
@@ -264,6 +266,8 @@ const isLhsItemDisplayed = (selectionReducers = {}, item) => {
       return includesId(selectionReducers.fragmentDisplayList, item.id);
     case NGL_OBJECTS.PROTEIN:
       return includesId(selectionReducers.proteinList, item.id);
+    case NGL_OBJECTS.ARTEFACTS:
+      return includesId(selectionReducers.artefactsChainList, item.id);
     case NGL_OBJECTS.COMPLEX:
       return includesId(selectionReducers.complexList, item.id);
     case NGL_OBJECTS.SURFACE:

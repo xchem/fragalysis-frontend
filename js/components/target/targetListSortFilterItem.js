@@ -181,9 +181,28 @@ const TargetListSortFilterItem = memo(props => {
         </Grid>
       </Grid> */}
       <Grid item className={classes.centered} style={{ width: widthOrder }}>
-        <Radio style={{ left: 2 }} checked={order === 1} onChange={event => onChange(property, 'order', parseInt(event.target.value))} value={1} name="radio-button-demo" />
-        <Radio checked={order === -1} onChange={event => onChange(property, 'order', parseInt(event.target.value))} value={-1} name="radio-button-demo" />
-        <Radio checked={order === 0} onChange={event => onChange(property, 'order', parseInt(event.target.value))} value={0} name="radio-button-demo" />
+        <Radio
+          style={{ left: 2 }}
+          checked={order === 1}
+          onChange={event => onChange(property, 'order', parseInt(event.target.value))}
+          value={1}
+          name="radio-button-demo"
+          id={'filter-sort-asc-' + property}
+        />
+        <Radio
+          checked={order === -1}
+          onChange={event => onChange(property, 'order', parseInt(event.target.value))}
+          value={-1}
+          name="radio-button-demo"
+          id={'filter-sort-desc-' + property}
+        />
+        <Radio
+          checked={order === 0}
+          onChange={event => onChange(property, 'order', parseInt(event.target.value))}
+          value={0}
+          name="radio-button-demo"
+          id={'filter-sort-none-' + property}
+        />
       </Grid>
       <Grid item className={classNames(classes.property, classes.centered)} style={{ width: widthProperty }}>
         <Chip size="small" className={classes.propertyChip} label={filter[property].title} style={{ backgroundColor: color }} />
@@ -204,6 +223,7 @@ const TargetListSortFilterItem = memo(props => {
                       onChange={event => onChange(property, 'value', [moment(event).format('YYYY-MM-DD'), ''])}
                       placeholderText="YYYY-MM-DD"
                       value={filter[property].value[0]}
+                      id={'date-picker-' + property + '-from'}
                     />
                   </Grid>
 
@@ -218,12 +238,13 @@ const TargetListSortFilterItem = memo(props => {
                       onChange={event => onChange(property, 'value', ['', moment(event).format('YYYY-MM-DD')])}
                       placeholderText="YYYY-MM-DD"
                       value={filter[property].value[1]}
+                      id={'date-picker-' + property + '-to'}
                     />
                   </Grid>
                 </Grid>
               ) : (
                 <TextField
-                  id="textFieldInput"
+                  id={'textFieldInput-' + property}
                   placeholder="Search"
                   onChange={event => onChange(property, 'value', event.target.value)}
                   key={property}
@@ -248,6 +269,7 @@ const TargetListSortFilterItem = memo(props => {
                       onChange={event => onChange(property, 'value', [moment(event).format('YYYY-MM-DD'), ''])}
                       placeholderText="YYYY-MM-DD"
                       value={filter[property].value[0]}
+                      id={'date-picker-' + property + '-from'}
                     />
                   </Grid>
                   <Grid item style={{ width: gridDateFromWidth }} className={classNames(classes.dateFont)}>
@@ -261,12 +283,13 @@ const TargetListSortFilterItem = memo(props => {
                       onChange={event => onChange(property, 'value', ['', moment(event).format('YYYY-MM-DD')])}
                       placeholderText="YYYY-MM-DD"
                       value={filter[property].value[1]}
+                      id={'date-picker-' + property + '-to'}
                     />
                   </Grid>
                 </Grid>
               ) : (
                 <TextField
-                  id="textFieldInput"
+                  id={'textFieldInput-' + property}
                   placeholder="Search"
                   onChange={event => onChange(property, 'value', event.target.value)}
                   key={property}

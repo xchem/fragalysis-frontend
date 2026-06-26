@@ -106,12 +106,22 @@ export const TargetListSortFilterDialog = memo(
           className={classes.paper}
           headerActions={[
             <RichTooltip path="clear">
-              <IconButton onClick={resetFilter} color="inherit" className={classes.headerButton}>
+              <IconButton
+                id="target-list-filter-reset"
+                onClick={resetFilter}
+                color="inherit"
+                className={classes.headerButton}
+              >
                 <Delete />
               </IconButton>
             </RichTooltip>,
             <RichTooltip path="close">
-              <IconButton onClick={onClose} color="inherit" className={classes.headerButton}>
+              <IconButton
+                id="target-list-filter-close"
+                onClick={onClose}
+                color="inherit"
+                className={classes.headerButton}
+              >
                 <Close />
               </IconButton>
             </RichTooltip>

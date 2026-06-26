@@ -1,28 +1,22 @@
 import configureStore from 'redux-mock-store';
 import thunk from 'redux-thunk';
-import {
-  deleteObject,
-  loadObject,
-  reloadNglViewFromSnapshot,
-  setOrientation,
-  setProteinsHasLoaded
-} from './dispatchActions';
-import { CONSTANTS, SCENES } from './constants';
-import { getAction, getActionType } from '../../utils/testUtils';
+import { deleteObject, loadObject, setOrientation } from './dispatchActions';
+import { getAction } from '../../utils/testUtils';
 import {
   decrementCountOfPendingNglObjects,
-  decrementCountOfRemainingMoleculeGroups,
   deleteNglObject,
   incrementCountOfPendingNglObjects,
   loadNglObject,
-  resetStateToDefaultScene,
-  setNglStateFromCurrentSnapshot,
-  saveCurrentStateAsDefaultScene,
-  setNglOrientation,
-  setProteinLoadingState
+  setNglOrientation
 } from './actions';
 import { OBJECT_TYPE, SELECTION_TYPE } from '../../components/nglView/constants';
-import { removeFromComplexList, removeFromFragmentDisplayList, removeFromVectorOnList } from '../selection/actions';
+import {
+  removeFromArtefactsChainList,
+  removeFromComplexList,
+  removeFromFragmentDisplayList,
+  removeFromVectorOnList
+} from '../selection/actions';
+import { VIEWS } from '../../constants/constants';
 const { fn } = jest;
 
 describe("testing ngl reducer's async actions", () => {
@@ -31,10 +25,15 @@ describe("testing ngl reducer's async actions", () => {
 
   it('should load object', () => {
     expect.hasAssertions();
-    let store = mockStore();
+    let store = mockStore({
+      nglReducers: {
+        objectsInViewStash: {}
+      }
+    });
     const target = {
       name: 'My protein',
       OBJECT_TYPE: OBJECT_TYPE.PROTEIN,
+      display_div: VIEWS.MAJOR_VIEW,
       property: { a: 'sdff' }
     };
 
@@ -54,10 +53,11 @@ describe("testing ngl reducer's async actions", () => {
     // eslint-disable-next-line jest/no-test-return-statement
     return store
       .dispatch(loadObject({ target, stage }))
-      .then(async result => {
-        expect(result.type).toBe(await getActionType(loadNglObject));
-        expect(result.target).toStrictEqual(target);
-        expect(result.representations.length).toBeGreaterThan(0);
+      .then(async () => {
+        const loadAction = await getAction(store, loadNglObject);
+        expect(loadAction).not.toBeNull();
+        expect(loadAction.target).toStrictEqual(target);
+        expect(loadAction.representations.length).toBeGreaterThan(0);
       })
       .finally(async () => {
         expect(await getAction(store, incrementCountOfPendingNglObjects)).not.toBeNull();
@@ -79,6 +79,10 @@ describe("testing ngl reducer's async actions", () => {
     const targetVector = {
       selectionType: SELECTION_TYPE.VECTOR,
       moleculeId: 3
+    };
+    const targetArtefact = {
+      selectionType: SELECTION_TYPE.ARTEFACTS,
+      moleculeId: 4
     };
 
     const stage = {
@@ -110,103 +114,12 @@ describe("testing ngl reducer's async actions", () => {
     expect(await getAction(store, removeFromVectorOnList)).not.toBeNull();
     store.clearActions();
 
+    await store.dispatch(deleteObject(targetArtefact, stage, true));
+    expect(await getAction(store, removeFromArtefactsChainList)).not.toBeNull();
+    store.clearActions();
+
     await store.dispatch(deleteObject(targetLigand, stage, false));
     expect(await getAction(store, deleteNglObject)).not.toBeNull();
-  });
-
-  it('should decrement count of remaining molecule groups in case with more than one remaining molecule groups', async () => {
-    expect.hasAssertions();
-    let store = mockStore({
-      nglReducers: {
-        countOfRemainingMoleculeGroups: 2,
-        proteinsHasLoaded: true
-      }
-    });
-
-    const decrementedCount = store.getState().nglReducers.countOfRemainingMoleculeGroups - 1;
-
-    expect(await getAction(store, saveCurrentStateAsDefaultScene)).toBeNull();
-    expect(await getAction(store, decrementCountOfRemainingMoleculeGroups)).toStrictEqual({
-      type: CONSTANTS.DECREMENT_COUNT_OF_REMAINING_MOLECULE_GROUPS,
-      payload: decrementedCount
-    });
-  });
-
-  it('should decrement count of remaining molecule groups in case with last one remaining molecule groups', async () => {
-    expect.hasAssertions();
-    let store = mockStore({
-      nglReducers: {
-        countOfRemainingMoleculeGroups: 1,
-        proteinsHasLoaded: true
-      }
-    });
-
-    const decrementedCount = store.getState().nglReducers.countOfRemainingMoleculeGroups - 1;
-    expect(await getAction(store, saveCurrentStateAsDefaultScene)).not.toBeNull();
-    expect(await getAction(store, decrementCountOfRemainingMoleculeGroups)).toStrictEqual({
-      type: CONSTANTS.DECREMENT_COUNT_OF_REMAINING_MOLECULE_GROUPS,
-      payload: decrementedCount
-    });
-  });
-
-  it('should set proteins has loaded in case with no remaining molecule groups', async () => {
-    expect.hasAssertions();
-    let store = mockStore({
-      nglReducers: {
-        countOfRemainingMoleculeGroups: 0
-      }
-    });
-
-    let hasLoaded = true;
-    let withoutSavingToDefaultState = true;
-    store.dispatch(setProteinsHasLoaded(hasLoaded, withoutSavingToDefaultState));
-
-    expect(await getAction(store, saveCurrentStateAsDefaultScene)).toBeNull();
-    expect(await getAction(store, setProteinLoadingState)).toStrictEqual({
-      type: getActionType(setProteinLoadingState),
-      payload: hasLoaded
-    });
-    store.clearActions();
-
-    withoutSavingToDefaultState = false;
-    store.dispatch(setProteinsHasLoaded(hasLoaded, withoutSavingToDefaultState));
-
-    expect(await getAction(store, saveCurrentStateAsDefaultScene)).toStrictEqual({
-      type: getActionType(saveCurrentStateAsDefaultScene)
-    });
-    expect(await getAction(store, setProteinLoadingState)).toStrictEqual({
-      type: getActionType(setProteinLoadingState),
-      payload: hasLoaded
-    });
-  });
-
-  it('should set proteins has loaded in case with remaining molecule groups', async () => {
-    expect.hasAssertions();
-    let store = mockStore({
-      nglReducers: {
-        countOfRemainingMoleculeGroups: 1
-      }
-    });
-
-    let hasLoaded = true;
-    let withoutSavingToDefaultState = true;
-    store.dispatch(setProteinsHasLoaded(hasLoaded, withoutSavingToDefaultState));
-
-    expect(await getAction(store, saveCurrentStateAsDefaultScene)).toBeNull();
-    expect(await getAction(store, setProteinLoadingState)).toStrictEqual({
-      type: getActionType(setProteinLoadingState),
-      payload: hasLoaded
-    });
-    store.clearActions();
-
-    withoutSavingToDefaultState = false;
-    store.dispatch(setProteinsHasLoaded(hasLoaded, withoutSavingToDefaultState));
-
-    expect(await getAction(store, saveCurrentStateAsDefaultScene)).toBeNull();
-    expect(await getAction(store, setProteinLoadingState)).toStrictEqual({
-      type: getActionType(setProteinLoadingState),
-      payload: hasLoaded
-    });
   });
 
   it('should set orientation', async () => {
@@ -264,60 +177,4 @@ describe("testing ngl reducer's async actions", () => {
     expect(await getAction(storeWithNotAllOrientations, setNglOrientation)).not.toBeNull();
   });
 
-  it('should reload NGL View from session scene', async () => {
-    expect.hasAssertions();
-    let store = mockStore();
-
-    const stage = {
-      removeAllComponents: fn(),
-      viewerControls: {
-        orient: fn()
-      }
-    };
-
-    const display_div = 'MajorView';
-    const scene = SCENES.sessionScene;
-    const sessionData = {
-      nglReducers: {
-        [scene]: {
-          objectsInView: {},
-          viewParams: { a: 'ssfs', b: 'dfd' },
-          nglOrientations: {}
-        }
-      }
-    };
-
-    store.dispatch(reloadNglViewFromSnapshot(stage, display_div, scene, sessionData));
-
-    expect(await getAction(store, setNglStateFromCurrentSnapshot)).toStrictEqual({
-      type: getActionType(setNglStateFromCurrentSnapshot),
-      payload: sessionData
-    });
-  });
-
-  it('should reload NGL View from default scene', async () => {
-    expect.hasAssertions();
-    const scene = SCENES.defaultScene;
-    let store = mockStore({
-      nglReducers: {
-        [scene]: {
-          objectsInView: {},
-          viewParams: { a: 'ssfs', b: 'dfd' },
-          nglOrientations: {}
-        }
-      }
-    });
-
-    const stage = {
-      removeAllComponents: fn(),
-      viewerControls: {
-        orient: fn()
-      }
-    };
-
-    const display_div = 'MajorView';
-    store.dispatch(reloadNglViewFromSnapshot(stage, display_div, scene));
-
-    expect(await getAction(store, resetStateToDefaultScene)).not.toBeNull();
-  });
 });

@@ -9,6 +9,7 @@ import { PLURAL_TO_SINGULAR, VIEWS, XCA_TAG_CATEGORIES } from '../../../constant
 import { changeButtonClassname } from '../../datasets/helpers';
 import {
   addComplex,
+  addArtefactChain,
   addHitProtein,
   addLigand,
   addObservationsToPose,
@@ -19,6 +20,7 @@ import {
   getCategoryById,
   prepareEmptyPoseDTO,
   removeComplex,
+  removeArtefactChain,
   removeHitProtein,
   removeLigand,
   removeObservationsFromPose,
@@ -250,6 +252,7 @@ export const ObservationsDialog = memo(
 
     const ligandList = useSelector(state => state.selectionReducers.fragmentDisplayList);
     const proteinList = useSelector(state => state.selectionReducers.proteinList);
+    const artefactsChainList = useSelector(state => state.selectionReducers.artefactsChainList);
     const complexList = useSelector(state => state.selectionReducers.complexList);
     const surfaceList = useSelector(state => state.selectionReducers.surfaceList);
     const densityList = useSelector(state => state.selectionReducers.densityList);
@@ -337,25 +340,34 @@ export const ObservationsDialog = memo(
     );
 
     const isLigandOn = ligandList.some(moleculeID => moleculeList.some(molecule => molecule.id === moleculeID));
-    const isProteinOn = proteinList.some(moleculeID => moleculeList.some(molecule => molecule.id === moleculeID));
+    const proteinControlList = useMemo(
+      () => [...new Set([...proteinList, ...artefactsChainList])],
+      [artefactsChainList, proteinList]
+    );
+    const lpcControlMolecules = allSelectedMolecules.length > 0 ? allSelectedMolecules : moleculeList;
+
+    const isProteinOn = proteinControlList.some(moleculeID => moleculeList.some(molecule => molecule.id === moleculeID));
     const isComplexOn = complexList.some(moleculeID => moleculeList.some(molecule => molecule.id === moleculeID));
 
     const isLigandOnForClassname = changeButtonClassname(
-      ligandList.filter(moleculeID => allSelectedMolecules.find(molecule => molecule.id === moleculeID) !== undefined),
-      allSelectedMolecules
+      ligandList.filter(moleculeID => lpcControlMolecules.find(molecule => molecule.id === moleculeID) !== undefined),
+      lpcControlMolecules
     );
     const isProteinOnForClassname = changeButtonClassname(
-      proteinList.filter(moleculeID => allSelectedMolecules.find(molecule => molecule.id === moleculeID) !== undefined),
-      allSelectedMolecules
+      proteinControlList.filter(
+        moleculeID => lpcControlMolecules.find(molecule => molecule.id === moleculeID) !== undefined
+      ),
+      lpcControlMolecules
     );
     const isComplexOnForClassname = changeButtonClassname(
-      complexList.filter(moleculeID => allSelectedMolecules.find(molecule => molecule.id === moleculeID) !== undefined),
-      allSelectedMolecules
+      complexList.filter(moleculeID => lpcControlMolecules.find(molecule => molecule.id === moleculeID) !== undefined),
+      lpcControlMolecules
     );
 
     const addType = {
       ligand: addLigand,
       protein: addHitProtein,
+      artefact: addArtefactChain,
       complex: addComplex,
       surface: addSurface
     };
@@ -363,6 +375,7 @@ export const ObservationsDialog = memo(
     const removeType = {
       ligand: removeLigand,
       protein: removeHitProtein,
+      artefact: removeArtefactChain,
       complex: removeComplex,
       surface: removeSurface
     };
@@ -377,11 +390,17 @@ export const ObservationsDialog = memo(
 
     const removeSelectedType = (type, skipTracking = false) => {
       if (type === 'ligand') {
-        allSelectedMolecules.forEach(molecule => {
+        lpcControlMolecules.forEach(molecule => {
           dispatch(removeType[type](stage, molecule, skipTracking));
         });
+      } else if (type === 'protein') {
+        lpcControlMolecules.forEach(molecule => {
+          const colour = colourList[molecule.id % colourList.length];
+          dispatch(removeHitProtein(stage, molecule, colour, skipTracking));
+          dispatch(removeArtefactChain(stage, molecule, colour, skipTracking));
+        });
       } else {
-        allSelectedMolecules.forEach(molecule => {
+        lpcControlMolecules.forEach(molecule => {
           dispatch(removeType[type](stage, molecule, colourList[molecule.id % colourList.length], skipTracking));
         });
       }
@@ -392,13 +411,13 @@ export const ObservationsDialog = memo(
     const addNewType = (type, skipTracking = false) => {
       dispatch(
         withDisabledMoleculesNglControlButtons(
-          allSelectedMolecules.map(molecule => molecule.id),
+          lpcControlMolecules.map(molecule => molecule.id),
           type,
           async () => {
             const promises = [];
 
             if (type === 'ligand') {
-              allSelectedMolecules.forEach(molecule => {
+              lpcControlMolecules.forEach(molecule => {
                 promises.push(
                   dispatch(
                     addType[type](
@@ -413,8 +432,14 @@ export const ObservationsDialog = memo(
                   )
                 );
               });
+            } else if (type === 'protein') {
+              lpcControlMolecules.forEach(molecule => {
+                const colour = colourList[molecule.id % colourList.length];
+                promises.push(dispatch(addHitProtein(stage, molecule, colour, true, skipTracking)));
+                promises.push(dispatch(addArtefactChain(stage, molecule, colour, true, skipTracking)));
+              });
             } else {
-              allSelectedMolecules.forEach(molecule => {
+              lpcControlMolecules.forEach(molecule => {
                 promises.push(
                   dispatch(addType[type](stage, molecule, colourList[molecule.id % colourList.length], skipTracking))
                 );
@@ -484,6 +509,14 @@ export const ObservationsDialog = memo(
       );
       displayedObservations = displayedObservations.concat(displayedProteins);
 
+      const displayedArtefactChains = artefactsChainList.filter(
+        moleculeID =>
+          moleculeList.some(molecule => molecule.id === moleculeID) &&
+          !allSelectedMolecules.some(molecule => molecule.id === moleculeID) &&
+          !displayedObservations.some(molecule => molecule === moleculeID)
+      );
+      displayedObservations = displayedObservations.concat(displayedArtefactChains);
+
       const displayedComplexes = complexList.filter(
         moleculeID =>
           moleculeList.some(molecule => molecule.id === moleculeID) &&
@@ -500,7 +533,7 @@ export const ObservationsDialog = memo(
         case 'ligand':
           return isAdd ? getMoleculesToSelect(ligandList) : getMoleculesToDeselect(ligandList);
         case 'protein':
-          return isAdd ? getMoleculesToSelect(proteinList) : getMoleculesToDeselect(proteinList);
+          return isAdd ? getMoleculesToSelect(proteinControlList) : getMoleculesToDeselect(proteinControlList);
         case 'complex':
           return isAdd ? getMoleculesToSelect(complexList) : getMoleculesToDeselect(complexList);
         default:
@@ -509,16 +542,16 @@ export const ObservationsDialog = memo(
     };
 
     const getMoleculesToSelect = list => {
-      let molecules = allSelectedMolecules.filter(m => !list.includes(m.id));
+      let molecules = lpcControlMolecules.filter(m => !list.includes(m.id));
       return molecules;
     };
 
     const getMoleculesToDeselect = list => {
-      let molecules = allSelectedMolecules.filter(m => list.includes(m.id));
+      let molecules = lpcControlMolecules.filter(m => list.includes(m.id));
       return molecules;
     };
 
-    const groupNglControlButtonsDisabledState = useDisableNglControlButtons(allSelectedMolecules);
+    const groupNglControlButtonsDisabledState = useDisableNglControlButtons(lpcControlMolecules);
 
     const anyControlButtonDisabled = Object.values(groupNglControlButtonsDisabledState).some(
       buttonState => buttonState
@@ -964,15 +997,14 @@ export const ObservationsDialog = memo(
                             <RichTooltip path="allLigands">
                               <Grid item>
                                 <Button
+                                  id="observations-all-ligands"
                                   variant="outlined"
                                   className={classNames(classes.contColButton, {
                                     [classes.contColButtonSelected]: isLigandOnForClassname,
                                     [classes.contColButtonHalfSelected]: isLigandOnForClassname === null
                                   })}
                                   onClick={() => onButtonToggle('ligand')}
-                                  disabled={
-                                    groupNglControlButtonsDisabledState.ligand || allSelectedMolecules.length < 1
-                                  }
+                                  disabled={groupNglControlButtonsDisabledState.ligand || lpcControlMolecules.length < 1}
                                 >
                                   L
                                 </Button>
@@ -981,6 +1013,7 @@ export const ObservationsDialog = memo(
                             <RichTooltip path="allSidechains">
                               <Grid item>
                                 <Button
+                                  id="observations-all-sidechains"
                                   variant="outlined"
                                   className={classNames(classes.contColButton, {
                                     [classes.contColButtonSelected]: isProteinOnForClassname,
@@ -988,7 +1021,7 @@ export const ObservationsDialog = memo(
                                   })}
                                   onClick={() => onButtonToggle('protein')}
                                   disabled={
-                                    groupNglControlButtonsDisabledState.protein || allSelectedMolecules.length < 1
+                                    groupNglControlButtonsDisabledState.protein || lpcControlMolecules.length < 1
                                   }
                                 >
                                   P
@@ -999,6 +1032,7 @@ export const ObservationsDialog = memo(
                               <Grid item>
                                 {/* C stands for contacts now */}
                                 <Button
+                                  id="observations-all-interactions"
                                   variant="outlined"
                                   className={classNames(classes.contColButton, {
                                     [classes.contColButtonSelected]: isComplexOnForClassname,
@@ -1006,7 +1040,7 @@ export const ObservationsDialog = memo(
                                   })}
                                   onClick={() => onButtonToggle('complex')}
                                   disabled={
-                                    groupNglControlButtonsDisabledState.complex || allSelectedMolecules.length < 1
+                                    groupNglControlButtonsDisabledState.complex || lpcControlMolecules.length < 1
                                   }
                                 >
                                   C
@@ -1017,6 +1051,7 @@ export const ObservationsDialog = memo(
                         </Grid>
                         <Grid item>
                           <Button
+                            id="observations-toogle-select-all"
                             onClick={handleSelectAllObservations}
                             color="inherit"
                             variant="text"
@@ -1029,6 +1064,7 @@ export const ObservationsDialog = memo(
                         </Grid>
                         <Grid item>
                           <Button
+                            id="observations-select-all-displayed"
                             onClick={handleSelectAllDisplayedObservations}
                             disabled={!(isLigandOn || isProteinOn || isComplexOn)}
                             color="inherit"
@@ -1082,7 +1118,12 @@ export const ObservationsDialog = memo(
                       </Grid>
                       <RichTooltip path={expandView ? 'expandView.classic' : 'expandView.expanded'}>
                         <Grid item className={classes.popoutIcon}>
-                          <IconButton color="inherit" size="small" onClick={() => setExpandView(!expandView)}>
+                          <IconButton
+                            id="observations-change-view"
+                            color="inherit"
+                            size="small"
+                            onClick={() => setExpandView(!expandView)}
+                          >
                             {expandView ? <ArrowLeft /> : <ArrowRight />}
                           </IconButton>
                         </Grid>
@@ -1114,6 +1155,7 @@ export const ObservationsDialog = memo(
                             removeSelectedTypes={removeSelectedTypes}
                             L={ligandList.includes(molecule.id)}
                             P={proteinList.includes(molecule.id)}
+                            A={artefactsChainList.includes(molecule.id)}
                             C={complexList.includes(molecule.id)}
                             S={surfaceList.includes(molecule.id)}
                             D={densityList.some(d => d.id === molecule.id)}

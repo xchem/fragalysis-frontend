@@ -298,6 +298,7 @@ export const PoseList = memo(
     dataAreDownloaded,
     errorOccuredDuringDownload,
     proteinList,
+    artefactsChainList = [],
     complexList,
     fragmentDisplayList,
     surfaceList,
@@ -613,6 +614,18 @@ export const PoseList = memo(
       moleculesToEditIds
     ]);
     // eslint-disable-next-line react-hooks/exhaustive-deps
+    joinedMoleculeLists = useMemo(
+      () => addSelectedMoleculesFromUnselectedSites(joinedMoleculeLists, artefactsChainList),
+      [
+        addSelectedMoleculesFromUnselectedSites,
+        joinedMoleculeLists,
+        artefactsChainList,
+        molForTagEditId,
+        isTagEditorOpen,
+        moleculesToEditIds
+      ]
+    );
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     joinedMoleculeLists = useMemo(() => addSelectedMoleculesFromUnselectedSites(joinedMoleculeLists, complexList), [
       addSelectedMoleculesFromUnselectedSites,
       joinedMoleculeLists,
@@ -775,11 +788,17 @@ export const PoseList = memo(
       () => allMoleculesList.filter(molecule => moleculesToEditIds.includes(molecule.id)),
       [allMoleculesList, moleculesToEditIds]
     );
+    const lpcControlMolecules = allSelectedMolecules.length > 0 ? allSelectedMolecules : joinedMoleculeLists;
+    const proteinControlList = useMemo(
+      () => [...new Set([...proteinList, ...artefactsChainList])],
+      [artefactsChainList, proteinList]
+    );
 
     let currentMolecules = joinedMoleculeLists.slice(0, listItemOffset);
     if (
       fragmentDisplayList.length === 0 &&
       proteinList.length === 0 &&
+      artefactsChainList.length === 0 &&
       complexList.length === 0 &&
       surfaceList.length === 0 &&
       densityList.length === 0 &&
@@ -798,6 +817,7 @@ export const PoseList = memo(
             if (
               fragmentDisplayList.includes(selectedMolecule.id) ||
               proteinList.includes(selectedMolecule.id) ||
+              artefactsChainList.includes(selectedMolecule.id) ||
               complexList.includes(selectedMolecule.id) ||
               surfaceList.includes(selectedMolecule.id) ||
               densityList.some(d => d.id === selectedMolecule.id) ||
@@ -822,6 +842,12 @@ export const PoseList = memo(
             );
             if (danglingProteins && danglingProteins.length > 0) {
               notSelectedMols.push(danglingProteins);
+            }
+            const danglingArtefactChains = artefactsChainList.filter(
+              id => !allSelectedMolecules.filter(m => m.id === id).length > 0
+            );
+            if (danglingArtefactChains && danglingArtefactChains.length > 0) {
+              notSelectedMols.push(danglingArtefactChains);
             }
             const danglingComplexes = complexList.filter(
               id => !allSelectedMolecules.filter(m => m.id === id).length > 0
@@ -862,6 +888,9 @@ export const PoseList = memo(
       if (proteinList.includes(data.id)) {
         selectedMolecule.push(data);
       }
+      if (artefactsChainList.includes(data.id)) {
+        selectedMolecule.push(data);
+      }
       if (complexList.includes(data.id)) {
         selectedMolecule.push(data);
       }
@@ -879,23 +908,26 @@ export const PoseList = memo(
 
     const joinedGivenMatch = useCallback(
       givenList => {
-        return givenList.filter(element => allSelectedMolecules.filter(element2 => element2.id === element).length > 0)
+        return givenList.filter(element => lpcControlMolecules.filter(element2 => element2.id === element).length > 0)
           .length;
       },
-      [allSelectedMolecules]
+      [lpcControlMolecules]
     );
 
     const joinedLigandMatchLength = useMemo(() => joinedGivenMatch(fragmentDisplayList), [
       fragmentDisplayList,
       joinedGivenMatch
     ]);
-    const joinedProteinMatchLength = useMemo(() => joinedGivenMatch(proteinList), [proteinList, joinedGivenMatch]);
+    const joinedProteinMatchLength = useMemo(() => joinedGivenMatch(proteinControlList), [
+      proteinControlList,
+      joinedGivenMatch
+    ]);
     const joinedComplexMatchLength = useMemo(() => joinedGivenMatch(complexList), [complexList, joinedGivenMatch]);
 
     const changeButtonClassname = (givenList = [], matchListLength) => {
       if (!matchListLength) {
         return false;
-      } else if (allSelectedMolecules.length === matchListLength) {
+      } else if (lpcControlMolecules.length === matchListLength) {
         return true;
       }
       return null;
@@ -924,7 +956,7 @@ export const PoseList = memo(
       shouldPrioritizeObservationsDialogPose:
         observationsDialogSide === null || observationsDialogSide === instanceSide,
       ligandIds: fragmentDisplayList,
-      proteinIds: proteinList,
+      proteinIds: proteinControlList,
       complexIds: complexList,
       surfaceIds: surfaceList,
       densityList,
@@ -1043,12 +1075,13 @@ export const PoseList = memo(
     }
 
     const isLigandOn = changeButtonClassname(fragmentDisplayList, joinedLigandMatchLength);
-    const isProteinOn = changeButtonClassname(proteinList, joinedProteinMatchLength);
+    const isProteinOn = changeButtonClassname(proteinControlList, joinedProteinMatchLength);
     const isComplexOn = changeButtonClassname(complexList, joinedComplexMatchLength);
 
     const removeType = {
       ligand: handlers.removeLigand,
       protein: handlers.removeHitProtein,
+      artefact: handlers.removeArtefactChain,
       complex: handlers.removeComplex,
       surface: handlers.removeSurface,
       quality: handlers.removeQuality,
@@ -1058,11 +1091,17 @@ export const PoseList = memo(
 
     const removeSelectedType = (type, skipTracking = false) => {
       if (type === 'ligand') {
-        allSelectedMolecules.forEach(molecule => {
+        lpcControlMolecules.forEach(molecule => {
           removeType[type](majorViewStage, molecule, skipTracking);
         });
+      } else if (type === 'protein') {
+        lpcControlMolecules.forEach(molecule => {
+          const colour = colourList[molecule.id % colourList.length];
+          removeType.protein?.(majorViewStage, molecule, colour, skipTracking);
+          removeType.artefact?.(majorViewStage, molecule, colour, skipTracking);
+        });
       } else {
-        allSelectedMolecules.forEach(molecule => {
+        lpcControlMolecules.forEach(molecule => {
           removeType[type](majorViewStage, molecule, colourList[molecule.id % colourList.length], skipTracking);
         });
       }
@@ -1071,7 +1110,7 @@ export const PoseList = memo(
     };
 
     const addNewType = (type, skipTracking = false) => {
-      handlers.addNewType(type, allSelectedMolecules, majorViewStage, skipTracking, ligandRepresentations);
+      handlers.addNewType(type, lpcControlMolecules, majorViewStage, skipTracking, ligandRepresentations);
     };
 
     const onButtonToggle = (type, calledFromSelectAll = false) => {
@@ -1111,7 +1150,7 @@ export const PoseList = memo(
         case 'ligand':
           return isAdd ? getMoleculesToSelect(fragmentDisplayList) : getMoleculesToDeselect(fragmentDisplayList);
         case 'protein':
-          return isAdd ? getMoleculesToSelect(proteinList) : getMoleculesToDeselect(proteinList);
+          return isAdd ? getMoleculesToSelect(proteinControlList) : getMoleculesToDeselect(proteinControlList);
         case 'complex':
           return isAdd ? getMoleculesToSelect(complexList) : getMoleculesToDeselect(complexList);
         default:
@@ -1120,12 +1159,12 @@ export const PoseList = memo(
     };
 
     const getMoleculesToSelect = list => {
-      let molecules = allSelectedMolecules.filter(m => !list.includes(m.id));
+      let molecules = lpcControlMolecules.filter(m => !list.includes(m.id));
       return molecules;
     };
 
     const getMoleculesToDeselect = list => {
-      let molecules = allSelectedMolecules.filter(m => list.includes(m.id));
+      let molecules = lpcControlMolecules.filter(m => list.includes(m.id));
       return molecules;
     };
 
@@ -1194,7 +1233,7 @@ export const PoseList = memo(
     const [isOpenLPCAlert, setIsOpenLPCAlert] = useState(false);
     const [lastProcessedLPCType, setLastProcessedLPCType] = useState(null);
 
-    const groupNglControlButtonsDisabledState = useDisableNglControlButtons(allSelectedMolecules);
+    const groupNglControlButtonsDisabledState = useDisableNglControlButtons(lpcControlMolecules);
 
     const anyControlButtonDisabled = Object.values(groupNglControlButtonsDisabledState).some(
       buttonState => buttonState
@@ -1263,7 +1302,7 @@ export const PoseList = memo(
           />
           <AlertModal
             title="Are you sure?"
-            description={`Displaying of ${allSelectedMolecules?.length} may take a long time`}
+            description={`Displaying of ${lpcControlMolecules?.length} may take a long time`}
             open={isOpenLPCAlert}
             handleOnOk={() => {
               let molecules = getSelectedMoleculesByType(lastProcessedLPCType, true);
@@ -1323,29 +1362,31 @@ export const PoseList = memo(
           <Grid item className={classes.toolbarSmallButtons}>
             <RichTooltip path="allLigands">
               <Button
+                id="hit-navigator-all-ligands"
                 variant="outlined"
                 className={classNames(classes.contColButton, {
                   [classes.contColButtonSelected]: isLigandOn === true,
                   [classes.contColButtonHalfSelected]: isLigandOn === null
                 })}
                 onClick={() => onButtonToggle('ligand')}
-                disabled={groupNglControlButtonsDisabledState.ligand || allSelectedMolecules.length === 0}
+                disabled={groupNglControlButtonsDisabledState.ligand || lpcControlMolecules.length === 0}
               >
                 L
               </Button>
             </RichTooltip>
             <RichTooltip path="allSidechains">
               <Button
+                id="hit-navigator-all-sidechains"
                 variant="outlined"
                 className={classNames(
-                  allSelectedMolecules.length === 0 ? classes.contColButton : classes.contColButtonUnselected,
+                  classes.contColButton,
                   {
                     [classes.contColButtonSelected]: isProteinOn,
                     [classes.contColButtonHalfSelected]: isProteinOn === null
                   }
                 )}
                 onClick={() => onButtonToggle('protein')}
-                disabled={groupNglControlButtonsDisabledState.protein || allSelectedMolecules.length === 0}
+                disabled={groupNglControlButtonsDisabledState.protein || lpcControlMolecules.length === 0}
               >
                 P
               </Button>
@@ -1353,16 +1394,17 @@ export const PoseList = memo(
             <RichTooltip path="allInteractions">
               {/* C stands for contacts now */}
               <Button
+                id="hit-navigator-all-interactions"
                 variant="outlined"
                 className={classNames(
-                  allSelectedMolecules.length === 0 ? classes.contColButton : classes.contColButtonUnselected,
+                  classes.contColButton,
                   {
                     [classes.contColButtonSelected]: isComplexOn,
                     [classes.contColButtonHalfSelected]: isComplexOn === null
                   }
                 )}
                 onClick={() => onButtonToggle('complex')}
-                disabled={groupNglControlButtonsDisabledState.complex || allSelectedMolecules.length === 0}
+                disabled={groupNglControlButtonsDisabledState.complex || lpcControlMolecules.length === 0}
               >
                 C
               </Button>
@@ -1373,6 +1415,7 @@ export const PoseList = memo(
             <RichTooltip path={selectAllHitsPressed ? 'allHits.deselectAllHits' : 'allHits.selectAllHits'}>
               <Grid item className={classes.selectButton}>
                 <Button
+                  id="hit-navigator-select-all-hits"
                   variant="outlined"
                   className={classNames(classes.contColButton, {
                     [classes.contColButtonSelected]: selectAllHitsPressed,
@@ -1393,6 +1436,7 @@ export const PoseList = memo(
             <RichTooltip path="displayedHits.deselectDisplayedHits">
               <Grid item className={classes.selectButton}>
                 <Button
+                  id="hit-navigator-unselect-displayed-hits"
                   variant="outlined"
                   className={classNames(classes.contColButton, {
                     [classes.contColButtonSelected]: selectedDisplayHits,
@@ -1411,6 +1455,7 @@ export const PoseList = memo(
             <RichTooltip path="displayedHits.selectDisplayedHits">
               <Grid item className={classes.selectButton}>
                 <Button
+                  id="hit-navigator-select-displayed-hits"
                   variant="outlined"
                   className={classNames(classes.contColButton, {
                     [classes.contColButtonSelected]: selectedDisplayHits,
@@ -1461,7 +1506,13 @@ export const PoseList = memo(
           </Grid>
           <RichTooltip path={ascending ? 'sortOrder.ascending' : 'sortOrder.descending'}>
             <Grid item className={classes.toolbarTextItem}>
-              <Checkbox checked={ascending} onChange={handleAscendingChecked} size="small" style={{ padding: 0 }} />
+              <Checkbox
+                id="hit-navigator-sorting-checkbox"
+                checked={ascending}
+                onChange={handleAscendingChecked}
+                size="small"
+                style={{ padding: 0 }}
+              />
               <Typography variant="caption">
                 {(selectAllHitsPressed && hitNavigatorWidth > 508) || (!selectAllHitsPressed && hitNavigatorWidth > 491)
                   ? 'Ascending'
@@ -1544,6 +1595,7 @@ export const PoseList = memo(
                   <Grid item className={classes.footerActions}>
                     <div className={classes.footerButtonGroup} aria-label="contained primary button group">
                       <Button
+                        id="hit-navigator-load-next-30"
                         variant="text"
                         size="medium"
                         color="primary"
@@ -1555,6 +1607,7 @@ export const PoseList = memo(
                         Load next 30
                       </Button>
                       <Button
+                        id="hit-navigator-load-next-100"
                         variant="text"
                         size="medium"
                         color="primary"
@@ -1566,6 +1619,7 @@ export const PoseList = memo(
                         Load next 100
                       </Button>
                       <Button
+                        id="hit-navigator-load-full-list"
                         variant="text"
                         size="medium"
                         color="primary"

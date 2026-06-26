@@ -408,42 +408,70 @@ export const TargetList = memo(({ list = [], title = 'Target list', authRequired
   }
 
   const render_item_method = useCallback(
-    target => {
+    (target, index) => {
       let preview;
       if (target.isLegacy) {
         preview = target.legacyUrl;
       } else {
         preview = `${URLS.target}${target.title}/${URL_TOKENS.target_access_string}/${target.project.target_access_string}`;
       }
+      const targetTitleId = title.replace(/\s+/g, '-').toLowerCase();
 
       return (
         <TableRow hover key={target.isLegacy ? target.title + 'Legacy' : `${target.id}-${target.title}`}>
           <TableCell align="left" style={{ padding: '0px', margin: '0px' }}>
             {target.isLegacy ? (
-              <a href={target.legacyUrl} target="new" style={{ wordBreak: 'break-all' }}>
+              <a
+                href={target.legacyUrl}
+                id={targetTitleId + '-item-' + index}
+                target="new"
+                style={{ wordBreak: 'break-all' }}
+              >
                 {target.display_name}
               </a>
             ) : (
               <>
-                <Link to={preview}>{target.display_name}</Link>
+                <Link to={preview} id={targetTitleId + '-item-' + index}>
+                  {target.display_name}
+                </Link>
               </>
             )}
           </TableCell>
           <TableCell style={{ width: '2px', padding: '0px', margin: '0px' }}></TableCell>
           {legacy === false && [
-            <TableCell key={'14'} align="left" style={{ padding: '0px', margin: '0px' }}>
+            <TableCell
+              key={'14'}
+              align="left"
+              style={{ padding: '0px', margin: '0px' }}
+              id={targetTitleId + '-tas-' + index}
+            >
               {target.project.target_access_string}
             </TableCell>,
             <TableCell key={'13'} style={{ width: '2px', padding: '0px', margin: '0px' }}></TableCell>,
-            <TableCell key={'12'} align="left" style={{ padding: '0px', margin: '0px' }}>
+            <TableCell
+              key={'12'}
+              align="left"
+              style={{ padding: '0px', margin: '0px' }}
+              id={targetTitleId + '-init_date-' + index}
+            >
               {moment(target.project.init_date).format('YYYY-MM-DD')}
             </TableCell>,
             <TableCell key={'11'} style={{ width: '2px', padding: '0px', margin: '0px' }}></TableCell>,
-            <TableCell key={'1'} align="left" style={{ padding: '0px', margin: '0px' }}>
+            <TableCell
+              key={'1'}
+              align="left"
+              style={{ padding: '0px', margin: '0px' }}
+              id={targetTitleId + '-last_updated-' + index}
+            >
               {target.last_updated ? moment(target.last_updated).format('YYYY-MM-DD') : ''}
             </TableCell>,
             <TableCell key={'2'} style={{ width: '2px', padding: '0px', margin: '0px' }}></TableCell>,
-            <TableCell key={'3'} align="left" style={{ padding: '0px', margin: '0px' }}>
+            <TableCell
+              key={'3'}
+              align="left"
+              style={{ padding: '0px', margin: '0px' }}
+              id={targetTitleId + '-short_name-' + index}
+            >
               {target.short_name}
             </TableCell>,
             <TableCell key={'4'} style={{ width: '2px', padding: '0px', margin: '0px' }}></TableCell>,
@@ -482,7 +510,7 @@ export const TargetList = memo(({ list = [], title = 'Target list', authRequired
         </TableRow>
       );
     },
-    [dispatch, legacy]
+    [dispatch, legacy, title]
   );
 
   // window height for showing rows per page
@@ -648,7 +676,7 @@ export const TargetList = memo(({ list = [], title = 'Target list', authRequired
     // const combinations = getTargetProjectCombinations(targetList, projectsList);
     // const slice = combinations.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage);
     const slice = targetList.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage);
-    const result = slice.map(data => render_item_method(data));
+    const result = slice.map((data, index) => render_item_method(data, index));
 
     return slice.length > 0
       ? result
@@ -685,6 +713,7 @@ export const TargetList = memo(({ list = [], title = 'Target list', authRequired
               onChange={handleSearch}
             />,
             <IconButton
+              id={title.replace(/\s+/g, '-').toLowerCase() + '-filter'}
               onClick={event => {
                 if (filterDialogOpen === false || filterDialogOpen === undefined) {
                   setSortDialogAnchorEl(event.currentTarget);

@@ -219,3 +219,32 @@ Deploy given stack to one of the dev stacks execute job there, connect you local
 like described above, and you can debug refresh and initial download of the result file.
 
 But remember, you need to make it to the job table or project history (where refresh button is located) **before** the job is finished in squonk otherwise the result file will be downloaded during the intial load of the preview component, so you would not be able to debug refresh feature.
+
+## Cypress tests
+
+To run the automated Cypress tests, add the login credentials to your `.env` file:
+
+```
+CYPRESS_LOGIN=your_login
+CYPRESS_PASSWORD=your_password
+```
+
+Install dependencies with Yarn:
+
+```
+yarn
+```
+
+The tests run against the remote `baseUrl` configured in `cypress.config.ts`.
+
+Open the Cypress runner:
+
+```
+yarn runner
+```
+
+Run the Cypress suite headlessly:
+
+```
+npx cypress run --e2e
+```

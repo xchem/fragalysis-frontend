@@ -65,6 +65,7 @@ export const ViewerControls = memo(() => {
       <div className={classes.root}>
         <RichTooltip path={sidesOpen.LHS ? 'lhs.close' : 'lhs.open'}>
           <Button
+            id="open-lhs-button"
             variant={sidesOpen.LHS ? 'contained' : 'outlined'}
             size="small"
             color="primary"

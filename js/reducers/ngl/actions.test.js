@@ -1,7 +1,7 @@
 import nglReducers, { INITIAL_STATE } from './nglReducers';
 import * as actions from './actions';
 import { NGL_PARAMS } from '../../components/nglView/constants';
-import { SCENES } from './constants';
+import { VIEWS } from '../../constants/constants';
 
 describe("testing ngl reducer's actions", () => {
   let initialState = nglReducers(INITIAL_STATE, {});
@@ -128,7 +128,7 @@ describe("testing ngl reducer's actions", () => {
     let result = nglReducers(initialState, actions.loadNglObject(target, oldRepresentations));
 
     for (let i = 0; i < oldRepresentations.length; i++) {
-      result = nglReducers(result, actions.removeComponentRepresentation(objectInViewID, oldRepresentations[i].uuid));
+      result = nglReducers(result, actions.removeComponentRepresentation(objectInViewID, oldRepresentations[i]));
       expect(result.objectsInView[objectInViewID].representations).toHaveLength(oldRepresentations.length - 1 - i);
     }
   });
@@ -161,142 +161,6 @@ describe("testing ngl reducer's actions", () => {
     expect(result.proteinsHasLoaded).toBe(hasLoaded);
   });
 
-  it('should save current state as default scene', () => {
-    expect.hasAssertions();
-    const currentState = {
-      objectsInView: {
-        molecule_1: {
-          properties: [{ a: 'dfg' }],
-          representations: [
-            {
-              lastKnownID: 78904,
-              uuid: 9903,
-              other: 'fdjsdj'
-            },
-            {
-              lastKnownID: 178904,
-              uuid: 19903,
-              other: '1fdjsdj'
-            }
-          ]
-        }
-      },
-      nglOrientations: { a: [24, 566] },
-      countOfRemainingMoleculeGroups: 23,
-      proteinsHasLoaded: false,
-      countOfPendingNglObjects: 44
-    };
-
-    let result = nglReducers(Object.assign({}, initialState, currentState), actions.saveCurrentStateAsDefaultScene());
-    // default scene contains current state
-    expect(result[SCENES.defaultScene].nglOrientations).toStrictEqual(currentState.nglOrientations);
-    // for each objectsInView
-    Object.keys(result[SCENES.defaultScene].objectsInView).forEach(key => {
-      expect(result[SCENES.defaultScene].objectsInView[key].properties).toStrictEqual(
-        currentState.objectsInView[key].properties
-      );
-      // doesnt contains representation lastKnownID, uuid
-      expect(result[SCENES.defaultScene].objectsInView[key].representations).toStrictEqual(
-        expect.arrayContaining(
-          currentState.objectsInView[key].representations.map(item => {
-            delete item['lastKnownID'];
-            delete item['uuid'];
-            return item;
-          })
-        )
-      );
-    });
-    // doesnt contains       ['countOfRemainingMoleculeGroups'];  ['proteinsHasLoaded']; ['countOfPendingNglObjects'];
-    expect(result[SCENES.defaultScene].countOfRemainingMoleculeGroups).not.toBe(
-      currentState.countOfRemainingMoleculeGroups
-    );
-    expect(result[SCENES.defaultScene].proteinsHasLoaded).not.toBe(currentState.proteinsHasLoaded);
-    expect(result[SCENES.defaultScene].countOfPendingNglObjects).not.toBe(currentState.countOfPendingNglObjects);
-  });
-
-  it('should save current state as session scene', () => {
-    expect.hasAssertions();
-    const currentState = {
-      objectsInView: {
-        molecule_1: {
-          properties: [{ a: 'dfg' }],
-          representations: [
-            {
-              lastKnownID: 78904,
-              uuid: 9903,
-              other: 'fdjsdj'
-            },
-            {
-              lastKnownID: 178904,
-              uuid: 19903,
-              other: '1fdjsdj'
-            }
-          ]
-        }
-      },
-      nglOrientations: { a: [24, 566] },
-      countOfRemainingMoleculeGroups: 23,
-      proteinsHasLoaded: false,
-      countOfPendingNglObjects: 44
-    };
-
-    let result = nglReducers(Object.assign({}, initialState, currentState), actions.saveCurrentStateAsSessionScene());
-    // session scene contains current state
-    expect(result[SCENES.sessionScene].nglOrientations).toStrictEqual(currentState.nglOrientations);
-    // for each objectsInView
-    Object.keys(result[SCENES.sessionScene].objectsInView).forEach(key => {
-      expect(result[SCENES.sessionScene].objectsInView[key].properties).toStrictEqual(
-        currentState.objectsInView[key].properties
-      );
-      // doesnt contains representation lastKnownID, uuid
-      expect(result[SCENES.sessionScene].objectsInView[key].representations).toStrictEqual(
-        expect.arrayContaining(
-          currentState.objectsInView[key].representations.map(item => {
-            delete item['lastKnownID'];
-            delete item['uuid'];
-            return item;
-          })
-        )
-      );
-    });
-    // doesnt contains       ['countOfRemainingMoleculeGroups'];  ['proteinsHasLoaded']; ['countOfPendingNglObjects'];
-    expect(result[SCENES.sessionScene].countOfRemainingMoleculeGroups).not.toBe(
-      currentState.countOfRemainingMoleculeGroups
-    );
-    expect(result[SCENES.sessionScene].proteinsHasLoaded).not.toBe(currentState.proteinsHasLoaded);
-    expect(result[SCENES.sessionScene].countOfPendingNglObjects).not.toBe(currentState.countOfPendingNglObjects);
-  });
-
-  it('should reset current state to default scene', () => {
-    expect.hasAssertions();
-    const defaultScene = {
-      [SCENES.defaultScene]: {
-        objectsInView: {
-          molecule_1: {
-            properties: [{ a: 'dfg' }],
-            representations: [
-              {
-                lastKnownID: 78904,
-                uuid: 9903,
-                other: 'fdjsdj'
-              },
-              {
-                lastKnownID: 178904,
-                uuid: 19903,
-                other: '1fdjsdj'
-              }
-            ]
-          }
-        },
-        nglOrientations: { a: [24, 566] }
-      }
-    };
-
-    let result = nglReducers(Object.assign({}, initialState, defaultScene), actions.resetStateToDefaultScene());
-    expect(result.objectsInView).toStrictEqual(defaultScene[SCENES.defaultScene].objectsInView);
-    expect(result.nglOrientations).toStrictEqual(defaultScene[SCENES.defaultScene].nglOrientations);
-  });
-
   it('should remove all ngl view components', () => {
     expect.hasAssertions();
     let result = nglReducers(initialState, actions.removeAllNglComponents());
@@ -318,10 +182,10 @@ describe("testing ngl reducer's actions", () => {
 
   it('should increment and decrement count of pending ngl view objects', () => {
     expect.hasAssertions();
-    let result = nglReducers(initialState, actions.incrementCountOfPendingNglObjects());
-    expect(result.countOfPendingNglObjects).toBe(1);
+    let result = nglReducers(initialState, actions.incrementCountOfPendingNglObjects(VIEWS.MAJOR_VIEW));
+    expect(result.countOfPendingNglObjects[VIEWS.MAJOR_VIEW]).toBe(1);
 
-    result = nglReducers(result, actions.decrementCountOfPendingNglObjects());
-    expect(result.countOfPendingNglObjects).toBe(0);
+    result = nglReducers(result, actions.decrementCountOfPendingNglObjects(VIEWS.MAJOR_VIEW));
+    expect(result.countOfPendingNglObjects[VIEWS.MAJOR_VIEW]).toBe(0);
   });
 });

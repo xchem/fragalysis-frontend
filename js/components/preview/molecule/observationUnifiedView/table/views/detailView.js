@@ -15,6 +15,8 @@ import {
   removeVector,
   addHitProtein,
   removeHitProtein,
+  addArtefactChain,
+  removeArtefactChain,
   addComplex,
   removeComplex,
   addSurface,
@@ -33,7 +35,8 @@ import {
   setMoleculeForTagEdit,
   setTagEditorOpen,
   setObservationsForLHSCmp,
-  setIsLHSCmpTagEdit
+  setIsLHSCmpTagEdit,
+  removeProteinSettings
 } from '../../../../../../reducers/selection/actions';
 import { centerOnLigandByMoleculeID } from '../../../../../../reducers/ngl/dispatchActions';
 import { getRandomColor } from '../../../utils/color';
@@ -48,6 +51,7 @@ import { CopyDataTable } from '../../copyDataTable';
 import { getCurrentTarget } from '../../../../../../reducers/api/selectors';
 import { DENSITY_MAP_TYPES, MAP_RENDERING_MODES } from '../../../utils/constants';
 import DensityButtonPopover from './DensityButtonPopover';
+import ProteinButtonPopover from './ProteinButtonPopover';
 import RichTooltip from '../../../../../tooltip/RichTooltip';
 import { TooltipPathProvider } from '../../../../../tooltip/TooltipPathContext';
 import { isAnyInspirationTurnedOn } from '../../../../../datasets/redux/selectors';
@@ -518,6 +522,7 @@ const useStyles = makeStyles(theme => ({
 export const DetailView = memo(
   ({
     data,
+    index,
     detailWidth = 0,
     detailContentRef = undefined,
     handleRef,
@@ -529,8 +534,14 @@ export const DetailView = memo(
     viewConfig = LHS_OBSERVATION_VIEW_CONFIG,
     getComputedInspirations = undefined
   }) => {
+    const [proteinSettings, setProteinSettings] = useState({
+      protein: true,
+      artefact: true
+    });
     const [densityPopoverAnchor, setDensityPopoverAnchor] = useState(null);
     const [densityPopoverOpen, setDensityPopoverOpen] = useState(false);
+    const [proteinPopoverAnchor, setProteinPopoverAnchor] = useState(null);
+    const [proteinPopoverOpen, setProteinPopoverOpen] = useState(false);
 
     const [loadingInspiration, setLoadingInspiration] = useState(false);
     const [loadingReference, setLoadingReference] = useState(false);
@@ -548,6 +559,7 @@ export const DetailView = memo(
     };
 
     const [densityTooltipOpen, setDensityTooltipOpen] = React.useState(false);
+    const [proteinTooltipOpen, setProteinTooltipOpen] = React.useState(false);
 
     const handleTooltipOpen = () => {
       if (!densityPopoverOpen) {
@@ -566,6 +578,30 @@ export const DetailView = memo(
 
       setDensityPopoverAnchor(event.currentTarget);
       setDensityPopoverOpen(true);
+    };
+
+    const handleProteinButtonContextMenu = event => {
+      event.preventDefault();
+
+      setProteinTooltipOpen(false);
+
+      setProteinPopoverAnchor(event.currentTarget);
+      setProteinPopoverOpen(true);
+    };
+
+    const handleProteinPopoverClose = () => {
+      setProteinPopoverOpen(false);
+      setProteinPopoverAnchor(null);
+    };
+
+    const handleProteinTooltipOpen = () => {
+      if (!proteinPopoverOpen) {
+        setProteinTooltipOpen(true);
+      }
+    };
+
+    const handleProteinTooltipClose = () => {
+      setProteinTooltipOpen(false);
     };
 
     // const [countOfVectors, setCountOfVectors] = useState('-');
@@ -677,6 +713,7 @@ export const DetailView = memo(
 
     const fragmentDisplayList = useSelector(state => state.selectionReducers.fragmentDisplayList);
     const proteinList = useSelector(state => state.selectionReducers.proteinList);
+    const artefactsChainList = useSelector(state => state.selectionReducers.artefactsChainList);
     const complexList = useSelector(state => state.selectionReducers.complexList);
     const surfaceList = useSelector(state => state.selectionReducers.surfaceList);
     const densityList = useSelector(state => state.selectionReducers.densityList);
@@ -701,14 +738,15 @@ export const DetailView = memo(
 
     const isLigandOn = isAtLeastOneObservationOnInList(fragmentDisplayList);
     const isProteinOn = isAtLeastOneObservationOnInList(proteinList);
+    const isArtefactChainOn = isAtLeastOneObservationOnInList(artefactsChainList);
     // C stands for contacts now
     const isComplexOn = isAtLeastOneObservationOnInList(complexList);
     const isSurfaceOn = isAtLeastOneObservationOnInList(surfaceList);
     const isDensityOn = isAtLeastOneObservationOnDensity(densityList);
     const isVectorOn = isAtLeastOneObservationOnInList(vectorOnList);
 
-    const hasAllValuesOn = isLigandOn && isProteinOn && isComplexOn;
-    const hasSomeValuesOn = !hasAllValuesOn && (isLigandOn || isProteinOn || isComplexOn);
+    const hasAllValuesOn = isLigandOn && isProteinOn && isArtefactChainOn && isComplexOn;
+    const hasSomeValuesOn = !hasAllValuesOn && (isLigandOn || isProteinOn || isArtefactChainOn || isComplexOn);
 
     let isWireframeStyle = defaultMapRendering === MAP_RENDERING_MODES.WIREFRAME ? true : false;
 
@@ -1082,6 +1120,14 @@ export const DetailView = memo(
       selectedAll.current = false;
     };
 
+    const removeSelectedArtefactChain = (skipTracking = false) => {
+      const selectedObs = getAllObservationsSelectedInList(artefactsChainList);
+      for (const obs of selectedObs) {
+        dispatch(removeArtefactChain(stage, obs, colourToggle, skipTracking));
+      }
+      selectedAll.current = false;
+    };
+
     const addNewProtein = (skipTracking = false) => {
       // if (selectMoleculeSite) {
       //   selectMoleculeSite(data.site);
@@ -1097,21 +1143,72 @@ export const DetailView = memo(
       );
     };
 
+    const addNewArtefactChain = (skipTracking = false) => {
+      dispatch(
+        withDisabledMoleculeNglControlButton(currentID, 'protein', async () => {
+          const firstObs = getMainObservation();
+          if (firstObs) {
+            const color = getRandomColor(firstObs);
+            await dispatch(addArtefactChain(stage, firstObs, color, true, skipTracking));
+          }
+        })
+      );
+    };
+
     const [loadingProtein, setLoadingProtein] = useState(false);
 
-    const onProtein = calledFromSelectAll => {
+    const onProtein = (calledFromSelectAll, type = 'both') => {
       setLoadingProtein(true);
       if (calledFromSelectAll === true && selectedAll.current === true) {
         if (isProteinOn === false) {
           addNewProtein(calledFromSelectAll);
         }
+        if (isArtefactChainOn === false) {
+          addNewArtefactChain(calledFromSelectAll);
+        }
       } else if (calledFromSelectAll && selectedAll.current === false) {
         removeSelectedProtein(calledFromSelectAll);
+        removeSelectedArtefactChain(calledFromSelectAll);
       } else if (!calledFromSelectAll) {
-        if (isProteinOn === false) {
-          addNewProtein();
-        } else {
-          removeSelectedProtein();
+        switch (type) {
+          case 'protein':
+            if (isProteinOn) {
+              removeSelectedProtein();
+            } else {
+              addNewProtein();
+            }
+            break;
+          case 'artefact':
+            if (isArtefactChainOn) {
+              removeSelectedArtefactChain();
+            } else {
+              addNewArtefactChain();
+            }
+            break;
+          case 'both':
+            if (proteinSettings.protein) {
+              if (isProteinOn) {
+                removeSelectedProtein();
+              } else {
+                addNewProtein();
+              }
+            }
+            if (proteinSettings.artefact) {
+              if (isArtefactChainOn) {
+                removeSelectedArtefactChain();
+              } else {
+                addNewArtefactChain();
+              }
+            }
+            if (!proteinSettings.protein && !proteinSettings.artefact) {
+              dispatch(removeProteinSettings({ id: getMainObservation()?.id }));
+              setProteinSettings({ protein: true, artefact: true });
+              addNewProtein();
+              addNewArtefactChain();
+            }
+            break;
+          default:
+            break;
         }
       }
       setLoadingProtein(false);
@@ -1455,6 +1552,7 @@ export const DetailView = memo(
           >
             <Grid item>
               <Button
+                id={'detail-view-electron-density-' + index}
                 variant="outlined"
                 className={classNames(classes.contColButton, {
                   [classes.contColButtonSelected]: isDensityOn
@@ -1487,6 +1585,7 @@ export const DetailView = memo(
           <RichTooltip path="vectors">
             <Grid item>
               <Button
+                id={'detail-view-vectors-' + index}
                 variant="outlined"
                 className={classNames(classes.contColButton, {
                   [classes.contColButtonSelected]: isVectorOn
@@ -1690,6 +1789,7 @@ export const DetailView = memo(
               <RichTooltip path="centerOn">
                 <Grid item>
                   <Button
+                    id={'detail-view-center-on-' + index}
                     variant="outlined"
                     className={classes.myLocationButton}
                     onClick={() => {
@@ -1704,6 +1804,7 @@ export const DetailView = memo(
               <RichTooltip path="all">
                 <Grid item>
                   <Button
+                    id={'detail-view-all-' + index}
                     variant="outlined"
                     className={classNames(
                       classes.contColButton,
@@ -1747,6 +1848,7 @@ export const DetailView = memo(
               >
                 <Grid item>
                   <Button
+                    id={'detail-view-sidechains-' + index}
                     variant="outlined"
                     className={classNames(classes.contColButton, {
                       [classes.contColButtonSelected]: isLigandOn
@@ -1765,31 +1867,57 @@ export const DetailView = memo(
                   </Button>
                 </Grid>
               </RichTooltip>
-              <RichTooltip path="sidechains">
+              <RichTooltip
+                path="sidechains"
+                open={proteinTooltipOpen}
+                onOpen={handleProteinTooltipOpen}
+                onClose={handleProteinTooltipClose}
+                disableHoverListener={proteinPopoverOpen}
+                disableFocusListener={proteinPopoverOpen}
+                disableTouchListener={proteinPopoverOpen}
+              >
                 <Grid item>
                   <Button
+                    id={'detail-view-ligand-' + index}
                     variant="outlined"
                     className={classNames(classes.contColButton, {
-                      [classes.contColButtonSelected]: isProteinOn
+                      [classes.contColButtonSelected]: isProteinOn || isArtefactChainOn
                     })}
-                    onClick={() => onProtein()}
+                    onClick={() => onProtein(undefined, 'both')}
+                    onContextMenu={handleProteinButtonContextMenu}
                     disabled={disableP || disableMoleculeNglControlButtons.protein}
                   >
                     P
                     {loadingProtein && (
                       <CircularProgress
                         className={classNames(classes.buttonLoadingOverlay, {
-                          [classes.buttonSelectedLoadingOverlay]: isProteinOn
+                          [classes.buttonSelectedLoadingOverlay]: isProteinOn || isArtefactChainOn
                         })}
                       />
                     )}
                   </Button>
+                  <Popover
+                    open={proteinPopoverOpen}
+                    anchorEl={proteinPopoverAnchor}
+                    onClose={handleProteinPopoverClose}
+                    anchorOrigin={{ vertical: 'center', horizontal: 'right' }}
+                    transformOrigin={{ vertical: 'center', horizontal: 'left' }}
+                  >
+                    <ProteinButtonPopover
+                      moleculeId={getMainObservation()?.id}
+                      proteinSettings={proteinSettings}
+                      setProteinSettingsState={setProteinSettings}
+                      toggleProtein={onProtein}
+                      disabled={disableP || disableMoleculeNglControlButtons.protein}
+                    />
+                  </Popover>
                 </Grid>
               </RichTooltip>
               <RichTooltip path="interactions">
                 <Grid item>
                   {/* C stands for contacts now */}
                   <Button
+                    id={'detail-view-interactions-' + index}
                     variant="outlined"
                     className={classNames(classes.contColButton, {
                       [classes.contColButtonSelected]: isComplexOn
@@ -1811,6 +1939,7 @@ export const DetailView = memo(
               <RichTooltip path="surface">
                 <Grid item>
                   <Button
+                    id={'detail-view-surface-' + index}
                     variant="outlined"
                     className={classNames(classes.contColButton, {
                       [classes.contColButtonSelected]: isSurfaceOn

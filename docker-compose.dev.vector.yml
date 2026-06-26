@@ -74,6 +74,7 @@ services:
     ports:
       - "8080:80"
     environment:
+      TMPDIR: "/tmp"
       POSTGRESQL_DATABASE: frag
       POSTGRESQL_USER: fragalysis
       POSTGRESQL_PASSWORD: fragalysis
@@ -155,6 +156,7 @@ services:
       - ../data/logs:/code/logs/
       - ../data/media:/code/media/
     environment:
+      TMPDIR: "/tmp"
       AUTHENTICATE_UPLOAD: "False"
       DEPLOYMENT_MODE: "development"
       POSTGRESQL_DATABASE: frag

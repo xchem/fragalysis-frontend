@@ -130,6 +130,28 @@ const renderHitProtein = (ol, representations, orientationMatrix) => {
   return assignRepresentationArrayToComp(reprArray, comp);
 };
 
+const renderArtefactChains = (ol, representations, orientationMatrix) => {
+  let cs = concatStructures(
+    ol[4],
+    ol[0].structure.getView(new Selection('not ligand')),
+    ol[1].structure.getView(new Selection(''))
+  );
+  let stage = ol[2];
+  let colour = ol[5];
+  let comp = stage.addComponentFromObject(cs);
+
+  const repr3 = createRepresentationStructure(MOL_REPRESENTATION.line, {
+    colorScheme: 'element',
+    colorValue: colour,
+    sele: '/0',
+    linewidth: 2
+  });
+
+  const reprArray = representations || createRepresentationsArray([repr3]);
+
+  return assignRepresentationArrayToComp(reprArray, comp);
+};
+
 const showHitProtein = async ({
   stage,
   input_dict,
@@ -176,6 +198,54 @@ const showHitProtein = async ({
         input_dict.colour
       ]);
       return renderHitProtein(ol, representations, orientationMatrix);
+    }
+  }
+};
+
+const showArtefactChains = async ({
+  stage,
+  input_dict,
+  object_name,
+  representations,
+  orientationMatrix,
+  dispatch,
+  loadQuality,
+  quality
+}) => {
+  let stringBlob = new Blob([input_dict.sdf_info], { type: 'text/plain' });
+
+  const pdbBlob = await dispatch(getPdb(input_dict.artefacts_url));
+
+  if (pdbBlob) {
+    if (loadQuality && quality && quality.badproteinids?.length > 0) {
+      const ol = await Promise.all([
+        stage.loadFile(pdbBlob, { ext: 'pdb', defaultAssembly: 'BU1' }),
+        stage.loadFile(stringBlob, { ext: 'sdf' }),
+        stage,
+        defaultFocus,
+        object_name,
+        input_dict.colour
+      ]);
+      renderArtefactChains(ol, representations, orientationMatrix);
+      return loadQualityFromFile(
+        stage,
+        pdbBlob,
+        quality,
+        object_name,
+        orientationMatrix,
+        input_dict.colour,
+        QUALITY_TYPES.ARTEFACTS
+      );
+    } else {
+      const ol = await Promise.all([
+        stage.loadFile(pdbBlob, { ext: 'pdb', defaultAssembly: 'BU1' }),
+        stage.loadFile(stringBlob, { ext: 'sdf' }),
+        stage,
+        defaultFocus,
+        object_name,
+        input_dict.colour
+      ]);
+      return renderArtefactChains(ol, representations, orientationMatrix);
     }
   }
 };
@@ -522,5 +592,6 @@ export const nglObjectDictionary = {
   [OBJECT_TYPE.PROTEIN]: showProtein,
   [OBJECT_TYPE.EVENTMAP]: showEvent,
   [OBJECT_TYPE.HOTSPOT]: showHotspot,
-  [OBJECT_TYPE.DENSITY]: showDensity
+  [OBJECT_TYPE.DENSITY]: showDensity,
+  [OBJECT_TYPE.ARTEFACTS]: showArtefactChains
 };

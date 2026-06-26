@@ -259,6 +259,7 @@ export const Header = memo(
     if (DJANGO_CONTEXT['username'] === 'NOT_LOGGED_IN') {
       authListItem = (
         <ListItem
+          id="login-button-id"
           button
           onClick={() => {
             window.location.replace(URLS.login);
@@ -273,6 +274,7 @@ export const Header = memo(
     } else {
       authListItem = (
         <ListItem
+          id="logout-button-id"
           button
           onClick={() => {
             window.location.replace(URLS.logout);
@@ -327,6 +329,7 @@ export const Header = memo(
               <ButtonGroup variant="text" size="small" className={classes.headerButtonGroup}>
                 <RichTooltip path="menu">
                   <Button
+                    id="open-menu-button"
                     key="menu"
                     onClick={() => {
                       setOpenMenu(true);

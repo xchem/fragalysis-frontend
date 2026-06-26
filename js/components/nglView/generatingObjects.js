@@ -85,22 +85,27 @@ export const generateCylinderObject = (data, start, end, name, colour) => ({
   selectionType: SELECTION_TYPE.VECTOR
 });
 
-// Hit Protein
-export const generateHitProteinObject = (data, colourToggle, base_url, datasetID) => async dispatch => {
-  let prot_url;
-
-  if (data && data.apo_file) {
-    prot_url = data.apo_file;
-  } else if (data.virtual_pdb_info) {
-    if (location.protocol === 'https:') {
-      prot_url = data.virtual_pdb_info.replace('http://', 'https://');
-    } else {
-      prot_url = data.virtual_pdb_info;
-    }
+const normalizeUrlForCurrentProtocol = url => {
+  if (!url) {
+    return url;
   }
 
+  return typeof location !== 'undefined' && location.protocol === 'https:' ? url.replace('http://', 'https://') : url;
+};
+
+const getStructureUrl = data => normalizeUrlForCurrentProtocol(data?.apo_file || data?.pdb_info || data?.virtual_pdb_info);
+
+const getArtefactStructureUrl = data =>
+  normalizeUrlForCurrentProtocol(data?.artefacts_file || data?.pdb_info || data?.virtual_pdb_info);
+
+const getMoleculeObjectName = data => data.code || data.name || data.virtual_name;
+
+// Hit Protein
+export const generateHitProteinObject = (data, colourToggle, base_url, datasetID) => async dispatch => {
+  const prot_url = getStructureUrl(data);
+
   return {
-    name: `${data.code || data.virtual_name}_${OBJECT_TYPE.HIT_PROTEIN}${datasetID ? '_' + datasetID : ''}`,
+    name: `${getMoleculeObjectName(data)}_${OBJECT_TYPE.HIT_PROTEIN}${datasetID ? '_' + datasetID : ''}`,
     OBJECT_TYPE: OBJECT_TYPE.HIT_PROTEIN,
     sdf_info: (await dispatch(getLigandData(data))) || data.sdf_info,
     colour: colourToggle,
@@ -112,20 +117,10 @@ export const generateHitProteinObject = (data, colourToggle, base_url, datasetID
 
 // Complex
 export const generateComplexObject = (data, colourToggle, base_url, datasetID) => async dispatch => {
-  let prot_url;
-
-  if (data && data.apo_file) {
-    prot_url = data.apo_file;
-  } else if (data.virtual_pdb_info) {
-    if (location.protocol === 'https:') {
-      prot_url = data.virtual_pdb_info.replace('http://', 'https://');
-    } else {
-      prot_url = data.virtual_pdb_info;
-    }
-  }
+  const prot_url = getStructureUrl(data);
 
   return {
-    name: `${data.code || data.virtual_name}_${OBJECT_TYPE.COMPLEX}${datasetID ? '_' + datasetID : ''}`,
+    name: `${getMoleculeObjectName(data)}_${OBJECT_TYPE.COMPLEX}${datasetID ? '_' + datasetID : ''}`,
     OBJECT_TYPE: OBJECT_TYPE.COMPLEX,
     sdf_info: (await dispatch(getLigandData(data))) || data.sdf_info,
     colour: colourToggle,
@@ -137,19 +132,10 @@ export const generateComplexObject = (data, colourToggle, base_url, datasetID) =
 
 // Surface
 export const generateSurfaceObject = (data, colourToggle, base_url, datasetID) => async dispatch => {
-  let prot_url;
+  const prot_url = getStructureUrl(data);
 
-  if (data && data.apo_file) {
-    prot_url = data.apo_file;
-  } else if (data.virtual_pdb_info) {
-    if (location.protocol === 'https:') {
-      prot_url = data.virtual_pdb_info.replace('http://', 'https://');
-    } else {
-      prot_url = data.virtual_pdb_info;
-    }
-  }
   return {
-    name: `${data.code || data.virtual_name}_${OBJECT_TYPE.SURFACE}${datasetID ? '_' + datasetID : ''}`,
+    name: `${getMoleculeObjectName(data)}_${OBJECT_TYPE.SURFACE}${datasetID ? '_' + datasetID : ''}`,
     OBJECT_TYPE: OBJECT_TYPE.SURFACE,
     sdf_info: (await dispatch(getLigandData(data))) || data.sdf_info,
     colour: colourToggle,
@@ -159,51 +145,44 @@ export const generateSurfaceObject = (data, colourToggle, base_url, datasetID) =
   };
 };
 
+// Artefact chains
+export const generateArtefactChains = (data, colourToggle, datasetID) => async dispatch => {
+  const artefacts_url = getArtefactStructureUrl(data);
+
+  return {
+    name: `${getMoleculeObjectName(data)}_${OBJECT_TYPE.ARTEFACTS}${datasetID ? '_' + datasetID : ''}`,
+    OBJECT_TYPE: OBJECT_TYPE.ARTEFACTS,
+    sdf_info: (await dispatch(getLigandData(data))) || data.sdf_info,
+    colour: colourToggle,
+    artefacts_url,
+    moleculeId: data.id,
+    selectionType: SELECTION_TYPE.ARTEFACTS
+  };
+};
+
 // Density
 export const generateDensityObject = (data, densityObject) => async dispatch => {
   const proteinData = data && data.proteinData;
 
-  let prot_url;
+  const prot_url = getStructureUrl(data);
   let sigmaa_url;
   let diff_url;
   let event_url;
 
-  if (data && data.apo_file) {
-    prot_url = data.apo_file;
-  } else if (data.virtual_pdb_info) {
-    if (location.protocol === 'https:') {
-      prot_url = data.pdb_info.replace('http://', 'https://');
-    } else {
-      prot_url = data.pdb_info;
-    }
-  }
-
   if (proteinData && proteinData.event_info) {
-    if (location.protocol === 'https:') {
-      event_url = proteinData.event_info.replace('http://', 'https://');
-    } else {
-      event_url = proteinData.event_info;
-    }
+    event_url = normalizeUrlForCurrentProtocol(proteinData.event_info);
   }
 
   if (proteinData && proteinData.sigmaa_info) {
-    if (location.protocol === 'https:') {
-      sigmaa_url = proteinData.sigmaa_info.replace('http://', 'https://');
-    } else {
-      sigmaa_url = proteinData.sigmaa_info;
-    }
+    sigmaa_url = normalizeUrlForCurrentProtocol(proteinData.sigmaa_info);
   }
 
   if (proteinData && proteinData.diff_info) {
-    if (location.protocol === 'https:') {
-      diff_url = proteinData.diff_info.replace('http://', 'https://');
-    } else {
-      diff_url = proteinData.diff_info;
-    }
+    diff_url = normalizeUrlForCurrentProtocol(proteinData.diff_info);
   }
 
   return {
-    name: `${data.code || data.virtual_name}_${OBJECT_TYPE.DENSITY}`,
+    name: `${getMoleculeObjectName(data)}_${OBJECT_TYPE.DENSITY}`,
     OBJECT_TYPE: OBJECT_TYPE.DENSITY,
     sdf_info: (await dispatch(getLigandData(data))) || data.sdf_info,
     event_url,

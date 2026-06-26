@@ -155,7 +155,7 @@ const ObservationUnifiedViewWrapper = memo(
       jsmeSetup();
 
       const containsAtLeastOne = (list, molsList) => {
-        for (const mol in molsList) {
+        for (const mol of molsList || []) {
           if (list?.includes(mol.id)) {
             return true;
           }
