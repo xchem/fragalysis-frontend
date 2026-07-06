@@ -10,7 +10,9 @@ const useStyles = makeStyles(theme => ({
     border: 'solid 1px',
     borderColor: theme.palette.background.divider,
     borderStyle: 'solid solid solid none',
-    position: 'relative'
+    position: 'relative',
+    alignSelf: 'stretch',
+    boxSizing: 'border-box'
   },
   moleculeSvg: {
     width: '100%',
@@ -70,15 +72,20 @@ export const ImageView = memo(
           height: displayImageHeight
         }}
         className={classes.image}
-        onMouseEnter={() => setMoleculeTooltipOpen(true)}
-        onMouseLeave={() => setMoleculeTooltipOpen(false)}
+        onClick={() => setMoleculeTooltipOpen(true)}
         ref={moleculeImgRef}
       >
         {svg_image}
         <div className={classes.imageActions}>
           {warningIconVisible && (
             <RichTooltip path="warning">
-              <IconButton className={classes.warningIcon} onClick={() => onQuality()}>
+              <IconButton
+                className={classes.warningIcon}
+                onClick={event => {
+                  event.stopPropagation();
+                  onQuality();
+                }}
+              >
                 <Warning />
               </IconButton>
             </RichTooltip>
@@ -90,6 +97,7 @@ export const ImageView = memo(
           imgData={img_data}
           width={displayImageWidth}
           height={displayImageHeight}
+          onClose={() => setMoleculeTooltipOpen(false)}
         />
       </div>
     );

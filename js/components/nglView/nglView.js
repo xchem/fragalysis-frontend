@@ -56,6 +56,7 @@ const NglView = memo(
     const [radius, setRadius] = useState(String(defaultRadius)); // keep as string to allow empty
     const sphereCompRef = useRef(null);
     const lastOriginRef = useRef(null);
+    const lastPointerPositionRef = useRef(null);
 
     const targetId = useSelector(state => state.apiReducers.target_on);
 
@@ -94,7 +95,42 @@ const NglView = memo(
       }
     }, [activeCoordinateFilterSide, activeCoordinateRadius, defaultRadius, popoverOpen]);
     const rendererDomElement = stage?.viewer?.renderer?.domElement;
-    const mousePosition = stage?.mouseObserver?.position;
+
+    useEffect(() => {
+      if (!rendererDomElement) return undefined;
+
+      const rememberPointerPosition = event => {
+        lastPointerPositionRef.current = { top: event.clientY, left: event.clientX };
+      };
+
+      rendererDomElement.addEventListener('pointerdown', rememberPointerPosition);
+      rendererDomElement.addEventListener('click', rememberPointerPosition);
+
+      return () => {
+        rendererDomElement.removeEventListener('pointerdown', rememberPointerPosition);
+        rendererDomElement.removeEventListener('click', rememberPointerPosition);
+      };
+    }, [rendererDomElement]);
+
+    const getPopoverAnchorPosition = useCallback(() => {
+      const fallbackPosition = (() => {
+        if (!rendererDomElement) return { top: 0, left: 0 };
+        const rect = rendererDomElement.getBoundingClientRect();
+        return {
+          top: rect.top + Math.min(rect.height / 2, 160),
+          left: rect.left + Math.min(rect.width / 2, 260)
+        };
+      })();
+
+      const position = lastPointerPositionRef.current || fallbackPosition;
+      const popoverWidth = 280;
+      const popoverHeight = 150;
+      const viewportPadding = 8;
+      return {
+        top: Math.round(Math.max(viewportPadding, Math.min(position.top, window.innerHeight - popoverHeight))),
+        left: Math.round(Math.max(viewportPadding, Math.min(position.left, window.innerWidth - popoverWidth)))
+      };
+    }, [rendererDomElement]);
 
     const parseRadius = useCallback(
       val => {
@@ -195,19 +231,10 @@ const NglView = memo(
         dispatch(selectionActions.setCoordinateRadius(radius, activeCoordinateFilterSideRef.current));
         // ensureSphereAt(pos, parseRadius(radius));
 
-        // Anchor popover to mouse cursor using NGL's mouseObserver
-        const canvas = rendererDomElement;
-        if (canvas && mousePosition) {
-          const rect = canvas.getBoundingClientRect();
-          const m = mousePosition;
-          setAnchorPos({
-            top: Math.round(rect.top + m.y),
-            left: Math.round(rect.left + m.x)
-          });
-        }
+        setAnchorPos(getPopoverAnchorPosition());
         setPopoverOpen(true);
       },
-      [dispatch, mousePosition, radius, rendererDomElement]
+      [dispatch, getPopoverAnchorPosition, radius]
     );
 
     useEffect(() => {
@@ -351,7 +378,7 @@ const NglView = memo(
           PaperProps={{ style: { padding: 12, minWidth: 260 } }}
         >
           <Typography variant="subtitle1" style={{ fontWeight: 600, marginBottom: 8 }}>
-            Radius selection
+            Coordinate search
           </Typography>
           <TextField
             label="Radius (Å)"

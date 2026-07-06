@@ -51,7 +51,7 @@ import { CopyDataTable } from '../../copyDataTable';
 import { getCurrentTarget } from '../../../../../../reducers/api/selectors';
 import { DENSITY_MAP_TYPES, MAP_RENDERING_MODES } from '../../../utils/constants';
 import DensityButtonPopover from './DensityButtonPopover';
-import ProteinButtonPopover from './ProteinButtonPopover';
+import ProteinButtonPopover, { DEFAULT_PROTEIN_SETTINGS } from './ProteinButtonPopover';
 import RichTooltip from '../../../../../tooltip/RichTooltip';
 import { TooltipPathProvider } from '../../../../../tooltip/TooltipPathContext';
 import { isAnyInspirationTurnedOn } from '../../../../../datasets/redux/selectors';
@@ -156,7 +156,9 @@ const useStyles = makeStyles(theme => ({
     width: DETAIL_CONTROLS_WIDTH.lhs,
     minWidth: DETAIL_SINGLE_CONTROL_WIDTH,
     maxWidth: '100%',
-    overflow: 'hidden'
+    overflow: 'hidden',
+    alignSelf: 'stretch',
+    boxSizing: 'border-box'
   },
   contColMenu: {
     // ...theme.typography.button,
@@ -242,19 +244,25 @@ const useStyles = makeStyles(theme => ({
     flex: '1 1 auto',
     width: 'auto',
     minWidth: 0,
-    overflow: 'visible'
+    overflow: 'visible',
+    alignSelf: 'stretch',
+    boxSizing: 'border-box'
     // width: 'inherit'
   },
   detailViewRoot: {
     width: '100%',
     minWidth: 0,
-    overflow: 'visible'
+    overflow: 'visible',
+    alignItems: 'stretch',
+    boxSizing: 'border-box'
   },
   image: {
     border: 'solid 1px',
     borderColor: theme.palette.background.divider,
     borderStyle: 'solid solid solid none',
-    position: 'relative'
+    position: 'relative',
+    alignSelf: 'stretch',
+    boxSizing: 'border-box'
   },
   imageMargin: {
     marginTop: theme.spacing(1),
@@ -535,10 +543,7 @@ export const DetailView = memo(
     viewConfig = LHS_OBSERVATION_VIEW_CONFIG,
     getComputedInspirations = undefined
   }) => {
-    const [proteinSettings, setProteinSettings] = useState({
-      protein: true,
-      artefact: true
-    });
+    const [proteinSettings, setProteinSettings] = useState(DEFAULT_PROTEIN_SETTINGS);
     const [densityPopoverAnchor, setDensityPopoverAnchor] = useState(null);
     const [densityPopoverOpen, setDensityPopoverOpen] = useState(false);
     const [proteinPopoverAnchor, setProteinPopoverAnchor] = useState(null);
@@ -1158,13 +1163,13 @@ export const DetailView = memo(
 
     const [loadingProtein, setLoadingProtein] = useState(false);
 
-    const onProtein = (calledFromSelectAll, type = 'both') => {
+    const onProtein = (calledFromSelectAll, type = 'both', desiredVisible) => {
       setLoadingProtein(true);
       if (calledFromSelectAll === true && selectedAll.current === true) {
-        if (isProteinOn === false) {
+        if (proteinSettings.protein && isProteinOn === false) {
           addNewProtein(calledFromSelectAll);
         }
-        if (isArtefactChainOn === false) {
+        if (proteinSettings.artefact && isArtefactChainOn === false) {
           addNewArtefactChain(calledFromSelectAll);
         }
       } else if (calledFromSelectAll && selectedAll.current === false) {
@@ -1173,17 +1178,21 @@ export const DetailView = memo(
       } else if (!calledFromSelectAll) {
         switch (type) {
           case 'protein':
-            if (isProteinOn) {
+            if (desiredVisible ?? !isProteinOn) {
+              if (!isProteinOn) {
+                addNewProtein();
+              }
+            } else if (isProteinOn) {
               removeSelectedProtein();
-            } else {
-              addNewProtein();
             }
             break;
           case 'artefact':
-            if (isArtefactChainOn) {
+            if (desiredVisible ?? !isArtefactChainOn) {
+              if (!isArtefactChainOn) {
+                addNewArtefactChain();
+              }
+            } else if (isArtefactChainOn) {
               removeSelectedArtefactChain();
-            } else {
-              addNewArtefactChain();
             }
             break;
           case 'both':
@@ -1203,9 +1212,8 @@ export const DetailView = memo(
             }
             if (!proteinSettings.protein && !proteinSettings.artefact) {
               dispatch(removeProteinSettings({ id: getMainObservation()?.id }));
-              setProteinSettings({ protein: true, artefact: true });
-              addNewProtein();
-              addNewArtefactChain();
+              setProteinSettings(DEFAULT_PROTEIN_SETTINGS);
+              addNewProtein(false);
             }
             break;
           default:
@@ -1529,15 +1537,13 @@ export const DetailView = memo(
     }, [detailWidth, getDisplayName, getMainObservation, viewConfig.kind, visibleControlButtonWidths]);
 
     const [anchorElTable, setAnchorElTable] = useState(null);
-    const [tableIsOpen, setTableIsOpen] = useState(false);
     const handleTablePopoverOpen = event => {
-      setAnchorElTable(event.currentTarget);
+      setAnchorElTable(anchorElTable ? null : event.currentTarget);
     };
     const handleTablePopoverClose = () => {
       setAnchorElTable(null);
-      setTableIsOpen(false);
     };
-    const popoverOpen = Boolean(anchorElTable) || tableIsOpen;
+    const popoverOpen = Boolean(anchorElTable);
 
     const generateLastButtons = () => {
       return shouldRenderDetailTrailingButtons ? (
@@ -1728,38 +1734,34 @@ export const DetailView = memo(
             <Grid item className={classes.posePropertiesIconSlot}>
               <IconButton
                 className={popoverOpen ? classes.posePropertiesTableIconActive : classes.posePropertiesTableIcon}
-                onMouseEnter={handleTablePopoverOpen}
-                onMouseLeave={() => setAnchorElTable(null)}
-                ref={anchorElTable}
+                onClick={handleTablePopoverOpen}
               >
                 <Assignment />
-                <Popover
-                  id="mouse-over-popover"
-                  style={{ pointerEvents: 'none' }}
-                  open={popoverOpen}
-                  anchorEl={anchorElTable}
-                  anchorOrigin={{
-                    vertical: 'center',
-                    horizontal: 'right'
-                  }}
-                  transformOrigin={{
-                    vertical: 'center',
-                    horizontal: 'left'
-                  }}
-                  onClose={handleTablePopoverClose}
-                  disableRestoreFocus
-                >
-                  <TooltipPathProvider path="copyDataTable">
-                    <CopyDataTable
-                      mainObservation={getMainObservation()}
-                      target_on_name={target_on_name}
-                      data={data}
-                      aliasOrder={aliasOrder}
-                      handleTableIsOpen={isOpen => setTableIsOpen(isOpen)}
-                    />
-                  </TooltipPathProvider>
-                </Popover>
               </IconButton>
+              <Popover
+                id="pose-properties-popover"
+                open={popoverOpen}
+                anchorEl={anchorElTable}
+                anchorOrigin={{
+                  vertical: 'center',
+                  horizontal: 'right'
+                }}
+                transformOrigin={{
+                  vertical: 'center',
+                  horizontal: 'left'
+                }}
+                onClose={handleTablePopoverClose}
+                disableRestoreFocus
+              >
+                <TooltipPathProvider path="copyDataTable">
+                  <CopyDataTable
+                    mainObservation={getMainObservation()}
+                    target_on_name={target_on_name}
+                    data={data}
+                    aliasOrder={aliasOrder}
+                  />
+                </TooltipPathProvider>
+              </Popover>
             </Grid>
           </Grid>
         </Grid>

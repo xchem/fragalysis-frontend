@@ -542,9 +542,10 @@ export const PoseList = memo(
     useEffect(() => {
       if (hitNavigatorRef && hitNavigatorRef.current) {
         const resizeObserver = new ResizeObserver(() => {
-          if (hitNavigatorRef.current.offsetWidth !== hitNavigatorWidth) {
-            setHitNavigatorWidth(hitNavigatorRef.current.offsetWidth);
-          }
+          const nextWidth = hitNavigatorRef.current.offsetWidth;
+          setHitNavigatorWidth(currentWidth =>
+            Math.abs(currentWidth - nextWidth) > 1 ? nextWidth : currentWidth
+          );
         });
 
         resizeObserver.observe(hitNavigatorRef.current);
@@ -553,13 +554,15 @@ export const PoseList = memo(
           resizeObserver.disconnect();
         };
       }
-    }, [hitNavigatorRef, hitNavigatorWidth]);
+    }, [itemsToBeDisplayed.length]);
 
     useEffect(() => {
       if (scrollBarRef && scrollBarRef.current) {
         const updateListWidth = () => {
-          const nextWidth = scrollBarRef.current.clientWidth;
-          setHitNavigatorListWidth(currentWidth => (currentWidth !== nextWidth ? nextWidth : currentWidth));
+          const nextWidth = scrollBarRef.current.offsetWidth;
+          setHitNavigatorListWidth(currentWidth =>
+            Math.abs(currentWidth - nextWidth) > 1 ? nextWidth : currentWidth
+          );
         };
         const resizeObserver = new ResizeObserver(updateListWidth);
 

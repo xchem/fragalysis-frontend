@@ -82,6 +82,10 @@ const useStyles = makeStyles(theme => ({
     width: '0.55em',
     height: '0.55em'
   },
+  discoursePlaceholder: {
+    width: 16,
+    height: 16
+  },
   text: {
     lineHeight: 1.2
   }
@@ -93,6 +97,7 @@ const useStyles = makeStyles(theme => ({
 const TagDetailRow = memo(({ tag, moleculesToEditIds, moleculesToEdit, side = 'shared' }) => {
   const classes = useStyles();
   const dispatch = useDispatch();
+  const showDiscourseButton = false;
   const [allMoleculesOfTag, setAllMoleculesOfTag] = useState([]);
 
   const targetName = useSelector(state => state.apiReducers.target_on_name);
@@ -202,37 +207,40 @@ const TagDetailRow = memo(({ tag, moleculesToEditIds, moleculesToEdit, side = 's
         </Button>
       </RichTooltip>
 
-      {/* discourse button */}
-      <RichTooltip path="discourseLink">
-        {/* Tooltip should not have disabled element as a direct child */}
-        <>
-          <Fab
-            color="secondary"
-            size="small"
-            className={classes.discourseButton}
-            onClick={() => {
-              try {
-                if (tag.discourse_url) {
-                  openDiscourseLink(tag.discourse_url);
-                } else {
-                  createTagPost(tag, targetName, getDefaultTagDiscoursePostText(tag)).then(resp => {
-                    const tagURL = resp.data['Post url'];
-                    tag['discourse_url'] = tagURL;
-                    dispatch(updateTagProp(tag, tagURL, 'discourse_url'));
+      {showDiscourseButton ? (
+        <RichTooltip path="discourseLink">
+          {/* Tooltip should not have disabled element as a direct child */}
+          <>
+            <Fab
+              color="secondary"
+              size="small"
+              className={classes.discourseButton}
+              onClick={() => {
+                try {
+                  if (tag.discourse_url) {
                     openDiscourseLink(tag.discourse_url);
-                  });
+                  } else {
+                    createTagPost(tag, targetName, getDefaultTagDiscoursePostText(tag)).then(resp => {
+                      const tagURL = resp.data['Post url'];
+                      tag['discourse_url'] = tagURL;
+                      dispatch(updateTagProp(tag, tagURL, 'discourse_url'));
+                      openDiscourseLink(tag.discourse_url);
+                    });
+                  }
+                } catch (err) {
+                  console.log(err);
+                  dispatch(setOpenDiscourseErrorModal(true));
                 }
-              } catch (err) {
-                console.log(err);
-                dispatch(setOpenDiscourseErrorModal(true));
-              }
-            }}
-            disabled={!(isDiscourseAvailable() || (isDiscourseAvailableNotSignedIn() && tag.discourse_url))}
-          >
-            <Forum className={classes.discourseButtonIcon} />
-          </Fab>
-        </>
-      </RichTooltip>
+              }}
+              disabled={!(isDiscourseAvailable() || (isDiscourseAvailableNotSignedIn() && tag.discourse_url))}
+            >
+              <Forum className={classes.discourseButtonIcon} />
+            </Fab>
+          </>
+        </RichTooltip>
+      ) : (
+        <div className={classes.discoursePlaceholder} aria-hidden="true"></div>
+      )}
 
       {/* user */}
       <Typography className={classes.text} variant="body2">

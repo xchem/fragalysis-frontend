@@ -1,38 +1,67 @@
 import React, { memo } from 'react';
 import PropTypes from 'prop-types';
-import { Popper, Paper } from '@material-ui/core';
+import { ClickAwayListener, Popover, Paper } from '@material-ui/core';
 import SVGInline from 'react-svg-inline';
 
-export const SvgTooltip = memo(({ open, anchorEl, imgData, width, height, placement = 'right-end' }) => {
+export const SvgTooltip = memo(({ open, anchorEl, imgData, width, height, onClose }) => {
+  const scale = 3;
+  const scaledWidth = width * scale;
+  const scaledHeight = height * scale;
+
   return (
-    <Popper open={open} anchorEl={anchorEl} placement={placement} style={{ pointerEvents: 'none' }}>
-      <Paper
-        square
-        style={{
-          height: `${height * 3}px`,
-          width: `${width * 3}px`,
-          pointerEvents: 'none'
+    <Popover
+      open={open}
+      anchorEl={anchorEl}
+      onClose={onClose}
+      disableRestoreFocus
+      anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
+      transformOrigin={{ vertical: 'top', horizontal: 'left' }}
+      PaperProps={{
+        style: {
+          width: scaledWidth,
+          height: scaledHeight,
+          maxWidth: 'none',
+          maxHeight: 'none',
+          overflow: 'hidden'
+        }
+      }}
+    >
+      <ClickAwayListener
+        onClickAway={() => {
+          if (open && onClose) {
+            onClose();
+          }
         }}
       >
-        <SVGInline
-          component="div"
-          svg={imgData}
+        <Paper
+          square
           style={{
-            height: `${height}px`,
-            width: `${width}px`,
-            transform: 'scale(3)',
-            transformOrigin: 'top left'
+            height: scaledHeight,
+            width: scaledWidth,
+            overflow: 'hidden'
           }}
-        />
-      </Paper>
-    </Popper>
+        >
+          <SVGInline
+            component="div"
+            svg={imgData}
+            style={{
+              height: `${height}px`,
+              width: `${width}px`,
+              transform: `scale(${scale})`,
+              transformOrigin: 'top left'
+            }}
+          />
+        </Paper>
+      </ClickAwayListener>
+    </Popover>
   );
 });
 
 SvgTooltip.propTypes = {
   open: PropTypes.bool.isRequired,
-  anchorEl: PropTypes.oneOfType([PropTypes.func, PropTypes.shape({ current: PropTypes.any })]),
+  anchorEl: PropTypes.oneOfType([PropTypes.func, PropTypes.object]),
   imgData: PropTypes.string.isRequired,
   width: PropTypes.number.isRequired,
-  height: PropTypes.number.isRequired
+  height: PropTypes.number.isRequired,
+  onClose: PropTypes.func
 };

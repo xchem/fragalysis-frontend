@@ -30,9 +30,10 @@ const useStyles = makeStyles(theme => ({
   ngl: { flex: 1, minHeight: 0 }
 }));
 
-const lhsInitialWidth = 570;
-const rhsInitialWidth = 520;
+const lhsInitialWidth = 530;
+const rhsInitialWidth = 400;
 const SIDE_MIN_WIDTH = 300;
+const NGL_MIN_WIDTH = 160;
 const RHS_MAX_WIDTH = 900;
 const resizerSize = 20;
 
@@ -96,7 +97,7 @@ export const ResizableLayout = ({ gridRef, nglPortal }) => {
           </TooltipPathProvider>
         ),
         min: MIN_HEIGHTS.snapshot,
-        initialPct: 25
+        initialPx: MIN_HEIGHTS.snapshot
       },
       {
         id: 'tagDetails',
@@ -195,14 +196,19 @@ export const ResizableLayout = ({ gridRef, nglPortal }) => {
   // const rhsPanels = useMemo(() => panels.filter(p => p.group === 'rhs'), [panels]);
 
   const clampRange = (v, min, max) => Math.max(min, Math.min(max, v));
+  const sameNumberArray = (a, b) => a.length === b.length && a.every((value, index) => Math.abs(value - b[index]) < 1);
+
+  const getLayoutNode = useCallback(() => {
+    return gridRef?.current?.elementRef?.current?.firstChild;
+  }, [gridRef]);
 
   // pixel height available for panels (minus horizontal bars)
   const getTotalHeight = useCallback(() => {
-    const node = gridRef?.current?.elementRef?.current?.firstChild;
+    const node = getLayoutNode();
     if (!node) return 0;
     const h = node.getBoundingClientRect().height;
     return h - resizerSize * (panels.length - 1);
-  }, [gridRef, panels]);
+  }, [getLayoutNode, panels]);
 
   const lastVariableHeights = useRef({}); // { panelId: px }
   const lastVariableRHSHeights = useRef({}); // { panelId: px }
@@ -234,6 +240,16 @@ export const ResizableLayout = ({ gridRef, nglPortal }) => {
   // Initial heights
   const [heights, setHeights] = useState(() => {
     const total = getTotalHeight() || 600;
+    const hasPx = panels.some(p => typeof p.initialPx === 'number');
+    if (hasPx) {
+      const fixed = panels.reduce((sum, p) => sum + (typeof p.initialPx === 'number' ? p.initialPx : 0), 0);
+      const pctTotal =
+        panels.reduce((sum, p) => sum + (typeof p.initialPx === 'number' ? 0 : p.initialPct || 0), 0) || 1;
+      return panels.map(p => {
+        if (typeof p.initialPx === 'number') return clampRange(p.initialPx, p.min, total);
+        return clampRange(((p.initialPct || 0) / pctTotal) * Math.max(total - fixed, 0), p.min, total);
+      });
+    }
     const allPctOK = panels.every(p => typeof p.initialPct === 'number');
     if (allPctOK) {
       return panels.map(p => clampRange((p.initialPct / 100) * total, p.min, total));
@@ -267,6 +283,7 @@ export const ResizableLayout = ({ gridRef, nglPortal }) => {
           const idx = newH.indexOf(Math.max(...newH));
           newH[idx] += drift;
         }
+        if (sameNumberArray(prev, newH)) return prev;
         rememberHeights(newH);
         return newH;
       });
@@ -291,6 +308,7 @@ export const ResizableLayout = ({ gridRef, nglPortal }) => {
           const idx = newH.indexOf(Math.max(...newH));
           newH[idx] += drift;
         }
+        if (sameNumberArray(prev, newH)) return prev;
         rememberRHSHeights(newH);
         return newH;
       });
@@ -386,40 +404,42 @@ export const ResizableLayout = ({ gridRef, nglPortal }) => {
   useEffect(() => {
     setLhsW(sidesOpen.LHS ? lhsInitialWidth : 0);
     setRhsW(sidesOpen.RHS ? rhsInitialWidth : 0);
-  }, [sidesOpen]);
+  }, [sidesOpen.LHS, sidesOpen.RHS]);
+
+  useEffect(() => {
+    if (sidesOpen.RHS) {
+      dispatch(setActualRhsWidth(rhsW));
+    }
+  }, [dispatch, rhsW, sidesOpen.RHS]);
 
   const onLhsResize = useCallback(
     x =>
       setLhsW(prev => {
-        const node = gridRef.current.elementRef.current.firstChild;
+        const node = getLayoutNode();
+        if (!node) return prev;
         const r = node.getBoundingClientRect();
-        const adj = x - r.x - resizerSize / 2;
-        const cw = sidesOpen.RHS ? r.width - rhsW - resizerSize * 2 : r.width - resizerSize;
-        return clamp(adj, 0, cw);
+        const desired = x - r.x - resizerSize / 2;
+        const max = sidesOpen.RHS
+          ? r.width - rhsW - resizerSize * 2 - NGL_MIN_WIDTH
+          : r.width - resizerSize - NGL_MIN_WIDTH;
+        return clamp(desired, SIDE_MIN_WIDTH, Math.max(SIDE_MIN_WIDTH, max));
       }),
-    [gridRef, rhsW, sidesOpen.RHS]
+    [getLayoutNode, rhsW, sidesOpen.RHS]
   );
 
   const onRhsResize = useCallback(
     x =>
       setRhsW(prev => {
-        const node = gridRef.current.elementRef.current.firstChild;
+        const node = getLayoutNode();
+        if (!node) return prev;
         const r = node.getBoundingClientRect();
-        let adj, cw;
-        if (sidesOpen.LHS) {
-          adj = x - r.x - (lhsW + resizerSize) - resizerSize / 2;
-          cw = r.width - lhsW - resizerSize * 2;
-        } else {
-          adj = x - r.x - resizerSize / 2;
-          cw = r.width - resizerSize;
-        }
-        const actual = cw - clamp(adj, 0, cw);
-        dispatch(setActualRhsWidth(actual));
-        if (actual < SIDE_MIN_WIDTH) return SIDE_MIN_WIDTH;
-        if (actual > RHS_MAX_WIDTH) return RHS_MAX_WIDTH;
-        return actual;
+        const desired = r.right - x - resizerSize / 2;
+        const max = sidesOpen.LHS
+          ? r.width - lhsW - resizerSize * 2 - NGL_MIN_WIDTH
+          : r.width - resizerSize - NGL_MIN_WIDTH;
+        return clamp(desired, SIDE_MIN_WIDTH, Math.max(SIDE_MIN_WIDTH, Math.min(RHS_MAX_WIDTH, max)));
       }),
-    [gridRef, lhsW, sidesOpen.LHS, dispatch]
+    [getLayoutNode, lhsW, sidesOpen.LHS]
   );
 
   // distribute free space when overrides change
@@ -501,7 +521,10 @@ export const ResizableLayout = ({ gridRef, nglPortal }) => {
     <div className={classes.root}>
       {sidesOpen.LHS && (
         <>
-          <div className={classes.lhs} style={{ width: lhsW, display: 'flex', flexDirection: 'column' }}>
+          <div
+            className={classes.lhs}
+            style={{ width: lhsW, flex: `0 1 ${lhsW}px`, display: 'flex', flexDirection: 'column' }}
+          >
             {panels.map((p, i) => (
               <React.Fragment key={p.id}>
                 <div
@@ -523,7 +546,8 @@ export const ResizableLayout = ({ gridRef, nglPortal }) => {
       <div
         className={classes.nglColumn}
         style={{
-          width: `calc(100% - ${lhsW}px - ${rhsW}px - ${(sidesOpen.LHS + sidesOpen.RHS) * resizerSize}px)`
+          flex: `1 1 ${NGL_MIN_WIDTH}px`,
+          minWidth: NGL_MIN_WIDTH
         }}
       >
         <div className={classes.ngl}>
@@ -537,7 +561,7 @@ export const ResizableLayout = ({ gridRef, nglPortal }) => {
       {sidesOpen.RHS && (
         <>
           <Resizer onResize={onRhsResize} />
-          <div className={classes.rhs} style={{ width: rhsW }}>
+          <div className={classes.rhs} style={{ width: rhsW, flex: `0 1 ${rhsW}px` }}>
             {/* <PlotlyView />
             <RHS /> */}
             {rhsPanels.map((p, i) => (

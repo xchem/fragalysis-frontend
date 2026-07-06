@@ -181,7 +181,6 @@ export const PoseListLHS = memo(({}) => {
                 selectedMolecules.forEach(molecule => {
                   const colour = colourList[molecule.id % colourList.length];
                   promises.push(dispatch(addHitProtein(majorViewStage, molecule, colour, true, skipTracking)));
-                  promises.push(dispatch(addArtefactChain(majorViewStage, molecule, colour, true, skipTracking)));
                 });
               } else {
                 selectedMolecules.forEach(molecule => {

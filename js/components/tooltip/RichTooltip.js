@@ -104,7 +104,7 @@ const RichTooltip = memo(function RichTooltip({
   className,
   arrow = true,
   placement = 'top',
-  enterDelay = 300,
+  enterDelay = 1000,
   leaveDelay = DEFAULT_LEAVE_DELAY,
   interactive = true,
   onOpen: onOpenProp,

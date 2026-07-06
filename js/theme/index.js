@@ -11,6 +11,12 @@ export const getTheme = () => {
     typography: {
       fontSize: 12
     },
+    props: {
+      MuiTooltip: {
+        enterDelay: 1000,
+        enterNextDelay: 1000
+      }
+    },
     overrides: {
       MuiTooltip: {
         tooltip: {

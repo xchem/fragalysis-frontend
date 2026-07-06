@@ -286,7 +286,7 @@ const SnapshotList = memo(({ expandHandler = null }) => {
       ref={ref}
       hasHeader
       hasExpansion
-      defaultExpanded
+      defaultExpanded={false}
       title="Snapshots"
       onExpandChange={useCallback(
         expanded => {

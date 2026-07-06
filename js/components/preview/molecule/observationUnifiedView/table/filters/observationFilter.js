@@ -58,7 +58,7 @@ export const ObservationFilter = memo(({ onFilterChange, onSortingChange, viewCo
     compoundAliases: false,
     value: '',
     exactMatch: false,
-    coordinateSearch: true
+    coordinateSearch: false
   };
 
   const initSortingValue = {

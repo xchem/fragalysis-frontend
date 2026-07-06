@@ -11,6 +11,23 @@ import {
 } from '../../../../../../reducers/selection/actions';
 import { withDisabledMoleculeNglControlButton } from '../../../redux/dispatchActions';
 
+export const DEFAULT_PROTEIN_SETTINGS = {
+  protein: true,
+  artefact: false
+};
+
+const normalizeProteinSettings = settings => ({
+  protein: settings?.protein ?? DEFAULT_PROTEIN_SETTINGS.protein,
+  artefact: settings?.artefact ?? DEFAULT_PROTEIN_SETTINGS.artefact
+});
+
+const isDefaultProteinSettings = settings => {
+  const normalizedSettings = normalizeProteinSettings(settings);
+  return Object.keys(DEFAULT_PROTEIN_SETTINGS).every(
+    key => normalizedSettings[key] === DEFAULT_PROTEIN_SETTINGS[key]
+  );
+};
+
 export const ProteinButtonPopover = ({
   toggleProtein,
   proteinSettings,
@@ -24,37 +41,38 @@ export const ProteinButtonPopover = ({
   useEffect(() => {
     const savedSetting = proteinSettingsList.find(item => item.id === moleculeId);
     if (savedSetting) {
-      setProteinSettingsState({ protein: savedSetting.protein, artefact: savedSetting.artefact });
+      setProteinSettingsState(normalizeProteinSettings(savedSetting));
     } else {
-      setProteinSettingsState({ protein: true, artefact: true });
+      setProteinSettingsState(DEFAULT_PROTEIN_SETTINGS);
     }
   }, [moleculeId, proteinSettingsList, setProteinSettingsState]);
 
   const updateProteinSetting = async setting => {
     const savedSetting = proteinSettingsList.find(item => item.id === moleculeId);
-    if (setting.protein && setting.artefact && savedSetting) {
+    if (isDefaultProteinSettings(setting) && savedSetting) {
       dispatch(removeProteinSettings(savedSetting));
       return;
     }
+    const nextSetting = normalizeProteinSettings(setting);
     if (savedSetting) {
       const newProteinSettingsList = proteinSettingsList.map(item =>
-        item.id === moleculeId ? { id: item.id, ...setting } : item
+        item.id === moleculeId ? { id: item.id, ...nextSetting } : item
       );
       await dispatch(setProteinSettings(newProteinSettingsList));
     } else {
-      dispatch(appendProteinSettings({ id: moleculeId, protein: setting.protein, artefact: setting.artefact }));
+      dispatch(appendProteinSettings({ id: moleculeId, ...nextSetting }));
     }
   };
 
   const onToggleSetting = type => async event => {
-    const nextSettings = { ...proteinSettings, [type]: event.target.checked };
+    const nextSettings = normalizeProteinSettings({ ...proteinSettings, [type]: event.target.checked });
     setProteinSettingsState(nextSettings);
     dispatch(
       withDisabledMoleculeNglControlButton(moleculeId, 'protein', async () => {
         await updateProteinSetting(nextSettings);
       })
     );
-    toggleProtein(undefined, type);
+    toggleProtein(undefined, type, nextSettings[type]);
   };
 
   return (

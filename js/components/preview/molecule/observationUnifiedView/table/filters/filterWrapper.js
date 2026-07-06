@@ -64,16 +64,23 @@ export const FilterWrapper = memo(
 
     return (
       <>
-        <IconButton
-          size="small"
-          onClick={() => handleEditTagsButton()}
-          className={classes.filterButton}
-          ref={ref}
-          onMouseEnter={() => setShowOnHoverComponent(true)}
-          onMouseLeave={() => setShowOnHoverComponent(false)}
+        <RichTooltip
+          path="fragalysis.components.filterWrapper.openFilter"
+          absolutePath
+          values={{ title }}
+          placement="top"
         >
-          <FilterAlt sx={{ fontSize: 20 }} />
-        </IconButton>
+          <IconButton
+            size="small"
+            onClick={() => handleEditTagsButton()}
+            className={classes.filterButton}
+            ref={ref}
+            onMouseEnter={() => setShowOnHoverComponent(true)}
+            onMouseLeave={() => setShowOnHoverComponent(false)}
+          >
+            <FilterAlt sx={{ fontSize: 20 }} />
+          </IconButton>
+        </RichTooltip>
         {onHoverComponent && (
           <Popper open={showOnHoverComponent} anchorEl={ref?.current} placement={'top'} className={classes.tooltip}>
             {onHoverComponent}

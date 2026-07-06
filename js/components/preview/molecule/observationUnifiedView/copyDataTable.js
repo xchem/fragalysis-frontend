@@ -19,7 +19,7 @@ const useStyles = makeStyles(theme => ({
   }
 }));
 
-export const CopyDataTable = memo(({ mainObservation, target_on_name, data, aliasOrder, handleTableIsOpen }) => {
+export const CopyDataTable = memo(({ mainObservation, target_on_name, data, aliasOrder }) => {
   const classes = useStyles();
   const { toastInfo } = useContext(ToastContext);
   const observationCode = mainObservation?.code?.replaceAll(`${target_on_name}-`, '') || '';
@@ -33,11 +33,7 @@ export const CopyDataTable = memo(({ mainObservation, target_on_name, data, alia
   );
 
   return (
-    <Table
-      className={classes.posePropertiesTable}
-      onMouseLeave={() => handleTableIsOpen(false)}
-      onMouseEnter={() => handleTableIsOpen(true)}
-    >
+    <Table className={classes.posePropertiesTable}>
       <TableBody>
         <RichTooltip path="copySmiles">
           <TableRow onClick={() => copyToClipboard('smiles', data.smiles)}>

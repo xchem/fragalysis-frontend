@@ -436,7 +436,6 @@ export const ObservationsDialog = memo(
               lpcControlMolecules.forEach(molecule => {
                 const colour = colourList[molecule.id % colourList.length];
                 promises.push(dispatch(addHitProtein(stage, molecule, colour, true, skipTracking)));
-                promises.push(dispatch(addArtefactChain(stage, molecule, colour, true, skipTracking)));
               });
             } else {
               lpcControlMolecules.forEach(molecule => {

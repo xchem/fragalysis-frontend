@@ -5,12 +5,14 @@ const useStyles = makeStyles(theme => ({
   vertical: {
     margin: `0 ${theme.spacing()}px`,
     cursor: 'col-resize',
-    width: 4
+    width: 4,
+    flexShrink: 0
   },
   horizontal: {
     margin: `${theme.spacing()}px 0`,
     cursor: 'row-resize',
-    height: 4
+    height: 4,
+    flexShrink: 0
   }
 }));
 

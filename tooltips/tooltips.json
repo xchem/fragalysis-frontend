@@ -62,11 +62,6 @@
           "grid": "Show Tag detail grid"
         },
         "sort": "Sort",
-        "tagCategory": "{{tagCategory}}",
-        "selectHits": {
-          "selectHits": "Select hits",
-          "unselectHits": "Unselect hits"
-        },
         "discourseLink": "Discourse link",
         "editModal": {
           "close": "Close editor",
@@ -83,11 +78,6 @@
           "grid": "Show Tag detail grid"
         },
         "sort": "Sort",
-        "tagCategory": "{{tagCategory}}",
-        "selectHits": {
-          "selectHits": "Select hits",
-          "unselectHits": "Unselect hits"
-        },
         "discourseLink": "Discourse link",
         "editModal": {
           "close": "Close editor",
@@ -106,8 +96,6 @@
             "editTag": "Edit tag",
             "editTags": "Edit tags"
           },
-          "code": "{{code}}",
-          "displayName": "{{displayName}}",
           "centerOn": "Center on",
           "all": "All",
           "ligand": "Ligand",
@@ -135,10 +123,10 @@
           "comment": "{{comment}}"
         },
         "canonSite": {
-          "title": "CanonSite - {{canonSiteName}}"
+          "title": "{{canonSiteName}}"
         },
         "conformerSite": {
-          "title": "ConformerSite - {{conformerSiteName}}"
+          "title": "{{conformerSiteName}}"
         },
         "observationsView": {
           "showObservations": "Show Observations"
@@ -161,14 +149,6 @@
         "allLigands": "All ligands",
         "allSidechains": "All sidechains",
         "allInteractions": "All interactions",
-        "allHits": {
-          "selectAllHits": "Select all hits",
-          "deselectAllHits": "Deselect all hits"
-        },
-        "displayedHits": {
-          "selectDisplayedHits": "Select displayed hits",
-          "deselectDisplayedHits": "Deselect displayed hits"
-        },
         "sort": {
           "sortBy": "Sort by",
           "sortOption": "{{sortOption}}"
@@ -204,8 +184,6 @@
               "copied": "Copied"
             },
             "warning": "Warning",
-            "tagCategory": "{{tagCategory}}",
-            "tagName": "{{tagName}}",
             "centroidRes": "CentroidRes",
             "longCode": "LongCode",
             "experimentalPath": {
@@ -241,8 +219,6 @@
               "copied": "Copied"
             },
             "warning": "Warning",
-            "tagCategory": "{{tagCategory}}",
-            "tagName": "{{tagName}}",
             "centroidRes": "CentroidRes",
             "longCode": "LongCode",
             "experimentalPath": {
@@ -283,11 +259,9 @@
     },
     "components": {
       "filterWrapper": {
+        "openFilter": "Open {{title}}",
         "closeFilter": "Close filter",
         "resetFilter": "Reset filter"
-      },
-      "tagView": {
-        "name": "{{tagName}}"
       },
       "tagEditor": {
         "showGrid": "Show Assign tags grid",

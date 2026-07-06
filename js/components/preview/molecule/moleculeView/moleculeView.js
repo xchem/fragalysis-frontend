@@ -74,13 +74,15 @@ import { useRDKit } from '../../../rdkit/RDKitContext';
 import { getCurrentTarget } from '../../../../reducers/api/selectors';
 import { DENSITY_MAP_TYPES, MAP_RENDERING_MODES } from '../utils/constants';
 import DensityButtonPopover from '../observationUnifiedView/table/views/DensityButtonPopover';
-import ProteinButtonPopover from '../observationUnifiedView/table/views/ProteinButtonPopover';
+import ProteinButtonPopover, { DEFAULT_PROTEIN_SETTINGS } from '../observationUnifiedView/table/views/ProteinButtonPopover';
 import RichTooltip from '../../../tooltip/RichTooltip';
 
 const useStyles = makeStyles(theme => ({
   container: {
     padding: theme.spacing(1) / 4,
-    color: 'black'
+    color: 'black',
+    alignItems: 'stretch',
+    boxSizing: 'border-box'
     // height: 54
   },
   containerHeight: {
@@ -157,14 +159,18 @@ const useStyles = makeStyles(theme => ({
     border: 'solid 1px',
     borderColor: theme.palette.background.divider,
     borderStyle: 'solid solid solid solid',
-    minWidth: 327
+    minWidth: 327,
+    alignSelf: 'stretch',
+    boxSizing: 'border-box'
     // width: 'inherit'
   },
   image: {
     border: 'solid 1px',
     borderColor: theme.palette.background.divider,
-    borderStyle: 'none none none solid',
-    position: 'relative'
+    borderStyle: 'solid solid solid solid',
+    position: 'relative',
+    alignSelf: 'stretch',
+    boxSizing: 'border-box'
   },
   imageMargin: {
     marginTop: theme.spacing(1),
@@ -194,7 +200,8 @@ const useStyles = makeStyles(theme => ({
     backgroundColor: theme.palette.background.default,
     border: `solid 1px`,
     borderColor: theme.palette.background.divider,
-    paddingBottom: theme.spacing(1) / 2
+    paddingBottom: theme.spacing(1) / 2,
+    boxSizing: 'border-box'
   },
   qualityLabel: {
     paddingLeft: theme.spacing(1) / 4,
@@ -514,10 +521,7 @@ const MoleculeView = memo(
     const [densityPopoverOpen, setDensityPopoverOpen] = useState(false);
     const [proteinPopoverAnchor, setProteinPopoverAnchor] = useState(null);
     const [proteinPopoverOpen, setProteinPopoverOpen] = useState(false);
-    const [proteinSettings, setProteinSettings] = useState({
-      protein: true,
-      artefact: true
-    });
+    const [proteinSettings, setProteinSettings] = useState(DEFAULT_PROTEIN_SETTINGS);
 
     // const handleDensityButtonContextMenu = event => {
     //   event.preventDefault();
@@ -1032,13 +1036,13 @@ const MoleculeView = memo(
     };
 
     const [loadingProtein, setLoadingProtein] = useState(false);
-    const onProtein = (calledFromSelectAll, type = 'both') => {
+    const onProtein = (calledFromSelectAll, type = 'both', desiredVisible) => {
       setLoadingProtein(true);
       if (calledFromSelectAll === true && selectedAll.current === true) {
-        if (isProteinOn === false) {
+        if (proteinSettings.protein && isProteinOn === false) {
           addNewProtein(calledFromSelectAll);
         }
-        if (isArtefactChainOn === false) {
+        if (proteinSettings.artefact && isArtefactChainOn === false) {
           addNewArtefactChain(calledFromSelectAll);
         }
       } else if (calledFromSelectAll && selectedAll.current === false) {
@@ -1047,17 +1051,21 @@ const MoleculeView = memo(
       } else if (!calledFromSelectAll) {
         switch (type) {
           case 'protein':
-            if (isProteinOn) {
+            if (desiredVisible ?? !isProteinOn) {
+              if (!isProteinOn) {
+                addNewProtein();
+              }
+            } else if (isProteinOn) {
               removeSelectedProtein();
-            } else {
-              addNewProtein();
             }
             break;
           case 'artefact':
-            if (isArtefactChainOn) {
+            if (desiredVisible ?? !isArtefactChainOn) {
+              if (!isArtefactChainOn) {
+                addNewArtefactChain();
+              }
+            } else if (isArtefactChainOn) {
               removeSelectedArtefactChain();
-            } else {
-              addNewArtefactChain();
             }
             break;
           case 'both':
@@ -1077,9 +1085,8 @@ const MoleculeView = memo(
             }
             if (!proteinSettings.protein && !proteinSettings.artefact) {
               dispatch(removeProteinSettings({ id: currentID }));
-              setProteinSettings({ protein: true, artefact: true });
-              addNewProtein();
-              addNewArtefactChain();
+              setProteinSettings(DEFAULT_PROTEIN_SETTINGS);
+              addNewProtein(false);
             }
             break;
           default:
@@ -1761,22 +1768,33 @@ const MoleculeView = memo(
                   width: imageWidth
                 }}
                 className={classes.image}
-                onMouseEnter={() => setMoleculeTooltipOpen(true)}
-                onMouseLeave={() => setMoleculeTooltipOpen(false)}
+                onClick={() => setMoleculeTooltipOpen(true)}
                 ref={moleculeImgRef}
               >
                 {svg_image}
                 <div className={classes.imageActions}>
                   {moleculeTooltipOpen && (
                     <RichTooltip path={!isCopied ? 'copySmiles.copy' : 'copySmiles.copied'}>
-                      <IconButton className={classes.copyIcon} onClick={setCopied}>
+                      <IconButton
+                        className={classes.copyIcon}
+                        onClick={event => {
+                          event.stopPropagation();
+                          setCopied();
+                        }}
+                      >
                         {!isCopied ? <Assignment /> : <AssignmentTurnedIn />}
                       </IconButton>
                     </RichTooltip>
                   )}
                   {warningIconVisible && (
                     <RichTooltip path="warning">
-                      <IconButton className={classes.warningIcon} onClick={() => onQuality()}>
+                      <IconButton
+                        className={classes.warningIcon}
+                        onClick={event => {
+                          event.stopPropagation();
+                          onQuality();
+                        }}
+                      >
                         <Warning />
                       </IconButton>
                     </RichTooltip>
@@ -1839,6 +1857,7 @@ const MoleculeView = memo(
           imgData={img_data.toString()}
           width={imageWidth}
           height={imageHeight}
+          onClose={() => setMoleculeTooltipOpen(false)}
         />
       </>
     );
