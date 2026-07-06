@@ -1688,7 +1688,7 @@ export const DetailView = memo(
     return (
       <Grid
         container
-        justifyContent="space-between"
+        justifyContent="flex-start"
         direction="row"
         wrap="nowrap"
         ref={detailContentRef}
@@ -1703,8 +1703,7 @@ export const DetailView = memo(
           justifyContent="space-evenly"
           direction="column"
           style={{
-            flexBasis: detailLayout.textColumnWidth,
-            maxWidth: detailLayout.textColumnWidth
+            flexBasis: detailLayout.textColumnWidth
           }}
         >
           {/* Title label */}

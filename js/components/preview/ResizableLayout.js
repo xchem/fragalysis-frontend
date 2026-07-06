@@ -30,7 +30,7 @@ const useStyles = makeStyles(theme => ({
   ngl: { flex: 1, minHeight: 0 }
 }));
 
-const lhsInitialWidth = 530;
+const lhsInitialWidth = 540;
 const rhsInitialWidth = 400;
 const SIDE_MIN_WIDTH = 300;
 const NGL_MIN_WIDTH = 160;
@@ -90,14 +90,14 @@ export const ResizableLayout = ({ gridRef, nglPortal }) => {
                 if (expanded) {
                   mutateSuggestedHeight('snapshot', null);
                 } else {
-                  mutateSuggestedHeight('snapshot', 25);
+                  mutateSuggestedHeight('snapshot', MIN_HEIGHTS.snapshot);
                 }
               }}
             />
           </TooltipPathProvider>
         ),
         min: MIN_HEIGHTS.snapshot,
-        initialPx: MIN_HEIGHTS.snapshot
+        initialPct: 25
       },
       {
         id: 'tagDetails',
@@ -455,6 +455,9 @@ export const ResizableLayout = ({ gridRef, nglPortal }) => {
       panels.forEach((p, i) => {
         const ov = panelSuggestedHeights.find(x => x.id === p.id)?.suggestedHeight;
         if (ov != null) {
+          if (Math.abs((prev[i] || 0) - ov) >= 1 && prev[i] > p.min) {
+            lastVariableHeights.current[p.id] = prev[i];
+          }
           next[i] = clampRange(ov, p.min, total);
           fixedSum += next[i];
         } else {
