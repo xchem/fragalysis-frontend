@@ -45,6 +45,7 @@ const MIN_HEIGHTS = {
   rhs: 120,
   rhsTagDetails: 25
 };
+const SNAPSHOT_PANEL_ID = 'snapshot';
 
 export const ResizableLayout = ({ gridRef, nglPortal }) => {
   const classes = useStyles();
@@ -52,7 +53,10 @@ export const ResizableLayout = ({ gridRef, nglPortal }) => {
 
   const sidesOpen = useSelector(s => s.previewReducers.viewerControls.sidesOpen);
 
-  const [panelSuggestedHeights, setPanelSuggestedHeights] = useState([]);
+  const [snapshotExpanded, setSnapshotExpanded] = useState(false);
+  const [panelSuggestedHeights, setPanelSuggestedHeights] = useState([
+    { id: SNAPSHOT_PANEL_ID, suggestedHeight: MIN_HEIGHTS.snapshot }
+  ]);
   const [panelSuggestedRHSHeights, setPanelSuggestedRHSHeights] = useState([]);
 
   // If `height` is null/undefined, REMOVE any existing override for the panel.
@@ -81,16 +85,18 @@ export const ResizableLayout = ({ gridRef, nglPortal }) => {
   const panels = useMemo(
     () => [
       {
-        id: 'snapshot',
+        id: SNAPSHOT_PANEL_ID,
         group: 'lhs',
         component: (
           <TooltipPathProvider path="snapshotList">
             <SnapshotList
+              expanded={snapshotExpanded}
               expandHandler={expanded => {
+                setSnapshotExpanded(expanded);
                 if (expanded) {
-                  mutateSuggestedHeight('snapshot', null);
+                  mutateSuggestedHeight(SNAPSHOT_PANEL_ID, null);
                 } else {
-                  mutateSuggestedHeight('snapshot', MIN_HEIGHTS.snapshot);
+                  mutateSuggestedHeight(SNAPSHOT_PANEL_ID, MIN_HEIGHTS.snapshot);
                 }
               }}
             />
@@ -126,7 +132,7 @@ export const ResizableLayout = ({ gridRef, nglPortal }) => {
         initialPct: 55
       }
     ],
-    [mutateSuggestedHeight]
+    [mutateSuggestedHeight, snapshotExpanded]
   );
 
   const rhsPanels = useMemo(
@@ -323,6 +329,13 @@ export const ResizableLayout = ({ gridRef, nglPortal }) => {
     index => (_, cursorY) => {
       const total = getTotalHeight();
       if (!total) return;
+      const snapshotSuggestedHeight = panelSuggestedHeights.find(item => item.id === SNAPSHOT_PANEL_ID)?.suggestedHeight;
+      const shouldExpandSnapshotForDrag = index === 0 && snapshotSuggestedHeight != null;
+
+      if (shouldExpandSnapshotForDrag) {
+        setSnapshotExpanded(true);
+        mutateSuggestedHeight(SNAPSHOT_PANEL_ID, null);
+      }
 
       const node = gridRef.current.elementRef.current.firstChild;
       const top = node.getBoundingClientRect().y;
@@ -332,31 +345,35 @@ export const ResizableLayout = ({ gridRef, nglPortal }) => {
       const desiredAbove = clampRange(cursorY - top - resizerSize / 2, aboveMin, maxAbove);
 
       setHeights(prev => {
+        const effectivePrev = shouldExpandSnapshotForDrag ? [snapshotSuggestedHeight, ...prev.slice(1)] : prev;
         const out = [...prev];
         if (index === 0) {
           out[0] = desiredAbove;
           const remain = total - desiredAbove;
-          const oldBelow = prev.slice(1);
+          const oldBelow = effectivePrev.slice(1);
           const sumOld = oldBelow.reduce((a, b) => a + b, 0) || 1;
           oldBelow.forEach((h, j) => {
             out[1 + j] = clampRange((h / sumOld) * remain, panels[1 + j].min, remain);
           });
         } else {
-          const fixedAbove = prev.slice(0, index).reduce((a, b) => a + b, 0);
+          const fixedAbove = effectivePrev.slice(0, index).reduce((a, b) => a + b, 0);
           const newH = clampRange(desiredAbove - fixedAbove, panels[index].min, total - fixedAbove - belowMin);
           out[index] = newH;
           const remain = total - fixedAbove - newH;
-          const oldBelow = prev.slice(index + 1);
+          const oldBelow = effectivePrev.slice(index + 1);
           const sumOld = oldBelow.reduce((a, b) => a + b, 0) || 1;
           oldBelow.forEach((h, j) => {
             out[index + 1 + j] = clampRange((h / sumOld) * remain, panels[index + 1 + j].min, remain);
           });
         }
+        if (shouldExpandSnapshotForDrag) {
+          lastVariableHeights.current[SNAPSHOT_PANEL_ID] = out[0];
+        }
         rememberHeights(out);
         return out;
       });
     },
-    [getTotalHeight, gridRef, panels, rememberHeights]
+    [getTotalHeight, gridRef, mutateSuggestedHeight, panelSuggestedHeights, panels, rememberHeights]
   );
   const makeOnRHSResize = useCallback(
     index => (_, cursorY) => {

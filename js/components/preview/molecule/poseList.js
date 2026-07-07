@@ -533,19 +533,14 @@ export const PoseList = memo(
     }, []);
 
     const readyVisiblePoseCount = useMemo(() => {
-      return itemsToBeDisplayed.reduce(
-        (count, pose) => count + (visuallyReadyPoseIds.has(pose.id) ? 1 : 0),
-        0
-      );
+      return itemsToBeDisplayed.reduce((count, pose) => count + (visuallyReadyPoseIds.has(pose.id) ? 1 : 0), 0);
     }, [itemsToBeDisplayed, visuallyReadyPoseIds]);
 
     useEffect(() => {
       if (hitNavigatorRef && hitNavigatorRef.current) {
         const resizeObserver = new ResizeObserver(() => {
           const nextWidth = hitNavigatorRef.current.offsetWidth;
-          setHitNavigatorWidth(currentWidth =>
-            Math.abs(currentWidth - nextWidth) > 1 ? nextWidth : currentWidth
-          );
+          setHitNavigatorWidth(currentWidth => (Math.abs(currentWidth - nextWidth) > 1 ? nextWidth : currentWidth));
         });
 
         resizeObserver.observe(hitNavigatorRef.current);
@@ -560,9 +555,7 @@ export const PoseList = memo(
       if (scrollBarRef && scrollBarRef.current) {
         const updateListWidth = () => {
           const nextWidth = scrollBarRef.current.offsetWidth;
-          setHitNavigatorListWidth(currentWidth =>
-            Math.abs(currentWidth - nextWidth) > 1 ? nextWidth : currentWidth
-          );
+          setHitNavigatorListWidth(currentWidth => (Math.abs(currentWidth - nextWidth) > 1 ? nextWidth : currentWidth));
         };
         const resizeObserver = new ResizeObserver(updateListWidth);
 
@@ -813,10 +806,10 @@ export const PoseList = memo(
       [allMoleculesList, moleculesToEditIds]
     );
     const lpcControlMolecules = allSelectedMolecules.length > 0 ? allSelectedMolecules : joinedMoleculeLists;
-    const proteinControlList = useMemo(
-      () => [...new Set([...proteinList, ...artefactsChainList])],
-      [artefactsChainList, proteinList]
-    );
+    const proteinControlList = useMemo(() => [...new Set([...proteinList, ...artefactsChainList])], [
+      artefactsChainList,
+      proteinList
+    ]);
 
     let currentMolecules = joinedMoleculeLists.slice(0, listItemOffset);
     if (
@@ -1382,296 +1375,291 @@ export const PoseList = memo(
               />
             </TooltipPathProvider>
           )}
-        <Grid container spacing={1} className={classes.toolbar}>
-          <Grid item className={classes.toolbarSmallButtons}>
-            <RichTooltip path="allLigands">
-              <Button
-                id="hit-navigator-all-ligands"
-                variant="outlined"
-                className={classNames(classes.contColButton, {
-                  [classes.contColButtonSelected]: isLigandOn === true,
-                  [classes.contColButtonHalfSelected]: isLigandOn === null
-                })}
-                onClick={() => onButtonToggle('ligand')}
-                disabled={groupNglControlButtonsDisabledState.ligand || lpcControlMolecules.length === 0}
-              >
-                L
-              </Button>
-            </RichTooltip>
-            <RichTooltip path="allSidechains">
-              <Button
-                id="hit-navigator-all-sidechains"
-                variant="outlined"
-                className={classNames(
-                  classes.contColButton,
-                  {
+          <Grid container spacing={1} className={classes.toolbar}>
+            <Grid item className={classes.toolbarSmallButtons}>
+              <RichTooltip path="allLigands">
+                <Button
+                  id="hit-navigator-all-ligands"
+                  variant="outlined"
+                  className={classNames(classes.contColButton, {
+                    [classes.contColButtonSelected]: isLigandOn === true,
+                    [classes.contColButtonHalfSelected]: isLigandOn === null
+                  })}
+                  onClick={() => onButtonToggle('ligand')}
+                  disabled={groupNglControlButtonsDisabledState.ligand || lpcControlMolecules.length === 0}
+                >
+                  L
+                </Button>
+              </RichTooltip>
+              <RichTooltip path="allSidechains">
+                <Button
+                  id="hit-navigator-all-sidechains"
+                  variant="outlined"
+                  className={classNames(classes.contColButton, {
                     [classes.contColButtonSelected]: isProteinOn,
                     [classes.contColButtonHalfSelected]: isProteinOn === null
-                  }
-                )}
-                onClick={() => onButtonToggle('protein')}
-                disabled={groupNglControlButtonsDisabledState.protein || lpcControlMolecules.length === 0}
-              >
-                P
-              </Button>
-            </RichTooltip>
-            <RichTooltip path="allInteractions">
-              {/* C stands for contacts now */}
-              <Button
-                id="hit-navigator-all-interactions"
-                variant="outlined"
-                className={classNames(
-                  classes.contColButton,
-                  {
+                  })}
+                  onClick={() => onButtonToggle('protein')}
+                  disabled={groupNglControlButtonsDisabledState.protein || lpcControlMolecules.length === 0}
+                >
+                  P
+                </Button>
+              </RichTooltip>
+              <RichTooltip path="allInteractions">
+                {/* C stands for contacts now */}
+                <Button
+                  id="hit-navigator-all-interactions"
+                  variant="outlined"
+                  className={classNames(classes.contColButton, {
                     [classes.contColButtonSelected]: isComplexOn,
                     [classes.contColButtonHalfSelected]: isComplexOn === null
-                  }
-                )}
-                onClick={() => onButtonToggle('complex')}
-                disabled={groupNglControlButtonsDisabledState.complex || lpcControlMolecules.length === 0}
-              >
-                C
-              </Button>
-            </RichTooltip>
-          </Grid>
+                  })}
+                  onClick={() => onButtonToggle('complex')}
+                  disabled={groupNglControlButtonsDisabledState.complex || lpcControlMolecules.length === 0}
+                >
+                  C
+                </Button>
+              </RichTooltip>
+            </Grid>
 
-          {
-            <RichTooltip path={selectAllHitsPressed ? 'allHits.deselectAllHits' : 'allHits.selectAllHits'}>
-              <Grid item className={classes.selectButton}>
-                <Button
-                  id="hit-navigator-select-all-hits"
-                  variant="outlined"
-                  className={classNames(classes.contColButton, {
-                    [classes.contColButtonSelected]: selectAllHitsPressed,
-                    [classes.contColButtonHalfSelected]: false
-                  })}
-                  onClick={() => {
-                    handlers.selectAllHits(filteredLHSCompoundsList, selectAllHitsPressed);
-                    setSelectAllHitsPressed(!selectAllHitsPressed);
-                  }}
-                  disabled={false}
-                >
-                  {selectAllHitsPressed ? 'Unselect all hits' : 'Select all hits'}
-                </Button>
-              </Grid>
-            </RichTooltip>
-          }
-          {selectedDisplayHits === true ? (
-            <RichTooltip path="displayedHits.deselectDisplayedHits">
-              <Grid item className={classes.selectButton}>
-                <Button
-                  id="hit-navigator-unselect-displayed-hits"
-                  variant="outlined"
-                  className={classNames(classes.contColButton, {
-                    [classes.contColButtonSelected]: selectedDisplayHits,
-                    [classes.contColButtonHalfSelected]: false
-                  })}
-                  onClick={() => {
-                    handlers.selectAllVisibleObservations([], null, false);
-                  }}
-                  disabled={false}
-                >
-                  Unselect displayed hits
-                </Button>
-              </Grid>
-            </RichTooltip>
-          ) : (
-            <RichTooltip path="displayedHits.selectDisplayedHits">
-              <Grid item className={classes.selectButton}>
-                <Button
-                  id="hit-navigator-select-displayed-hits"
-                  variant="outlined"
-                  className={classNames(classes.contColButton, {
-                    [classes.contColButtonSelected]: selectedDisplayHits,
-                    [classes.contColButtonHalfSelected]: false
-                  })}
-                  onClick={() => {
-                    handlers.selectAllVisibleObservations(uniqueSelectedMoleculeForHitNavigator, null, false);
-                  }}
-                  disabled={false}
-                >
-                  Select displayed hits
-                </Button>
-              </Grid>
-            </RichTooltip>
-          )}
-          <Grid item className={classes.toolbarTextItem}>
-            <Typography variant="caption">{`Selected: ${
-              allSelectedMolecules ? allSelectedMolecules.length : 0
-            }`}</Typography>
-          </Grid>
-          <Grid item className={classes.toolbarTextItem}>
-            <Typography variant="caption" style={{ paddingLeft: 3 }}>
-              Sort by
-            </Typography>
-          </Grid>
-          <Grid item className={classes.toolbarSelectItem}>
-            <RichTooltip
-              path={sortOption ? 'sort.sortOption' : 'sort.sortBy'}
-              values={{ sortOption: sortOptions[sortOption].title }}
-            >
-              <Select
-                value={sortOption}
-                onChange={event => {
-                  setSortOption(event.target.value);
-                  setSortSettingsChanged(true);
-                }}
-                // fullWidth
-                size="small"
-                style={{ fontSize: 10, width: 75 }}
-              >
-                {SORT_OPTIONS.map((option, index) => (
-                  <MenuItem key={`${index}-${option}`} value={option} style={{ fontSize: 12, padding: '3px 7px' }}>
-                    {sortOptions[option].title}
-                  </MenuItem>
-                ))}
-              </Select>
-            </RichTooltip>
-          </Grid>
-          <RichTooltip path={ascending ? 'sortOrder.ascending' : 'sortOrder.descending'}>
+            {
+              <RichTooltip path={selectAllHitsPressed ? 'allHits.deselectAllHits' : 'allHits.selectAllHits'}>
+                <Grid item className={classes.selectButton}>
+                  <Button
+                    id="hit-navigator-select-all-hits"
+                    variant="outlined"
+                    className={classNames(classes.contColButton, {
+                      [classes.contColButtonSelected]: selectAllHitsPressed,
+                      [classes.contColButtonHalfSelected]: false
+                    })}
+                    onClick={() => {
+                      handlers.selectAllHits(filteredLHSCompoundsList, selectAllHitsPressed);
+                      setSelectAllHitsPressed(!selectAllHitsPressed);
+                    }}
+                    disabled={false}
+                  >
+                    {selectAllHitsPressed ? 'Unselect all hits' : 'Select all hits'}
+                  </Button>
+                </Grid>
+              </RichTooltip>
+            }
+            {selectedDisplayHits === true ? (
+              <RichTooltip path="displayedHits.deselectDisplayedHits">
+                <Grid item className={classes.selectButton}>
+                  <Button
+                    id="hit-navigator-unselect-displayed-hits"
+                    variant="outlined"
+                    className={classNames(classes.contColButton, {
+                      [classes.contColButtonSelected]: selectedDisplayHits,
+                      [classes.contColButtonHalfSelected]: false
+                    })}
+                    onClick={() => {
+                      handlers.selectAllVisibleObservations([], null, false);
+                    }}
+                    disabled={false}
+                  >
+                    Unselect displayed hits
+                  </Button>
+                </Grid>
+              </RichTooltip>
+            ) : (
+              <RichTooltip path="displayedHits.selectDisplayedHits">
+                <Grid item className={classes.selectButton}>
+                  <Button
+                    id="hit-navigator-select-displayed-hits"
+                    variant="outlined"
+                    className={classNames(classes.contColButton, {
+                      [classes.contColButtonSelected]: selectedDisplayHits,
+                      [classes.contColButtonHalfSelected]: false
+                    })}
+                    onClick={() => {
+                      handlers.selectAllVisibleObservations(uniqueSelectedMoleculeForHitNavigator, null, false);
+                    }}
+                    disabled={false}
+                  >
+                    Select displayed hits
+                  </Button>
+                </Grid>
+              </RichTooltip>
+            )}
             <Grid item className={classes.toolbarTextItem}>
-              <Checkbox
-                id="hit-navigator-sorting-checkbox"
-                checked={ascending}
-                onChange={handleAscendingChecked}
-                size="small"
-                style={{ padding: 0 }}
-              />
-              <Typography variant="caption">
-                {(selectAllHitsPressed && hitNavigatorWidth > 508) || (!selectAllHitsPressed && hitNavigatorWidth > 491)
-                  ? 'Ascending'
-                  : 'ASC'}
+              <Typography variant="caption">{`Selected: ${
+                allSelectedMolecules ? allSelectedMolecules.length : 0
+              }`}</Typography>
+            </Grid>
+            <Grid item className={classes.toolbarTextItem}>
+              <Typography variant="caption" style={{ paddingLeft: 3 }}>
+                Sort by
               </Typography>
             </Grid>
-          </RichTooltip>
-        </Grid>
-        <Grid container spacing={1} direction="column" justifyContent="flex-start" className={classes.container}>
-          <Grid item>
-            {/* Header */}
-            <Grid
-              container
-              spacing={1}
-              justifyContent="flex-start"
-              direction="row"
-              className={classes.molHeader}
-              wrap="nowrap"
-            >
-              <Grid item container justifyContent="flex-start" direction="row">
-                {/* {Object.keys(moleculeProperty).map(key => (
+            <Grid item className={classes.toolbarSelectItem}>
+              <RichTooltip
+                path={sortOption ? 'sort.sortOption' : 'sort.sortBy'}
+                values={{ sortOption: sortOptions[sortOption].title }}
+              >
+                <Select
+                  value={sortOption}
+                  onChange={event => {
+                    setSortOption(event.target.value);
+                    setSortSettingsChanged(true);
+                  }}
+                  // fullWidth
+                  size="small"
+                  style={{ fontSize: 10, width: 75 }}
+                >
+                  {SORT_OPTIONS.map((option, index) => (
+                    <MenuItem key={`${index}-${option}`} value={option} style={{ fontSize: 12, padding: '3px 7px' }}>
+                      {sortOptions[option].title}
+                    </MenuItem>
+                  ))}
+                </Select>
+              </RichTooltip>
+            </Grid>
+            <RichTooltip path={ascending ? 'sortOrder.ascending' : 'sortOrder.descending'}>
+              <Grid item className={classes.toolbarTextItem}>
+                <Checkbox
+                  id="hit-navigator-sorting-checkbox"
+                  checked={ascending}
+                  onChange={handleAscendingChecked}
+                  size="small"
+                  style={{ padding: 0 }}
+                />
+                <Typography variant="caption">
+                  {(selectAllHitsPressed && hitNavigatorWidth > 508) ||
+                  (!selectAllHitsPressed && hitNavigatorWidth > 491)
+                    ? 'Ascending'
+                    : 'ASC'}
+                </Typography>
+              </Grid>
+            </RichTooltip>
+          </Grid>
+          <Grid container spacing={1} direction="column" justifyContent="flex-start" className={classes.container}>
+            <Grid item>
+              {/* Header */}
+              <Grid
+                container
+                spacing={1}
+                justifyContent="flex-start"
+                direction="row"
+                className={classes.molHeader}
+                wrap="nowrap"
+              >
+                <Grid item container justifyContent="flex-start" direction="row">
+                  {/* {Object.keys(moleculeProperty).map(key => (
                 <Grid item key={key} className={classes.rightBorder}>
                   {moleculeProperty[key]}
                 </Grid>
               ))} */}
-              </Grid>
-            </Grid>
-          </Grid>
-          {currentMolecules.length > 0 && (
-            <>
-              <Grid item className={classes.gridItemList} ref={scrollBarRef}>
-                <InfiniteScroll
-                  getScrollParent={() => scrollBarRef.current}
-                  pageStart={0}
-                  loadMore={loadNextMolecules}
-                  hasMore={canLoadMore}
-                  loader={
-                    <div className="loader" key={0}>
-                      <Grid
-                        container
-                        direction="row"
-                        justifyContent="center"
-                        alignItems="center"
-                        className={classes.paddingProgress}
-                      >
-                        <CircularProgress />
-                      </Grid>
-                    </div>
-                  }
-                  useWindow={false}
-                >
-                  <ObservationUnifiedViewWrapper
-                    viewConfig={viewConfig}
-                    ligandRepresentations={ligandRepresentations}
-                    items={itemsToBeDisplayed}
-                    allSelectedMolecules={allSelectedMolecules}
-                    addMoleculeViewRef={addMoleculeViewRef}
-                    onPoseVisuallyReady={handlePoseVisuallyReady}
-                    availableWidth={hitNavigatorListWidth}
-                    handleSetTagEditorAnchorEl={setTagEditorAnchorEl}
-                    fragmentDisplayList={fragmentDisplayList}
-                    proteinList={proteinList}
-                    complexList={complexList}
-                    surfaceList={surfaceList}
-                    densityList={densityList}
-                    qualityList={qualityList}
-                    vectorOnList={vectorOnList}
-                    informationList={informationList}
-                    getComputedInspirations={getComputedInspirations}
-                  />
-                </InfiniteScroll>
-              </Grid>
-              <Grid item className={classes.footer}>
-                <Grid container alignItems="flex-start" direction="row" className={classes.footerRow}>
-                  <Grid item className={classes.footerSummary}>
-                    <span
-                      className={classes.total}
-                    >{`#Poses=${filteredLHSCompoundsList?.length}, #Obs=${joinedMoleculeLists?.length}`}</span>
-                  </Grid>
-                  <Grid item className={classes.footerActions}>
-                    <div className={classes.footerButtonGroup} aria-label="contained primary button group">
-                      <Button
-                        id="hit-navigator-load-next-30"
-                        variant="text"
-                        size="medium"
-                        color="primary"
-                        className={classes.footerButton}
-                        onClick={() => {
-                          handlers.setNextXMolecules(30);
-                        }}
-                      >
-                        Load next 30
-                      </Button>
-                      <Button
-                        id="hit-navigator-load-next-100"
-                        variant="text"
-                        size="medium"
-                        color="primary"
-                        className={classes.footerButton}
-                        onClick={() => {
-                          handlers.setNextXMolecules(100);
-                        }}
-                      >
-                        Load next 100
-                      </Button>
-                      <Button
-                        id="hit-navigator-load-full-list"
-                        variant="text"
-                        size="medium"
-                        color="primary"
-                        className={classes.footerButton}
-                        onClick={() => {
-                          if (joinedMoleculeLists?.length > 300) {
-                            setIsOpenAlert(true);
-                          } else {
-                            handlers.setNextXMolecules(joinedMoleculeLists?.length || 0);
-                          }
-                        }}
-                      >
-                        Load full list
-                      </Button>
-                    </div>
-                  </Grid>
                 </Grid>
               </Grid>
-            </>
-          )}
-          {moleculesAndTagsAreLoading && (
-            <Grid container direction="row" justifyContent="center">
-              <Grid item>
-                <CircularProgress />
-              </Grid>
             </Grid>
-          )}
-        </Grid>
+            {currentMolecules.length > 0 && (
+              <>
+                <Grid item className={classes.gridItemList} ref={scrollBarRef}>
+                  <InfiniteScroll
+                    getScrollParent={() => scrollBarRef.current}
+                    pageStart={0}
+                    loadMore={loadNextMolecules}
+                    hasMore={canLoadMore}
+                    loader={
+                      <div className="loader" key={0}>
+                        <Grid
+                          container
+                          direction="row"
+                          justifyContent="center"
+                          alignItems="center"
+                          className={classes.paddingProgress}
+                        >
+                          <CircularProgress />
+                        </Grid>
+                      </div>
+                    }
+                    useWindow={false}
+                  >
+                    <ObservationUnifiedViewWrapper
+                      viewConfig={viewConfig}
+                      ligandRepresentations={ligandRepresentations}
+                      items={itemsToBeDisplayed}
+                      allSelectedMolecules={allSelectedMolecules}
+                      addMoleculeViewRef={addMoleculeViewRef}
+                      onPoseVisuallyReady={handlePoseVisuallyReady}
+                      availableWidth={hitNavigatorListWidth}
+                      handleSetTagEditorAnchorEl={setTagEditorAnchorEl}
+                      fragmentDisplayList={fragmentDisplayList}
+                      proteinList={proteinList}
+                      complexList={complexList}
+                      surfaceList={surfaceList}
+                      densityList={densityList}
+                      qualityList={qualityList}
+                      vectorOnList={vectorOnList}
+                      informationList={informationList}
+                      getComputedInspirations={getComputedInspirations}
+                    />
+                  </InfiniteScroll>
+                </Grid>
+                <Grid item className={classes.footer}>
+                  <Grid container alignItems="flex-start" direction="row" className={classes.footerRow}>
+                    <Grid item className={classes.footerSummary}>
+                      <span
+                        className={classes.total}
+                      >{`#Poses=${filteredLHSCompoundsList?.length}, #Obs=${joinedMoleculeLists?.length}`}</span>
+                    </Grid>
+                    <Grid item className={classes.footerActions}>
+                      <div className={classes.footerButtonGroup} aria-label="contained primary button group">
+                        <Button
+                          id="hit-navigator-load-next-30"
+                          variant="text"
+                          size="medium"
+                          color="primary"
+                          className={classes.footerButton}
+                          onClick={() => {
+                            handlers.setNextXMolecules(30);
+                          }}
+                        >
+                          Load next 30
+                        </Button>
+                        <Button
+                          id="hit-navigator-load-next-100"
+                          variant="text"
+                          size="medium"
+                          color="primary"
+                          className={classes.footerButton}
+                          onClick={() => {
+                            handlers.setNextXMolecules(100);
+                          }}
+                        >
+                          Load next 100
+                        </Button>
+                        <Button
+                          id="hit-navigator-load-full-list"
+                          variant="text"
+                          size="medium"
+                          color="primary"
+                          className={classes.footerButton}
+                          onClick={() => {
+                            if (joinedMoleculeLists?.length > 300) {
+                              setIsOpenAlert(true);
+                            } else {
+                              handlers.setNextXMolecules(joinedMoleculeLists?.length || 0);
+                            }
+                          }}
+                        >
+                          Load full list
+                        </Button>
+                      </div>
+                    </Grid>
+                  </Grid>
+                </Grid>
+              </>
+            )}
+            {moleculesAndTagsAreLoading && (
+              <Grid container direction="row" justifyContent="center">
+                <Grid item>
+                  <CircularProgress />
+                </Grid>
+              </Grid>
+            )}
+          </Grid>
         </div>
       </Panel>
     );

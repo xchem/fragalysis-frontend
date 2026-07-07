@@ -137,7 +137,7 @@ const useStyles = makeStyles(theme => ({
   }
 }));
 
-const SnapshotList = memo(({ expandHandler = null }) => {
+const SnapshotList = memo(({ expandHandler = null, expanded = undefined }) => {
   const classes = useStyles();
   const ref = useRef(null);
   const dispatch = useDispatch();
@@ -158,6 +158,12 @@ const SnapshotList = memo(({ expandHandler = null }) => {
   const [resetInfiniteScroll, setResetInfiniteScroll] = useState(false);
 
   const listOfSnapshots = useSelector(state => state.snapshotReducers.listOfSnapshots);
+
+  useEffect(() => {
+    if (expanded !== undefined) {
+      dispatch(setPanelsExpanded(layoutItemNames.SNAPSHOT_LIST, expanded));
+    }
+  }, [dispatch, expanded]);
 
   useEffect(() => {
     if (!listOfSnapshots && targetId) {
@@ -287,6 +293,7 @@ const SnapshotList = memo(({ expandHandler = null }) => {
       hasHeader
       hasExpansion
       defaultExpanded={false}
+      expanded={expanded}
       title="Snapshots"
       onExpandChange={useCallback(
         expanded => {

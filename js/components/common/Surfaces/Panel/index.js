@@ -88,6 +88,7 @@ export const Panel = memo(
         headerActions,
         hasExpansion,
         defaultExpanded = false,
+        expanded: controlledExpanded,
         onExpandChange,
         children,
         bodyOverflow,
@@ -97,7 +98,9 @@ export const Panel = memo(
       ref
     ) => {
       const classes = useStyles();
-      const [expanded, setExpanded] = useState(defaultExpanded);
+      const [uncontrolledExpanded, setUncontrolledExpanded] = useState(defaultExpanded);
+      const isExpandedControlled = controlledExpanded !== undefined;
+      const expanded = isExpandedControlled ? controlledExpanded : uncontrolledExpanded;
 
       let bodyClass = classes.body;
       if (bodyOverflow) {
@@ -109,14 +112,19 @@ export const Panel = memo(
       }
 
       const handleTitleButtonClick = () => {
-        setExpanded(!expanded);
+        const nextExpanded = !expanded;
+        if (isExpandedControlled) {
+          onExpandChange && onExpandChange(nextExpanded);
+        } else {
+          setUncontrolledExpanded(nextExpanded);
+        }
       };
 
       useEffect(() => {
-        if (onExpandChange) {
+        if (!isExpandedControlled && onExpandChange) {
           onExpandChange(expanded);
         }
-      }, [expanded, onExpandChange]);
+      }, [expanded, isExpandedControlled, onExpandChange]);
 
       return (
         <MaterialPaper className={classes.root} ref={ref} {...rest}>

@@ -137,7 +137,10 @@ const RichTooltip = memo(function RichTooltip({
   // console.log(`FullPath: ${fullPath}`);
   const tooltipEntry = useMemo(() => getTooltip(tooltips, fullPath, fallback), [tooltips, fullPath, fallback]);
   const resolvedTooltipEntry = useMemo(() => interpolate(tooltipEntry, values), [tooltipEntry, values]);
-  const hasTooltipText = Boolean(resolvedTooltipEntry && resolvedTooltipEntry.text && resolvedTooltipEntry.text.trim());
+  const isTooltipDisabled = Boolean(resolvedTooltipEntry && resolvedTooltipEntry.disabled);
+  const hasTooltipText = Boolean(
+    !isTooltipDisabled && resolvedTooltipEntry && resolvedTooltipEntry.text && resolvedTooltipEntry.text.trim()
+  );
   const showDebugPathOnly = !hasTooltipText && shiftDown;
   const shouldShowTooltip = hasTooltipText || showDebugPathOnly;
   const tooltipText = hasTooltipText ? resolvedTooltipEntry.text : fullPath;

@@ -7,28 +7,30 @@ export const tootlipProvider = () => {
 
 const normalizeTooltipEntry = (tooltip, fallback = '') => {
   if (typeof tooltip === 'string') {
-    return { text: tooltip, showHelp: false };
+    return { text: tooltip, showHelp: false, disabled: false };
   }
 
-  if (tooltip && typeof tooltip === 'object' && typeof tooltip.text === 'string') {
+  if (tooltip && typeof tooltip === 'object' && (typeof tooltip.text === 'string' || tooltip.disabled === true)) {
     return {
-      text: tooltip.text,
-      showHelp: tooltip.showHelp === true
+      text: typeof tooltip.text === 'string' ? tooltip.text : '',
+      showHelp: tooltip.showHelp === true,
+      disabled: tooltip.disabled === true
     };
   }
 
   if (typeof fallback === 'string') {
-    return { text: fallback, showHelp: false };
+    return { text: fallback, showHelp: false, disabled: false };
   }
 
-  if (fallback && typeof fallback === 'object' && typeof fallback.text === 'string') {
+  if (fallback && typeof fallback === 'object' && (typeof fallback.text === 'string' || fallback.disabled === true)) {
     return {
-      text: fallback.text,
-      showHelp: fallback.showHelp === true
+      text: typeof fallback.text === 'string' ? fallback.text : '',
+      showHelp: fallback.showHelp === true,
+      disabled: fallback.disabled === true
     };
   }
 
-  return { text: '', showHelp: false };
+  return { text: '', showHelp: false, disabled: false };
 };
 
 export const getTooltip = (tooltips, path, fallback = '') => {

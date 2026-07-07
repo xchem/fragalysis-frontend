@@ -123,10 +123,16 @@
           "comment": "{{comment}}"
         },
         "canonSite": {
-          "title": "{{canonSiteName}}"
+          "title": {
+            "text": "{{canonSiteName}}",
+            "disabled": true
+          }
         },
         "conformerSite": {
-          "title": "{{conformerSiteName}}"
+          "title": {
+            "text": "{{conformerSiteName}}",
+            "disabled": true
+          }
         },
         "observationsView": {
           "showObservations": "Show Observations"
@@ -143,7 +149,15 @@
             "applyFilter": "Apply filter"
           }
         },
-        "propertyDisplayName": "{{displayName}}",
+        "propertyDisplayName": {
+          "text": "{{displayName}}",
+          "detail": {
+            "disabled": true
+          },
+          "molecule": {
+            "disabled": true
+          }
+        },
         "editTags": "Edit tags",
         "lhsSettings": "LHS settings",
         "allLigands": "All ligands",

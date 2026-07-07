@@ -62,6 +62,10 @@ const DETAIL_CONTROLS_WIDTH = {
   rhs: 100
 };
 const BASE_ROW_HEIGHT = 54;
+const DISABLED_HEADER_TOOLTIP_COLUMNS = new Set(['detail', 'molecule']);
+
+const getHeaderTooltipPath = name =>
+  DISABLED_HEADER_TOOLTIP_COLUMNS.has(name) ? `propertyDisplayName.${name}` : 'propertyDisplayName';
 
 let textMeasureCanvas = null;
 
@@ -283,7 +287,7 @@ const ObservationUnifiedViewWrapper = memo(
                       style={{ width: getRenderedColumnWidth(name), maxWidth: getRenderedColumnWidth(name) }}
                       className={classes.headerCell}
                     >
-                      <RichTooltip path="propertyDisplayName" values={{ displayName: displayName }}>
+                      <RichTooltip path={getHeaderTooltipPath(name)} values={{ displayName: displayName }}>
                         <div className={classes.resizerParent}>
                           {displayName}
                           <TooltipPathProvider path="filters">{getColumnFilter(type, name)}</TooltipPathProvider>
