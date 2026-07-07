@@ -70,6 +70,7 @@ export const TargetSettingsModal = memo(({ openModal, onModalClose, isTargetOn =
   const [displayName, setDisplayName] = useState('');
   const [shortName, setShortName] = useState('');
   const [longName, setLongName] = useState('');
+  const [alias, setAlias] = useState('');
   const [organism, setOrganism] = useState('');
   const [externalURL, setExternalURL] = useState('');
   const [externalURLName, setExternalURLName] = useState('');
@@ -133,6 +134,7 @@ export const TargetSettingsModal = memo(({ openModal, onModalClose, isTargetOn =
     setDisplayName(targetName);
     setShortName(target.short_name);
     setLongName(target.long_name);
+    setAlias(target.project?.alias);
     setOrganism(target.organism);
     setExternalURL(target.external_url);
     setExternalURLName(target.external_url_display_name);
@@ -168,6 +170,38 @@ export const TargetSettingsModal = memo(({ openModal, onModalClose, isTargetOn =
   };
 
   const onSubmitForm = async () => {
+    const updatedSettings = {
+      ...(currentTarget?.settings || {}),
+      electron_density_map_type: electronDensityMapType,
+      electron_density_rendering_mode: electronDensityRenderingMode
+    };
+    const projectId = currentTarget?.project?.id || currentTarget?.project;
+    const projectAlias = alias?.length > 0 ? alias : null;
+    const updateProjectAlias = () => {
+      return (
+        projectId &&
+        api({
+          url: `${base_url}/api/projects/${projectId}/`,
+          method: METHOD.PATCH,
+          data: {
+            alias: projectAlias
+          }
+        })
+          .then(resp => {
+            if (typeof currentTarget.project === 'object') {
+              currentTarget.project = {
+                ...currentTarget.project,
+                alias: projectAlias
+              };
+              dispatch(replaceTarget(currentTarget));
+            }
+          })
+          .catch(err => {
+            dispatch(addToastMessage({ text: 'Error updated project alias', level: TOAST_LEVELS.ERROR }));
+          })
+      );
+    };
+
     currentTarget &&
       api({
         url: `${base_url}/api/targets/${currentTarget.id}/`,
@@ -180,39 +214,28 @@ export const TargetSettingsModal = memo(({ openModal, onModalClose, isTargetOn =
           external_url: externalURL,
           external_url_display_name: externalURLName,
           alias_order: identifierTypes,
-          settings: {
-            ...(currentTarget.settings || {}),
-            electron_density_map_type: electronDensityMapType,
-            electron_density_rendering_mode: electronDensityRenderingMode
-          }
+          settings: updatedSettings
         }
       })
         .then(resp => {
+          currentTarget.display_name = displayName;
+          currentTarget.short_name = shortName;
+          currentTarget.long_name = longName;
+          currentTarget.organism = organism;
+          currentTarget.external_url = externalURL;
+          currentTarget.external_url_display_name = externalURLName;
+          currentTarget.alias_order = identifierTypes;
+          currentTarget.settings = updatedSettings;
+
           if (isTargetOn) {
             // in target scope
             dispatch(setTargetOnName(displayName));
             dispatch(setTargetOnAliases(identifierTypes));
-            currentTarget.settings = {
-              ...(currentTarget.settings || {}),
-              electron_density_map_type: electronDensityMapType,
-              electron_density_rendering_mode: electronDensityRenderingMode
-            };
           } else {
             // out of target scope
-            currentTarget.display_name = displayName;
-            currentTarget.short_name = shortName;
-            currentTarget.long_name = longName;
-            currentTarget.organism = organism;
-            currentTarget.external_url = externalURL;
-            currentTarget.external_url_display_name = externalURLName;
-            currentTarget.alias_order = identifierTypes;
-            currentTarget.settings = {
-              ...(currentTarget.settings || {}),
-              electron_density_map_type: electronDensityMapType,
-              electron_density_rendering_mode: electronDensityRenderingMode
-            };
             dispatch(replaceTarget(currentTarget));
           }
+          updateProjectAlias();
           dispatch(addToastMessage({ text: `Target updated successfully`, level: TOAST_LEVELS.SUCCESS }));
           setEditable(false);
           onModalClose();
@@ -298,6 +321,23 @@ export const TargetSettingsModal = memo(({ openModal, onModalClose, isTargetOn =
                 />
               ) : (
                 <Typography variant="body1">{longName}</Typography>
+              )}
+            </Grid>
+          </Grid>
+          <Grid item container direction="row" justifyContent="space-between" alignItems="center" spacing={2}>
+            <Grid item xs>
+              <Typography variant="body1">Alias</Typography>
+            </Grid>
+            <Grid item xs>
+              {editable ? (
+                <TextField
+                  value={alias ?? ''}
+                  placeholder="enter alias"
+                  onChange={e => setAlias(e.target.value)}
+                  disabled={!editable}
+                />
+              ) : (
+                <Typography variant="body1">{alias}</Typography>
               )}
             </Grid>
           </Grid>

@@ -296,21 +296,29 @@ export const compareVersionIdDesc = (a, b) => {
   return 0;
 };
 
+export const getTargetAccessStringDisplayValue = target => {
+  return target?.project?.alias || target?.project?.target_access_string || '';
+};
+
 export const compareTargetAccessStringAsc = (a, b) => {
-  if (a.project.target_access_string.toLowerCase() < b.project.target_access_string.toLowerCase()) {
+  const aAccessString = getTargetAccessStringDisplayValue(a).toLowerCase();
+  const bAccessString = getTargetAccessStringDisplayValue(b).toLowerCase();
+  if (aAccessString < bAccessString) {
     return -1;
   }
-  if (a.project.target_access_string.toLowerCase() > b.project.target_access_string.toLowerCase()) {
+  if (aAccessString > bAccessString) {
     return 1;
   }
   return 0;
 };
 
 export const compareTargetAccessStringDesc = (a, b) => {
-  if (a.project.target_access_string.toLowerCase() > b.project.target_access_string.toLowerCase()) {
+  const aAccessString = getTargetAccessStringDisplayValue(a).toLowerCase();
+  const bAccessString = getTargetAccessStringDisplayValue(b).toLowerCase();
+  if (aAccessString > bAccessString) {
     return -1;
   }
-  if (a.project.target_access_string.toLowerCase() < b.project.target_access_string.toLowerCase()) {
+  if (aAccessString < bAccessString) {
     return 1;
   }
   return 0;

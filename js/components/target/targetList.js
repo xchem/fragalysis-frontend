@@ -28,6 +28,7 @@ import {
   compareTargetDesc,
   compareTargetAccessStringAsc,
   compareTargetAccessStringDesc,
+  getTargetAccessStringDisplayValue,
   compareInitDateAsc,
   compareInitDateDesc
 } from './sortTargets/sortTargets';
@@ -272,7 +273,7 @@ export const TargetList = memo(({ list = [], title = 'Target list', authRequired
       case 'target':
         return target.display_name.toLowerCase().includes(filterValue.toLowerCase());
       case 'tas':
-        return target.project.target_access_string.toLowerCase().includes(filterValue.toLowerCase());
+        return getTargetAccessStringDisplayValue(target).toLowerCase().includes(filterValue.toLowerCase());
       case 'initDate':
         const initDate = moment(target.project.init_date).format('YYYY-MM-DD');
         const initDateFrom = filterValue[0].length > 0 ? filterValue[0] <= initDate : true;
@@ -302,7 +303,9 @@ export const TargetList = memo(({ list = [], title = 'Target list', authRequired
       case 'target':
         return a.display_name.toLowerCase() < b.display_name.toLowerCase() ? -1 : 1;
       case 'tas':
-        return a.project.target_access_string.toLowerCase() < b.project.target_access_string.toLowerCase() ? -1 : 1;
+        return getTargetAccessStringDisplayValue(a).toLowerCase() < getTargetAccessStringDisplayValue(b).toLowerCase()
+          ? -1
+          : 1;
       case 'initDate':
         return a.project.init_date < b.project.init_date ? -1 : 1;
       case 'lastUpdatedDate':
@@ -353,7 +356,7 @@ export const TargetList = memo(({ list = [], title = 'Target list', authRequired
           item =>
             (checkedTarget && item.display_name.toLowerCase().includes(searchString.toLowerCase())) ||
             (checkedTargetAccessString &&
-              item.project.target_access_string.toLowerCase().includes(searchString.toLowerCase()))
+              getTargetAccessStringDisplayValue(item).toLowerCase().includes(searchString.toLowerCase()))
         );
         setTargetList(filteredList);
       } else {
@@ -445,7 +448,7 @@ export const TargetList = memo(({ list = [], title = 'Target list', authRequired
               style={{ padding: '0px', margin: '0px' }}
               id={targetTitleId + '-tas-' + index}
             >
-              {target.project.target_access_string}
+              {getTargetAccessStringDisplayValue(target)}
             </TableCell>,
             <TableCell key={'13'} style={{ width: '2px', padding: '0px', margin: '0px' }}></TableCell>,
             <TableCell
