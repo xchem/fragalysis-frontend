@@ -1,7 +1,8 @@
-import { Button, Grid, IconButton, Popper, Typography, makeStyles } from '@material-ui/core';
+import { Button, GridLegacy as Grid, IconButton, Popper, Typography } from '@mui/material';
+import { makeStyles } from '../../ui/styles';
 import React, { forwardRef } from 'react';
 import { Panel } from '../common';
-import { Close } from '@material-ui/icons';
+import { Close } from '@mui/icons-material';
 import { useDispatch } from 'react-redux';
 import RichTooltip from '../tooltip/RichTooltip';
 import {

@@ -4,12 +4,11 @@ import {
   createRepresentationsArray,
   createRepresentationStructure,
   defaultFocus
-} from './generatingObjects';
+} from '../../viewer/ngl/representationHelpers';
 import { concatStructures, Selection, Shape, Matrix4 } from 'ngl';
 import { loadQualityFromFile } from './renderingHelpers';
 import { getPdb } from './renderingFile';
 import { ensureSurfaceWorkerDisabled } from './surfaceRepresentationUtils';
-import { setNglViewParams } from '../../reducers/ngl/actions';
 import { NGL_PARAMS, QUALITY_TYPES } from './constants/index';
 import { VIEWS } from '../../constants/constants';
 import { MAP_TYPE } from '../../reducers/ngl/constants';

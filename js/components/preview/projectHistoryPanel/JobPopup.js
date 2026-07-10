@@ -1,6 +1,6 @@
-import { Popper } from '@material-ui/core';
+import { Popper } from '@mui/material';
 import React from 'react';
-import { makeStyles } from '@material-ui/core';
+import { makeStyles } from '../../../ui/styles';
 import { Button } from '../../common/Inputs/Button';
 import { useDispatch, useSelector } from 'react-redux';
 import { setIsOpenModalBeforeExit, setSelectedSnapshotToSwitch } from '../../snapshot/redux/actions';

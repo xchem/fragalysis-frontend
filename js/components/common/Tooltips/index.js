@@ -1,6 +1,6 @@
 import React, { memo } from 'react';
 import PropTypes from 'prop-types';
-import { ClickAwayListener, Popover, Paper } from '@material-ui/core';
+import { ClickAwayListener, Popover, Paper } from '../../../ui';
 import SVGInline from 'react-svg-inline';
 
 export const SvgTooltip = memo(({ open, anchorEl, imgData, width, height, onClose }) => {

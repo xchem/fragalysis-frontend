@@ -1,6 +1,6 @@
 import React, { memo, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { Button, Grid, MenuItem, Select, Typography } from '@material-ui/core';
+import { Button, GridLegacy as Grid, MenuItem, Select, Typography } from '@mui/material';
 import { setCurrentProject, setOpenPickProjectModal } from '../target/redux/actions';
 import { URLS } from '../routes/constants';
 import { Modal } from '../common';

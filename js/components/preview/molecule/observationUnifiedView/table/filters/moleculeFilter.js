@@ -1,15 +1,6 @@
 import React, { memo, useCallback, useEffect, useMemo, useState } from 'react';
-import {
-  Checkbox,
-  FormControl,
-  FormControlLabel,
-  Grid,
-  IconButton,
-  makeStyles,
-  Radio,
-  RadioGroup,
-  TextField
-} from '@material-ui/core';
+import { Checkbox, FormControl, FormControlLabel, GridLegacy as Grid, IconButton, Radio, RadioGroup, TextField } from '@mui/material';
+import { makeStyles } from '../../../../../../ui/styles';
 import { FilterWrapper } from './filterWrapper';
 import { Search, SwitchAccessShortcut } from '@mui/icons-material';
 import { Jsme } from '@loschmidt/jsme-react';

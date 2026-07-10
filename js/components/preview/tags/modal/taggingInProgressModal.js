@@ -1,13 +1,6 @@
 import React, { memo } from 'react';
-import {
-  CircularProgress,
-  makeStyles,
-  Typography,
-  DialogContent,
-  DialogContentText,
-  DialogActions,
-  Button
-} from '@material-ui/core';
+import { CircularProgress, Typography, DialogContent, DialogContentText, DialogActions, Button } from '@mui/material';
+import { makeStyles } from '../../../../ui/styles';
 import { useDispatch, useSelector } from 'react-redux';
 import { Modal } from '../../../common/Modal/index';
 

@@ -1,5 +1,5 @@
 import React from 'react';
-import { Typography, Link, Grid } from '@material-ui/core';
+import { Typography, Link, GridLegacy as Grid } from '@mui/material';
 import { getDiscourseURL } from '../../utils/discourse';
 
 export const RegisterNotice = () => {

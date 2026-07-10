@@ -1,7 +1,8 @@
 import React, { memo, useRef, useState } from 'react';
-import { IconButton, Popper, makeStyles } from '@material-ui/core';
+import { IconButton, Popper } from '@mui/material';
+import { makeStyles } from '../../../../../../ui/styles';
 import { Panel } from '../../../../../common';
-import { Close } from '@material-ui/icons';
+import { Close } from '@mui/icons-material';
 import { Circle, FilterAlt, RestartAlt } from '@mui/icons-material';
 import RichTooltip from '../../../../../tooltip/RichTooltip';
 

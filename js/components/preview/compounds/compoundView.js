@@ -2,7 +2,7 @@
  * Created by abradley on 15/03/2018.
  */
 import React, { memo, useEffect, useContext, useState } from 'react';
-import { makeStyles } from '@material-ui/core';
+import { makeStyles } from '../../../ui/styles';
 import { useDispatch, useSelector } from 'react-redux';
 import SVGInline from 'react-svg-inline';
 import { VIEWS } from '../../../constants/constants';
@@ -19,8 +19,8 @@ export const loadingCompoundImage = `<svg xmlns="http://www.w3.org/2000/svg" ver
 
 const useStyles = makeStyles(theme => ({
   compundItem: {
-    marginRight: theme.spacing(1) / 2,
-    marginTop: theme.spacing(1) / 2
+    marginRight: theme.spacing(0.5),
+    marginTop: theme.spacing(0.5)
   }
 }));
 
@@ -98,7 +98,7 @@ export const CompoundView = memo(({ height, width, data, index }) => {
       >
         <RichTooltip
           path="compoundCard.details"
-          PopperProps={{ disablePortal: true }}
+          slotProps={{ popper: { disablePortal: true } }}
           placement="top"
           title={<CompoundDataView currentCompoundIds={currentCompoundIds} isTooltip={true} index={index} />}
         >

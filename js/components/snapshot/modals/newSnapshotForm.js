@@ -1,11 +1,12 @@
 import React, { memo, useState, useContext } from 'react';
-import { Grid, makeStyles, Typography, Checkbox, FormControlLabel } from '@material-ui/core';
+import { GridLegacy as Grid, Typography, Checkbox, FormControlLabel } from '@mui/material';
+import { makeStyles } from '../../../ui/styles';
 import { useDispatch, useSelector } from 'react-redux';
 import { DJANGO_CONTEXT } from '../../../utils/djangoContext';
 import { Form, Formik, Field } from 'formik';
 import { InputFieldAvatar } from '../../projects/projectModal/inputFieldAvatar';
-import { Description, Title, QuestionAnswer, FindReplace } from '@material-ui/icons';
-import { TextField } from 'formik-material-ui';
+import { Description, Title, QuestionAnswer, FindReplace } from '@mui/icons-material';
+import { FormikTextField as TextField } from '../../common/Inputs/FormikTextField';
 import { Button } from '../../common/Inputs/Button';
 import { SnapshotType } from '../../projects/redux/constants';
 import { createNewSnapshot } from '../redux/dispatchActions';

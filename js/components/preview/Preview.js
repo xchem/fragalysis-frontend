@@ -3,7 +3,8 @@
  */
 
 import React, { memo, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
-import { makeStyles, useTheme } from '@material-ui/core';
+import { useTheme } from '@mui/material';
+import { makeStyles } from '../../ui/styles';
 import NGLView from '../nglView/nglView';
 import HitNavigator from './molecule/hitNavigator';
 import { TagDetailsLHS } from './tags/details/tagDetailsLHS';
@@ -371,7 +372,7 @@ const Preview = memo(({ isStateLoaded, hideProjects, isSnapshot = false }) => {
           onLayoutChange={onLayoutChange}
           useCSSTransforms={false}
           className={classes.rgl}
-          margin={[theme.spacing(), theme.spacing()]}
+          margin={[Number.parseFloat(theme.spacing()), Number.parseFloat(theme.spacing())]}
         >
           {currentLayout?.lg?.map(item => renderItem(item.i))}
         </ReactGridLayout>

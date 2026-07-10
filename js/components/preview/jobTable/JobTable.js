@@ -1,20 +1,7 @@
-import {
-  Button as MUIButton,
-  Checkbox,
-  colors,
-  FormControlLabel,
-  FormGroup,
-  makeStyles,
-  Popover,
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableRow,
-  TableSortLabel
-} from '@material-ui/core';
+import { Button as MUIButton, Checkbox, colors, FormControlLabel, FormGroup, Popover, Table, TableBody, TableCell, TableHead, TableRow, TableSortLabel } from '@mui/material';
+import { makeStyles } from '../../../ui/styles';
 import { Button } from '../../common/Inputs/Button';
-import { DynamicFeed, Refresh, ViewColumn } from '@material-ui/icons';
+import { DynamicFeed, Refresh, ViewColumn } from '@mui/icons-material';
 import React, { useLayoutEffect, useMemo, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useRowSelect, useSortBy, useTable } from 'react-table';
@@ -333,55 +320,73 @@ export const JobTable = ({ expanded, onExpanded, onTabChange }) => {
           onExpandChange={expanded => onExpanded(expanded)}
         >
           <div className={classes.containerExpanded}>
-          <Table className={classes.table} {...getTableProps()}>
-            <TableHead>
-              {headerGroups.map(headerGroup => (
-                <TableRow {...headerGroup.getHeaderGroupProps()} className={classes.row}>
-                  {headerGroup.headers.map(column => {
-                    if (column.canSort) {
-                      // Title is unused
-                      const { title, ...rest } = column.getSortByToggleProps();
+            <Table className={classes.table} {...getTableProps()}>
+              <TableHead>
+                {headerGroups.map(headerGroup => {
+                  const { key: headerGroupKey, ...headerGroupProps } = headerGroup.getHeaderGroupProps();
 
-                      return (
-                        <RichTooltip
-                          path="sorting.sortBy"
-                          values={{ columnName: column.displayName }}
-                          {...column.getHeaderProps()}
-                        >
-                          <TableCell {...rest}>
-                            <div className={classes.flexCell}>
-                              {column.render('Header')}
-                              <TableSortLabel
-                                className={!column.isSorted ? classes.sortIconInactive : undefined}
-                                active={true}
-                                direction={column.isSortedDesc ? 'desc' : 'asc'}
-                              />
-                            </div>
+                  return (
+                    <TableRow key={headerGroupKey} {...headerGroupProps} className={classes.row}>
+                      {headerGroup.headers.map(column => {
+                        const { key: headerKey, ...headerProps } = column.getHeaderProps();
+
+                        if (column.canSort) {
+                          // Title is unused
+                          const { title, ...rest } = column.getSortByToggleProps();
+
+                          return (
+                            <RichTooltip
+                              key={headerKey}
+                              path="sorting.sortBy"
+                              values={{ columnName: column.displayName }}
+                              {...headerProps}
+                            >
+                              <TableCell {...rest}>
+                                <div className={classes.flexCell}>
+                                  {column.render('Header')}
+                                  <TableSortLabel
+                                    className={!column.isSorted ? classes.sortIconInactive : undefined}
+                                    active={true}
+                                    direction={column.isSortedDesc ? 'desc' : 'asc'}
+                                  />
+                                </div>
+                              </TableCell>
+                            </RichTooltip>
+                          );
+                        }
+                        return (
+                          <TableCell key={headerKey} {...headerProps}>
+                            {column.render('Header')}
                           </TableCell>
-                        </RichTooltip>
-                      );
-                    }
-                    return <TableCell {...column.getHeaderProps()}>{column.render('Header')}</TableCell>;
-                  })}
-                </TableRow>
-              ))}
-            </TableHead>
-            <TableBody {...getTableBodyProps()}>
-              {rows.map(row => {
-                prepareRow(row);
+                        );
+                      })}
+                    </TableRow>
+                  );
+                })}
+              </TableHead>
+              <TableBody {...getTableBodyProps()}>
+                {rows.map(row => {
+                  prepareRow(row);
+                  const { key: rowKey, ...rowProps } = row.getRowProps();
 
-                return (
-                  <TableRow {...row.getRowProps()} className={classes.row}>
-                    {row.cells.map(cell => (
-                      <TableCell {...cell.getCellProps()}>{cell.render('Cell')}</TableCell>
-                    ))}
-                  </TableRow>
-                );
-              })}
-            </TableBody>
-          </Table>
+                  return (
+                    <TableRow key={rowKey} {...rowProps} className={classes.row}>
+                      {row.cells.map(cell => {
+                        const { key: cellKey, ...cellProps } = cell.getCellProps();
 
-          {/* <div className={classes.buttonRow}>
+                        return (
+                          <TableCell key={cellKey} {...cellProps}>
+                            {cell.render('Cell')}
+                          </TableCell>
+                        );
+                      })}
+                    </TableRow>
+                  );
+                })}
+              </TableBody>
+            </Table>
+
+            {/* <div className={classes.buttonRow}>
             <MUIButton variant="contained" color="primary" disabled={!selectedFlatRows.length}>
               Remove selected
             </MUIButton>
@@ -390,37 +395,37 @@ export const JobTable = ({ expanded, onExpanded, onTabChange }) => {
             </MUIButton>
           </div> */}
 
-          <JobVariablesDialog
-            open={jobInputsDialogOpen}
-            onClose={() => setJobInputsDialogOpen(false)}
-            title="Job Inputs"
-            variableType="inputs"
-            jobInfo={selectedJob}
-          />
-          <Popover
-            open={!!columnSelectorAnchor}
-            anchorEl={columnSelectorAnchor}
-            onClose={() => setColumnSelectorAnchor(null)}
-            anchorOrigin={{
-              vertical: 'bottom',
-              horizontal: 'left'
-            }}
-            transformOrigin={{
-              vertical: 'top',
-              horizontal: 'left'
-            }}
-          >
-            <FormGroup className={classes.columnSelector}>
-              {allColumns.map(column => (
-                <FormControlLabel
-                  key={column.id}
-                  className={classes.label}
-                  control={<Checkbox className={classes.checkbox} {...column.getToggleHiddenProps()} />}
-                  label={column.displayName}
-                />
-              ))}
-            </FormGroup>
-          </Popover>
+            <JobVariablesDialog
+              open={jobInputsDialogOpen}
+              onClose={() => setJobInputsDialogOpen(false)}
+              title="Job Inputs"
+              variableType="inputs"
+              jobInfo={selectedJob}
+            />
+            <Popover
+              open={!!columnSelectorAnchor}
+              anchorEl={columnSelectorAnchor}
+              onClose={() => setColumnSelectorAnchor(null)}
+              anchorOrigin={{
+                vertical: 'bottom',
+                horizontal: 'left'
+              }}
+              transformOrigin={{
+                vertical: 'top',
+                horizontal: 'left'
+              }}
+            >
+              <FormGroup className={classes.columnSelector}>
+                {allColumns.map(column => (
+                  <FormControlLabel
+                    key={column.id}
+                    className={classes.label}
+                    control={<Checkbox className={classes.checkbox} {...column.getToggleHiddenProps()} />}
+                    label={column.displayName}
+                  />
+                ))}
+              </FormGroup>
+            </Popover>
           </div>
         </Panel>
       </div>

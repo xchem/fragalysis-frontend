@@ -1,0 +1,72 @@
+---
+name: ci
+
+on:
+  pull_request:
+  push:
+    tags-ignore:
+      - '**'
+
+env:
+  CYPRESS_BASE_URL: ${{ vars.CYPRESS_BASE_URL }}
+
+jobs:
+  install-test-build-smoke:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Use Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: .node-version
+
+      - name: Enable Corepack
+        run: corepack enable
+
+      - name: Cache Yarn packages
+        uses: actions/cache@v4
+        with:
+          path: .yarn/cache
+          key: ${{ runner.os }}-yarn-${{ hashFiles('yarn.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-yarn-
+
+      - name: Cache Cypress binary
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/Cypress
+          key: ${{ runner.os }}-cypress-${{ hashFiles('yarn.lock') }}
+
+      - name: Install dependencies
+        run: yarn install --immutable
+
+      - name: Unit tests
+        run: yarn test:ci
+
+      - name: Build
+        run: yarn build
+
+      - name: Install Cypress binary
+        if: env.CYPRESS_BASE_URL != ''
+        run: yarn cy:install
+
+      - name: Cypress smoke tests
+        if: env.CYPRESS_BASE_URL != ''
+        run: yarn cy:smoke
+
+      - name: Cypress smoke skipped
+        if: env.CYPRESS_BASE_URL == ''
+        run: echo "Set the CYPRESS_BASE_URL repository variable to run browser smoke tests in GitHub Actions."
+
+      - name: Upload Cypress artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: cypress-smoke-artifacts
+          path: |
+            cypress/screenshots/**/*.png
+            cypress/videos/**/*.mp4
+          if-no-files-found: ignore

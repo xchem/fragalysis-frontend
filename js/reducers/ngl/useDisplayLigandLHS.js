@@ -26,8 +26,9 @@ export const useDisplayLigandLHS = () => {
   const displayedLigands = useSelector(state => state.selectionReducers.fragmentDisplayList);
   const allObservations = useSelector(state => state.apiReducers.all_mol_lists);
 
-  const { getNglView } = useContext(NglContext);
+  const { getNglView, getViewerAdapter } = useContext(NglContext);
   const stage = getNglView(VIEWS.MAJOR_VIEW) && getNglView(VIEWS.MAJOR_VIEW).stage;
+  const viewerAdapter = getViewerAdapter(VIEWS.MAJOR_VIEW);
 
   // const isLoadingCurrentSnapshot = useSelector(state => state.projectReducers.isLoadingCurrentSnapshot);
 
@@ -36,8 +37,6 @@ export const useDisplayLigandLHS = () => {
       const data = allObservations.find(obs => obs.id === ligandData.id);
       if (!data) return;
       const colourToggle = getRandomColor(data);
-      // const currentOrientation = stage.viewerControls.getOrientation();
-
       const molId = generateMoleculeId(data);
       dispatch(appendFragmentDisplayList(molId));
 
@@ -64,14 +63,14 @@ export const useDisplayLigandLHS = () => {
         })
       ).then(() => {
         if (ligandData.center) {
-          const currentOrientation = stage.viewerControls.getOrientation();
+          const currentOrientation = viewerAdapter.getOrientation();
           dispatch(setNglOrientation(currentOrientation, VIEWS.MAJOR_VIEW));
         }
         dispatch(updateInToBeDisplayedList({ id: data.id, rendered: true, type: NGL_OBJECTS.LIGAND }));
       });
     },
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [allObservations, dispatch, stage] //skipOrientationChange and isLoadingCurrentSnapshot are not included in the dependencies by desing
+    [allObservations, dispatch, stage, viewerAdapter] //skipOrientationChange and isLoadingCurrentSnapshot are not included in the dependencies by desing
   );
 
   const removeLigand = useCallback(

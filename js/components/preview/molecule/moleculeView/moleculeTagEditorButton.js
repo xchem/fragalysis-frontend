@@ -1,5 +1,5 @@
 import React, { useContext } from 'react';
-import { IconButton } from '@material-ui/core';
+import { IconButton } from '@mui/material';
 import { useSelector } from 'react-redux';
 import GroupNglControlButtonsContext from '../groupNglControlButtonsContext';
 

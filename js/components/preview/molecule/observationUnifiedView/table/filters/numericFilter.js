@@ -1,5 +1,6 @@
 import React, { memo, useEffect, useState } from "react";
-import { Checkbox, FormControl, FormControlLabel, Grid, makeStyles, MenuItem, Radio, RadioGroup, Select, TextField } from "@material-ui/core"
+import { Checkbox, FormControl, FormControlLabel, GridLegacy as Grid, MenuItem, Radio, RadioGroup, Select, TextField } from '@mui/material';
+import { makeStyles } from '../../../../../../ui/styles';
 import { FilterWrapper } from "./filterWrapper";
 import { ORDER } from "../constants";
 import { useDispatch, useSelector } from "react-redux";

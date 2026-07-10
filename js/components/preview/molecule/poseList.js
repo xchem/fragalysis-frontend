@@ -1,16 +1,8 @@
 /**
  * Created by abradley on 14/03/2018.
  */
-import {
-  Grid,
-  makeStyles,
-  CircularProgress,
-  Typography,
-  IconButton,
-  Select,
-  MenuItem,
-  Checkbox
-} from '@material-ui/core';
+import { GridLegacy as Grid, CircularProgress, Typography, IconButton, Select, MenuItem, Checkbox } from '@mui/material';
+import { makeStyles } from '../../../ui/styles';
 import React, { useState, useEffect, useCallback, memo, useRef, useContext, useMemo } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { colourList } from './utils/color';
@@ -21,7 +13,7 @@ import { Panel } from '../../common/Surfaces/Panel';
 import { VIEWS } from '../../../constants/constants';
 import { NglContext } from '../../nglView/nglProvider';
 import classNames from 'classnames';
-import { Edit, FilterList } from '@material-ui/icons';
+import { Edit, FilterList } from '@mui/icons-material';
 import { setTagEditorOpen, setObservationsDialogSide } from '../../../reducers/selection/actions';
 import { useRouteMatch } from 'react-router-dom';
 import { AlertModal } from '../../common/Modal/AlertModal';
@@ -128,8 +120,8 @@ const useStyles = makeStyles(theme => ({
     borderRight: '1px solid',
     borderRightColor: theme.palette.background.divider,
     fontWeight: 'bold',
-    paddingLeft: theme.spacing(1) / 2,
-    paddingRight: theme.spacing(1) / 2,
+    paddingLeft: theme.spacing(0.5),
+    paddingRight: theme.spacing(0.5),
     paddingTop: theme.spacing(1),
     paddingBottom: theme.spacing(1),
     fontSize: 8,
@@ -141,14 +133,14 @@ const useStyles = makeStyles(theme => ({
     }
   },
   contButtonsMargin: {
-    marginTop: theme.spacing(1) / 2,
-    marginBottom: theme.spacing(1) / 2,
+    marginTop: theme.spacing(0.5),
+    marginBottom: theme.spacing(0.5),
     marginLeft: theme.spacing(2)
   },
   contColButton: {
     minWidth: 'fit-content',
-    paddingLeft: theme.spacing(1) / 4,
-    paddingRight: theme.spacing(1) / 4,
+    paddingLeft: theme.spacing(0.25),
+    paddingRight: theme.spacing(0.25),
     paddingBottom: 0,
     paddingTop: 0,
     fontWeight: 'bold',
@@ -167,8 +159,8 @@ const useStyles = makeStyles(theme => ({
   },
   contColButtonUnselected: {
     minWidth: 'fit-content',
-    paddingLeft: theme.spacing(1) / 4,
-    paddingRight: theme.spacing(1) / 4,
+    paddingLeft: theme.spacing(0.25),
+    paddingRight: theme.spacing(0.25),
     paddingBottom: 0,
     paddingTop: 0,
     fontWeight: 'bold',
@@ -207,7 +199,7 @@ const useStyles = makeStyles(theme => ({
     flex: '1 1 84px',
     minWidth: 0,
     maxWidth: '100%',
-    padding: '4px 2px !important',
+    padding: '8px 2px 4px !important',
     '& .MuiButton-root': {
       width: '100%',
       minWidth: 0,

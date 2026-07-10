@@ -12,8 +12,11 @@ import { resetDatasetsState } from '../../datasets/redux/actions';
 import { setProteinIsLoaded, setProteinIsLoading, setTargetOn } from '../../../reducers/api/actions';
 import { resetViewerControlsState } from '../viewerControls/redux/actions';
 // eslint-disable-next-line import/extensions
-import { default_squonk_project } from '../../../../package.json';
+import packageMetadata from '../../../../package.json';
 import { getProjectsForTarget } from '../utils';
+import { asViewerAdapter } from '../../../viewer';
+
+const { default_squonk_project } = packageMetadata;
 
 const loadProtein = nglView => (dispatch, getState) => {
   const state = getState();
@@ -74,7 +77,7 @@ export const shouldLoadProtein = ({
     Promise.all(
       nglViewList.map(nglView =>
         dispatch(loadProtein(nglView))?.finally(() => {
-          dispatch(setOrientation(nglView.id, nglView.stage.viewerControls.getOrientation()));
+          dispatch(setOrientation(nglView.id, asViewerAdapter(nglView.stage).getOrientation()));
         })
       )
     )
@@ -110,7 +113,7 @@ export const loadProteinOfRestoringActions = ({ nglViewList }) => (dispatch, get
   Promise.all(
     nglViewList.map(nglView =>
       dispatch(loadProtein(nglView)).finally(() => {
-        dispatch(setOrientation(nglView.id, nglView.stage.viewerControls.getOrientation()));
+        dispatch(setOrientation(nglView.id, asViewerAdapter(nglView.stage).getOrientation()));
       })
     )
   )
@@ -132,7 +135,7 @@ export const reloadPreviewReducer = newState => dispatch => {
 export const unmountPreviewComponent = (stages = []) => dispatch => {
   stages.forEach(stage => {
     if (stage.stage !== undefined || stage.stage !== null) {
-      dispatch(removeAllNglComponents(stage.stage));
+      dispatch(removeAllNglComponents(asViewerAdapter(stage.stage)));
     }
   });
 
@@ -157,7 +160,7 @@ export const resetReducersForRestoringActions = () => dispatch => {
 export const resetReducersBetweenSnapshots = (stages = []) => dispatch => {
   stages.forEach(stage => {
     if (stage.stage !== undefined || stage.stage !== null) {
-      dispatch(removeAllNglComponents(stage.stage));
+      dispatch(removeAllNglComponents(asViewerAdapter(stage.stage)));
     }
   });
 

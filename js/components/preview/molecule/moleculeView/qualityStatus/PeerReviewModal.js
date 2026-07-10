@@ -3,10 +3,11 @@
  */
 
 import React, { memo, useContext, useState } from 'react';
-import { Grid, IconButton, makeStyles, Popover, TextField, Typography } from '@material-ui/core';
+import { GridLegacy as Grid, IconButton, Popover, TextField, Typography } from '@mui/material';
+import { makeStyles } from '../../../../../ui/styles';
 import { QualityStatusLight } from './QualityStatusLight';
 import { QUALITY_STATUSES } from './constants';
-import { Check } from '@material-ui/icons';
+import { Check } from '@mui/icons-material';
 import classNames from 'classnames';
 import { addPeerReviewStatus } from './api/apiActions';
 import { useDispatch } from 'react-redux';

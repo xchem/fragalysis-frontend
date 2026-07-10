@@ -1,8 +1,10 @@
 import { api, METHOD } from '../../utils/api';
 import { setResponse } from './redux/actions';
-import { version } from '../../../package.json';
+import packageMetadata from '../../../package.json';
 import { Base64 } from 'js-base64';
 import { EXTENSION } from './redux/constants';
+
+const { version } = packageMetadata;
 
 /* API handlers */
 const apiLink = 'https://api.github.com';

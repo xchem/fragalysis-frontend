@@ -194,9 +194,6 @@ export default function nglReducers(state = INITIAL_STATE, action = {}) {
       return Object.assign({}, state, snapshot);
 
     case CONSTANTS.REMOVE_ALL_NGL_COMPONENTS:
-      if (action.stage) {
-        action.stage.removeAllComponents();
-      }
       // clear all arrays of object
       return Object.assign({}, INITIAL_STATE);
 

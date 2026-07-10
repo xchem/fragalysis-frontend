@@ -62,7 +62,6 @@ import {
 import { DJANGO_CONTEXT } from '../../../../utils/djangoContext';
 import { TOAST_LEVELS } from '../../../toast/constants';
 import { getActivityColumns, getActivityData } from '../../molecule/observationUnifiedView/api';
-import v4 from 'uuid/v4';
 
 export const setTagSelectorData = (categories, tags) => dispatch => {
   dispatch(setCategoryList(categories));

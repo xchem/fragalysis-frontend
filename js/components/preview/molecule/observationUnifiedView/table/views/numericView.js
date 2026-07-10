@@ -1,4 +1,5 @@
-import { Grid, makeStyles } from '@material-ui/core';
+import { GridLegacy as Grid } from '@mui/material';
+import { makeStyles } from '../../../../../../ui/styles';
 import React, { memo, useMemo } from 'react';
 import RichTooltip from '../../../../../tooltip/RichTooltip';
 

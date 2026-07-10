@@ -10,7 +10,7 @@ import { handleBackward, handleChange, handleForward } from '../../utils/generic
 import { OBJECT_TYPE } from '../nglView/constants';
 import { Paper } from '../common/Surfaces/Paper';
 import { Button } from '../common/Inputs/Button';
-import { Grid } from '@material-ui/core';
+import { GridLegacy as Grid } from '@mui/material';
 
 const PanddaSlider = memo(({ event_on, event_list, object_list, object_on, deleteObject, setObjectOn, setEventOn }) => {
   const slider_name = 'Pandda Site';

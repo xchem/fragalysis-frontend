@@ -1,5 +1,6 @@
 import React, { memo, useContext, Fragment } from 'react';
-import { Menu, Popover, Slider, Grid, makeStyles, Checkbox, TextField, Select, Box } from '@material-ui/core';
+import { Menu, Popover, Slider, GridLegacy as Grid, Checkbox, TextField, Select, Box } from '@mui/material';
+import { makeStyles } from '../../../../ui/styles';
 import { NglContext } from '../../../nglView/nglProvider';
 import { useDispatch, useSelector } from 'react-redux';
 import { updateComponentRepresentation } from '../../../../reducers/ngl/actions';
@@ -23,14 +24,14 @@ const useStyles = makeStyles(theme => ({
 export const EditRepresentationMenu = memo(
   ({ editMenuAnchor, closeRepresentationEditMenu, representation, parentKey }) => {
     const classes = useStyles();
-    const { getNglView } = useContext(NglContext);
+    const { getViewerAdapter } = useContext(NglContext);
     const objectsInView = useSelector(state => state.nglReducers.objectsInView) || {};
     const [colorMenus, setColorMenus] = React.useState({});
 
     const dispatch = useDispatch();
     const oldRepresentation = JSON.parse(JSON.stringify(representation));
-    const nglView = getNglView(objectsInView[parentKey].display_div);
-    const comp = nglView.stage.getComponentsByName(parentKey).first;
+    const viewerAdapter = getViewerAdapter(objectsInView[parentKey].display_div);
+    const component = viewerAdapter.getObject(parentKey);
 
     const closeColorMenu = menuKey => setColorMenus({ ...colorMenus, [menuKey]: null });
 
@@ -38,13 +39,13 @@ export const EditRepresentationMenu = memo(
       setColorMenus({ ...colorMenus, [menuKey]: { menu: anchorEl, previousColor } });
 
     const handleRepresentationPropertyChange = throttle((key, value) => {
-      const r = comp.reprList.find(rep => rep.uuid === representation.uuid || rep.uuid === representation.lastKnownID);
-      if (r) {
+      const representationElement = viewerAdapter.getRepresentation(component, representation);
+      if (representationElement) {
         let oldValue = oldRepresentation.params[key];
         let change = { key, value, oldValue };
 
         // update in ngl
-        r.setParameters({ [key]: value });
+        viewerAdapter.setRepresentationParameters(representationElement, { [key]: value });
         //update in redux
         oldRepresentation.params[key] = value;
 
@@ -60,9 +61,9 @@ export const EditRepresentationMenu = memo(
           className={classes.itemWidth}
           type="number"
           value={representationItem && isNaN(representationItem) === false ? representationItem : ''}
-          InputProps={
+          slotProps={
             templateItem && {
-              inputProps: {
+              htmlInput: {
                 min: templateItem.min,
                 max: templateItem.max,
                 step: (templateItem.precision && templateItem.precision * templateItem.min) || 1

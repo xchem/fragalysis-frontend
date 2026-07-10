@@ -1,5 +1,6 @@
 import React, { memo, useState, useEffect } from 'react';
-import { ClickAwayListener, makeStyles, Popper } from '@material-ui/core';
+import { ClickAwayListener, Popper } from '../../../../ui';
+import { makeStyles } from '../../../../ui/styles';
 import { SketchPicker } from 'react-color';
 
 const useStyles = makeStyles(theme => ({

@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useLayoutEffect, useState, useMemo, useRef } from 'react';
-import { makeStyles } from '@material-ui/core';
+import { makeStyles } from '../../ui/styles';
 import { clamp } from 'lodash';
 import { useDispatch, useSelector } from 'react-redux';
 import { OutPortal } from 'react-reverse-portal';

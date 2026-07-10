@@ -23,6 +23,41 @@ pipeline {
       }
     }
 
+    stage('Install') {
+      steps {
+        sh 'corepack enable'
+        sh 'yarn install --immutable'
+      }
+    }
+
+    stage('Unit Tests') {
+      steps {
+        sh 'yarn test:ci'
+      }
+    }
+
+    stage('Build') {
+      steps {
+        sh 'yarn build'
+      }
+    }
+
+    stage('Cypress Smoke') {
+      steps {
+        sh 'yarn cy:install'
+        withEnv(["CYPRESS_BASE_URL=${env.CYPRESS_BASE_URL ?: 'https://fragalysis-simona-default.xchem-dev.diamond.ac.uk'}"]) {
+          sh 'yarn cy:smoke'
+        }
+      }
+      post {
+        always {
+          archiveArtifacts artifacts: 'cypress/screenshots/**/*.png,cypress/videos/**/*.mp4',
+                           allowEmptyArchive: true,
+                           fingerprint: true
+        }
+      }
+    }
+
   }
 
   // Post-job actions.

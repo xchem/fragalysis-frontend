@@ -1,37 +1,39 @@
-import React, { createContext, memo, useState } from 'react';
+import React, { createContext, memo, useCallback, useRef, useState } from 'react';
+import { asViewerAdapter } from '../../viewer';
 
 export const NglContext = createContext();
 
 export const NglProvider = memo(props => {
   //const nglViewList = useRef([]);
   const [nglViewList, setNglViewList] = useState([]);
+  const viewerAdapters = useRef(new Map());
 
-  const registerNglView = (id, stage) => {
+  const registerNglView = useCallback((id, viewer) => {
     console.count(`registerNglView`);
-    if (nglViewList.filter(ngl => ngl.id === id).length > 0) {
-      console.log(new Error('Cannot register NGL View with used ID! ', id));
-    } else {
-      let extendedList = [...nglViewList];
-      // let extendedList = nglViewList;
-      extendedList.push({ id, stage });
-      setNglViewList(extendedList);
-    }
-  };
-
-  const unregisterNglView = id => {
-    console.count(`unregisterNglView`);
-    if (nglViewList.filter(ngl => ngl.id === id).length === 0) {
-      console.log(new Error('Cannot remove NGL View with given ID! ', id));
-    } else {
-      for (let i = 0; i < nglViewList.length; i++) {
-        if (nglViewList[i].id === id) {
-          nglViewList.splice(i, 1);
-          setNglViewList(nglViewList);
-          break;
-        }
+    setNglViewList(currentViews => {
+      if (currentViews.some(view => view.id === id)) {
+        console.log(new Error('Cannot register NGL View with used ID! ', id));
+        return currentViews;
       }
-    }
-  };
+
+      const viewerAdapter = asViewerAdapter(viewer);
+      viewerAdapters.current.set(id, viewerAdapter);
+      return [...currentViews, { id, stage: viewerAdapter.getNativeViewer() }];
+    });
+  }, []);
+
+  const unregisterNglView = useCallback(id => {
+    console.count(`unregisterNglView`);
+    setNglViewList(currentViews => {
+      if (!currentViews.some(view => view.id === id)) {
+        console.log(new Error('Cannot remove NGL View with given ID! ', id));
+        return currentViews;
+      }
+
+      viewerAdapters.current.delete(id);
+      return currentViews.filter(view => view.id !== id);
+    });
+  }, []);
 
   const getNglView = id => {
     const filteredList = nglViewList && nglViewList.length > 0 ? nglViewList.filter(ngl => ngl.id === id) : [];
@@ -46,8 +48,10 @@ export const NglProvider = memo(props => {
     }
   };
 
+  const getViewerAdapter = useCallback(id => viewerAdapters.current.get(id), []);
+
   return (
-    <NglContext.Provider value={{ nglViewList, registerNglView, getNglView, unregisterNglView }}>
+    <NglContext.Provider value={{ nglViewList, registerNglView, getNglView, getViewerAdapter, unregisterNglView }}>
       {props.children}
     </NglContext.Provider>
   );

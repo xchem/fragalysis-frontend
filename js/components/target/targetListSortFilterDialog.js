@@ -1,11 +1,11 @@
 import React, { memo } from 'react';
 import PropTypes from 'prop-types';
-import { Popper, IconButton } from '@material-ui/core';
-import { Close, Delete } from '@material-ui/icons';
-import Grid from '@material-ui/core/Grid';
+import { Popper, IconButton } from '@mui/material';
+import { Close, Delete } from '@mui/icons-material';
+import Grid from '@mui/material/GridLegacy';
 import TargetListSortFilterItem from './targetListSortFilterItem';
-import WarningIcon from '@material-ui/icons/Warning';
-import { makeStyles } from '@material-ui/styles';
+import WarningIcon from '@mui/icons-material/Warning';
+import { makeStyles } from '../../ui/styles';
 import { TARGETS_ATTR } from './redux/constants';
 import { Panel } from '../common/Surfaces/Panel';
 import RichTooltip from '../tooltip/RichTooltip';

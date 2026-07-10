@@ -1,7 +1,8 @@
 /**
  * Created by abradley on 14/03/2018.
  */
-import { Grid, makeStyles, CircularProgress, IconButton, ButtonGroup } from '@material-ui/core';
+import { GridLegacy as Grid, CircularProgress, IconButton, ButtonGroup } from '@mui/material';
+import { makeStyles } from '../../../ui/styles';
 import React, { useState, useEffect, memo, useRef, useContext, useCallback, useMemo } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { colourList, getRandomColor } from './utils/color';
@@ -42,7 +43,7 @@ import {
   setSelectAllButtonForDataset,
   setInspirationDialogAction
 } from '../../datasets/redux/actions';
-import { FilterList, Link, DeleteForever, ArrowUpward, ArrowDownward, Edit } from '@material-ui/icons';
+import { FilterList, Link, DeleteForever, ArrowUpward, ArrowDownward, Edit } from '@mui/icons-material';
 import { AlertModal } from '../../common/Modal/AlertModal';
 import { setSelectedAllByType, setDeselectedAllByType } from '../../datasets/redux/actions';
 
@@ -59,7 +60,7 @@ import {
   removeSurface
 } from './redux/dispatchActions';
 import ObservationUnifiedViewWrapper from './observationUnifiedView/observationUnifiedViewWrapper';
-import { v4 } from 'uuid';
+import { createUuid } from '../../../utils/uuid';
 import { setPanelsExpanded } from '../../../reducers/layout/actions';
 import { layoutItemNames } from '../../../reducers/layout/constants';
 import { useScrollToSelected } from '../../datasets/useScrollToSelected';
@@ -92,12 +93,12 @@ const useStyles = makeStyles(theme => ({
   },
   gridItemList: {
     overflow: 'auto',
-    height: `calc(97% - ${theme.spacing(6)}px - ${theme.spacing(2)}px)`,
+    height: `calc(97% - ${theme.spacing(6)} - ${theme.spacing(2)})`,
     width: '100%'
   },
   gridItemListSmallSize: {
     overflow: 'auto',
-    height: `calc(85% - ${theme.spacing(6)}px - ${theme.spacing(2)}px)`,
+    height: `calc(85% - ${theme.spacing(6)} - ${theme.spacing(2)})`,
     width: '100%'
   },
   centered: {
@@ -132,7 +133,7 @@ const useStyles = makeStyles(theme => ({
   },
   rank: {
     width: theme.spacing(3),
-    marginLeft: -theme.spacing(1) / 4,
+    marginLeft: theme.spacing(-0.25),
     fontStyle: 'italic',
     fontSize: 8,
     overflow: 'hidden',
@@ -144,8 +145,8 @@ const useStyles = makeStyles(theme => ({
     borderRight: '1px solid',
     borderRightColor: theme.palette.background.divider,
     fontWeight: 'bold',
-    paddingLeft: theme.spacing(1) / 2,
-    paddingRight: theme.spacing(1) / 2,
+    paddingLeft: theme.spacing(0.5),
+    paddingRight: theme.spacing(0.5),
     paddingTop: theme.spacing(1),
     paddingBottom: theme.spacing(1),
     fontSize: 8,
@@ -159,12 +160,12 @@ const useStyles = makeStyles(theme => ({
     whiteSpace: 'nowrap'
   },
   contButtonsMargin: {
-    margin: theme.spacing(1) / 2
+    margin: theme.spacing(0.5)
   },
   paintAllButton: {
     minWidth: 'fit-content',
-    paddingLeft: theme.spacing(1) / 4,
-    paddingRight: theme.spacing(1) / 4,
+    paddingLeft: theme.spacing(0.25),
+    paddingRight: theme.spacing(0.25),
     paddingBottom: 0,
     paddingTop: 0,
     fontWeight: 'bold',
@@ -183,8 +184,8 @@ const useStyles = makeStyles(theme => ({
   },
   contColButton: {
     minWidth: 'fit-content',
-    paddingLeft: theme.spacing(1) / 4,
-    paddingRight: theme.spacing(1) / 4,
+    paddingLeft: theme.spacing(0.25),
+    paddingRight: theme.spacing(0.25),
     paddingBottom: 0,
     paddingTop: 0,
     fontWeight: 'bold',
@@ -203,8 +204,8 @@ const useStyles = makeStyles(theme => ({
   },
   contColButtonUnselect: {
     minWidth: 'fit-content',
-    paddingLeft: theme.spacing(1) / 4,
-    paddingRight: theme.spacing(1) / 4,
+    paddingLeft: theme.spacing(0.25),
+    paddingRight: theme.spacing(0.25),
     paddingBottom: 0,
     paddingTop: 0,
     fontWeight: 'bold',
@@ -388,7 +389,7 @@ const RhsCmpList = ({ expandHandler }) => {
           const observation = allMoleculesList.find(mol => mol.id === m.id);
           if (observation) {
             generatedPoses.push({
-              id: v4(),
+              id: createUuid(),
               // id: 'virtual-' + observation.id,
               // id: observation.id + 1000,
               display_name: m.name,

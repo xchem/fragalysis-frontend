@@ -1,4 +1,4 @@
-import { Grid, Table, TableBody, Tooltip, styled } from "@material-ui/core";
+import { GridLegacy as Grid, Table, TableBody, Tooltip, styled } from '@mui/material';
 import React, { memo } from "react";
 import { ServiceStatus } from "./ServiceStatus";
 import { tooltipClasses } from "@mui/material";

@@ -24,7 +24,7 @@ import {
   setIsNGLQueueEmpty
 } from './actions';
 import { isEmpty, isEqual } from 'lodash';
-import { createRepresentationsArray, generateMoleculeObject } from '../../components/nglView/generatingObjects';
+import { generateMoleculeObject } from '../../components/nglView/generatingObjects';
 import { COMMON_PARAMS, DENSITY_MAPS, OBJECT_TYPE, SELECTION_TYPE } from '../../components/nglView/constants';
 import {
   removeFromComplexList,
@@ -36,10 +36,10 @@ import {
   removeFromDensityListType,
   removeFromArtefactsChainList
 } from '../selection/actions';
-import { nglObjectDictionary } from '../../components/nglView/renderingObjects';
 import { VIEWS } from '../../constants/constants';
 import { NGL_PARAMS } from '../../components/nglView/constants/index';
 import { getRandomColor } from '../../components/preview/molecule/utils/color';
+import { asViewerAdapter } from '../../viewer';
 
 export const loadObject = ({
   target,
@@ -54,7 +54,8 @@ export const loadObject = ({
 }) => async (dispatch, getState) => {
   console.log('loadObject - entry');
   dispatch(setIsNGLQueueEmpty(false));
-  if (stage) {
+  const viewerAdapter = asViewerAdapter(stage);
+  if (viewerAdapter) {
     const state = getState();
     const actionRestoring = false; //state.trackingReducers.isActionRestoring;
     dispatch(incrementCountOfPendingNglObjects(target.display_div));
@@ -81,19 +82,20 @@ export const loadObject = ({
 
     console.count(`Switch - Before object is loaded`);
     // versionFixedTarget can cause "Error: TypeError: path is null" in stage.loadFile
-    return nglObjectDictionary[versionFixedTarget.OBJECT_TYPE]({
-      stage,
-      input_dict: versionFixedTarget,
-      object_name: versionFixedTarget.name,
-      representations: previousRepresentations,
-      orientationMatrix,
-      markAsRightSideLigand,
-      loadQuality,
-      quality,
-      dispatch,
-      state,
-      center
-    })
+    return viewerAdapter
+      .loadObject({
+        target: versionFixedTarget,
+        input_dict: versionFixedTarget,
+        object_name: versionFixedTarget.name,
+        representations: previousRepresentations,
+        orientationMatrix,
+        markAsRightSideLigand,
+        loadQuality,
+        quality,
+        dispatch,
+        state,
+        center
+      })
       .then(representations => {
         console.count(`Object loaded`);
         if (representations && representations.length > 0) {
@@ -122,9 +124,9 @@ export const loadObject = ({
 };
 
 export const deleteObject = (target, stage, deleteFromSelections) => dispatch => {
-  if (stage && target) {
-    const comps = stage.getComponentsByName(target.name);
-    comps.list.forEach(component => stage.removeComponent(component));
+  const viewerAdapter = asViewerAdapter(stage);
+  if (viewerAdapter && target) {
+    viewerAdapter.getObjects(target.name).forEach(component => viewerAdapter.removeObject(component));
 
     if (deleteFromSelections === true && target && target.selectionType && target.moleculeId) {
       const objectId = { id: target.moleculeId };
@@ -200,7 +202,8 @@ export const setOrientationByInteraction = (div_id, orientation) => (dispatch, g
 };
 
 export const centerOnLigandByMoleculeID = (stage, moleculeID, datasetId = null) => async (dispatch, getState) => {
-  if (moleculeID && stage) {
+  const viewerAdapter = asViewerAdapter(stage);
+  if (moleculeID && viewerAdapter) {
     const state = getState();
     let observation = null;
     if (!datasetId) {
@@ -218,71 +221,73 @@ export const centerOnLigandByMoleculeID = (stage, moleculeID, datasetId = null) 
       } else {
         obsObject = await dispatch(generateMoleculeObject(observation, colourToggle, datasetId));
       }
-      const component = stage.getComponentsByName(obsObject.name).first;
-      component?.autoView();
-      const currentOrientation = stage.viewerControls.getOrientation();
+      const component = viewerAdapter.getObject(obsObject.name);
+      if (component) {
+        viewerAdapter.centerOn(component);
+      }
+      const currentOrientation = viewerAdapter.getOrientation();
       dispatch(setNglOrientation(currentOrientation, VIEWS.MAJOR_VIEW));
     }
   }
 };
 
 export const setNglBckGrndColor = (color, major) => (dispatch, getState) => {
-  dispatch(setNglViewParams(NGL_PARAMS.backgroundColor, color, major, VIEWS.MAJOR_VIEW));
+  dispatch(setNglViewParams(NGL_PARAMS.backgroundColor, color, asViewerAdapter(major), VIEWS.MAJOR_VIEW));
   dispatch(setBackgroundColor(color));
 };
 
 export const setNglClipNear = (newValue, oldValue, major) => (dispatch, getState) => {
-  dispatch(setNglViewParams(NGL_PARAMS.clipNear, newValue, major, VIEWS.MAJOR_VIEW));
+  dispatch(setNglViewParams(NGL_PARAMS.clipNear, newValue, asViewerAdapter(major), VIEWS.MAJOR_VIEW));
   dispatch(setNglClipNearAction(newValue, oldValue));
 };
 
 export const setNglClipFar = (newValue, oldValue, major) => (dispatch, getState) => {
-  dispatch(setNglViewParams(NGL_PARAMS.clipFar, newValue, major, VIEWS.MAJOR_VIEW));
+  dispatch(setNglViewParams(NGL_PARAMS.clipFar, newValue, asViewerAdapter(major), VIEWS.MAJOR_VIEW));
   dispatch(setNglClipFarAction(newValue, oldValue));
 };
 
 export const setNglClipDist = (newValue, oldValue, major) => (dispatch, getState) => {
-  dispatch(setNglViewParams(NGL_PARAMS.clipDist, newValue, major, VIEWS.MAJOR_VIEW));
+  dispatch(setNglViewParams(NGL_PARAMS.clipDist, newValue, asViewerAdapter(major), VIEWS.MAJOR_VIEW));
   dispatch(setNglClipDistAction(newValue, oldValue));
 };
 
 export const setNglFogNear = (newValue, oldValue, major) => (dispatch, getState) => {
-  dispatch(setNglViewParams(NGL_PARAMS.fogNear, newValue, major, VIEWS.MAJOR_VIEW));
+  dispatch(setNglViewParams(NGL_PARAMS.fogNear, newValue, asViewerAdapter(major), VIEWS.MAJOR_VIEW));
   dispatch(setNglFogNearAction(newValue, oldValue));
 };
 
 export const setNglFogFar = (newValue, oldValue, major) => (dispatch, getState) => {
-  dispatch(setNglViewParams(NGL_PARAMS.fogFar, newValue, major, VIEWS.MAJOR_VIEW));
+  dispatch(setNglViewParams(NGL_PARAMS.fogFar, newValue, asViewerAdapter(major), VIEWS.MAJOR_VIEW));
   dispatch(setNglFogFarAction(newValue, oldValue));
 };
 
 export const setIsoLevel = (mapType, newValue, oldValue, major) => (dispatch, getState) => {
   dispatch(updateDensityMapByType(mapType, major, 'isolevel', newValue));
-  dispatch(setNglViewParams(NGL_PARAMS[`isolevel${mapType}`], newValue, major, VIEWS.MAJOR_VIEW));
+  dispatch(setNglViewParams(NGL_PARAMS[`isolevel${mapType}`], newValue, asViewerAdapter(major), VIEWS.MAJOR_VIEW));
   dispatch(setIsoLevelAction(mapType, newValue, oldValue));
 };
 
 export const setBoxSize = (mapType, newValue, oldValue, major) => (dispatch, getState) => {
   dispatch(updateDensityMapByType(mapType, major, 'boxSize', newValue));
-  dispatch(setNglViewParams(NGL_PARAMS[`boxSize${mapType}`], newValue, major, VIEWS.MAJOR_VIEW));
+  dispatch(setNglViewParams(NGL_PARAMS[`boxSize${mapType}`], newValue, asViewerAdapter(major), VIEWS.MAJOR_VIEW));
   dispatch(setBoxSizeAction(mapType, newValue, oldValue));
 };
 
 export const setOpacity = (mapType, newValue, oldValue, major) => (dispatch, getState) => {
   dispatch(updateDensityMapByType(mapType, major, 'opacity', newValue));
-  dispatch(setNglViewParams(NGL_PARAMS[`opacity${mapType}`], newValue, major, VIEWS.MAJOR_VIEW));
+  dispatch(setNglViewParams(NGL_PARAMS[`opacity${mapType}`], newValue, asViewerAdapter(major), VIEWS.MAJOR_VIEW));
   dispatch(setOpacityAction(mapType, newValue, oldValue));
 };
 
 export const setContour = (mapType, newValue, oldValue, major) => (dispatch, getState) => {
   dispatch(updateDensityMapByType(mapType, major, 'contour', newValue));
-  dispatch(setNglViewParams(NGL_PARAMS[`contour${mapType}`], newValue, major, VIEWS.MAJOR_VIEW));
+  dispatch(setNglViewParams(NGL_PARAMS[`contour${mapType}`], newValue, asViewerAdapter(major), VIEWS.MAJOR_VIEW));
   dispatch(setContourAction(mapType, newValue, oldValue));
 };
 
 export const setElectronDesityMapColor = (mapType, newValue, oldValue, major) => (dispatch, getState) => {
   dispatch(updateDensityMapByType(mapType, major, 'color', newValue));
-  dispatch(setNglViewParams(NGL_PARAMS[`color${mapType}`], newValue, major, VIEWS.MAJOR_VIEW));
+  dispatch(setNglViewParams(NGL_PARAMS[`color${mapType}`], newValue, asViewerAdapter(major), VIEWS.MAJOR_VIEW));
   dispatch(setColorAction(mapType, newValue, oldValue));
 };
 
@@ -292,21 +297,23 @@ export const setWarningIcon = (newValue, oldValue, skipTracking) => (dispatch, g
 };
 
 const updateDensityMapByType = (type, stage, key, newValue) => (dispatch, getState) => {
-  if (stage) {
-    let filteredComps = stage.compList.filter(a => a.name.endsWith(type));
-    let reprList = filteredComps.flatMap(a => a.reprList.filter(a => a.repr.type === 'surface'));
-    reprList.forEach(r => {
-      r.setParameters({ [key]: newValue });
-    });
+  const viewerAdapter = asViewerAdapter(stage);
+  if (viewerAdapter) {
+    const filteredComponents = viewerAdapter.getObjectsByNameSuffix(type);
+    const representations = viewerAdapter.getRepresentationsByType(filteredComponents, 'surface');
+    representations.forEach(representation =>
+      viewerAdapter.setRepresentationParameters(representation, { [key]: newValue })
+    );
   }
 };
 
 export const isDensityMapVisible = (type, stage) => {
   let result = false;
-  if (stage) {
-    const filteredComps = stage.compList.filter(a => a.name.endsWith(type));
+  const viewerAdapter = asViewerAdapter(stage);
+  if (viewerAdapter) {
+    const filteredComps = viewerAdapter.getObjectsByNameSuffix(type);
     if (filteredComps && filteredComps.length > 0) {
-      const reprList = filteredComps.flatMap(a => a.reprList.filter(a => a.repr.type === 'surface'));
+      const reprList = viewerAdapter.getRepresentationsByType(filteredComps, 'surface');
       if (reprList && reprList.length > 0) {
         result = true;
       }
@@ -322,7 +329,7 @@ export const restoreNglOrientation = (orientation, oldOrientation, div_id, stage
   if (!skipOrientation) {
     const view = stages.find(view => view.id === div_id);
     console.count(`Before restoring orientation - restoreNglOrientation`);
-    view.stage.viewerControls.orient(orientation);
+    asViewerAdapter(view.stage).setOrientation(orientation);
     console.count(`After restoring orientation - restoreNglOrientation`);
     dispatch(setNglOrientationByInteraction(orientation, oldOrientation, div_id));
   }

@@ -8,7 +8,7 @@ import { deleteObject, loadObject } from '../../reducers/ngl/dispatchActions';
 import { PREFIX, VIEWS } from '../../constants/constants';
 import { handleBackward, handleChange, handleForward } from '../../utils/genericSlider';
 import { OBJECT_TYPE } from '../nglView/constants';
-import { Grid } from '@material-ui/core';
+import { GridLegacy as Grid } from '@mui/material';
 import { Button } from '../common/Inputs/Button';
 import { Paper } from '../common/Surfaces/Paper';
 

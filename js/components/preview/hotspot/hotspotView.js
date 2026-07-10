@@ -2,12 +2,12 @@
  * Created by ricgillams on 05/07/2018.
  */
 
-import { Grid } from '@material-ui/core';
+import { GridLegacy as Grid } from '@mui/material';
 import { Paper } from '../../common/Surfaces/Paper';
 import React from 'react';
 import { connect } from 'react-redux';
 import { deleteObject, loadObject } from '../../../reducers/ngl/dispatchActions';
-import { Switch } from '@material-ui/core';
+import { Switch } from '@mui/material';
 import { OBJECT_TYPE } from '../../nglView/constants';
 import { VIEWS } from '../../../constants/constants';
 import { api, METHOD } from '../../../utils/api';

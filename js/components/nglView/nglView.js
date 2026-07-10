@@ -2,26 +2,26 @@
  * Created by abradley on 01/03/2018.
  */
 
-import { Stage, Shape } from 'ngl';
 import React, { memo, useEffect, useCallback, useContext, useState, useRef } from 'react';
 import { connect, useDispatch, useSelector } from 'react-redux';
-import * as nglActions from '../../reducers/ngl/actions';
 import * as nglDispatchActions from '../../reducers/ngl/dispatchActions';
 import * as selectionActions from '../../reducers/selection/actions';
 import { NglContext } from './nglProvider';
 import { handleNglViewPick } from './redux/dispatchActions';
 import { debounce } from 'lodash';
 import { NGL_PARAMS } from './constants';
-import { makeStyles, Popover, TextField, Button, Typography } from '@material-ui/core';
+import { Popover, TextField, Button, Typography } from '@mui/material';
+import { makeStyles } from '../../ui/styles';
 import { VIEWS } from '../../constants/constants';
 import { INITIAL_STATE as NGL_INITIAL } from '../../reducers/ngl/nglReducers';
 import { api } from '../../utils/api';
 import { base_url } from '../routes/constants';
+import { createViewerAdapter } from '../../viewer';
 
 const useStyles = makeStyles(theme => ({
   paper: {
     backgroundColor: theme.palette.background.paper,
-    borderRadius: theme.spacing(1) / 2,
+    borderRadius: theme.spacing(0.5),
     boxShadow: [
       '0px 2px 1px -1px rgba(0,0,0,0.2)',
       '0px 1px 1px 0px rgba(0,0,0,0.14)',
@@ -37,15 +37,13 @@ const NglView = memo(
     div_id,
     height,
     setOrientation,
-    removeAllNglComponents,
     handleNglViewPick,
     defaultRadius = 5,
     apiEndpoint = '/api/radius-selection'
   }) => {
     const dispatch = useDispatch();
-    // connect to NGL Stage object
-    const { registerNglView, unregisterNglView, getNglView } = useContext(NglContext);
-    const [stage, setStage] = useState();
+    const { registerNglView, getViewerAdapter } = useContext(NglContext);
+    const [viewerAdapter, setViewerAdapter] = useState();
     const classes = useStyles();
     const [ready, setReady] = useState(false);
 
@@ -94,7 +92,7 @@ const NglView = memo(
         setRadius(String(activeCoordinateRadius ?? defaultRadius));
       }
     }, [activeCoordinateFilterSide, activeCoordinateRadius, defaultRadius, popoverOpen]);
-    const rendererDomElement = stage?.viewer?.renderer?.domElement;
+    const rendererDomElement = viewerAdapter?.getRendererElement();
 
     useEffect(() => {
       if (!rendererDomElement) return undefined;
@@ -142,27 +140,29 @@ const NglView = memo(
 
     const ensureSphereAt = useCallback(
       (originVec3, r) => {
-        if (!stage || !originVec3 || !r) return;
+        if (!viewerAdapter || !originVec3 || !r) return;
         if (sphereCompRef.current) {
           try {
-            stage.removeComponent(sphereCompRef.current);
+            viewerAdapter.removeObject(sphereCompRef.current);
           } catch (e) {}
           sphereCompRef.current = null;
         }
-        const shape = new Shape('radius-sphere');
-        shape.addSphere([originVec3.x, originVec3.y, originVec3.z], [0, 1, 0], r);
-        const comp = stage.addComponentFromObject(shape);
-        comp.addRepresentation('buffer', {
-          opacity: 0.75,
-          wireframe: false,
-          depthWrite: true,
-          depthTest: true,
-          side: 'double',
-          disableImpostor: true
+        sphereCompRef.current = viewerAdapter.addSphere({
+          name: 'radius-sphere',
+          center: originVec3,
+          color: [0, 1, 0],
+          radius: r,
+          representationParameters: {
+            opacity: 0.75,
+            wireframe: false,
+            depthWrite: true,
+            depthTest: true,
+            side: 'double',
+            disableImpostor: true
+          }
         });
-        sphereCompRef.current = comp;
       },
-      [stage]
+      [viewerAdapter]
     );
 
     const submitRadius = useCallback(async () => {
@@ -200,30 +200,31 @@ const NglView = memo(
 
     const handleOrientationChanged = useCallback(
       debounce(() => {
-        const newStage = getNglView(div_id);
-        if (newStage) {
-          const currentOrientation = newStage.stage.viewerControls.getOrientation();
+        const viewerAdapter = getViewerAdapter(div_id);
+        if (viewerAdapter) {
+          const currentOrientation = viewerAdapter.getOrientation();
           setOrientation(div_id, currentOrientation);
         }
       }, 250),
-      [div_id, getNglView, setOrientation]
+      [div_id, getViewerAdapter, setOrientation]
     );
 
     // Initialization of NGL View component
     const handleResize = useCallback(() => {
-      const newStage = getNglView(div_id);
-      if (newStage) {
-        newStage.stage.handleResize();
-      }
-    }, [div_id, getNglView]);
+      getViewerAdapter(div_id)?.resize();
+    }, [div_id, getViewerAdapter]);
+
+    const handleViewerPick = useCallback(
+      (adapter, pick) => handleNglViewPick(adapter, pick, getViewerAdapter),
+      [getViewerAdapter, handleNglViewPick]
+    );
 
     // Stable handler, always reads latest value from ref
     const handleStageClicked = useCallback(
-      pickingProxy => {
+      pick => {
         if (!isCoordinateFilterPermittedRef.current) return;
-        if (!pickingProxy) return;
-        if (!(pickingProxy.atom || pickingProxy.bond)) return;
-        const pos = pickingProxy.position?.clone?.();
+        if (!pick || (pick.kind !== 'atom' && pick.kind !== 'bond')) return;
+        const pos = pick.position;
         if (!pos) return;
 
         lastOriginRef.current = pos;
@@ -241,14 +242,14 @@ const NglView = memo(
       if (!ready) return;
       if (activeSphereCoordinates && isCoordinateFilterPermitted /* && !sphereRendered*/) {
         if (sphereCompRef.current) {
-          stage.removeComponent(sphereCompRef.current);
+          viewerAdapter.removeObject(sphereCompRef.current);
         }
         dispatch(selectionActions.setSphereRendered(true, activeCoordinateFilterSide));
         ensureSphereAt(activeSphereCoordinates, parseRadius(activeCoordinateRadius));
       } else {
         if (!activeSphereCoordinates && sphereCompRef.current) {
           try {
-            stage.removeComponent(sphereCompRef.current);
+            viewerAdapter.removeObject(sphereCompRef.current);
             dispatch(selectionActions.setSphereRendered(false, activeCoordinateFilterSide));
           } catch (e) {
             console.error(e);
@@ -264,85 +265,61 @@ const NglView = memo(
       isCoordinateFilterPermitted,
       parseRadius,
       ready,
-      stage
+      viewerAdapter
     ]);
 
     const registerStageEvents = useCallback(
-      (newStage, getNglView) => {
-        if (newStage) {
+      adapter => {
+        if (adapter) {
           window.addEventListener('resize', handleResize);
-          newStage.mouseControls.add('clickPick-left', (st, pickingProxy) =>
-            handleNglViewPick(st, pickingProxy, getNglView)
-          );
-
-          newStage.mouseObserver.signals.scrolled.add(handleOrientationChanged);
-          newStage.mouseObserver.signals.dropped.add(handleOrientationChanged);
-          newStage.mouseObserver.signals.dragged.add(handleOrientationChanged);
-
-          newStage.signals.clicked.add(handleStageClicked);
+          adapter.addPickHandler(handleViewerPick);
+          adapter.addOrientationChangeHandler(handleOrientationChanged);
+          adapter.addClickHandler(handleStageClicked);
         }
       },
-      [handleResize, handleOrientationChanged, handleNglViewPick, handleStageClicked]
+      [handleResize, handleOrientationChanged, handleStageClicked, handleViewerPick]
     );
 
     const unregisterStageEvents = useCallback(
-      (newStage, getNglView) => {
-        if (newStage) {
+      adapter => {
+        if (adapter) {
           window.removeEventListener('resize', handleResize);
-          newStage.mouseControls.remove('clickPick-left', (st, pickingProxy) =>
-            handleNglViewPick(st, pickingProxy, getNglView)
-          );
-          newStage.mouseObserver.signals.scrolled.remove(handleOrientationChanged);
-          newStage.mouseObserver.signals.dropped.remove(handleOrientationChanged);
-          newStage.mouseObserver.signals.dragged.remove(handleOrientationChanged);
-          newStage.signals.clicked.remove(handleStageClicked);
+          adapter.removePickHandler(handleViewerPick);
+          adapter.removeOrientationChangeHandler(handleOrientationChanged);
+          adapter.removeClickHandler(handleStageClicked);
         }
       },
-      [handleResize, handleOrientationChanged, handleNglViewPick, handleStageClicked]
+      [handleResize, handleOrientationChanged, handleStageClicked, handleViewerPick]
     );
 
     useEffect(() => {
-      if (ready) {
-        const nglViewFromContext = getNglView(div_id);
-        if (stage === undefined && !nglViewFromContext) {
-          const newStage = new Stage(div_id);
-          if (div_id === VIEWS.MAJOR_VIEW) {
-            for (const [key, value] of Object.entries(NGL_INITIAL.viewParams)) {
-              newStage.setParameters({ [key]: value });
-            }
-          } else {
-            newStage.setParameters({
-              [NGL_PARAMS.backgroundColor]: NGL_INITIAL.viewParams[NGL_PARAMS.backgroundColor]
-            });
+      if (!ready) return undefined;
+
+      let activeViewerAdapter = viewerAdapter || getViewerAdapter(div_id);
+      if (!activeViewerAdapter) {
+        activeViewerAdapter = createViewerAdapter(div_id);
+        if (div_id === VIEWS.MAJOR_VIEW) {
+          for (const [key, value] of Object.entries(NGL_INITIAL.viewParams)) {
+            activeViewerAdapter.setParameters({ [key]: value });
           }
-          registerNglView(div_id, newStage);
-          registerStageEvents(newStage, getNglView);
-          setStage(newStage);
-        } else if (stage === undefined && nglViewFromContext && nglViewFromContext.stage) {
-          registerStageEvents(nglViewFromContext.stage, getNglView);
-          setStage(nglViewFromContext.stage);
-        } else if (stage) {
-          registerStageEvents(stage, getNglView);
+        } else {
+          activeViewerAdapter.setParameters({
+            [NGL_PARAMS.backgroundColor]: NGL_INITIAL.viewParams[NGL_PARAMS.backgroundColor]
+          });
         }
+        registerNglView(div_id, activeViewerAdapter);
+        setViewerAdapter(activeViewerAdapter);
       }
 
-      // return () => {
-      //   if (stage) {
-      //     unregisterStageEvents(stage, getNglView);
-      //     unregisterNglView(div_id);
-      //   }
-      // };
+      registerStageEvents(activeViewerAdapter);
+      return () => unregisterStageEvents(activeViewerAdapter);
     }, [
       div_id,
-      handleResize,
       registerNglView,
-      unregisterNglView,
-      handleOrientationChanged,
-      removeAllNglComponents,
       registerStageEvents,
       unregisterStageEvents,
-      stage,
-      getNglView,
+      viewerAdapter,
+      getViewerAdapter,
       ready
     ]);
 
@@ -360,10 +337,10 @@ const NglView = memo(
     }, [handleResize]);
 
     useEffect(() => {
-      if (lastOriginRef.current && stage) {
+      if (lastOriginRef.current && viewerAdapter) {
         ensureSphereAt(lastOriginRef.current, parseRadius(radius));
       }
-    }, [radius, parseRadius, stage, ensureSphereAt]);
+    }, [radius, parseRadius, viewerAdapter, ensureSphereAt]);
 
     return (
       <>
@@ -416,7 +393,6 @@ function mapStateToProps(state) {
 const mapDispatchToProps = {
   setMolGroupSelection: selectionActions.setMolGroupSelection,
   setOrientation: nglDispatchActions.setOrientationByInteraction,
-  removeAllNglComponents: nglActions.removeAllNglComponents,
   handleNglViewPick
 };
 

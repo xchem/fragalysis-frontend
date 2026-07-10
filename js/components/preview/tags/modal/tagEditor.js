@@ -1,7 +1,8 @@
 import React, { forwardRef, memo, useEffect, useState, useRef } from 'react';
-import { Grid, Popper, IconButton, makeStyles, FormControlLabel, Switch } from '@material-ui/core';
+import { GridLegacy as Grid, Popper, IconButton, FormControlLabel, Switch } from '@mui/material';
+import { makeStyles } from '../../../../ui/styles';
 import { Panel } from '../../../common';
-import { Close } from '@material-ui/icons';
+import { Close } from '@mui/icons-material';
 import { useDispatch, useSelector } from 'react-redux';
 import { updateMoleculeInMolLists, updateMoleculeTag, updateTag } from '../../../../reducers/api/actions';
 import {
@@ -20,8 +21,8 @@ import {
 } from '../utils/tagUtils';
 import TagCategory from '../tagCategory';
 import { TaggingInProgressModal } from './taggingInProgressModal';
-import { withStyles } from '@material-ui/core/styles';
-import { blue } from '@material-ui/core/colors';
+import { withStyles } from '../../../../ui/styles';
+import { blue } from '@mui/material/colors';
 import { getCategoryById } from '../../molecule/redux/dispatchActions';
 import RichTooltip from '../../../tooltip/RichTooltip';
 
@@ -39,8 +40,8 @@ const useStyles = makeStyles(theme => ({
   },
   contColButton: {
     minWidth: 'fit-content',
-    paddingLeft: theme.spacing(1) / 4,
-    paddingRight: theme.spacing(1) / 4,
+    paddingLeft: theme.spacing(0.25),
+    paddingRight: theme.spacing(0.25),
     paddingBottom: 0,
     paddingTop: 0,
     fontWeight: 'bold',
@@ -61,7 +62,7 @@ const useStyles = makeStyles(theme => ({
     display: 'flex',
     height: '100%',
     width: '100%',
-    paddingTop: theme.spacing(1) / 2,
+    paddingTop: theme.spacing(0.5),
     marginRight: '1px',
     marginLeft: '1px'
   },

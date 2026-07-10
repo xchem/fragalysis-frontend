@@ -4,9 +4,10 @@
 
 import React, { memo, useEffect, useState, useRef, useContext, useCallback, useMemo } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { Button, Grid, makeStyles, IconButton, Popper, CircularProgress } from '@material-ui/core';
+import { Button, GridLegacy as Grid, IconButton, Popper, CircularProgress } from '@mui/material';
+import { makeStyles } from '../../../../../../ui/styles';
 import { Panel } from '../../../../../common';
-import { MyLocation, Assignment } from '@material-ui/icons';
+import { MyLocation, Assignment } from '@mui/icons-material';
 import classNames from 'classnames';
 import { VIEWS } from '../../../../../../constants/constants';
 import { NglContext } from '../../../../../nglView/nglProvider';
@@ -44,7 +45,7 @@ import { DEFAULT_TAG_COLOR, getAllTagsForLHSCmp } from '../../../../tags/utils/t
 import useClipboard from 'react-use-clipboard';
 import Popover from '@mui/material/Popover';
 import Typography from '@mui/material/Typography';
-import { Edit } from '@material-ui/icons';
+import { Edit } from '@mui/icons-material';
 import { DJANGO_CONTEXT } from '../../../../../../utils/djangoContext';
 import { getFontColorByBackgroundColor } from '../../../../../../utils/colors';
 import { CopyDataTable } from '../../copyDataTable';
@@ -126,7 +127,7 @@ const measureTextWidth = (text, font) => {
 
 const useStyles = makeStyles(theme => ({
   container: {
-    padding: theme.spacing(1) / 4,
+    padding: theme.spacing(0.25),
     color: 'black',
     height: 54
   },
@@ -138,7 +139,7 @@ const useStyles = makeStyles(theme => ({
     lineHeight: '1'
   },
   contButtonsMargin: {
-    // margin: theme.spacing(1) / 2,
+    // margin: theme.spacing(0.5),
     margin: '2px 1px',
     width: '100%',
     minWidth: DETAIL_SINGLE_CONTROL_WIDTH,
@@ -172,8 +173,8 @@ const useStyles = makeStyles(theme => ({
     // width: '100%',
     minWidth: 20,
     width: 22,
-    paddingLeft: theme.spacing(1) / 4,
-    paddingRight: theme.spacing(1) / 4,
+    paddingLeft: theme.spacing(0.25),
+    paddingRight: theme.spacing(0.25),
     paddingBottom: 0,
     paddingTop: 0,
     fontWeight: 'bold',
@@ -202,8 +203,8 @@ const useStyles = makeStyles(theme => ({
     lineHeight: '1.62',
     minWidth: 'fit-content',
     width: 13,
-    paddingLeft: theme.spacing(1) / 4,
-    paddingRight: theme.spacing(1) / 4,
+    paddingLeft: theme.spacing(0.25),
+    paddingRight: theme.spacing(0.25),
     paddingBottom: 0,
     paddingTop: 0,
     fontWeight: 'bold',
@@ -273,9 +274,9 @@ const useStyles = makeStyles(theme => ({
     borderRightColor: theme.palette.background.divider,
     fontWeight: 'bold',
     fontSize: 11,
-    paddingLeft: theme.spacing(1) / 2,
-    paddingRight: theme.spacing(1) / 2,
-    paddingBottom: theme.spacing(1) / 4,
+    paddingLeft: theme.spacing(0.5),
+    paddingRight: theme.spacing(0.5),
+    paddingBottom: theme.spacing(0.25),
     width: 25,
     textAlign: 'center',
     '&:last-child': {
@@ -292,11 +293,11 @@ const useStyles = makeStyles(theme => ({
     backgroundColor: theme.palette.background.default,
     border: `solid 1px`,
     borderColor: theme.palette.background.divider,
-    paddingBottom: theme.spacing(1) / 4
+    paddingBottom: theme.spacing(0.25)
   },
   qualityLabel: {
-    paddingLeft: theme.spacing(1) / 4,
-    paddingRight: theme.spacing(1) / 4
+    paddingLeft: theme.spacing(0.25),
+    paddingRight: theme.spacing(0.25)
   },
   matchingValue: {
     backgroundColor: theme.palette.success.lighter
@@ -357,8 +358,8 @@ const useStyles = makeStyles(theme => ({
   },
   myLocationButton: {
     minWidth: 'fit-content',
-    paddingLeft: theme.spacing(1) / 4,
-    paddingRight: theme.spacing(1) / 4,
+    paddingLeft: theme.spacing(0.25),
+    paddingRight: theme.spacing(0.25),
     paddingBottom: 0,
     paddingTop: 0,
     fontWeight: 'bold',

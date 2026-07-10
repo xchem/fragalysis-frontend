@@ -1,6 +1,6 @@
 import React, { memo, useContext } from 'react';
 import Modal from '../../common/Modal';
-import { DialogActions, DialogContent, DialogContentText, DialogTitle } from '@material-ui/core';
+import { DialogActions, DialogContent, DialogContentText, DialogTitle } from '@mui/material';
 import { Button } from '../../common/Inputs/Button';
 import { useDispatch, useSelector } from 'react-redux';
 import { NglContext } from '../../nglView/nglProvider';

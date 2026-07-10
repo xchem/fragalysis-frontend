@@ -1,11 +1,12 @@
 import React, { useContext, useState } from 'react';
-import { Modal, Paper } from '@material-ui/core';
+import { Modal, Paper } from '@mui/material';
 import { Button } from '../../common/Inputs/Button';
-import { makeStyles } from '@material-ui/core';
+import { makeStyles } from '../../../ui/styles';
 import { useSelector } from 'react-redux';
 import { useDispatch } from 'react-redux';
 import { setJobLauncherDialogOpen } from '../../projects/redux/actions';
-import { MuiForm as JSONForm } from '@rjsf/material-ui';
+import JSONForm from '@rjsf/mui';
+import validator from '@rjsf/validator-ajv8';
 import { useJobSchema } from './useJobSchema';
 import { jobRequest } from '../../projects/redux/dispatchActions';
 import { setJobLauncherSquonkUrl, refreshJobsData } from '../../projects/redux/actions';
@@ -203,6 +204,7 @@ const JobLauncherDialog = () => {
           <JSONForm
             schema={schema}
             uiSchema={uiSchema}
+            validator={validator}
             onSubmit={onSubmitForm}
             formData={formData}
             onChange={event => {

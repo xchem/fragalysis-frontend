@@ -1,7 +1,8 @@
 /**
  * Created by ricgillams on 29/10/2018.
  */
-import { Grid, makeStyles, Checkbox, ListItemSecondaryAction, List, ListItem, ListItemText } from '@material-ui/core';
+import { GridLegacy as Grid, Checkbox, ListItemSecondaryAction, List, ListItem, ListItemText } from '@mui/material';
+import { makeStyles } from '../../ui/styles';
 import React, { memo } from 'react';
 
 const useStyles = makeStyles(theme => ({

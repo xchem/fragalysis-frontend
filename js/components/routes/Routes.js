@@ -1,5 +1,6 @@
 import React, { memo, useContext, useEffect } from 'react';
-import { Box, makeStyles, useTheme } from '@material-ui/core';
+import { Box, useTheme } from '@mui/material';
+import { makeStyles } from '../../ui/styles';
 import { Header } from '../header';
 import { Route, Switch, useLocation, useRouteMatch } from 'react-router-dom';
 import { Management } from '../management/management';
@@ -37,7 +38,7 @@ const Routes = memo(() => {
   const classes = useStyles();
   const theme = useTheme();
   const { headerHeight, setHeaderHeight } = useContext(HeaderContext);
-  const contentHeight = `calc(100vh - ${headerHeight}px - ${2 * theme.spacing(1)}px)`;
+  const contentHeight = `calc(100vh - ${headerHeight}px - ${theme.spacing(2)})`;
   const contentWidth = `100%`;
   const isFunders = useRouteMatch(URLS.funders);
 

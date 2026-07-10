@@ -3,7 +3,8 @@
  */
 import React, { memo, useEffect, useState, useRef, useContext, useCallback, forwardRef } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { makeStyles, TableRow, TableCell } from '@material-ui/core';
+import { TableRow, TableCell } from '@mui/material';
+import { makeStyles } from '../../../../ui/styles';
 import classNames from 'classnames';
 import { VIEWS } from '../../../../constants/constants';
 import { COMMON_PARAMS } from '../../../nglView/constants';
@@ -37,7 +38,7 @@ import { LHS_OBSERVATION_VIEW_CONFIG } from './viewConfigs';
 
 const useStyles = makeStyles(theme => ({
   container: {
-    padding: theme.spacing(1) / 4,
+    padding: theme.spacing(0.25),
     color: 'black',
     minHeight: BASE_ROW_HEIGHT,
     '& > td': {

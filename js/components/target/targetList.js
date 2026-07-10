@@ -6,7 +6,6 @@ import React, { memo, useState, useEffect, useCallback } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import {
   Table,
-  makeStyles,
   TableBody,
   TableHead,
   TableCell,
@@ -17,10 +16,11 @@ import {
   InputAdornment,
   TextField,
   Typography
-} from '@material-ui/core';
+} from '@mui/material';
+import { makeStyles } from '../../ui/styles';
 import { Link } from 'react-router-dom';
 import { URLS } from '../routes/constants';
-import { Edit } from '@material-ui/icons';
+import { Edit } from '@mui/icons-material';
 import { URL_TOKENS } from '../direct/constants';
 import { setEditTargetDialogOpen } from './redux/actions';
 import {
@@ -33,7 +33,7 @@ import {
   compareInitDateDesc
 } from './sortTargets/sortTargets';
 import { TargetListSortFilterDialog } from './targetListSortFilterDialog';
-import { Search, KeyboardArrowDown, KeyboardArrowUp, UnfoldMore, FilterList } from '@material-ui/icons';
+import { Search, KeyboardArrowDown, KeyboardArrowUp, UnfoldMore, FilterList } from '@mui/icons-material';
 import { setTargetToEdit } from '../../reducers/selection/actions';
 import { TARGETS_ATTR } from './redux/constants';
 import { getTargetProjectCombinations } from './redux/dispatchActions';
@@ -67,7 +67,7 @@ const useStyles = makeStyles(theme => ({
     }
   },
   chip: {
-    margin: theme.spacing(1) / 2
+    margin: theme.spacing(0.5)
   },
   arrowsWrapper: {
     paddingRight: 3
@@ -78,6 +78,12 @@ const useStyles = makeStyles(theme => ({
     padding: '0px'
   }
 }));
+
+const HeaderControlCell = ({ children }) => (
+  <TableCell style={{ width: '2px', padding: '0px', margin: '0px' }}>
+    <div style={{ display: 'flex' }}>{children}</div>
+  </TableCell>
+);
 
 export const TargetList = memo(({ list = [], title = 'Target list', authRequired = false, legacy = false }) => {
   const classes = useStyles();
@@ -706,12 +712,14 @@ export const TargetList = memo(({ list = [], title = 'Target list', authRequired
               placeholder="Search"
               size="small"
               color="primary"
-              InputProps={{
-                startAdornment: (
-                  <InputAdornment position="start">
-                    <Search />
-                  </InputAdornment>
-                )
+              slotProps={{
+                input: {
+                  startAdornment: (
+                    <InputAdornment position="start">
+                      <Search />
+                    </InputAdornment>
+                  )
+                }
               }}
               onChange={handleSearch}
             />,
@@ -754,7 +762,7 @@ export const TargetList = memo(({ list = [], title = 'Target list', authRequired
                   </Typography>
                 </RichTooltip>
               </TableCell>
-              <div style={{ display: 'flex' }}>
+              <HeaderControlCell>
                 <div>
                   <IconButton
                     style={{ padding: '0px', paddingRight: '5px' }}
@@ -781,7 +789,7 @@ export const TargetList = memo(({ list = [], title = 'Target list', authRequired
                   }}
                   onMouseDown={handleMouseDown}
                 ></div>
-              </div>
+              </HeaderControlCell>
               {legacy === false && [
                 <TableCell
                   key={20}
@@ -800,7 +808,7 @@ export const TargetList = memo(({ list = [], title = 'Target list', authRequired
                     </Typography>
                   </RichTooltip>
                 </TableCell>,
-                <div key={21} style={{ display: 'flex' }}>
+                <HeaderControlCell key={21}>
                   <div>
                     <IconButton style={{ padding: '0px', paddingRight: '5px' }} onClick={() => handleHeaderSort('tas')}>
                       <RichTooltip path="sort" className={classes.sortButton}>
@@ -824,7 +832,7 @@ export const TargetList = memo(({ list = [], title = 'Target list', authRequired
                     }}
                     onMouseDown={handleMouseDownResizerTargetAccessString}
                   ></div>
-                </div>,
+                </HeaderControlCell>,
 
                 <TableCell
                   key={22}
@@ -833,7 +841,7 @@ export const TargetList = memo(({ list = [], title = 'Target list', authRequired
                 >
                   {newFilter.initDate.title}
                 </TableCell>,
-                <div key={23} style={{ display: 'flex' }}>
+                <HeaderControlCell key={23}>
                   <div className={classes.arrowsWrapper}>
                     <IconButton
                       style={{ padding: '0px', verticalAlign: 'center' }}
@@ -860,7 +868,7 @@ export const TargetList = memo(({ list = [], title = 'Target list', authRequired
                     }}
                     onMouseDown={handleMouseDownResizerInitDate}
                   ></div>
-                </div>,
+                </HeaderControlCell>,
                 <TableCell
                   key={'1'}
                   className={classes.tableHeader}
@@ -868,7 +876,7 @@ export const TargetList = memo(({ list = [], title = 'Target list', authRequired
                 >
                   {newFilter.lastUpdatedDate.title}
                 </TableCell>,
-                <div key={'2'} style={{ display: 'flex' }}>
+                <HeaderControlCell key={'2'}>
                   <div className={classes.arrowsWrapper}>
                     <IconButton
                       style={{ padding: '0px', verticalAlign: 'center' }}
@@ -895,7 +903,7 @@ export const TargetList = memo(({ list = [], title = 'Target list', authRequired
                     }}
                     onMouseDown={() => handleMouseDown('lastUpdatedDate')}
                   ></div>
-                </div>,
+                </HeaderControlCell>,
 
                 <TableCell
                   key={'3'}
@@ -904,7 +912,7 @@ export const TargetList = memo(({ list = [], title = 'Target list', authRequired
                 >
                   {newFilter.shortName.title}
                 </TableCell>,
-                <div key={'4'} style={{ display: 'flex' }}>
+                <HeaderControlCell key={'4'}>
                   <div className={classes.arrowsWrapper}>
                     <IconButton
                       style={{ padding: '0px', verticalAlign: 'center' }}
@@ -931,7 +939,7 @@ export const TargetList = memo(({ list = [], title = 'Target list', authRequired
                     }}
                     onMouseDown={() => handleMouseDownResizer('shortName')}
                   ></div>
-                </div>,
+                </HeaderControlCell>,
                 <TableCell
                   key={'5'}
                   className={classes.tableHeader}
@@ -939,7 +947,7 @@ export const TargetList = memo(({ list = [], title = 'Target list', authRequired
                 >
                   {newFilter.longName.title}
                 </TableCell>,
-                <div key={'6'} style={{ display: 'flex' }}>
+                <HeaderControlCell key={'6'}>
                   <div className={classes.arrowsWrapper}>
                     <IconButton
                       style={{ padding: '0px', verticalAlign: 'center' }}
@@ -966,7 +974,7 @@ export const TargetList = memo(({ list = [], title = 'Target list', authRequired
                     }}
                     onMouseDown={() => handleMouseDownResizer('longName')}
                   ></div>
-                </div>,
+                </HeaderControlCell>,
                 <TableCell
                   key={'7'}
                   className={classes.tableHeader}
@@ -974,7 +982,7 @@ export const TargetList = memo(({ list = [], title = 'Target list', authRequired
                 >
                   {newFilter.organism.title}
                 </TableCell>,
-                <div key={'8'} style={{ display: 'flex' }}>
+                <HeaderControlCell key={'8'}>
                   <div className={classes.arrowsWrapper}>
                     <IconButton
                       style={{ padding: '0px', verticalAlign: 'center' }}
@@ -1001,7 +1009,7 @@ export const TargetList = memo(({ list = [], title = 'Target list', authRequired
                     }}
                     onMouseDown={() => handleMouseDownResizer('organism')}
                   ></div>
-                </div>,
+                </HeaderControlCell>,
 
                 <TableCell
                   key={'9'}
@@ -1010,7 +1018,7 @@ export const TargetList = memo(({ list = [], title = 'Target list', authRequired
                 >
                   External URL
                 </TableCell>,
-                <div key={'10'} style={{ display: 'flex' }}>
+                <HeaderControlCell key={'10'}>
                   <div className={classes.arrowsWrapper}>
                     <IconButton
                       style={{ padding: '0px', verticalAlign: 'center' }}
@@ -1037,7 +1045,7 @@ export const TargetList = memo(({ list = [], title = 'Target list', authRequired
                     }}
                     onMouseDown={() => handleMouseDownResizer('externalURL')}
                   ></div>
-                </div>,
+                </HeaderControlCell>,
 
                 <TableCell
                   key={'11'}
@@ -1046,7 +1054,7 @@ export const TargetList = memo(({ list = [], title = 'Target list', authRequired
                 >
                   Data version
                 </TableCell>,
-                <div key={'12'} style={{ display: 'flex' }}>
+                <HeaderControlCell key={'12'}>
                   <div className={classes.arrowsWrapper}>
                     <IconButton
                       style={{ padding: '0px', verticalAlign: 'center' }}
@@ -1073,7 +1081,7 @@ export const TargetList = memo(({ list = [], title = 'Target list', authRequired
                     }}
                     onMouseDown={() => handleMouseDownResizer('dataVersion')}
                   ></div>
-                </div>
+                </HeaderControlCell>
               ]}
 
               {DJANGO_CONTEXT['authenticated'] && legacy === false && (
@@ -1094,9 +1102,11 @@ export const TargetList = memo(({ list = [], title = 'Target list', authRequired
                 count={targetList.length}
                 rowsPerPage={rowsPerPage}
                 page={page}
-                SelectProps={{
-                  inputProps: { 'aria-label': 'rows per page' },
-                  native: true
+                slotProps={{
+                  select: {
+                    inputProps: { 'aria-label': 'rows per page' },
+                    native: true
+                  }
                 }}
                 onPageChange={handleChangePage}
                 onRowsPerPageChange={handleChangeRowsPerPage}

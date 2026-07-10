@@ -1,5 +1,6 @@
-import { IconButton, makeStyles } from '@material-ui/core';
-import { Warning } from '@material-ui/icons';
+import { IconButton } from '@mui/material';
+import { makeStyles } from '../../../../../../ui/styles';
+import { Warning } from '@mui/icons-material';
 import React, { memo, useState } from 'react';
 import { SvgTooltip } from '../../../../../common';
 import SVGInline from 'react-svg-inline';

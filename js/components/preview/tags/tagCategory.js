@@ -1,5 +1,5 @@
 import React, { memo } from 'react';
-import { Grid } from '@material-ui/core';
+import { GridLegacy as Grid } from '@mui/material';
 import { useSelector } from 'react-redux';
 import TagCategoryView from './tagCategoryListView';
 import TagCategoryGridView from './tagCategoryGridView';

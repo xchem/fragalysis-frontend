@@ -1,15 +1,16 @@
-import { Button, Grid, makeStyles, Modal } from '@material-ui/core';
+import { Button, GridLegacy as Grid, Modal } from '@mui/material';
+import { makeStyles } from '../../../ui/styles';
 import React from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { Field, Form, Formik } from 'formik';
-import { TextField } from 'formik-material-ui';
+import { FormikTextField as TextField } from '../../common/Inputs/FormikTextField';
 import { setSnapshotEditDialogOpen, setSnapshotToBeEdited } from '../../snapshot/redux/actions';
 import { base_url } from '../../routes/constants';
 import { api, METHOD } from '../../../utils/api';
 import { addToastMessage } from '../../../reducers/selection/actions';
 import { TOAST_LEVELS } from '../../toast/constants';
 import { InputFieldAvatar } from '../../projects/projectModal/inputFieldAvatar';
-import { Description, Title } from '@material-ui/icons';
+import { Description, Title } from '@mui/icons-material';
 import RichTooltip from '../../tooltip/RichTooltip';
 
 const useStyles = makeStyles(theme => ({

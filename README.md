@@ -36,8 +36,8 @@ The repositories are:
 
 - Docker
 - Git
-- NodeJS (v22.17.1)
-- Yarn
+- Node.js 24 LTS (`24.18.0`)
+- Corepack (install it with `npm install --global corepack` if `corepack --version` is unavailable)
 - Some target data
 
 ## Setup
@@ -86,7 +86,17 @@ mkdir -p data/postgre/data
 
 ```
 cd fragalysis-frontend/
-yarn
+node --version
+corepack enable
+yarn install
+```
+
+`node --version` should match `.node-version` (`v24.18.0`).
+
+If `corepack enable` reports a permissions error, install its shims in the user-level npm directory instead:
+
+```
+corepack enable --install-directory "$(npm config get prefix)"
 ```
 
 Start webpack dev server
@@ -158,6 +168,20 @@ To create .env with token right away:
 ```
 echo "GITHUB_API_TOKEN=myGitHubToken" > .env
 ```
+
+The molecular viewer is selected with `VIEWER_ENGINE`. NGL is the default and the only enabled viewer during the
+early migration stages:
+
+```
+VIEWER_ENGINE=ngl
+```
+
+For local development, add the value to `.env`. Dev and staging builds can provide the same variable in the build
+environment. A deployed environment can override the build value at runtime by setting
+`window.DJANGO_CONTEXT.viewer_engine`. Runtime configuration takes precedence over build configuration.
+
+`moorhen` is reserved as a future value. Until the Moorhen implementation is enabled, that value and any unknown
+value safely fall back to NGL.
 
 # When backend and/or loader are updated
 
@@ -232,10 +256,16 @@ CYPRESS_PASSWORD=your_password
 Install dependencies with Yarn:
 
 ```
-yarn
+corepack enable
+yarn install
 ```
 
 The tests run against the remote `baseUrl` configured in `cypress.config.ts`.
+Override it for a CI preview stack or local backend with:
+
+```
+CYPRESS_BASE_URL=https://your-stack.example.org
+```
 
 Open the Cypress runner:
 
@@ -246,5 +276,11 @@ yarn runner
 Run the Cypress suite headlessly:
 
 ```
-npx cypress run --e2e
+yarn cy:run
+```
+
+Run the migration smoke suite headlessly:
+
+```
+yarn cy:smoke
 ```

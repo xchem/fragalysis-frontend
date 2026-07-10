@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Button, Modal } from '../../common';
 import { DJANGO_CONTEXT } from '../../../utils/djangoContext';
-import { DialogActions, DialogContent, DialogContentText, DialogTitle } from '@material-ui/core';
+import { DialogActions, DialogContent, DialogContentText, DialogTitle } from '@mui/material';
 import { updateClipboard } from '../../snapshot/helpers';
 
 export const LegacySnapshotModal = ({ open, project, snapshot }) => {

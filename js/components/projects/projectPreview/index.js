@@ -58,15 +58,9 @@ export const ProjectPreview = memo(({}) => {
 
   const [showLegacySnapshotModal, setShowLegacySnapshotModal] = useState(false);
 
-  const { getNglView } = useContext(NglContext);
+  const { getNglView, getViewerAdapter } = useContext(NglContext);
   const stage = getNglView(VIEWS.MAJOR_VIEW) && getNglView(VIEWS.MAJOR_VIEW).stage;
-
-  // useEffect(() => {
-  //   if (isNglViewFromSnapshotRendered && stage && snapshotNglOrientation && snapshotNglOrientation?.elements) {
-  //     stage.viewerControls.orient(snapshotNglOrientation.elements);
-  //     dispatch(setSnapshotOrientationApplied(true));
-  //   }
-  // }, [dispatch, isNglViewFromSnapshotRendered, snapshotNglOrientation, stage]);
+  const viewerAdapter = getViewerAdapter(VIEWS.MAJOR_VIEW);
 
   useEffect(() => {
     if (
@@ -75,7 +69,7 @@ export const ProjectPreview = memo(({}) => {
     ) {
       try {
         if (!switchingSnapshotWithinProject) {
-          stage.viewerControls.orient(snapshotNglOrientation.elements);
+          viewerAdapter.setOrientation(snapshotNglOrientation.elements);
         }
         dispatch(setSnapshotOrientationApplied(true));
         if (reapplyOrientation) {
@@ -91,7 +85,8 @@ export const ProjectPreview = memo(({}) => {
     isNglViewFromSnapshotRendered,
     dispatch,
     reapplyOrientation,
-    switchingSnapshotWithinProject
+    switchingSnapshotWithinProject,
+    viewerAdapter
   ]);
 
   useEffect(() => {

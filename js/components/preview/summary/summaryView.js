@@ -5,8 +5,9 @@ import React, { memo, useState, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { CmpdSummaryImage } from './CmpdSummaryImage';
 import { Panel } from '../../common/Surfaces/Panel';
-import { Grid, makeStyles, Typography, Button } from '@material-ui/core';
-import { CloudDownload } from '@material-ui/icons';
+import { GridLegacy as Grid, Typography, Button } from '@mui/material';
+import { makeStyles } from '../../../ui/styles';
+import { CloudDownload } from '@mui/icons-material';
 import { ComputeSize } from '../../../utils/computeSize';
 import { exportCsv, updateSummaryView } from './redux/dispatchAction';
 

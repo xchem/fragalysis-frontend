@@ -5,8 +5,9 @@
 import React, { memo, useState, useContext } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { Button } from '../../common/Inputs/Button';
-import { Settings, Mouse, PersonalVideo } from '@material-ui/icons';
-import { ButtonGroup, makeStyles } from '@material-ui/core';
+import { Settings, Mouse, PersonalVideo } from '@mui/icons-material';
+import { ButtonGroup } from '@mui/material';
+import { makeStyles } from '../../../ui/styles';
 import { SettingControls } from './settingsControls';
 import DisplayControls from './displayControls/';
 import { MouseControls } from './mouseControls';

@@ -1,19 +1,10 @@
 import React, { useContext, useEffect, useState } from 'react';
-import {
-  Box,
-  ClickAwayListener,
-  IconButton,
-  MenuItem,
-  Typography,
-  Paper,
-  Modal,
-  FormHelperText
-} from '@material-ui/core';
-import { makeStyles } from '@material-ui/core';
+import { Box, ClickAwayListener, IconButton, MenuItem, Typography, Paper, Modal, FormHelperText } from '@mui/material';
+import { makeStyles } from '../../../ui/styles';
 import { Button } from '../../common/Inputs/Button';
 import { Formik, Form, Field } from 'formik';
-import { TextField } from 'formik-material-ui';
-import HelpIcon from '@material-ui/icons/Help';
+import { FormikTextField as TextField } from '../../common/Inputs/FormikTextField';
+import HelpIcon from '@mui/icons-material/Help';
 import { useSelector } from 'react-redux';
 import { useDispatch } from 'react-redux';
 import {
@@ -494,7 +485,7 @@ const JobConfigurationDialog = ({ snapshots }) => {
                     variant="standard"
                     margin="none"
                     label="Fragment network merges"
-                    InputLabelProps={{ shrink: true }}
+                    slotProps={{ inputLabel: { shrink: true } }}
                     className={classes.width70}
                     disabled={false}
                   >
@@ -509,9 +500,7 @@ const JobConfigurationDialog = ({ snapshots }) => {
                     <RichTooltip
                       absolutePath
                       path="fragalysis.preview.projectHistory.jobConfigurationDialog.help"
-                      PopperProps={{
-                        disablePortal: true
-                      }}
+                      slotProps={{ popper: { disablePortal: true } }}
                       onClose={handleTooltipClose}
                       open={open}
                       disableFocusListener
@@ -545,7 +534,7 @@ const JobConfigurationDialog = ({ snapshots }) => {
                         select
                         variant="standard"
                         margin="none"
-                        InputLabelProps={{ shrink: true }}
+                        slotProps={{ inputLabel: { shrink: true } }}
                         className={(classes.marginLeft10, classes.width60)}
                         label="Choose the snapshot"
                         disabled={values.inputs !== 'snapshot'}

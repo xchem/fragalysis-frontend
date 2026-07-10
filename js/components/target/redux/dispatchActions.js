@@ -18,7 +18,9 @@ import { setCurrentProject } from '../../projects/redux/actions';
 import { setCurrentProject as setProject } from './actions';
 import { DJANGO_CONTEXT } from '../../../utils/djangoContext';
 // eslint-disable-next-line import/extensions
-import { results as legacyTargetData } from '../../../../legacy/legacy_targets.json';
+import legacyTargets from '../../../../legacy/legacy_targets.json';
+
+const { results: legacyTargetData } = legacyTargets;
 
 export const loadTargetList = onCancel => (dispatch, getState) => {
   const oldUrl = getState().targetReducers.oldUrl;

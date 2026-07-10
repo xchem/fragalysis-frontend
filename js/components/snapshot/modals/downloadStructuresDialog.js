@@ -1,24 +1,8 @@
 import React, { memo, useState, useContext, useEffect, useCallback } from 'react';
 import Modal from '../../common/Modal';
 import { useDispatch, useSelector } from 'react-redux';
-import {
-  DialogTitle,
-  DialogContent,
-  DialogActions,
-  Grid,
-  makeStyles,
-  LinearProgress,
-  FormControlLabel,
-  Checkbox,
-  RadioGroup,
-  Radio,
-  Button,
-  Box,
-  Typography,
-  Select,
-  MenuItem,
-  Paper
-} from '@material-ui/core';
+import { DialogTitle, DialogContent, DialogActions, GridLegacy as Grid, LinearProgress, FormControlLabel, Checkbox, RadioGroup, Radio, Button, Box, Typography, Select, MenuItem, Paper } from '@mui/material';
+import { makeStyles } from '../../../ui/styles';
 import { selectJoinedMoleculeList } from '../../preview/molecule/redux/selectors';
 import {
   getDownloadStructuresTaskOrUrl,
@@ -29,7 +13,7 @@ import {
 import { setDownloadStructuresDialogOpen, setDontShowShareSnapshot, setSharedSnapshot } from '../redux/actions';
 import { saveAndShareSnapshot } from '../redux/dispatchActions';
 import { getFileSizeString } from '../../../utils/api';
-import { v4 as uuidv4 } from 'uuid';
+import { createUuid } from '../../../utils/uuid';
 import { createMoleculeTagObject, DEFAULT_TAG_COLOR } from '../../preview/tags/utils/tagUtils';
 import { CATEGORY_TYPE, CATEGORY_ID } from '../../../constants/constants';
 import { DJANGO_CONTEXT } from '../../../utils/djangoContext';
@@ -41,7 +25,7 @@ import { initSharedSnapshot } from '../redux/reducer';
 import moment from 'moment-timezone';
 import { appendToDownloadTags } from '../../../reducers/api/actions';
 import { getTagByName } from '../../preview/tags/api/tagsApi';
-import { withStyles } from '@material-ui/core/styles';
+import { withStyles } from '../../../ui/styles';
 import { ToastContext } from '../../toast';
 import RichTooltip from '../../tooltip/RichTooltip';
 
@@ -69,7 +53,7 @@ const useStyles = makeStyles(theme => ({
     marginTop: theme.spacing(4),
     display: 'grid',
     gridTemplateColumns: 'repeat(3, auto)',
-    gap: `0 ${theme.spacing()}px`,
+    gap: `0 ${theme.spacing()}`,
     '& > h6': {
       paddingTop: theme.spacing(3),
       paddingBottom: theme.spacing()
@@ -421,7 +405,7 @@ export const DownloadStructureDialog = memo(({}) => {
   };
 
   const generateTagName = () => {
-    return uuidv4();
+    return createUuid();
   };
 
   const generateUrl = tag => {

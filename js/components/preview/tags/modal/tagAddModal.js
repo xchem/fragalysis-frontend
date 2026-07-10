@@ -1,12 +1,13 @@
 import React, { memo, useState } from 'react';
 import Modal from '../../../common/Modal';
 import { useDispatch, useSelector } from 'react-redux';
-import { makeStyles, Grid, Typography, Chip } from '@material-ui/core';
-import { Label } from '@material-ui/icons';
-import { Autocomplete } from '@material-ui/lab';
+import { GridLegacy as Grid, Typography, Chip } from '@mui/material';
+import { makeStyles } from '../../../../ui/styles';
+import { Label } from '@mui/icons-material';
+import { Autocomplete } from '@mui/material';
 import { InputFieldAvatar } from '../../../projects/projectModal/inputFieldAvatar';
 import { Formik, Form, Field } from 'formik';
-import { TextField } from 'formik-material-ui';
+import { FormikTextField as TextField } from '../../../common/Inputs/FormikTextField';
 import { Button } from '../../../common/Inputs/Button';
 import { addTag } from '../redux/dispatchActions';
 import palette from '../../../../theme/palette';
@@ -110,16 +111,22 @@ export const TagAddModal = memo(({ openDialog, setOpenDialog, molecule }) => {
                       onChange={(e, data) => {
                         handleTagChange(e, data);
                       }}
-                      renderTags={(value, props) => {
+                      renderValue={(value, getItemProps) => {
                         return value.map((option, index) => {
                           let bgColor = option.color;
                           let color = getFontColorByBackgroundColor(bgColor);
                           let style = { backgroundColor: bgColor, color: color };
-                          return <Chip style={style} label={option.text} size="small" {...props({ index })} />;
+                          const { key, ...tagProps } = getItemProps({ index });
+                          return <Chip key={key} style={style} label={option.text} size="small" {...tagProps} />;
                         });
                       }}
-                      renderOption={(option, { selected }) => {
-                        return <span>{option.text}</span>;
+                      renderOption={(props, option) => {
+                        const { key, ...optionProps } = props;
+                        return (
+                          <li key={key} {...optionProps}>
+                            {option.text}
+                          </li>
+                        );
                       }}
                       renderInput={params => (
                         <Field

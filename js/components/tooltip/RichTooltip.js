@@ -1,7 +1,8 @@
 // js/components/tooltip/RichTooltip.js
 
 import React, { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { Tooltip, makeStyles } from '@material-ui/core';
+import { Tooltip } from '../../ui';
+import { makeStyles } from '../../ui/styles';
 import classNames from 'classnames';
 import Markdown from 'markdown-to-jsx';
 import { getTooltip, interpolate } from './resolver';
@@ -109,8 +110,7 @@ const RichTooltip = memo(function RichTooltip({
   interactive = true,
   onOpen: onOpenProp,
   onClose: onCloseProp,
-  PopperProps: popperPropsProp,
-  TransitionProps: transitionPropsProp,
+  slotProps: { popper: popperPropsProp, transition: transitionPropsProp } = {},
   ...tooltipProps
 }) {
   const classes = useStyles();
@@ -323,10 +323,9 @@ const RichTooltip = memo(function RichTooltip({
       placement={placement}
       enterDelay={enterDelay}
       leaveDelay={leaveDelay}
-      interactive={interactive}
+      disableInteractive={!interactive}
       open={isOpen && shouldShowTooltip}
-      PopperProps={mergedPopperProps}
-      TransitionProps={mergedTransitionProps}
+      slotProps={{ popper: mergedPopperProps, transition: mergedTransitionProps }}
       classes={{ tooltip: classes.tooltip, arrow: classes.arrow }}
       onOpen={openTooltip}
       onClose={e => {

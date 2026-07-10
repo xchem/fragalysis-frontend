@@ -2,26 +2,7 @@ import { MOL_REPRESENTATION, OBJECT_TYPE, SELECTION_TYPE } from './constants';
 import * as listTypes from '../../constants/listTypes';
 import { getLigandData } from '../preview/tags/redux/dispatchActions';
 
-export const defaultFocus = 0;
-export const createRepresentationStructure = (type, params, lastKnownID = undefined) => ({ type, params, lastKnownID });
-
-export const createRepresentationsArray = representations =>
-  representations && representations.map(r => createRepresentationStructure(r.type, r.params, r.lastKnownID));
-
-export const assignRepresentationToComp = (type, params, comp, lastKnownID = undefined) => {
-  const createdRepresentation = comp.addRepresentation(type, params || {});
-  return {
-    lastKnownID: lastKnownID || createdRepresentation.uuid,
-    uuid: createdRepresentation.uuid,
-    type,
-    params: createdRepresentation.getParameters(),
-    templateParams: createdRepresentation.repr.parameters
-  };
-};
-
-export const assignRepresentationArrayToComp = (representations, comp) => {
-  return representations.map(rep => assignRepresentationToComp(rep.type, rep.params, comp, rep.lastKnownID));
-};
+export { defaultFocus } from '../../viewer/ngl/representationHelpers';
 
 export const generateProteinObject = data => {
   // Now deal with this target
@@ -93,7 +74,8 @@ const normalizeUrlForCurrentProtocol = url => {
   return typeof location !== 'undefined' && location.protocol === 'https:' ? url.replace('http://', 'https://') : url;
 };
 
-const getStructureUrl = data => normalizeUrlForCurrentProtocol(data?.apo_file || data?.pdb_info || data?.virtual_pdb_info);
+const getStructureUrl = data =>
+  normalizeUrlForCurrentProtocol(data?.apo_file || data?.pdb_info || data?.virtual_pdb_info);
 
 const getArtefactStructureUrl = data =>
   normalizeUrlForCurrentProtocol(data?.artefacts_file || data?.pdb_info || data?.virtual_pdb_info);

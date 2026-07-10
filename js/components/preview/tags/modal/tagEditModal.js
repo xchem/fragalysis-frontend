@@ -1,12 +1,13 @@
 import React, { memo, useState } from 'react';
 import Modal from '../../../common/Modal';
 import { useDispatch, useSelector } from 'react-redux';
-import { makeStyles, Grid, Typography } from '@material-ui/core';
-import { Title, Description, Class, ColorLens } from '@material-ui/icons';
-import { Autocomplete } from '@material-ui/lab';
+import { GridLegacy as Grid, Typography } from '@mui/material';
+import { makeStyles } from '../../../../ui/styles';
+import { Title, Description, Class, ColorLens } from '@mui/icons-material';
+import { Autocomplete } from '@mui/material';
 import { InputFieldAvatar } from '../../../projects/projectModal/inputFieldAvatar';
 import { Formik, Form, Field } from 'formik';
-import { TextField } from 'formik-material-ui';
+import { FormikTextField as TextField } from '../../../common/Inputs/FormikTextField';
 import { Button } from '../../../common/Inputs/Button';
 import { updateTagProp } from '../redux/dispatchActions';
 import { ColorPicker } from '../../../common/Components/ColorPicker';

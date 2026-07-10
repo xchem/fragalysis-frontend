@@ -8,7 +8,3 @@ Cypress.on('uncaught:exception', error => {
 
   return true;
 });
-
-Cypress.on('uncaught:exception', () => {
-  return false;
-});

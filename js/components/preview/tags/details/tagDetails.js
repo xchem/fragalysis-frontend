@@ -1,14 +1,7 @@
 import React, { memo, useRef, useEffect, useCallback, useState, useMemo, useContext } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
-import {
-  Switch,
-  Typography,
-  makeStyles,
-  IconButton,
-  Grid,
-  FormControlLabel,
-  CircularProgress
-} from '@material-ui/core';
+import { Switch, Typography, IconButton, GridLegacy as Grid, FormControlLabel, CircularProgress } from '@mui/material';
+import { makeStyles } from '../../../../ui/styles';
 import { Panel } from '../../../common/Surfaces/Panel';
 import TagDetailRow from './tagDetailRow';
 import TagGridRows from './tagGridRows';
@@ -23,19 +16,19 @@ import {
   compareTagsByDateDesc,
   getCategoriesToBeRemovedFromTagDetails
 } from '../utils/tagUtils';
-import { UnfoldMore, KeyboardArrowDown, KeyboardArrowUp } from '@material-ui/icons';
+import { UnfoldMore, KeyboardArrowDown, KeyboardArrowUp } from '@mui/icons-material';
 import { getMoleculeForId } from '../redux/dispatchActions';
 import classNames from 'classnames';
 import SearchField from '../../../common/Components/SearchField';
 import { setPanelsExpanded } from '../../../../reducers/layout/actions';
-import { withStyles } from '@material-ui/core/styles';
-import { blue } from '@material-ui/core/colors';
+import { withStyles } from '../../../../ui/styles';
+import { blue } from '@mui/material/colors';
 import { selectAllTags, clearAllTags } from '../redux/dispatchActions';
 import { Button } from '../../../common/Inputs/Button';
 import { LoadingContext } from '../../../loading';
 import { EditTagsModal } from '../modal/editTagsModal';
 import { DJANGO_CONTEXT } from '../../../../utils/djangoContext';
-import v4 from 'uuid/v4';
+import { createUuid } from '../../../../utils/uuid';
 import RichTooltip from '../../../tooltip/RichTooltip';
 import { TooltipPathProvider } from '../../../tooltip/TooltipPathContext';
 
@@ -48,7 +41,7 @@ const useStyles = makeStyles(theme => ({
     flexDirection: 'column',
     overflow: 'auto',
     width: '100%',
-    marginTop: -theme.spacing(),
+    marginTop: theme.spacing(-1),
     justifyContent: 'space-between',
     paddingTop: '5px'
   },
@@ -104,8 +97,8 @@ const useStyles = makeStyles(theme => ({
   },
   contColButton: {
     minWidth: 'fit-content',
-    paddingLeft: theme.spacing(1) / 2,
-    paddingRight: theme.spacing(1) / 2,
+    paddingLeft: theme.spacing(0.5),
+    paddingRight: theme.spacing(0.5),
     paddingBottom: 1,
     paddingTop: 1,
     fontWeight: 'bold',
@@ -125,8 +118,8 @@ const useStyles = makeStyles(theme => ({
   },
   contColButtonSelected: {
     minWidth: 'fit-content',
-    paddingLeft: theme.spacing(1) / 2,
-    paddingRight: theme.spacing(1) / 2,
+    paddingLeft: theme.spacing(0.5),
+    paddingRight: theme.spacing(0.5),
     paddingBottom: 1,
     paddingTop: 1,
     fontWeight: 'bold',
@@ -456,7 +449,7 @@ const TagDetails = memo(
               </Button>
             </Grid>
             {DJANGO_CONTEXT.pk && [
-              <Grid key={v4()} item>
+              <Grid key={createUuid()} item>
                 <Button
                   onClick={() => handleEditTagsButton()}
                   disabled={false}
@@ -471,7 +464,7 @@ const TagDetails = memo(
               </Grid>,
               <TooltipPathProvider path="editModal">
                 <EditTagsModal
-                  key={v4()}
+                  key={createUuid()}
                   open={showEditTagsModal}
                   setOpenDialog={setShowEditTagsModal}
                   anchorEl={ref?.current}

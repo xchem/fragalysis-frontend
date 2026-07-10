@@ -1,16 +1,8 @@
 import React, { useContext, useEffect, useState } from 'react';
-import {
-  Card,
-  CardMedia,
-  CardContent,
-  Typography,
-  Button,
-  makeStyles,
-  IconButton,
-  ButtonBase
-} from '@material-ui/core';
-import StarIcon from '@material-ui/icons/Star';
-import StarBorderIcon from '@material-ui/icons/StarBorder';
+import { Card, CardMedia, CardContent, Typography, Button, IconButton, ButtonBase } from '@mui/material';
+import { makeStyles } from '../../ui/styles';
+import StarIcon from '@mui/icons-material/Star';
+import StarBorderIcon from '@mui/icons-material/StarBorder';
 import { api, METHOD } from '../../utils/api';
 import { base_url } from '../routes/constants';
 import moment from 'moment';

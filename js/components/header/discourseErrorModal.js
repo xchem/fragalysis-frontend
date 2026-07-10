@@ -1,6 +1,6 @@
 import React, { memo } from 'react';
 import Modal from '../common/Modal';
-import { Grid, Typography, Button } from '@material-ui/core';
+import { GridLegacy as Grid, Typography, Button } from '@mui/material';
 import { useDispatch } from 'react-redux';
 import { setOpenDiscourseErrorModal } from '../../reducers/api/actions';
 

@@ -1,7 +1,7 @@
 import React, { forwardRef, Fragment, memo, useEffect, useState } from 'react';
-import { Paper as MaterialPaper, makeStyles, Grid, IconButton, Typography, CircularProgress } from '@material-ui/core';
-import ExpandMore from '@material-ui/icons/ExpandMore';
-import ExpandLess from '@material-ui/icons/ExpandLess';
+import { Paper as MaterialPaper, Grid, IconButton, Typography, CircularProgress } from '../../../../ui';
+import { ExpandLess, ExpandMore } from '../../../../ui/icons';
+import { makeStyles } from '../../../../ui/styles';
 import RichTooltip from '../../../tooltip/RichTooltip';
 
 const useStyles = makeStyles(theme => ({
@@ -21,7 +21,7 @@ const useStyles = makeStyles(theme => ({
   bodyOverflowHeader: {
     padding: theme.spacing(1),
     // 100% - header
-    height: `calc( 100% - ${theme.spacing(3)}px )`,
+    height: `calc( 100% - ${theme.spacing(3)} )`,
     overflow: 'auto',
     flex: 1
   },
@@ -35,15 +35,15 @@ const useStyles = makeStyles(theme => ({
     color: theme.palette.white,
     backgroundColor: theme.palette.primary.main,
     height: theme.spacing(3),
-    borderTopLeftRadius: theme.spacing(1) / 2,
-    borderTopRightRadius: theme.spacing(1) / 2
+    borderTopLeftRadius: theme.spacing(0.5),
+    borderTopRightRadius: theme.spacing(0.5)
   },
   headerSecondary: {
     color: theme.palette.white,
     backgroundColor: theme.palette.secondary.main,
     height: theme.spacing(3),
-    borderTopLeftRadius: theme.spacing(1) / 2,
-    borderTopRightRadius: theme.spacing(1) / 2
+    borderTopLeftRadius: theme.spacing(0.5),
+    borderTopRightRadius: theme.spacing(0.5)
   },
   headerTitle: {
     paddingLeft: theme.spacing(1),

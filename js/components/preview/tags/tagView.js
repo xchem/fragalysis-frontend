@@ -1,6 +1,7 @@
 import React, { memo, useState, useEffect } from 'react';
-import { Grid, makeStyles, Chip } from '@material-ui/core';
-import { Edit } from '@material-ui/icons';
+import { GridLegacy as Grid, Chip } from '@mui/material';
+import { makeStyles } from '../../../ui/styles';
+import { Edit } from '@mui/icons-material';
 import { useDispatch, useSelector } from 'react-redux';
 import { getFontColorByBackgroundColor } from '../../../utils/colors';
 import { TagEditModal } from './modal/tagEditModal';

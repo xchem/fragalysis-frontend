@@ -10,8 +10,9 @@ import {
   appendLHSSelectedTag,
   removeLHSSelectedTag
 } from '../../../../reducers/selection/actions';
-import { makeStyles, Button, Typography, Fab } from '@material-ui/core';
-import { Forum } from '@material-ui/icons';
+import { Button, Typography, Fab } from '@mui/material';
+import { makeStyles } from '../../../../ui/styles';
+import { Forum } from '@mui/icons-material';
 import classNames from 'classnames';
 import {
   createTagPost,

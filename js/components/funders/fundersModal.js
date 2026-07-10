@@ -4,7 +4,8 @@
 
 import React, { memo, useContext } from 'react';
 import Modal from '../common/Modal';
-import { Button, Grid, IconButton, makeStyles, Typography } from '@material-ui/core';
+import { Button, GridLegacy as Grid, IconButton, Typography } from '@mui/material';
+import { makeStyles } from '../../ui/styles';
 import { CONTRIBUTORS, FUNDING, get_logo } from './constants';
 import { Tooltip } from '@mui/material';
 import { URLS } from '../routes/constants';

@@ -4,7 +4,7 @@
 
 import React, { memo, useCallback, useEffect, useState } from 'react';
 import Modal from '../common/Modal';
-import { Button } from '@material-ui/core';
+import { Button } from '@mui/material';
 
 export const BrowserCheck = memo(props => {
   const [currentBrowser, setCurrentBrowser] = useState();

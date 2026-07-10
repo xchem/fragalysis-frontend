@@ -1,6 +1,7 @@
 import React, { memo } from 'react';
 import { Drawer } from '../../common/Navigation/Drawer';
-import { makeStyles, Table, TableBody, TableCell, TableContainer, TableHead, TableRow } from '@material-ui/core';
+import { Table, TableBody, TableCell, TableContainer, TableHead, TableRow } from '@mui/material';
+import { makeStyles } from '../../../ui/styles';
 
 const useStyles = makeStyles(theme => ({
   td: {

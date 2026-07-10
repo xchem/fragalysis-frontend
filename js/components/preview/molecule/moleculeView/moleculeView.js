@@ -4,9 +4,10 @@
 
 import React, { memo, useEffect, useState, useRef, useContext, useCallback, useMemo } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { Button, Grid, makeStyles, IconButton, Popper, CircularProgress, Popover, Tooltip } from '@material-ui/core';
+import { Button, GridLegacy as Grid, IconButton, Popper, CircularProgress, Popover, Tooltip } from '@mui/material';
+import { makeStyles } from '../../../../ui/styles';
 import { Panel } from '../../../common';
-import { MyLocation, Warning, Assignment, AssignmentTurnedIn } from '@material-ui/icons';
+import { MyLocation, Warning, Assignment, AssignmentTurnedIn } from '@mui/icons-material';
 import SVGInline from 'react-svg-inline';
 import classNames from 'classnames';
 import { PLURAL_TO_SINGULAR, VIEWS } from '../../../../constants/constants';
@@ -63,7 +64,7 @@ import {
 import MoleculeSelectCheckbox from './moleculeSelectCheckbox';
 import useClipboard from 'react-use-clipboard';
 import Typography from '@mui/material/Typography';
-import { Edit } from '@material-ui/icons';
+import { Edit } from '@mui/icons-material';
 import { DJANGO_CONTEXT } from '../../../../utils/djangoContext';
 import { getFontColorByBackgroundColor } from '../../../../utils/colors';
 import { api, METHOD } from '../../../../utils/api';
@@ -79,7 +80,7 @@ import RichTooltip from '../../../tooltip/RichTooltip';
 
 const useStyles = makeStyles(theme => ({
   container: {
-    padding: theme.spacing(1) / 4,
+    padding: theme.spacing(0.25),
     color: 'black',
     alignItems: 'stretch',
     boxSizing: 'border-box'
@@ -93,8 +94,8 @@ const useStyles = makeStyles(theme => ({
     height: '100%',
     width: '100%',
     minWidth: '20px',
-    // paddingLeft: theme.spacing(1) / 4,
-    // paddingRight: theme.spacing(1) / 4,
+    // paddingLeft: theme.spacing(0.25),
+    // paddingRight: theme.spacing(0.25),
     // paddingBottom: 0,
     // paddingTop: 0,
     fontWeight: 'bold',
@@ -115,14 +116,14 @@ const useStyles = makeStyles(theme => ({
     }
   },
   contButtonsMargin: {
-    margin: theme.spacing(1) / 2,
+    margin: theme.spacing(0.5),
     width: 'inherit',
     marginTop: 0
   },
   contColButton: {
     minWidth: 'fit-content',
-    paddingLeft: theme.spacing(1) / 4,
-    paddingRight: theme.spacing(1) / 4,
+    paddingLeft: theme.spacing(0.25),
+    paddingRight: theme.spacing(0.25),
     paddingBottom: 0,
     paddingTop: 0,
     fontWeight: 'bold',
@@ -181,9 +182,9 @@ const useStyles = makeStyles(theme => ({
     borderRightColor: theme.palette.background.divider,
     fontWeight: 'bold',
     fontSize: 11,
-    paddingLeft: theme.spacing(1) / 2,
-    paddingRight: theme.spacing(1) / 2,
-    paddingBottom: theme.spacing(1) / 4,
+    paddingLeft: theme.spacing(0.5),
+    paddingRight: theme.spacing(0.5),
+    paddingBottom: theme.spacing(0.25),
     width: 25,
     textAlign: 'center',
     '&:last-child': {
@@ -200,12 +201,12 @@ const useStyles = makeStyles(theme => ({
     backgroundColor: theme.palette.background.default,
     border: `solid 1px`,
     borderColor: theme.palette.background.divider,
-    paddingBottom: theme.spacing(1) / 2,
+    paddingBottom: theme.spacing(0.5),
     boxSizing: 'border-box'
   },
   qualityLabel: {
-    paddingLeft: theme.spacing(1) / 4,
-    paddingRight: theme.spacing(1) / 4
+    paddingLeft: theme.spacing(0.25),
+    paddingRight: theme.spacing(0.25)
   },
   matchingValue: {
     backgroundColor: theme.palette.success.lighter
@@ -246,8 +247,8 @@ const useStyles = makeStyles(theme => ({
   },
   myLocationButton: {
     minWidth: 'fit-content',
-    paddingLeft: theme.spacing(1) / 4,
-    paddingRight: theme.spacing(1) / 4,
+    paddingLeft: theme.spacing(0.25),
+    paddingRight: theme.spacing(0.25),
     paddingBottom: 0,
     paddingTop: 0,
     fontWeight: 'bold',

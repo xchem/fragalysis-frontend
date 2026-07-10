@@ -4,6 +4,12 @@ webpack-stats.json
 package-lock.json
 build/
 node_modules/
+.yarn/*
+!.yarn/patches
+!.yarn/plugins
+!.yarn/releases
+!.yarn/sdks
+!.yarn/versions
 npm-debug.log
 *.offsets
 yarn-error.log

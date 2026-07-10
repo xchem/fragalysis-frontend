@@ -1,8 +1,7 @@
 import React, { memo } from 'react';
-import { withStyles } from '@material-ui/core/styles';
+import { withStyles } from '../../../ui/styles';
 import PropTypes from 'prop-types';
-import Typography from '@material-ui/core/Typography';
-import { Tabs, Tab as TabMUI } from '@material-ui/core';
+import { Typography, Tabs, Tab as TabMUI } from '../../../ui';
 
 /**
  * Header with tabs -their container

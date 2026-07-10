@@ -1,6 +1,7 @@
 import React, { useContext, memo, useEffect, useCallback, useState } from 'react';
-import { Grid, makeStyles, Slider, Switch, TextField, Typography } from '@material-ui/core';
-import { ColorLens } from '@material-ui/icons';
+import { GridLegacy as Grid, Slider, Switch, TextField, Typography } from '@mui/material';
+import { makeStyles } from '../../../ui/styles';
+import { ColorLens } from '@mui/icons-material';
 import { Drawer } from '../../common/Navigation/Drawer';
 import { BACKGROUND_COLOR, NGL_PARAMS, COMMON_PARAMS } from '../../nglView/constants';
 import { useDispatch, useSelector } from 'react-redux';

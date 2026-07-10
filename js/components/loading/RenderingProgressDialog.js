@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useContext } from 'react';
-import { Dialog, DialogTitle, DialogContent, LinearProgress, Typography } from '@material-ui/core';
+import { Dialog, DialogTitle, DialogContent, LinearProgress, Typography } from '@mui/material';
 import { useDispatch, useSelector } from 'react-redux';
 import { setIsNGLQueueEmpty, setIsSnapshotRendering } from '../../reducers/ngl/actions';
 import { NglContext } from '../nglView/nglProvider';
@@ -28,29 +28,29 @@ export const RenderingProgressDialog = () => {
   const lhsIsFullyRendered = useSelector(state => state.selectionReducers.lhsIsFullyRendered);
   const dataAreDownloading = useSelector(state => state.apiReducers.dataAreDownloading);
   const snapshotLoadingInProgress = useSelector(state => state.apiReducers.snapshotLoadingInProgress);
-  const shouldPrioritizeUiRenderingDialog =
-    dataAreDownloading || !lhsIsFullyRendered || snapshotLoadingInProgress;
+  const shouldPrioritizeUiRenderingDialog = dataAreDownloading || !lhsIsFullyRendered || snapshotLoadingInProgress;
 
-  const { getNglView } = useContext(NglContext);
-  const stage = getNglView(VIEWS.MAJOR_VIEW) && getNglView(VIEWS.MAJOR_VIEW).stage;
-  const tasksSize = stage?.tasks?.count;
+  const { getViewerAdapter } = useContext(NglContext);
+  const viewerAdapter = getViewerAdapter(VIEWS.MAJOR_VIEW);
+  const tasksSize = viewerAdapter?.getTaskCount();
 
   useEffect(() => {
-    if (stage && (isSnapshotRendering || !isNGLQueueEmpty) && tasksSize > 0) {
+    if (viewerAdapter && (isSnapshotRendering || !isNGLQueueEmpty) && tasksSize > 0) {
       console.log(`RenderingProgressDialog - going to set listener on stage tasks`);
-      stage.tasks.onZeroOnce(() => {
+      viewerAdapter.onTasksComplete(() => {
         console.log(`RenderingProgressDialog - render queue is empty`);
         dispatch(setIsNGLQueueEmpty(true));
         // setSnapshotProgress(0);
       });
     }
-  }, [dispatch, isNGLQueueEmpty, isSnapshotRendering, snapshotLoadingInProgress, stage, tasksSize]);
+  }, [dispatch, isNGLQueueEmpty, isSnapshotRendering, snapshotLoadingInProgress, viewerAdapter, tasksSize]);
 
   useEffect(() => {
     const lhs = countRenderedRenderableItems(toBeDisplayedListLHS);
     const rhs = countRenderedRenderableItemsDataset(toBeDisplayedListRHS);
     const combined = lhs + rhs;
-    const totalItemsToRender = countRenderableItems(toBeDisplayedListLHS) + countRenderableItemsDataset(toBeDisplayedListRHS);
+    const totalItemsToRender =
+      countRenderableItems(toBeDisplayedListLHS) + countRenderableItemsDataset(toBeDisplayedListRHS);
 
     if (totalItemsToRender === 0) {
       if (isSnapshotRendering) {
@@ -75,13 +75,7 @@ export const RenderingProgressDialog = () => {
       }
       setSnapshotProgress(0);
     }
-  }, [
-    dispatch,
-    isNGLQueueEmpty,
-    isSnapshotRendering,
-    toBeDisplayedListLHS,
-    toBeDisplayedListRHS
-  ]);
+  }, [dispatch, isNGLQueueEmpty, isSnapshotRendering, toBeDisplayedListLHS, toBeDisplayedListRHS]);
 
   return (
     <Dialog

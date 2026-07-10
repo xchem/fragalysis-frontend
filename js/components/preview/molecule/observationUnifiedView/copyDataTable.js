@@ -1,4 +1,5 @@
-import { makeStyles, Table, TableBody, TableCell, TableRow } from '@material-ui/core';
+import { Table, TableBody, TableCell, TableRow } from '@mui/material';
+import { makeStyles } from '../../../../ui/styles';
 import React, { memo, useCallback, useContext } from 'react';
 import { ToastContext } from '../../../toast';
 import RichTooltip from '../../../tooltip/RichTooltip';

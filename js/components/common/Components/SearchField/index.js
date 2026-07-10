@@ -1,6 +1,7 @@
 import React, { useMemo } from 'react';
-import { makeStyles, TextField, InputAdornment, IconButton } from '@material-ui/core';
-import { Search } from '@material-ui/icons';
+import { TextField, InputAdornment, IconButton } from '../../../../ui';
+import { Search } from '../../../../ui/icons';
+import { makeStyles } from '../../../../ui/styles';
 import classNames from 'classnames';
 import { debounce } from 'lodash';
 import RichTooltip from '../../../tooltip/RichTooltip';
@@ -8,7 +9,7 @@ import RichTooltip from '../../../tooltip/RichTooltip';
 const useStyles = makeStyles(theme => ({
   search: {
     fontSize: theme.typography.pxToRem(13),
-    margin: `0 ${theme.spacing(1)}px`,
+    margin: `0 ${theme.spacing(1)}`,
     '& .MuiInputBase-root': {
       color: theme.palette.white
     },
@@ -65,23 +66,25 @@ const SearchField = ({
         id={id}
         placeholder={placeholder ?? 'Search tags'}
         size={size}
-        InputProps={{
-          startAdornment: (
-            <InputAdornment position="start">
-              {searchIconAction ? (
-                <IconButton
-                  color="inherit"
-                  sx={{ pointerEvents: 'auto', cursor: 'pointer' }}
-                  onClick={() => searchIconAction(true)}
-                >
+        slotProps={{
+          input: {
+            startAdornment: (
+              <InputAdornment position="start">
+                {searchIconAction ? (
+                  <IconButton
+                    color="inherit"
+                    sx={{ pointerEvents: 'auto', cursor: 'pointer' }}
+                    onClick={() => searchIconAction(true)}
+                  >
+                    <Search color="inherit" />
+                  </IconButton>
+                ) : (
                   <Search color="inherit" />
-                </IconButton>
-              ) : (
-                <Search color="inherit" />
-              )}
-            </InputAdornment>
-          ),
-          className: classes.input
+                )}
+              </InputAdornment>
+            ),
+            className: classes.input
+          }
         }}
         onChange={onChangeDebounced}
         disabled={disabled}

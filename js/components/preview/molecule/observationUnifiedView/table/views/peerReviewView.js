@@ -4,7 +4,8 @@
 
 import React, { memo } from 'react';
 import { useDispatch } from 'react-redux';
-import { Grid, makeStyles } from '@material-ui/core';
+import { GridLegacy as Grid } from '@mui/material';
+import { makeStyles } from '../../../../../../ui/styles';
 
 import { appendToMolListToEdit, removeFromMolListToEdit } from '../../../../../../reducers/selection/actions';
 import MoleculeSelectCheckbox from '../../../moleculeView/moleculeSelectCheckbox';
@@ -17,7 +18,7 @@ const useStyles = makeStyles(theme => ({
     backgroundColor: theme.palette.background.default,
     border: `solid 1px`,
     borderColor: theme.palette.background.divider,
-    paddingBottom: theme.spacing(1) / 4
+    paddingBottom: theme.spacing(0.25)
   },
   checkbox: {
     padding: 0

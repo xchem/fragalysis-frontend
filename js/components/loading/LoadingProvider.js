@@ -1,6 +1,7 @@
 import React, { memo, useEffect, useState } from 'react';
 import { LoadingContext } from './LoadingContext';
-import { LinearProgress, makeStyles } from '@material-ui/core';
+import { LinearProgress } from '@mui/material';
+import { makeStyles } from '../../ui/styles';
 import { useSelector } from 'react-redux';
 import { howManyInQueueRendered, howManyInQueueRenderedDataset } from '../../reducers/ngl/utils';
 

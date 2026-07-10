@@ -1,6 +1,6 @@
 import React, { memo } from 'react';
-import { Button, IconButton, Typography } from '@material-ui/core';
-import { Close } from '@material-ui/icons';
+import { Button, IconButton, Typography } from '@mui/material';
+import { Close } from '@mui/icons-material';
 import { ToastContext } from './ToastContext';
 import { SnackbarProvider, closeSnackbar, enqueueSnackbar } from 'notistack';
 import { base_url } from '../routes/constants';

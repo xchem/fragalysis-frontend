@@ -8,9 +8,17 @@ const { PNG } = require('pngjs');
 
 dotenv.config();
 
+const defaultBaseUrl = 'https://fragalysis-simona-default.xchem-dev.diamond.ac.uk';
+
 export default defineConfig({
+  video: true,
+  screenshotOnRunFailure: true,
+  trashAssetsBeforeRuns: true,
+  screenshotsFolder: 'cypress/screenshots',
+  videosFolder: 'cypress/videos',
   e2e: {
-    baseUrl: 'https://fragalysis-simona-default.xchem-dev.diamond.ac.uk',
+    baseUrl: process.env.CYPRESS_BASE_URL || defaultBaseUrl,
+    specPattern: 'cypress/e2e/**/*.cy.{js,jsx,ts,tsx}',
     env: {
       login: process.env.CYPRESS_LOGIN,
       password: process.env.CYPRESS_PASSWORD

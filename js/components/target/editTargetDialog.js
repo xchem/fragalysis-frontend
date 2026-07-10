@@ -1,9 +1,10 @@
-import { Button, Grid, makeStyles, Modal } from '@material-ui/core';
+import { Button, GridLegacy as Grid, Modal } from '@mui/material';
+import { makeStyles } from '../../ui/styles';
 import React from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { setEditTargetDialogOpen } from './redux/actions';
 import { Field, Form, Formik } from 'formik';
-import { TextField } from 'formik-material-ui';
+import { FormikTextField as TextField } from '../common/Inputs/FormikTextField';
 import { api, METHOD } from '../../utils/api';
 import { base_url } from '../routes/constants';
 import { replaceTarget } from '../../reducers/api/actions';

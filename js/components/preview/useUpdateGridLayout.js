@@ -1,4 +1,4 @@
-import { useTheme } from '@material-ui/core';
+import { useTheme } from '@mui/material';
 import { useEffect, useRef, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { enableLayout } from '../../reducers/layout/actions';
@@ -46,7 +46,15 @@ export const useUpdateGridLayout = hideProjects => {
 
   // Updates the layout whenever any of the variables in the dependency array updates
   useEffect(() => {
-    dispatch(updateLayoutOnDependencyChange(sidesOpen.LHS, sidesOpen.RHS, hideProjects, height, theme.spacing()));
+    dispatch(
+      updateLayoutOnDependencyChange(
+        sidesOpen.LHS,
+        sidesOpen.RHS,
+        hideProjects,
+        height,
+        Number.parseFloat(theme.spacing())
+      )
+    );
   }, [dispatch, height, hideProjects, sidesOpen, theme, panelsExpanded, selectedLayoutName]);
 
   return ref;

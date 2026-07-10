@@ -3,19 +3,8 @@
  */
 
 import React, { memo, useCallback, useEffect, useRef, useState } from 'react';
-import {
-  Button,
-  Checkbox,
-  Dialog,
-  DialogActions,
-  DialogContent,
-  DialogTitle,
-  FormControlLabel,
-  Grid,
-  IconButton,
-  makeStyles,
-  Typography
-} from '@material-ui/core';
+import { Button, Checkbox, Dialog, DialogActions, DialogContent, DialogTitle, FormControlLabel, GridLegacy as Grid, IconButton, Typography } from '@mui/material';
+import { makeStyles } from '../../../../../ui/styles';
 import { Close } from '@mui/icons-material';
 import { useDispatch, useSelector } from 'react-redux';
 import { api, METHOD } from '../../../../../utils/api';

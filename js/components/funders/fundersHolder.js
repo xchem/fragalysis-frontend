@@ -2,7 +2,7 @@
  * Created by ricgillams on 23/10/2018.
  */
 import React, { PureComponent } from 'react';
-import { Grid } from '@material-ui/core';
+import { GridLegacy as Grid } from '@mui/material';
 
 class FundersHolder extends PureComponent {
   constructor(props) {

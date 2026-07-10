@@ -1,5 +1,5 @@
 import React, { memo } from "react";
-import { makeStyles } from "@material-ui/core"
+import { makeStyles } from '../../../../../../ui/styles';
 import { FilterWrapper } from "./filterWrapper";
 
 const useStyles = makeStyles(theme => ({

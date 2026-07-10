@@ -3,22 +3,8 @@
  */
 
 import React, { memo, useCallback, useEffect, useRef, useState } from 'react';
-import {
-  Button,
-  Dialog,
-  DialogActions,
-  DialogContent,
-  DialogTitle,
-  Divider,
-  FormControlLabel,
-  Grid,
-  IconButton,
-  makeStyles,
-  Radio,
-  RadioGroup,
-  TextField,
-  Typography
-} from '@material-ui/core';
+import { Button, Dialog, DialogActions, DialogContent, DialogTitle, Divider, FormControlLabel, GridLegacy as Grid, IconButton, Radio, RadioGroup, TextField, Typography } from '@mui/material';
+import { makeStyles } from '../../ui/styles';
 import { Close } from '@mui/icons-material';
 import { base_url } from '../routes/constants';
 import { api, METHOD } from '../../utils/api';

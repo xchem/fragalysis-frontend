@@ -2,7 +2,7 @@ const path = require('path');
 const webpack = require('webpack');
 const express = require('express');
 const config = require('./webpack.config-dev');
-const PORT = 3030;
+const PORT = Number(process.env.DEV_SERVER_PORT || 3030);
 
 const app = express();
 const compiler = webpack(config);
@@ -17,7 +17,6 @@ app.use(function(req, res, next) {
 app.use(
   require('webpack-dev-middleware')(compiler, {
     publicPath: config.output.publicPath,
-    hot: true,
     stats: { colors: true }
   })
 );

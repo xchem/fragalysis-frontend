@@ -1,4 +1,5 @@
-import { CircularProgress, makeStyles, Modal as MaterialModal } from '@material-ui/core';
+import { CircularProgress, Modal as MaterialModal } from '../../../ui';
+import { makeStyles } from '../../../ui/styles';
 import React, { memo } from 'react';
 import classNames from 'classnames';
 import useResizeObserver from '../../../utils/useResizeObserver';
@@ -10,7 +11,7 @@ const useStyles = makeStyles(theme => ({
     left: '50%',
     transform: 'translate(-50%, -50%)',
     backgroundColor: theme.palette.background.paper,
-    borderRadius: theme.spacing(1) / 2,
+    borderRadius: theme.spacing(0.5),
     boxShadow: theme.shadows[0],
     outline: 'none',
     paddingBottom: '20px'

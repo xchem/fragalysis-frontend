@@ -1,4 +1,5 @@
-import { TableCell, TableRow, makeStyles, styled } from "@material-ui/core";
+import { TableCell, TableRow, styled } from '@mui/material';
+import { makeStyles } from '../../ui/styles';
 import React, { memo, useEffect, useRef, useState } from "react";
 import { StatusLight } from "./StatusLight";
 

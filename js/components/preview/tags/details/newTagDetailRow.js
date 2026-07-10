@@ -11,7 +11,8 @@ import {
 } from '../utils/tagUtils';
 import { DJANGO_CONTEXT } from '../../../../utils/djangoContext';
 import { updateTagProp, removeSelectedTag } from '../redux/dispatchActions';
-import { TextField, makeStyles, Button, Select, MenuItem, withStyles, Paper } from '@material-ui/core';
+import { TextField, Button, Select, MenuItem, Paper } from '@mui/material';
+import { makeStyles, withStyles } from '../../../../ui/styles';
 import { createNewTag, deleteExistingTag } from '../api/tagsApi';
 import { setTagToEdit } from '../../../../reducers/selection/actions';
 import {

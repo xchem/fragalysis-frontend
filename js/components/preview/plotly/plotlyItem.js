@@ -1,11 +1,6 @@
 import React from 'react';
-import {
-  Card,
-  CardContent,
-  Typography,
-  Button,
-  makeStyles
-} from '@material-ui/core';
+import { Card, CardContent, Typography, Button } from '@mui/material';
+import { makeStyles } from '../../../ui/styles';
 import moment from 'moment';
 import RichTooltip from '../../tooltip/RichTooltip';
 

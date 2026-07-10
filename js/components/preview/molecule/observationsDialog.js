@@ -1,7 +1,7 @@
 import React, { forwardRef, memo, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
-import { CircularProgress, Grid, Popper, IconButton, Typography } from '@material-ui/core';
-import { ArrowLeft, ArrowRight, Close, KeyboardArrowDown } from '@material-ui/icons';
-import { makeStyles } from '@material-ui/styles';
+import { CircularProgress, GridLegacy as Grid, Popper, IconButton, Typography } from '@mui/material';
+import { ArrowLeft, ArrowRight, Close, KeyboardArrowDown } from '@mui/icons-material';
+import { makeStyles } from '../../../ui/styles';
 import { useDispatch, useSelector } from 'react-redux';
 import classNames from 'classnames';
 import { NglContext } from '../../nglView/nglProvider';
@@ -87,8 +87,8 @@ const useStyles = makeStyles(theme => ({
     borderRight: '1px solid',
     borderRightColor: theme.palette.background.divider,
     fontWeight: 'bold',
-    paddingLeft: theme.spacing(1) / 2,
-    paddingRight: theme.spacing(1) / 2,
+    paddingLeft: theme.spacing(0.5),
+    paddingRight: theme.spacing(0.5),
     paddingTop: theme.spacing(1),
     paddingBottom: theme.spacing(1),
     fontSize: 8,
@@ -116,7 +116,7 @@ const useStyles = makeStyles(theme => ({
     // height: '77%'
     // minHeight: 200,
     // marginBottom: -43
-    height: `calc(99% - ${theme.spacing(6)}px - ${theme.spacing(2)}px)`
+    height: `calc(99% - ${theme.spacing(6)} - ${theme.spacing(2)})`
   },
   search: {
     width: 140
@@ -126,8 +126,8 @@ const useStyles = makeStyles(theme => ({
   },
   contColButton: {
     minWidth: 'fit-content',
-    paddingLeft: theme.spacing(1) / 4,
-    paddingRight: theme.spacing(1) / 4,
+    paddingLeft: theme.spacing(0.25),
+    paddingRight: theme.spacing(0.25),
     paddingBottom: 0,
     paddingTop: 0,
     fontWeight: 'bold',
@@ -165,10 +165,10 @@ const useStyles = makeStyles(theme => ({
     border: '1px solid'
   },
   topRow: {
-    marginBottom: theme.spacing(1) / 4
+    marginBottom: theme.spacing(0.25)
   },
   bottomRow: {
-    marginTop: theme.spacing(1) / 4,
+    marginTop: theme.spacing(0.25),
     '& > div': {
       marginLeft: 12
     }
@@ -189,8 +189,8 @@ const useStyles = makeStyles(theme => ({
     fontSize: 12,
     width: '100%',
     // fontWeight: 'bold',
-    paddingLeft: theme.spacing(1) / 4,
-    paddingRight: theme.spacing(1) / 4,
+    paddingLeft: theme.spacing(0.25),
+    paddingRight: theme.spacing(0.25),
     '&:hover:not([disabled])': {
       cursor: 'pointer',
       backgroundColor: theme.palette.primary.light

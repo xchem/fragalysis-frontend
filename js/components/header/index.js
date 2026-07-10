@@ -3,41 +3,9 @@
  */
 
 import React, { memo, useContext, forwardRef, useState, useEffect, useCallback } from 'react';
-import {
-  Grid,
-  makeStyles,
-  AppBar,
-  Typography,
-  ListItem,
-  ListItemIcon,
-  Divider,
-  Drawer,
-  ListItemText,
-  Avatar,
-  Box,
-  ButtonGroup,
-  LinearProgress
-} from '@material-ui/core';
-import {
-  PowerSettingsNew,
-  Input,
-  Person,
-  Home,
-  SupervisorAccount,
-  Menu as MenuIcon,
-  Work,
-  Description,
-  Timeline,
-  QuestionAnswer,
-  Chat,
-  Lock,
-  LockOpen,
-  Restore,
-  Layers,
-  CreateNewFolder,
-  Save,
-  HelpOutline
-} from '@material-ui/icons';
+import { GridLegacy as Grid, AppBar, Typography, ListItemButton, ListItemIcon, Divider, Drawer, ListItemText, Avatar, Box, ButtonGroup, LinearProgress } from '@mui/material';
+import { makeStyles } from '../../ui/styles';
+import { PowerSettingsNew, Input, Person, Home, SupervisorAccount, Menu as MenuIcon, Work, Description, Timeline, QuestionAnswer, Chat, Lock, LockOpen, Restore, Layers, CreateNewFolder, Save, HelpOutline } from '@mui/icons-material';
 import { HeaderContext } from './headerContext';
 import { Button } from '../common';
 import { base_url, URLS } from '../routes/constants';
@@ -48,7 +16,7 @@ import { DJANGO_CONTEXT } from '../../utils/djangoContext';
 import { useHistory } from 'react-router-dom';
 import { FundersModal } from '../funders/fundersModal';
 // eslint-disable-next-line import/extensions
-import { version } from '../../../package.json';
+import packageMetadata from '../../../package.json';
 import { isDiscourseAvailable, openDiscourseLink } from '../../utils/discourse';
 import { useSelector, useDispatch } from 'react-redux';
 import { generateDiscourseTargetURL, getExistingPost } from '../../utils/discourse';
@@ -81,6 +49,8 @@ import { api, METHOD } from '../../utils/api';
 import { QualityStatusService } from '../preview/molecule/moleculeView/qualityStatus/QualityStatusService';
 import { TooltipPathProvider } from '../tooltip/TooltipPathContext';
 import RichTooltip from '../tooltip/RichTooltip';
+
+const { version } = packageMetadata;
 
 const useStyles = makeStyles(theme => ({
   padding: {
@@ -134,7 +104,7 @@ const useStyles = makeStyles(theme => ({
     paddingBottom: theme.spacing(1)
   },
   resetLayoutButton: {
-    margin: `${theme.spacing()}px 0`
+    margin: `${theme.spacing()} 0`
   }
 }));
 
@@ -258,9 +228,8 @@ export const Header = memo(
 
     if (DJANGO_CONTEXT['username'] === 'NOT_LOGGED_IN') {
       authListItem = (
-        <ListItem
+        <ListItemButton
           id="login-button-id"
-          button
           onClick={() => {
             window.location.replace(URLS.login);
           }}
@@ -269,13 +238,12 @@ export const Header = memo(
             <Input />
           </ListItemIcon>
           <ListItemText primary="Login" />
-        </ListItem>
+        </ListItemButton>
       );
     } else {
       authListItem = (
-        <ListItem
+        <ListItemButton
           id="logout-button-id"
-          button
           onClick={() => {
             window.location.replace(URLS.logout);
           }}
@@ -284,7 +252,7 @@ export const Header = memo(
             <PowerSettingsNew />
           </ListItemIcon>
           <ListItemText primary="Logout" />
-        </ListItem>
+        </ListItemButton>
       );
 
       username = DJANGO_CONTEXT['username'];
@@ -331,6 +299,9 @@ export const Header = memo(
                   <Button
                     id="open-menu-button"
                     key="menu"
+                    color="inherit"
+                    variant="text"
+                    sx={{ color: 'text.primary' }}
                     onClick={() => {
                       setOpenMenu(true);
                     }}
@@ -464,7 +435,13 @@ export const Header = memo(
             <QualityStatusService />
             <Grid item>
               <RichTooltip path="help">
-                <Button onClick={() => openLink(URLS.helpPage)} startIcon={<HelpOutline />} variant="text" size="small">
+                <Button
+                  onClick={() => openLink(URLS.helpPage)}
+                  startIcon={<HelpOutline />}
+                  variant="text"
+                  size="small"
+                  sx={{ color: 'text.primary' }}
+                >
                   Help
                 </Button>
               </RichTooltip>
@@ -567,6 +544,7 @@ export const Header = memo(
                       startIcon={<SupervisorAccount />}
                       variant="text"
                       size="small"
+                      sx={{ color: 'text.primary' }}
                       onClick={() => setOpenFunders(true)}
                     >
                       Contributors
@@ -616,8 +594,7 @@ export const Header = memo(
 
               <Divider />
               <RichTooltip path="drawer.home">
-                <ListItem
-                  button
+                <ListItemButton
                   onClick={() => {
                     history.push(URLS.landing);
                     window.location.reload();
@@ -627,37 +604,37 @@ export const Header = memo(
                     <Home />
                   </ListItemIcon>
                   <ListItemText primary="Home" />
-                </ListItem>
+                </ListItemButton>
               </RichTooltip>
 
               <Divider />
 
               <RichTooltip path="drawer.management">
-                <ListItem button onClick={() => history.push(URLS.management)}>
+                <ListItemButton onClick={() => history.push(URLS.management)}>
                   <ListItemIcon>
                     <Work />
                   </ListItemIcon>
                   <ListItemText primary="Management" />
-                </ListItem>
+                </ListItemButton>
               </RichTooltip>
               <RichTooltip path="drawer.contributors">
-                <ListItem button onClick={() => setOpenFunders(true)}>
+                <ListItemButton onClick={() => setOpenFunders(true)}>
                   <ListItemIcon>
                     <SupervisorAccount />
                   </ListItemIcon>
                   <ListItemText primary="Contributors" />
-                </ListItem>
+                </ListItemButton>
               </RichTooltip>
               {DJANGO_CONTEXT.pk && !!targetName && (
                 <>
                   <Divider />
                   <RichTooltip path="drawer.targetSettings">
-                    <ListItem button onClick={() => setOpenTargetSettings(true)}>
+                    <ListItemButton onClick={() => setOpenTargetSettings(true)}>
                       <ListItemIcon>
                         <Settings />
                       </ListItemIcon>
                       <ListItemText primary="Target settings" />
-                    </ListItem>
+                    </ListItemButton>
                   </RichTooltip>
                 </>
               )}
@@ -665,45 +642,45 @@ export const Header = memo(
                 <>
                   <Divider />
                   <RichTooltip path="drawer.getToken">
-                    <ListItem button onClick={getToken}>
+                    <ListItemButton onClick={getToken}>
                       <ListItemIcon>
                         <Pin />
                       </ListItemIcon>
                       <ListItemText primary="Get Token" />
-                    </ListItem>
+                    </ListItemButton>
                   </RichTooltip>
                   <Divider />
                   <RichTooltip path="drawer.lhsUpload">
-                    <ListItem button onClick={() => openLink(URLS.lhsUpload)}>
+                    <ListItemButton onClick={() => openLink(URLS.lhsUpload)}>
                       <ListItemIcon>
                         <Upload />
                       </ListItemIcon>
                       <ListItemText primary="LHS upload" />
-                    </ListItem>
+                    </ListItemButton>
                   </RichTooltip>
                   <RichTooltip path="drawer.rhsUpload">
-                    <ListItem button onClick={() => openLink(URLS.rhsUpload)}>
+                    <ListItemButton onClick={() => openLink(URLS.rhsUpload)}>
                       <ListItemIcon>
                         <Upload />
                       </ListItemIcon>
                       <ListItemText primary="RHS upload" />
-                    </ListItem>
+                    </ListItemButton>
                   </RichTooltip>
                   <RichTooltip path="drawer.metadataUpload">
-                    <ListItem button onClick={() => openLink(URLS.metadataUpload)}>
+                    <ListItemButton onClick={() => openLink(URLS.metadataUpload)}>
                       <ListItemIcon>
                         <Upload />
                       </ListItemIcon>
                       <ListItemText primary="Metadata upload" />
-                    </ListItem>
+                    </ListItemButton>
                   </RichTooltip>
                   <RichTooltip path="drawer.assayDataUpload">
-                    <ListItem button onClick={() => openLink(URLS.assayDataUpload)}>
+                    <ListItemButton onClick={() => openLink(URLS.assayDataUpload)}>
                       <ListItemIcon>
                         <Upload />
                       </ListItemIcon>
                       <ListItemText primary="Assay data upload" />
-                    </ListItem>
+                    </ListItemButton>
                   </RichTooltip>
                 </>
               )}

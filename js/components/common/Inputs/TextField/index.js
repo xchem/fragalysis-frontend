@@ -1,5 +1,6 @@
 import React, { memo } from 'react';
-import { makeStyles, TextField as MaterialTextField } from '@material-ui/core';
+import { TextField as MaterialTextField } from '../../../../ui';
+import { makeStyles } from '../../../../ui/styles';
 
 const useStyles = makeStyles(theme => ({
   textField: {

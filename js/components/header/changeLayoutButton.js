@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
-import { Button, makeStyles, MenuItem, Paper, Popover, Select, Tooltip } from '@material-ui/core';
-import { Layers } from '@material-ui/icons';
+import { Button, MenuItem, Paper, Popover, Select, Tooltip } from '@mui/material';
+import { makeStyles } from '../../ui/styles';
+import { Layers } from '@mui/icons-material';
 import { useDispatch, useSelector } from 'react-redux';
 import { layouts } from '../../reducers/layout/layouts';
 import { setSelectedLayoutName } from '../../reducers/layout/actions';

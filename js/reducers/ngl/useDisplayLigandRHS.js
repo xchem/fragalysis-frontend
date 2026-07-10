@@ -35,7 +35,6 @@ export const useDisplayLigandRHS = () => {
       dispatch(appendLigandList(datasetID, generateMoleculeCompoundId(data)));
       console.count(`Grabbed orientation before loading dataset ligand`);
       const ligandDataText = await dispatch(generateMoleculeObject(data, colourToggle, datasetID));
-      // const currentOrientation = stage.viewerControls.getOrientation();
       return dispatch(
         loadObject({
           target: Object.assign({ display_div: VIEWS.MAJOR_VIEW }, ligandDataText),

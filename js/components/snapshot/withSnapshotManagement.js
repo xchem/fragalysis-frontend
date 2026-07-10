@@ -1,7 +1,7 @@
 import React, { memo, useContext, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { Button } from '@material-ui/core';
-import { Restore, Share } from '@material-ui/icons';
+import { Button } from '@mui/material';
+import { Restore, Share } from '@mui/icons-material';
 import DownloadPdb from './downloadPdb';
 import { HeaderContext } from '../header/headerContext';
 import { useHistory, useRouteMatch } from 'react-router-dom';

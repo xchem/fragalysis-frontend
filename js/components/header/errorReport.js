@@ -3,8 +3,9 @@
  */
 
 import React, { memo, useState } from 'react';
-import { Button, makeStyles } from '@material-ui/core';
-const uuidv4 = require('uuid/v4');
+import { Button } from '@mui/material';
+import { makeStyles } from '../../ui/styles';
+import { createUuid } from '../../utils/uuid';
 
 const useStyles = makeStyles(theme => ({
   button: {
@@ -20,7 +21,7 @@ export const ErrorReport = memo(() => {
   const [throwError, setThrowError] = useState();
 
   if (throwError) {
-    throw new Error('Custom user error.' + uuidv4());
+    throw new Error('Custom user error.' + createUuid());
   }
 
   return (

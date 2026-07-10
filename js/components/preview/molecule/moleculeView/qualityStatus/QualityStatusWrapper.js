@@ -1,9 +1,10 @@
-import { Grid, IconButton, makeStyles, Popover, Table, TableBody, TableCell, TableRow } from '@material-ui/core';
+import { GridLegacy as Grid, IconButton, Popover, Table, TableBody, TableCell, TableRow } from '@mui/material';
+import { makeStyles } from '../../../../../ui/styles';
 import React, { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { QualityStatusLight } from './QualityStatusLight';
 import { useSelector } from 'react-redux';
 import { QUALITY_STATUS_COLORS, QUALITY_STATUSES } from './constants';
-import { MoreHoriz } from '@material-ui/icons';
+import { MoreHoriz } from '@mui/icons-material';
 import { QualityStatusModal } from './QualityStatusModal';
 import RichTooltip from '../../../../tooltip/RichTooltip';
 import { TooltipPathProvider } from '../../../../tooltip/TooltipPathContext';

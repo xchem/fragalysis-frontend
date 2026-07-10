@@ -5,7 +5,7 @@
 import React, { memo, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import SVGInline from 'react-svg-inline';
-import { Box } from '@material-ui/core';
+import { Box } from '@mui/material';
 import { reloadSummaryCompoundImage } from './redux/dispatchAction';
 import { getAllCurrentBondColorMapOfVectors } from '../../../reducers/selection/selectors';
 import { resetCompoundImage } from './redux/actions';

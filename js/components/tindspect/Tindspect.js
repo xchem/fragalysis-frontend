@@ -1,5 +1,5 @@
 import React, { memo } from 'react';
-import { Grid } from '@material-ui/core';
+import { GridLegacy as Grid } from '@mui/material';
 import NGLView from '../nglView/nglView';
 import { withLoadingEventList } from '../../hoc/withLoadingEventList';
 import { withLoadingPanddaSiteList } from '../../hoc/withPanddaSiteList';

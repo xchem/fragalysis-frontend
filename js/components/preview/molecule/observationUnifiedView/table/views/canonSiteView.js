@@ -1,4 +1,5 @@
-import { Grid, makeStyles } from '@material-ui/core';
+import { GridLegacy as Grid } from '@mui/material';
+import { makeStyles } from '../../../../../../ui/styles';
 import classNames from 'classnames';
 import React, { memo } from 'react';
 import RichTooltip from '../../../../../tooltip/RichTooltip';
@@ -16,8 +17,8 @@ const useStyles = makeStyles(theme => ({
     // width: '100%',
     minWidth: 20,
     width: 22,
-    paddingLeft: theme.spacing(1) / 4,
-    paddingRight: theme.spacing(1) / 4,
+    paddingLeft: theme.spacing(0.25),
+    paddingRight: theme.spacing(0.25),
     paddingBottom: 0,
     paddingTop: 0,
     fontWeight: 'bold',

@@ -1,6 +1,7 @@
 import React, { memo, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { Grid, makeStyles, Checkbox, Typography, FormControlLabel } from '@material-ui/core';
+import { GridLegacy as Grid, Checkbox, Typography, FormControlLabel } from '@mui/material';
+import { makeStyles } from '../../../ui/styles';
 import { Button, Modal } from '../../common';
 import { setSearchSettings } from '../../../reducers/selection/actions';
 import RichTooltip from '../../tooltip/RichTooltip';

@@ -1,15 +1,6 @@
 import React, { memo, useState, useContext } from 'react';
-import {
-  Grid,
-  makeStyles,
-  LinearProgress,
-  Button,
-  Box,
-  Typography,
-  Select,
-  MenuItem,
-  CircularProgress
-} from '@material-ui/core';
+import { GridLegacy as Grid, LinearProgress, Button, Box, Typography, Select, MenuItem, CircularProgress } from '@mui/material';
+import { makeStyles } from '../../ui/styles';
 import { useSelector } from 'react-redux';
 import { base_url } from '../routes/constants';
 

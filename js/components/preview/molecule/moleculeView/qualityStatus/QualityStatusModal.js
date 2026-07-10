@@ -3,24 +3,12 @@
  */
 
 import React, { memo, useCallback, useContext, useEffect, useMemo, useState } from 'react';
-import {
-  Dialog,
-  DialogContent,
-  Divider,
-  Grid,
-  IconButton,
-  makeStyles,
-  Popover,
-  Table,
-  TableBody,
-  TableCell,
-  TableRow,
-  Typography
-} from '@material-ui/core';
+import { Dialog, DialogContent, Divider, GridLegacy as Grid, IconButton, Popover, Table, TableBody, TableCell, TableRow, Typography } from '@mui/material';
+import { makeStyles } from '../../../../../ui/styles';
 import { QualityStatusLight } from './QualityStatusLight';
 import { PeerReviewModal } from './PeerReviewModal';
 import { QUALITY_STATUSES } from './constants';
-import { Add, Check } from '@material-ui/icons';
+import { Add, Check } from '@mui/icons-material';
 import classNames from 'classnames';
 import { useDispatch } from 'react-redux';
 import { addMainStatus } from './api/apiActions';

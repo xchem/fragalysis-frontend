@@ -4,10 +4,10 @@
 import React, { memo, useState } from 'react';
 import JSZip from 'jszip';
 import { connect, useDispatch, useSelector } from 'react-redux';
-import { Button } from '@material-ui/core';
+import { Button } from '@mui/material';
 import FileSaver from 'file-saver';
 import { api } from '../../utils/api';
-import { CloudDownload, Loop } from '@material-ui/icons';
+import { CloudDownload, Loop } from '@mui/icons-material';
 import { setDownloadStructuresDialogOpen } from './redux/actions';
 import { getTagMolecules, getTags } from '../preview/tags/api/tagsApi';
 import { compareTagsAsc } from '../preview/tags/utils/tagUtils';

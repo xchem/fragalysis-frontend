@@ -5,15 +5,8 @@
 import React, { memo } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import Modal from '../../common/Modal';
-import {
-  DialogTitle,
-  DialogContent,
-  DialogContentText,
-  DialogActions,
-  Grid,
-  makeStyles,
-  CircularProgress
-} from '@material-ui/core';
+import { DialogTitle, DialogContent, DialogContentText, DialogActions, GridLegacy as Grid, CircularProgress } from '@mui/material';
+import { makeStyles } from '../../../ui/styles';
 import { Button } from '../../common/Inputs/Button';
 import { updateClipboard } from '../helpers';
 import { setSharedSnapshot } from '../redux/actions';

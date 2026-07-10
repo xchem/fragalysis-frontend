@@ -1,13 +1,13 @@
 import React, { memo, useState } from 'react';
 import PropTypes from 'prop-types';
-import Button from '@material-ui/core/Button';
-import Slider from '@material-ui/core/Slider';
-import Radio from '@material-ui/core/Radio';
-import Grid from '@material-ui/core/Grid';
-import KeyboardArrowUp from '@material-ui/icons/KeyboardArrowUp';
-import KeyboardArrowDown from '@material-ui/icons/KeyboardArrowDown';
-import Chip from '@material-ui/core/Chip';
-import { makeStyles } from '@material-ui/styles';
+import Button from '@mui/material/Button';
+import Slider from '@mui/material/Slider';
+import Radio from '@mui/material/Radio';
+import Grid from '@mui/material/GridLegacy';
+import KeyboardArrowUp from '@mui/icons-material/KeyboardArrowUp';
+import KeyboardArrowDown from '@mui/icons-material/KeyboardArrowDown';
+import Chip from '@mui/material/Chip';
+import { makeStyles } from '../../../ui/styles';
 import classNames from 'classnames';
 
 const useStyles = makeStyles(theme => ({

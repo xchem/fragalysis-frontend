@@ -1,14 +1,6 @@
 import React, { memo, useCallback, useEffect, useState } from 'react';
-import {
-  Checkbox,
-  FormControl,
-  FormControlLabel,
-  Grid,
-  makeStyles,
-  Radio,
-  RadioGroup,
-  TextField
-} from '@material-ui/core';
+import { Checkbox, FormControl, FormControlLabel, GridLegacy as Grid, Radio, RadioGroup, TextField } from '@mui/material';
+import { makeStyles } from '../../../../../../ui/styles';
 import { FilterWrapper } from './filterWrapper';
 import {
   setActiveCoordinateFilterSide,

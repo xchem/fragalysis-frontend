@@ -1,5 +1,5 @@
 import React, { memo, useCallback, useContext, useEffect, useRef, useState } from 'react';
-import { makeStyles } from '@material-ui/core';
+import { makeStyles } from '../../../ui/styles';
 import { useDispatch, useSelector } from 'react-redux';
 
 import { ToastContext } from '../../toast';
@@ -7,7 +7,7 @@ import { ToastContext } from '../../toast';
 import Plotly from 'plotly.js-dist-min';
 import { api } from '../../../utils/api';
 import { base_url } from '../../routes/constants';
-import { Button, Grid } from '@mui/material';
+import { Button, GridLegacy as Grid } from '@mui/material';
 import { PlotlyItem } from './plotlyItem';
 import { Panel } from '../../common';
 import { setPanelsExpanded } from '../../../reducers/layout/actions';

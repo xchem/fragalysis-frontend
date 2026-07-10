@@ -3,7 +3,8 @@
  */
 
 import React, { memo, forwardRef, useCallback, useEffect, useMemo, useState } from 'react';
-import { makeStyles, Table, TableBody, TableCell, TableHead, TableRow } from '@material-ui/core';
+import { Table, TableBody, TableCell, TableHead, TableRow } from '@mui/material';
+import { makeStyles } from '../../../../ui/styles';
 import { useSelector } from 'react-redux';
 import ObservationUnifiedView from './observationUnifiedView';
 import { useColumns } from './hooks/useColumns';

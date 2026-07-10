@@ -1,5 +1,6 @@
 import React, { memo, forwardRef } from 'react';
-import { makeStyles, Button as MaterialButton, CircularProgress } from '@material-ui/core';
+import { Button as MaterialButton, CircularProgress } from '../../../../ui';
+import { makeStyles } from '../../../../ui/styles';
 
 const useStyles = makeStyles(theme => ({
   margin: {

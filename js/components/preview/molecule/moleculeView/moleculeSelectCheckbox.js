@@ -1,6 +1,6 @@
 import React, { useContext } from 'react';
 import { useSelector } from 'react-redux';
-import { Checkbox } from '@material-ui/core';
+import { Checkbox } from '@mui/material';
 import GroupNglControlButtonsContext from '../groupNglControlButtonsContext';
 
 const MoleculeSelectCheckbox = ({ moleculeID, ...rest }) => {

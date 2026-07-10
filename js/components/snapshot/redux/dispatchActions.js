@@ -54,6 +54,7 @@ import {
   captureScreenOfSnapshotNglScreen,
   rescaleImage
 } from '../../userFeedback/browserApi';
+import { asViewerAdapter } from '../../../viewer';
 import { setCurrentProject } from '../../projects/redux/actions';
 import { createProjectPost } from '../../../utils/discourse';
 import {
@@ -72,7 +73,12 @@ import {
 } from './utilitySnapshotShapes';
 import { setEntireState } from '../../../reducers/actions';
 import { VIEWS } from '../../../constants/constants';
-import { setCurrentLayout, setDefaultLayout, setPanelsExpanded, setSelectedLayoutName } from '../../../reducers/layout/actions';
+import {
+  setCurrentLayout,
+  setDefaultLayout,
+  setPanelsExpanded,
+  setSelectedLayoutName
+} from '../../../reducers/layout/actions';
 import { turnSide } from '../../preview/viewerControls/redux/actions';
 import { fr } from 'date-fns/locale';
 import { DEFAULT_SCREENSHOT_RESOLUTION, SCREENSHOT_TYPE } from '../constants';
@@ -448,7 +454,9 @@ export const saveAndShareSnapshot = (
       DEFAULT_SCREENSHOT_RESOLUTION.width,
       DEFAULT_SCREENSHOT_RESOLUTION.height
     );
-    let imageNgl = await dispatch(captureScreenOfSnapshotNglScreen());
+    const majorViewer = nglViewList?.find(view => view.id === VIEWS.MAJOR_VIEW);
+    const viewerAdapter = asViewerAdapter(majorViewer?.stage);
+    let imageNgl = await dispatch(captureScreenOfSnapshotNglScreen(viewerAdapter));
     imageNgl = await rescaleImage(imageNgl, DEFAULT_SCREENSHOT_RESOLUTION.width, DEFAULT_SCREENSHOT_RESOLUTION.height);
     if (showDialog) {
       dispatch(setIsLoadingSnapshotDialog(true));
@@ -580,7 +588,7 @@ export const changeSnapshot = (projectID, snapshotID, stage, fromJobExec = false
     if (stage && newOrientation?.elements) {
       //log with timestamp
       console.log(`Switch - Before smooth animation: ${new Date().toLocaleTimeString()}`);
-      await stage.animationControls.orient(newOrientation.elements, 2000); //.then(() => {
+      await asViewerAdapter(stage).animateOrientation(newOrientation.elements, 2000); //.then(() => {
       console.log(`Switch - After smooth animation: ${new Date().toLocaleTimeString()}`);
     }
   }

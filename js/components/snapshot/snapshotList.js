@@ -1,8 +1,9 @@
 import React, { memo, useRef, useEffect, useCallback, useState, useMemo, useContext } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
-import { Switch, Typography, makeStyles, Grid, FormControlLabel, CircularProgress } from '@material-ui/core';
-import { withStyles } from '@material-ui/core/styles';
-import { blue } from '@material-ui/core/colors';
+import { Switch, Typography, GridLegacy as Grid, FormControlLabel, CircularProgress } from '@mui/material';
+import { makeStyles } from '../../ui/styles';
+import { withStyles } from '../../ui/styles';
+import { blue } from '@mui/material/colors';
 import { Panel } from '../common';
 import { setPanelsExpanded } from '../../reducers/layout/actions';
 import { layoutItemNames } from '../../reducers/layout/constants';
@@ -102,8 +103,8 @@ const useStyles = makeStyles(theme => ({
   },
   contColButton: {
     minWidth: 'fit-content',
-    paddingLeft: theme.spacing(1) / 2,
-    paddingRight: theme.spacing(1) / 2,
+    paddingLeft: theme.spacing(0.5),
+    paddingRight: theme.spacing(0.5),
     paddingBottom: 1,
     paddingTop: 1,
     fontWeight: 'bold',
@@ -122,8 +123,8 @@ const useStyles = makeStyles(theme => ({
   },
   contColButtonSelected: {
     minWidth: 'fit-content',
-    paddingLeft: theme.spacing(1) / 2,
-    paddingRight: theme.spacing(1) / 2,
+    paddingLeft: theme.spacing(0.5),
+    paddingRight: theme.spacing(0.5),
     paddingBottom: 1,
     paddingTop: 1,
     fontWeight: 'bold',

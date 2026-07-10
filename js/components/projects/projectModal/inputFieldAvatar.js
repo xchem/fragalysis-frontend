@@ -1,5 +1,6 @@
 import React, { memo } from 'react';
-import { Grid, makeStyles } from '@material-ui/core';
+import { GridLegacy as Grid } from '@mui/material';
+import { makeStyles } from '../../../ui/styles';
 
 const useStyles = makeStyles(theme => ({
   itemWidth: {

@@ -68,9 +68,9 @@ export const changeComponentRepresentation = (objectInViewID, oldRepresentation,
   objectInViewID
 });
 
-export const setNglViewParams = (key, value, stage = undefined, objectId = undefined) => {
-  if (stage) {
-    stage.setParameters({ [key]: value });
+export const setNglViewParams = (key, value, viewerAdapter = undefined, objectId = undefined) => {
+  if (viewerAdapter) {
+    viewerAdapter.setParameters({ [key]: value });
   }
   return {
     type: CONSTANTS.SET_NGL_VIEW_PARAMS,
@@ -219,7 +219,12 @@ export const setNglStateFromCurrentSnapshot = snapshot => ({
   payload: snapshot
 });
 
-export const removeAllNglComponents = (stage = undefined) => ({ type: CONSTANTS.REMOVE_ALL_NGL_COMPONENTS, stage });
+export const removeAllNglComponents = (viewerAdapter = undefined) => {
+  if (viewerAdapter) {
+    viewerAdapter.removeAll();
+  }
+  return { type: CONSTANTS.REMOVE_ALL_NGL_COMPONENTS };
+};
 
 export const setCountOfRemainingMoleculeGroups = count => ({
   type: CONSTANTS.SET_COUNT_OF_REMAINING_MOLECULE_GROUPS,

@@ -1,4 +1,4 @@
-import { Grid } from "@material-ui/core";
+import { GridLegacy as Grid } from '@mui/material';
 import React, { memo } from "react";
 import { StatusLight } from "./StatusLight";
 

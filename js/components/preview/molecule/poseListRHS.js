@@ -3,7 +3,7 @@
  */
 import React, { memo, useMemo, useEffect, useCallback } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { v4 } from 'uuid';
+import { createUuid } from '../../../utils/uuid';
 import { colourList } from './utils/color';
 import {
   addVector,
@@ -205,7 +205,7 @@ export const PoseListRHS = memo(({ expandHandler }) => {
           const observation = allMoleculesList?.find(mol => mol.id === m.id);
           if (observation) {
             generatedPoses.push({
-              id: v4(),
+              id: createUuid(),
               display_name: m.name,
               canon_site: null,
               compound: observation.cmpd,

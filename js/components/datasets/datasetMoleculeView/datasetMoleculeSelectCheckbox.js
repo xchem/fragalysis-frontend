@@ -1,4 +1,4 @@
-import { Checkbox } from '@material-ui/core';
+import { Checkbox } from '@mui/material';
 import React, { useContext } from 'react';
 import { useSelector } from 'react-redux';
 import GroupDatasetNglControlButtonsContext from '../groupDatasetNglControlButtonsContext';

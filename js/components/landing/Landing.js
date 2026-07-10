@@ -1,7 +1,8 @@
 /**
  * Created by ricgillams on 21/06/2018.
  */
-import { Grid, Link, makeStyles } from '@material-ui/core';
+import { GridLegacy as Grid, Link } from '@mui/material';
+import { makeStyles } from '../../ui/styles';
 import React, { memo, useCallback, useContext, useEffect, useState } from 'react';
 import { TargetList } from '../target/targetList';
 import { connect, useDispatch, useSelector } from 'react-redux';

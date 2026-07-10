@@ -1,15 +1,16 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { Divider, makeStyles } from '@material-ui/core';
+import { Divider } from '@mui/material';
+import { makeStyles } from '../../../../../ui/styles';
 import { throttle } from 'lodash';
 
 const useStyles = makeStyles(theme => ({
   vertical: {
-    margin: `0 ${theme.spacing()}px`,
+    margin: `0 ${theme.spacing()}`,
     cursor: 'col-resize',
     width: 4
   },
   horizontal: {
-    margin: `${theme.spacing()}px 0`,
+    margin: `${theme.spacing()} 0`,
     cursor: 'row-resize',
     height: 4
   },

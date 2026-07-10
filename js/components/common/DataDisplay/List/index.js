@@ -1,5 +1,6 @@
 import React, { memo } from 'react';
-import { List as MaterialList, makeStyles } from '@material-ui/core';
+import { List as MaterialList } from '../../../../ui';
+import { makeStyles } from '../../../../ui/styles';
 
 const useStyles = makeStyles(theme => ({
   list: {

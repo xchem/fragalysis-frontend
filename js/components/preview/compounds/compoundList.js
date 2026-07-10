@@ -6,17 +6,9 @@ import { useDispatch, useSelector } from 'react-redux';
 import { CompoundView } from './compoundView';
 import { Panel } from '../../common/Surfaces/Panel';
 import { Button } from '../../common/Inputs/Button';
-import {
-  Grid,
-  Box,
-  makeStyles,
-  TextField,
-  CircularProgress,
-  Checkbox,
-  InputAdornment,
-  IconButton
-} from '@material-ui/core';
-import { SelectAll, Delete, Edit } from '@material-ui/icons';
+import { GridLegacy as Grid, Box, TextField, CircularProgress, Checkbox, InputAdornment, IconButton } from '@mui/material';
+import { makeStyles } from '../../../ui/styles';
+import { SelectAll, Delete, Edit } from '@mui/icons-material';
 import {
   clearAllSelectedCompounds,
   loadNextPageOfCompounds,
@@ -151,43 +143,45 @@ export const CompoundList = memo(() => {
               {Object.keys(compoundsColors).map(item => (
                 <Grid item key={item}>
                   <TextField
-                    InputProps={{
-                      readOnly: editedColorGroup !== item,
-                      endAdornment: (
-                        <InputAdornment position="end">
-                          <RichTooltip path="compoundClass.editName">
-                            <IconButton
-                              className={
-                                editedColorGroup !== item
-                                  ? classes.editClassNameIcon
-                                  : classes.editClassNameIconSelected
-                              }
-                              color={'inherit'}
-                              value={`${item}`}
-                              onClick={e => {
-                                dispatch(onStartEditColorClassName(e));
-                                inputRefs[item].current.focus();
-                                inputRefs[item].current.select();
-                              }}
-                            >
-                              <Edit />
-                            </IconButton>
-                          </RichTooltip>
-                        </InputAdornment>
-                      ),
-                      startAdornment: (
-                        <InputAdornment position="start">
-                          <RichTooltip path="compoundClass.select">
-                            <Checkbox
-                              className={classes.classCheckbox}
-                              key={`CHCK_${item}`}
-                              value={`${item}`}
-                              onChange={e => dispatch(onChangeCompoundClassCheckbox(e))}
-                              checked={currentCompoundClass === item}
-                            ></Checkbox>
-                          </RichTooltip>
-                        </InputAdornment>
-                      )
+                    slotProps={{
+                      input: {
+                        readOnly: editedColorGroup !== item,
+                        endAdornment: (
+                          <InputAdornment position="end">
+                            <RichTooltip path="compoundClass.editName">
+                              <IconButton
+                                className={
+                                  editedColorGroup !== item
+                                    ? classes.editClassNameIcon
+                                    : classes.editClassNameIconSelected
+                                }
+                                color={'inherit'}
+                                value={`${item}`}
+                                onClick={e => {
+                                  dispatch(onStartEditColorClassName(e));
+                                  inputRefs[item].current.focus();
+                                  inputRefs[item].current.select();
+                                }}
+                              >
+                                <Edit />
+                              </IconButton>
+                            </RichTooltip>
+                          </InputAdornment>
+                        ),
+                        startAdornment: (
+                          <InputAdornment position="start">
+                            <RichTooltip path="compoundClass.select">
+                              <Checkbox
+                                className={classes.classCheckbox}
+                                key={`CHCK_${item}`}
+                                value={`${item}`}
+                                onChange={e => dispatch(onChangeCompoundClassCheckbox(e))}
+                                checked={currentCompoundClass === item}
+                              ></Checkbox>
+                            </RichTooltip>
+                          </InputAdornment>
+                        )
+                      }
                     }}
                     autoComplete="off"
                     inputRef={inputRefs[item]}

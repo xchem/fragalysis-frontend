@@ -8,7 +8,7 @@ import {
   getMoleculesObjectIDListOfCompoundsToBuy
 } from './redux/selectors';
 import { setSelectedDatasetScrolled } from './redux/actions';
-import { v4 as uuidv4 } from 'uuid';
+import { createUuid } from '../../utils/uuid';
 
 export const useScrollToCompound = () => {
   const dispatch = useDispatch();
@@ -16,7 +16,7 @@ export const useScrollToCompound = () => {
   const [moleculeViewRefs, setMoleculeViewRefs] = useState({});
   const [scrollToMoleculeId, setScrollToMoleculeId] = useState(null);
 
-  const [uuid] = useState(uuidv4());
+  const [uuid] = useState(createUuid());
 
   const isSelectedDatasetScrolled = useSelector(state => state.datasetsReducers.isSelectedDatasetScrolled);
 

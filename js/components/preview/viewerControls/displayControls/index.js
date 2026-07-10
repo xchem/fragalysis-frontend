@@ -1,9 +1,10 @@
 import React, { useContext, memo } from 'react';
 import { Drawer } from '../../../common/Navigation/Drawer';
-import { makeStyles, Grid, IconButton, Select } from '@material-ui/core';
-import TreeView from '@material-ui/lab/TreeView';
-import { ChevronRight, ExpandMore, Edit, Visibility, Delete, VisibilityOff, Add } from '@material-ui/icons';
-import TreeItem from '@material-ui/lab/TreeItem';
+import { GridLegacy as Grid, IconButton, Select } from '@mui/material';
+import { makeStyles } from '../../../../ui/styles';
+import { SimpleTreeView } from '@mui/x-tree-view/SimpleTreeView';
+import { ChevronRight, ExpandMore, Edit, Visibility, Delete, VisibilityOff, Add } from '@mui/icons-material';
+import { TreeItem } from '@mui/x-tree-view/TreeItem';
 import { useDispatch, useSelector } from 'react-redux';
 import { NglContext } from '../../../nglView/nglProvider';
 import {
@@ -17,7 +18,6 @@ import {
 import { deleteObject, checkRemoveFromDensityList } from '../../../../reducers/ngl/dispatchActions';
 import { MOL_REPRESENTATION, OBJECT_TYPE, SELECTION_TYPE } from '../../../nglView/constants';
 import { VIEWS } from '../../../../constants/constants';
-import { assignRepresentationToComp } from '../../../nglView/generatingObjects';
 import { EditRepresentationMenu } from './editRepresentationMenu';
 import { hideShapeRepresentations } from '../../../nglView/redux/dispatchActions';
 
@@ -35,7 +35,7 @@ export default memo(({ open, onClose }) => {
   const classes = useStyles();
   const dispatch = useDispatch();
   const objectsInView = useSelector(state => state.nglReducers.objectsInView) || {};
-  const { getNglView } = useContext(NglContext);
+  const { getViewerAdapter } = useContext(NglContext);
 
   const [editMenuAnchors, setEditMenuAnchors] = React.useState({});
 
@@ -48,38 +48,31 @@ export default memo(({ open, onClose }) => {
   };
 
   const changeVisibility = (representation, parentKey) => {
-    const nglView = getNglView(objectsInView[parentKey].display_div);
-    const comp = nglView.stage.getComponentsByName(parentKey).first;
-    let representationElement = null;
+    const viewerAdapter = getViewerAdapter(objectsInView[parentKey].display_div);
+    const component = viewerAdapter.getObject(parentKey);
+    const representationElement = viewerAdapter.getRepresentation(component, representation);
 
-    comp.eachRepresentation(r => {
-      if (r.uuid === representation.uuid || r.uuid === representation.lastKnownID) {
-        representationElement = r;
-        const newVisibility = !r.getVisibility();
-        // update in redux
-        representation.params.visible = newVisibility;
-        dispatch(updateComponentRepresentation(parentKey, representation.uuid, representation, '', true));
-        dispatch(
-          updateComponentRepresentationVisibility(parentKey, representation.uuid, representation, newVisibility)
-        );
-        // update in nglView
-        r.setVisibility(newVisibility);
-      }
-    });
+    if (representationElement) {
+      const newVisibility = !viewerAdapter.getVisibility(representationElement);
+      representation.params.visible = newVisibility;
+      dispatch(updateComponentRepresentation(parentKey, representation.uuid, representation, '', true));
+      dispatch(updateComponentRepresentationVisibility(parentKey, representation.uuid, representation, newVisibility));
+      viewerAdapter.setVisibility(representationElement, newVisibility);
+    }
 
-    hideShapeRepresentations(representationElement, nglView, parentKey);
+    hideShapeRepresentations(representationElement, viewerAdapter, parentKey);
   };
   const changeMolecularRepresentation = (representation, parentKey, e) => {
     const newRepresentationType = e.target.value;
     const oldRepresentation = JSON.parse(JSON.stringify(representation));
-    const nglView = getNglView(objectsInView[parentKey].display_div);
-    const comp = nglView.stage.getComponentsByName(parentKey).first;
+    const viewerAdapter = getViewerAdapter(objectsInView[parentKey].display_div);
+    const component = viewerAdapter.getObject(parentKey);
 
     // add representation to NGL
-    const newRepresentation = assignRepresentationToComp(
+    const newRepresentation = viewerAdapter.createRepresentation(
+      component,
       newRepresentationType,
       oldRepresentation.params,
-      comp,
       oldRepresentation.lastKnownID
     );
     // add new representation to redux
@@ -93,35 +86,30 @@ export default memo(({ open, onClose }) => {
 
   const addMolecularRepresentation = (parentKey, e) => {
     e.stopPropagation();
-    const nglView = getNglView(objectsInView[parentKey].display_div);
-    const comp = nglView.stage.getComponentsByName(parentKey).first;
+    const viewerAdapter = getViewerAdapter(objectsInView[parentKey].display_div);
+    const component = viewerAdapter.getObject(parentKey);
 
     // add representation to NGL
-    const newRepresentation = assignRepresentationToComp(MOL_REPRESENTATION.axes, undefined, comp);
+    const newRepresentation = viewerAdapter.createRepresentation(component, MOL_REPRESENTATION.axes);
     // add new representation to redux
     dispatch(addComponentRepresentation(parentKey, newRepresentation));
   };
 
   const removeRepresentation = (representation, parentKey, skipTracking) => {
-    const nglView = getNglView(objectsInView[parentKey].display_div);
-    const comp = nglView.stage.getComponentsByName(parentKey).first;
-    let foundedRepresentation = undefined;
-    comp.eachRepresentation(r => {
-      if (r.uuid === representation.uuid || r.uuid === representation.lastKnownID) {
-        foundedRepresentation = r;
-      }
-    });
+    const viewerAdapter = getViewerAdapter(objectsInView[parentKey].display_div);
+    const component = viewerAdapter.getObject(parentKey);
+    const foundedRepresentation = viewerAdapter.getRepresentation(component, representation);
     if (foundedRepresentation) {
       // update in nglView
-      comp.removeRepresentation(foundedRepresentation);
+      viewerAdapter.removeRepresentation(component, foundedRepresentation);
       // update in redux
       const targetObject = objectsInView[parentKey];
 
-      if (comp.reprList.length === 0) {
+      if (viewerAdapter.getRepresentationCount(component) === 0) {
         // remove from nglReducer and selectionReducer
-        dispatch(deleteObject(targetObject, nglView.stage, true));
+        dispatch(deleteObject(targetObject, viewerAdapter, true));
       } else {
-        hideShapeRepresentations(foundedRepresentation, nglView, parentKey);
+        hideShapeRepresentations(foundedRepresentation, viewerAdapter, parentKey);
         dispatch(removeComponentRepresentation(parentKey, representation, skipTracking));
       }
     }
@@ -131,43 +119,40 @@ export default memo(({ open, onClose }) => {
   const removeMoleculeWithRepresentations = (parentKey, e) => {
     e.stopPropagation();
     const targetObject = objectsInView[parentKey];
-    const nglView = getNglView(objectsInView[parentKey].display_div);
-    const comp = nglView.stage.getComponentsByName(parentKey).first;
-    comp.eachRepresentation(representation => dispatch(removeComponentRepresentation(parentKey, representation, true)));
+    const viewerAdapter = getViewerAdapter(objectsInView[parentKey].display_div);
+    const component = viewerAdapter.getObject(parentKey);
+    viewerAdapter
+      .getRepresentations(component)
+      .forEach(representation => dispatch(removeComponentRepresentation(parentKey, representation, true)));
 
     let deleteFromSelections =
       targetObject.selectionType !== SELECTION_TYPE.DENSITY ||
       dispatch(checkRemoveFromDensityList(targetObject, objectsInView));
 
     // remove from nglReducer and selectionReducer
-    dispatch(deleteObject(targetObject, nglView.stage, deleteFromSelections));
+    dispatch(deleteObject(targetObject, viewerAdapter, deleteFromSelections));
   };
 
   // ChangeVisibility with cascade
   const changeVisibilityMoleculeRepresentations = (parentKey, e) => {
     e.stopPropagation();
     const representations = (objectsInView[parentKey] && objectsInView[parentKey].representations) || [];
-    const nglView = getNglView(objectsInView[parentKey].display_div);
-    const comp = nglView.stage.getComponentsByName(parentKey).first;
+    const viewerAdapter = getViewerAdapter(objectsInView[parentKey].display_div);
+    const component = viewerAdapter.getObject(parentKey);
     let newVisibility = false;
     representations.forEach((representation, index) => {
       if (index === 0) {
         newVisibility = !representation.params.visible;
       }
 
-      let representationElement = null;
-      comp.eachRepresentation(r => {
-        if (r.uuid === representation.uuid || r.uuid === representation.lastKnownID) {
-          representationElement = r;
-          representation.params.visible = newVisibility;
-          // update in nglView
-          r.setVisibility(newVisibility);
-          // update in redux
-          dispatch(updateComponentRepresentation(parentKey, representation.uuid, representation, '', true));
-        }
-      });
+      const representationElement = viewerAdapter.getRepresentation(component, representation);
+      if (representationElement) {
+        representation.params.visible = newVisibility;
+        viewerAdapter.setVisibility(representationElement, newVisibility);
+        dispatch(updateComponentRepresentation(parentKey, representation.uuid, representation, '', true));
+      }
 
-      hideShapeRepresentations(representationElement, nglView, parentKey);
+      hideShapeRepresentations(representationElement, viewerAdapter, parentKey);
     });
 
     dispatch(updateComponentRepresentationVisibilityAll(parentKey, newVisibility));
@@ -189,7 +174,7 @@ export default memo(({ open, onClose }) => {
     const representationKey = `${objectsInView[item].name}___${index}`;
     return (
       <TreeItem
-        nodeId={representationKey}
+        itemId={representationKey}
         key={representationKey}
         label={
           <Grid
@@ -254,7 +239,10 @@ export default memo(({ open, onClose }) => {
 
   return (
     <Drawer title="Display controls" open={open} onClose={onClose}>
-      <TreeView className={classes.root} defaultCollapseIcon={<ExpandMore />} defaultExpandIcon={<ChevronRight />}>
+      <SimpleTreeView
+        className={classes.root}
+        slots={{ collapseIcon: ExpandMore, expandIcon: ChevronRight }}
+      >
         {Object.keys(objectsInView)
           .filter(
             item =>
@@ -266,7 +254,7 @@ export default memo(({ open, onClose }) => {
           })
           .map(parentItem => (
             <TreeItem
-              nodeId={objectsInView[parentItem].name}
+              itemId={objectsInView[parentItem].name}
               key={objectsInView[parentItem].name}
               label={
                 <Grid container justifyContent="space-between" direction="row" wrap="nowrap" alignItems="center">
@@ -297,7 +285,7 @@ export default memo(({ open, onClose }) => {
                   .map((representation, index) => renderSubtreeItem(representation, parentItem, index))}
             </TreeItem>
           ))}
-      </TreeView>
+      </SimpleTreeView>
     </Drawer>
   );
 });

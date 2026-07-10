@@ -3,7 +3,7 @@ import {
   assignRepresentationArrayToComp,
   createRepresentationsArray,
   createRepresentationStructure
-} from './generatingObjects';
+} from '../../viewer/ngl/representationHelpers';
 import { Shape, Matrix4, MeshBuffer } from 'ngl';
 import { refmesh } from './constants/mesh';
 import { addToQualityCache } from '../../reducers/ngl/actions';

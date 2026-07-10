@@ -1,7 +1,7 @@
 import React, { forwardRef, memo, useCallback, useContext, useMemo, useRef, useState } from 'react';
-import { CircularProgress, Grid, Popper, IconButton, Typography } from '@material-ui/core';
-import { Close, Link } from '@material-ui/icons';
-import { makeStyles } from '@material-ui/styles';
+import { CircularProgress, GridLegacy as Grid, Popper, IconButton, Typography } from '@mui/material';
+import { Close, Link } from '@mui/icons-material';
+import { makeStyles } from '../../ui/styles';
 import { useDispatch, useSelector } from 'react-redux';
 import {
   addComplex,
@@ -46,8 +46,8 @@ const useStyles = makeStyles(theme => ({
     borderRight: '1px solid',
     borderRightColor: theme.palette.background.divider,
     fontWeight: 'bold',
-    paddingLeft: theme.spacing(1) / 2,
-    paddingRight: theme.spacing(1) / 2,
+    paddingLeft: theme.spacing(0.5),
+    paddingRight: theme.spacing(0.5),
     paddingTop: theme.spacing(1),
     paddingBottom: theme.spacing(1),
     fontSize: 8,
@@ -72,14 +72,14 @@ const useStyles = makeStyles(theme => ({
     paddingTop: theme.spacing(2)
   },
   contButtonsMargin: {
-    marginTop: theme.spacing(1) / 2,
-    marginBottom: theme.spacing(1) / 2,
+    marginTop: theme.spacing(0.5),
+    marginBottom: theme.spacing(0.5),
     marginLeft: theme.spacing(2)
   },
   contColButton: {
     minWidth: 'fit-content',
-    paddingLeft: theme.spacing(1) / 4,
-    paddingRight: theme.spacing(1) / 4,
+    paddingLeft: theme.spacing(0.25),
+    paddingRight: theme.spacing(0.25),
     paddingBottom: 0,
     paddingTop: 0,
     fontWeight: 'bold',

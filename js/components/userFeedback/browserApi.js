@@ -82,7 +82,7 @@ export const captureScreen = () => async dispatch => {
   dispatch(setIsOpenForm(true));
 };
 
-export const captureScreenOfSnapshotNglScreen = () => async dispatch => {
+export const captureScreenOfSnapshotNglScreen = viewerAdapter => async dispatch => {
   const node = document.getElementById('major_view');
   if (!node) return null;
 
@@ -90,17 +90,20 @@ export const captureScreenOfSnapshotNglScreen = () => async dispatch => {
   const width = node.scrollWidth;
   const height = node.scrollHeight;
 
-  const dataUrl = await domtoimage.toPng(node, {
-    width,
-    height,
-    style: {
-      // neutralize DPR scaling and ensure layout size matches our width/height
-      transform: 'scale(1)',
-      transformOrigin: 'top left',
-      width: `${width}px`,
-      height: `${height}px`
-    }
-  });
+  const capture = () =>
+    domtoimage.toPng(node, {
+      width,
+      height,
+      style: {
+        // neutralize DPR scaling and ensure layout size matches our width/height
+        transform: 'scale(1)',
+        transformOrigin: 'top left',
+        width: `${width}px`,
+        height: `${height}px`
+      }
+    });
+
+  const dataUrl = await (viewerAdapter ? viewerAdapter.captureImage({ capture }) : capture());
 
   return dataUrl;
 };

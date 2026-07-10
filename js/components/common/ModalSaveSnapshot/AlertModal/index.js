@@ -1,5 +1,5 @@
 import React, { memo } from 'react';
-import { DialogTitle, DialogContent, DialogContentText, DialogActions, Button } from '@material-ui/core';
+import { DialogTitle, DialogContent, DialogContentText, DialogActions, Button } from '../../../../ui';
 import Modal from '../index';
 
 export const AlertModal = memo(({ open, title, description, handleOnOk, handleOnCancel }) => {

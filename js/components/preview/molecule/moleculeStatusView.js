@@ -1,5 +1,6 @@
 import React, { memo } from 'react';
-import { Grid, makeStyles } from '@material-ui/core';
+import { GridLegacy as Grid } from '@mui/material';
+import { makeStyles } from '../../../ui/styles';
 import RefinementOutcome from './refinementOutcome';
 
 const useStyles = makeStyles(theme => ({
@@ -9,11 +10,11 @@ const useStyles = makeStyles(theme => ({
   labelItem: {
     color: '#7B7B7B',
     fontSize: '10px',
-    margin: theme.spacing(1) / 2
+    margin: theme.spacing(0.5)
   },
   valueItem: {
-    marginLeft: theme.spacing(1) / 4,
-    marginRight: theme.spacing(1) / 4
+    marginLeft: theme.spacing(0.25),
+    marginRight: theme.spacing(0.25)
   },
   valueElement: {
     width: '16px',
@@ -28,7 +29,7 @@ const useStyles = makeStyles(theme => ({
     fontSize: '9px'
   },
   refinementOutcome: {
-    paddingTop: theme.spacing(1) / 2,
+    paddingTop: theme.spacing(0.5),
     width: 16,
     height: 24
   }

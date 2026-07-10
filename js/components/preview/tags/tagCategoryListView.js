@@ -1,5 +1,6 @@
 import React, { memo } from 'react';
-import { Grid, makeStyles, Typography } from '@material-ui/core';
+import { GridLegacy as Grid, Typography } from '@mui/material';
+import { makeStyles } from '../../../ui/styles';
 import { useDispatch } from 'react-redux';
 import { useSelector } from 'react-redux';
 import TagView from './tagView';

@@ -4,14 +4,9 @@
 
 import React, { memo, useEffect, useState, useRef, useContext, forwardRef } from 'react';
 import { useDispatch, useSelector, shallowEqual } from 'react-redux';
-import { Grid, Button, makeStyles, IconButton, CircularProgress } from '@material-ui/core';
-import {
-  ClearOutlined,
-  CheckOutlined,
-  Assignment,
-  AssignmentTurnedIn,
-  KeyboardReturnOutlined
-} from '@material-ui/icons';
+import { GridLegacy as Grid, Button, IconButton, CircularProgress } from '@mui/material';
+import { makeStyles } from '../../../ui/styles';
+import { ClearOutlined, CheckOutlined, Assignment, AssignmentTurnedIn, KeyboardReturnOutlined } from '@mui/icons-material';
 import SVGInline from 'react-svg-inline';
 import classNames from 'classnames';
 import { VIEWS, ARROW_TYPE } from '../../../constants/constants';
@@ -64,7 +59,7 @@ import {
   setIsOpenInspirationDialog
 } from '../redux/actions';
 import { centerOnLigandByMoleculeID } from '../../../reducers/ngl/dispatchActions';
-import { ArrowDownward, ArrowUpward, MyLocation } from '@material-ui/icons';
+import { ArrowDownward, ArrowUpward, MyLocation } from '@mui/icons-material';
 import { isString } from 'lodash';
 import { SvgTooltip } from '../../common';
 import {
@@ -99,7 +94,7 @@ import { TooltipPathProvider } from '../../tooltip/TooltipPathContext';
 
 const useStyles = makeStyles(theme => ({
   container: {
-    padding: theme.spacing(1) / 4,
+    padding: theme.spacing(0.25),
     color: 'black',
     height: 54
   },
@@ -107,7 +102,7 @@ const useStyles = makeStyles(theme => ({
     cursor: 'move'
   },
   contButtonsMargin: {
-    margin: theme.spacing(1) / 2
+    margin: theme.spacing(0.5)
   },
   colorButton: {
     minWidth: '15px',
@@ -115,8 +110,8 @@ const useStyles = makeStyles(theme => ({
   },
   contColButton: {
     minWidth: 'fit-content',
-    paddingLeft: theme.spacing(1) / 4,
-    paddingRight: theme.spacing(1) / 4,
+    paddingLeft: theme.spacing(0.25),
+    paddingRight: theme.spacing(0.25),
     paddingBottom: 0,
     paddingTop: 0,
     fontWeight: 'bold',
@@ -169,9 +164,9 @@ const useStyles = makeStyles(theme => ({
     borderRightColor: theme.palette.background.divider,
     fontWeight: 'bold',
     fontSize: 11,
-    paddingLeft: theme.spacing(1) / 2,
-    paddingRight: theme.spacing(1) / 2,
-    //paddingBottom: theme.spacing(1) / 4,
+    paddingLeft: theme.spacing(0.5),
+    paddingRight: theme.spacing(0.5),
+    //paddingBottom: theme.spacing(0.25),
     width: 32,
     textAlign: 'center',
     '&:last-child': {
@@ -188,11 +183,11 @@ const useStyles = makeStyles(theme => ({
     backgroundColor: theme.palette.background.default,
     border: `solid 1px`,
     borderColor: theme.palette.background.divider,
-    paddingBottom: theme.spacing(1) / 2
+    paddingBottom: theme.spacing(0.5)
   },
   qualityLabel: {
-    paddingLeft: theme.spacing(1) / 4,
-    paddingRight: theme.spacing(1) / 4
+    paddingLeft: theme.spacing(0.25),
+    paddingRight: theme.spacing(0.25)
   },
   matchingValue: {
     backgroundColor: theme.palette.success.lighter
@@ -205,16 +200,16 @@ const useStyles = makeStyles(theme => ({
     overflow: 'hidden',
     whiteSpace: 'nowrap',
     textOverflow: 'ellipsis',
-    paddingLeft: theme.spacing(1) / 4
+    paddingLeft: theme.spacing(0.25)
   },
   datasetTitleLabel: {
     ...theme.typography.caption,
     overflow: 'hidden',
     whiteSpace: 'nowrap',
     textOverflow: 'ellipsis',
-    paddingLeft: theme.spacing(1) / 4,
-    paddingRight: theme.spacing(1) / 4,
-    marginTop: -theme.spacing(1)
+    paddingLeft: theme.spacing(0.25),
+    paddingRight: theme.spacing(0.25),
+    marginTop: theme.spacing(-1)
   },
   selectedMolecule: {
     color: theme.palette.primary.main
@@ -243,8 +238,8 @@ const useStyles = makeStyles(theme => ({
   },
   myLocationButton: {
     minWidth: 'fit-content',
-    paddingLeft: theme.spacing(1) / 4,
-    paddingRight: theme.spacing(1) / 4,
+    paddingLeft: theme.spacing(0.25),
+    paddingRight: theme.spacing(0.25),
     paddingBottom: 0,
     paddingTop: 0,
     fontWeight: 'bold',

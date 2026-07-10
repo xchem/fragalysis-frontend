@@ -1,8 +1,8 @@
 import React, { useEffect } from 'react';
-import Checkbox from '@material-ui/core/Checkbox';
-import FormControlLabel from '@material-ui/core/FormControlLabel';
-import FormGroup from '@material-ui/core/FormGroup';
-import Typography from '@material-ui/core/Typography';
+import Checkbox from '@mui/material/Checkbox';
+import FormControlLabel from '@mui/material/FormControlLabel';
+import FormGroup from '@mui/material/FormGroup';
+import Typography from '@mui/material/Typography';
 import { useDispatch, useSelector } from 'react-redux';
 import {
   appendProteinSettings,

@@ -1,19 +1,8 @@
 import React, { memo, useCallback, useContext, useEffect, useMemo, useState } from 'react';
-import {
-  Button,
-  Checkbox,
-  Grid,
-  IconButton,
-  InputLabel,
-  MenuItem,
-  Popper,
-  Select,
-  TextField,
-  makeStyles,
-  withStyles
-} from '@material-ui/core';
+import { Button, Checkbox, GridLegacy as Grid, IconButton, InputLabel, MenuItem, Popper, Select, TextField } from '@mui/material';
+import { makeStyles, withStyles } from '../../../../ui/styles';
 import { Panel } from '../../../common';
-import { Close } from '@material-ui/icons';
+import { Close } from '@mui/icons-material';
 import { useDispatch, useSelector } from 'react-redux';
 import {
   DEFAULT_CATEGORY,

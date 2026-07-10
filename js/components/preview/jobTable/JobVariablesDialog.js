@@ -1,5 +1,5 @@
 import React, { Fragment } from 'react';
-import { Dialog, DialogContent, DialogTitle, Typography } from '@material-ui/core';
+import { Dialog, DialogContent, DialogTitle, Typography } from '@mui/material';
 import { getJobInputs, useGetJobDefinition } from '../../../hooks/useGetJobDefinition';
 import { useDispatch } from 'react-redux';
 

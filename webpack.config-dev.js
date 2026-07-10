@@ -1,29 +1,26 @@
 const path = require('path');
 const webpack = require('webpack');
 const ReactRefreshWebpackPlugin = require('@pmmmwh/react-refresh-webpack-plugin');
-const BundleTracker = require('webpack-bundle-tracker');
-const ErrorOverlayPlugin = require('error-overlay-webpack-plugin');
 const Dotenv = require('dotenv-webpack');
+const LegacyBundleTrackerPlugin = require('./webpack/LegacyBundleTrackerPlugin');
+const DEV_SERVER_PORT = Number(process.env.DEV_SERVER_PORT || 3030);
+const DEV_SERVER_ORIGIN = `http://localhost:${DEV_SERVER_PORT}`;
 
 module.exports = {
   mode: 'development',
   context: __dirname,
 
-  devServer: {
-    hot: true
-  },
-
   entry: [
     'babel-polyfill',
-    'webpack-hot-middleware/client?reload=true&path=http://localhost:3030/__webpack_hmr',
+    `webpack-hot-middleware/client?reload=true&path=${DEV_SERVER_ORIGIN}/__webpack_hmr`,
     './js/index'
   ],
 
   output: {
     crossOriginLoading: 'anonymous',
-    path: path.resolve('./bundles'),
-    filename: '[name]-[hash].js',
-    publicPath: 'http://localhost:3030/bundles/' // Tell django to use this URL to load packages and not use STATIC_URL + bundle_name
+    path: path.resolve(__dirname, 'bundles'),
+    filename: '[name]-[fullhash].js',
+    publicPath: `${DEV_SERVER_ORIGIN}/bundles/` // Tell django to use this URL to load packages and not use STATIC_URL + bundle_name
   },
 
   devtool: 'cheap-module-source-map',
@@ -37,11 +34,11 @@ module.exports = {
   },
 
   plugins: [
-    new BundleTracker({ filename: './webpack-stats.json', trackAssets: true }),
-    new ErrorOverlayPlugin(),
-    new webpack.NamedModulesPlugin(),
+    new LegacyBundleTrackerPlugin({ path: __dirname }),
     new webpack.HotModuleReplacementPlugin(),
-    new webpack.NoEmitOnErrorsPlugin(), // don't reload if there is an error
+    new webpack.DefinePlugin({
+      __FRAGALYSIS_VIEWER_ENGINE__: JSON.stringify(process.env.VIEWER_ENGINE || '')
+    }),
     new Dotenv(),
     new ReactRefreshWebpackPlugin()
   ],
@@ -59,12 +56,21 @@ module.exports = {
           }
         }
       },
-      { test: /\.css$/, loader: 'style-loader!css-loader' },
+      { test: /\.css$/, use: ['style-loader', 'css-loader'] },
       {
         test: /\.(jpe?g|png|gif|woff|woff2|eot|ttf|svg)(\?[a-z0-9=.]+)?$/,
-        loader: 'url-loader?limit=100000'
+        type: 'asset',
+        parser: {
+          dataUrlCondition: {
+            maxSize: 100000
+          }
+        }
       }
     ]
+  },
+  optimization: {
+    emitOnErrors: false,
+    moduleIds: 'named'
   },
   resolve: {
     modules: ['node_modules'],
