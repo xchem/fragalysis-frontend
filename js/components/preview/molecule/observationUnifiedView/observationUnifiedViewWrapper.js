@@ -2,7 +2,7 @@
  * Row in Hit navigator
  */
 
-import React, { memo, forwardRef, useCallback, useEffect, useMemo, useState } from 'react';
+import React, { memo, forwardRef, useCallback, useMemo, useState } from 'react';
 import { Table, TableBody, TableCell, TableHead, TableRow } from '@mui/material';
 import { makeStyles } from '../../../../ui/styles';
 import { useSelector } from 'react-redux';
@@ -192,7 +192,6 @@ const ObservationUnifiedViewWrapper = memo(
         preferredDetailWidth
       );
       const { filteredItems, getColumnFilter } = useFilters(items, columns, viewConfig);
-      const filteredItemIds = useMemo(() => new Set((filteredItems || []).map(item => item.id)), [filteredItems]);
       const waitsForMoleculeImage = columns?.some(column => column.visible && column.type === COLUMN_TYPES.MOLECULE);
       const handleDetailHeightChange = useCallback((rowId, height) => {
         if (rowId === undefined || rowId === null) {
@@ -223,23 +222,7 @@ const ObservationUnifiedViewWrapper = memo(
         });
       }, []);
 
-      useEffect(() => {
-        setDetailHeightsByRowId(currentHeights => {
-          const nextHeights = {};
-          let changed = false;
-
-          Object.entries(currentHeights).forEach(([rowId, height]) => {
-            if (filteredItemIds.has(rowId) || filteredItemIds.has(Number(rowId))) {
-              nextHeights[rowId] = height;
-            } else {
-              changed = true;
-            }
-          });
-
-          return changed ? nextHeights : currentHeights;
-        });
-      }, [filteredItemIds]);
-
+      // Only visible rows participate, so stale cached heights do not need effect-driven pruning.
       const displayImageSize = useMemo(() => {
         const maxDetailHeight = (filteredItems || []).reduce(
           (maxHeight, item) => Math.max(maxHeight, detailHeightsByRowId[item.id] || 0),

@@ -1,4 +1,4 @@
-import React, { memo, useCallback, useEffect, useState } from "react";
+import React, { memo, useCallback, useState } from "react";
 import { Checkbox, FormControl, FormControlLabel, GridLegacy as Grid, MenuItem, Radio, RadioGroup, Select, TextField } from '@mui/material';
 import { makeStyles } from '../../../../../../ui/styles';
 import { FilterWrapper } from "./filterWrapper";
@@ -12,44 +12,30 @@ const useStyles = makeStyles(theme => ({
     }
 }));
 
+const INITIAL_FILTER_VALUE = {
+    mainStatus: { good: false, mediocre: false, bad: false, none: false },
+    peerReview: {
+        good: { checked: false, option: 0, value: '' },
+        mediocre: { checked: false, option: 0, value: '' },
+        bad: { checked: false, option: 0, value: '' },
+        none: { checked: false, option: 0, value: '' },
+        onlyMyReviews: { checked: false }
+    }
+};
+
+const INITIAL_SORTING_VALUE = {
+    enabled: false,
+    order: ORDER.DESC
+};
+
 export const PeerReviewFilter = memo(({ onFilterChange, onSortingChange }) => {
     const classes = useStyles();
     const dispatch = useDispatch();
 
-    const unifiedFilter = useSelector(state => state.selectionReducers.unifiedFilter);
+    const savedFilter = useSelector(state => state.selectionReducers.unifiedFilter?.peerReview);
 
-    const initFilterValue = {
-        mainStatus: { good: false, mediocre: false, bad: false, none: false },
-        peerReview: {
-            good: { checked: false, option: 0, value: '' },
-            mediocre: { checked: false, option: 0, value: '' },
-            bad: { checked: false, option: 0, value: '' },
-            none: { checked: false, option: 0, value: '' },
-            onlyMyReviews: { checked: false }
-        }
-    };
-
-    const initSortingValue = {
-        enabled: false,
-        // false for descending, true for ascending
-        order: ORDER.DESC
-    };
-
-    const [filterValue, setFilterValue] = useState(initFilterValue);
-    const [sortingValue, setSortingValue] = useState(initSortingValue);
-
-    const [initialized, setInitialized] = useState(false);
-
-    useEffect(() => {
-        if (!initialized) {
-            if (unifiedFilter?.peerReview) {
-                setFilterValue(unifiedFilter.peerReview);
-            } else {
-                setFilterValue(initFilterValue);
-            }
-            setInitialized(true);
-        }
-    }, [unifiedFilter.peerReview, initFilterValue, initialized]);
+    const [filterValue, setFilterValue] = useState(() => savedFilter || INITIAL_FILTER_VALUE);
+    const [sortingValue, setSortingValue] = useState(INITIAL_SORTING_VALUE);
 
     const setValueForMainStatus = (property, value) => {
         return {
@@ -96,11 +82,11 @@ export const PeerReviewFilter = memo(({ onFilterChange, onSortingChange }) => {
     return <FilterWrapper
         title="Sort / Filter (Peer Review)"
         handleReset={() => {
-            setFilterValue(initFilterValue);
-            setSortingValue(initSortingValue);
-            onFilterChange(initFilterValue);
-            onSortingChange(initSortingValue);
-            dispatch(setUnifiedFilterItem('peerReview', initFilterValue));
+            setFilterValue(INITIAL_FILTER_VALUE);
+            setSortingValue(INITIAL_SORTING_VALUE);
+            onFilterChange(INITIAL_FILTER_VALUE);
+            onSortingChange(INITIAL_SORTING_VALUE);
+            dispatch(setUnifiedFilterItem('peerReview', INITIAL_FILTER_VALUE));
         }}
         isActive={isFilterActive()}
     >

@@ -1,4 +1,4 @@
-import React, { memo, useCallback, useEffect, useState } from 'react';
+import React, { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Checkbox, FormControl, FormControlLabel, GridLegacy as Grid, Radio, RadioGroup, TextField } from '@mui/material';
 import { makeStyles } from '../../../../../../ui/styles';
 import { FilterWrapper } from './filterWrapper';
@@ -11,7 +11,7 @@ import {
   setSphereCoordinate,
   setUnifiedFilterItem
 } from '../../../../../../reducers/selection/actions';
-import { useDispatch, useSelector } from 'react-redux';
+import { shallowEqual, useDispatch, useSelector } from 'react-redux';
 import { ORDER } from '../constants';
 import { handleObservationFilterChange } from '../../../redux/dispatchActions';
 
@@ -41,28 +41,34 @@ export const ObservationFilter = memo(({ onFilterChange, onSortingChange, viewCo
   const showDisplayedMolecules = useSelector(state =>
     viewConfig.getShowDisplayedMolecules?.(state) ?? state.selectionReducers.showDisplayedMolecules
   );
-  const unifiedFilter = useSelector(state => state.selectionReducers.unifiedFilter);
+  const filterDetail = useSelector(state => state.selectionReducers.unifiedFilter?.[filterKey], shallowEqual);
 
-  const initFilterValue = {
-    alwaysShowDisplayedHits: showDisplayedMolecules,
-    observationCode: false,
-    compoundCode: false,
-    compoundAliases: false,
-    value: '',
-    exactMatch: false,
-    coordinateSearch: false
-  };
+  const initFilterValue = useMemo(
+    () => ({
+      alwaysShowDisplayedHits: showDisplayedMolecules,
+      observationCode: false,
+      compoundCode: false,
+      compoundAliases: false,
+      value: '',
+      exactMatch: false,
+      coordinateSearch: false
+    }),
+    [showDisplayedMolecules]
+  );
 
-  const initSortingValue = {
-    enabled: 0, // 0: None, 1: Observation / pose shortcode, 2: Compound aliases, 3: Compound ID
-    // false for descending, true for ascending
-    order: ORDER.DESC
-  };
+  const initSortingValue = useMemo(
+    () => ({
+      enabled: 0, // 0: None, 1: Observation / pose shortcode, 2: Compound aliases, 3: Compound ID
+      // false for descending, true for ascending
+      order: ORDER.DESC
+    }),
+    []
+  );
 
   const [filterValue, setFilterValue] = useState(initFilterValue);
   const [sortingValue, setSortingValue] = useState(initSortingValue);
 
-  const [initialized, setInitialized] = useState(false);
+  const initializedFilterKeyRef = useRef(null);
 
   const handleFilterChangeHandler = handleObservationFilterChange(setFilterValue, onFilterChange, filterKey);
 
@@ -70,21 +76,20 @@ export const ObservationFilter = memo(({ onFilterChange, onSortingChange, viewCo
     viewConfig.getIsCoordinateFilterApplied?.(state) ?? state.selectionReducers.isCoordinateFilterApplied
   );
 
-  const filterDetail = unifiedFilter?.[filterKey];
-
   useEffect(() => {
-    if (!initialized) {
-      if (filterDetail) {
-        setFilterValue(filterDetail);
-      } else {
-        setFilterValue(initFilterValue);
+    const nextFilterValue = filterDetail || initFilterValue;
+    // The reducer clones every filter entry, so mirror only actual value changes.
+    setFilterValue(currentFilterValue =>
+      shallowEqual(currentFilterValue, nextFilterValue) ? currentFilterValue : nextFilterValue
+    );
+
+    if (initializedFilterKeyRef.current !== filterKey) {
+      initializedFilterKeyRef.current = filterKey;
+      if (!filterDetail) {
         dispatch(setUnifiedFilterItem(filterKey, initFilterValue));
       }
-      setInitialized(true);
-    } else if (filterDetail) {
-      setFilterValue(filterDetail);
     }
-  }, [dispatch, filterDetail, filterKey, initFilterValue, initialized]);
+  }, [dispatch, filterDetail, filterKey, initFilterValue]);
 
   const handleSortingChange = (property, value) => {
     const newSortingValue = {

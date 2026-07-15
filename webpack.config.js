@@ -41,6 +41,14 @@ module.exports = {
     reasons: true
   },
 
+  // react-datepicker probes for its optional date-fns-tz dependency dynamically.
+  ignoreWarnings: [
+    {
+      module: /react-datepicker[\\/]dist[\\/]index\.es\.js$/,
+      message: /Critical dependency: the request of a dependency is an expression/i
+    }
+  ],
+
   plugins: [
     new LegacyBundleTrackerPlugin({ path: __dirname }),
     new webpack.DefinePlugin({

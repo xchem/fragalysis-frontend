@@ -2,7 +2,8 @@ import {
   elementIsVisibleInContainer,
   findFirstScrollablePose,
   getPoseObservationIds,
-  getRequiredPageForIndex
+  getRequiredPageForIndex,
+  poseListsDiffer
 } from './useScrollToSelectedPose';
 
 describe('useScrollToSelectedPose helpers', () => {
@@ -73,6 +74,15 @@ describe('useScrollToSelectedPose helpers', () => {
     expect(getRequiredPageForIndex(0, 30)).toBe(1);
     expect(getRequiredPageForIndex(29, 30)).toBe(1);
     expect(getRequiredPageForIndex(30, 30)).toBe(2);
+  });
+
+  it('detects pagination slice changes without treating a new array as a change', () => {
+    const firstPose = { id: 1 };
+    const secondPose = { id: 2 };
+
+    expect(poseListsDiffer([firstPose, secondPose], [firstPose, secondPose])).toBe(false);
+    expect(poseListsDiffer([firstPose], [firstPose, secondPose])).toBe(true);
+    expect(poseListsDiffer([firstPose, secondPose], [secondPose, firstPose])).toBe(true);
   });
 
   it('checks row visibility against the scroll container rather than the window', () => {

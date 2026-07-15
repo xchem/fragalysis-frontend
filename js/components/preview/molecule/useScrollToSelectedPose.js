@@ -12,6 +12,9 @@ export const getPoseObservationIds = pose => {
 
 export const getRequiredPageForIndex = (index, moleculesPerPage) => Math.floor(index / moleculesPerPage) + 1;
 
+export const poseListsDiffer = (currentItems = EMPTY_LIST, nextItems = EMPTY_LIST) =>
+  currentItems.length !== nextItems.length || currentItems.some((item, index) => item !== nextItems[index]);
+
 export const findFirstScrollablePose = ({
   poses = EMPTY_LIST,
   prioritizedPoseId = null,

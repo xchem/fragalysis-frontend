@@ -1,4 +1,4 @@
-import React, { memo, useCallback, useEffect, useMemo, useState } from 'react';
+import React, { memo, useCallback, useMemo, useState } from 'react';
 import { Checkbox, FormControl, FormControlLabel, GridLegacy as Grid, IconButton, Radio, RadioGroup, TextField } from '@mui/material';
 import { makeStyles } from '../../../../../../ui/styles';
 import { FilterWrapper } from './filterWrapper';
@@ -26,6 +26,15 @@ const useStyles = makeStyles(theme => ({
   }
 }));
 
+const INITIAL_FILTER_VALUE = {
+  matchType: 'exact',
+  smarts: false,
+  distinct: false,
+  smiles: '',
+  filteredCompounds: null,
+  structureType: 'compound'
+};
+
 export const MoleculeFilter = memo(({ onFilterChange, viewConfig = {} }) => {
   const classes = useStyles();
   const dispatch = useDispatch();
@@ -37,7 +46,7 @@ export const MoleculeFilter = memo(({ onFilterChange, viewConfig = {} }) => {
   const targetOnId = useSelector(state => state.apiReducers.target_on);
   const targetList = useSelector(state => state.apiReducers.target_id_list);
   const targetAccessString = useSelector(state => state.targetReducers.currentProject?.target_access_string);
-  const unifiedFilter = useSelector(state => state.selectionReducers.unifiedFilter);
+  const savedFilter = useSelector(state => state.selectionReducers.unifiedFilter?.molecule);
   const filteredSmilesQuery = useSelector(state => getFilterSmileQuery(state));
 
   const targetOnTitle = useMemo(() => {
@@ -45,35 +54,9 @@ export const MoleculeFilter = memo(({ onFilterChange, viewConfig = {} }) => {
     return target ? target.title : '';
   }, [targetList, targetOnId]);
 
-  const initFilterValue = {
-    matchType: 'exact',
-    smarts: false,
-    distinct: false,
-    smiles: '',
-    filteredCompounds: null,
-    structureType: 'compound' // 'compound' | 'site_observation'
-  };
-
-  const [filterValue, setFilterValue] = useState(initFilterValue);
-  const [editorSmiles, setEditorSmiles] = useState('');
-  const [inputSmiles, setInputSmiles] = useState('');
-
-  const [initialized, setInitialized] = useState(false);
-
-  useEffect(() => {
-    if (!initialized) {
-      if (unifiedFilter?.molecule) {
-        setFilterValue(unifiedFilter.molecule);
-        setEditorSmiles(unifiedFilter.molecule.smiles);
-        setInputSmiles(unifiedFilter.molecule.smiles);
-      } else {
-        setFilterValue(initFilterValue);
-        setEditorSmiles('');
-        setInputSmiles('');
-      }
-      setInitialized(true);
-    }
-  }, [unifiedFilter.molecule, initFilterValue, initialized]);
+  const [filterValue, setFilterValue] = useState(() => savedFilter || INITIAL_FILTER_VALUE);
+  const [editorSmiles, setEditorSmiles] = useState(() => savedFilter?.smiles || '');
+  const [inputSmiles, setInputSmiles] = useState(() => savedFilter?.smiles || '');
 
   const handleFilterChange = (property, value) => {
     const newFilterValue = {
@@ -143,9 +126,9 @@ export const MoleculeFilter = memo(({ onFilterChange, viewConfig = {} }) => {
       handleReset={() => {
         setEditorSmiles('');
         setInputSmiles('');
-        setFilterValue(initFilterValue);
-        onFilterChange(initFilterValue);
-        dispatch(setUnifiedFilterItem('molecule', initFilterValue));
+        setFilterValue(INITIAL_FILTER_VALUE);
+        onFilterChange(INITIAL_FILTER_VALUE);
+        dispatch(setUnifiedFilterItem('molecule', INITIAL_FILTER_VALUE));
       }}
       isActive={filterValue.filteredCompounds !== null}
       onHoverComponent={getOnHoverComponent()}

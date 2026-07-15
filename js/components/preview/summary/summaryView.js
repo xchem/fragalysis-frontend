@@ -1,7 +1,7 @@
 /**
  * Created by abradley on 15/03/2018.
  */
-import React, { memo, useState, useEffect } from 'react';
+import React, { memo, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { CmpdSummaryImage } from './CmpdSummaryImage';
 import { Panel } from '../../common/Surfaces/Panel';
@@ -22,7 +22,6 @@ const useStyles = makeStyles(theme => ({
 
 export const SummaryView = memo(() => {
   const classes = useStyles();
-  const [panelRef, setPanelRef] = useState();
   const dispatch = useDispatch();
   const duck_yank_data = useSelector(state => state.apiReducers.duck_yank_data);
   const to_buy_list = useSelector(state => state.selectionReducers.to_buy_list);
@@ -39,14 +38,7 @@ export const SummaryView = memo(() => {
   }, [dispatch, duck_yank_data, to_buy_list]);
 
   return (
-    <Panel
-      ref={ref => {
-        setPanelRef(ref);
-      }}
-      hasHeader
-      headerActions={[]}
-      title="Summary Info"
-    >
+    <Panel hasHeader headerActions={[]} title="Summary Info">
       <Grid container justifyContent="space-between">
         <Grid
           item

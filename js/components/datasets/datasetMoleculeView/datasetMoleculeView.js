@@ -89,6 +89,7 @@ import { LockVisibleCompoundsDialog } from '../lockVisibleCompoundsDialog';
 import { fabClasses } from '@mui/material';
 import useClipboard from 'react-use-clipboard';
 import { useRDKit } from '../../rdkit/RDKitContext';
+import { useRegisteredNodeRef } from '../../../hooks/useRegisteredNodeRef';
 import RichTooltip from '../../tooltip/RichTooltip';
 import { TooltipPathProvider } from '../../tooltip/TooltipPathContext';
 
@@ -395,7 +396,8 @@ const DatasetMoleculeView = memo(
       },
       outsideRef
     ) => {
-      const ref = useRef(null);
+      const currentID = (data && data.id) || (data && data.smiles) || undefined;
+      const { nodeRef: ref, setNodeRef: handleRowRef } = useRegisteredNodeRef(data && data.id, outsideRef);
       const lockVisibleCompoundsDialogRef = useRef();
 
       const { handlerId, isDragging } = useDragDropMoleculeView(ref, datasetID, data, index, moveMolecule);
@@ -404,7 +406,6 @@ const DatasetMoleculeView = memo(
       const { RDKitModule, loading } = useRDKit();
 
       const selectedAll = useRef(false);
-      const currentID = (data && data.id) || (data && data.smiles) || undefined;
       const isFromVectorSelector = isCompoundFromVectorSelector(data);
       const classes = useStyles();
       const dispatch = useDispatch();
@@ -1040,12 +1041,7 @@ const DatasetMoleculeView = memo(
               direction="row"
               className={classNames(classes.container, dragDropEnabled ? classes.dragDropCursor : undefined)}
               wrap="nowrap"
-              ref={node => {
-                if (outsideRef) {
-                  outsideRef(data.id, node);
-                }
-                ref.current = node;
-              }}
+              ref={handleRowRef}
               data-handler-id={dragDropEnabled ? handlerId : undefined}
               style={{ opacity }}
             >

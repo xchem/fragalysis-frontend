@@ -25,7 +25,7 @@ import { LoadingContext } from '../../loading';
 import { DJANGO_CONTEXT } from '../../../utils/djangoContext';
 import { ObservationsDialog } from './observationsDialog';
 import { ObservationInspirationDialog } from './observationInspirationDialog';
-import { useScrollToSelectedPose } from './useScrollToSelectedPose';
+import { poseListsDiffer, useScrollToSelectedPose } from './useScrollToSelectedPose';
 import { SearchSettingsDialog } from './searchSettingsDialog';
 import { TOAST_LEVELS } from '../../toast/constants';
 import { FilterSettingsModal } from './observationUnifiedView/table';
@@ -578,8 +578,6 @@ export const PoseList = memo(
 
     let joinedMoleculeLists = useMemo(() => {
       if (searchString) {
-        setCurrentPage(0);
-        setItemsToBeDisplayed([]);
         return (
           handlers.searchHitNavigator?.(searchString, getJoinedMoleculeList, lhsCompoundsList, searchSettings) ??
           handlers.searchForObservations(searchString, getJoinedMoleculeList, searchSettings)
@@ -588,6 +586,13 @@ export const PoseList = memo(
         return getJoinedMoleculeList;
       }
     }, [searchString, handlers, getJoinedMoleculeList, lhsCompoundsList, searchSettings]);
+
+    useEffect(() => {
+      if (searchString) {
+        setCurrentPage(0);
+        setItemsToBeDisplayed([]);
+      }
+    }, [searchString]);
 
     const addSelectedMoleculesFromUnselectedSites = useCallback(
       (joinedMoleculeLists, list) => {
@@ -1268,16 +1273,12 @@ export const PoseList = memo(
     }, [filteredLHSCompoundsList, currentPage, moleculesPerPage]);
 
     useEffect(() => {
-      //if something goes wrong and we are displaying what we shoudn't we need to reset itemsToBeDisplayed to proper slice of filteredLHSCompoundsList
-      //kind of hacky solution but I think it's good failsafe
+      // Compare before dispatching state so fresh filtered-array identities cannot start a passive update loop.
       const whatToDisplay = filteredLHSCompoundsList?.slice(0, currentPage * moleculesPerPage) || [];
-      setItemsToBeDisplayed(currentItems => {
-        const displayedItemsChanged =
-          currentItems?.length !== whatToDisplay.length ||
-          currentItems.some((item, index) => item !== whatToDisplay[index]);
-        return displayedItemsChanged ? [...whatToDisplay] : currentItems;
-      });
-    }, [currentPage, filteredLHSCompoundsList, moleculesPerPage]);
+      if (poseListsDiffer(itemsToBeDisplayed, whatToDisplay)) {
+        setItemsToBeDisplayed([...whatToDisplay]);
+      }
+    }, [currentPage, filteredLHSCompoundsList, itemsToBeDisplayed, moleculesPerPage]);
 
     const handleExpandChange = useCallback(
       expanded => {

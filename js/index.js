@@ -6,21 +6,21 @@ import { DJANGO_CONTEXT } from './utils/djangoContext';
 import { init, configureScope } from '@sentry/browser';
 // Setup log rocket logging
 import { Provider } from 'react-redux';
-import { applyMiddleware, createStore } from 'redux';
+import { applyMiddleware, legacy_createStore } from 'redux';
 import { rootReducer } from './reducers/rootReducer';
 import { saveStore } from './components/helpers/globalStore';
-import thunkMiddleware from 'redux-thunk';
-import { composeWithDevTools } from 'redux-devtools-extension';
+import { thunk } from 'redux-thunk';
+import { composeWithDevTools } from '@redux-devtools/extension';
 import { setRDKITScriptLoaded } from './reducers/api/actions';
 
 const middlewareEnhancer = applyMiddleware(
   //loggerMiddleware,
-  thunkMiddleware
+  thunk
 );
 const enhancers = [middlewareEnhancer];
 const composedEnhancers = composeWithDevTools(...enhancers);
 
-const store = createStore(rootReducer, undefined, composedEnhancers);
+const store = legacy_createStore(rootReducer, undefined, composedEnhancers);
 
 saveStore(store);
 

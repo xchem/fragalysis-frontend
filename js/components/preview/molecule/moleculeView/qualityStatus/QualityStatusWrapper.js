@@ -44,30 +44,25 @@ const useStyles = makeStyles(theme => ({
 
 export const QualityStatusWrapper = memo(({ data }) => {
   const allStatuses = useSelector(state => state.apiReducers.quality_statuses);
-  const [qualityStatuses, setQualityStatuses] = useState([]);
-  const [latestPeerReviews, setLatestPeerReviews] = useState([]);
   const classes = useStyles();
 
-  useEffect(() => {
-    // filter out default statuses created on load
-    const statuses = allStatuses.filter(
-      status => status.site_observation === data.main_site_observation && status.comment !== 'Created on load'
-    );
-    if (statuses) {
-      setQualityStatuses(statuses);
-    }
-  }, [allStatuses, data]);
+  // These values are rendered per row; derive them without scheduling passive updates.
+  const qualityStatuses = useMemo(
+    () =>
+      allStatuses.filter(
+        status => status.site_observation === data.main_site_observation && status.comment !== 'Created on load'
+      ),
+    [allStatuses, data.main_site_observation]
+  );
 
-  useEffect(() => {
-    if (qualityStatuses) {
-      const userMap = {};
-      qualityStatuses.forEach(status => {
-        if (!(status.user in userMap) && status.main_status === false) {
-          userMap[status.user] = status;
-        }
-      });
-      setLatestPeerReviews(Object.values(userMap));
-    }
+  const latestPeerReviews = useMemo(() => {
+    const userMap = {};
+    qualityStatuses.forEach(status => {
+      if (!(status.user in userMap) && status.main_status === false) {
+        userMap[status.user] = status;
+      }
+    });
+    return Object.values(userMap);
   }, [qualityStatuses]);
 
   const getMainQualityStatusObject = useCallback(() => {

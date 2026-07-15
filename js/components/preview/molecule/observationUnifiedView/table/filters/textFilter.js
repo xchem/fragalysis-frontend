@@ -1,4 +1,4 @@
-import React, { memo, useEffect, useState } from "react";
+import React, { memo, useState } from "react";
 import { Checkbox, FormControl, FormControlLabel, GridLegacy as Grid, Radio, RadioGroup, TextField } from '@mui/material';
 import { makeStyles } from '../../../../../../ui/styles';
 import { FilterWrapper } from "./filterWrapper";
@@ -12,40 +12,25 @@ const useStyles = makeStyles(theme => ({
     }
 }));
 
+const INITIAL_FILTER_VALUE = {
+    type: 'contains',
+    condition: 'any',
+    value: ''
+};
+
+const INITIAL_SORTING_VALUE = {
+    enabled: false,
+    order: ORDER.DESC
+};
+
 export const TextFilter = memo(({ name, onFilterChange, onSortingChange }) => {
     const classes = useStyles();
     const dispatch = useDispatch();
 
-    const unifiedFilter = useSelector(state => state.selectionReducers.unifiedFilter);
+    const savedFilter = useSelector(state => state.selectionReducers.unifiedFilter?.[name]);
 
-    const initFilterValue = {
-        type: 'contains',
-        condition: 'any',
-        value: ''
-    };
-
-    const initSortingValue = {
-        enabled: false,
-        // false for descending, true for ascending
-        order: ORDER.DESC
-    };
-
-    const [filterValue, setFilterValue] = useState(initFilterValue);
-    const [sortingValue, setSortingValue] = useState(initSortingValue);
-
-    const [initialized, setInitialized] = useState(false);
-
-    useEffect(() => {
-        if (!initialized) {
-            if (unifiedFilter?.[name]) {
-                setFilterValue(unifiedFilter[name]);
-            } else {
-                setFilterValue(initFilterValue);
-            }
-            setInitialized(true);
-        }
-    }, [unifiedFilter, name, initFilterValue, initialized]);
-    // }, [unifiedFilter[name], initFilterValue, initialized]);
+    const [filterValue, setFilterValue] = useState(() => savedFilter || INITIAL_FILTER_VALUE);
+    const [sortingValue, setSortingValue] = useState(INITIAL_SORTING_VALUE);
 
     const handleFilterChange = (property, value) => {
         const newFilterValue = {
@@ -54,7 +39,7 @@ export const TextFilter = memo(({ name, onFilterChange, onSortingChange }) => {
         };
         setFilterValue(newFilterValue);
         onFilterChange(newFilterValue);
-        dispatch(setUnifiedFilterItem(name, initFilterValue));
+        dispatch(setUnifiedFilterItem(name, INITIAL_FILTER_VALUE));
     };
 
     const handleSortingChange = (property, value) => {
@@ -69,11 +54,11 @@ export const TextFilter = memo(({ name, onFilterChange, onSortingChange }) => {
     return <FilterWrapper
         title={`Sort / Filter (${name})`}
         handleReset={() => {
-            setFilterValue(initFilterValue);
-            setSortingValue(initSortingValue);
-            onFilterChange(initFilterValue);
-            onSortingChange(initSortingValue);
-            dispatch(setUnifiedFilterItem(name, initFilterValue));
+            setFilterValue(INITIAL_FILTER_VALUE);
+            setSortingValue(INITIAL_SORTING_VALUE);
+            onFilterChange(INITIAL_FILTER_VALUE);
+            onSortingChange(INITIAL_SORTING_VALUE);
+            dispatch(setUnifiedFilterItem(name, INITIAL_FILTER_VALUE));
         }}
         isActive={filterValue.value !== '' || sortingValue.enabled}
     >

@@ -35,6 +35,7 @@ import { COLUMN_TYPES } from './table';
 import { NumericView } from './table/views';
 import { TooltipPathProvider } from '../../../tooltip/TooltipPathContext';
 import { LHS_OBSERVATION_VIEW_CONFIG } from './viewConfigs';
+import { useRegisteredNodeRef } from '../../../../hooks/useRegisteredNodeRef';
 
 const useStyles = makeStyles(theme => ({
   container: {
@@ -103,8 +104,8 @@ const ObservationUnifiedView = memo(
     ) => {
       // const [countOfVectors, setCountOfVectors] = useState('-');
       // const [cmpds, setCmpds] = useState('-');
-      const ref = useRef(null);
       const currentID = (data && data.id) || undefined;
+      const { nodeRef: ref, setNodeRef: handleRowRef } = useRegisteredNodeRef(currentID, outsideRef);
       const classes = useStyles();
 
       const dispatch = useDispatch();
@@ -514,29 +515,9 @@ const ObservationUnifiedView = memo(
       };
 
       return (
-        // <Grid
-        //   ref={node => {
-        //     if (outsideRef) {
-        //       outsideRef(data.id, node);
-        //     }
-        //     ref.current = node;
-        //   }}
-        //   container
-        //   justifyContent="space-between"
-        //   direction="row"
-        //   className={classNames(classes.container, {
-        //     [classes.siteOpenObservations]: poseIdForObservationsDialog === data.id && isObservationDialogOpen
-        //   })}
-        //   wrap="nowrap"
-        // >
         <TableRow
           key={data.id}
-          ref={node => {
-            if (outsideRef) {
-              outsideRef(data.id, node);
-            }
-            ref.current = node;
-          }}
+          ref={handleRowRef}
           className={classNames(classes.container, {
             [classes.siteOpenObservations]: poseIdForObservationsDialog === data.id && isObservationDialogOpen
           })}
