@@ -273,11 +273,7 @@ export const loadMoleculesAndTagsNew = targetId => async (dispatch, getState) =>
       const computedInspirationId = Number(item?.computed_inspiration);
       const computedSetId = Number(item?.computed_set);
 
-      if (
-        Number.isNaN(siteObservationId) ||
-        Number.isNaN(computedInspirationId) ||
-        Number.isNaN(computedSetId)
-      ) {
+      if (Number.isNaN(siteObservationId) || Number.isNaN(computedInspirationId) || Number.isNaN(computedSetId)) {
         return;
       }
 
@@ -403,7 +399,7 @@ export const loadMoleculesAndTagsNew = targetId => async (dispatch, getState) =>
         newObject['associatedObs'] = associatedObs;
 
         // rhs poses are not linked to an experiment - currently this can't happen because there are no poses for rhs virtual observations
-        if (firstObs.experiment === null) {
+        if (firstObs?.experiment === null) {
           modifiedRhsPoses.push(newObject);
         } else {
           modifiedLhsPoses.push(newObject);
