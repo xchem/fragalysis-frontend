@@ -59,12 +59,12 @@ services:
       start_period: 10s
   web:
     container_name: web_dock
-    # image: xchem/fragalysis-stack:latest
+    image: xchem/fragalysis-stack:latest
     # image: xchem/fragalysis-backend:m2ms-1649-refresh-fix
     # image: boriskovarm2ms/fragalysis-stack:experiment2
     # image: kaliif/fragalysis-backend:density-ui-1598
     # image: kaliif/fragalysis-backend:coordinate-filter
-    image: kaliif/fragalysis-backend:unified-lhs-rhs
+    # image: kaliif/fragalysis-backend:unified-lhs-rhs
     command: /bin/bash /code/launch-stack.sh
     volumes:
       - ../data/logs:/code/logs/
@@ -149,8 +149,8 @@ services:
     # image: ${BE_NAMESPACE:-xchem}/fragalysis-backend:${BE_IMAGE_TAG:-latest}
     # image: kaliif/fragalysis-backend:download-task
     # image: kaliif/fragalysis-backend:density-ui-1598
-    # image: xchem/fragalysis-stack:latest
-    image: kaliif/fragalysis-backend:unified-lhs-rhs
+    image: xchem/fragalysis-stack:latest
+    # image: kaliif/fragalysis-backend:unified-lhs-rhs
     restart: on-failure
     volumes:
       - ../data/logs:/code/logs/
@@ -209,7 +209,7 @@ services:
       - .env
     # image: ${BE_NAMESPACE:-xchem}/fragalysis-backend:${BE_IMAGE_TAG:-latest}
     # image: kaliif/fragalysis-backend:download-task
-    # image: xchem/fragalysis-stack:latest
+    image: xchem/fragalysis-stack:latest
     # image: kaliif/fragalysis-backend:density-ui-1598
-    image: kaliif/fragalysis-backend:unified-lhs-rhs
+    # image: kaliif/fragalysis-backend:unified-lhs-rhs
     restart: on-failure
