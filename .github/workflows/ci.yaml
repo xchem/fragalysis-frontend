@@ -2,10 +2,7 @@
 name: ci
 
 on:
-  pull_request:
-  push:
-    tags-ignore:
-      - '**'
+  workflow_dispatch:
 
 env:
   CYPRESS_BASE_URL: ${{ vars.CYPRESS_BASE_URL }}
