@@ -489,7 +489,7 @@ export const removeInformation = data => dispatch => {
 };
 
 /**
- * Turn on the complex of the first ligand of the site
+ * Display the ligand and the default protein representation for the first pose.
  */
 export const initializeMolecules = majorView => (dispatch, getState) => {
   if (majorView) {
@@ -511,16 +511,10 @@ export const initializeMolecules = majorView => (dispatch, getState) => {
         firstMolecule = dispatch(getFirstMolOfFirstCompound(firstTag));
       }
       if (firstMolecule) {
-        dispatch(addHitProtein(majorView, firstMolecule, colourList[firstMolecule.id % colourList.length], true)).then(
-          () => {
-            dispatch(
-              addArtefactChain(majorView, firstMolecule, colourList[firstMolecule.id % colourList.length], true, true)
-            ).then(() => {
-              dispatch(
-                addLigand(majorView, firstMolecule, colourList[firstMolecule.id % colourList.length], true, true)
-              );
-            });
-          }
+        return dispatch(
+          addHitProtein(majorView, firstMolecule, colourList[firstMolecule.id % colourList.length], true)
+        ).then(() =>
+          dispatch(addLigand(majorView, firstMolecule, colourList[firstMolecule.id % colourList.length], true, true))
         );
       }
     }
