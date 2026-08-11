@@ -1,10 +1,19 @@
 /**
  * Created by abradley on 14/03/2018.
  */
-import { GridLegacy as Grid, CircularProgress, Typography, IconButton, Select, MenuItem, Checkbox } from '@mui/material';
+import {
+  GridLegacy as Grid,
+  CircularProgress,
+  Typography,
+  IconButton,
+  Select,
+  MenuItem,
+  Checkbox,
+  Popover
+} from '@mui/material';
 import { makeStyles } from '../../../ui/styles';
 import React, { useState, useEffect, useCallback, memo, useRef, useContext, useMemo } from 'react';
-import { useSelector, useDispatch } from 'react-redux';
+import { shallowEqual, useSelector, useDispatch } from 'react-redux';
 import { colourList } from './utils/color';
 import { filterMolecules } from './moleculeListSortFilterDialog';
 import InfiniteScroll from 'react-infinite-scroller';
@@ -13,7 +22,7 @@ import { Panel } from '../../common/Surfaces/Panel';
 import { VIEWS } from '../../../constants/constants';
 import { NglContext } from '../../nglView/nglProvider';
 import classNames from 'classnames';
-import { Edit, FilterList } from '@mui/icons-material';
+import { ArrowDownward, ArrowUpward, Edit, FilterList } from '@mui/icons-material';
 import { setTagEditorOpen, setObservationsDialogSide } from '../../../reducers/selection/actions';
 import { useRouteMatch } from 'react-router-dom';
 import { AlertModal } from '../../common/Modal/AlertModal';
@@ -25,13 +34,15 @@ import { LoadingContext } from '../../loading';
 import { DJANGO_CONTEXT } from '../../../utils/djangoContext';
 import { ObservationsDialog } from './observationsDialog';
 import { ObservationInspirationDialog } from './observationInspirationDialog';
-import { poseListsDiffer, useScrollToSelectedPose } from './useScrollToSelectedPose';
+import { getRequiredPageForIndex, poseListsDiffer, useScrollToSelectedPose } from './useScrollToSelectedPose';
 import { SearchSettingsDialog } from './searchSettingsDialog';
 import { TOAST_LEVELS } from '../../toast/constants';
 import { FilterSettingsModal } from './observationUnifiedView/table';
 import ObservationUnifiedViewWrapper from './observationUnifiedView/observationUnifiedViewWrapper';
 import RichTooltip from '../../tooltip/RichTooltip';
 import { TooltipPathProvider } from '../../tooltip/TooltipPathContext';
+import { executePoseTransfer, getFirstEligiblePoseTransfers } from './poseTransfer';
+import PoseNavigationConfigPopover from './poseNavigationConfigPopover';
 
 const useStyles = makeStyles(theme => ({
   container: {
@@ -223,6 +234,25 @@ const useStyles = makeStyles(theme => ({
     marginTop: 4,
     marginLeft: 4
   },
+  poseTransferToolbarButtons: {
+    display: 'flex',
+    flex: '0 0 auto',
+    flexDirection: 'row',
+    flexWrap: 'nowrap',
+    alignItems: 'center',
+    marginTop: 4,
+    marginLeft: 2
+  },
+  poseTransferToolbarButton: {
+    width: 22,
+    height: 22,
+    padding: 2,
+    borderRadius: 0,
+    color: theme.palette.primary.main,
+    '& svg': {
+      fontSize: 16
+    }
+  },
   formControl: {
     color: 'inherit',
     margin: theme.spacing(1),
@@ -337,6 +367,8 @@ export const PoseList = memo(
     searchSettings,
     viewConfig,
     getComputedInspirations = undefined,
+    poseTransferConfig = undefined,
+    poseNavigationConfig = undefined,
     ligandRepresentations = undefined,
     isTagEditorForCurrentSide = false,
     handlers = {},
@@ -356,8 +388,14 @@ export const PoseList = memo(
     const [itemsToBeDisplayed, setItemsToBeDisplayed] = useState([]);
     const [sortSettingsChanged, setSortSettingsChanged] = useState(false);
     const [visuallyReadyPoseIds, setVisuallyReadyPoseIds] = useState(() => new Set());
+    const [poseTransferInProgress, setPoseTransferInProgress] = useState(false);
+    const [poseTransferResetKey, setPoseTransferResetKey] = useState(0);
+    const [pendingDialogAnchorPoseId, setPendingDialogAnchorPoseId] = useState(null);
+    const [orderedPoseTransferIds, setOrderedPoseTransferIds] = useState([]);
+    const [poseNavigationConfigAnchor, setPoseNavigationConfigAnchor] = useState(null);
 
     const selectedAll = useRef(false);
+    const poseTransferInProgressRef = useRef(false);
     const allMolListsLength = all_mol_lists?.length || 0;
 
     const sortDialogOpen = useSelector(instanceConfig.selectSortDialogOpen || (() => false));
@@ -959,7 +997,60 @@ export const PoseList = memo(
       return compounds;
     }, [joinedMoleculeLists, lhsCompoundsList, sortOptions, sortOption, ascending]);
 
-    const { addMoleculeViewRef, registeredMoleculeViewCount } = useScrollToSelectedPose({
+    const handlePoseTransferNavigationItemsChange = useCallback(orderedItems => {
+      const nextIds = (orderedItems || []).map(item => item.id);
+      setOrderedPoseTransferIds(currentIds =>
+        poseListsDiffer(currentIds, nextIds) ? nextIds : currentIds
+      );
+    }, []);
+
+    const orderedPoseTransferItems = useMemo(() => {
+      const posesById = new Map(filteredLHSCompoundsList.map(pose => [pose.id, pose]));
+      return orderedPoseTransferIds.map(id => posesById.get(id)).filter(Boolean);
+    }, [filteredLHSCompoundsList, orderedPoseTransferIds]);
+
+    const toolbarPoseTransferIds = useSelector(
+      state => {
+        const transfers = getFirstEligiblePoseTransfers({
+          orderedPoses: orderedPoseTransferItems,
+          state,
+          config: poseTransferConfig
+        });
+
+        return {
+          previousSourceId: transfers.previous?.sourcePose.id ?? null,
+          previousDestinationId: transfers.previous?.destinationPose.id ?? null,
+          nextSourceId: transfers.next?.sourcePose.id ?? null,
+          nextDestinationId: transfers.next?.destinationPose.id ?? null
+        };
+      },
+      shallowEqual
+    );
+
+    const toolbarPoseTransfers = useMemo(() => {
+      const posesById = new Map(orderedPoseTransferItems.map(pose => [pose.id, pose]));
+      const resolveTransfer = (sourceId, destinationId) => {
+        const sourcePose = posesById.get(sourceId);
+        const destinationPose = posesById.get(destinationId);
+
+        return sourcePose && destinationPose ? { sourcePose, destinationPose } : null;
+      };
+
+      return {
+        previous: resolveTransfer(
+          toolbarPoseTransferIds.previousSourceId,
+          toolbarPoseTransferIds.previousDestinationId
+        ),
+        next: resolveTransfer(toolbarPoseTransferIds.nextSourceId, toolbarPoseTransferIds.nextDestinationId)
+      };
+    }, [orderedPoseTransferItems, toolbarPoseTransferIds]);
+
+    const {
+      addMoleculeViewRef,
+      setScrollToMoleculeId,
+      getNode,
+      registeredMoleculeViewCount
+    } = useScrollToSelectedPose({
       poses: filteredLHSCompoundsList,
       moleculesPerPage,
       setCurrentPage,
@@ -976,6 +1067,100 @@ export const PoseList = memo(
       densityList,
       vectorIds: vectorOnList
     });
+
+    useEffect(() => {
+      if (pendingDialogAnchorPoseId === null) {
+        return;
+      }
+
+      const destinationNode = getNode(pendingDialogAnchorPoseId);
+      if (destinationNode) {
+        setTagEditorAnchorEl(destinationNode);
+        setPendingDialogAnchorPoseId(null);
+      }
+    }, [getNode, pendingDialogAnchorPoseId]);
+
+    const handlePoseTransfer = useCallback(
+      async ({ sourcePose, destinationPose }) => {
+        if (!poseTransferConfig || !destinationPose || poseTransferInProgressRef.current) {
+          return;
+        }
+
+        poseTransferInProgressRef.current = true;
+        const destinationIndex = filteredLHSCompoundsList.findIndex(pose => pose.id === destinationPose.id);
+        if (destinationIndex >= 0) {
+          setCurrentPage(current =>
+            Math.max(current, getRequiredPageForIndex(destinationIndex, moleculesPerPage))
+          );
+        }
+        setScrollToMoleculeId(destinationPose.id);
+        setTagEditorAnchorEl(null);
+        setPoseTransferResetKey(current => current + 1);
+        setPoseTransferInProgress(true);
+
+        try {
+          const result = await dispatch(
+            executePoseTransfer({
+              config: poseTransferConfig,
+              sourcePose,
+              destinationPose,
+              stage: majorViewStage
+            })
+          );
+
+          await Promise.resolve(
+            poseTransferConfig.dialogs?.afterTransfer?.({
+              dispatch,
+              dialogState: result.dialogState,
+              sourcePose,
+              destinationPose,
+              destinationInspirationIds: result.destinationInspirationIds,
+              requestAnchor: setPendingDialogAnchorPoseId
+            })
+          );
+
+          if (result.postTransferError) {
+            handlers.addToastMessage?.({
+              text:
+                poseTransferConfig.postTransferFocus?.failureMessage ||
+                `Pose settings were transferred, but the destination could not be focused: ${
+                  result.postTransferError.message || result.postTransferError
+                }`,
+              level: TOAST_LEVELS.ERROR
+            });
+          }
+        } catch (error) {
+          await Promise.resolve(
+            poseTransferConfig.dialogs?.onTransferFailure?.({
+              dispatch,
+              dialogState: error.poseTransferContext?.dialogState,
+              sourcePose,
+              destinationPose,
+              sourceInspirationIds: error.poseTransferContext?.sourceInspirationIds || [],
+              requestAnchor: setPendingDialogAnchorPoseId,
+              error
+            })
+          ).catch(() => undefined);
+
+          handlers.addToastMessage?.({
+            text: `Unable to transfer pose display settings: ${error.message || error}`,
+            level: TOAST_LEVELS.ERROR
+          });
+        } finally {
+          poseTransferInProgressRef.current = false;
+          setPoseTransferInProgress(false);
+        }
+      },
+      [
+        dispatch,
+        filteredLHSCompoundsList,
+        handlers,
+        majorViewStage,
+        moleculesPerPage,
+        poseTransferConfig,
+        setScrollToMoleculeId
+      ]
+    );
 
     useEffect(() => {
       if (dataAreDownloading || !dataAreDownloaded || !areLSHCompoundsInitialized) {
@@ -1525,6 +1710,62 @@ export const PoseList = memo(
                 </Typography>
               </Grid>
             </RichTooltip>
+            {poseTransferConfig && (
+              <Grid item className={classes.poseTransferToolbarButtons}>
+                <IconButton
+                  id="hit-navigator-transfer-first-pose-up"
+                  className={classes.poseTransferToolbarButton}
+                  aria-label="Transfer first eligible pose settings upward"
+                  title="Transfer first eligible pose settings to the previous pose"
+                  disabled={!toolbarPoseTransfers.previous || poseTransferInProgress}
+                  onClick={() => toolbarPoseTransfers.previous && handlePoseTransfer(toolbarPoseTransfers.previous)}
+                >
+                  <ArrowUpward />
+                </IconButton>
+                <IconButton
+                  id="hit-navigator-transfer-first-pose-down"
+                  className={classes.poseTransferToolbarButton}
+                  aria-label="Transfer first eligible pose settings downward"
+                  title="Transfer first eligible pose settings to the next pose"
+                  disabled={!toolbarPoseTransfers.next || poseTransferInProgress}
+                  onClick={() => toolbarPoseTransfers.next && handlePoseTransfer(toolbarPoseTransfers.next)}
+                >
+                  <ArrowDownward />
+                </IconButton>
+              </Grid>
+            )}
+            {poseNavigationConfig && (
+              <Grid item className={classes.toolbarSmallButtons}>
+                <RichTooltip path="navConfig.button">
+                  <Button
+                    id="hit-navigator-pose-navigation-config"
+                    variant="outlined"
+                    className={classes.contColButton}
+                    aria-haspopup="dialog"
+                    aria-expanded={Boolean(poseNavigationConfigAnchor)}
+                    onClick={event =>
+                      setPoseNavigationConfigAnchor(
+                        poseNavigationConfigAnchor ? null : event.currentTarget
+                      )
+                    }
+                  >
+                    Nav config
+                  </Button>
+                </RichTooltip>
+                <Popover
+                  open={Boolean(poseNavigationConfigAnchor)}
+                  anchorEl={poseNavigationConfigAnchor}
+                  onClose={() => setPoseNavigationConfigAnchor(null)}
+                  anchorOrigin={{ vertical: 'center', horizontal: 'right' }}
+                  transformOrigin={{ vertical: 'center', horizontal: 'left' }}
+                >
+                  <PoseNavigationConfigPopover
+                    value={poseNavigationConfig.value}
+                    onChange={poseNavigationConfig.onChange}
+                  />
+                </Popover>
+              </Grid>
+            )}
           </Grid>
           <Grid container spacing={1} direction="column" justifyContent="flex-start" className={classes.container}>
             <Grid item>
@@ -1573,6 +1814,7 @@ export const PoseList = memo(
                       viewConfig={viewConfig}
                       ligandRepresentations={ligandRepresentations}
                       items={itemsToBeDisplayed}
+                      navigationItems={filteredLHSCompoundsList}
                       allSelectedMolecules={allSelectedMolecules}
                       addMoleculeViewRef={addMoleculeViewRef}
                       onPoseVisuallyReady={handlePoseVisuallyReady}
@@ -1587,6 +1829,13 @@ export const PoseList = memo(
                       vectorOnList={vectorOnList}
                       informationList={informationList}
                       getComputedInspirations={getComputedInspirations}
+                      poseTransferConfig={poseTransferConfig}
+                      poseTransferInProgress={poseTransferInProgress}
+                      poseTransferResetKey={poseTransferResetKey}
+                      onPoseTransferNavigationItemsChange={
+                        poseTransferConfig ? handlePoseTransferNavigationItemsChange : undefined
+                      }
+                      onPoseTransfer={handlePoseTransfer}
                     />
                   </InfiniteScroll>
                 </Grid>

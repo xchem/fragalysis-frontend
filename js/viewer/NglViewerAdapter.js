@@ -1,9 +1,11 @@
 import ViewerAdapter from './ViewerAdapter';
-import { Shape, Stage } from 'ngl';
+import { Matrix4, Quaternion, Shape, Stage, Vector3 } from 'ngl';
 import { nglObjectDictionary } from '../components/nglView/renderingObjects';
 import { PREFIX } from '../constants/constants';
 
 const adaptersByStage = new WeakMap();
+const MULTI_OBJECT_ZOOM_FACTOR = 0.9;
+const MIN_AXIS_LENGTH_SQUARED = 1e-8;
 
 const toCoordinateArray = value => {
   if (Array.isArray(value)) {
@@ -143,6 +145,105 @@ export class NglViewerAdapter extends ViewerAdapter {
 
   centerOn(component, selection) {
     return selection === undefined ? component.autoView() : component.autoView(selection);
+  }
+
+  centerOnObjects(components) {
+    const uniqueComponents = [...new Set((components || []).filter(Boolean))];
+
+    if (!uniqueComponents.length) {
+      return false;
+    }
+    if (uniqueComponents.length === 1) {
+      this.centerOn(uniqueComponents[0]);
+      return true;
+    }
+
+    const componentGeometry = uniqueComponents
+      .map(component => ({
+        component,
+        box: component.getBox?.(),
+        center: component.getCenter?.()
+      }))
+      .filter(
+        ({ box, center }) =>
+          box &&
+          center &&
+          [center.x, center.y, center.z].every(coordinate => Number.isFinite(coordinate))
+      );
+
+    if (!componentGeometry.length) {
+      return false;
+    }
+    if (componentGeometry.length === 1) {
+      this.centerOn(componentGeometry[0].component);
+      return true;
+    }
+
+    // Each displayed ligand contributes one center, regardless of its atom count.
+    const center = new Vector3();
+    componentGeometry.forEach(item => center.add(item.center));
+    center.divideScalar(componentGeometry.length);
+
+    const box = componentGeometry[0].box.clone();
+    componentGeometry.slice(1).forEach(item => box.union(item.box));
+
+    // Make the fitting box symmetric around the equal-weight center so the camera is
+    // centered on that point while still zooming far enough to include every ligand.
+    const radius = {
+      x: Math.max(Math.abs(box.min.x - center.x), Math.abs(box.max.x - center.x)),
+      y: Math.max(Math.abs(box.min.y - center.y), Math.abs(box.max.y - center.y)),
+      z: Math.max(Math.abs(box.min.z - center.z), Math.abs(box.max.z - center.z))
+    };
+    box.min.set(center.x - radius.x, center.y - radius.y, center.z - radius.z);
+    box.max.set(center.x + radius.x, center.y + radius.y, center.z + radius.z);
+
+    const zoom = this.stage.getZoomForBox(box) * MULTI_OBJECT_ZOOM_FACTOR;
+    const currentOrientation = this.getOrientation();
+    let widestAxis = null;
+    let widestAxisLengthSquared = 0;
+
+    for (let firstIndex = 0; firstIndex < componentGeometry.length - 1; firstIndex++) {
+      for (let secondIndex = firstIndex + 1; secondIndex < componentGeometry.length; secondIndex++) {
+        const axis = new Vector3().subVectors(
+          componentGeometry[secondIndex].center,
+          componentGeometry[firstIndex].center
+        );
+        const axisLengthSquared = axis.lengthSq();
+
+        if (axisLengthSquared > widestAxisLengthSquared) {
+          widestAxis = axis;
+          widestAxisLengthSquared = axisLengthSquared;
+        }
+      }
+    }
+
+    if (
+      widestAxisLengthSquared > MIN_AXIS_LENGTH_SQUARED &&
+      typeof currentOrientation?.decompose === 'function'
+    ) {
+      const currentPosition = new Vector3();
+      const currentRotation = new Quaternion();
+      const currentScale = new Vector3();
+      currentOrientation.decompose(currentPosition, currentRotation, currentScale);
+
+      // Apply the smallest additional rotation that puts the widest ligand separation
+      // on the horizontal screen axis. This avoids looking along the separation axis,
+      // where distinct ligands can overlap in projection.
+      const currentViewAxis = widestAxis.clone().normalize().applyQuaternion(currentRotation);
+      const presentationRotation = new Quaternion()
+        .setFromUnitVectors(currentViewAxis, new Vector3(1, 0, 0))
+        .multiply(currentRotation);
+      const orientation = new Matrix4().compose(
+        center.clone().negate(),
+        presentationRotation,
+        new Vector3(-zoom, -zoom, -zoom)
+      );
+
+      this.stage.animationControls.orient(orientation, 0);
+    } else {
+      this.stage.animationControls.zoomMove(center, zoom, 0);
+    }
+    return true;
   }
 
   setOrientation(orientation) {

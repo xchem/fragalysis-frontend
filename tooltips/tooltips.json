@@ -171,6 +171,22 @@
           "ascending": "Ascending",
           "descending": "Descending"
         },
+        "navConfig": {
+          "button": "Configure how the pose navigation arrows transfer displayed structures and settings.",
+          "transferOrder": {
+            "removeFirst": "Launch removal of the old structures before adding the destination structures. In **phased** scheduling removal completes first; in **overlapped** scheduling additions start immediately after removals are launched.",
+            "addFirst": "Launch addition of the destination structures before removing the old structures. In **phased** scheduling rendering completes first; in **overlapped** scheduling removals start immediately after additions are launched. Shared structures with changed settings always remove before being re-added."
+          },
+          "scheduling": {
+            "overlapped": "Run independent addition and removal work concurrently. Transfer order controls which operation group is attempted first, without waiting before launching the second group.",
+            "phased": "Complete the selected first phase before starting the second phase. This gives strict add-first or remove-first behavior but may feel slower."
+          },
+          "centering": {
+            "none": "Leave the NGL camera unchanged after the destination structures finish rendering.",
+            "designLigand": "After rendering, center the NGL view on the ligand of the destination design pose/virtual observation, just like using its target icon. If that ligand is not displayed, do nothing.",
+            "visibleLigandCentroid": "After rendering, center the NGL view on the equally weighted average of the individual centers of the displayed destination design and inspiration ligands. If only one group is displayed, center on that group; if no destination ligand is displayed, do nothing."
+          }
+        },
         "filterSettings": {
           "closeEditor": "Close editor",
           "dragAndDrop": "Drag and drop to reorder"

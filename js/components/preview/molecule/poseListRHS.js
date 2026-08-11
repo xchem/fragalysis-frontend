@@ -42,10 +42,16 @@ import {
   setSelectedAllByType,
   setDeselectedAllByType,
   setTagEditorOpen,
+  setTagEditorOpenObs,
+  setMoleculeForTagEdit,
   setIsTagGlobalEdit,
   setIsLHSCmpTagEdit,
+  setIsObsInspirationDialogOpen,
+  setObsInspirationDialogObsIds,
+  setObsInspirationDialogPoseId,
   updateMoleculeInLHSObservations,
-  addToastMessage
+  addToastMessage,
+  setRhsPoseNavigationConfig
 } from '../../../reducers/selection/actions';
 import { initializeFilter } from '../../../reducers/selection/dispatchActions';
 import { setSortDialogOpen, setSearchStringOfHitNavigator } from './redux/actions';
@@ -57,6 +63,8 @@ import { TooltipPathProvider } from '../../tooltip/TooltipPathContext';
 import { MOL_REPRESENTATION } from '../../nglView/constants';
 import { getDefaultComputedInspirations, getFilteredComputedInspirations } from './utils/computedInspirations';
 import { TAG_META_CATEGORIES } from '../tags/utils/tagUtils';
+import { setIsOpenCrossReferenceDialog } from '../../datasets/redux/actions';
+import { createRhsPoseTransferConfig } from './rhsPoseTransferConfig';
 
 const RHS_LIGAND_REPRESENTATIONS = [
   {
@@ -194,6 +202,7 @@ export const PoseListRHS = memo(({ expandHandler }) => {
   const observationsForLHSCmp = useSelector(state => state.selectionReducers.observationsForLHSCmp);
   const proteinsHasLoaded = useSelector(state => state.nglReducers.proteinsHasLoaded);
   const searchSettings = useSelector(state => state.selectionReducers.searchSettings);
+  const rhsPoseNavigationConfig = useSelector(state => state.selectionReducers.rhsPoseNavigationConfig);
 
   // When rhs_compounds_list is empty but the dataset molecule list is not, generate virtual poses.
   // This is a fallback for when poses were not populated by loadMoleculesAndTagsNew.
@@ -490,6 +499,80 @@ export const PoseListRHS = memo(({ expandHandler }) => {
     [rhsSelectedTags]
   );
 
+  const poseTransferConfig = useMemo(
+    () =>
+      createRhsPoseTransferConfig({
+        getComputedInspirations,
+        ligandRepresentations: RHS_LIGAND_REPRESENTATIONS,
+        transferOrder: rhsPoseNavigationConfig.transferOrder,
+        transferScheduling: rhsPoseNavigationConfig.transferScheduling,
+        postTransferCenteringMode: rhsPoseNavigationConfig.postTransferCenteringMode,
+        dialogs: {
+          capture: ({ state, sourcePose }) => ({
+            transferInspirations:
+              state.selectionReducers.isObsInspirationDialogOpen &&
+              state.selectionReducers.obsInspirationDialogPoseId === sourcePose.id
+          }),
+          beforeTransfer: ({ dispatch: transferDispatch }) => {
+            transferDispatch(setTagEditorOpen(false));
+            transferDispatch(setTagEditorOpenObs(false));
+            transferDispatch(setMoleculeForTagEdit([]));
+            transferDispatch(setIsTagGlobalEdit(false));
+            transferDispatch(setObservationsForLHSCmp([]));
+            transferDispatch(setOpenObservationsDialog(false));
+            transferDispatch(setPoseIdForObservationsDialog(0));
+            transferDispatch(setIsOpenCrossReferenceDialog(false));
+            transferDispatch(setSearchSettingsDialogOpen(false));
+            transferDispatch(setSortDialogOpen(false));
+            transferDispatch(setIsObsInspirationDialogOpen(false));
+            transferDispatch(setObsInspirationDialogObsIds([]));
+            transferDispatch(setObsInspirationDialogPoseId(0));
+          },
+          afterTransfer: ({
+            dispatch: transferDispatch,
+            dialogState,
+            destinationPose,
+            destinationInspirationIds,
+            requestAnchor
+          }) => {
+            if (dialogState?.transferInspirations) {
+              transferDispatch(setObsInspirationDialogObsIds(destinationInspirationIds));
+              transferDispatch(setObsInspirationDialogPoseId(destinationPose.id));
+              transferDispatch(setIsObsInspirationDialogOpen(true));
+              requestAnchor(destinationPose.id);
+            } else {
+              transferDispatch(setIsObsInspirationDialogOpen(false));
+              transferDispatch(setObsInspirationDialogObsIds([]));
+              transferDispatch(setObsInspirationDialogPoseId(0));
+            }
+          },
+          onTransferFailure: ({
+            dispatch: transferDispatch,
+            dialogState,
+            sourcePose,
+            sourceInspirationIds,
+            requestAnchor
+          }) => {
+            if (dialogState?.transferInspirations) {
+              transferDispatch(setObsInspirationDialogObsIds(sourceInspirationIds));
+              transferDispatch(setObsInspirationDialogPoseId(sourcePose.id));
+              transferDispatch(setIsObsInspirationDialogOpen(true));
+              requestAnchor(sourcePose.id);
+            }
+          }
+        }
+      }),
+    [getComputedInspirations, rhsPoseNavigationConfig]
+  );
+
+  const poseNavigationConfig = useMemo(
+    () => ({
+      value: rhsPoseNavigationConfig,
+      onChange: changes => dispatch(setRhsPoseNavigationConfig(changes))
+    }),
+    [dispatch, rhsPoseNavigationConfig]
+  );
+
   return (
     <TooltipPathProvider absolute path="fragalysis.preview.hitnavigator">
       <PoseList
@@ -527,6 +610,8 @@ export const PoseListRHS = memo(({ expandHandler }) => {
         searchSettings={searchSettings}
         viewConfig={viewConfig}
         getComputedInspirations={getComputedInspirations}
+        poseTransferConfig={poseTransferConfig}
+        poseNavigationConfig={poseNavigationConfig}
         ligandRepresentations={RHS_LIGAND_REPRESENTATIONS}
         isTagEditorForCurrentSide={isTagEditorForCurrentSide}
         handlers={handlers}

@@ -3,6 +3,12 @@ import {
   mergeSnapshotStateWithCurrentData,
   prepareSwitchingSnapshotRenderState
 } from './utilitySnapshotShapes';
+import {
+  DEFAULT_RHS_POSE_NAVIGATION_CONFIG,
+  POSE_TRANSFER_CENTERING_MODES,
+  POSE_TRANSFER_ORDERS,
+  POSE_TRANSFER_SCHEDULING
+} from '../../../constants/poseNavigation';
 
 const createBaseState = () => ({
   apiReducers: {
@@ -66,7 +72,12 @@ const createBaseState = () => ({
     lhsIsFullyRendered: true,
     rhsIsFullyRendered: true,
     toBeDisplayedList: [{ id: 101, type: 'ligand', center: true, rendered: true }],
-    filter: { active: true }
+    filter: { active: true },
+    rhsPoseNavigationConfig: {
+      transferOrder: POSE_TRANSFER_ORDERS.ADD_FIRST,
+      transferScheduling: POSE_TRANSFER_SCHEDULING.PHASED,
+      postTransferCenteringMode: POSE_TRANSFER_CENTERING_MODES.VISIBLE_LIGAND_CENTROID
+    }
   },
   datasetsReducers: {
     datasets: [{ id: 'dataset-1' }],
@@ -131,6 +142,11 @@ describe('utilitySnapshotShapes', () => {
     expect(snapshotState.selectionReducers.vectorOnList).toStrictEqual([]);
     expect(snapshotState.selectionReducers.lhsIsFullyRendered).toBe(false);
     expect(snapshotState.selectionReducers.rhsIsFullyRendered).toBe(false);
+    expect(snapshotState.selectionReducers.rhsPoseNavigationConfig).toStrictEqual({
+      transferOrder: POSE_TRANSFER_ORDERS.ADD_FIRST,
+      transferScheduling: POSE_TRANSFER_SCHEDULING.PHASED,
+      postTransferCenteringMode: POSE_TRANSFER_CENTERING_MODES.VISIBLE_LIGAND_CENTROID
+    });
     expect(snapshotState.datasetsReducers.ligandLists).toStrictEqual({});
     expect(snapshotState.datasetsReducers.proteinLists).toStrictEqual({});
     expect(snapshotState.datasetsReducers.complexLists).toStrictEqual({});
@@ -174,6 +190,7 @@ describe('utilitySnapshotShapes', () => {
         densityListType: [{ id: 885, sigma: 'fofc' }],
         qualityList: [884],
         vectorOnList: [883],
+        rhsPoseNavigationConfig: { ...DEFAULT_RHS_POSE_NAVIGATION_CONFIG },
         toBeDisplayedList: [{ id: 999, type: 'ligand', center: true, rendered: true }]
       },
       datasetsReducers: {
@@ -215,6 +232,9 @@ describe('utilitySnapshotShapes', () => {
     expect(mergedState.selectionReducers.lhsIsFullyRendered).toBe(true);
     expect(mergedState.selectionReducers.rhsIsFullyRendered).toBe(true);
     expect(mergedState.selectionReducers.filter).toStrictEqual({ active: false });
+    expect(mergedState.selectionReducers.rhsPoseNavigationConfig).toStrictEqual(
+      DEFAULT_RHS_POSE_NAVIGATION_CONFIG
+    );
     expect(mergedState.datasetsReducers.ligandLists).toStrictEqual({ 'dataset-1': [501] });
     expect(mergedState.datasetsReducers.proteinLists).toStrictEqual({ 'dataset-1': [502] });
     expect(mergedState.datasetsReducers.complexLists).toStrictEqual({ 'dataset-1': [503] });
@@ -227,6 +247,44 @@ describe('utilitySnapshotShapes', () => {
     ]);
     expect(mergedState.datasetsReducers.toBeDisplayedList).toStrictEqual({
       'dataset-1': [{ id: 777, type: 'ligand', center: false, rendered: false }]
+    });
+  });
+
+  it('uses navigation defaults when restoring a legacy snapshot without configuration', () => {
+    expect.hasAssertions();
+    const currentState = createBaseState();
+    const legacySnapshotState = createBaseState();
+    delete legacySnapshotState.selectionReducers.rhsPoseNavigationConfig;
+
+    const mergedState = mergeSnapshotStateWithCurrentData(currentState, legacySnapshotState);
+
+    expect(currentState.selectionReducers.rhsPoseNavigationConfig).not.toStrictEqual(
+      DEFAULT_RHS_POSE_NAVIGATION_CONFIG
+    );
+    expect(mergedState.selectionReducers.rhsPoseNavigationConfig).toStrictEqual(
+      DEFAULT_RHS_POSE_NAVIGATION_CONFIG
+    );
+  });
+
+  it.each([
+    [true, POSE_TRANSFER_CENTERING_MODES.DESIGN_LIGAND],
+    [false, POSE_TRANSFER_CENTERING_MODES.NONE]
+  ])('migrates legacy snapshot centering value %s', (legacyValue, expectedMode) => {
+    expect.hasAssertions();
+    const currentState = createBaseState();
+    const legacySnapshotState = createBaseState();
+    legacySnapshotState.selectionReducers.rhsPoseNavigationConfig = {
+      transferOrder: POSE_TRANSFER_ORDERS.REMOVE_FIRST,
+      transferScheduling: POSE_TRANSFER_SCHEDULING.OVERLAPPED,
+      centerOnDestinationLigandAfterTransfer: legacyValue
+    };
+
+    const mergedState = mergeSnapshotStateWithCurrentData(currentState, legacySnapshotState);
+
+    expect(mergedState.selectionReducers.rhsPoseNavigationConfig).toStrictEqual({
+      transferOrder: POSE_TRANSFER_ORDERS.REMOVE_FIRST,
+      transferScheduling: POSE_TRANSFER_SCHEDULING.OVERLAPPED,
+      postTransferCenteringMode: expectedMode
     });
   });
 

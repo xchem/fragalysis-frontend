@@ -1,5 +1,6 @@
 import { deepClone, deepMergeWithPriority, deepMergeWithPriorityAndBlackList } from '../../../utils/objectUtils';
 import { NGL_OBJECTS } from '../../../reducers/ngl/constants';
+import { normalizeRhsPoseNavigationConfig } from '../../../constants/poseNavigation';
 
 const BLACKLIST_FLAG = true;
 const BLACKLIST_COUNTER = 1;
@@ -238,6 +239,11 @@ export const normalizeSnapshotRenderState = snapshotState => {
   normalizedSnapshotState.selectionReducers = normalizedSnapshotState.selectionReducers || {};
   normalizedSnapshotState.datasetsReducers = normalizedSnapshotState.datasetsReducers || {};
   normalizedSnapshotState.nglReducers = normalizedSnapshotState.nglReducers || {};
+  // Older snapshots predate navigation settings. Missing or invalid values restore defaults,
+  // rather than leaking whatever configuration happens to be active before the switch.
+  normalizedSnapshotState.selectionReducers.rhsPoseNavigationConfig = normalizeRhsPoseNavigationConfig(
+    normalizedSnapshotState.selectionReducers.rhsPoseNavigationConfig
+  );
 
   const normalizedLhsObjects = normalizeObjectsToBeDisplayed(normalizedSnapshotState.selectionReducers.toBeDisplayedList);
   const normalizedRhsObjects = normalizeObjectsToBeDisplayedByDataset(

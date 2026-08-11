@@ -4,6 +4,10 @@
 import { parse } from 'date-fns';
 import { setPoseIdForObservationsDialog } from './actions';
 import { constants } from './constants';
+import {
+  DEFAULT_RHS_POSE_NAVIGATION_CONFIG,
+  normalizeRhsPoseNavigationConfig
+} from '../../constants/poseNavigation';
 
 export const INITIAL_STATE = {
   to_buy_list: [],
@@ -103,6 +107,7 @@ export const INITIAL_STATE = {
       compoundId: true
     }
   },
+  rhsPoseNavigationConfig: { ...DEFAULT_RHS_POSE_NAVIGATION_CONFIG },
   lhsIsFullyRendered: false,
   rhsIsFullyRendered: false,
 
@@ -139,6 +144,15 @@ export function selectionReducers(state = INITIAL_STATE, action = {}) {
 
     case constants.SET_SEARCH_SETTINGS:
       return { ...state, searchSettings: JSON.parse(JSON.stringify(action.settings)) };
+
+    case constants.SET_RHS_POSE_NAVIGATION_CONFIG:
+      return {
+        ...state,
+        rhsPoseNavigationConfig: normalizeRhsPoseNavigationConfig({
+          ...state.rhsPoseNavigationConfig,
+          ...action.config
+        })
+      };
 
     case constants.SET_TO_BE_DISPLAYED_LIST:
       return { ...state, toBeDisplayedList: action.toBeDisplayedList };
@@ -452,6 +466,9 @@ export function selectionReducers(state = INITIAL_STATE, action = {}) {
 
       return Object.assign({}, state, {
         ...action.payload,
+        rhsPoseNavigationConfig: normalizeRhsPoseNavigationConfig(
+          action.payload.rhsPoseNavigationConfig
+        ),
         fragmentDisplayList: [...newFraments],
         proteinList: [...newProteins],
         complexList: [...newComplexes],
