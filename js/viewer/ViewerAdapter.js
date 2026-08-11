@@ -95,6 +95,10 @@ export class ViewerAdapter {
     return notImplemented('centerOn');
   }
 
+  centerOnObjects() {
+    return notImplemented('centerOnObjects');
+  }
+
   setOrientation() {
     return notImplemented('setOrientation');
   }

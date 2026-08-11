@@ -1,6 +1,11 @@
 import configureStore from 'redux-mock-store';
 import { thunk } from 'redux-thunk';
-import { deleteObject, loadObject, setOrientation } from './dispatchActions';
+import {
+  centerOnLigandsByMoleculeIDs,
+  deleteObject,
+  loadObject,
+  setOrientation
+} from './dispatchActions';
 import { getAction } from '../../utils/testUtils';
 import {
   decrementCountOfPendingNglObjects,
@@ -18,6 +23,46 @@ import {
 } from '../selection/actions';
 import { VIEWS } from '../../constants/constants';
 const { fn } = jest;
+
+const createVector = (x, y, z) => ({
+  x,
+  y,
+  z,
+  add(value) {
+    this.x += value.x;
+    this.y += value.y;
+    this.z += value.z;
+    return this;
+  },
+  clone() {
+    return createVector(this.x, this.y, this.z);
+  },
+  divideScalar(value) {
+    this.x /= value;
+    this.y /= value;
+    this.z /= value;
+    return this;
+  },
+  set(nextX, nextY, nextZ) {
+    this.x = nextX;
+    this.y = nextY;
+    this.z = nextZ;
+    return this;
+  }
+});
+
+const createBox = (minX, maxX) => ({
+  min: createVector(minX, -1, -1),
+  max: createVector(maxX, 1, 1),
+  clone() {
+    return createBox(this.min.x, this.max.x);
+  },
+  union(value) {
+    this.min.x = Math.min(this.min.x, value.min.x);
+    this.max.x = Math.max(this.max.x, value.max.x);
+    return this;
+  }
+});
 
 describe("testing ngl reducer's async actions", () => {
   const middlewares = [thunk]; // add your middlewares like `redux-thunk`
@@ -175,6 +220,48 @@ describe("testing ngl reducer's async actions", () => {
     });
     await storeWithNotAllOrientations.dispatch(setOrientation(div_id, orientation));
     expect(await getAction(storeWithNotAllOrientations, setNglOrientation)).not.toBeNull();
+  });
+
+  it('centers on unique displayed ligand objects selected by molecule id', async () => {
+    expect.hasAssertions();
+    const designComponent = {
+      getCenter: fn(() => createVector(0, 0, 0)),
+      getBox: fn(() => createBox(-1, 1))
+    };
+    const inspirationComponent = {
+      getCenter: fn(() => createVector(10, 0, 0)),
+      getBox: fn(() => createBox(9, 11))
+    };
+    const components = {
+      design_ligand: designComponent,
+      inspiration_ligand: inspirationComponent
+    };
+    const orientation = { elements: [1, 0, 0, 1] };
+    const stage = {
+      animationControls: { zoomMove: fn() },
+      getComponentsByName: fn(name => ({ first: components[name], list: [] })),
+      getZoomForBox: fn(() => -25),
+      viewerControls: { getOrientation: fn(() => orientation) }
+    };
+    const store = mockStore({
+      selectionReducers: { fragmentDisplayList: [1, 2, 3] },
+      nglReducers: {
+        objectsInView: {
+          design_ligand: { moleculeId: 1, OBJECT_TYPE: OBJECT_TYPE.LIGAND },
+          inspiration_ligand: { moleculeId: 2, OBJECT_TYPE: OBJECT_TYPE.LIGAND },
+          unrelated_ligand: { moleculeId: 3, OBJECT_TYPE: OBJECT_TYPE.LIGAND }
+        }
+      }
+    });
+
+    expect(await store.dispatch(centerOnLigandsByMoleculeIDs(stage, [1, 2, 2]))).toBe(true);
+
+    const centeredPosition = stage.animationControls.zoomMove.mock.calls[0][0];
+    expect(centeredPosition).toStrictEqual(expect.objectContaining({ x: 5, y: 0, z: 0 }));
+    expect(stage.getComponentsByName).toHaveBeenCalledTimes(2);
+    expect(await getAction(store, setNglOrientation)).toStrictEqual(
+      expect.objectContaining({ orientation, div_id: VIEWS.MAJOR_VIEW })
+    );
   });
 
 });

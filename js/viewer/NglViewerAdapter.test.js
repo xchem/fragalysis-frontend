@@ -1,9 +1,61 @@
 import { NglViewerAdapter } from './NglViewerAdapter';
 import { asViewerAdapter } from './viewerAdapterFactory';
+import { Matrix4, Quaternion, Vector3 } from 'ngl';
 
 const { fn } = jest;
 
 const createSignal = () => ({ add: fn(), remove: fn() });
+
+const createVector = (x, y, z) => ({
+  x,
+  y,
+  z,
+  add(value) {
+    this.x += value.x;
+    this.y += value.y;
+    this.z += value.z;
+    return this;
+  },
+  clone() {
+    return createVector(this.x, this.y, this.z);
+  },
+  divideScalar(value) {
+    this.x /= value;
+    this.y /= value;
+    this.z /= value;
+    return this;
+  },
+  set(nextX, nextY, nextZ) {
+    this.x = nextX;
+    this.y = nextY;
+    this.z = nextZ;
+    return this;
+  }
+});
+
+const createBox = (min, max) => ({
+  min: createVector(...min),
+  max: createVector(...max),
+  clone() {
+    return createBox(
+      [this.min.x, this.min.y, this.min.z],
+      [this.max.x, this.max.y, this.max.z]
+    );
+  },
+  union(value) {
+    this.min.set(
+      Math.min(this.min.x, value.min.x),
+      Math.min(this.min.y, value.min.y),
+      Math.min(this.min.z, value.min.z)
+    );
+    this.max.set(
+      Math.max(this.max.x, value.max.x),
+      Math.max(this.max.y, value.max.y),
+      Math.max(this.max.z, value.max.z)
+    );
+    return this;
+  }
+});
 
 const createStage = () => ({
   loadFile: fn(),
@@ -13,8 +65,10 @@ const createStage = () => ({
     getOrientation: fn()
   },
   animationControls: {
-    orient: fn()
+    orient: fn(),
+    zoomMove: fn()
   },
+  getZoomForBox: fn(() => -50),
   getComponentsByName: fn(() => ({ first: undefined, list: [] })),
   compList: [],
   setParameters: fn(),
@@ -86,6 +140,45 @@ describe('NglViewerAdapter', () => {
     expect(representation.setVisibility).toHaveBeenCalledWith(false);
     expect(component.autoView).toHaveBeenNthCalledWith(1, 'ligand');
     expect(component.autoView).toHaveBeenNthCalledWith(2);
+  });
+
+  it('centers multiple objects on the equally weighted mean of their individual centers', () => {
+    expect.hasAssertions();
+    const stage = createStage();
+    stage.viewerControls.getOrientation.mockReturnValue(new Matrix4());
+    const adapter = new NglViewerAdapter(stage);
+    const first = {
+      getCenter: fn(() => createVector(0, 0, 0)),
+      getBox: fn(() => createBox([-1, -1, -1], [1, 1, 1]))
+    };
+    const second = {
+      getCenter: fn(() => createVector(6, 3, 9)),
+      getBox: fn(() => createBox([5, 2, 8], [7, 4, 10]))
+    };
+    const third = {
+      getCenter: fn(() => createVector(3, 6, 0)),
+      getBox: fn(() => createBox([2, 5, -1], [4, 7, 1]))
+    };
+
+    expect(adapter.centerOnObjects([first, second, third, second])).toBe(true);
+
+    const [orientation, duration] = stage.animationControls.orient.mock.calls[0];
+    const position = new Vector3();
+    const rotation = new Quaternion();
+    const scale = new Vector3();
+    orientation.decompose(position, rotation, scale);
+    const presentedWidestAxis = new Vector3(6, 3, 9).normalize().applyQuaternion(rotation);
+
+    expect(position.x).toBeCloseTo(-3);
+    expect(position.y).toBeCloseTo(-3);
+    expect(position.z).toBeCloseTo(-3);
+    expect(presentedWidestAxis.x).toBeCloseTo(1);
+    expect(presentedWidestAxis.y).toBeCloseTo(0);
+    expect(presentedWidestAxis.z).toBeCloseTo(0);
+    expect(scale.x).toBeCloseTo(45);
+    expect(stage.getZoomForBox).toHaveBeenCalledTimes(1);
+    expect(duration).toBe(0);
+    expect(second.getCenter).toHaveBeenCalledTimes(1);
   });
 
   it('provides viewer-independent object and representation access', () => {

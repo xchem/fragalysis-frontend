@@ -807,6 +807,11 @@ export const setSearchSettings = settings => {
   };
 };
 
+export const setRhsPoseNavigationConfig = config => ({
+  type: constants.SET_RHS_POSE_NAVIGATION_CONFIG,
+  config
+});
+
 export const setLHSIsFullyRendered = isFullyRendered => {
   return {
     type: constants.SET_LHS_IS_FULLY_RENDERED,

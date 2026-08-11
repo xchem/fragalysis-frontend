@@ -227,8 +227,38 @@ export const centerOnLigandByMoleculeID = (stage, moleculeID, datasetId = null) 
       }
       const currentOrientation = viewerAdapter.getOrientation();
       dispatch(setNglOrientation(currentOrientation, VIEWS.MAJOR_VIEW));
+      return Boolean(component);
     }
   }
+
+  return false;
+};
+
+export const centerOnLigandsByMoleculeIDs = (stage, moleculeIDs) => async (dispatch, getState) => {
+  const viewerAdapter = asViewerAdapter(stage);
+  if (!viewerAdapter) {
+    return false;
+  }
+
+  const state = getState();
+  const displayedLigandIds = new Set(state.selectionReducers.fragmentDisplayList || []);
+  const requestedIds = [...new Set(moleculeIDs || [])].filter(id => displayedLigandIds.has(id));
+  const objectsInView = Object.entries(state.nglReducers.objectsInView || {});
+  const components = requestedIds
+    .map(id => {
+      const entry = objectsInView.find(
+        ([, object]) => object.moleculeId === id && object.OBJECT_TYPE === OBJECT_TYPE.LIGAND
+      );
+      return entry ? viewerAdapter.getObject(entry[1].name || entry[0]) : null;
+    })
+    .filter(Boolean);
+
+  if (!components.length || viewerAdapter.centerOnObjects(components) === false) {
+    return false;
+  }
+
+  dispatch(setNglOrientation(viewerAdapter.getOrientation(), VIEWS.MAJOR_VIEW));
+  return true;
 };
 
 export const setNglBckGrndColor = (color, major) => (dispatch, getState) => {

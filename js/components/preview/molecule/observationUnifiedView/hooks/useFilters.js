@@ -352,10 +352,10 @@ export const useFilters = (initialItems, columns, viewConfig = {}) => {
         setSortings(prev => ({ ...prev, [name]: value }));
     };
 
-    // apply all filters and sortings to items
-    const filteredItems = useMemo(() => {
+    // Apply the same filters and sortings to both the rendered slice and the full navigation list.
+    const applyFiltersAndSort = useCallback((sourceItems = []) => {
         // filter first
-        let items = initialItems.filter(item =>
+        let items = sourceItems.filter(item =>
             columns.every(col => {
                 // always show displayed hits
                 const isDisplayedItem = viewConfig.matchesDisplayedObservations?.(item, displayedObservationIds)
@@ -377,7 +377,9 @@ export const useFilters = (initialItems, columns, viewConfig = {}) => {
             }).reduce((acc, curr) => acc + curr, 0)
         );
         return items;
-    }, [initialItems, columns, filterFunctions, sortFunctions, filters, sortings, showDisplayedMolecules, displayedObservationIds, viewConfig]);
+    }, [columns, filterFunctions, sortFunctions, filters, sortings, showDisplayedMolecules, displayedObservationIds, viewConfig]);
+
+    const filteredItems = useMemo(() => applyFiltersAndSort(initialItems), [applyFiltersAndSort, initialItems]);
 
     const getColumnFilter = (type, name) => {
         switch (type) {
@@ -399,5 +401,5 @@ export const useFilters = (initialItems, columns, viewConfig = {}) => {
         }
     };
 
-    return { filteredItems, getColumnFilter };
+    return { filteredItems, getColumnFilter, applyFiltersAndSort };
 };

@@ -1,5 +1,11 @@
 import { selectionReducers as selectionReducer, INITIAL_STATE } from './selectionReducers';
 import * as selectionActions from './actions';
+import {
+  DEFAULT_RHS_POSE_NAVIGATION_CONFIG,
+  POSE_TRANSFER_CENTERING_MODES,
+  POSE_TRANSFER_ORDERS,
+  POSE_TRANSFER_SCHEDULING
+} from '../../constants/poseNavigation';
 
 describe("testing selection reducer's actions", () => {
   let initialState = selectionReducer(INITIAL_STATE, {});
@@ -35,6 +41,28 @@ describe("testing selection reducer's actions", () => {
 
     let result = selectionReducer(initialState, selectionActions.setCurrentVector(vectorId));
     expect(result.currentVector).toStrictEqual(vectorId);
+  });
+
+  it('should update RHS pose navigation configuration incrementally', () => {
+    expect.hasAssertions();
+
+    const addFirstState = selectionReducer(
+      initialState,
+      selectionActions.setRhsPoseNavigationConfig({ transferOrder: POSE_TRANSFER_ORDERS.ADD_FIRST })
+    );
+    const configuredState = selectionReducer(
+      addFirstState,
+      selectionActions.setRhsPoseNavigationConfig({
+        transferScheduling: POSE_TRANSFER_SCHEDULING.PHASED,
+        postTransferCenteringMode: POSE_TRANSFER_CENTERING_MODES.VISIBLE_LIGAND_CENTROID
+      })
+    );
+
+    expect(configuredState.rhsPoseNavigationConfig).toStrictEqual({
+      transferOrder: POSE_TRANSFER_ORDERS.ADD_FIRST,
+      transferScheduling: POSE_TRANSFER_SCHEDULING.PHASED,
+      postTransferCenteringMode: POSE_TRANSFER_CENTERING_MODES.VISIBLE_LIGAND_CENTROID
+    });
   });
 
   it('should set fragmentDisplayList', () => {
@@ -142,6 +170,7 @@ describe("testing selection reducer's actions", () => {
     expect(result.densityList).toStrictEqual(savedSelectionReducers.densityList);
     expect(result.proteinSettings).toStrictEqual(savedSelectionReducers.proteinSettings);
     expect(result.vectorOnList).toStrictEqual(savedSelectionReducers.vectorOnList);
+    expect(result.rhsPoseNavigationConfig).toStrictEqual(DEFAULT_RHS_POSE_NAVIGATION_CONFIG);
   });
 
   it('should reset selection state', () => {
