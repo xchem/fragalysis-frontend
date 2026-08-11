@@ -98,7 +98,13 @@ const ObservationUnifiedView = memo(
         displayImageWidth = imageWidth,
         onDetailHeightChange = undefined,
         viewConfig = LHS_OBSERVATION_VIEW_CONFIG,
-        getComputedInspirations = undefined
+        getComputedInspirations = undefined,
+        previousPose = null,
+        nextPose = null,
+        poseTransferConfig = undefined,
+        poseTransferInProgress = false,
+        poseTransferResetKey = 0,
+        onPoseTransfer = undefined
       },
       outsideRef
     ) => {
@@ -446,6 +452,12 @@ const ObservationUnifiedView = memo(
                   ligandRepresentations={ligandRepresentations}
                   viewConfig={viewConfig}
                   getComputedInspirations={getComputedInspirations}
+                  previousPose={previousPose}
+                  nextPose={nextPose}
+                  poseTransferConfig={poseTransferConfig}
+                  poseTransferInProgress={poseTransferInProgress}
+                  poseTransferResetKey={poseTransferResetKey}
+                  onPoseTransfer={onPoseTransfer}
                 />
               </TooltipPathProvider>
             );

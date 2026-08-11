@@ -7,7 +7,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { Button, GridLegacy as Grid, IconButton, Popper, CircularProgress } from '@mui/material';
 import { makeStyles } from '../../../../../../ui/styles';
 import { Panel } from '../../../../../common';
-import { MyLocation, Assignment } from '@mui/icons-material';
+import { ArrowDownward, ArrowUpward, MyLocation, Assignment } from '@mui/icons-material';
 import classNames from 'classnames';
 import { VIEWS } from '../../../../../../constants/constants';
 import { NglContext } from '../../../../../nglView/nglProvider';
@@ -65,6 +65,7 @@ import {
 import { isCompoundFromVectorSelector } from '../../../../compounds/redux/dispatchActions';
 import { LHS_OBSERVATION_VIEW_CONFIG } from '../../viewConfigs';
 import { getDefaultComputedInspirations } from '../../../utils/computedInspirations';
+import { hasPoseTransferStateForPose } from '../../../poseTransfer';
 
 const DETAIL_TEXT_ACTION_BUFFER = 28;
 const DETAIL_SINGLE_CONTROL_WIDTH = 24;
@@ -148,6 +149,21 @@ const useStyles = makeStyles(theme => ({
     // border: 'solid 1px',
     // borderColor: theme.palette.background.divider,
     // borderStyle: 'solid none none none'
+  },
+  poseTransferButtons: {
+    display: 'flex',
+    flexDirection: 'row',
+    flexWrap: 'nowrap'
+  },
+  poseTransferButton: {
+    width: 19,
+    height: 18,
+    padding: 1,
+    borderRadius: 0,
+    color: theme.palette.primary.main,
+    '& svg': {
+      fontSize: 15
+    }
   },
   buttonsTagsWrapper: {
     border: 'solid 1px',
@@ -542,7 +558,13 @@ export const DetailView = memo(
     observations,
     ligandRepresentations = undefined,
     viewConfig = LHS_OBSERVATION_VIEW_CONFIG,
-    getComputedInspirations = undefined
+    getComputedInspirations = undefined,
+    previousPose = null,
+    nextPose = null,
+    poseTransferConfig = undefined,
+    poseTransferInProgress = false,
+    poseTransferResetKey = 0,
+    onPoseTransfer = undefined
   }) => {
     const [proteinSettings, setProteinSettings] = useState(DEFAULT_PROTEIN_SETTINGS);
     const [densityPopoverAnchor, setDensityPopoverAnchor] = useState(null);
@@ -610,6 +632,19 @@ export const DetailView = memo(
     const handleProteinTooltipClose = () => {
       setProteinTooltipOpen(false);
     };
+
+    useEffect(() => {
+      if (!poseTransferResetKey) {
+        return;
+      }
+
+      setDensityPopoverOpen(false);
+      setDensityPopoverAnchor(null);
+      setDensityTooltipOpen(false);
+      setProteinPopoverOpen(false);
+      setProteinPopoverAnchor(null);
+      setProteinTooltipOpen(false);
+    }, [poseTransferResetKey]);
 
     // const [countOfVectors, setCountOfVectors] = useState('-');
     // const [cmpds, setCmpds] = useState('-');
@@ -736,6 +771,13 @@ export const DetailView = memo(
     }, [data, getComputedInspirations, observations]);
 
     const isAnyInspirationOn = useSelector(state => isAnyInspirationTurnedOn(state, computedInspirations));
+    const hasTransferableState = useSelector(state => {
+      if (!poseTransferConfig) {
+        return false;
+      }
+
+      return hasPoseTransferStateForPose({ state, pose: data, config: poseTransferConfig });
+    });
     const isFromVectorSelector = isCompoundFromVectorSelector(data);
 
     const activeTarget = useSelector(state => getCurrentTarget(state));
@@ -763,6 +805,12 @@ export const DetailView = memo(
     const colourToggle = getRandomColor(getMainObservation());
 
     const [tagPopoverOpen, setTagPopoverOpen] = useState(null);
+
+    useEffect(() => {
+      if (poseTransferResetKey) {
+        setTagPopoverOpen(null);
+      }
+    }, [poseTransferResetKey]);
 
     const open = tagPopoverOpen ? true : false;
 
@@ -1504,8 +1552,12 @@ export const DetailView = memo(
         widths.push(DETAIL_CONTROL_BUTTON_WIDTH);
       }
 
+      if (poseTransferConfig) {
+        widths.push(19, 19);
+      }
+
       return widths;
-    }, [hideFButton, shouldRenderDetailTrailingButtons, showCrossReferenceModal]);
+    }, [hideFButton, poseTransferConfig, shouldRenderDetailTrailingButtons, showCrossReferenceModal]);
 
     const detailLayout = useMemo(() => {
       const availableWidth = Number(detailWidth) || 0;
@@ -1513,7 +1565,9 @@ export const DetailView = memo(
       const codeWidth = measureTextWidth(mainObservation?.code || '', '700 14.4px Roboto, Arial, sans-serif');
       const displayNameWidth = measureTextWidth(getDisplayName() || '', '400 12.8px Roboto, Arial, sans-serif');
       const preferredTextWidth = Math.ceil(Math.max(codeWidth, displayNameWidth) + DETAIL_TEXT_ACTION_BUFFER);
-      const fullControlsWidth = DETAIL_CONTROLS_WIDTH[viewConfig.kind] || DETAIL_CONTROLS_WIDTH.lhs;
+      const fullControlsWidth =
+        (DETAIL_CONTROLS_WIDTH[viewConfig.kind] || DETAIL_CONTROLS_WIDTH.lhs) +
+        (poseTransferConfig?.controlsWidth || 0);
 
       if (!availableWidth) {
         return {
@@ -1535,9 +1589,21 @@ export const DetailView = memo(
         controlsWidth: Math.ceil(controlsWidth),
         textColumnWidth: Math.max(DETAIL_MIN_TEXT_WIDTH, Math.min(preferredTextWidth, availableWidth - controlsWidth))
       };
-    }, [detailWidth, getDisplayName, getMainObservation, viewConfig.kind, visibleControlButtonWidths]);
+    }, [
+      detailWidth,
+      getDisplayName,
+      getMainObservation,
+      poseTransferConfig,
+      viewConfig.kind,
+      visibleControlButtonWidths
+    ]);
 
     const [anchorElTable, setAnchorElTable] = useState(null);
+    useEffect(() => {
+      if (poseTransferResetKey) {
+        setAnchorElTable(null);
+      }
+    }, [poseTransferResetKey]);
     const handleTablePopoverOpen = event => {
       setAnchorElTable(anchorElTable ? null : event.currentTarget);
     };
@@ -1962,6 +2028,28 @@ export const DetailView = memo(
                 </Grid>
               </RichTooltip>
               {generateLastButtons()}
+              {poseTransferConfig && hasTransferableState && (
+                <Grid item className={classes.poseTransferButtons}>
+                  <IconButton
+                    className={classes.poseTransferButton}
+                    aria-label="Transfer settings to previous pose"
+                    title="Transfer settings to previous pose"
+                    disabled={!previousPose || poseTransferInProgress}
+                    onClick={() => onPoseTransfer?.({ sourcePose: data, destinationPose: previousPose })}
+                  >
+                    <ArrowUpward />
+                  </IconButton>
+                  <IconButton
+                    className={classes.poseTransferButton}
+                    aria-label="Transfer settings to next pose"
+                    title="Transfer settings to next pose"
+                    disabled={!nextPose || poseTransferInProgress}
+                    onClick={() => onPoseTransfer?.({ sourcePose: data, destinationPose: nextPose })}
+                  >
+                    <ArrowDownward />
+                  </IconButton>
+                </Grid>
+              )}
             </Grid>
           </Grid>
           {generateTagPopover()}

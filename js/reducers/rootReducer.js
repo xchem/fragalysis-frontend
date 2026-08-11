@@ -14,6 +14,7 @@ import { datasetsReducers } from '../components/datasets/redux/reducer';
 import { jobTableReducer } from '../components/preview/jobTable/redux/reducer';
 import { layoutReducers } from './layout/layoutReducers';
 import { constants } from './constants';
+import { normalizeRhsPoseNavigationConfig } from '../constants/poseNavigation';
 
 const appReducer = combineReducers({
   apiReducers,
@@ -31,7 +32,15 @@ const appReducer = combineReducers({
 
 const rootReducer = (state, action) => {
   if (action.type === constants.SET_ENTIRE_STATE) {
-    return action.newState;
+    return {
+      ...action.newState,
+      selectionReducers: {
+        ...(action.newState.selectionReducers || {}),
+        rhsPoseNavigationConfig: normalizeRhsPoseNavigationConfig(
+          action.newState.selectionReducers?.rhsPoseNavigationConfig
+        )
+      }
+    };
   }
 
   return appReducer(state, action);

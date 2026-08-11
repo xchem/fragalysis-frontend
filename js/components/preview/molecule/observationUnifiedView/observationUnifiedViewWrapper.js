@@ -2,7 +2,7 @@
  * Row in Hit navigator
  */
 
-import React, { memo, forwardRef, useCallback, useMemo, useState } from 'react';
+import React, { memo, forwardRef, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Table, TableBody, TableCell, TableHead, TableRow } from '@mui/material';
 import { makeStyles } from '../../../../ui/styles';
 import { useSelector } from 'react-redux';
@@ -15,6 +15,7 @@ import RichTooltip from '../../../tooltip/RichTooltip';
 import { TooltipPathProvider } from '../../../tooltip/TooltipPathContext';
 import { LHS_OBSERVATION_VIEW_CONFIG } from './viewConfigs';
 import { COLUMN_TYPES } from './table';
+import { getAdjacentPoses } from '../poseTransfer';
 
 const useStyles = makeStyles(theme => ({
   table: {
@@ -141,12 +142,18 @@ const ObservationUnifiedViewWrapper = memo(
         vectorOnList,
         informationList,
         items,
+        navigationItems = items,
         allSelectedMolecules,
         addMoleculeViewRef,
         onPoseVisuallyReady,
         handleSetTagEditorAnchorEl,
         availableWidth = 0,
-        getComputedInspirations = undefined
+        getComputedInspirations = undefined,
+        poseTransferConfig = undefined,
+        poseTransferInProgress = false,
+        poseTransferResetKey = 0,
+        onPoseTransferNavigationItemsChange = undefined,
+        onPoseTransfer = undefined
       },
       outsideRef
     ) => {
@@ -156,6 +163,7 @@ const ObservationUnifiedViewWrapper = memo(
       const classes = useStyles();
       const aliasOrder = useSelector(state => state.apiReducers.target_on_aliases);
       const [detailHeightsByRowId, setDetailHeightsByRowId] = useState({});
+      const reportedNavigationIdsRef = useRef([]);
 
       // setup jsme before to prevent window jumping when molecule filter opens first time
       jsmeSetup();
@@ -180,10 +188,12 @@ const ObservationUnifiedViewWrapper = memo(
 
           return Math.max(maxWidth, Math.max(codeWidth, displayNameWidth) + DETAIL_TEXT_ACTION_BUFFER);
         }, 0);
-        const controlsWidth = DETAIL_CONTROLS_WIDTH[viewConfig.kind] || DETAIL_CONTROLS_WIDTH.lhs;
+        const controlsWidth =
+          (DETAIL_CONTROLS_WIDTH[viewConfig.kind] || DETAIL_CONTROLS_WIDTH.lhs) +
+          (poseTransferConfig?.controlsWidth || 0);
 
         return Math.ceil(maxTextWidth + controlsWidth + DETAIL_WIDTH_BUFFER);
-      }, [aliasOrder, items, viewConfig]);
+      }, [aliasOrder, items, poseTransferConfig, viewConfig]);
 
       const { columns, handleColumnResize, getColumnWidth } = useColumns(
         50,
@@ -191,7 +201,28 @@ const ObservationUnifiedViewWrapper = memo(
         availableWidth,
         preferredDetailWidth
       );
-      const { filteredItems, getColumnFilter } = useFilters(items, columns, viewConfig);
+      const { filteredItems, getColumnFilter, applyFiltersAndSort } = useFilters(items, columns, viewConfig);
+      const orderedNavigationItems = useMemo(
+        () => applyFiltersAndSort(navigationItems || items),
+        [applyFiltersAndSort, items, navigationItems]
+      );
+      useEffect(() => {
+        if (!onPoseTransferNavigationItemsChange) {
+          return;
+        }
+
+        const nextIds = orderedNavigationItems.map(item => item.id);
+        const orderChanged =
+          reportedNavigationIdsRef.current.length !== nextIds.length ||
+          reportedNavigationIdsRef.current.some((id, index) => id !== nextIds[index]);
+
+        if (!orderChanged) {
+          return;
+        }
+
+        reportedNavigationIdsRef.current = nextIds;
+        onPoseTransferNavigationItemsChange?.(orderedNavigationItems);
+      }, [onPoseTransferNavigationItemsChange, orderedNavigationItems]);
       const waitsForMoleculeImage = columns?.some(column => column.visible && column.type === COLUMN_TYPES.MOLECULE);
       const handleDetailHeightChange = useCallback((rowId, height) => {
         if (rowId === undefined || rowId === null) {
@@ -292,6 +323,7 @@ const ObservationUnifiedViewWrapper = memo(
           <TableBody>
             {filteredItems?.map((data, index) => {
               const molsForCmp = data.associatedObs;
+              const { previousPose, nextPose } = getAdjacentPoses(orderedNavigationItems, data.id);
               const selected = allSelectedMolecules?.some(molecule =>
                 data.associatedObs.some(obs => obs.id === molecule.id)
               );
@@ -328,6 +360,12 @@ const ObservationUnifiedViewWrapper = memo(
                   onDetailHeightChange={handleDetailHeightChange}
                   viewConfig={viewConfig}
                   getComputedInspirations={getComputedInspirations}
+                  previousPose={previousPose}
+                  nextPose={nextPose}
+                  poseTransferConfig={poseTransferConfig}
+                  poseTransferInProgress={poseTransferInProgress}
+                  poseTransferResetKey={poseTransferResetKey}
+                  onPoseTransfer={onPoseTransfer}
                 />
               );
             })}
