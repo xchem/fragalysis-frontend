@@ -416,11 +416,11 @@ const ObservationUnifiedView = memo(
         }
       };
 
-      const handleRef = () => {
+      const handleRef = useCallback(() => {
         if (setRef) {
           setRef(ref.current);
         }
-      };
+      }, [ref, setRef]);
 
       const getProperView = column => {
         switch (column.type) {
@@ -508,6 +508,7 @@ const ObservationUnifiedView = memo(
                   observations={observations}
                   isAnyObservationOn={isAnyObservationOn}
                   handleRef={handleRef}
+                  dialogSide={viewConfig.kind}
                 />
               </TooltipPathProvider>
             );

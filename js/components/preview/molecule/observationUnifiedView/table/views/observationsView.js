@@ -4,6 +4,7 @@ import classNames from 'classnames';
 import React, { memo } from 'react';
 import {
   setObservationDialogAction,
+  setObservationsDialogSide,
   setObservationsForLHSCmp,
   setOpenObservationsDialog,
   setPoseIdForObservationsDialog
@@ -45,7 +46,7 @@ const useStyles = makeStyles(theme => ({
   }
 }));
 
-export const ObservationsView = memo(({ data, observations, isAnyObservationOn, handleRef }) => {
+export const ObservationsView = memo(({ data, observations, isAnyObservationOn, handleRef, dialogSide = 'lhs' }) => {
   const dispatch = useDispatch();
   const classes = useStyles();
 
@@ -74,16 +75,19 @@ export const ObservationsView = memo(({ data, observations, isAnyObservationOn, 
               if (!isObservationDialogOpen || poseIdForObservationsDialog !== data.id) {
                 dispatch(setObservationsForLHSCmp(observations));
               }
-              if (
+              const shouldOpenDialog =
                 poseIdForObservationsDialog !== data.id ||
                 poseIdForObservationsDialog === 0 ||
-                (poseIdForObservationsDialog === data.id && !isObservationDialogOpen)
-              ) {
+                (poseIdForObservationsDialog === data.id && !isObservationDialogOpen);
+
+              if (shouldOpenDialog) {
+                dispatch(setObservationsDialogSide(dialogSide));
                 dispatch(setOpenObservationsDialog(true));
                 dispatch(setObservationDialogAction(data.id, observations, true, 0, []));
               } else {
                 dispatch(setOpenObservationsDialog(false));
                 dispatch(setObservationDialogAction(0, [], false, data.id, observations));
+                dispatch(setObservationsDialogSide(null));
               }
               dispatch(setPoseIdForObservationsDialog(data.id));
 
