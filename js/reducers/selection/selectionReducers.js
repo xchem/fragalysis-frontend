@@ -324,8 +324,14 @@ export function selectionReducers(state = INITIAL_STATE, action = {}) {
     case constants.SET_OBS_INSPIRATION_DIALOG_POSE_ID:
       return { ...state, obsInspirationDialogPoseId: action.poseId };
 
-    case constants.SET_OBSERVATIONS_FOR_LHS_CMP:
-      return { ...state, observationsForLHSCmp: [...action.observations] };
+    case constants.SET_OBSERVATIONS_FOR_LHS_CMP: {
+      const observations = action.observations || [];
+      const observationsAreUnchanged =
+        state.observationsForLHSCmp.length === observations.length &&
+        state.observationsForLHSCmp.every((observation, index) => observation === observations[index]);
+
+      return observationsAreUnchanged ? state : { ...state, observationsForLHSCmp: [...observations] };
+    }
 
     case constants.UPDATE_MOL_IN_LHS_OBSERVATIONS:
       let newList = [...state.observationsForLHSCmp];
