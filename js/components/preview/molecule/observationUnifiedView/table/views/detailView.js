@@ -35,7 +35,6 @@ import {
   setDeselectedAll,
   setMoleculeForTagEdit,
   setTagEditorOpen,
-  setObservationsForLHSCmp,
   setIsLHSCmpTagEdit,
   removeProteinSettings
 } from '../../../../../../reducers/selection/actions';
@@ -661,8 +660,6 @@ export const DetailView = memo(
     const tagEditorOpen = useSelector(state => state.selectionReducers.tagEditorOpened);
     const molForTagEditId = useSelector(state => state.selectionReducers.molForTagEdit);
 
-    const isObservationDialogOpen = useSelector(state => state.selectionReducers.isObservationDialogOpen);
-
     // True only when the tag editor was opened specifically for this row
     const isRowTagEditorOpen =
       tagEditorOpen && (molForTagEditId || []).some(id => observations.some(obs => obs.id === id));
@@ -671,15 +668,6 @@ export const DetailView = memo(
 
     const { getNglView } = useContext(NglContext);
     const stage = getNglView(VIEWS.MAJOR_VIEW) && getNglView(VIEWS.MAJOR_VIEW).stage;
-
-    const poseIdForObservationsDialog = useSelector(state => state.selectionReducers.poseIdForObservationsDialog);
-
-    useEffect(() => {
-      if (isObservationDialogOpen && poseIdForObservationsDialog === currentID) {
-        dispatch(setObservationsForLHSCmp(observations));
-        handleRef();
-      }
-    }, [observations, isObservationDialogOpen, dispatch, poseIdForObservationsDialog, currentID, handleRef]);
 
     const getMainObservation = useCallback(() => {
       let result = null;
