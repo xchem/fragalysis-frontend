@@ -1220,7 +1220,7 @@ export const PoseList = memo(
       if (isObservationDialogOpen && observationsForLHSCmp?.length > 0 && lhsDataIsLoaded) {
         const cmpId = observationsForLHSCmp[0].cmpd;
         const cmp = filteredLHSCompoundsList.find(c => c.compound === cmpId);
-        if (cmp && observationsDialogSide !== instanceSide) {
+        if (cmp && observationsDialogSide === null) {
           dispatch(setObservationsDialogSide(instanceSide));
         }
       } else if (!isObservationDialogOpen && observationsDialogSide === instanceSide) {
