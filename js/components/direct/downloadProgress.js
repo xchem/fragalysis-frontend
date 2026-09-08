@@ -1,10 +1,9 @@
-import React, { memo, useState, useContext } from 'react';
-import { GridLegacy as Grid, LinearProgress, Button, Box, Typography, Select, MenuItem, CircularProgress } from '@mui/material';
-import { makeStyles } from '../../ui/styles';
+import React, { memo } from 'react';
+import { GridLegacy as Grid, Button, Typography, CircularProgress } from '@mui/material';
 import { useSelector } from 'react-redux';
 import { base_url } from '../routes/constants';
 
-export const DownloadProgress = memo(({ }) => {
+export const DownloadProgress = memo(({ errorMessage }) => {
   const downloadInProgress = useSelector(state => state.apiReducers.directDownloadInProgress);
   const snapshotUrl = useSelector(state => state.apiReducers.snapshotDownloadUrl);
 
@@ -21,7 +20,13 @@ export const DownloadProgress = memo(({ }) => {
       <Grid item>{downloadInProgress && <CircularProgress />}</Grid>
       <Grid item container direction="column" alignItems="center" justifyContent="center">
         <Grid item>
-          <Typography varian="h3">Preparing and downloading the download</Typography>
+          {errorMessage ? (
+            <Typography variant="h4" color="error" role="alert">
+              {errorMessage}
+            </Typography>
+          ) : (
+            <Typography variant="h3">Preparing and downloading the download</Typography>
+          )}
         </Grid>
         <Grid
           item
