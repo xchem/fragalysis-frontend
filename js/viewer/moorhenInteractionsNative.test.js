@@ -40,7 +40,12 @@ describe('native interaction geometry', () => {
       const cootCommand = jest.fn(async () => ({ data: { result: { result: [{ donor, acceptor }] } } }));
       const molecule = { molNo: 7, getAtoms: jest.fn() };
       const adapter = Object.create(MoorhenViewerAdapter.prototype);
-      Object.assign(adapter, { contactInputs: new WeakMap(), contactWorker: { calculate: jest.fn() } });
+      Object.assign(adapter, {
+        contactInputs: new WeakMap(),
+        contactWorker: { calculate: jest.fn() },
+        useNglStyleInteractions: false,
+        nativeContactBufferBuilders: new WeakMap()
+      });
       Object.assign(representation, {
         style: getMoorhenRepresentationStyle('contact'),
         cid: '/*/*/*/*',
@@ -88,7 +93,9 @@ describe('native interaction geometry', () => {
     const adapter = Object.create(MoorhenViewerAdapter.prototype);
     Object.assign(adapter, {
       contactInputs: new WeakMap(),
-      contactWorker: { calculate: jest.fn(async () => contacts) }
+      contactWorker: { calculate: jest.fn(async () => contacts) },
+      useNglStyleInteractions: true,
+      nativeContactBufferBuilders: new WeakMap()
     });
     Object.assign(representation, { style: getMoorhenRepresentationStyle('contact'), parentMolecule: molecule });
     adapter.configureContactRepresentation(representation, { parentObject: molecule, params: { sele: '/0 or /1' } });

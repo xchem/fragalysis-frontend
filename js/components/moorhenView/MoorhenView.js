@@ -23,6 +23,7 @@ import { VIEWER_ENGINE, viewerConfig } from '../../config/viewer';
 import { createViewerInitializationTelemetry } from '../../viewer/viewerTelemetry';
 import { installMoorhenWorkerBridge } from './moorhenWorkerBridge';
 import { useInitialViewerPresentation } from './useInitialViewerPresentation';
+import { useMoorhenInteractionPreferences } from './useMoorhenInteractionPreferences';
 
 const MOORHEN_INITIALIZATION_TIMEOUT_MS = 300000;
 let moorhenStorePrepared = false;
@@ -78,6 +79,7 @@ const MoorhenMainView = memo(({ div_id, dispatchAppAction, onInitializationFailu
   const [workerBridgeReady, setWorkerBridgeReady] = useState(false);
   const [status, setStatus] = useState('Starting Moorhen runtimes...');
   const [error, setError] = useState('');
+  const extraNavBarMenus = useMoorhenInteractionPreferences(getViewerAdapter, div_id, status === 'Moorhen ready');
   const isMoorhenInitialized = useSyncExternalStore(
     MoorhenReduxStore.subscribe,
     getMoorhenInitializationState,
@@ -333,6 +335,7 @@ const MoorhenMainView = memo(({ div_id, dispatchAppAction, onInitializationFailu
             allowScripting={false}
             backupStorageInstance={backupStorageRef.current}
             store={MoorhenReduxStore}
+            extraNavBarMenus={extraNavBarMenus}
           />
         )}
         <Box

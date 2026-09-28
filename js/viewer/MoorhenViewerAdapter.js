@@ -163,6 +163,10 @@ export class MoorhenViewerAdapter extends ViewerAdapter {
     this.mapRendering = new WeakMap();
     this.contactInputs = new WeakMap();
     this.contactWorker = new ContactWorkerClient();
+    this.useNglStyleInteractions = USE_NGL_STYLE_INTERACTIONS;
+    this.nativeContactBufferBuilders = new WeakMap();
+    this.interactionStyleChange = Promise.resolve();
+    this.pendingInteractionStyleChanges = 0;
     this.representationsByObject = new WeakMap();
     this.centerZoomScaleByObject = new WeakMap();
     this.pickHandlers = new Map();
@@ -882,9 +886,14 @@ export class MoorhenViewerAdapter extends ViewerAdapter {
     };
   }
 
-  configureContactRepresentation(representation, handle) {
-    // Leave the native allHBonds detector and mesh builder intact in Moorhen mode.
-    if (!USE_NGL_STYLE_INTERACTIONS) return;
+  configureContactRepresentation(representation, handle, enabled = this.useNglStyleInteractions) {
+    if (!this.nativeContactBufferBuilders.has(representation)) {
+      this.nativeContactBufferBuilders.set(representation, representation.getHBondBuffers);
+    }
+    if (!enabled) {
+      representation.getHBondBuffers = this.nativeContactBufferBuilders.get(representation);
+      return;
+    }
 
     representation.getHBondBuffers = async () => {
       const molecule = handle.parentObject;
@@ -896,6 +905,77 @@ export class MoorhenViewerAdapter extends ViewerAdapter {
       const contacts = await this.contactWorker.calculate({ ...input, parameters: { ...handle.params } });
       return this.createContactBuffers(representation, contacts);
     };
+  }
+
+  setNglStyleInteractions(enabled) {
+    this.assertActive();
+    this.pendingInteractionStyleChanges++;
+    const change = this.interactionStyleChange
+      .catch(() => undefined)
+      .then(async () => {
+        this.assertActive();
+        const previous = this.useNglStyleInteractions;
+        const next = Boolean(enabled);
+        if (previous === next) return next;
+        this.useNglStyleInteractions = next;
+        try {
+          await this.refreshContactRepresentations(next);
+          return next;
+        } catch (error) {
+          this.useNglStyleInteractions = previous;
+          try {
+            await this.refreshContactRepresentations(previous);
+          } catch (rollbackError) {
+            console.error('Unable to restore all interaction representations', rollbackError);
+          }
+          throw error;
+        }
+      })
+      .finally(() => {
+        this.pendingInteractionStyleChanges--;
+      });
+    this.interactionStyleChange = change;
+    return change;
+  }
+
+  async refreshContactRepresentations(enabled) {
+    const handles = new Set(Array.from(this.objectsByName.values()).flatMap(object => this.getRepresentations(object)));
+    const updates = Array.from(handles)
+      .filter(handle => handle.type === 'contact')
+      .map(handle => {
+        // Chain onto readiness so edits and deletion also wait for this redraw.
+        // A failed redraw can be retried using its still-owned native object.
+        handle.ready = Promise.resolve(handle.ready)
+          .catch(() => handle.nativeRepresentation)
+          .then(async representation => {
+            const molecule = handle.parentObject;
+            if (
+              this.destroyed ||
+              this.objectRemovals.has(molecule) ||
+              !this.getRepresentations(molecule).includes(handle) ||
+              !representation ||
+              handle.nativeRepresentation !== representation
+            ) {
+              return representation;
+            }
+            this.configureContactRepresentation(representation, handle, enabled);
+            if (handle.params.visible === false || representation.visible === false) {
+              // Hidden buffers must not reappear in the old style on the next show.
+              representation.deleteBuffers();
+              representation.hide();
+            } else {
+              // Native redraw computes new geometry before replacing the old buffers.
+              await representation.redraw();
+              if (handle.params.visible === false || representation.visible === false) representation.hide();
+            }
+            this.glRef.current?.drawScene?.();
+            return representation;
+          });
+        return handle.ready;
+      });
+    const results = await Promise.allSettled(updates);
+    const failure = results.find(result => result.status === 'rejected');
+    if (failure) throw failure.reason;
   }
 
   createContactBuffers(representation, contacts) {
@@ -1531,7 +1611,11 @@ export class MoorhenViewerAdapter extends ViewerAdapter {
   }
 
   getTaskCount() {
-    return (this.commandCentre.current?.activeMessages?.length || 0) + this.contactWorker.pending.size;
+    return (
+      (this.commandCentre.current?.activeMessages?.length || 0) +
+      this.contactWorker.pending.size +
+      this.pendingInteractionStyleChanges
+    );
   }
 
   onTasksComplete(callback) {
@@ -1696,6 +1780,7 @@ export class MoorhenViewerAdapter extends ViewerAdapter {
       renderer.setOriginOrientationAndZoomFrame = frame;
       this.cameraAnimationGuard = null;
     }
+    await this.interactionStyleChange.catch(() => undefined);
     await this.removeAll();
     this.contactWorker.dispose();
     Array.from(this.pickHandlers.keys()).forEach(handler => this.removePickHandler(handler));

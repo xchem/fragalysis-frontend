@@ -15,23 +15,32 @@ Protein/SDF topology remains separate for calculation and is never stored in Fra
 receive final meshes before becoming visible. Pending worker jobs count as viewer work, and molecule removal waits for
 contact generation and representation disposal. Existing snapshot serialization and in-place switching are unchanged.
 
-## Code switch
+## Preferences switch
 
-Set `USE_NGL_STYLE_INTERACTIONS` in [`js/config/viewer.js`](../js/config/viewer.js), then rebuild/reload Preview:
+Open Moorhen's **Preferences** menu and toggle **NGL style interactions**, directly below **Developer mode** and above
+the divider. It defaults to off:
 
-- `false` (default): Moorhen's unmodified `allHBonds` path calls Coot's `get_h_bonds` for the contact molecule and builds its
+- Off (default): Moorhen's unmodified `allHBonds` path calls Coot's `get_h_bonds` for the contact molecule and builds its
   native purple dashed hydrogen bonds. It does not run the NGL detector or apply its category/threshold filters.
-- `true`: the existing NGL detector, contact categories, filters and per-type colours, rendered by Moorhen.
+- On: the existing NGL detector, contact categories, filters and per-type colours, rendered by Moorhen.
 
 This changes both detection and appearance for application contact representations, including complexes, event-map
 contact layers and restored contacts. Native mode uses the whole contact molecule; the NGL ligand-environment and
 selection filters remain specific to NGL mode. Visibility, opacity and asynchronous cleanup retain the same lifecycle.
-The setting is not serialized in snapshots. Reload after changing modes so already loaded representations are recreated.
-Moorhen remains the viewer in both modes.
+Visible contacts redraw immediately in the selected mode without reloading molecules or moving the camera. Old buffers
+remain until replacement geometry is calculated. Hidden contacts stay hidden and use the new mode when shown. The
+control displays progress and disables further clicks until redraws finish; failures are reported and trigger a
+best-effort restoration of the previous mode. Redraws share representation readiness with edits and removal.
+
+The preference lasts for the mounted viewer, including layout moves and same-project snapshot changes. It is not saved
+in snapshots or browser storage. `USE_NGL_STYLE_INTERACTIONS` in [`js/config/viewer.js`](../js/config/viewer.js) supplies
+the initial value (currently `false`). Moorhen remains the viewer in both modes. The menu uses the installed navbar's
+`extraNavBarMenus` extension with the existing `Preferences` name and an owned portal container after Developer mode;
+the built-in preferences remain present.
 
 ## Automated acceptance
 
-Completed: `yarn test:ci` (50 suites, 347 tests), targeted ESLint, `yarn build` including backend stats validation,
+Completed: `yarn test:ci` (60 suites, 447 tests), targeted ESLint, `yarn build` including backend stats validation,
 and `yarn verify:moorhen-assets` (275 files). The build reports bundle-size warnings only.
 
 - Independent comparisons with the original NGL bundle cover all ten contact types, complete endpoints/colours/radii,
@@ -41,6 +50,8 @@ and `yarn verify:moorhen-assets` (275 files). The build reports bundle-size warn
 - Installed Moorhen geometry preserves every type's colour, native dashed geometry and lengths beyond 4 Å.
 - Native representation lifecycle checks cover final colours/opacity before visibility, delayed contact calculations,
   concurrent removal and failed calculations without leaving native buffers or registry entries.
+- Live preference tests exercise the installed navbar extension, repeated switches in both directions, hidden contacts,
+  delayed loads, failed switches, pending-redraw cleanup and retaining the preference across viewer layout moves.
 
 ## Manual acceptance still required
 
@@ -48,6 +59,7 @@ No browser was connected during implementation. Automated checks do not establis
 Reload the Django-backed Preview and verify the reported target with contact toggles, LHS/RHS transfers, camera motion,
 layout changes, saving/restoring and same-project snapshot switching. Check that old contacts disappear, colours match
 detected types, initial views reveal only completed representations, and repeated transfers do not grow tab memory.
+In Preferences, confirm **NGL style interactions** starts off and redraws existing contacts when switched on and off.
 
 ## Development worker build fix (2026-09-17)
 

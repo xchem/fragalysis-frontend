@@ -161,6 +161,153 @@ describe('representation appearance before first presentation', () => {
     return { adapter, molecule, atoms, built, generatedMeshes, existingBuffer, state, glRef, frames, commandCentre };
   };
 
+  const setupLiveContacts = async (enabled = false, visible = true) => {
+    const fixture = setup(
+      async () => ({
+        colours: [
+          [1, 0.5, 0, 1],
+          [0.1, 0.5, 0.7, 1]
+        ]
+      }),
+      true
+    );
+    fixture.adapter.useNglStyleInteractions = enabled;
+    fixture.commandCentre.current.cootCommand.mockImplementation(async request =>
+      request.command === 'get_h_bonds'
+        ? { data: { result: { result: [{ donor: { x: 0, y: 0, z: 0 }, acceptor: { x: 3, y: 0, z: 0 } }] } } }
+        : {}
+    );
+    fixture.atoms.resolve([]);
+    await fixture.adapter.loadMolecule('protein', {
+      name: 'switchable',
+      representations: [{ type: 'contact', params: { opacity: 0.4, visible } }]
+    });
+    return { ...fixture, handle: fixture.adapter.getRepresentations(fixture.molecule)[0] };
+  };
+
+  it('redraws live contacts in both modes without replacing the molecule, handle or unrelated buffers', async () => {
+    expect.hasAssertions();
+    const { adapter, molecule, handle, state, existingBuffer } = await setupLiveContacts();
+    const representation = handle.nativeRepresentation;
+    const params = handle.params;
+    // Native ownership is circular; switching must never clone these handles.
+    representation.buffers[0].owner = representation;
+    for (const enabled of [true, false, true, false]) {
+      const previousBuffers = [...representation.buffers];
+      await adapter.setNglStyleInteractions(enabled);
+      expect(adapter.useNglStyleInteractions).toBe(enabled);
+      expect(adapter.getObject('switchable')).toBe(molecule);
+      expect(adapter.getRepresentations(molecule)).toStrictEqual([handle]);
+      expect(handle.nativeRepresentation).toBe(representation);
+      expect(handle.params).toBe(params);
+      expect(molecule.representations).toStrictEqual([representation]);
+      expect(state.glRef.displayBuffers).toStrictEqual([existingBuffer, ...representation.buffers]);
+      expect(representation.buffers).toHaveLength(enabled ? 2 : 1);
+      expect(previousBuffers.some(buffer => state.glRef.displayBuffers.includes(buffer))).toBe(false);
+      expect(representation.buffers[0].triangleColours[0][0]).toBeCloseTo(enabled ? 1 : 0.7);
+      expect(representation.buffers[0].triangleColours[0][3]).toBeCloseTo(0.4);
+      expect(representation.buffers.every(buffer => buffer.visible)).toBe(true);
+      expect(adapter.getTaskCount()).toBe(0);
+    }
+    expect(adapter.createNativeMolecule).toHaveBeenCalledTimes(1);
+    expect(molecule.delete).not.toHaveBeenCalled();
+  });
+
+  it('keeps hidden contacts hidden and uses the selected mode when shown again', async () => {
+    expect.hasAssertions();
+    const { adapter, handle, state, existingBuffer } = await setupLiveContacts();
+    await adapter.setVisibility(handle, false);
+    await adapter.setNglStyleInteractions(true);
+    expect(handle.visible).toBe(false);
+    expect(handle.nativeRepresentation.visible).toBe(false);
+    expect(handle.nativeRepresentation.buffers).toStrictEqual([]);
+    expect(state.glRef.displayBuffers).toStrictEqual([existingBuffer]);
+    await adapter.setVisibility(handle, true);
+    expect(handle.nativeRepresentation.buffers).toHaveLength(2);
+    expect(state.glRef.displayBuffers).toHaveLength(3);
+    expect(handle.nativeRepresentation.buffers[0].triangleColours[0][0]).toBeCloseTo(1);
+  });
+
+  it('serializes fast on/off requests and retains old buffers until the new calculation is ready', async () => {
+    expect.hasAssertions();
+    const { adapter, handle, state, existingBuffer } = await setupLiveContacts();
+    const calculation = deferred();
+    const started = deferred();
+    adapter.contactWorker.calculate.mockImplementationOnce(() => {
+      started.resolve();
+      return calculation.promise;
+    });
+    const oldBuffers = [...handle.nativeRepresentation.buffers];
+    const on = adapter.setNglStyleInteractions(true);
+    const off = adapter.setNglStyleInteractions(false);
+    expect(adapter.getTaskCount()).toBe(2);
+    await started.promise;
+    expect(state.glRef.displayBuffers).toStrictEqual([existingBuffer, ...oldBuffers]);
+    expect(adapter.getTaskCount()).toBeGreaterThan(0);
+    calculation.resolve({ colours: [[1, 0.5, 0, 1]] });
+    await Promise.all([on, off]);
+    expect(adapter.useNglStyleInteractions).toBe(false);
+    expect(handle.nativeRepresentation.buffers).toHaveLength(1);
+    expect(handle.nativeRepresentation.buffers[0].triangleColours[0][0]).toBeCloseTo(0.7);
+    expect(state.glRef.displayBuffers).toHaveLength(2);
+    expect(adapter.getTaskCount()).toBe(0);
+  });
+
+  it.each(['remove', 'destroy'])(
+    'drains a pending style redraw before %s and leaves no contact buffers',
+    async action => {
+      expect.hasAssertions();
+      const { adapter, molecule, state, existingBuffer } = await setupLiveContacts();
+      const calculation = deferred();
+      const started = deferred();
+      adapter.contactWorker.calculate.mockImplementationOnce(() => {
+        started.resolve();
+        return calculation.promise;
+      });
+      const switching = adapter.setNglStyleInteractions(true);
+      await started.promise;
+      const removal = action === 'destroy' ? adapter.destroy() : adapter.removeObjects('switchable');
+      expect(molecule.delete).not.toHaveBeenCalled();
+      calculation.resolve({ colours: [[1, 0.5, 0, 1]] });
+      await Promise.all([switching, removal]);
+      expect(molecule.delete).toHaveBeenCalledTimes(1);
+      expect(adapter.getObjects('switchable')).toStrictEqual([]);
+      expect(state.glRef.displayBuffers).toStrictEqual([existingBuffer]);
+    }
+  );
+
+  it.each([false, true])('restores the previous mode after a failed switch from NGL mode %s', async enabled => {
+    expect.hasAssertions();
+    const { adapter, handle, state, existingBuffer, commandCentre } = await setupLiveContacts(enabled);
+    const error = new Error('Interaction calculation failed');
+    if (enabled) commandCentre.current.cootCommand.mockRejectedValueOnce(error);
+    else adapter.contactWorker.calculate.mockRejectedValueOnce(error);
+    await expect(adapter.setNglStyleInteractions(!enabled)).rejects.toBe(error);
+    expect(adapter.useNglStyleInteractions).toBe(enabled);
+    expect(handle.nativeRepresentation.buffers).toHaveLength(enabled ? 2 : 1);
+    expect(state.glRef.displayBuffers).toStrictEqual([existingBuffer, ...handle.nativeRepresentation.buffers]);
+    expect(handle.nativeRepresentation.buffers[0].triangleColours[0][0]).toBeCloseTo(enabled ? 1 : 0.7);
+    expect(adapter.getTaskCount()).toBe(0);
+    await adapter.setNglStyleInteractions(!enabled);
+    expect(adapter.useNglStyleInteractions).toBe(!enabled);
+  });
+
+  it('applies the new mode to molecules whose coordinates are still loading', async () => {
+    expect.hasAssertions();
+    const { adapter, molecule, atoms } = setup(async () => ({ colours: [[1, 0.5, 0, 1]] }), true);
+    adapter.useNglStyleInteractions = false;
+    const coordinates = deferred();
+    adapter.createNativeMolecule.mockReturnValueOnce(coordinates.promise);
+    atoms.resolve([]);
+    const loading = adapter.loadMolecule('protein', { name: 'late-contacts', representation: 'contact' });
+    await adapter.setNglStyleInteractions(true);
+    coordinates.resolve(molecule);
+    await loading;
+    const [handle] = adapter.getRepresentations(molecule);
+    expect(handle.nativeRepresentation.buffers[0].triangleColours[0][0]).toBeCloseTo(1);
+    expect(adapter.contactWorker.calculate).toHaveBeenCalledTimes(1);
+  });
+
   it.each([
     ['LHS ligand', { OBJECT_TYPE: 'LIGAND', sdf_info: 'sdf' }, {}, 'ligands', 0.22, 1.35, 1],
     ['RHS ligand', { OBJECT_TYPE: 'LIGAND', sdf_info: 'sdf' }, { markAsRightSideLigand: true }, 'CBs', 0.11, 1, 1],
