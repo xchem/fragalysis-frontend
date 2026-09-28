@@ -279,6 +279,35 @@ const MoorhenMainView = memo(({ div_id, dispatchAppAction, onInitializationFailu
             pointerEvents: sceneVisible ? 'auto' : 'none'
           },
           '& .baby-gru > div > .row': { margin: 0 },
+          // Moorhen 0.22.7 puts both navigation FABs in this wrapper but positions
+          // them independently using page offsets. Lay them out within the panel;
+          // reverse wrapping keeps the atom label above the menu on narrow panels.
+          '& > div:has(> .MuiFab-root > img[alt="Moorhen"])': {
+            position: 'absolute',
+            top: 8,
+            left: 8,
+            right: 8,
+            display: 'flex',
+            flexWrap: 'wrap-reverse',
+            alignItems: 'center',
+            gap: 1,
+            pointerEvents: 'none',
+            '& > *': { pointerEvents: 'auto' },
+            '& > .MuiFab-root': {
+              position: 'relative',
+              top: 'auto',
+              left: 'auto',
+              right: 'auto',
+              flexShrink: 0,
+              maxWidth: '100%'
+            },
+            '& > .MuiFab-root:has(> img[alt="Moorhen"])': { marginRight: 'auto' },
+            '& > .MuiFab-root:not(:has(> img[alt="Moorhen"]))': { marginLeft: 'auto' },
+            '& .moorhen-hovered-atom-form': {
+              minWidth: 0,
+              maxWidth: '100%'
+            }
+          },
           // Moorhen's figure has default margins and a literal trailing ";".
           // Zero text metrics suppress that stray text and the canvas baseline
           // gap, while the native canvas overlays keep their own drawing fonts.
