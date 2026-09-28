@@ -7,13 +7,27 @@ the other NGL interaction categories. The replacement computes the original NGL 
 worker and renders their geometry through Moorhen. See the [detector documentation](../js/viewer/contacts/vendor/README.md)
 for algorithms, defaults, colours, pinned sources, licence notices and reproducible reference comparisons.
 
-The contact control now includes hydrogen and weak hydrogen bonds, ionic contacts, aromatic interactions, halogen bonds
-and metal coordination. Saved parameters can also enable water, backbone and hydrophobic contacts. Different colours
+In NGL-style mode, the contact control includes hydrogen and weak hydrogen bonds, ionic contacts, aromatic interactions,
+halogen bonds and metal coordination. Saved parameters can also enable water, backbone and hydrophobic contacts. Different colours
 represent calculated categories; a selection containing only hydrogen bonds can still legitimately look all blue.
 
 Protein/SDF topology remains separate for calculation and is never stored in Fragalysis Redux. Native representations
 receive final meshes before becoming visible. Pending worker jobs count as viewer work, and molecule removal waits for
 contact generation and representation disposal. Existing snapshot serialization and in-place switching are unchanged.
+
+## Code switch
+
+Set `USE_NGL_STYLE_INTERACTIONS` in [`js/config/viewer.js`](../js/config/viewer.js), then rebuild/reload Preview:
+
+- `false` (default): Moorhen's unmodified `allHBonds` path calls Coot's `get_h_bonds` for the contact molecule and builds its
+  native purple dashed hydrogen bonds. It does not run the NGL detector or apply its category/threshold filters.
+- `true`: the existing NGL detector, contact categories, filters and per-type colours, rendered by Moorhen.
+
+This changes both detection and appearance for application contact representations, including complexes, event-map
+contact layers and restored contacts. Native mode uses the whole contact molecule; the NGL ligand-environment and
+selection filters remain specific to NGL mode. Visibility, opacity and asynchronous cleanup retain the same lifecycle.
+The setting is not serialized in snapshots. Reload after changing modes so already loaded representations are recreated.
+Moorhen remains the viewer in both modes.
 
 ## Automated acceptance
 

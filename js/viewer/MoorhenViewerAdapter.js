@@ -1,5 +1,6 @@
 import ViewerAdapter from './ViewerAdapter';
 import ContactWorkerClient from './contacts/ContactWorkerClient';
+import { USE_NGL_STYLE_INTERACTIONS } from '../config/viewer';
 import { getAbsoluteMapContour, readCcp4MapMetadata, transformCcp4MapMesh } from './moorhenMapUtils';
 import {
   MoorhenMap,
@@ -882,6 +883,9 @@ export class MoorhenViewerAdapter extends ViewerAdapter {
   }
 
   configureContactRepresentation(representation, handle) {
+    // Leave the native allHBonds detector and mesh builder intact in Moorhen mode.
+    if (!USE_NGL_STYLE_INTERACTIONS) return;
+
     representation.getHBondBuffers = async () => {
       const molecule = handle.parentObject;
       let input = this.contactInputs.get(molecule);

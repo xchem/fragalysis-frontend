@@ -6,9 +6,11 @@ import { vec3, mat3 } from 'gl-matrix';
 import { getMoorhenRepresentationStyle } from './moorhenAdapterUtils';
 import MoorhenViewerAdapter from './MoorhenViewerAdapter';
 import reference from './contacts/fixtures/ngl-reference';
+import * as viewerConfig from '../config/viewer';
 
 jest.mock('moorhen', () => ({}));
 jest.mock('./contacts/createContactWorker', () => ({ __esModule: true, default: jest.fn() }));
+jest.mock('../config/viewer', () => ({ __esModule: true, USE_NGL_STYLE_INTERACTIONS: true }));
 
 const installedRepresentation = () => {
   const bundle = fs.readFileSync(require.resolve('moorhen'), 'utf8');
@@ -28,6 +30,45 @@ const installedRepresentation = () => {
 };
 
 describe('native interaction geometry', () => {
+  it('uses the unmodified Coot detector and native purple geometry when NGL-style interactions are disabled', async () => {
+    expect.hasAssertions();
+    const setting = jest.replaceProperty(viewerConfig, 'USE_NGL_STYLE_INTERACTIONS', false);
+    try {
+      const representation = Object.create(installedRepresentation().prototype);
+      const donor = { x: 1, y: 2, z: 3, serial: 1, name: 'N', element: 'N', altLoc: '' };
+      const acceptor = { ...donor, x: 4, serial: 2, name: 'O', element: 'O' };
+      const cootCommand = jest.fn(async () => ({ data: { result: { result: [{ donor, acceptor }] } } }));
+      const molecule = { molNo: 7, getAtoms: jest.fn() };
+      const adapter = Object.create(MoorhenViewerAdapter.prototype);
+      Object.assign(adapter, { contactInputs: new WeakMap(), contactWorker: { calculate: jest.fn() } });
+      Object.assign(representation, {
+        style: getMoorhenRepresentationStyle('contact'),
+        cid: '/*/*/*/*',
+        parentMolecule: molecule,
+        commandCentre: { current: { cootCommand } }
+      });
+      const nativeDetector = representation.getHBondBuffers;
+      adapter.configureContactRepresentation(representation, { parentObject: molecule, params: { sele: '/0 or /1' } });
+      expect(representation.getHBondBuffers).toBe(nativeDetector);
+      const meshes = await representation.getBufferObjects();
+      expect(cootCommand).toHaveBeenCalledWith(
+        { command: 'get_h_bonds', returnType: 'vector_hbond', commandArgs: [7, '/*/*/*/*', false] },
+        false
+      );
+      expect(meshes).toHaveLength(1);
+      expect(meshes[0].instance_origins[0][0]).toStrictEqual([1, 2, 3]);
+      expect(meshes[0].instance_sizes[0][0][2]).toBeCloseTo(3);
+      expect(meshes[0].col_tri[0][0]).toStrictEqual([0.7, 0.2, 0.7, 1]);
+      const error = new Error('Coot hydrogen-bond calculation failed');
+      cootCommand.mockRejectedValueOnce(error);
+      await expect(representation.getBufferObjects()).rejects.toBe(error);
+      expect(adapter.contactWorker.calculate).not.toHaveBeenCalled();
+      expect(molecule.getAtoms).not.toHaveBeenCalled();
+    } finally {
+      setting.restore();
+    }
+  });
+
   it('renders every contact type with its original endpoints, radius, colour and dashes', async () => {
     expect.hasAssertions();
     // The detector tests independently verify these NGL results. Here they

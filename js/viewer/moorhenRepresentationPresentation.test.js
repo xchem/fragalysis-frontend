@@ -4,7 +4,9 @@ import ts from 'typescript';
 import { hexToRgb } from '@mui/material';
 import { MoorhenMoleculeRepresentation } from 'moorhen';
 import MoorhenViewerAdapter from './MoorhenViewerAdapter';
+import * as viewerConfig from '../config/viewer';
 jest.mock('./contacts/createContactWorker', () => ({ __esModule: true, default: jest.fn() }));
+jest.mock('../config/viewer', () => ({ __esModule: true, USE_NGL_STYLE_INTERACTIONS: true }));
 
 jest.mock('moorhen', () => {
   const action = type => payload => ({ type, payload });
@@ -68,7 +70,7 @@ const installedRepresentation = () => {
 const NativeRepresentation = installedRepresentation();
 
 describe('representation appearance before first presentation', () => {
-  const setup = calculateContacts => {
+  const setup = (calculateContacts, nativeContacts = false) => {
     jest.clearAllMocks();
     const atoms = deferred();
     const built = deferred();
@@ -131,9 +133,16 @@ describe('representation appearance before first presentation', () => {
     const generatedMeshes = [];
     MoorhenMoleculeRepresentation.mockImplementation((...args) => {
       const representation = new NativeRepresentation(...args);
+      if (nativeContacts) {
+        jest
+          .spyOn(representation, 'getGemmiAtomPairsBuffers')
+          .mockImplementation((_pairs, colour) => [
+            { style: representation.style, triangleColours: [new Float32Array(colour)] }
+          ]);
+      }
       jest.spyOn(representation, 'getBufferObjects').mockImplementation(async function() {
-        if (calculateContacts && this.style === 'allHBonds') {
-          const meshes = await this.getHBondBuffers();
+        if ((calculateContacts || nativeContacts) && this.style === 'allHBonds') {
+          const meshes = await this.getHBondBuffers(this.cid);
           generatedMeshes.push(...meshes);
           return meshes;
         }
@@ -262,41 +271,99 @@ describe('representation appearance before first presentation', () => {
     expect(adapter.contactInputs.has(molecule)).toBe(false);
   });
 
-  it.each([false, true])('cleans contacts removed during a pending calculation (failure: %s)', async fail => {
+  it('waits for native hydrogen bonds and opacity before showing them, then removes every buffer', async () => {
     expect.hasAssertions();
-    const calculation = deferred();
-    const started = deferred();
-    const { adapter, molecule, atoms, state, existingBuffer } = setup(() => {
-      started.resolve();
-      return calculation.promise;
-    });
-    atoms.resolve([]);
-    const loading = adapter
-      .loadMolecule('protein', {
-        name: 'pending-contacts',
-        representation: 'contact'
-      })
-      .catch(error => error);
-    await started.promise;
-    const removal = adapter.removeObjects('pending-contacts');
-    expect(molecule.delete).not.toHaveBeenCalled();
-    expect(state.glRef.displayBuffers).toStrictEqual([existingBuffer]);
-    const error = new Error('Contact worker failed');
-    if (fail) calculation.reject(error);
-    else
-      calculation.resolve({
-        colours: [
-          [0.1, 0.5, 0.7, 1],
-          [1, 0.5, 0, 1]
-        ]
+    const setting = jest.replaceProperty(viewerConfig, 'USE_NGL_STYLE_INTERACTIONS', false);
+    try {
+      const calculation = deferred();
+      const started = deferred();
+      const { adapter, molecule, atoms, built, state, existingBuffer, commandCentre } = setup(undefined, true);
+      const calculateContacts = jest.spyOn(adapter.contactWorker, 'calculate');
+      commandCentre.current.cootCommand.mockImplementation(async request => {
+        if (request.command !== 'get_h_bonds') return {};
+        started.resolve();
+        return calculation.promise;
       });
-    const result = await loading;
-    await removal;
-    if (fail) expect(result).toBe(error);
-    expect(molecule.delete).toHaveBeenCalledTimes(1);
-    expect(state.glRef.displayBuffers).toStrictEqual([existingBuffer]);
-    expect(adapter.getObjects('pending-contacts')).toStrictEqual([]);
-    expect(adapter.contactInputs.has(molecule)).toBe(false);
+      const loading = adapter.loadMolecule('protein', {
+        name: 'native-contacts',
+        representations: [{ type: 'contact', params: { opacity: 0.4 } }]
+      });
+      await started.promise;
+      expect(state.glRef.displayBuffers).toStrictEqual([existingBuffer]);
+      calculation.resolve({
+        data: { result: { result: [{ donor: { x: 0, y: 0, z: 0 }, acceptor: { x: 3, y: 0, z: 0 } }] } }
+      });
+      await built.promise;
+      const handle = adapter.getRepresentations(molecule)[0];
+      expect(state.glRef.displayBuffers.filter(buffer => buffer.visible)).toStrictEqual([existingBuffer]);
+      expect(handle.nativeRepresentation.buffers[0].triangleColours[0][3]).toBeCloseTo(0.4);
+      atoms.resolve([]);
+      await loading;
+      expect(state.glRef.displayBuffers.filter(buffer => buffer.visible)).toHaveLength(2);
+      expect(calculateContacts).not.toHaveBeenCalled();
+      expect(adapter.contactWorker.resource).toBeUndefined();
+      await adapter.removeObjects('native-contacts');
+      expect(state.glRef.displayBuffers).toStrictEqual([existingBuffer]);
+      expect(adapter.getObjects('native-contacts')).toStrictEqual([]);
+    } finally {
+      setting.restore();
+    }
+  });
+
+  it.each([
+    ['ngl', false],
+    ['ngl', true],
+    ['moorhen', false],
+    ['moorhen', true]
+  ])('cleans %s contacts removed during a pending calculation (failure: %s)', async (mode, fail) => {
+    expect.hasAssertions();
+    const setting = jest.replaceProperty(viewerConfig, 'USE_NGL_STYLE_INTERACTIONS', mode === 'ngl');
+    try {
+      const calculation = deferred();
+      const started = deferred();
+      const calculate = () => {
+        started.resolve();
+        return calculation.promise;
+      };
+      const { adapter, molecule, atoms, state, existingBuffer, commandCentre } = setup(calculate, mode === 'moorhen');
+      commandCentre.current.cootCommand.mockImplementation(async request => {
+        if (request.command !== 'get_h_bonds') return {};
+        await calculate();
+        return {
+          data: { result: { result: [{ donor: { x: 0, y: 0, z: 0 }, acceptor: { x: 3, y: 0, z: 0 } }] } }
+        };
+      });
+      atoms.resolve([]);
+      const loading = adapter
+        .loadMolecule('protein', {
+          name: 'pending-contacts',
+          representation: 'contact'
+        })
+        .catch(error => error);
+      await started.promise;
+      const removal = adapter.removeObjects('pending-contacts');
+      expect(molecule.delete).not.toHaveBeenCalled();
+      expect(state.glRef.displayBuffers).toStrictEqual([existingBuffer]);
+      const error = new Error('Contact worker failed');
+      if (fail) calculation.reject(error);
+      else
+        calculation.resolve({
+          colours: [
+            [0.1, 0.5, 0.7, 1],
+            [1, 0.5, 0, 1]
+          ]
+        });
+      const result = await loading;
+      await removal;
+      if (fail) expect(result).toBe(error);
+      expect(molecule.delete).toHaveBeenCalledTimes(1);
+      expect(state.glRef.displayBuffers).toStrictEqual([existingBuffer]);
+      expect(adapter.getObjects('pending-contacts')).toStrictEqual([]);
+      expect(adapter.contactInputs.has(molecule)).toBe(false);
+      expect(adapter.contactWorker.calculate).toHaveBeenCalledTimes(mode === 'ngl' ? 1 : 0);
+    } finally {
+      setting.restore();
+    }
   });
 
   it('applies sphere opacity and radius before its first visible frame', async () => {
