@@ -75,6 +75,10 @@ export class ViewerAdapter {
     return notImplemented('setRepresentationParameters');
   }
 
+  setNglStyleInteractions() {
+    return notImplemented('setNglStyleInteractions');
+  }
+
   removeRepresentation() {
     return notImplemented('removeRepresentation');
   }

@@ -23,6 +23,7 @@ import { VIEWER_ENGINE, viewerConfig } from '../../config/viewer';
 import { createViewerInitializationTelemetry } from '../../viewer/viewerTelemetry';
 import { installMoorhenWorkerBridge } from './moorhenWorkerBridge';
 import { useInitialViewerPresentation } from './useInitialViewerPresentation';
+import { useMoorhenInteractionPreferences } from './useMoorhenInteractionPreferences';
 
 const MOORHEN_INITIALIZATION_TIMEOUT_MS = 300000;
 let moorhenStorePrepared = false;
@@ -78,6 +79,7 @@ const MoorhenMainView = memo(({ div_id, dispatchAppAction, onInitializationFailu
   const [workerBridgeReady, setWorkerBridgeReady] = useState(false);
   const [status, setStatus] = useState('Starting Moorhen runtimes...');
   const [error, setError] = useState('');
+  const extraNavBarMenus = useMoorhenInteractionPreferences(getViewerAdapter, div_id, status === 'Moorhen ready');
   const isMoorhenInitialized = useSyncExternalStore(
     MoorhenReduxStore.subscribe,
     getMoorhenInitializationState,
@@ -279,6 +281,35 @@ const MoorhenMainView = memo(({ div_id, dispatchAppAction, onInitializationFailu
             pointerEvents: sceneVisible ? 'auto' : 'none'
           },
           '& .baby-gru > div > .row': { margin: 0 },
+          // Moorhen 0.22.7 puts both navigation FABs in this wrapper but positions
+          // them independently using page offsets. Lay them out within the panel;
+          // reverse wrapping keeps the atom label above the menu on narrow panels.
+          '& > div:has(> .MuiFab-root > img[alt="Moorhen"])': {
+            position: 'absolute',
+            top: 8,
+            left: 8,
+            right: 8,
+            display: 'flex',
+            flexWrap: 'wrap-reverse',
+            alignItems: 'center',
+            gap: 1,
+            pointerEvents: 'none',
+            '& > *': { pointerEvents: 'auto' },
+            '& > .MuiFab-root': {
+              position: 'relative',
+              top: 'auto',
+              left: 'auto',
+              right: 'auto',
+              flexShrink: 0,
+              maxWidth: '100%'
+            },
+            '& > .MuiFab-root:has(> img[alt="Moorhen"])': { marginRight: 'auto' },
+            '& > .MuiFab-root:not(:has(> img[alt="Moorhen"]))': { marginLeft: 'auto' },
+            '& .moorhen-hovered-atom-form': {
+              minWidth: 0,
+              maxWidth: '100%'
+            }
+          },
           // Moorhen's figure has default margins and a literal trailing ";".
           // Zero text metrics suppress that stray text and the canvas baseline
           // gap, while the native canvas overlays keep their own drawing fonts.
@@ -304,6 +335,7 @@ const MoorhenMainView = memo(({ div_id, dispatchAppAction, onInitializationFailu
             allowScripting={false}
             backupStorageInstance={backupStorageRef.current}
             store={MoorhenReduxStore}
+            extraNavBarMenus={extraNavBarMenus}
           />
         )}
         <Box

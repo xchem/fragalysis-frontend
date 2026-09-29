@@ -1,5 +1,5 @@
 import React from 'react';
-import { act, render } from '@testing-library/react';
+import { act, fireEvent, render } from '@testing-library/react';
 import { Provider } from 'react-redux';
 import { legacy_createStore } from 'redux';
 import { createHtmlPortalNode, InPortal, OutPortal } from 'react-reverse-portal';
@@ -25,6 +25,7 @@ jest.mock('../../viewer/MoorhenViewerAdapter', () => ({
     removeOrientationChangeHandler: jest.fn(),
     prepareInitialView: jest.fn(() => true),
     resize: jest.fn(),
+    setNglStyleInteractions: jest.fn(async () => {}),
     destroy: jest.fn(async () => {})
   }))
 }));
@@ -43,7 +44,7 @@ jest.mock('moorhen', () => {
     resetMapContourSettings: reset,
     resetSceneSettings: reset,
     // Preserve the installed container's relevant DOM, including its stray text.
-    MoorhenContainer: () => (
+    MoorhenContainer: ({ extraNavBarMenus }) => (
       <div className="baby-gru container-fluid">
         <div className="dropzone">
           <div className="row">
@@ -57,6 +58,7 @@ jest.mock('moorhen', () => {
             </div>
           </div>
         </div>
+        {extraNavBarMenus.find(menu => menu.name === 'Preferences')?.JSXElement}
       </div>
     )
   };
@@ -133,6 +135,10 @@ describe('embedded Moorhen viewport', () => {
       const panel = document.getElementById('major_view');
       const canvas = view.getByTestId('webgl-canvas');
       const adapter = MoorhenViewerAdapter.mock.results[0].value;
+      const interactionsSwitch = view.getByRole('switch', { name: 'NGL style interactions' });
+      expect(interactionsSwitch).not.toBeChecked();
+      await act(async () => fireEvent.click(interactionsSwitch));
+      expect(adapter.setNglStyleInteractions).toHaveBeenCalledWith(true);
       expect(getComputedStyle(canvas.closest('.baby-gru')).opacity).toBe('0');
       expect(view.getByText('Preparing view...')).toBeInTheDocument();
       expect(observer.observe).toHaveBeenCalledWith(panel);
@@ -166,6 +172,7 @@ describe('embedded Moorhen viewport', () => {
       expect(adapter.resize).toHaveBeenCalledTimes(4);
       expect(MoorhenViewerAdapter).toHaveBeenCalledTimes(1);
       expect(adapter.destroy).not.toHaveBeenCalled();
+      expect(interactionsSwitch).toBeChecked();
 
       const figure = canvas.parentElement;
       expect(getComputedStyle(figure).margin).toBe('0px');
