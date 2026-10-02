@@ -2,6 +2,8 @@ import ViewerAdapter from './ViewerAdapter';
 import ContactWorkerClient from './contacts/ContactWorkerClient';
 import { USE_NGL_STYLE_INTERACTIONS } from '../config/viewer';
 import { getAbsoluteMapContour, readCcp4MapMetadata, transformCcp4MapMesh } from './moorhenMapUtils';
+import { NGL_VIEW_DEFAULT_VALUES } from '../components/nglView/constants';
+import { getSceneRadius, getSceneRanges } from './moorhenSceneSettings';
 import {
   MoorhenMap,
   MoorhenMolecule,
@@ -31,6 +33,7 @@ import {
   setOrigin,
   setPositiveMapColours,
   setQuat,
+  setResetClippingFogging,
   setWidth,
   setZoom,
   setZoomWheelSensitivityFactor,
@@ -177,6 +180,9 @@ export class MoorhenViewerAdapter extends ViewerAdapter {
     this.destroyed = false;
     this.orientationAnimation = null;
     this.nativeCameraSequence = 0;
+    this.sceneParameters = null;
+    this.sceneBounds = new WeakMap();
+    this.moleculeRendering = new WeakMap();
     this.installCameraAnimationGuard();
     this.runtime = { commandCentre, glRef, store, containerElement, viewerAdapter: this };
     this.store.dispatch(setBackgroundColor([0, 0, 0, 1]));
@@ -477,6 +483,7 @@ export class MoorhenViewerAdapter extends ViewerAdapter {
 
   async createNativeMolecule(source, name, options = {}) {
     const molecule = new MoorhenMolecule(this.commandCentre, this.glRef, this.store, this.monomerLibraryPath);
+    this.configureMoleculeRendering(molecule);
     const sceneSettings = this.store.getState().sceneSettings || {};
 
     if (sceneSettings.backgroundColor && typeof molecule.setBackgroundColour === 'function') {
@@ -1580,13 +1587,78 @@ export class MoorhenViewerAdapter extends ViewerAdapter {
   setParameters(parameters = {}) {
     if (parameters.backgroundColor != null) {
       const { rgb } = normaliseMoorhenColour(parameters.backgroundColor, '#000000');
-      this.store.dispatch(setBackgroundColor([rgb.r / 255, rgb.g / 255, rgb.b / 255, 1]));
+      const color = [rgb.r / 255, rgb.g / 255, rgb.b / 255, 1];
+      const currentColor = this.store.getState().sceneSettings.backgroundColor;
+      if (!color.every((value, index) => value === currentColor?.[index])) {
+        this.store.dispatch(setBackgroundColor(color));
+      }
     }
-    if (parameters.clipNear != null) this.store.dispatch(setClipStart(Number(parameters.clipNear)));
-    if (parameters.clipFar != null) this.store.dispatch(setClipEnd(Number(parameters.clipFar)));
-    if (parameters.fogNear != null) this.store.dispatch(setFogStart(Number(parameters.fogNear)));
-    if (parameters.fogFar != null) this.store.dispatch(setFogEnd(Number(parameters.fogFar)));
+    let rangesChanged = false;
+    ['clipNear', 'clipFar', 'clipDist', 'fogNear', 'fogFar'].forEach(key => {
+      const value = parameters[key];
+      if (value == null || value === '' || !Number.isFinite(Number(value))) return;
+      if (!this.sceneParameters) {
+        this.sceneParameters = { ...NGL_VIEW_DEFAULT_VALUES };
+        rangesChanged = true;
+      }
+      if (this.sceneParameters[key] === Number(value)) return;
+      this.sceneParameters[key] = Number(value);
+      rangesChanged = true;
+    });
+    if (rangesChanged) {
+      this.installSceneSettingsGuard();
+      this.store.dispatch(setResetClippingFogging(false));
+      this.applySceneRanges(true);
+      this.glRef.current?.drawScene?.();
+    }
     return parameters;
+  }
+
+  installSceneSettingsGuard() {
+    const renderer = this.glRef.current;
+    if (!renderer?.drawScene || this.sceneSettingsGuard?.renderer === renderer) return;
+    const drawScene = renderer.drawScene;
+    // Native zoom animations set their own slab between frames even when
+    // resetClippingFogging is off. Recompute before drawing a changed view.
+    // Leave native manual range edits alone until the view/settings change.
+    renderer.drawScene = (...args) => {
+      if (!this.destroyed) this.applySceneRanges();
+      return drawScene.apply(renderer, args);
+    };
+    const zoomChanged = () => {
+      if (!this.destroyed) this.applySceneRanges(true);
+    };
+    document.addEventListener('zoomChanged', zoomChanged);
+    this.sceneSettingsGuard = { renderer, drawScene, zoomChanged };
+  }
+
+  applySceneRanges(publish = false) {
+    const renderer = this.glRef.current;
+    if (!renderer || !this.sceneParameters) return;
+    const glState = this.store.getState().glRef;
+    const radius = getSceneRadius(glState.displayBuffers, this.sceneBounds);
+    const zoom = renderer.zoom ?? glState.zoom;
+    const ranges = getSceneRanges(this.sceneParameters, radius, zoom, renderer.fogClipOffset ?? glState.fogClipOffset);
+    const changed =
+      zoom !== this.sceneZoom ||
+      !this.sceneRanges ||
+      Object.keys(ranges).some(key => ranges[key] !== this.sceneRanges[key]);
+    if (changed || publish) {
+      renderer.set_clip_range?.(-ranges.clipStart, ranges.clipEnd);
+      renderer.set_fog_range?.(ranges.fogStart, ranges.fogEnd);
+      this.sceneRanges = ranges;
+      this.sceneZoom = zoom;
+    }
+    if (publish) {
+      [
+        ['clipStart', setClipStart],
+        ['clipEnd', setClipEnd],
+        ['fogStart', setFogStart],
+        ['fogEnd', setFogEnd]
+      ].forEach(([key, action]) => {
+        if (glState[key] !== ranges[key]) this.store.dispatch(action(ranges[key]));
+      });
+    }
   }
 
   resize() {
@@ -1723,7 +1795,29 @@ export class MoorhenViewerAdapter extends ViewerAdapter {
     return removal;
   }
 
+  configureMoleculeRendering(molecule) {
+    if (typeof molecule.redrawRepresentation !== 'function' || this.moleculeRendering.has(molecule)) return;
+    const redraw = molecule.redrawRepresentation.bind(molecule);
+    const rendering = { pending: Promise.resolve(), disposing: false };
+    this.moleculeRendering.set(molecule, rendering);
+    // Background changes make native molecule cards redraw their representations.
+    // These callbacks can outlive a snapshot's selection change; drain them just
+    // like application representation work and ignore callbacks after disposal.
+    molecule.redrawRepresentation = (...args) => {
+      rendering.pending = rendering.pending.catch(() => undefined).then(() => {
+        if (rendering.disposing) return;
+        return redraw(...args);
+      });
+      return rendering.pending;
+    };
+  }
+
   async disposeObject(component) {
+    const moleculeRendering = this.moleculeRendering.get(component);
+    if (moleculeRendering) {
+      moleculeRendering.disposing = true;
+      await Promise.allSettled([moleculeRendering.pending]);
+    }
     const mapRendering = this.mapRendering.get(component);
     if (mapRendering) {
       mapRendering.disposing = true;
@@ -1772,6 +1866,12 @@ export class MoorhenViewerAdapter extends ViewerAdapter {
   async destroy() {
     if (this.destroyed) return;
     this.destroyed = true;
+    if (this.sceneSettingsGuard) {
+      const { renderer, drawScene, zoomChanged } = this.sceneSettingsGuard;
+      renderer.drawScene = drawScene;
+      document.removeEventListener('zoomChanged', zoomChanged);
+      this.sceneSettingsGuard = null;
+    }
     this.orientationAnimation?.finish('destroyed');
     ++this.nativeCameraSequence;
     if (this.cameraAnimationGuard) {
