@@ -22,6 +22,10 @@ import {
   removeMolecule,
   removeVector,
   setBackgroundColor,
+  setClipStart,
+  setClipEnd,
+  setFogStart,
+  setFogEnd,
   setHeight,
   setActiveMap,
   setContourLevel,
@@ -33,6 +37,7 @@ import {
   setOrigin,
   setPositiveMapColours,
   setQuat,
+  setResetClippingFogging,
   setWidth,
   setZoom,
   setZoomWheelSensitivityFactor,
@@ -78,6 +83,7 @@ jest.mock('moorhen', () => {
     setOrigin: action('moorhen/setOrigin'),
     setPositiveMapColours: action('moorhen/setPositiveMapColours'),
     setQuat: action('moorhen/setQuat'),
+    setResetClippingFogging: action('moorhen/setResetClippingFogging'),
     setWidth: action('moorhen/setWidth'),
     setZoom: action('moorhen/setZoom'),
     setZoomWheelSensitivityFactor: action('moorhen/setZoomWheelSensitivityFactor'),
@@ -135,6 +141,29 @@ const installedCameraAnimation = requestFrame => {
     quat4: { create: () => [0, 0, 0, -1], set: (out, ...values) => values.forEach((value, i) => { out[i] = value; }) }
   });
   return new exports.Camera();
+};
+
+const installedSceneRenderer = requestFrame => {
+  const bundle = fs.readFileSync(require.resolve('moorhen'), 'utf8');
+  const marker = bundle.lastIndexOf('sourceMappingURL=data:');
+  const sourceMap = JSON.parse(Buffer.from(bundle.slice(bundle.indexOf('base64,', marker) + 7), 'base64').toString());
+  const source = sourceMap.sourcesContent[sourceMap.sources.findIndex(name => name.endsWith('/mgWebGL.tsx'))];
+  const methods =
+    source.slice(source.indexOf('    set_clip_range('), source.indexOf('    setLightUniforms(')) +
+    source.slice(source.indexOf('    drawZoomFrame('), source.indexOf('    setZoom('));
+  const compiled = ts.transpileModule(`export class Scene { drawScene() {} ${methods} }`, {
+    compilerOptions: { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2019 }
+  });
+  const exports = {};
+  runInNewContext(compiled.outputText, { exports, requestAnimationFrame: requestFrame, document, CustomEvent });
+  return Object.assign(new exports.Scene(), {
+    gl: {},
+    fogClipOffset: 250,
+    zoom: 1,
+    nAnimationFrames: 2,
+    gl_clipPlane0: new Float32Array([0, 0, -1, 0]),
+    gl_clipPlane1: new Float32Array([0, 0, 1, 0])
+  });
 };
 
 const createStore = () => {
@@ -268,6 +297,142 @@ const createAdapter = ({ molecule = createMolecule().molecule, map = createMap()
     store
   };
 };
+
+describe('moorhen scene settings', () => {
+  it('drains a native background redraw before deleting its molecule and skips callbacks queued after disposal starts', async () => {
+    expect.hasAssertions();
+    const molecule = createMolecule().molecule;
+    const buffer = { visible: true, parentObject: molecule };
+    molecule.buffers = [buffer];
+    let finishRedraw;
+    const redrawFinished = new Promise(resolve => {
+      finishRedraw = resolve;
+    });
+    let redrawStarted;
+    const started = new Promise(resolve => {
+      redrawStarted = resolve;
+    });
+    const redraw = jest.fn(async () => {
+      redrawStarted();
+      await redrawFinished;
+      molecule.buffers.push({ visible: true, parentObject: molecule });
+    });
+    molecule.redrawRepresentation = redraw;
+    molecule.delete.mockImplementation(async () => {
+      molecule.buffers.length = 0;
+    });
+    const { adapter, store } = createAdapter({ molecule });
+    await adapter.createNativeMolecule('ATOM\n', 'ligand', { fromString: true });
+    adapter.registerObject(molecule, 'ligand');
+    try {
+      const activeRedraw = molecule.redrawRepresentation('rep-1');
+      await started;
+      const removal = adapter.removeObjects('ligand');
+      await Promise.resolve();
+      await Promise.resolve();
+      const lateRedraw = molecule.redrawRepresentation('rep-1');
+      expect(molecule.delete).not.toHaveBeenCalled();
+      expect(adapter.getObjects('ligand')).toStrictEqual([molecule]);
+      expect(store.dispatch).not.toHaveBeenCalledWith(removeMolecule(molecule));
+      finishRedraw();
+      await Promise.all([activeRedraw, lateRedraw, removal]);
+      await molecule.redrawRepresentation('rep-1');
+      await adapter.removeObjects('ligand');
+      expect(redraw).toHaveBeenCalledTimes(1);
+      expect(molecule.delete).toHaveBeenCalledTimes(1);
+      expect(molecule.buffers).toStrictEqual([]);
+      expect(adapter.getObjects('ligand')).toStrictEqual([]);
+      expect(store.dispatch).toHaveBeenCalledWith(removeMolecule(molecule));
+      expect(buffer.parentObject).toBe(molecule);
+    } finally {
+      finishRedraw();
+      await adapter.destroy();
+    }
+  });
+
+  it('merges individual drawer changes and applies legacy percentages through the installed native range setters', async () => {
+    expect.hasAssertions();
+    const { adapter, glRef, store } = createAdapter();
+    const renderer = installedSceneRenderer(() => {});
+    const drawScene = jest.spyOn(renderer, 'drawScene');
+    glRef.current = renderer;
+    store.state.glRef.displayBuffers = [{ triangleVertices: [[-20, 0, 0, 20, 0, 0]] }];
+    try {
+      adapter.setParameters({
+        backgroundColor: 'white',
+        clipNear: 0,
+        clipFar: 100,
+        clipDist: '5',
+        fogNear: 0,
+        fogFar: 100
+      });
+      expect(store.dispatch).toHaveBeenCalledWith(setBackgroundColor([1, 1, 1, 1]));
+      expect(store.dispatch).toHaveBeenCalledWith(setResetClippingFogging(false));
+      expect(store.dispatch).toHaveBeenCalledWith(setClipStart(20));
+      expect(store.dispatch).toHaveBeenCalledWith(setClipEnd(20));
+      expect(store.dispatch).toHaveBeenCalledWith(setFogStart(230));
+      expect(store.dispatch).toHaveBeenCalledWith(setFogEnd(270));
+      expect(renderer.gl_clipPlane0[3]).toBe(-230);
+      expect(renderer.gl_clipPlane1[3]).toBe(270);
+      expect(renderer.gl_fog_start).toBe(230);
+      adapter.setParameters({ clipNear: 75, fogNear: 40 });
+      expect(renderer.gl_clipPlane0[3]).toBe(-260);
+      expect(renderer.gl_clipPlane1[3]).toBe(270);
+      expect(renderer.gl_fog_start).toBe(246);
+      adapter.setParameters({ clipDist: '', clipFar: 'invalid' });
+      expect(adapter.sceneParameters.clipDist).toBe(5);
+      expect(adapter.sceneParameters.clipFar).toBe(100);
+      expect(renderer.gl_clipPlane1[3]).toBe(270);
+      store.state.sceneSettings.backgroundColor = [1, 1, 1, 1];
+      store.dispatch.mockClear();
+      drawScene.mockClear();
+      adapter.setParameters({ backgroundColor: 'white', clipNear: 75, fogNear: 40 });
+      expect(store.dispatch).not.toHaveBeenCalled();
+      expect(drawScene).not.toHaveBeenCalled();
+    } finally {
+      await adapter.destroy();
+    }
+  });
+
+  it('keeps drawer planes during native zoom frames, updates geometry bounds, and restores the original draw on teardown', async () => {
+    expect.hasAssertions();
+    const { adapter, glRef, store } = createAdapter();
+    const frames = [];
+    const renderer = installedSceneRenderer(callback => frames.push(callback));
+    const painted = [];
+    jest
+      .spyOn(renderer, 'drawScene')
+      .mockImplementation(() => painted.push([renderer.gl_clipPlane0[3], renderer.gl_fog_start, renderer.gl_fog_end]));
+    const originalDraw = renderer.drawScene;
+    glRef.current = renderer;
+    store.state.glRef.displayBuffers = [{ triangleVertices: [[-20, 0, 0, 20, 0, 0]] }];
+    try {
+      adapter.setParameters({ clipNear: 0, clipFar: 100, clipDist: 5, fogNear: 0, fogFar: 100 });
+      painted.length = 0;
+      renderer.drawZoomFrame(1, 0.5, 0);
+      while (frames.length) frames.shift()();
+      expect(painted).toStrictEqual([
+        [-230, 230, 270],
+        [-230, 230, 270],
+        [-230, 230, 270]
+      ]);
+      store.state.glRef.displayBuffers = [{ triangleVertices: [[-10, 0, 0, 10, 0, 0]] }];
+      renderer.drawScene();
+      expect(renderer.gl_clipPlane0[3]).toBe(-240);
+      expect(renderer.gl_fog_start).toBe(240);
+      // A native manual edit is still effective until the view/drawer changes.
+      renderer.set_clip_range(-3, 8);
+      renderer.drawScene();
+      expect(renderer.gl_clipPlane0[3]).toBe(-247);
+    } finally {
+      await adapter.destroy();
+    }
+    expect(renderer.drawScene).toBe(originalDraw);
+    store.dispatch.mockClear();
+    document.dispatchEvent(new CustomEvent('zoomChanged'));
+    expect(store.dispatch).not.toHaveBeenCalled();
+  });
+});
 
 describe('snapshot camera animation', () => {
   let frames;

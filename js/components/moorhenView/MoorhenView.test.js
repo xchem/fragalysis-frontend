@@ -25,6 +25,7 @@ jest.mock('../../viewer/MoorhenViewerAdapter', () => ({
     removeOrientationChangeHandler: jest.fn(),
     prepareInitialView: jest.fn(() => true),
     resize: jest.fn(),
+    setParameters: jest.fn(),
     setNglStyleInteractions: jest.fn(async () => {}),
     destroy: jest.fn(async () => {})
   }))
@@ -110,7 +111,9 @@ describe('embedded Moorhen viewport', () => {
       apiReducers: { lhsDataIsLoaded: false, all_mol_lists: [] },
       selectionReducers: { toBeDisplayedList: [] },
       datasetsReducers: { toBeDisplayedList: {} },
-      nglReducers: {}
+      nglReducers: {
+        viewParams: { backgroundColor: 'white', clipNear: 30, clipFar: 80, clipDist: '5', fogNear: 40, fogFar: 85 }
+      }
     };
     const appStore = legacy_createStore((state = initialState, action) => action.state || state);
     const ui = designsOpen => (
@@ -135,6 +138,7 @@ describe('embedded Moorhen viewport', () => {
       const panel = document.getElementById('major_view');
       const canvas = view.getByTestId('webgl-canvas');
       const adapter = MoorhenViewerAdapter.mock.results[0].value;
+      expect(adapter.setParameters).toHaveBeenCalledWith(expect.objectContaining(initialState.nglReducers.viewParams));
       const interactionsSwitch = view.getByRole('switch', { name: 'NGL style interactions' });
       expect(interactionsSwitch).not.toBeChecked();
       await act(async () => fireEvent.click(interactionsSwitch));
@@ -173,6 +177,24 @@ describe('embedded Moorhen viewport', () => {
       expect(MoorhenViewerAdapter).toHaveBeenCalledTimes(1);
       expect(adapter.destroy).not.toHaveBeenCalled();
       expect(interactionsSwitch).toBeChecked();
+
+      const savedParameters = {
+        backgroundColor: 'black',
+        clipNear: 45,
+        clipFar: 95,
+        clipDist: 10,
+        fogNear: 47,
+        fogFar: 55
+      };
+      await act(async () =>
+        appStore.dispatch({
+          type: 'SNAPSHOT_RESTORED',
+          state: { ...initialState, nglReducers: { viewParams: savedParameters } }
+        })
+      );
+      expect(adapter.setParameters).toHaveBeenLastCalledWith(expect.objectContaining(savedParameters));
+      expect(MoorhenViewerAdapter).toHaveBeenCalledTimes(1);
+      expect(document.getElementById('major_view')).toBe(panel);
 
       const figure = canvas.parentElement;
       expect(getComputedStyle(figure).margin).toBe('0px');

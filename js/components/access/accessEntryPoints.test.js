@@ -77,15 +77,15 @@ describe('access inspection entry points', () => {
     resetMocks();
     const user = userEvent.setup();
     renderWithState(<TargetList list={targets} />);
-    const publicButton = await screen.findByRole('button', { name: 'Who can see me: Public target' });
+    const publicButton = await screen.findByRole('button', { name: 'Who can see this data: Public target' });
     expect(api).not.toHaveBeenCalled();
     await user.click(publicButton);
-    expect(await screen.findByRole('dialog', { name: 'Who can see me' })).toHaveTextContent('member1');
+    expect(await screen.findByRole('dialog', { name: 'Who can see this data' })).toHaveTextContent('member1');
     expect(screen.getByText(/This target is publicly accessible/)).toBeInTheDocument();
     expect(api).toHaveBeenLastCalledWith(expect.objectContaining({ params: { tas: 'public-tas' } }));
     await user.click(screen.getByRole('button', { name: 'Close' }));
     expect(publicButton).toHaveFocus();
-    await user.click(screen.getByRole('button', { name: 'Who can see me: Private target' }));
+    await user.click(screen.getByRole('button', { name: 'Who can see this data: Private target' }));
     expect(await screen.findByText('member1')).toBeInTheDocument();
     expect(screen.queryByText(/This target is publicly accessible/)).not.toBeInTheDocument();
     expect(api).toHaveBeenLastCalledWith(expect.objectContaining({ params: { tas: 'private-tas' } }));
@@ -99,7 +99,7 @@ describe('access inspection entry points', () => {
     Object.assign(DJANGO_CONTEXT, { pk: undefined, authenticated: false, username: 'NOT_LOGGED_IN' });
     renderWithState(<TargetList list={targets} />);
     expect(await screen.findByRole('link', { name: 'Public target' })).toBeInTheDocument();
-    expect(screen.queryByRole('button', { name: /Who can see me/ })).not.toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: /Who can see this data/ })).not.toBeInTheDocument();
     expect(api).not.toHaveBeenCalled();
   });
 
@@ -117,9 +117,9 @@ describe('access inspection entry points', () => {
       // Populate the draft in one input event; exercise modal focus separately below.
       fireEvent.change(nameField, { target: { value: 'Unsaved display name' } });
       expect(nameField).toHaveValue('Unsaved display name');
-      const accessButton = screen.getByRole('button', { name: 'Who can see me' });
+      const accessButton = screen.getByRole('button', { name: 'Who can see this data' });
       await user.click(accessButton);
-      const accessDialog = await screen.findByRole('dialog', { name: 'Who can see me' });
+      const accessDialog = await screen.findByRole('dialog', { name: 'Who can see this data' });
       expect(await within(accessDialog).findByText('member1')).toBeInTheDocument();
       expect(nameField).toBeInTheDocument();
       expect(nameField).toHaveValue('Unsaved display name');
@@ -130,7 +130,7 @@ describe('access inspection entry points', () => {
       await user.keyboard('{Escape}');
       expect(onModalClose).not.toHaveBeenCalled();
       expect(api.mock.calls.every(([request]) => request.method === 'GET')).toBe(true);
-      expect(screen.queryByRole('dialog', { name: 'Who can see me' })).not.toBeInTheDocument();
+      expect(screen.queryByRole('dialog', { name: 'Who can see this data' })).not.toBeInTheDocument();
       expect(screen.getByPlaceholderText('enter display name')).toHaveValue('Unsaved display name');
       expect(accessButton).toHaveFocus();
       expect(onModalClose).not.toHaveBeenCalled();

@@ -21,7 +21,7 @@ export const TargetAccessAction = ({ target, compact = false }) => {
         {compact ? (
           <IconButton
             size="small"
-            aria-label={`Who can see me: ${target?.display_name || target?.title || 'Target'}`}
+            aria-label={`Who can see this data: ${target?.display_name || target?.title || 'Target'}`}
             disabled={!tas}
             onClick={handleOpen}
             sx={{ p: 0 }}
@@ -30,7 +30,7 @@ export const TargetAccessAction = ({ target, compact = false }) => {
           </IconButton>
         ) : (
           <Button startIcon={<Visibility />} disabled={!tas} onClick={handleOpen}>
-            Who can see me
+            Who can see this data
           </Button>
         )}
       </RichTooltip>

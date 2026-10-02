@@ -530,3 +530,44 @@ Validation:
 - NOT RUN: interactive Designs opening; no browser is connected. Reload, restore snapshot 4, then open Designs and
   confirm tag 79 is selected. Also restore a snapshot with an explicitly cleared tag selection and confirm it stays
   empty. Close/reopen Designs and recheck smooth snapshot switching.
+
+## Scene settings parity (2026-10-02)
+
+- Investigation: the removed frontend pinned NGL 2.0.0-dev.37. Its
+  [viewer source](https://github.com/nglviewer/ngl/blob/v2.0.0-dev.37/src/viewer/viewer.ts) interprets near/far
+  clipping and fog as percentages of the scene bounding radius, with 50 at the camera target. `clipDist` is a
+  minimum camera-to-near-plane distance in Angstroms, not slab thickness. The warning switch controls eligible
+  molecule-image warning icons independently of the viewer.
+- Fix: keep the existing Redux/snapshot fields and translate percentages to Moorhen world distances in the adapter.
+  Compute bounds from native mesh vertices/instance origins using a weak cache; never serialize/copy native handles.
+  Convert Moorhen's view height to an equivalent NGL camera distance for the `clipDist` minimum. Moorhen has a
+  different projection, so this is a view-size compatibility conversion rather than identical camera geometry.
+- Fix: initialize and reapply parameters from the application store on snapshot restore without recreating the
+  adapter/canvas. Recompute planes for scene geometry/zoom changes and prevent native zoom frames from replacing
+  them with Moorhen's default slab. Restore the draw method and remove the zoom listener on actual teardown.
+  Preserve native manual plane edits until the view or application settings change. Avoid redundant background
+  dispatches when a slider updates; these caused unnecessary native representation redraws.
+- Fix: restoring a different background exposed native molecule-card redraws racing snapshot removal, producing
+  `Cannot pass deleted object as a pointer of type Structure`. Track and serialize these native redraw callbacks
+  per molecule, drain active callbacks before deletion, and skip callbacks arriving after disposal starts.
+- PASS: full Jest suite, 61 suites / 453 tests, 136.675 seconds; focused adapter/settings/host retest,
+  3 suites / 62 tests. Coverage includes installed native clip/fog setters
+  and zoom-frame scheduling, individual parameter edits, circular native buffers, geometry replacement/removal,
+  listener cleanup, initial saved settings, snapshot settings updates retaining the same adapter/canvas, and native
+  background redraws with delayed completion, circular buffer ownership, removal acknowledgement and late callbacks.
+- PASS: production build and backend stats validation, 46.192 seconds, with the two existing bundle-size warnings;
+  Moorhen asset integrity, 275 assets / 114450225 bytes. No new ESLint findings; the adapter test retains its
+  59 existing findings. Clean whitespace checks.
+- PASS (live Chrome, local Django/development bundle, A71EV2A / lb18145-1): fresh target load, black/white background,
+  clip near/far extremes visibly hiding/revealing structures, `clipDist` 100 hiding structures and 10 restoring them,
+  fog near 0 visibly darkening the scene, fog far 0 fading structures completely, and restored drawer defaults.
+  Native plane/fog readbacks agree with the translated values. Warning switch state toggles; this target's visible
+  rows have no eligible warning icons, so icon appearance itself was not visually verified.
+- PASS (live): rotation, wheel zoom and Designs opening/closing retain the loaded scene and translated ranges.
+  Existing snapshots 7 and 6 restore orientation and structures. Changing the background to white and `clipDist`
+  to 100 before restoring snapshot 6 reapplies its black background and distance 10; native inspection confirms
+  the same adapter instance survives. The deleted-Structure exception reproduced before the teardown fix and did
+  not recur in the final repeat. No saved records were changed.
+- NOT RUN: creating/updating a saved snapshot (the connected session is anonymous, with update controls disabled),
+  unlocked draggable layouts, and a complete RHS transfer/memory audit. Panel width dragging was attempted but
+  no width change was observed; layout-induced viewer resizing is covered by the host regression test.

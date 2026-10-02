@@ -1,6 +1,6 @@
 import React, { memo, useCallback, useContext, useEffect, useRef, useState, useSyncExternalStore } from 'react';
 import { Box, CircularProgress, Typography } from '@mui/material';
-import { Provider, useDispatch } from 'react-redux';
+import { Provider, useDispatch, useSelector } from 'react-redux';
 import {
   MoorhenContainer,
   MoorhenReduxStore,
@@ -24,6 +24,7 @@ import { createViewerInitializationTelemetry } from '../../viewer/viewerTelemetr
 import { installMoorhenWorkerBridge } from './moorhenWorkerBridge';
 import { useInitialViewerPresentation } from './useInitialViewerPresentation';
 import { useMoorhenInteractionPreferences } from './useMoorhenInteractionPreferences';
+import { NGL_VIEW_DEFAULT_VALUES } from '../nglView/constants';
 
 const MOORHEN_INITIALIZATION_TIMEOUT_MS = 300000;
 let moorhenStorePrepared = false;
@@ -60,7 +61,7 @@ const resetMoorhenStore = () => {
   ].forEach(createAction => MoorhenReduxStore.dispatch(createAction()));
 };
 
-const MoorhenMainView = memo(({ div_id, dispatchAppAction, onInitializationFailure, sceneVisible }) => {
+const MoorhenMainView = memo(({ div_id, dispatchAppAction, onInitializationFailure, sceneVisible, viewParams }) => {
   const { getViewerAdapter, registerNglView, unregisterNglView } = useContext(NglContext);
   const containerRef = useRef(null);
   const glRef = useRef(null);
@@ -79,6 +80,8 @@ const MoorhenMainView = memo(({ div_id, dispatchAppAction, onInitializationFailu
   const [workerBridgeReady, setWorkerBridgeReady] = useState(false);
   const [status, setStatus] = useState('Starting Moorhen runtimes...');
   const [error, setError] = useState('');
+  const viewParamsRef = useRef(viewParams);
+  viewParamsRef.current = viewParams;
   const extraNavBarMenus = useMoorhenInteractionPreferences(getViewerAdapter, div_id, status === 'Moorhen ready');
   const isMoorhenInitialized = useSyncExternalStore(
     MoorhenReduxStore.subscribe,
@@ -205,6 +208,7 @@ const MoorhenMainView = memo(({ div_id, dispatchAppAction, onInitializationFailu
         monomerLibraryPath,
         containerElement: containerRef
       });
+      adapter.setParameters({ ...NGL_VIEW_DEFAULT_VALUES, ...viewParamsRef.current });
       registerNglView(div_id, adapter);
       handlePick = (viewerAdapter, pick) => dispatchAppAction(handleNglViewPick(viewerAdapter, pick, getViewerAdapter));
       handleOrientationChanged = () => dispatchAppAction(setOrientationByInteraction(div_id, adapter.getOrientation()));
@@ -257,6 +261,10 @@ const MoorhenMainView = memo(({ div_id, dispatchAppAction, onInitializationFailu
     registerNglView,
     unregisterNglView
   ]);
+
+  useEffect(() => {
+    getViewerAdapter(div_id)?.setParameters({ ...NGL_VIEW_DEFAULT_VALUES, ...viewParams });
+  }, [div_id, getViewerAdapter, viewParams]);
 
   return (
     <Provider store={MoorhenReduxStore}>
@@ -370,6 +378,7 @@ MoorhenMainView.displayName = 'MoorhenMainView';
 
 const MoorhenView = memo(({ div_id, onInitializationFailure, deferInitialPresentation = false }) => {
   const dispatchAppAction = useDispatch();
+  const viewParams = useSelector(state => state.nglReducers.viewParams);
   const sceneVisible = useInitialViewerPresentation(div_id, deferInitialPresentation);
 
   if (!moorhenStorePrepared) {
@@ -383,6 +392,7 @@ const MoorhenView = memo(({ div_id, onInitializationFailure, deferInitialPresent
       dispatchAppAction={dispatchAppAction}
       onInitializationFailure={onInitializationFailure}
       sceneVisible={sceneVisible}
+      viewParams={viewParams}
     />
   );
 });
