@@ -292,7 +292,7 @@
     },
     "components": {
       "accessDialog": {
-        "whoCanSeeMe": "Who can see me",
+        "whoCanSeeMe": "Who can see this data",
         "missingTas": "Access information is unavailable because this target has no TAS",
         "retry": "Retry loading access information",
         "close": "Close access information"

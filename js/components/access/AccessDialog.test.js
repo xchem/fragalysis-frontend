@@ -223,7 +223,7 @@ describe('access inspection dialogs', () => {
       </>,
       { wrapper }
     );
-    expect(screen.getByRole('button', { name: 'Who can see me' })).toBeDisabled();
+    expect(screen.getByRole('button', { name: 'Who can see this data' })).toBeDisabled();
     expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
     view.rerender(<TargetAccessAction target={{ ...target, isLegacy: true }} />);
     expect(screen.queryByRole('button')).not.toBeInTheDocument();

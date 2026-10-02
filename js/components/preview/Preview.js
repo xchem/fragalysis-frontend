@@ -395,6 +395,20 @@ const Preview = memo(({ isStateLoaded, hideProjects, isSnapshot = false }) => {
   );
 });
 
-export default withLoadingJobSpecs(
+const PreviewContainer = withLoadingJobSpecs(
   withLoadingProjects(withSnapshotManagement(withUpdatingTarget(withLoadingProtein(Preview))))
 );
+
+export default memo(props => {
+  const { toastWarning } = useContext(ToastContext);
+  const hasShownViewerWarning = useRef(false);
+
+  useEffect(() => {
+    if (!hasShownViewerWarning.current) {
+      hasShownViewerWarning.current = true;
+      toastWarning('3D viewer is now moorhen; any molecule editing will not persist.');
+    }
+  }, [toastWarning]);
+
+  return <PreviewContainer {...props} />;
+});

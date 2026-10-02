@@ -68,7 +68,7 @@ const AccessDialog = ({ target, tas, onClose }) => {
         aria-labelledby={titleId}
         aria-describedby={descriptionId}
       >
-        <DialogTitle id={titleId}>{isTarget ? 'Who can see me' : 'What can I see'}</DialogTitle>
+        <DialogTitle id={titleId}>{isTarget ? 'Who can see this data' : 'What can I see'}</DialogTitle>
         <DialogContent dividers>
           <Typography id={descriptionId} sx={{ mb: 2, overflowWrap: 'anywhere' }}>
             {isTarget
