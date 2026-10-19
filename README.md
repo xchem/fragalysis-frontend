@@ -113,10 +113,15 @@ docker-compose -f docker-compose.dev.vector.yml up -d
 
 `Please wait, it takes a minute until all containers are fully started.`
 
-Open the application at [http://127.0.0.1:8080](http://127.0.0.1:8080). The backend image already emits COOP, and the
-development compose file mounts an nginx configuration that adds the missing COEP/CORP response headers required by
-Moorhen workers and `SharedArrayBuffer`. After adding or changing that configuration, recreate the `web` container with
-`docker compose -f docker-compose.dev.vector.yml up -d --force-recreate web`.
+Open the application at [http://127.0.0.1:8080](http://127.0.0.1:8080). The backend must supply COOP (`same-origin`) and
+COEP (`require-corp`) on the application document for Moorhen workers and `SharedArrayBuffer`. Development does not
+inject missing backend headers: a misconfigured backend must fail locally as it would in a deployed stack.
+
+When upgrading from a checkout with the former local nginx header mount, recreate the `web` container to remove it:
+
+```sh
+docker compose -f docker-compose.dev.vector.yml up -d --no-deps --force-recreate web
+```
 
 Production backend and platform requirements are listed in `docs/moorhen-static-deployment.md`.
 

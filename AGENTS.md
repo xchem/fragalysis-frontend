@@ -271,8 +271,9 @@ transfers.
 - Moorhen requires `window.crossOriginIsolated === true` on the application document: serve
   `Cross-Origin-Opener-Policy: same-origin` and `Cross-Origin-Embedder-Policy: require-corp`. Serve WASM
   as `application/wasm` and allow required cross-origin resources through CORS/CORP. Asset headers alone cannot isolate
-  the Django document. Preserve `serverHeaders.js` and the local compose mount of `docker/nginx/moorhen-isolation.conf`;
-  the latter adds missing COEP/CORP while the backend provides COOP. Avoid duplicate policy headers.
+  the Django document. Preserve `serverHeaders.js` for the frontend asset server. The backend must supply the document
+  headers in development and deployed stacks. Do not add a local nginx header fallback: it was explicitly removed so
+  missing backend configuration fails visibly during development. Avoid duplicate policy headers.
 - Preserve the worker/CCP4 initialization bridges and their cleanup. They support the separate Django and frontend
   origins in development and do not replace document isolation. Moorhen initialization failures remain visible errors;
   there is no fallback renderer to mask missing assets or headers.

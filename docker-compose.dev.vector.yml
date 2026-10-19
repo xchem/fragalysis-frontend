@@ -71,7 +71,6 @@ services:
       - ../data/media:/code/media/
       - ../fragalysis-frontend:/code/frontend
       - ../data/target:/code/target
-      - ./docker/nginx/moorhen-isolation.conf:/etc/nginx/conf.d/00-moorhen-isolation.conf:ro
     ports:
       - "8080:80"
     environment:
