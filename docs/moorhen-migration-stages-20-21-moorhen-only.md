@@ -23,8 +23,9 @@ There is no `VIEWER_ENGINE`, `MOORHEN_ROLLOUT_ENABLED`, or `MOORHEN_ROLLBACK` se
 to use `MOORHEN_ASSET_URL` or `window.DJANGO_CONTEXT.moorhen_asset_url` when an override is required.
 
 For local development, `yarn start` continues serving bundles and Moorhen assets on `http://localhost:3030`, while
-the application remains available from Django at `http://127.0.0.1:8080`. The development compose file mounts an
-nginx configuration that adds the cross-origin isolation headers required by Moorhen to Django responses.
+the application remains available from Django at `http://127.0.0.1:8080`. The backend must supply the cross-origin
+isolation headers required by Moorhen. The former local nginx header fallback has been removed so backend
+misconfiguration remains visible in development.
 
 ## Quick Manual Check
 

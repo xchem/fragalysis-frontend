@@ -61,7 +61,7 @@ describe('access inspection dialogs', () => {
     expect(api).toHaveBeenCalledTimes(2);
   });
 
-  it('uses the raw TAS and displays searchable mixed FedID and user-object responses', async () => {
+  it('uses the raw TAS and displays searchable mixed FedID and user-object responses without email', async () => {
     expect.hasAssertions();
     resetMocks();
     const user = userEvent.setup();
@@ -70,14 +70,13 @@ describe('access inspection dialogs', () => {
       Object.freeze({
         preferred_username: 'afedid',
         given_name: 'John',
-        family_name: 'Doe',
-        email: 'john@example.org'
+        family_name: 'Doe'
       }),
       Object.freeze({ preferred_username: 'bfedid', family_name: 'Smith', given_name: null })
     ]);
     api.mockResolvedValue({ data: { ping: 'OK', users } });
     render(<TargetAccessDialog open target={target} />, { wrapper });
-    expect(await screen.findByText('john@example.org')).toBeInTheDocument();
+    expect(await screen.findByText('John Doe')).toBeInTheDocument();
     expect(screen.getByText(/This target is publicly accessible/)).toBeInTheDocument();
     expect(screen.getByText('Example target — TAS: lb32627-71')).toBeInTheDocument();
     expect(api).toHaveBeenCalledWith({
@@ -87,25 +86,30 @@ describe('access inspection dialogs', () => {
     });
     const rows = within(screen.getByRole('table')).getAllByRole('row');
     expect(
+      within(rows[0])
+        .getAllByRole('columnheader')
+        .map(cell => cell.textContent)
+    ).toStrictEqual(['FedID', 'Full name']);
+    expect(
       within(rows[1])
         .getAllByRole('cell')
         .map(cell => cell.textContent)
-    ).toStrictEqual(['afedid', 'John Doe', 'john@example.org']);
+    ).toStrictEqual(['afedid', 'John Doe']);
     expect(
       within(rows[2])
         .getAllByRole('cell')
         .map(cell => cell.textContent)
-    ).toStrictEqual(['bfedid', 'Smith', '']);
+    ).toStrictEqual(['bfedid', 'Smith']);
     expect(
       within(rows[3])
         .getAllByRole('cell')
         .map(cell => cell.textContent)
-    ).toStrictEqual(['zfedid', '', '']);
+    ).toStrictEqual(['zfedid', '']);
     await user.type(screen.getByRole('textbox'), 'SMITH');
     expect(screen.getByRole('status')).toHaveTextContent('Showing 1 of 3 users');
     expect(screen.getByText('bfedid')).toBeInTheDocument();
     await user.clear(screen.getByRole('textbox'));
-    await user.type(screen.getByRole('textbox'), 'JOHN@');
+    await user.type(screen.getByRole('textbox'), 'AFED');
     expect(screen.getByRole('status')).toHaveTextContent('Showing 1 of 3 users');
     expect(screen.getByText('afedid')).toBeInTheDocument();
   });

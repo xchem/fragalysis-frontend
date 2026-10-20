@@ -50,12 +50,11 @@ port 3030 while Django runs on another origin:
 Cross-Origin-Resource-Policy: cross-origin
 ```
 
-The local Express server sets all three headers and serves `.wasm` as `application/wasm`. The Django development
-response and the production proxy must mirror the two isolation headers on the document response. The frontend
-development compose file mounts `docker/nginx/moorhen-isolation.conf` into its backend container as a local-only
-workaround. The current backend image already emits COOP, so this file deliberately adds only the missing COEP/CORP
-headers to avoid an invalid duplicate COOP policy. Production infrastructure must configure its own equivalent
-policy and ensure each policy header occurs exactly once.
+The local Express server sets all three headers and serves `.wasm` as `application/wasm`. The backend must supply
+the two isolation headers on the application document in both development and deployed stacks. The development compose
+file deliberately provides no nginx header fallback, so missing backend configuration remains a visible initialization
+failure locally. Ensure each policy header occurs exactly once; duplicate policies can prevent browser cross-origin
+isolation. Production infrastructure must preserve the backend's headers or own the equivalent response policy.
 
 For Django, use response middleware at the outer application boundary so error responses are covered too:
 

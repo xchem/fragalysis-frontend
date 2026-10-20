@@ -33,12 +33,11 @@ export const fetchAccessEntries = async tas => {
     .map(entry => {
       const row =
         typeof entry === 'string'
-          ? { id: text(entry), name: '', email: '' }
+          ? { id: text(entry), name: '' }
           : tas !== undefined && entry && typeof entry === 'object'
           ? {
               id: text(entry.preferred_username),
-              name: [text(entry.given_name), text(entry.family_name)].filter(Boolean).join(' '),
-              email: text(entry.email)
+              name: [text(entry.given_name), text(entry.family_name)].filter(Boolean).join(' ')
             }
           : null;
       if (!row?.id) {

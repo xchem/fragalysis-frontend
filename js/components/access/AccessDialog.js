@@ -55,7 +55,7 @@ const AccessDialog = ({ target, tas, onClose }) => {
 
   const search = query.trim().toLowerCase();
   const visibleEntries = result.entries.filter(entry =>
-    [entry.id, entry.name, entry.email].some(value => value.toLowerCase().includes(search))
+    [entry.id, entry.name].some(value => value.toLowerCase().includes(search))
   );
 
   return (
@@ -120,7 +120,6 @@ const AccessDialog = ({ target, tas, onClose }) => {
                       <TableRow>
                         <TableCell>{isTarget ? 'FedID' : 'TAS'}</TableCell>
                         {isTarget && <TableCell>Full name</TableCell>}
-                        {isTarget && <TableCell>Email</TableCell>}
                       </TableRow>
                     </TableHead>
                     <TableBody>
@@ -128,7 +127,6 @@ const AccessDialog = ({ target, tas, onClose }) => {
                         <TableRow key={`${entry.id}-${index}`}>
                           <TableCell sx={{ overflowWrap: 'anywhere' }}>{entry.id}</TableCell>
                           {isTarget && <TableCell sx={{ overflowWrap: 'anywhere' }}>{entry.name}</TableCell>}
-                          {isTarget && <TableCell sx={{ overflowWrap: 'anywhere' }}>{entry.email}</TableCell>}
                         </TableRow>
                       ))}
                     </TableBody>
