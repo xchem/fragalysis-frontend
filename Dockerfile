@@ -1,4 +1,4 @@
-FROM node:24.18.0-bookworm
+FROM node:24.22.1
 
 RUN corepack enable
 
