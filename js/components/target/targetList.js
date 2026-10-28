@@ -2,7 +2,7 @@
  * Created by abradley on 13/03/2018.
  */
 
-import React, { memo, useState, useEffect, useCallback } from 'react';
+import React, { memo, useState, useEffect, useCallback, useRef } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import {
   Table,
@@ -15,7 +15,14 @@ import {
   IconButton,
   InputAdornment,
   TextField,
-  Typography
+  Typography,
+  Collapse,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+  Button,
+  LinearProgress
 } from '@mui/material';
 import { makeStyles } from '../../ui/styles';
 import { Link } from 'react-router-dom';
@@ -44,6 +51,40 @@ import RichTooltip from '../tooltip/RichTooltip';
 import { TooltipPathProvider } from '../tooltip/TooltipPathContext';
 import { TargetAccessAction } from '../access/TargetAccessAction';
 import { canInspectAccess } from '../access/accessUtils';
+import { TargetDetails } from './TargetDetails';
+import { fetchTargetBlog } from './targetBlogApi';
+import {
+  downloadStructuresZip,
+  getDownloadStructuresTaskOrUrl,
+  getDownloadTaskStatusObject
+} from '../snapshot/api/api';
+
+const DOWNLOAD_STATUS_POLL_INTERVAL = 5000;
+
+const getTargetKey = target =>
+  target.isLegacy ? `${target.title}-legacy` : `${target.id}-${target.project.target_access_string}`;
+
+const createDefaultTargetDownloadRequest = target => ({
+  target_name: target.title,
+  target_access_string: target.project?.target_access_string,
+  proteins: '',
+  event_file: false,
+  sigmaa_file: false,
+  diff_file: false,
+  trans_matrix_info: false,
+  pdb_info: false,
+  mtz_info: false,
+  cif_info: false,
+  map_info: false,
+  single_sdf_file: true,
+  compound_sets: true,
+  soakdb_files: false,
+  all_aligned_structures: true,
+  metadata_info: true,
+  static_link: false,
+  file_url: '',
+  use_zip: true
+});
 
 const useStyles = makeStyles(theme => ({
   table: {
@@ -78,6 +119,99 @@ const useStyles = makeStyles(theme => ({
     width: '0.75em',
     height: '0.75em',
     padding: '0px'
+  },
+  expandCell: {
+    width: 32,
+    padding: '0px !important',
+    textAlign: 'center'
+  },
+  expandButton: {
+    padding: 0
+  },
+  toggleAllButton: {
+    marginRight: theme.spacing(1),
+    textTransform: 'none',
+    whiteSpace: 'nowrap'
+  },
+  dropdownCell: {
+    padding: '0px !important',
+    borderBottom: '1px solid #e6e8ef',
+    backgroundColor: '#ffffff'
+  },
+  dropdownContent: {
+    display: 'grid',
+    gridTemplateColumns: '260px minmax(360px, 1fr) minmax(420px, 0.8fr)',
+    alignItems: 'start',
+    gap: theme.spacing(3),
+    boxSizing: 'border-box',
+    padding: theme.spacing(2, 2, 0),
+    [theme.breakpoints.down('md')]: {
+      gridTemplateColumns: '260px 1fr'
+    },
+    [theme.breakpoints.down('sm')]: {
+      gridTemplateColumns: '1fr'
+    }
+  },
+  dropdownImage: {
+    width: 260,
+    height: 172,
+    objectFit: 'cover',
+    borderRadius: 12
+  },
+  dropdownWithoutImage: {
+    gridTemplateColumns: 'minmax(360px, 1fr) minmax(420px, 0.8fr)',
+    [theme.breakpoints.down('md')]: {
+      gridTemplateColumns: '1fr'
+    }
+  },
+  dropdownBlog: {
+    display: 'flex',
+    flexDirection: 'column',
+    minWidth: 0,
+    minHeight: 0,
+    maxHeight: 260
+  },
+  dropdownOverview: {
+    minHeight: 0,
+    overflowY: 'auto',
+    overflowX: 'hidden'
+  },
+  dropdownDate: {
+    color: '#0077a5',
+    fontStyle: 'italic'
+  },
+  dropdownTitle: {
+    display: 'block',
+    color: '#003b60',
+    lineHeight: 1.1,
+    marginBottom: theme.spacing(1),
+    textDecoration: 'none',
+    '&:hover': {
+      textDecoration: 'underline'
+    }
+  },
+  dropdownText: {
+    color: '#0077a5',
+    whiteSpace: 'pre-wrap'
+  },
+  dropdownActions: {
+    display: 'flex',
+    gap: theme.spacing(1),
+    marginTop: theme.spacing(2),
+    alignItems: 'center'
+  },
+  dropdownButton: {
+    padding: theme.spacing(0.75, 2),
+    flexShrink: 0,
+    whiteSpace: 'nowrap',
+    backgroundColor: '#3f51b5',
+    color: '#ffffff',
+    fontWeight: 700,
+    fontStyle: 'italic',
+    textTransform: 'none',
+    '&:hover': {
+      backgroundColor: '#3346af'
+    }
   }
 }));
 
@@ -90,8 +224,114 @@ const HeaderControlCell = ({ children }) => (
 export const TargetList = memo(({ list = [], title = 'Target list', authRequired = false, legacy = false }) => {
   const classes = useStyles();
   const dispatch = useDispatch();
+  // Keep blog reads and image URLs stable for this landing-page visit, including across pagination.
+  const blogCache = useRef(new Map());
+  const imageRefreshToken = useRef(Date.now());
+  const loadBlog = useCallback(targetId => {
+    if (!blogCache.current.has(targetId)) {
+      const request = fetchTargetBlog(targetId).catch(error => {
+        blogCache.current.delete(targetId);
+        throw error;
+      });
+      blogCache.current.set(targetId, request);
+    }
+    return blogCache.current.get(targetId);
+  }, []);
   const [initList, setInitList] = useState([]);
   const [targetList, setTargetList] = useState([]);
+  const [expandedTargets, setExpandedTargets] = useState({});
+  const detailTargets = initList.filter(target => !target.isLegacy);
+  const hasExpandedTargets = detailTargets.some(target => expandedTargets[getTargetKey(target)] !== false);
+  const toggleAllTargetDetails = () => {
+    setExpandedTargets(current => {
+      const expand = !detailTargets.some(target => current[getTargetKey(target)] !== false);
+      const updated = { ...current };
+      detailTargets.forEach(target => {
+        updated[getTargetKey(target)] = expand;
+      });
+      return updated;
+    });
+  };
+  const [targetToDownload, setTargetToDownload] = useState(null);
+  const [downloadPreparing, setDownloadPreparing] = useState(false);
+  const [downloadError, setDownloadError] = useState('');
+  const openTargetDownloadConfirmation = useCallback(target => {
+    setDownloadError('');
+    setTargetToDownload(target);
+  }, []);
+
+  const closeTargetDownloadConfirmation = () => {
+    if (!downloadPreparing) {
+      setDownloadError('');
+      setTargetToDownload(null);
+    }
+  };
+
+  const downloadDefaultTargetData = () => {
+    if (targetToDownload && !downloadPreparing) {
+      setDownloadError('');
+      setDownloadPreparing(true);
+    }
+  };
+
+  useEffect(() => {
+    if (!downloadPreparing || !targetToDownload) return;
+    let active = true;
+    let timer;
+    const fail = error => {
+      if (!active) return;
+      setDownloadError(error?.response?.data?.message || error.message || 'Download failed. Please try again later.');
+      setDownloadPreparing(false);
+    };
+    const download = url => {
+      if (!active) return;
+      downloadStructuresZip(url);
+      setTargetToDownload(null);
+      setDownloadPreparing(false);
+    };
+    const poll = async taskUrl => {
+      try {
+        const response = await getDownloadTaskStatusObject(taskUrl);
+        if (!active) return;
+        const task = response?.data;
+        if (!task) throw new Error('The server returned an unexpected response.');
+        if (task.finished) {
+          if (task.status !== 'SUCCESS' || !task.messages) {
+            throw new Error(task.messages || 'The download could not be prepared.');
+          }
+          download(task.messages);
+        } else {
+          timer = setTimeout(() => poll(taskUrl), DOWNLOAD_STATUS_POLL_INTERVAL);
+        }
+      } catch (error) {
+        fail(error);
+      }
+    };
+    const start = async () => {
+      try {
+        const response = await getDownloadStructuresTaskOrUrl(createDefaultTargetDownloadRequest(targetToDownload));
+        if (!active) return;
+        if (response.status === 208) {
+          throw new Error('The same download is already being prepared. Please try again in a minute.');
+        }
+        if (response?.data?.file_url) {
+          download(response.data.file_url);
+        } else if (response?.data?.task_status_url) {
+          await poll(response.data.task_status_url);
+        } else {
+          throw new Error('The server returned an unexpected response.');
+        }
+      } catch (error) {
+        fail(error);
+      }
+    };
+    start();
+    return () => {
+      active = false;
+      clearTimeout(timer);
+    };
+  }, [downloadPreparing, targetToDownload]);
+
   const [filterDialogOpen, setFilterDialogOpen] = useState(false);
   const [searchString, setSearchString] = useState('');
   // checkbox for search
@@ -281,7 +521,9 @@ export const TargetList = memo(({ list = [], title = 'Target list', authRequired
       case 'target':
         return target.display_name.toLowerCase().includes(filterValue.toLowerCase());
       case 'tas':
-        return getTargetAccessStringDisplayValue(target).toLowerCase().includes(filterValue.toLowerCase());
+        return getTargetAccessStringDisplayValue(target)
+          .toLowerCase()
+          .includes(filterValue.toLowerCase());
       case 'initDate':
         const initDate = moment(target.project.init_date).format('YYYY-MM-DD');
         const initDateFrom = filterValue[0].length > 0 ? filterValue[0] <= initDate : true;
@@ -364,7 +606,9 @@ export const TargetList = memo(({ list = [], title = 'Target list', authRequired
           item =>
             (checkedTarget && item.display_name.toLowerCase().includes(searchString.toLowerCase())) ||
             (checkedTargetAccessString &&
-              getTargetAccessStringDisplayValue(item).toLowerCase().includes(searchString.toLowerCase()))
+              getTargetAccessStringDisplayValue(item)
+                .toLowerCase()
+                .includes(searchString.toLowerCase()))
         );
         setTargetList(filteredList);
       } else {
@@ -427,106 +671,136 @@ export const TargetList = memo(({ list = [], title = 'Target list', authRequired
         preview = `${URLS.target}${target.title}/${URL_TOKENS.target_access_string}/${target.project.target_access_string}`;
       }
       const targetTitleId = title.replace(/\s+/g, '-').toLowerCase();
+      const targetKey = getTargetKey(target);
+      const isExpanded = expandedTargets[targetKey] !== false;
 
       return (
-        <TableRow hover key={target.isLegacy ? target.title + 'Legacy' : `${target.id}-${target.title}`}>
-          <TableCell align="left" style={{ padding: '0px', margin: '0px' }}>
-            {target.isLegacy ? (
-              <a
-                href={target.legacyUrl}
-                id={targetTitleId + '-item-' + index}
-                target="new"
-                style={{ wordBreak: 'break-all' }}
-              >
-                {target.display_name}
-              </a>
-            ) : (
-              <>
-                <Link to={preview} id={targetTitleId + '-item-' + index}>
+        <React.Fragment key={targetKey}>
+          <TableRow hover>
+            <TableCell align="left" style={{ padding: '0px', margin: '0px' }}>
+              {target.isLegacy ? (
+                <a
+                  href={target.legacyUrl}
+                  id={targetTitleId + '-item-' + index}
+                  target="new"
+                  style={{ wordBreak: 'break-all' }}
+                >
                   {target.display_name}
-                </Link>
-              </>
-            )}
-          </TableCell>
-          <TableCell style={{ width: '2px', padding: '0px', margin: '0px' }}></TableCell>
-          {legacy === false && [
-            <TableCell
-              key={'14'}
-              align="left"
-              style={{ padding: '0px', margin: '0px' }}
-              id={targetTitleId + '-tas-' + index}
-            >
-              {getTargetAccessStringDisplayValue(target)}
-            </TableCell>,
-            <TableCell key={'13'} style={{ width: '2px', padding: '0px', margin: '0px' }}></TableCell>,
-            <TableCell
-              key={'12'}
-              align="left"
-              style={{ padding: '0px', margin: '0px' }}
-              id={targetTitleId + '-init_date-' + index}
-            >
-              {moment(target.project.init_date).format('YYYY-MM-DD')}
-            </TableCell>,
-            <TableCell key={'11'} style={{ width: '2px', padding: '0px', margin: '0px' }}></TableCell>,
-            <TableCell
-              key={'1'}
-              align="left"
-              style={{ padding: '0px', margin: '0px' }}
-              id={targetTitleId + '-last_updated-' + index}
-            >
-              {target.last_updated ? moment(target.last_updated).format('YYYY-MM-DD') : ''}
-            </TableCell>,
-            <TableCell key={'2'} style={{ width: '2px', padding: '0px', margin: '0px' }}></TableCell>,
-            <TableCell
-              key={'3'}
-              align="left"
-              style={{ padding: '0px', margin: '0px' }}
-              id={targetTitleId + '-short_name-' + index}
-            >
-              {target.short_name}
-            </TableCell>,
-            <TableCell key={'4'} style={{ width: '2px', padding: '0px', margin: '0px' }}></TableCell>,
-            <TableCell key={'5'} align="left" style={{ padding: '0px', margin: '0px' }}>
-              {target.long_name}
-            </TableCell>,
-            <TableCell key={'6'} style={{ width: '2px', padding: '0px', margin: '0px' }}></TableCell>,
-            <TableCell key={'7'} align="left" style={{ padding: '0px', margin: '0px' }}>
-              {target.organism}
-            </TableCell>,
-            <TableCell key={'8'} style={{ width: '2px', padding: '0px', margin: '0px' }}></TableCell>,
-            <TableCell key={'9'} align="left" style={{ padding: '0px', margin: '0px' }}>
-              <a href={target.external_url} target="_blank">
-                {target.external_url_display_name}
-              </a>
-            </TableCell>,
-            <TableCell key={'10'} style={{ width: '2px', padding: '0px', margin: '0px' }}></TableCell>,
-            <TableCell key={'15'} align="center" style={{ padding: '0px', margin: '0px' }}>
-              {target.data_version}
-            </TableCell>,
-            <TableCell key={'16'} style={{ width: '2px', padding: '0px', margin: '0px' }}></TableCell>
-          ]}
-          {canInspectAccess() && !legacy && (
-            <TableCell align="center" style={{ padding: '0px', margin: '0px' }}>
-              <TargetAccessAction target={target} compact />
+                </a>
+              ) : (
+                <>
+                  <Link to={preview} id={targetTitleId + '-item-' + index}>
+                    {target.display_name}
+                  </Link>
+                </>
+              )}
             </TableCell>
-          )}
-          {DJANGO_CONTEXT['authenticated'] && !target.isLegacy && (
-            <TableCell style={{ width: '2px', padding: '0px', margin: '0px' }}>
-              <IconButton
-                style={{ padding: '0px' }}
-                onClick={() => {
-                  dispatch(setTargetToEdit(target));
-                  dispatch(setEditTargetDialogOpen(true));
-                }}
+            <TableCell style={{ width: '2px', padding: '0px', margin: '0px' }}></TableCell>
+            {legacy === false && [
+              <TableCell
+                key={'14'}
+                align="left"
+                style={{ padding: '0px', margin: '0px' }}
+                id={targetTitleId + '-tas-' + index}
               >
-                <Edit style={{ height: '15px' }} />
-              </IconButton>
-            </TableCell>
+                {getTargetAccessStringDisplayValue(target)}
+              </TableCell>,
+              <TableCell key={'13'} style={{ width: '2px', padding: '0px', margin: '0px' }}></TableCell>,
+              <TableCell
+                key={'12'}
+                align="left"
+                style={{ padding: '0px', margin: '0px' }}
+                id={targetTitleId + '-init_date-' + index}
+              >
+                {moment(target.project.init_date).format('YYYY-MM-DD')}
+              </TableCell>,
+              <TableCell key={'11'} style={{ width: '2px', padding: '0px', margin: '0px' }}></TableCell>,
+              <TableCell
+                key={'1'}
+                align="left"
+                style={{ padding: '0px', margin: '0px' }}
+                id={targetTitleId + '-last_updated-' + index}
+              >
+                {target.last_updated ? moment(target.last_updated).format('YYYY-MM-DD') : ''}
+              </TableCell>,
+              <TableCell key={'2'} style={{ width: '2px', padding: '0px', margin: '0px' }}></TableCell>,
+              <TableCell
+                key={'3'}
+                align="left"
+                style={{ padding: '0px', margin: '0px' }}
+                id={targetTitleId + '-short_name-' + index}
+              >
+                {target.short_name}
+              </TableCell>,
+              <TableCell key={'4'} style={{ width: '2px', padding: '0px', margin: '0px' }}></TableCell>,
+              <TableCell key={'5'} align="left" style={{ padding: '0px', margin: '0px' }}>
+                {target.long_name}
+              </TableCell>,
+              <TableCell key={'6'} style={{ width: '2px', padding: '0px', margin: '0px' }}></TableCell>,
+              <TableCell key={'7'} align="left" style={{ padding: '0px', margin: '0px' }}>
+                {target.organism}
+              </TableCell>,
+              <TableCell key={'8'} style={{ width: '2px', padding: '0px', margin: '0px' }}></TableCell>,
+              <TableCell key={'9'} align="left" style={{ padding: '0px', margin: '0px' }}>
+                <a href={target.external_url} target="_blank">
+                  {target.external_url_display_name}
+                </a>
+              </TableCell>,
+              <TableCell key={'10'} style={{ width: '2px', padding: '0px', margin: '0px' }}></TableCell>,
+              <TableCell key={'15'} align="center" style={{ padding: '0px', margin: '0px' }}>
+                {target.data_version}
+              </TableCell>,
+              <TableCell key={'16'} style={{ width: '2px', padding: '0px', margin: '0px' }}></TableCell>,
+              <TableCell key="expand" className={classes.expandCell}>
+                <IconButton
+                  className={classes.expandButton}
+                  aria-label={`${isExpanded ? 'Collapse' : 'Expand'} ${target.display_name}`}
+                  aria-expanded={isExpanded}
+                  onClick={() => setExpandedTargets(current => ({ ...current, [targetKey]: current[targetKey] === false }))}
+                >
+                  {isExpanded ? <KeyboardArrowUp /> : <KeyboardArrowDown />}
+                </IconButton>
+              </TableCell>
+            ]}
+            {canInspectAccess() && !legacy && (
+              <TableCell align="center" style={{ padding: '0px', margin: '0px' }}>
+                <TargetAccessAction target={target} compact />
+              </TableCell>
+            )}
+            {DJANGO_CONTEXT['authenticated'] && !target.isLegacy && (
+              <TableCell style={{ width: '2px', padding: '0px', margin: '0px' }}>
+                <IconButton
+                  style={{ padding: '0px' }}
+                  onClick={() => {
+                    dispatch(setTargetToEdit(target));
+                    dispatch(setEditTargetDialogOpen(true));
+                  }}
+                >
+                  <Edit style={{ height: '15px' }} />
+                </IconButton>
+              </TableCell>
+            )}
+          </TableRow>
+          {!target.isLegacy && (
+            <TableRow>
+              <TableCell className={classes.dropdownCell} colSpan={100}>
+                <Collapse in={isExpanded} timeout={240} unmountOnExit>
+                  <TargetDetails
+                    target={target}
+                    preview={preview}
+                    classes={classes}
+                    onDownload={openTargetDownloadConfirmation}
+                    loadBlog={loadBlog}
+                    imageRefreshToken={imageRefreshToken.current}
+                  />
+                </Collapse>
+              </TableCell>
+            </TableRow>
           )}
-        </TableRow>
+        </React.Fragment>
       );
     },
-    [dispatch, legacy, title]
+    [classes, dispatch, expandedTargets, legacy, title, openTargetDownloadConfirmation, loadBlog]
   );
 
   // window height for showing rows per page
@@ -730,6 +1004,19 @@ export const TargetList = memo(({ list = [], title = 'Target list', authRequired
               }}
               onChange={handleSearch}
             />,
+            !legacy && (
+              <Button
+                className={classes.toggleAllButton}
+                variant="text"
+                color="inherit"
+                size="small"
+                aria-label={`${hasExpandedTargets ? 'Collapse' : 'Expand'} all ${title.toLowerCase()}`}
+                disabled={detailTargets.length === 0}
+                onClick={toggleAllTargetDetails}
+              >
+                {hasExpandedTargets ? 'Collapse all' : 'Expand all'}
+              </Button>
+            ),
             <IconButton
               id={title.replace(/\s+/g, '-').toLowerCase() + '-filter'}
               onClick={event => {
@@ -1091,6 +1378,7 @@ export const TargetList = memo(({ list = [], title = 'Target list', authRequired
                 </HeaderControlCell>
               ]}
 
+              {!legacy && <TableCell aria-label="Target details" />}
               {canInspectAccess() && !legacy && <TableCell className={classes.tableHeader}>Access</TableCell>}
               {DJANGO_CONTEXT['authenticated'] && legacy === false && (
                 <TableCell
@@ -1134,6 +1422,40 @@ export const TargetList = memo(({ list = [], title = 'Target list', authRequired
             />
           </TooltipPathProvider>
         )}
+        <Dialog
+          open={Boolean(targetToDownload)}
+          onClose={closeTargetDownloadConfirmation}
+          aria-labelledby="target-download-confirmation-title"
+          maxWidth="xs"
+          fullWidth
+        >
+          <DialogTitle id="target-download-confirmation-title">Download target data?</DialogTitle>
+          <DialogContent>
+            <Typography variant="body1">
+              Do you want to download the default dataset for{' '}
+              <strong>{targetToDownload?.display_name || targetToDownload?.title}</strong>?
+            </Typography>
+            {downloadPreparing && <LinearProgress sx={{ marginTop: 2 }} />}
+            {downloadPreparing && (
+              <Typography variant="body2" sx={{ marginTop: 1 }}>
+                Preparing download…
+              </Typography>
+            )}
+            {downloadError && (
+              <Typography color="error" variant="body2" sx={{ marginTop: 2 }}>
+                {downloadError}
+              </Typography>
+            )}
+          </DialogContent>
+          <DialogActions>
+            <Button onClick={closeTargetDownloadConfirmation} disabled={downloadPreparing}>
+              Cancel
+            </Button>
+            <Button onClick={downloadDefaultTargetData} disabled={downloadPreparing} variant="contained">
+              Download
+            </Button>
+          </DialogActions>
+        </Dialog>
       </Panel>
     );
   }

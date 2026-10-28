@@ -1,4 +1,4 @@
-import React, { memo, useContext, useEffect, useState } from 'react';
+import React, { memo, useContext, useEffect, useRef, useState } from 'react';
 import { connect, useSelector } from 'react-redux';
 import { HandleUnrecognisedTarget } from './handleUnrecognisedTarget';
 import { updateTarget, setTargetUUIDs, resetTargetAndSelection } from './redux/dispatchActions';
@@ -21,6 +21,7 @@ export const withUpdatingTarget = WrappedContainer => {
 
       const { isLoading, setIsLoading } = useContext(LoadingContext);
       const [state, setState] = useState();
+      const lastRouteRequest = useRef(null);
 
       useEffect(() => {
         resetTargetAndSelection(resetSelection);
@@ -31,6 +32,15 @@ export const withUpdatingTarget = WrappedContainer => {
       }, [setTargetUUIDs, snapshotUuid, uuid]);
 
       useEffect(() => {
+        const resolvedTargetId = targetName
+          ? targetIdList?.find(
+              target => target.title === targetName && target.project?.target_access_string === projectName
+            )?.id
+          : undefined;
+        const route = [targetName, projectName, projectId, snapshotId, resolvedTargetId];
+        // Settings replace target metadata. Reloading that same route would unmount the live Preview.
+        if (lastRouteRequest.current?.every((value, index) => value === route[index])) return;
+        lastRouteRequest.current = route;
         updateTarget({ targetName, projectName, setIsLoading, targetIdList, projectId }).catch(error => {
           setState(() => {
             throw error;
