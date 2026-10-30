@@ -6,7 +6,9 @@
     "node": ">=24.18.0 <25"
   },
   "resolutions": {
-    "react-is": "19.2.7"
+    "react-is": "19.2.7",
+    "@mui/x-charts/@mui/x-internals": "9.10.0",
+    "@mui/x-charts/@mui/x-internal-gestures": "9.10.0"
   },
   "default_squonk_project": "project-8f32b412-8329-4469-a39c-8581efa93796",
   "description": "Frontend for fragalysis",
@@ -57,6 +59,7 @@
     "@mui/icons-material": "7.3.11",
     "@mui/material": "7.3.11",
     "@mui/system": "7.3.11",
+    "@mui/x-charts": "9.10.0",
     "@mui/x-tree-view": "8.29.2",
     "@redux-devtools/extension": "4.0.0",
     "@rjsf/core": "6.6.2",

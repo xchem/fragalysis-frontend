@@ -2,7 +2,8 @@ import { MAP_TYPE } from '../../../reducers/ngl/constants';
 
 export const BACKGROUND_COLOR = {
   black: 'black',
-  white: 'white'
+  white: 'white',
+  light: '#ededed'
 };
 
 export const NGL_PARAMS = {
@@ -106,7 +107,7 @@ export const COMMON_PARAMS = {
 export const MOL_REPRESENTATION_BUFFER = 'buffer';
 
 export const NGL_VIEW_DEFAULT_VALUES = {
-  [NGL_PARAMS.backgroundColor]: BACKGROUND_COLOR.black,
+  [NGL_PARAMS.backgroundColor]: BACKGROUND_COLOR.light,
   [NGL_PARAMS.clipNear]: 45,
   [NGL_PARAMS.clipFar]: 100,
   [NGL_PARAMS.clipDist]: 10,

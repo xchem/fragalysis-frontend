@@ -28,6 +28,10 @@ import {
   setFogEnd,
   setHeight,
   setActiveMap,
+  setAmbient,
+  setDiffuse,
+  setSpecular,
+  setSpecularPower,
   setContourLevel,
   setMapAlpha,
   setMapColours,
@@ -68,6 +72,10 @@ jest.mock('moorhen', () => {
     removeMolecule: action('moorhen/removeMolecule'),
     removeVector: action('moorhen/removeVector'),
     setActiveMap: action('moorhen/setActiveMap'),
+    setAmbient: action('moorhen/setAmbient'),
+    setDiffuse: action('moorhen/setDiffuse'),
+    setSpecular: action('moorhen/setSpecular'),
+    setSpecularPower: action('moorhen/setSpecularPower'),
     setBackgroundColor: action('moorhen/setBackgroundColor'),
     setClipEnd: action('moorhen/setClipEnd'),
     setClipStart: action('moorhen/setClipStart'),
@@ -700,7 +708,11 @@ describe('MoorhenViewerAdapter Stage 18 parity', () => {
 
     expect(asViewerAdapter(adapter.getNativeViewer())).toBe(adapter);
     expect(asViewerAdapter(adapter)).toBe(adapter);
-    expect(store.dispatch).toHaveBeenCalledWith(setBackgroundColor([0, 0, 0, 1]));
+    expect(store.dispatch).toHaveBeenCalledWith(setBackgroundColor([237 / 255, 237 / 255, 237 / 255, 1]));
+    expect(store.dispatch).toHaveBeenCalledWith(setDiffuse([1, 1, 1, 1]));
+    expect(store.dispatch).toHaveBeenCalledWith(setSpecular([0, 0, 0, 1]));
+    expect(store.dispatch).toHaveBeenCalledWith(setAmbient([0.2, 0.2, 0.2, 1]));
+    expect(store.dispatch).toHaveBeenCalledWith(setSpecularPower(1));
     expect(store.dispatch).toHaveBeenCalledWith(setZoomWheelSensitivityFactor(8));
   });
 
@@ -777,11 +789,11 @@ describe('MoorhenViewerAdapter Stage 18 parity', () => {
       center: true
     });
     expect(ligand.molecule.loadToCootFromString).toHaveBeenCalledWith('ligand sdf', 'ligand');
-    expect(MoorhenMoleculeRepresentation).toHaveBeenCalledWith('ligands', '/*/*/*/*', expect.anything(), expect.anything());
-    expect(ligand.representation.setBondOptions).toHaveBeenCalledWith(expect.objectContaining({ width: 0.22 }));
-    expect(ligand.representation.setM2tParams).toHaveBeenCalledWith(
-      expect.objectContaining({ ballsStyleRadiusMultiplier: 1.35 })
+    expect(MoorhenMoleculeRepresentation).toHaveBeenCalledWith('CBs', '/*/*/*/*', expect.anything(), expect.anything());
+    expect(ligand.representation.setBondOptions).toHaveBeenCalledWith(
+      expect.objectContaining({ width: 0.2, atomRadiusBondRatio: 2, smoothness: 3 })
     );
+    expect(ligand.representation.setM2tParams).not.toHaveBeenCalled();
     expect(ligand.representation.addColourRule).toHaveBeenCalledWith(
       'chain',
       '/*/*/*/*',

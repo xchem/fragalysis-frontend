@@ -3,7 +3,22 @@
  */
 
 import React, { memo, useCallback, useEffect, useRef, useState } from 'react';
-import { Button, Dialog, DialogActions, DialogContent, DialogTitle, Divider, FormControlLabel, GridLegacy as Grid, IconButton, Radio, RadioGroup, TextField, Typography } from '@mui/material';
+import {
+  Alert,
+  Button,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogTitle,
+  Divider,
+  FormControlLabel,
+  GridLegacy as Grid,
+  IconButton,
+  Radio,
+  RadioGroup,
+  TextField,
+  Typography
+} from '@mui/material';
 import { makeStyles } from '../../ui/styles';
 import { Close } from '@mui/icons-material';
 import { base_url } from '../routes/constants';
@@ -16,6 +31,9 @@ import { getCurrentTarget } from '../../reducers/api/selectors';
 import { DENSITY_MAP_TYPES, MAP_RENDERING_MODES } from '../preview/molecule/utils/constants';
 import RichTooltip from '../tooltip/RichTooltip';
 import { TargetAccessAction } from '../access/TargetAccessAction';
+import { TargetBlogSettings } from './TargetBlogSettings';
+import { useTargetBlog } from './useTargetBlog';
+import { blogApiErrors } from './targetBlogApi';
 
 const useStyles = makeStyles(theme => ({
   copyButton: {
@@ -53,6 +71,10 @@ export const TargetSettingsModal = memo(({ openModal, onModalClose, isTargetOn =
   const draggedOverIdentifier = useRef(0);
 
   const [editable, setEditable] = useState(false);
+  const [saving, setSaving] = useState(false);
+  const [saveError, setSaveError] = useState('');
+  const saveScope = useRef(null);
+  const initialTargetValues = useRef(null);
   const [identifierTypes, setIdentifierTypes] = useState([]);
   const [displayName, setDisplayName] = useState('');
   const [shortName, setShortName] = useState('');
@@ -65,11 +87,29 @@ export const TargetSettingsModal = memo(({ openModal, onModalClose, isTargetOn =
   const [electronDensityMapType, setElectronDensityMapType] = useState(DENSITY_MAP_TYPES.EVENT);
   const [electronDensityRenderingMode, setElectronDensityRenderingMode] = useState(MAP_RENDERING_MODES.WIREFRAME);
 
+  const [crystallographicBindingEvents, setCrystallographicBindingEvents] = useState(0);
+  const [boundCompounds, setBoundCompounds] = useState(0);
+  const [associatedAffinityMeasurements, setAssociatedAffinityMeasurements] = useState(0);
+  const [measuredCompounds, setMeasuredCompounds] = useState(0);
+
   const target_on_name = useSelector(state => state.apiReducers.target_on_name);
   const target_on_aliases = useSelector(state => state.apiReducers.target_on_aliases);
   // const targets = useSelector(state => state.apiReducers.target_id_list);
   const activeTarget = useSelector(state => getCurrentTarget(state));
   const selectedTarget = useSelector(state => state.selectionReducers.targetToEdit);
+  const targetId = (isTargetOn ? activeTarget : selectedTarget)?.id;
+  const blog = useTargetBlog(targetId, openModal);
+
+  useEffect(() => {
+    const scope = { saving: false };
+    saveScope.current = scope;
+    setSaving(false);
+    setSaveError('');
+    setEditable(false);
+    return () => {
+      if (saveScope.current === scope) saveScope.current = null;
+    };
+  }, [targetId, openModal]);
 
   const getIdentifierTypes = async () => {
     return api({
@@ -85,55 +125,87 @@ export const TargetSettingsModal = memo(({ openModal, onModalClose, isTargetOn =
       });
   };
 
-  const initData = useCallback(async () => {
-    let targetAliasOrder = [];
-    let targetName = '';
-    const target = isTargetOn ? activeTarget : selectedTarget;
-    if (isTargetOn) {
-      // in target scope
-      targetName = target_on_name;
-      targetAliasOrder = target_on_aliases;
-    } else {
-      // out of in target scope
-      targetName = target.display_name;
-      targetAliasOrder = target.alias_order;
-    }
-    const allTypes = ['compound_code'].concat((await getIdentifierTypes()).map(identifier => identifier.name));
-    let types = [];
-    if (targetAliasOrder) {
-      // use only existing types
-      targetAliasOrder.forEach(alias => {
-        if (allTypes.some(aliasToCheck => alias === aliasToCheck)) {
-          types.push(alias);
-        }
-      });
-      // add missing types
-      allTypes.forEach(alias => {
-        if (!types.some(aliasToCheck => alias === aliasToCheck)) {
-          types.push(alias);
-        }
-      });
-    } else {
-      types = allTypes;
-    }
-    setCurrentTarget(target);
-    setIdentifierTypes(types);
-    setDisplayName(targetName);
-    setShortName(target.short_name);
-    setLongName(target.long_name);
-    setAlias(target.project?.alias);
-    setOrganism(target.organism);
-    setExternalURL(target.external_url);
-    setExternalURLName(target.external_url_display_name);
-    setElectronDensityMapType(target.settings?.electron_density_map_type || DENSITY_MAP_TYPES.EVENT);
-    setElectronDensityRenderingMode(target.settings?.electron_density_rendering_mode || MAP_RENDERING_MODES.WIREFRAME);
-    // setElectronDensity(null);
-  }, [isTargetOn, target_on_name, target_on_aliases, activeTarget, selectedTarget]);
+  const initData = useCallback(
+    async isActive => {
+      let targetAliasOrder = [];
+      let targetName = '';
+      const target = isTargetOn ? activeTarget : selectedTarget;
+      if (!target) return;
+      if (isTargetOn) {
+        // in target scope
+        targetName = target_on_name;
+        targetAliasOrder = target_on_aliases;
+      } else {
+        // out of in target scope
+        targetName = target.display_name;
+        targetAliasOrder = target.alias_order;
+      }
+      const allTypes = ['compound_code'].concat((await getIdentifierTypes()).map(identifier => identifier.name));
+      if (!isActive()) return;
+      let types = [];
+      if (targetAliasOrder) {
+        // use only existing types
+        targetAliasOrder.forEach(alias => {
+          if (allTypes.some(aliasToCheck => alias === aliasToCheck)) {
+            types.push(alias);
+          }
+        });
+        // add missing types
+        allTypes.forEach(alias => {
+          if (!types.some(aliasToCheck => alias === aliasToCheck)) {
+            types.push(alias);
+          }
+        });
+      } else {
+        types = allTypes;
+      }
+      setCurrentTarget(target);
+      setIdentifierTypes(types);
+      setDisplayName(targetName);
+      setShortName(target.short_name);
+      setLongName(target.long_name);
+      setAlias(target.project?.alias);
+      setOrganism(target.organism);
+      setExternalURL(target.external_url);
+      setExternalURLName(target.external_url_display_name);
+      setElectronDensityMapType(target.settings?.electron_density_map_type || DENSITY_MAP_TYPES.EVENT);
+      setElectronDensityRenderingMode(
+        target.settings?.electron_density_rendering_mode || MAP_RENDERING_MODES.WIREFRAME
+      );
+      setCrystallographicBindingEvents(target.settings?.crystallographic_binding_events || 0);
+      setBoundCompounds(target.settings?.bound_compounds || 0);
+      setAssociatedAffinityMeasurements(target.settings?.associated_affinity_measurements || 0);
+      setMeasuredCompounds(target.settings?.measured_compounds || 0);
+      initialTargetValues.current = JSON.stringify([
+        targetName,
+        target.short_name,
+        target.long_name,
+        target.project?.alias,
+        target.organism,
+        target.external_url,
+        target.external_url_display_name,
+        types,
+        target.settings?.electron_density_map_type || DENSITY_MAP_TYPES.EVENT,
+        target.settings?.electron_density_rendering_mode || MAP_RENDERING_MODES.WIREFRAME,
+        target.settings?.crystallographic_binding_events || 0,
+        target.settings?.bound_compounds || 0,
+        target.settings?.associated_affinity_measurements || 0,
+        target.settings?.measured_compounds || 0
+      ]);
+      // setElectronDensity(null);
+    },
+    [isTargetOn, target_on_name, target_on_aliases, activeTarget, selectedTarget]
+  );
 
   useEffect(() => {
+    let active = true;
     if (openModal) {
-      initData();
+      setCurrentTarget(null);
+      initData(() => active);
     }
+    return () => {
+      active = false;
+    };
   }, [openModal, initData]);
 
   if (openModal === undefined) {
@@ -157,90 +229,118 @@ export const TargetSettingsModal = memo(({ openModal, onModalClose, isTargetOn =
   };
 
   const onSubmitForm = async () => {
-    const updatedSettings = {
-      ...(currentTarget?.settings || {}),
-      electron_density_map_type: electronDensityMapType,
-      electron_density_rendering_mode: electronDensityRenderingMode
-    };
-    const projectId = currentTarget?.project?.id || currentTarget?.project;
-    const projectAlias = alias?.length > 0 ? alias : null;
-    const updateProjectAlias = () => {
-      return (
-        projectId &&
-        api({
+    const scope = saveScope.current;
+    if (!openModal || !scope || scope.saving || currentTarget?.id !== targetId || blog.status !== 'ready') return;
+    scope.saving = true;
+    setSaving(true);
+    setSaveError('');
+    const isCurrent = () => saveScope.current === scope;
+    let blogSaved = false;
+    let resource = 'target settings';
+    try {
+      const blogChanged = blog.dirty;
+      const targetValuesUnchanged =
+        initialTargetValues.current ===
+        JSON.stringify([
+          displayName,
+          shortName,
+          longName,
+          alias,
+          organism,
+          externalURL,
+          externalURLName,
+          identifierTypes,
+          electronDensityMapType,
+          electronDensityRenderingMode,
+          crystallographicBindingEvents,
+          boundCompounds,
+          associatedAffinityMeasurements,
+          measuredCompounds
+        ]);
+      if (!(await blog.save()) || !isCurrent()) return;
+      blogSaved = blogChanged;
+      // A blog-only save must not replace the target list: doing so reloads the live Preview.
+      if (blogChanged && targetValuesUnchanged) {
+        dispatch(addToastMessage({ text: 'Blog updated successfully', level: TOAST_LEVELS.SUCCESS }));
+        setEditable(false);
+        onModalClose();
+        return;
+      }
+      const updatedSettings = {
+        ...(currentTarget.settings || {}),
+        electron_density_map_type: electronDensityMapType,
+        electron_density_rendering_mode: electronDensityRenderingMode,
+        crystallographic_binding_events: crystallographicBindingEvents,
+        bound_compounds: boundCompounds,
+        associated_affinity_measurements: associatedAffinityMeasurements,
+        measured_compounds: measuredCompounds
+      };
+      const targetData = {
+        display_name: displayName,
+        short_name: shortName,
+        long_name: longName,
+        organism,
+        external_url: externalURL,
+        external_url_display_name: externalURLName,
+        alias_order: identifierTypes,
+        settings: updatedSettings
+      };
+      await api({ url: `${base_url}/api/targets/${currentTarget.id}/`, method: METHOD.PATCH, data: targetData });
+      if (!isCurrent()) return;
+      let updatedTarget = { ...currentTarget, ...targetData };
+      const projectId = currentTarget.project?.id || currentTarget.project;
+      if (projectId) {
+        resource = 'project alias';
+        const projectAlias = alias?.length > 0 ? alias : null;
+        await api({
           url: `${base_url}/api/projects/${projectId}/`,
           method: METHOD.PATCH,
-          data: {
-            alias: projectAlias
-          }
-        })
-          .then(resp => {
-            if (typeof currentTarget.project === 'object') {
-              currentTarget.project = {
-                ...currentTarget.project,
-                alias: projectAlias
-              };
-              dispatch(replaceTarget(currentTarget));
-            }
-          })
-          .catch(err => {
-            dispatch(addToastMessage({ text: 'Error updated project alias', level: TOAST_LEVELS.ERROR }));
-          })
-      );
-    };
-
-    currentTarget &&
-      api({
-        url: `${base_url}/api/targets/${currentTarget.id}/`,
-        method: METHOD.PATCH,
-        data: {
-          display_name: displayName,
-          short_name: shortName,
-          long_name: longName,
-          organism: organism,
-          external_url: externalURL,
-          external_url_display_name: externalURLName,
-          alias_order: identifierTypes,
-          settings: updatedSettings
-        }
-      })
-        .then(resp => {
-          currentTarget.display_name = displayName;
-          currentTarget.short_name = shortName;
-          currentTarget.long_name = longName;
-          currentTarget.organism = organism;
-          currentTarget.external_url = externalURL;
-          currentTarget.external_url_display_name = externalURLName;
-          currentTarget.alias_order = identifierTypes;
-          currentTarget.settings = updatedSettings;
-
-          if (isTargetOn) {
-            // in target scope
-            dispatch(setTargetOnName(displayName));
-            dispatch(setTargetOnAliases(identifierTypes));
-          } else {
-            // out of target scope
-            dispatch(replaceTarget(currentTarget));
-          }
-          updateProjectAlias();
-          dispatch(addToastMessage({ text: `Target updated successfully`, level: TOAST_LEVELS.SUCCESS }));
-          setEditable(false);
-          onModalClose();
-        })
-        .catch(err => {
-          dispatch(addToastMessage({ text: 'Error updated target', level: TOAST_LEVELS.ERROR }));
+          data: { alias: projectAlias }
         });
+        if (!isCurrent()) return;
+        if (typeof currentTarget.project === 'object') {
+          updatedTarget = { ...updatedTarget, project: { ...currentTarget.project, alias: projectAlias } };
+        }
+      }
+      dispatch(replaceTarget(updatedTarget));
+      if (isTargetOn) {
+        dispatch(setTargetOnName(displayName));
+        dispatch(setTargetOnAliases(identifierTypes));
+      }
+      dispatch(addToastMessage({ text: 'Target updated successfully', level: TOAST_LEVELS.SUCCESS }));
+      setEditable(false);
+      onModalClose();
+    } catch (error) {
+      if (isCurrent()) {
+        const details = Object.values(blogApiErrors(error, 'Please try again.')).join(' ');
+        setSaveError(`${blogSaved ? 'Blog changes were saved. ' : ''}Unable to save ${resource}. ${details}`);
+      }
+    } finally {
+      if (isCurrent()) {
+        scope.saving = false;
+        setSaving(false);
+      }
+    }
+  };
+
+  const closeDialog = () => {
+    if (!saveScope.current?.saving) onModalClose();
   };
 
   return (
-    <Dialog open={openModal} onClose={onModalClose}>
+    <Dialog open={openModal} onClose={closeDialog}>
       <DialogTitle sx={{ m: 0, p: 2 }}>{editable ? 'Edit target settings' : 'Target settings'}</DialogTitle>
       <RichTooltip absolutePath path="fragalysis.components.targetSettings.close">
-        <IconButton color="inherit" className={classes.headerButton} onClick={onModalClose}>
+        <IconButton color="inherit" className={classes.headerButton} onClick={closeDialog} disabled={saving}>
           <Close />
         </IconButton>
       </RichTooltip>
       <DialogContent dividers>
+        {saveError && (
+          <Alert severity="error" sx={{ mb: 2 }}>
+            {saveError}
+          </Alert>
+        )}
         <Grid container justifyContent="flex-start" direction="column" className={classes.root} spacing={2}>
           <Grid item container direction="row" justifyContent="space-between" alignItems="center" spacing={2}>
             <Grid item xs>
@@ -275,7 +375,7 @@ export const TargetSettingsModal = memo(({ openModal, onModalClose, isTargetOn =
                   value={displayName ?? ''}
                   placeholder="enter display name"
                   onChange={e => setDisplayName(e.target.value)}
-                  disabled={!editable}
+                  disabled={!editable || saving}
                 />
               ) : (
                 <Typography variant="body1">{displayName}</Typography>
@@ -292,7 +392,7 @@ export const TargetSettingsModal = memo(({ openModal, onModalClose, isTargetOn =
                   value={shortName ?? ''}
                   placeholder="enter short name"
                   onChange={e => setShortName(e.target.value)}
-                  disabled={!editable}
+                  disabled={!editable || saving}
                 />
               ) : (
                 <Typography variant="body1">{shortName}</Typography>
@@ -309,7 +409,7 @@ export const TargetSettingsModal = memo(({ openModal, onModalClose, isTargetOn =
                   value={longName ?? ''}
                   placeholder="enter long name"
                   onChange={e => setLongName(e.target.value)}
-                  disabled={!editable}
+                  disabled={!editable || saving}
                 />
               ) : (
                 <Typography variant="body1">{longName}</Typography>
@@ -326,7 +426,7 @@ export const TargetSettingsModal = memo(({ openModal, onModalClose, isTargetOn =
                   value={alias ?? ''}
                   placeholder="enter alias"
                   onChange={e => setAlias(e.target.value)}
-                  disabled={!editable}
+                  disabled={!editable || saving}
                 />
               ) : (
                 <Typography variant="body1">{alias}</Typography>
@@ -343,7 +443,7 @@ export const TargetSettingsModal = memo(({ openModal, onModalClose, isTargetOn =
                   value={organism ?? ''}
                   placeholder="enter organism"
                   onChange={e => setOrganism(e.target.value)}
-                  disabled={!editable}
+                  disabled={!editable || saving}
                 />
               ) : (
                 <Typography variant="body1">{organism}</Typography>
@@ -360,7 +460,7 @@ export const TargetSettingsModal = memo(({ openModal, onModalClose, isTargetOn =
                   value={externalURL ?? ''}
                   placeholder="enter external URL"
                   onChange={e => setExternalURL(e.target.value)}
-                  disabled={!editable}
+                  disabled={!editable || saving}
                 />
               ) : (
                 <Typography variant="body1">{externalURL}</Typography>
@@ -377,7 +477,7 @@ export const TargetSettingsModal = memo(({ openModal, onModalClose, isTargetOn =
                   value={externalURLName ?? ''}
                   placeholder="enter external URL name"
                   onChange={e => setExternalURLName(e.target.value)}
-                  disabled={!editable}
+                  disabled={!editable || saving}
                 />
               ) : (
                 <Typography variant="body1">{externalURLName}</Typography>
@@ -407,7 +507,7 @@ export const TargetSettingsModal = memo(({ openModal, onModalClose, isTargetOn =
                         key={type}
                         item
                         className={classes.identifier}
-                        draggable="true"
+                        draggable={!saving}
                         onDragStart={() => (draggedIdentifier.current = index)}
                         onDragEnter={() => (draggedOverIdentifier.current = index)}
                         onDragEnd={handleSort}
@@ -450,19 +550,19 @@ export const TargetSettingsModal = memo(({ openModal, onModalClose, isTargetOn =
                       value={DENSITY_MAP_TYPES.EVENT}
                       control={<Radio />}
                       label="PanDDA Event maps - primary evidence"
-                      disabled={!editable}
+                      disabled={!editable || saving}
                     />
                     <FormControlLabel
                       value={DENSITY_MAP_TYPES._2FoFc}
                       control={<Radio />}
                       label='Conventional inspection maps ("2FoFc")'
-                      disabled={!editable}
+                      disabled={!editable || saving}
                     />
                     <FormControlLabel
                       value={DENSITY_MAP_TYPES.FoFC}
                       control={<Radio />}
                       label='Conventional residual maps ("FoFc")'
-                      disabled={!editable}
+                      disabled={!editable || saving}
                     />
                   </RadioGroup>
                 </Grid>
@@ -480,16 +580,92 @@ export const TargetSettingsModal = memo(({ openModal, onModalClose, isTargetOn =
                       value={MAP_RENDERING_MODES.WIREFRAME}
                       control={<Radio />}
                       label="Wireframe"
-                      disabled={!editable}
+                      disabled={!editable || saving}
                     />
                     <FormControlLabel
                       value={MAP_RENDERING_MODES.SURFACE}
                       control={<Radio />}
                       label="Surface"
-                      disabled={!editable}
+                      disabled={!editable || saving}
                     />
                   </RadioGroup>
                 </Grid>
+              </Grid>
+            </Grid>
+          </Grid>
+          <Divider />
+          <TargetBlogSettings blog={blog} editable={editable} disabled={saving} />
+          <Divider />
+          <Grid item container direction="row" justifyContent="space-between" alignItems="center" spacing={2}>
+            <Grid item xs>
+              <Typography variant="body1">Graph Data</Typography>
+            </Grid>
+            <Grid item container direction="row" justifyContent="space-between" alignItems="center" spacing={2}>
+              <Grid item xs>
+                <Typography variant="body1">Crystallographic Binding events</Typography>
+              </Grid>
+              <Grid item xs>
+                {editable ? (
+                  <TextField
+                    value={crystallographicBindingEvents ?? ''}
+                    placeholder="enter crystallographic binding events"
+                    onChange={e => setCrystallographicBindingEvents(e.target.value)}
+                    disabled={!editable || saving}
+                  />
+                ) : (
+                  <Typography variant="body1">{crystallographicBindingEvents}</Typography>
+                )}
+              </Grid>
+            </Grid>
+            <Grid item container direction="row" justifyContent="space-between" alignItems="center" spacing={2}>
+              <Grid item xs>
+                <Typography variant="body1">Bound Compounds</Typography>
+              </Grid>
+              <Grid item xs>
+                {editable ? (
+                  <TextField
+                    value={boundCompounds ?? ''}
+                    placeholder="enter bound compounds"
+                    onChange={e => setBoundCompounds(e.target.value)}
+                    disabled={!editable || saving}
+                  />
+                ) : (
+                  <Typography variant="body1">{boundCompounds}</Typography>
+                )}
+              </Grid>
+            </Grid>
+            <Grid item container direction="row" justifyContent="space-between" alignItems="center" spacing={2}>
+              <Grid item xs>
+                <Typography variant="body1">Associated Affinity Measurements</Typography>
+              </Grid>
+              <Grid item xs>
+                {editable ? (
+                  <TextField
+                    value={associatedAffinityMeasurements ?? ''}
+                    placeholder="enter associated affinity measurements"
+                    onChange={e => setAssociatedAffinityMeasurements(e.target.value)}
+                    disabled={!editable || saving}
+                  />
+                ) : (
+                  <Typography variant="body1">{associatedAffinityMeasurements}</Typography>
+                )}
+              </Grid>
+            </Grid>
+            <Grid item container direction="row" justifyContent="space-between" alignItems="center" spacing={2}>
+              <Grid item xs>
+                <Typography variant="body1">Measured Compounds</Typography>
+              </Grid>
+              <Grid item xs>
+                {editable ? (
+                  <TextField
+                    value={measuredCompounds ?? ''}
+                    placeholder="enter measured compounds"
+                    onChange={e => setMeasuredCompounds(e.target.value)}
+                    disabled={!editable || saving}
+                  />
+                ) : (
+                  <Typography variant="body1">{measuredCompounds}</Typography>
+                )}
               </Grid>
             </Grid>
           </Grid>
@@ -497,13 +673,25 @@ export const TargetSettingsModal = memo(({ openModal, onModalClose, isTargetOn =
       </DialogContent>
       <DialogActions>
         <RichTooltip path={editable ? 'cancel' : 'edit'}>
-          <Button autoFocus onClick={() => setEditable(!editable)}>
+          <Button
+            autoFocus
+            disabled={saving || !currentTarget}
+            onClick={() => {
+              if (editable) blog.reset();
+              setSaveError('');
+              setEditable(!editable);
+            }}
+          >
             {editable ? 'Cancel' : 'Edit'}
           </Button>
         </RichTooltip>
         <RichTooltip path="saveChanges">
-          <Button autoFocus onClick={onSubmitForm} disabled={!editable || !displayName}>
-            {'Save changes'}
+          <Button
+            autoFocus
+            onClick={onSubmitForm}
+            disabled={!editable || !displayName || saving || currentTarget?.id !== targetId || blog.status !== 'ready'}
+          >
+            {saving ? 'Saving…' : 'Save changes'}
           </Button>
         </RichTooltip>
       </DialogActions>

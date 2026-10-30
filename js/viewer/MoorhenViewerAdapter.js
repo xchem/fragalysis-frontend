@@ -18,10 +18,12 @@ import {
   removeMolecule,
   removeVector,
   setActiveMap,
+  setAmbient,
   setBackgroundColor,
   setClipEnd,
   setClipStart,
   setContourLevel,
+  setDiffuse,
   setFogEnd,
   setFogStart,
   setHeight,
@@ -34,6 +36,8 @@ import {
   setPositiveMapColours,
   setQuat,
   setResetClippingFogging,
+  setSpecular,
+  setSpecularPower,
   setWidth,
   setZoom,
   setZoomWheelSensitivityFactor,
@@ -185,7 +189,11 @@ export class MoorhenViewerAdapter extends ViewerAdapter {
     this.moleculeRendering = new WeakMap();
     this.installCameraAnimationGuard();
     this.runtime = { commandCentre, glRef, store, containerElement, viewerAdapter: this };
-    this.store.dispatch(setBackgroundColor([0, 0, 0, 1]));
+    this.setParameters({ backgroundColor: NGL_VIEW_DEFAULT_VALUES.backgroundColor });
+    this.store.dispatch(setDiffuse([1, 1, 1, 1]));
+    this.store.dispatch(setSpecular([0, 0, 0, 1]));
+    this.store.dispatch(setAmbient([0.2, 0.2, 0.2, 1]));
+    this.store.dispatch(setSpecularPower(1));
     this.store.dispatch(setZoomWheelSensitivityFactor(ZOOM_WHEEL_SENSITIVITY));
   }
 
@@ -323,13 +331,14 @@ export class MoorhenViewerAdapter extends ViewerAdapter {
     if (objectType === 'LIGAND') {
       const defaultRepresentations = [
         {
-          type: options.markAsRightSideLigand ? 'licorice' : 'ball+stick',
+          type: 'licorice',
           params: {
             color: target.colour,
             colorScheme: 'element',
             multipleBond: true,
-            radiusSize: options.markAsRightSideLigand ? 0.11 : 0.22,
-            radiusScale: options.markAsRightSideLigand ? undefined : 1.35,
+            radiusSize: options.markAsRightSideLigand ? 0.11 : 0.2,
+            // Moorhen's Smooth slider position (100) maps to native quality 3.
+            ...(options.markAsRightSideLigand ? {} : { atomRadiusBondRatio: 2, bondSmoothness: 3 }),
             visible: true
           }
         }
@@ -337,7 +346,7 @@ export class MoorhenViewerAdapter extends ViewerAdapter {
       const molecule = await this.loadMolecule(target.sdf_info, {
         name: options.object_name || target.name,
         fromString: true,
-        representation: options.markAsRightSideLigand ? 'licorice' : 'ball+stick',
+        representation: 'licorice',
         representations: options.representations || defaultRepresentations,
         color: target.colour,
         center: options.center === true,
@@ -1042,14 +1051,22 @@ export class MoorhenViewerAdapter extends ViewerAdapter {
 
     const width = Number(parameters.radiusSize ?? parameters.radius ?? parameters.bondRadius);
     const lineWidth = Number(parameters.linewidth);
+    const atomRadiusBondRatio = Number(parameters.atomRadiusBondRatio);
+    const smoothness = Number(parameters.bondSmoothness);
+    const bondOptions = { ...(nativeRepresentation.bondOptions || {}) };
+    if (Number.isFinite(width) || Number.isFinite(lineWidth)) {
+      bondOptions.width = Number.isFinite(width) ? width : Math.max(0.02, lineWidth * 0.05);
+    }
+    if (Number.isFinite(atomRadiusBondRatio)) bondOptions.atomRadiusBondRatio = atomRadiusBondRatio;
+    if (Number.isFinite(smoothness)) bondOptions.smoothness = smoothness;
     if (
-      (Number.isFinite(width) || Number.isFinite(lineWidth)) &&
+      (Number.isFinite(width) ||
+        Number.isFinite(lineWidth) ||
+        Number.isFinite(atomRadiusBondRatio) ||
+        Number.isFinite(smoothness)) &&
       typeof nativeRepresentation.setBondOptions === 'function'
     ) {
-      nativeRepresentation.setBondOptions({
-        ...(nativeRepresentation.bondOptions || {}),
-        width: Number.isFinite(width) ? width : Math.max(0.02, lineWidth * 0.05)
-      });
+      nativeRepresentation.setBondOptions(bondOptions);
     }
 
     if (typeof nativeRepresentation.setM2tParams === 'function') {
