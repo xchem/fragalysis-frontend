@@ -132,6 +132,7 @@ describe('embedded Moorhen viewport', () => {
       view = render(ui(false));
       await act(async () => {});
       expect(observers).toHaveLength(0);
+      expect(getComputedStyle(document.getElementById('major_view')).backgroundColor).toBe('rgb(255, 255, 255)');
       await act(async () => finishInitialization());
       expect(observers).toHaveLength(1);
       const observer = observers[0];
@@ -193,6 +194,7 @@ describe('embedded Moorhen viewport', () => {
         })
       );
       expect(adapter.setParameters).toHaveBeenLastCalledWith(expect.objectContaining(savedParameters));
+      expect(getComputedStyle(panel).backgroundColor).toBe('rgb(0, 0, 0)');
       expect(MoorhenViewerAdapter).toHaveBeenCalledTimes(1);
       expect(document.getElementById('major_view')).toBe(panel);
 

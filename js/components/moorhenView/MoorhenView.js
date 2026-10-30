@@ -25,6 +25,7 @@ import { installMoorhenWorkerBridge } from './moorhenWorkerBridge';
 import { useInitialViewerPresentation } from './useInitialViewerPresentation';
 import { useMoorhenInteractionPreferences } from './useMoorhenInteractionPreferences';
 import { NGL_VIEW_DEFAULT_VALUES } from '../nglView/constants';
+import { normaliseMoorhenColour } from '../../viewer/moorhenAdapterUtils';
 
 const MOORHEN_INITIALIZATION_TIMEOUT_MS = 300000;
 let moorhenStorePrepared = false;
@@ -89,6 +90,9 @@ const MoorhenMainView = memo(({ div_id, dispatchAppAction, onInitializationFailu
     getMoorhenInitializationState
   );
   const monomerLibraryPath = `${moorhenProofConfig.assetUrl}/baby-gru/monomers`;
+  const backgroundColor = normaliseMoorhenColour(
+    viewParams?.backgroundColor ?? NGL_VIEW_DEFAULT_VALUES.backgroundColor
+  ).hex;
 
   if (!initializationTelemetryRef.current) {
     initializationTelemetryRef.current = createViewerInitializationTelemetry({
@@ -279,7 +283,7 @@ const MoorhenMainView = memo(({ div_id, dispatchAppAction, onInitializationFailu
           height: '100%',
           minHeight: 1,
           overflow: 'hidden',
-          bgcolor: '#000',
+          bgcolor: backgroundColor,
           '& > .baby-gru': {
             width: '100%',
             maxWidth: 'none',
