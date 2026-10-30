@@ -33,6 +33,7 @@ export const BackgroundColorToggle = ({ showLabel = false }) => {
       control={control}
       label={isLight ? 'Light' : 'Dark'}
       labelPlacement="bottom"
+      slotProps={{ typography: { sx: { color: '#000000' } } }}
     />
   ) : (
     control
