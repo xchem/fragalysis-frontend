@@ -86,7 +86,7 @@ export const TargetDetails = ({ target, preview, classes, onDownload, loadBlog, 
       {renderChart && (
         <BarChart
           layout="horizontal"
-          height={210}
+          height={145}
           yAxis={[
             {
               scaleType: 'band',
@@ -122,11 +122,19 @@ export const TargetDetails = ({ target, preview, classes, onDownload, loadBlog, 
               color: '#ba68c8'
             }
           ]}
-          margin={{ top: 70, right: 30, bottom: 0, left: 20 }}
+          margin={{ top: 5, right: 30, bottom: 0, left: 20 }}
           slotProps={{
             legend: {
               direction: 'horizontal',
-              position: { vertical: 'top', horizontal: 'center' }
+              position: { vertical: 'bottom', horizontal: 'center' },
+              sx: {
+                width: 'calc(100% - 50px)',
+                borderTop: '1px solid #9e9e9e',
+                paddingTop: 1,
+                marginTop: 0,
+                marginBottom: 2,
+                justifyContent: 'center'
+              }
             }
           }}
           borderRadius={4}

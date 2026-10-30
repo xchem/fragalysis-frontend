@@ -16,6 +16,10 @@ jest.mock('moorhen', () => {
     showMolecule: action('showMolecule'),
     removeMolecule: action('removeMolecule'),
     setBackgroundColor: action('setBackgroundColor'),
+    setAmbient: action('setAmbient'),
+    setDiffuse: action('setDiffuse'),
+    setSpecular: action('setSpecular'),
+    setSpecularPower: action('setSpecularPower'),
     setZoomWheelSensitivityFactor: action('setZoomWheelSensitivityFactor')
   };
 });
@@ -116,7 +120,7 @@ describe('representation appearance before first presentation', () => {
       representations: [],
       store,
       defaultColourRules: [],
-      defaultBondOptions: { width: 0.1, smoothness: 2 },
+      defaultBondOptions: { width: 0.1, smoothness: 2, atomRadiusBondRatio: 1 },
       defaultM2tParams: { ballsStyleRadiusMultiplier: 1, surfaceStyleProbeRadius: 1.4 },
       defaultResidueEnvironmentOptions: {},
       gemmiAtomsForCid: jest.fn(() => {
@@ -309,7 +313,7 @@ describe('representation appearance before first presentation', () => {
   });
 
   it.each([
-    ['LHS ligand', { OBJECT_TYPE: 'LIGAND', sdf_info: 'sdf' }, {}, 'ligands', 0.22, 1.35, 1],
+    ['LHS ligand', { OBJECT_TYPE: 'LIGAND', sdf_info: 'sdf' }, {}, 'CBs', 0.2, 1, 1],
     ['RHS ligand', { OBJECT_TYPE: 'LIGAND', sdf_info: 'sdf' }, { markAsRightSideLigand: true }, 'CBs', 0.11, 1, 1],
     ['protein', { OBJECT_TYPE: 'PROTEIN', prot_url: 'ATOM\n' }, {}, 'CRs', 0.1, 1, 1],
     ['sidechains', { OBJECT_TYPE: 'HIT_PROTEIN', prot_url: 'ATOM\n' }, {}, 'CBs', 0.12, 1, 1],
@@ -317,6 +321,15 @@ describe('representation appearance before first presentation', () => {
     ['complex', { OBJECT_TYPE: 'COMPLEX', prot_url: 'ATOM\n', sdf_info: 'sdf' }, {}, 'allHBonds', 0.1, 1, 1],
     ['sphere', { OBJECT_TYPE: 'SPHERE', coords: [1, 2, 3], radius: 3.4 }, {}, 'VdwSpheres', 0.1, 2, 1],
     ['surface', { OBJECT_TYPE: 'SURFACE', prot_url: 'protein.pdb' }, {}, 'MolecularSurface', 0.1, 1, 0.74],
+    [
+      'saved LHS ligand',
+      { OBJECT_TYPE: 'LIGAND', sdf_info: 'sdf' },
+      { representations: [{ type: 'ball+stick', params: { radiusSize: 0.22, radiusScale: 1.35 } }] },
+      'ligands',
+      0.22,
+      1.35,
+      1
+    ],
     [
       'saved surface',
       { OBJECT_TYPE: 'SURFACE', prot_url: 'protein.pdb' },
@@ -357,6 +370,13 @@ describe('representation appearance before first presentation', () => {
       expect(acknowledged).toBe(false);
       expect(frames.every(frame => frame.length === 1 && frame[0] === existingBuffer.name)).toBe(true);
       expect(molecule.defaultColourRules).toStrictEqual([]);
+      if (label === 'LHS ligand' || label === 'RHS ligand') {
+        // Check the installed native Coot arguments, including its style-specific scaling.
+        const bondArgs = handle.nativeRepresentation.getBondArgs(style);
+        expect(bondArgs[2]).toBe(width);
+        expect(bondArgs[3]).toBe(label === 'LHS ligand' ? 2 : 1);
+        expect(bondArgs[7]).toBe(label === 'LHS ligand' ? 3 : 2);
+      }
       if (target.OBJECT_TYPE === 'COMPLEX') {
         expect(molecule.mergeMolecules).toHaveBeenCalledWith([ligand], false, false);
         expect(ligand.delete).toHaveBeenCalledTimes(1);

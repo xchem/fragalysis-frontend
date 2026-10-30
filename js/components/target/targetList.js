@@ -196,16 +196,20 @@ const useStyles = makeStyles(theme => ({
   },
   dropdownActions: {
     display: 'flex',
-    gap: theme.spacing(1),
-    marginTop: theme.spacing(2),
+    flexWrap: 'wrap',
+    justifyContent: 'center',
+    gap: theme.spacing(1.5),
+    marginTop: theme.spacing(3),
     alignItems: 'center'
   },
   dropdownButton: {
-    padding: theme.spacing(0.75, 2),
+    padding: theme.spacing(1.5, 3),
     flexShrink: 0,
     whiteSpace: 'nowrap',
     backgroundColor: '#3f51b5',
     color: '#ffffff',
+    fontSize: 20,
+    lineHeight: 1.5,
     fontWeight: 700,
     fontStyle: 'italic',
     textTransform: 'none',
