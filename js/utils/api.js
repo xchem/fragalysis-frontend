@@ -4,10 +4,16 @@ import { isRemoteDebugging } from '../components/routes/constants';
 const CancelToken = axios.CancelToken;
 let cacheBustSequence = 0;
 
-const withNoCacheHeaders = headers => {
+const withNoCacheHeaders = (headers, data) => {
   const result = { ...headers };
+  const isMultipart = typeof FormData !== 'undefined' && data instanceof FormData;
   Object.keys(result).forEach(name => {
-    if (['cache-control', 'pragma'].includes(name.toLowerCase())) delete result[name];
+    if (
+      ['cache-control', 'pragma'].includes(name.toLowerCase()) ||
+      (isMultipart && name.toLowerCase() === 'content-type')
+    ) {
+      delete result[name];
+    }
   });
   return { ...result, 'Cache-Control': 'no-cache, no-store, max-age=0', Pragma: 'no-cache' };
 };
@@ -55,7 +61,9 @@ export const api = ({ url, method, headers, data, cancel, params }) => {
             'content-type': 'application/json',
             'X-Requested-With': 'XMLHttpRequest',
             'X-CSRFToken': getCsrfToken()
-          }
+          },
+      // Preserve Axios 0.19's FormData pass-through and let the browser supply the boundary.
+      data
     ),
     data,
     cancelToken: new CancelToken(function executor(c) {
