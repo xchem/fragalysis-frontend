@@ -614,3 +614,45 @@ Validation:
   initialization, native molecular rendering, viewer rotation and ligand off/on toggles; viewer reports ready.
 - NOT RUN: authenticated image upload or snapshot writes, save/restore/same-project transitions, layout resizing and
   RHS transfer/memory acceptance. The browser session is anonymous; the upload transport is covered by integration tests.
+
+## Dependency security follow-up from checkpoint 195c7bdf (2026-11-04)
+
+- Cypress 15.11.0 -> 15.21.1 removes extract-zip and uses yauzl directly. Its installed binary was downloaded and
+  verified through the repository's explicit install command; automatic install scripts remain disabled.
+- Jest's glob 10.5.0 descriptors resolve to 14.0.3, fixing the cancellation advisory. Older callback-based glob 7/8
+  dependencies retain their APIs; those versions are outside that particular glob advisory's affected range.
+- All minimatch descriptors resolve to 11.0.4, including the old versions used by lint, coverage, file-list and Moorhen
+  build tooling. This uses the upstream nonrecursive matcher and fixed pattern optimization implementation.
+- Six checked-in Yarn patches in `.yarn/patches` are required with package.json and yarn.lock:
+  - minimatch 11: expose the callable CommonJS entry point alongside the modern named exports.
+  - glob 7 and glob 8: read the new matcher's pattern field and use its test method for both synchronous and callback
+    traversal. Existing ignore, dotfile and callback behavior is covered with real temporary filesystem fixtures.
+  - eslint-plugin-import: use Minimatch.match in no-internal-modules instead of the removed regex-building API.
+  - test-exclude: enable windowsPathsNoEscape for its Windows containment check. Without this compatibility option,
+    native backslashes in its absolute glob pattern excluded project sources from coverage under minimatch 11.
+  - deepmerge 4.3.1: define copied keys as own data properties in both merge branches, preventing __proto__ setters
+    from poisoning returned objects. Patch the source and published CommonJS/UMD bundles. Formik's deepmerge 2.2.1
+    remains unchanged, as do Fragalysis's custom snapshot merge helpers.
+- Regression discrimination: installed unpatched deepmerge failed the new target-key and null-prototype-source tests.
+  The minimatch upgrade initially exposed legacy glob matcher internals and the import rule's removed makeRe API;
+  compatibility patches address those failures rather than replacing the matcher with an older implementation.
+- Audit: 5 -> 1 security advisory entries. The remaining low-severity deepmerge advisory is still reported against
+  version 4.3.1: registry auditing does not account for the local source patch. The exploit regression is fixed in the
+  installed package; no version was falsified and no advisory/deprecation notice was suppressed. Retire this patch when
+  an upstream release fixes [GHSA-gcqx-w48m-w2h4](https://github.com/advisories/GHSA-gcqx-w48m-w2h4).
+- PASS: immutable installation, focused compatibility tests and targeted ESLint; production build and backend stats
+  validation with the two existing bundle-size warnings; Moorhen integrity, 275 files / 114450225 bytes.
+- PASS: final full Jest suite, 71 suites / 538 tests, 169.181 seconds, after all compatibility patches were installed.
+- PASS: 19 focused compatibility tests, including CommonJS and UMD deepmerge poisoning cases, legacy/modern glob
+  traversal, ESLint override/import rules, and synchronous/asynchronous coverage discovery. An additional installed
+  ESLint allow-list probe passes. Glob cancellation rejects after the first directory read and performs no further
+  traversal in a controlled filesystem probe. API coverage collection passes with nonzero executed source statements;
+  use `--no-cache` when retesting instrumentation after patching Babel's coverage dependencies.
+- PASS (live Chrome, local Django/development bundle, A71EV2A / lb18145-1): landing data, native molecular rendering,
+  viewer readiness, rotation and ligand off/on toggles after the upgrades.
+- PARTIAL: Cypress 15.21.1 local smoke on headless Edge passes landing/Management navigation. The viewer case fails
+  because Cypress's application frame lacks the required cross-origin isolation; its failure screenshot shows the
+  explicit Moorhen COOP/COEP error. Ordinary Chrome renders the same target. The original Chrome smoke command cannot
+  detect the locally available Chrome installation; Edge was selected explicitly for the fallback run. No browser
+  security settings or application isolation checks were relaxed.
+- NOT RUN: authenticated Cypress scenarios, snapshot writes/restores, layout resizing and RHS transfer/memory acceptance.

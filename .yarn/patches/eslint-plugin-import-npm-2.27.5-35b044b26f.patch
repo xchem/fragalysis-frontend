@@ -1,0 +1,30 @@
+diff --git a/lib/rules/no-internal-modules.js b/lib/rules/no-internal-modules.js
+index c5ba717733ea28ceac64f6a6b4c530f1665745a0..6218cd8659db41b8d6f6c4e7aecdd341df3a03d1 100644
+--- a/lib/rules/no-internal-modules.js
++++ b/lib/rules/no-internal-modules.js
+@@ -48,8 +48,8 @@ module.exports = {
+ 
+   create: function () {function noReachingInside(context) {
+       var options = context.options[0] || {};
+-      var allowRegexps = (options.allow || []).map(function (p) {return _minimatch2['default'].makeRe(p);});
+-      var forbidRegexps = (options.forbid || []).map(function (p) {return _minimatch2['default'].makeRe(p);});
++      var allowRegexps = (options.allow || []).map(function (p) {return new _minimatch2['default'].Minimatch(p);});
++      var forbidRegexps = (options.forbid || []).map(function (p) {return new _minimatch2['default'].Minimatch(p);});
+ 
+       // minimatch patterns are expected to use / path separators, like import
+       // statements, so normalize paths to use the same
+@@ -73,12 +73,12 @@ module.exports = {
+ 
+       // test if reaching to this destination is allowed
+       function reachingAllowed(importPath) {
+-        return allowRegexps.some(function (re) {return re.test(importPath);});
++        return allowRegexps.some(function (re) {return re.match(importPath);});
+       }
+ 
+       // test if reaching to this destination is forbidden
+       function reachingForbidden(importPath) {
+-        return forbidRegexps.some(function (re) {return re.test(importPath);});
++        return forbidRegexps.some(function (re) {return re.match(importPath);});
+       }
+ 
+       function isAllowViolation(importPath) {
