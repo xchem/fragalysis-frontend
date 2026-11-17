@@ -133,6 +133,20 @@ const useStyles = makeStyles(theme => ({
   }
 }));
 
+const TagModeSwitch = withStyles({
+  switchBase: {
+    color: blue[300],
+    '&$checked': {
+      color: blue[500]
+    },
+    '&$checked + $track': {
+      backgroundColor: blue[500]
+    }
+  },
+  checked: {},
+  track: {}
+})(Switch);
+
 const TagDetails = memo(
   ({
     expandHandler = null,
@@ -307,24 +321,6 @@ const TagDetails = memo(
     const viewModeSwitched = () => {
       onTagDetailViewChange(!tagDetailView);
     };
-
-    const TagModeSwitch = withStyles({
-      // '& .MuiFormControlLabel-root': {
-      //   marginLeft: '0px',
-      //   marginRight: '0px'
-      // },
-      switchBase: {
-        color: blue[300],
-        '&$checked': {
-          color: blue[500]
-        },
-        '&$checked + $track': {
-          backgroundColor: blue[500]
-        }
-      },
-      checked: {},
-      track: {}
-    })(Switch);
 
     const handleAllMoleculesButton = () => {
       onDisplayUntaggedMoleculesChange(false);
