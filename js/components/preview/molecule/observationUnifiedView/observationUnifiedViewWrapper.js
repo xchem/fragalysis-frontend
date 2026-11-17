@@ -15,6 +15,7 @@ import RichTooltip from '../../../tooltip/RichTooltip';
 import { TooltipPathProvider } from '../../../tooltip/TooltipPathContext';
 import { LHS_OBSERVATION_VIEW_CONFIG } from './viewConfigs';
 import { COLUMN_TYPES } from './table';
+import { hasObservationMembership } from '../../../../reducers/selection/selectionMembership';
 import { getAdjacentPoses } from '../poseTransfer';
 
 const useStyles = makeStyles(theme => ({
@@ -167,15 +168,6 @@ const ObservationUnifiedViewWrapper = memo(
       // setup jsme before to prevent window jumping when molecule filter opens first time
       jsmeSetup();
 
-      const containsAtLeastOne = (list, molsList) => {
-        for (const mol of molsList || []) {
-          if (list?.includes(mol.id)) {
-            return true;
-          }
-        }
-
-        return false;
-      };
       const preferredDetailWidth = useMemo(() => {
         const maxTextWidth = (items || []).reduce((maxWidth, item) => {
           const mainObservation = getMainObservation(item);
@@ -310,9 +302,7 @@ const ObservationUnifiedViewWrapper = memo(
             {filteredItems?.map((data, index) => {
               const molsForCmp = data.associatedObs;
               const { previousPose, nextPose } = getAdjacentPoses(orderedNavigationItems, data.id);
-              const selected = allSelectedMolecules?.some(molecule =>
-                data.associatedObs.some(obs => obs.id === molecule.id)
-              );
+              const selected = hasObservationMembership(allSelectedMolecules, data.associatedObs, true);
 
               return (
                 <ObservationUnifiedView
@@ -323,14 +313,14 @@ const ObservationUnifiedViewWrapper = memo(
                   data={data}
                   index={index}
                   setRef={handleSetTagEditorAnchorEl}
-                  L={containsAtLeastOne(fragmentDisplayList, molsForCmp)}
-                  P={containsAtLeastOne(proteinList, molsForCmp)}
-                  C={containsAtLeastOne(complexList, molsForCmp)}
-                  S={containsAtLeastOne(surfaceList, molsForCmp)}
-                  D={containsAtLeastOne(densityList, molsForCmp)}
-                  Q={containsAtLeastOne(qualityList, molsForCmp)}
-                  V={containsAtLeastOne(vectorOnList, molsForCmp)}
-                  I={containsAtLeastOne(informationList, molsForCmp)}
+                  L={hasObservationMembership(fragmentDisplayList, molsForCmp)}
+                  P={hasObservationMembership(proteinList, molsForCmp)}
+                  C={hasObservationMembership(complexList, molsForCmp)}
+                  S={hasObservationMembership(surfaceList, molsForCmp)}
+                  D={hasObservationMembership(densityList, molsForCmp)}
+                  Q={hasObservationMembership(qualityList, molsForCmp)}
+                  V={hasObservationMembership(vectorOnList, molsForCmp)}
+                  I={hasObservationMembership(informationList, molsForCmp)}
                   selected={selected}
                   disableL={false}
                   disableP={false}
@@ -351,7 +341,7 @@ const ObservationUnifiedViewWrapper = memo(
                   poseTransferConfig={poseTransferConfig}
                   poseTransferInProgress={poseTransferInProgress}
                   poseTransferResetKey={poseTransferResetKey}
-                  onPoseTransfer={onPoseTransfer}
+                  onPoseTransfer={poseTransferConfig ? onPoseTransfer : undefined}
                 />
               );
             })}

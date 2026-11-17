@@ -1,6 +1,7 @@
 const path = require('path');
 const webpack = require('webpack');
 const express = require('express');
+const { rateLimit } = require('express-rate-limit');
 const config = require('./webpack.config-dev');
 const { MOORHEN_ASSET_DIR, MOORHEN_ASSET_URL } = require('./scripts/moorhen-assets');
 const { setCrossOriginIsolationHeaders, setMoorhenAssetHeaders } = require('./serverHeaders');
@@ -61,7 +62,14 @@ app.get(MOORHEN_PROOF_PATHS, function(req, res, next) {
   }
 });
 
-app.get('*', function(req, res) {
+const pageRequestLimiter = rateLimit({
+  windowMs: 60 * 1000,
+  limit: 60,
+  standardHeaders: 'draft-8',
+  legacyHeaders: false
+});
+
+app.get('*', pageRequestLimiter, function(req, res) {
   res.sendFile(path.join(__dirname, 'index.html'));
 });
 

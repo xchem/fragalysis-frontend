@@ -1,6 +1,7 @@
 import { COLUMNS, RHS_COLUMNS } from './table';
 import { filterCompoundsByStructure } from './api';
 import { getAllDisplayedObservationIds } from '../redux/selectors';
+import { hasIdMembership } from '../../../../reducers/selection/selectionMembership';
 
 const cloneColumns = columns => columns.map(column => ({ ...column }));
 
@@ -38,7 +39,7 @@ const getCompoundAliases = item => {
 };
 
 const matchesDisplayedObservations = (item, displayedObservationIds = []) =>
-  getObservationIds(item).some(observationId => displayedObservationIds.includes(observationId));
+  hasIdMembership(displayedObservationIds, getObservationIds(item));
 
 const matchesMoleculeFilter = (item, filterSettings = {}) => {
   const filteredCompounds = filterSettings.filteredCompounds;

@@ -245,10 +245,10 @@ export const TargetList = memo(({ list = [], title = 'Target list', authRequired
   const [targetList, setTargetList] = useState([]);
   const [expandedTargets, setExpandedTargets] = useState({});
   const detailTargets = initList.filter(target => !target.isLegacy);
-  const hasExpandedTargets = detailTargets.some(target => expandedTargets[getTargetKey(target)] !== false);
+  const hasExpandedTargets = detailTargets.some(target => expandedTargets[getTargetKey(target)] === true);
   const toggleAllTargetDetails = () => {
     setExpandedTargets(current => {
-      const expand = !detailTargets.some(target => current[getTargetKey(target)] !== false);
+      const expand = !detailTargets.some(target => current[getTargetKey(target)] === true);
       const updated = { ...current };
       detailTargets.forEach(target => {
         updated[getTargetKey(target)] = expand;
@@ -676,7 +676,7 @@ export const TargetList = memo(({ list = [], title = 'Target list', authRequired
       }
       const targetTitleId = title.replace(/\s+/g, '-').toLowerCase();
       const targetKey = getTargetKey(target);
-      const isExpanded = expandedTargets[targetKey] !== false;
+      const isExpanded = expandedTargets[targetKey] === true;
 
       return (
         <React.Fragment key={targetKey}>
@@ -760,7 +760,7 @@ export const TargetList = memo(({ list = [], title = 'Target list', authRequired
                   className={classes.expandButton}
                   aria-label={`${isExpanded ? 'Collapse' : 'Expand'} ${target.display_name}`}
                   aria-expanded={isExpanded}
-                  onClick={() => setExpandedTargets(current => ({ ...current, [targetKey]: current[targetKey] === false }))}
+                  onClick={() => setExpandedTargets(current => ({ ...current, [targetKey]: current[targetKey] !== true }))}
                 >
                   {isExpanded ? <KeyboardArrowUp /> : <KeyboardArrowDown />}
                 </IconButton>
@@ -965,6 +965,30 @@ export const TargetList = memo(({ list = [], title = 'Target list', authRequired
   // END RESIZER FOR SGC COLUMN
 
   const needsAuthentication = authRequired && DJANGO_CONTEXT['authenticated'] === false;
+
+  useEffect(() => {
+    if (needsAuthentication) return;
+    let active = true;
+    targetList.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).forEach(target => {
+      if (target.isLegacy) return;
+      const targetKey = getTargetKey(target);
+      loadBlog(target.id)
+        .then(blog => {
+          if (!active) return;
+          setExpandedTargets(current => {
+            // Apply the default once, preserving individual and bulk choices made while loading.
+            if (current[targetKey] !== undefined) return current;
+            return { ...current, [targetKey]: Boolean(blog?.title?.trim() && blog?.overview?.trim()) };
+          });
+        })
+        .catch(() => {
+          // Keep failed reads collapsed; opening the details still offers the existing retry flow.
+        });
+    });
+    return () => {
+      active = false;
+    };
+  }, [targetList, page, rowsPerPage, needsAuthentication, loadBlog]);
 
   const itemsToRender = useCallback(() => {
     // const combinations = getTargetProjectCombinations(targetList, projectsList);

@@ -11,8 +11,8 @@ const exports = {};
 runInNewContext(
   ts.transpileModule(source, {
     compilerOptions: { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2019 }
-  }).outputText,
-  { exports, console }
+  }).outputText + '\nexports.generateUUID = _Math.generateUUID;',
+  { exports, console, crypto: crypto.webcrypto }
 );
 const { detectContacts } = exports;
 const canonical = data =>
@@ -27,6 +27,34 @@ const canonical = data =>
   ).sort((a, b) => JSON.stringify(a).localeCompare(JSON.stringify(b)));
 
 describe('contact detector compatibility with NGL 2.0.0-dev.37', () => {
+  it.each([
+    [0, '00000000-0000-4000-8000-000000000000'],
+    [0xffffffff, 'FFFFFFFF-FFFF-4FFF-BFFF-FFFFFFFFFFFF']
+  ])('uses Web Crypto entropy while retaining the uppercase UUID v4 format (%i)', (word, uuid) => {
+    expect.hasAssertions();
+    const entropy = jest.spyOn(crypto.webcrypto, 'getRandomValues').mockImplementation(values => values.fill(word));
+    try {
+      expect(exports.generateUUID()).toBe(uuid);
+      expect(entropy).toHaveBeenCalledTimes(1);
+      expect(entropy.mock.calls[0][0].constructor.name).toBe('Uint32Array');
+      expect(entropy.mock.calls[0][0]).toHaveLength(4);
+    } finally {
+      entropy.mockRestore();
+    }
+  });
+
+  it('does not fall back to weak UUID entropy if Web Crypto fails', () => {
+    expect.hasAssertions();
+    const entropy = jest.spyOn(crypto.webcrypto, 'getRandomValues').mockImplementation(() => {
+      throw new Error('Entropy unavailable');
+    });
+    try {
+      expect(() => exports.generateUUID()).toThrow('Entropy unavailable');
+    } finally {
+      entropy.mockRestore();
+    }
+  });
+
   it.each(reference.cases)('matches independently generated NGL contacts: $name', async fixture => {
     expect.hasAssertions();
     const pdb = fs.readFileSync(path.resolve(__dirname, '../../..', fixture.file), 'utf8');

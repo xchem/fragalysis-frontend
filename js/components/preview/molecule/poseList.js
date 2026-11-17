@@ -35,6 +35,7 @@ import { TooltipPathProvider } from '../../tooltip/TooltipPathContext';
 import { usePoseTransferNavigation } from './usePoseTransferNavigation';
 import { PoseTransferButtons } from './poseTransferButtons';
 import PoseNavigationConfigPopover from './poseNavigationConfigPopover';
+import { comparePoseText, createPoseMembershipSelector, prependSelectedObservations } from './poseListPerformance';
 
 const useStyles = makeStyles(theme => ({
   container: {
@@ -387,63 +388,7 @@ export const PoseList = memo(
       'CONFORMERSITE_NUMBER',
       'OBSERVATION_COUNT'
     ];
-    const sortOptions = {
-      POSE_NAME: {
-        title: 'Pose name',
-        handler: (a, b, asc) => compareByPoseName(a, b, asc)
-      },
-      COMPOUND_CODE: {
-        title: 'Compound code',
-        handler: (a, b, asc) => compareByCompoundCode(a, b, asc)
-      },
-      CANONSITE_NUMBER: {
-        title: 'CanonSite number',
-        handler: (a, b, asc) => compareByCanonSiteNumber(a, b, asc)
-      },
-      CONFORMERSITE_NUMBER: {
-        title: 'ConformerSite number',
-        handler: (a, b, asc) => compareByConformerSiteNumber(a, b, asc)
-      },
-      OBSERVATION_COUNT: {
-        title: 'Observation count',
-        handler: (a, b, asc) => compareByObservationCount(a, b, asc)
-      }
-    };
     const [sortOption, setSortOption] = useState(SORT_OPTIONS[0]);
-
-    const compareByPoseName = (a, b, asc) => {
-      const aName = a.code;
-      const bName = b.code;
-      return asc
-        ? aName?.localeCompare(bName, undefined, { numeric: true, sensitivity: 'base' })
-        : bName?.localeCompare(aName, undefined, { numeric: true, sensitivity: 'base' });
-    };
-    const compareByCompoundCode = (a, b, asc) => {
-      const aName = a.main_site_observation_cmpd_code;
-      const bName = b.main_site_observation_cmpd_code;
-      return asc
-        ? aName?.localeCompare(bName, undefined, { numeric: true, sensitivity: 'base' })
-        : bName?.localeCompare(aName, undefined, { numeric: true, sensitivity: 'base' });
-    };
-    const compareByCanonSiteNumber = (a, b, asc) => {
-      const aName = getCanonSiteTagPrefix(a);
-      const bName = getCanonSiteTagPrefix(b);
-      return asc
-        ? aName?.localeCompare(bName, undefined, { numeric: true, sensitivity: 'base' })
-        : bName?.localeCompare(aName, undefined, { numeric: true, sensitivity: 'base' });
-    };
-    const compareByConformerSiteNumber = (a, b, asc) => {
-      const aName = getConformerSiteTagPrefix(a);
-      const bName = getConformerSiteTagPrefix(b);
-      return asc
-        ? aName?.localeCompare(bName, undefined, { numeric: true, sensitivity: 'base' })
-        : bName?.localeCompare(aName, undefined, { numeric: true, sensitivity: 'base' });
-    };
-    const compareByObservationCount = (a, b, asc) => {
-      const aCount = a.site_observations.length;
-      const bCount = b.site_observations.length;
-      return asc ? aCount - bCount : bCount - aCount;
-    };
 
     useEffect(() => {
       if (dataAreDownloaded && !errorOccuredDuringDownload && allMolListsLength <= 0) {
@@ -476,6 +421,32 @@ export const PoseList = memo(
         return conformerSite !== undefined ? conformerSite.tag_prefix : '';
       },
       [categories, tags]
+    );
+
+    const sortOptions = useMemo(
+      () => ({
+        POSE_NAME: { title: 'Pose name', handler: (a, b, asc) => comparePoseText(a.code, b.code, asc) },
+        COMPOUND_CODE: {
+          title: 'Compound code',
+          handler: (a, b, asc) => comparePoseText(a.main_site_observation_cmpd_code, b.main_site_observation_cmpd_code, asc)
+        },
+        CANONSITE_NUMBER: {
+          title: 'CanonSite number',
+          handler: (a, b, asc) => comparePoseText(getCanonSiteTagPrefix(a), getCanonSiteTagPrefix(b), asc)
+        },
+        CONFORMERSITE_NUMBER: {
+          title: 'ConformerSite number',
+          handler: (a, b, asc) => comparePoseText(getConformerSiteTagPrefix(a), getConformerSiteTagPrefix(b), asc)
+        },
+        OBSERVATION_COUNT: {
+          title: 'Observation count',
+          handler: (a, b, asc) =>
+            asc
+              ? a.site_observations.length - b.site_observations.length
+              : b.site_observations.length - a.site_observations.length
+        }
+      }),
+      [getCanonSiteTagPrefix, getConformerSiteTagPrefix]
     );
 
     const isActiveFilter = !!(filter || {}).active;
@@ -601,23 +572,7 @@ export const PoseList = memo(
     }, [searchString]);
 
     const addSelectedMoleculesFromUnselectedSites = useCallback(
-      (joinedMoleculeLists, list) => {
-        const addedMols = [...joinedMoleculeLists];
-        const onlyAlreadySelected = [];
-        list?.forEach(moleculeID => {
-          const foundJoinedMolecule = addedMols.find(mol => mol.id === moleculeID);
-          if (!foundJoinedMolecule) {
-            const molecule = allMoleculesList.find(mol => mol.id === moleculeID);
-            if (molecule) {
-              addedMols.push(molecule);
-              onlyAlreadySelected.push(molecule);
-            }
-          }
-        });
-
-        const result = [...onlyAlreadySelected, ...joinedMoleculeLists];
-        return result;
-      },
+      (joined, list) => prependSelectedObservations(joined, list, allMoleculesList),
       [allMoleculesList]
     );
 
@@ -676,23 +631,16 @@ export const PoseList = memo(
       moleculesToEditIds
     ]);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    joinedMoleculeLists = useMemo(() => {
-      const addedMols = [...joinedMoleculeLists];
-      const onlyAlreadySelected = [];
-      densityList?.forEach(d => {
-        const foundJoinedMolecule = addedMols.find(mol => mol.id === d.id);
-        if (!foundJoinedMolecule) {
-          const molecule = allMoleculesList.find(mol => mol.id === d.id);
-          if (molecule) {
-            addedMols.push(molecule);
-            onlyAlreadySelected.push(molecule);
-          }
-        }
-      });
+    joinedMoleculeLists = useMemo(
+      () =>
+        prependSelectedObservations(
+          joinedMoleculeLists,
+          densityList?.map(item => item.id),
+          allMoleculesList
+        ),
+      [joinedMoleculeLists, densityList, allMoleculesList]
+    );
 
-      const result = [...onlyAlreadySelected, ...joinedMoleculeLists];
-      return result;
-    }, [joinedMoleculeLists, densityList, allMoleculesList]);
     // eslint-disable-next-line react-hooks/exhaustive-deps
     joinedMoleculeLists = useMemo(() => addSelectedMoleculesFromUnselectedSites(joinedMoleculeLists, vectorOnList), [
       addSelectedMoleculesFromUnselectedSites,
@@ -926,13 +874,10 @@ export const PoseList = memo(
     });
     const uniqueSelectedMoleculeForHitNavigator = [...new Set(selectedMolecule)];
 
-    const joinedGivenMatch = useCallback(
-      givenList => {
-        return givenList.filter(element => lpcControlMolecules.filter(element2 => element2.id === element).length > 0)
-          .length;
-      },
-      [lpcControlMolecules]
-    );
+    const lpcControlIds = useMemo(() => new Set(lpcControlMolecules.map(molecule => molecule.id)), [lpcControlMolecules]);
+    const joinedGivenMatch = useCallback(givenList => givenList.filter(id => lpcControlIds.has(id)).length, [
+      lpcControlIds
+    ]);
 
     const joinedLigandMatchLength = useMemo(() => joinedGivenMatch(fragmentDisplayList), [
       fragmentDisplayList,
@@ -953,17 +898,12 @@ export const PoseList = memo(
       return null;
     };
 
-    let filteredLHSCompoundsList = useMemo(() => {
-      const compounds = [];
-      lhsCompoundsList.forEach(compound => {
-        const molsForCmp = joinedMoleculeLists.some(molecule => molecule.cmpd === compound.compound);
-        if (molsForCmp && compound.associatedObs.some(obs => joinedMoleculeLists.some(mol => mol.id === obs.id))) {
-          compounds.push(compound);
-        }
-      });
-      compounds.sort((a, b) => sortOptions[sortOption].handler(a, b, ascending));
-      return compounds;
-    }, [joinedMoleculeLists, lhsCompoundsList, sortOptions, sortOption, ascending]);
+    const selectPoseMembership = useMemo(createPoseMembershipSelector, []);
+    const matchingPoses = selectPoseMembership(lhsCompoundsList, joinedMoleculeLists);
+    let filteredLHSCompoundsList = useMemo(
+      () => [...matchingPoses].sort((a, b) => sortOptions[sortOption].handler(a, b, ascending)),
+      [matchingPoses, sortOptions, sortOption, ascending]
+    );
 
     const { addMoleculeViewRef, registeredMoleculeViewCount, setScrollToMoleculeId, getNode } = useScrollToSelectedPose({
       poses: filteredLHSCompoundsList,

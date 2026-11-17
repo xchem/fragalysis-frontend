@@ -59,6 +59,8 @@ node scripts/vendor-contact-detector.cjs <ngl-source-root> <three-package-root> 
 
 The generator rejects rendering module imports and records SHA-256 hashes of every input and the output in
 `provenance.json`. Class-field compilation deliberately uses assignment semantics to preserve upstream Store prototypes.
+The generator replaces Three.js's UUID entropy with Web Crypto `getRandomValues`, retaining its uppercase UUID v4
+format. Provenance input hashes describe the original sources; the output hash includes this security patch.
 Application builds use the checked-in source and do not download or regenerate it.
 
 ## Verification

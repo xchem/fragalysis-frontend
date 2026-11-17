@@ -1,5 +1,6 @@
 import { createSelector } from 'reselect';
 import { getAllMoleculeList } from '../api/selectors';
+import { hasIdMembership } from './selectionMembership';
 
 const getCurrentCompoundClass = state => state.previewReducers.compounds.currentCompoundClass;
 const getVectorList = state => state.selectionReducers.vector_list;
@@ -111,20 +112,10 @@ export const isAnyObservationTurnedOnForCmp = createSelector(
   densityList,
   vectorOnList,
   (observations, ligands, proteins, complexis, surfaces, densities, vectors) => {
-    const allLists = new Set(ligands);
-    proteins.forEach(p => allLists.add(p));
-    complexis.forEach(p => allLists.add(p));
-    surfaces.forEach(p => allLists.add(p));
-    densities.forEach(p => allLists.add(p.id));
-    vectors.forEach(p => allLists.add(p));
-    let hasInspiration = false;
-    observations.forEach(moleculeID => {
-      if (allLists.has(moleculeID)) {
-        hasInspiration = true;
-        return hasInspiration;
-      }
-    });
-    return hasInspiration;
+    return (
+      [ligands, proteins, complexis, surfaces, vectors].some(list => hasIdMembership(list, observations)) ||
+      hasIdMembership(densities, observations, true)
+    );
   }
 );
 

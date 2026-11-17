@@ -83,9 +83,18 @@ async function generate() {
       return { source: source.replace(/\\/g, '/'), sha256: hash(fs.readFileSync(file)) };
     });
   fs.mkdirSync(output, { recursive: true });
+  // Keep the upstream UUID format, but replace its weak entropy in the shipped bundle.
+  const uuidRandomness = /var d0 = Math\.random\(\) \* 4294967295 \| 0;\s+var d1 = Math\.random\(\) \* 4294967295 \| 0;\s+var d2 = Math\.random\(\) \* 4294967295 \| 0;\s+var d3 = Math\.random\(\) \* 4294967295 \| 0;/;
+  const secureSource = result.outputFiles[0].text.replace(
+    uuidRandomness,
+    'var [d0, d1, d2, d3] = crypto.getRandomValues(new Uint32Array(4));'
+  );
+  if (secureSource === result.outputFiles[0].text) {
+    throw new Error('Could not apply the contact detector UUID security patch');
+  }
   const code =
     '/* Vendored computation-only NGL 2.0.0-dev.37 contact detector. See README.md and LICENSE. */\n' +
-    result.outputFiles[0].text
+    secureSource
       .replaceAll(
         path.relative(referenceRoot, path.join(signalsRoot, 'dist/signals.js')).replace(/\\/g, '/'),
         'signals/dist/signals.js'
@@ -99,6 +108,7 @@ async function generate() {
         version: '2.0.0-dev.37',
         commit: 'fc81766d4376275ff703f6d8a840dc4990b173dc',
         esbuild: esbuild.version,
+        modifications: ['UUID entropy uses Web Crypto getRandomValues instead of Math.random'],
         sha256: hash(code),
         inputs
       },

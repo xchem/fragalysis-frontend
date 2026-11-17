@@ -6,6 +6,7 @@ import React, { memo, useCallback, useContext, useEffect, useMemo, useRef, useSt
 import { useTheme } from '@mui/material';
 import { makeStyles } from '../../ui/styles';
 import ViewerView from '../moorhenView/ViewerView';
+import { VIEWER_ENGINE } from '../../config/viewer';
 import HitNavigator from './molecule/hitNavigator';
 import { TagDetailsLHS } from './tags/details/tagDetailsLHS';
 import { withUpdatingTarget } from '../target/withUpdatingTarget';
@@ -404,7 +405,7 @@ export default memo(props => {
   const hasShownViewerWarning = useRef(false);
 
   useEffect(() => {
-    if (!hasShownViewerWarning.current) {
+    if (VIEWER_ENGINE === 'moorhen' && !hasShownViewerWarning.current) {
       hasShownViewerWarning.current = true;
       toastWarning('3D viewer is now moorhen; any molecule editing will not persist.');
     }

@@ -1,5 +1,8 @@
 # Moorhen Migration Stages 20 and 21: Moorhen Only
 
+Historical record: NGL was subsequently restored at the user's request. See
+[NGL viewer restoration](ngl-viewer-restoration.md) for the current source-level selection and validation.
+
 Stages 20 and 21 were executed together without a stabilization window. Moorhen is now the only viewer mounted by the
 application.
 

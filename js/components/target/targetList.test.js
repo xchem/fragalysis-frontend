@@ -113,7 +113,7 @@ const confirmDownload = async () => {
 };
 
 describe('landing target details and downloads', () => {
-  it('expands public and private details by default, preserving blog links, aliases and target links', async () => {
+  it('expands public and private details with a blog title and overview, preserving links and aliases', async () => {
     expect.hasAssertions();
     jest.clearAllMocks();
     jest.useRealTimers();
@@ -125,6 +125,7 @@ describe('landing target details and downloads', () => {
       '/viewer/react/preview/target/target-1/tas/real-tas-1'
     );
     expect(screen.getByText('Alias 1')).toBeInTheDocument();
+    await screen.findByRole('link', { name: blogs[1].title });
     for (const id of [1, 2]) {
       const previewLink = within(screen.getByRole('region', { name: `Blog overview for Target ${id}` })).getByRole(
         'link',
@@ -260,6 +261,8 @@ describe('landing target details and downloads', () => {
     expect.hasAssertions();
     let finish;
     renderList([target], {}, () => new Promise(resolve => (finish = resolve)));
+    expect(screen.getByRole('button', { name: 'Expand Target 1' })).toHaveAttribute('aria-expanded', 'false');
+    fireEvent.click(screen.getByRole('button', { name: 'Expand Target 1' }));
     expect(await screen.findByText('Loading blog…')).toBeInTheDocument();
     fireEvent.click(screen.getByRole('button', { name: 'Collapse Target 1' }));
     await waitFor(() => expect(screen.queryByText('Loading blog…')).not.toBeInTheDocument());
@@ -287,6 +290,9 @@ describe('landing target details and downloads', () => {
   it('keeps downloads and chart data when no blog exists, without showing the old placeholders or URL fallback', async () => {
     expect.hasAssertions();
     renderList([target], {}, () => Promise.resolve(null));
+    await act(async () => {});
+    expect(screen.getByRole('button', { name: 'Expand Target 1' })).toHaveAttribute('aria-expanded', 'false');
+    fireEvent.click(screen.getByRole('button', { name: 'Expand Target 1' }));
     expect(await screen.findByText('No blog has been added.')).toBeInTheDocument();
     expect(screen.queryByText(/Inside OpenBind's First Public Data Release/)).not.toBeInTheDocument();
     expect(screen.queryByText('May 5, 2026')).not.toBeInTheDocument();
@@ -296,9 +302,13 @@ describe('landing target details and downloads', () => {
     expect(screen.getByTestId('target-chart')).toBeInTheDocument();
   });
 
-  it('renders a blog without optional image, publication date, or overview', async () => {
+  it('defaults a blog without an overview to collapsed and renders it when manually expanded', async () => {
     expect.hasAssertions();
     renderList([target], {}, () => Promise.resolve({ ...blogs[0], image: null, published: null, overview: '' }));
+    await act(async () => {});
+    expect(screen.getByRole('button', { name: 'Expand Target 1' })).toHaveAttribute('aria-expanded', 'false');
+    expect(screen.queryByRole('link', { name: blogs[0].title })).not.toBeInTheDocument();
+    fireEvent.click(screen.getByRole('button', { name: 'Expand Target 1' }));
     expect(await screen.findByRole('link', { name: blogs[0].title })).toBeInTheDocument();
     expect(screen.queryByRole('img')).not.toBeInTheDocument();
     expect(screen.queryByText('May 11, 2026')).not.toBeInTheDocument();
@@ -310,6 +320,7 @@ describe('landing target details and downloads', () => {
     const loadBlog = jest.fn().mockResolvedValue(blogs[0]);
     loadBlog.mockRejectedValueOnce(new Error('Blog service unavailable'));
     renderList([target], {}, loadBlog);
+    fireEvent.click(screen.getByRole('button', { name: 'Expand Target 1' }));
     expect(await screen.findByRole('alert')).toHaveTextContent('Blog service unavailable');
     expect(screen.getByRole('button', { name: 'Download the full dataset' })).toBeInTheDocument();
     fireEvent.click(screen.getByRole('button', { name: 'Retry loading blog' }));

@@ -7562,6 +7562,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@types/trusted-types@npm:^2.0.7":
+  version: 2.0.7
+  resolution: "@types/trusted-types@npm:2.0.7"
+  checksum: 10c0/4c4855f10de7c6c135e0d32ce462419d8abbbc33713b31d294596c0cc34ae1fa6112a2f9da729c8f7a20707782b0d69da3b1f8df6645b0366d08825ca1522e0c
+  languageName: node
+  linkType: hard
+
 "@types/use-sync-external-store@npm:^0.0.6":
   version: 0.0.6
   resolution: "@types/use-sync-external-store@npm:0.0.6"
@@ -11131,6 +11138,18 @@ __metadata:
   languageName: node
   linkType: hard
 
+"dompurify@npm:3.4.18":
+  version: 3.4.18
+  resolution: "dompurify@npm:3.4.18"
+  dependencies:
+    "@types/trusted-types": "npm:^2.0.7"
+  dependenciesMeta:
+    "@types/trusted-types":
+      optional: true
+  checksum: 10c0/03c96d4e04ce6588014d008c09bb80e97dc1f905acc28d0be0cf14ea6974f788f5706cac409a5b7b7a73831dbce15ac7ca68c6fe08b2e1522254f06ce6647e87
+  languageName: node
+  linkType: hard
+
 "domutils@npm:^3.2.2":
   version: 3.2.2
   resolution: "domutils@npm:3.2.2"
@@ -12257,6 +12276,18 @@ __metadata:
   languageName: node
   linkType: hard
 
+"express-rate-limit@npm:8.7.4":
+  version: 8.7.4
+  resolution: "express-rate-limit@npm:8.7.4"
+  dependencies:
+    debug: "npm:^4.4.3"
+    ip-address: "npm:^10.2.0"
+  peerDependencies:
+    express: ">= 4.11"
+  checksum: 10c0/65f98af650d29729ea58500a7ac218b3c43c31b962d85ba21db679c94a8012fab5c88d4bb41cdeaa8114169f5ac4f32576e2bc561c417507d567c3a4a2a24ece
+  languageName: node
+  linkType: hard
+
 "express@npm:^4.22.1, express@npm:^4.22.3":
   version: 4.22.3
   resolution: "express@npm:4.22.3"
@@ -12767,6 +12798,7 @@ __metadata:
     cypress: "npm:^15.21.1"
     date-fns: "npm:^2.9.0"
     dom-to-image-more: "npm:^3.6.0"
+    dompurify: "npm:3.4.18"
     dotenv-webpack: "npm:^8.1.1"
     eslint: "npm:^6.8.0"
     eslint-config-prettier: "npm:^6.9.0"
@@ -12780,6 +12812,7 @@ __metadata:
     eslint-plugin-react: "npm:^7.17.0"
     eslint-plugin-react-hooks: "npm:^2.3.0"
     express: "npm:^4.22.3"
+    express-rate-limit: "npm:8.7.4"
     file-saver: "npm:^2.0.2"
     formik: "npm:^2.1.4"
     jest: "npm:30.4.2"
@@ -12793,6 +12826,7 @@ __metadata:
     moment: "npm:^2.31.0"
     moment-timezone: "npm:^0.5.34"
     moorhen: "npm:0.22.7"
+    ngl: "npm:2.0.0-dev.37"
     notistack: "npm:3.0.2"
     pixelmatch: "npm:^7.1.0"
     plotly.js-dist-min: "npm:^3.1.1"
@@ -14026,6 +14060,13 @@ __metadata:
   dependencies:
     loose-envify: "npm:^1.0.0"
   checksum: 10c0/5af133a917c0bcf65e84e7f23e779e7abc1cd49cb7fdc62d00d1de74b0d8c1b5ee74ac7766099fb3be1b05b26dfc67bab76a17030d2fe7ea2eef867434362dfc
+  languageName: node
+  linkType: hard
+
+"ip-address@npm:^10.2.0":
+  version: 10.7.6
+  resolution: "ip-address@npm:10.7.6"
+  checksum: 10c0/b1877874793345a00ef46877e18b8ff38d91ce4d07195f8e26d1381a0248b296cfad73e2ec1ba7c5c39e347d365971e036fbb6ffbc672b7d3f0d9648ed2fafa5
   languageName: node
   linkType: hard
 
@@ -16591,6 +16632,13 @@ __metadata:
   version: 1.0.0
   resolution: "nested-worker@https://github.com/johanholmerin/nested-worker.git#commit=ab3b06c721a61d789678a9458584c55c89ee36ca"
   checksum: 10c0/94400badd98e2cfe7600efe82a0d97f9d22349b38e9016e4e089fc2acb430f8c43720347ff54446d824ed4e985425fd2e5c2c6ba0dd4ada90a54eaa596d8ab54
+  languageName: node
+  linkType: hard
+
+"ngl@npm:2.0.0-dev.37":
+  version: 2.0.0-dev.37
+  resolution: "ngl@npm:2.0.0-dev.37"
+  checksum: 10c0/fa55bcf3b0a5369e9a52059727dcbbe6d35f820e523eccdd233d8f648c2960611a25ac82c303c43a53463adaac51917139ce08f6807596033898f5439b0561b0
   languageName: node
   linkType: hard
 

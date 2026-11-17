@@ -2,7 +2,18 @@ import fs from 'fs';
 import path from 'path';
 
 const jsRoot = path.resolve(__dirname, '..');
-const implementationFiles = new Set(['viewer/MoorhenViewerAdapter.js']);
+const implementationFiles = new Set([
+  'viewer/MoorhenViewerAdapter.js',
+  'viewer/NglViewerAdapter.js',
+  'viewer/ngl/representationHelpers.js',
+  'components/nglView/renderingObjects.js',
+  'components/nglView/renderingHelpers.js'
+]);
+const nglImportFiles = new Set([
+  'viewer/NglViewerAdapter.js',
+  'components/nglView/renderingObjects.js',
+  'components/nglView/renderingHelpers.js'
+]);
 
 const getJavaScriptFiles = directory =>
   fs.readdirSync(directory, { withFileTypes: true }).flatMap(entry => {
@@ -19,10 +30,11 @@ const stripLineComments = source => source.replace(/\/\/.*$/gm, '');
 describe('viewer adapter boundary', () => {
   const files = getJavaScriptFiles(jsRoot);
 
-  it('does not import the removed NGL package', () => {
+  it('keeps NGL imports inside the NGL viewer implementation', () => {
     const violations = files
       .filter(filePath => /from\s+['"]ngl['"]/.test(fs.readFileSync(filePath, 'utf8')))
-      .map(toRelativePath);
+      .map(toRelativePath)
+      .filter(filePath => !nglImportFiles.has(filePath));
 
     expect(violations).toEqual([]);
   });

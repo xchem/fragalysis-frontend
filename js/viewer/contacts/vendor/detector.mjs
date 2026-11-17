@@ -743,10 +743,7 @@ var _Math = {
       lut[i] = (i < 16 ? "0" : "") + i.toString(16);
     }
     return function generateUUID() {
-      var d0 = Math.random() * 4294967295 | 0;
-      var d1 = Math.random() * 4294967295 | 0;
-      var d2 = Math.random() * 4294967295 | 0;
-      var d3 = Math.random() * 4294967295 | 0;
+      var [d0, d1, d2, d3] = crypto.getRandomValues(new Uint32Array(4));
       var uuid2 = lut[d0 & 255] + lut[d0 >> 8 & 255] + lut[d0 >> 16 & 255] + lut[d0 >> 24 & 255] + "-" + lut[d1 & 255] + lut[d1 >> 8 & 255] + "-" + lut[d1 >> 16 & 15 | 64] + lut[d1 >> 24 & 255] + "-" + lut[d2 & 63 | 128] + lut[d2 >> 8 & 255] + "-" + lut[d2 >> 16 & 255] + lut[d2 >> 24 & 255] + lut[d3 & 255] + lut[d3 >> 8 & 255] + lut[d3 >> 16 & 255] + lut[d3 >> 24 & 255];
       return uuid2.toUpperCase();
     };

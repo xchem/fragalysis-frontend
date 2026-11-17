@@ -45,9 +45,10 @@ permission. A general request to fix a nearby bug is not implicit permission to 
   candidates for opportunistic renaming.
 - React 19.2.7, React DOM, and `react-is` are intentionally pinned together. Redux 5 is intentionally initialized with
   `legacy_createStore`, the named `thunk` export, and `@redux-devtools/extension`.
-- Moorhen is the only application viewer. `js/config/viewer.js` fixes `VIEWER_ENGINE` to `moorhen`, and
-  `js/components/moorhenView/ViewerView.js` mounts `MoorhenView`. There is no configurable engine switch, NGL fallback,
-  or rollout/rollback flag. NGL adapters, rendering helpers, and the `ngl` dependency have been removed.
+- NGL was restored at the user's request after the Moorhen-only migration. `js/config/viewer.js` selects
+  `VIEWER_ENGINE = 'ngl'`; `js/components/moorhenView/ViewerView.js` lazily mounts the selected NGL or Moorhen host.
+  Change that source constant to `moorhen` to select Moorhen before rebuilding. There is no automatic fallback or
+  runtime rollout flag. See `docs/ngl-viewer-restoration.md` for the restoration and compatibility checks.
 - `MoorhenView` hosts `MoorhenContainer` with Moorhen's own Redux store, command centre, WebGL references, and threaded
   WebAssembly runtime. The Fragalysis Redux store remains separate. The main Preview uses one canvas; do not assume
   multiple viewers are isolated when they share the singleton `MoorhenReduxStore`.
@@ -114,11 +115,11 @@ that path with the in-place user switch merely because both ultimately load snap
 ## Viewer and rendering contracts
 
 - Keep application-to-viewer operations behind `js/viewer/ViewerAdapter.js` and `asViewerAdapter`. The public legacy
-  view list intentionally remains `{ id, stage }`; `stage` is the registered Moorhen runtime containing its adapter.
+  view list intentionally remains `{ id, stage }`; `stage` is the registered native runtime containing its adapter.
   `asViewerAdapter` accepts an adapter or that runtime and rejects unregistered viewer objects. It does not construct
   an NGL wrapper. `NglContext.getViewerAdapter(viewId)` retrieves the registered adapter.
-- `js/viewer/viewerBoundary.test.js` rejects imports of the removed `ngl` package and restricts the guarded native
-  rendering calls to `js/viewer/MoorhenViewerAdapter.js`. Add application rendering capabilities through the adapter;
+- `js/viewer/viewerBoundary.test.js` confines `ngl` imports and guarded native rendering calls to the NGL adapter and
+  its rendering helpers, or `js/viewer/MoorhenViewerAdapter.js`. Add application rendering capabilities through the adapter;
   the Moorhen host, proof route, runtime initialization, and worker bridge own their respective engine setup.
 - `Preview` creates one `ViewerView` in an `InPortal` and moves its DOM through `OutPortal` when layouts change. Keep
   that single Moorhen canvas alive across layout changes so loaded objects, camera, and event state survive.
@@ -136,6 +137,13 @@ that path with the in-place user switch merely because both ultimately load snap
 - Display hooks use `js/reducers/ngl/useStructureOperationQueue.js` to claim work before awaiting coordinate fetching.
   Repeated effects share the pending intent; load, removal, and reload are ordered per item/type/dataset. Independent
   items remain concurrent. Preserve this protection against duplicate loads during React updates and Strict Mode.
+- Bulk LHS ligand requests publish their complete intent together and use a bounded pool through download and native
+  readiness, yielding before refilling slots. The WeakSet marks in `bulkLigands.js` are runtime-only; never serialize
+  them or retain obsolete waiting intents across snapshot replacement. Cancellation must not download a waiting
+  ligand merely to compute its removal name. Individual and pose-transfer requests retain their independent path.
+- NGL object readiness/deletion waits for the owned representation counters, including hidden measurements, rather
+  than the global stage counter. Unrelated work must not block completed downloads; whole-view teardown still drains
+  all native work. Keep the control-state membership lookup linear and preserve returned identity when flags agree.
 - The adapter orders molecule/composite/map loads and deletion by object name. A load must not overwrite another
   native object in the registry without disposing it. Application deletion uses `removeObjects(name)` so it also waits
   for loads which have not registered yet; an immediate `getObjects(name)` lookup can miss them.
@@ -153,8 +161,8 @@ that path with the in-place user switch merely because both ultimately load snap
   settings and optionally rewrite their colour. Preserve this cache without retaining disposed native objects.
 - Representation creation and editing are asynchronous. Wait for `ready` before acknowledging an update; propagate
   rendering failures and clear pending counts in `finally` instead of marking failed work as rendered.
-- Moorhen computes surfaces through its native runtime. The removed NGL `useWorker: false` workaround is obsolete;
-  preserve Moorhen's workers and cross-origin isolation requirements.
+- Moorhen computes surfaces through its native runtime; preserve its workers and cross-origin isolation requirements.
+  The restored NGL molecular-surface renderer retains its separate `useWorker: false` workaround.
 - Initial normal target load selects the first visible alphabetical LHS tag and displays the first pose's ligand plus
   protein/sidechains. It deliberately does **not** display artefact chains. Snapshot and direct-display loads skip this
   initialization entirely.
@@ -241,6 +249,16 @@ transfers.
 - Avoid effect-driven copies of derived data and unguarded state updates. Several filters, row-height caches, pagination
   effects, and quality-status views deliberately compare values or derive during render to prevent React 19 update
   loops caused by fresh array/object identities.
+- Pose rows retain their own selected-observation subsets across unrelated completions. The closed Display controls
+  drawer and editors pause object-registry updates without unmounting; reopening rebases to current objects. Open
+  editors and color pickers still update. Preserve those identities and mounted editing state during bulk loading.
+- Loading-context identity changes only with its exposed flags, not every render acknowledgement. Pose membership
+  and inspiration/displayed-ID indices avoid repeated whole-list scans. Keep owned arrays for tag-editor mutation.
+  Display controls uses a data-backed tree model with stable item IDs and memoized labels. One shared visibility
+  observer initializes offscreen controls on first visit; visited controls/editors stay mounted while scrolling or
+  closing the drawer. Keep the tree's existing collapse/removal lifecycle. Stable slot callbacks and semantic JSX
+  comparisons avoid redrawing unchanged styled TreeItems on additions. Observe actual node attachment, including
+  nodes created after mount. Preserve expansion, keyboard navigation, live actions and observer cleanup.
 - Some exhaustive-deps suppressions are deliberate. For example, the pose list uses seemingly unrelated dialog/edit
   dependencies to keep a selected molecule visible until its editor closes, and viewer display callbacks omit state
   that would cause duplicate loads. Do not auto-apply hook-lint dependency suggestions without reproducing the flow.
