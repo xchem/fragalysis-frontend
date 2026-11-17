@@ -61,6 +61,8 @@ export const createMoleculeTagObject = (
   };
 };
 
+const tagNameCollator = new Intl.Collator(undefined, { numeric: true, sensitivity: 'base' });
+
 /**
  * Compare tags, first by category and then by name
  *
@@ -80,8 +82,7 @@ export const compareTagsByCategoryAndName = (a, b, asc = true) => {
   // then by name
   const aName = a.tag_prefix ? `${a.tag_prefix} - ${a.tag}` : a.tag;
   const bName = b.tag_prefix ? `${b.tag_prefix} - ${b.tag}` : b.tag;
-  return asc ? aName.localeCompare(bName, undefined, { numeric: true, sensitivity: 'base' })
-    : bName.localeCompare(aName, undefined, { numeric: true, sensitivity: 'base' });
+  return asc ? tagNameCollator.compare(aName, bName) : tagNameCollator.compare(bName, aName);
 };
 
 export const compareTagsByCategoryAndNameAsc = (a, b) => {

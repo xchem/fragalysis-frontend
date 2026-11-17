@@ -82,6 +82,7 @@ import { getRandomColor } from '../../preview/molecule/utils/color';
 import { isCompoundFromVectorSelector } from '../../preview/compounds/redux/dispatchActions';
 import { getCompoundById } from '../../../utils/genericDispatchActions';
 import { NGL_OBJECTS } from '../../../reducers/ngl/constants';
+import { createObservationLookup } from '../../../utils/observationLookup';
 
 export const initializeDatasetFilter = datasetID => (dispatch, getState) => {
   const state = getState();
@@ -272,13 +273,12 @@ export const loadNewDataSets = targetId => async (dispatch, getState) => {
 export const loadDatasetCompoundsWithScores = datasetsToLoad => (dispatch, getState) => {
   const datasets = datasetsToLoad;
   const allMoleculeLists = getState().apiReducers.all_mol_lists;
+  const getObservations = createObservationLookup(allMoleculeLists);
   return Promise.all(
     datasets.map(dataset => {
       // Hint for develop purposes add param &limit=20
       // -----> add 'site_observation_code' to molecules whereas '/compound-molecules' has more molecule info so far, can be removed later
-      const compondMolecules = allMoleculeLists.filter(molecule => dataset.site_observations.includes(molecule.id));
-      console.log('dataset.site_observations', dataset.site_observations);
-      console.log('compondMolecules', compondMolecules);
+      const compondMolecules = getObservations(dataset.site_observations);
       dispatch(
         addMoleculeList(
           dataset.id,
