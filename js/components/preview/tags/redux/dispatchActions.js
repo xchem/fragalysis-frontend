@@ -62,6 +62,7 @@ import {
 import { DJANGO_CONTEXT } from '../../../../utils/djangoContext';
 import { TOAST_LEVELS } from '../../../toast/constants';
 import { getActivityColumns, getActivityData } from '../../molecule/observationUnifiedView/api';
+import { createObservationLookup } from '../../../../utils/observationLookup';
 
 export const setTagSelectorData = (categories, tags) => dispatch => {
   dispatch(setCategoryList(categories));
@@ -202,11 +203,6 @@ export const unselectTag = tag => (dispatch, getState) => {
   }
 };
 
-const getTagsForMol = (molId, tagList) => {
-  const result = tagList.filter(t => t.site_observations.includes(molId));
-  return result;
-};
-
 export const loadMoleculesAndTagsNew = targetId => async (dispatch, getState) => {
   try {
     dispatch(setDataAreDownloading(true));
@@ -288,15 +284,28 @@ export const loadMoleculesAndTagsNew = targetId => async (dispatch, getState) =>
       computedInspirationsByObservation[siteObservationId][computedSetId].push(computedInspirationId);
     });
 
+    const tagIdsByObservation = new Map();
+    tags.forEach(tag => {
+      new Set(tag.site_observations).forEach(id => {
+        const tagIds = tagIdsByObservation.get(id) || [];
+        tagIds.push(tag.id);
+        tagIdsByObservation.set(id, tagIds);
+      });
+    });
+    const identifiersByCompound = new Map();
+    compoundIdentifiers.forEach(identifier => {
+      const compound = identifier.compound;
+      // The previous strict equality lookup did not match NaN.
+      if (Number.isNaN(compound)) return;
+      const identifiers = identifiersByCompound.get(compound) || [];
+      identifiers.push(identifier);
+      identifiersByCompound.set(compound, identifiers);
+    });
+
     let allMolecules = [];
     data?.results?.forEach(mol => {
       let newObject = { ...mol };
-      const tagsForMol = getTagsForMol(mol.id, tags);
-      if (tagsForMol) {
-        newObject['tags_set'] = [...tagsForMol.map(t => t.id)];
-      } else {
-        newObject['tags_set'] = [];
-      }
+      newObject['tags_set'] = [...(tagIdsByObservation.get(mol.id) || [])];
 
       const maps = {};
       maps.diff_info = mol.diff_file;
@@ -304,7 +313,7 @@ export const loadMoleculesAndTagsNew = targetId => async (dispatch, getState) =>
       maps.sigmaa_info = mol.sigmaa_file;
       newObject['proteinData'] = maps;
       newObject['computed_inspirations_by_set'] = computedInspirationsByObservation[mol.id] || null;
-      newObject.identifiers = compoundIdentifiers.filter(identifier => identifier.compound === newObject.cmpd);
+      newObject.identifiers = [...(identifiersByCompound.get(newObject.cmpd) || [])];
       if (newObject.ligand_mol_file) {
         delete newObject.ligand_mol_file;
       }
@@ -321,6 +330,7 @@ export const loadMoleculesAndTagsNew = targetId => async (dispatch, getState) =>
       }
       return 0;
     });
+    const getObservations = createObservationLookup(allMolecules);
 
     dispatch(setAllMolLists([...allMolecules]));
     // console.log(`snapshotDebug - loadMoleculesAndTagsNew - no. of molecules stored: ${allMolecules?.length}`);
@@ -362,9 +372,10 @@ export const loadMoleculesAndTagsNew = targetId => async (dispatch, getState) =>
       // console.log(`snapshotDebug - loadMoleculesAndTagsNew - after getPoses`);
       const modifiedLhsPoses = [];
       const modifiedRhsPoses = [];
+      const rhsPoseObservationIds = new Set();
       // console.log(`snapshotDebug - loadMoleculesAndTagsNew - no. of poses received: ${poses?.length}`);
       poses?.forEach(pose => {
-        const siteObs = allMolecules.filter(m => pose.site_observations.includes(m.id));
+        const siteObs = getObservations(pose.site_observations);
         const firstObs = siteObs[0];
 
         let newObject = { ...pose };
@@ -401,6 +412,7 @@ export const loadMoleculesAndTagsNew = targetId => async (dispatch, getState) =>
         // rhs poses are not linked to an experiment - currently this can't happen because there are no poses for rhs virtual observations
         if (firstObs?.experiment === null) {
           modifiedRhsPoses.push(newObject);
+          pose.site_observations.forEach(id => rhsPoseObservationIds.add(id));
         } else {
           modifiedLhsPoses.push(newObject);
         }
@@ -409,16 +421,12 @@ export const loadMoleculesAndTagsNew = targetId => async (dispatch, getState) =>
       tags
         .filter(tag => isTagVisibleOnSide(tag, TAG_META_CATEGORIES.RHS))
         .forEach(tag => {
-          const siteObs = allMolecules.filter(m => tag.site_observations?.includes(m.id));
-          const firstObs = siteObs[0];
-
-          const poseAlreadyExists = modifiedRhsPoses.some(pose =>
-            pose.site_observations?.some(id => tag.site_observations?.includes(id))
-          );
-
-          if (!firstObs || poseAlreadyExists) {
+          if (tag.site_observations?.some(id => rhsPoseObservationIds.has(id))) {
             return;
           }
+          const siteObs = getObservations(tag.site_observations);
+          const firstObs = siteObs[0];
+          if (!firstObs) return;
 
           const associatedObs = siteObs.sort((a, b) => {
             if (a.code < b.code) {
@@ -444,6 +452,7 @@ export const loadMoleculesAndTagsNew = targetId => async (dispatch, getState) =>
             canonSite: null,
             associatedObs
           });
+          associatedObs.forEach(obs => rhsPoseObservationIds.add(obs.id));
         });
 
       modifiedLhsPoses.sort((a, b) => {

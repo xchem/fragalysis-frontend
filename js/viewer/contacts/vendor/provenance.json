@@ -2,7 +2,7 @@
   "version": "2.0.0-dev.37",
   "commit": "fc81766d4376275ff703f6d8a840dc4990b173dc",
   "esbuild": "0.25.12",
-  "sha256": "e6a8e6dbd1eb46cc01d72df1e7d7cda115a9f915d4faa7f0e6f304f4c1ab9704",
+  "sha256": "32e042f26ebbc163ce96fb3cd52058a4fb9703a6b8035f4e90ec5bd6e1443916",
   "inputs": [
     {
       "source": "three/src/math/Vector2.js",
@@ -368,5 +368,8 @@
       "source": "fragalysis/scripts/contact-detector/entry.js",
       "sha256": "fb46c89b8f8793ea90fc4077eb7e13ae0fd12c80aece562fe625cd0e8a6c44e2"
     }
+  ],
+  "modifications": [
+    "UUID entropy uses Web Crypto getRandomValues instead of Math.random"
   ]
 }

@@ -22,7 +22,7 @@ import { MOL_TYPE } from '../redux/constants';
 import { getRandomColor } from '../utils/color';
 import { DEFAULT_TAG_COLOR, getAllTagsForLHSCmp } from '../../tags/utils/tagUtils';
 import { getFontColorByBackgroundColor } from '../../../../utils/colors';
-import { getFilterSmileQuery, isAnyObservationTurnedOnForCmp } from '../../../../reducers/selection/selectors';
+import { getFilterSmileQuery } from '../../../../reducers/selection/selectors';
 import { useRDKit } from '../../../rdkit/RDKitContext';
 import { DetailView } from './table/views/detailView';
 import { ObservationsView } from './table/views/observationsView';
@@ -35,6 +35,7 @@ import { COLUMN_TYPES } from './table';
 import { NumericView } from './table/views';
 import { TooltipPathProvider } from '../../../tooltip/TooltipPathContext';
 import { LHS_OBSERVATION_VIEW_CONFIG } from './viewConfigs';
+import { usePoseRowSelection } from './hooks/usePoseRowSelection';
 import { useRegisteredNodeRef } from '../../../../hooks/useRegisteredNodeRef';
 
 const useStyles = makeStyles(theme => ({
@@ -165,80 +166,19 @@ const ObservationUnifiedView = memo(
         return result;
       }, [data, observations]);
 
-      const getAllObservationsSelectedInList = list => {
-        let result = [];
-
-        if (list && list.length > 0 && observations && observations.length > 0) {
-          observations.forEach(obs => {
-            const isPresent = list.some(id => obs.id === id);
-            if (isPresent) {
-              result.push(obs);
-            }
-          });
-        }
-
-        return result;
-      };
-
-      const isAtLeastOneObservationOnInList = list => {
-        let result = false;
-
-        if (list && list.length > 0 && observations && observations.length > 0) {
-          for (const obs of observations) {
-            const isPresent = list.some(id => obs.id === id);
-            if (isPresent) {
-              result = true;
-              break;
-            }
-          }
-        }
-
-        return result;
-      };
-
-      const isAtLeastOneObservationOnDensityList = list => {
-        let result = false;
-
-        if (list && list.length > 0 && observations && observations.length > 0) {
-          for (const obs of observations) {
-            const isPresent = list.some(d => obs.id === d.id);
-            if (isPresent) {
-              result = true;
-              break;
-            }
-          }
-        }
-
-        return result;
-      };
-
-      const fragmentDisplayList = useSelector(state => state.selectionReducers.fragmentDisplayList);
-      const proteinList = useSelector(state => state.selectionReducers.proteinList);
-      const artefactsChainList = useSelector(state => state.selectionReducers.artefactsChainList);
-      const complexList = useSelector(state => state.selectionReducers.complexList);
-      const surfaceList = useSelector(state => state.selectionReducers.surfaceList);
-      const densityList = useSelector(state => state.selectionReducers.densityList);
-      const qualityList = useSelector(state => state.selectionReducers.qualityList);
-      const vectorOnList = useSelector(state => state.selectionReducers.vectorOnList);
-
-      const isLigandOn = isAtLeastOneObservationOnInList(fragmentDisplayList);
-      const isProteinOn = isAtLeastOneObservationOnInList(proteinList);
-      const isArtefactChainOn = isAtLeastOneObservationOnInList(artefactsChainList);
-      // C stands for contacts now
-      const isComplexOn = isAtLeastOneObservationOnInList(complexList);
-      const isSurfaceOn = isAtLeastOneObservationOnInList(surfaceList);
-      const isDensityOn = isAtLeastOneObservationOnDensityList(densityList);
-      const isQualityOn = isAtLeastOneObservationOnInList(qualityList);
-      const isVectorOn = isAtLeastOneObservationOnInList(vectorOnList);
+      const rowSelection = usePoseRowSelection(observations);
+      const isLigandOn = rowSelection.ligands.length > 0;
+      const isProteinOn = rowSelection.proteins.length > 0;
+      const isArtefactChainOn = rowSelection.artefacts.length > 0;
+      const isComplexOn = rowSelection.complexes.length > 0;
+      const isSurfaceOn = rowSelection.surfaces.length > 0;
+      const isDensityOn = rowSelection.densities.length > 0;
+      const isQualityOn = rowSelection.quality.length > 0;
+      const isVectorOn = rowSelection.vectors.length > 0;
       const hasAdditionalInformation = I;
-
       let warningIconVisible = viewParams[COMMON_PARAMS.warningIcon] === true && hasAdditionalInformation === true;
-
       const colourToggle = getRandomColor(getMainObservation());
-
-      const isAnyObservationOn = useSelector(state =>
-        isAnyObservationTurnedOnForCmp(state, observations?.map(obs => obs.id) || [])
-      );
+      const isAnyObservationOn = isLigandOn || isProteinOn || isComplexOn || isSurfaceOn || isDensityOn || isVectorOn;
 
       const moleculeImgRef = useRef(null);
       const detailContentRef = useRef(null);
@@ -390,7 +330,7 @@ const ObservationUnifiedView = memo(
           : not_selected_style;
 
       const removeSelectedQuality = () => {
-        const selectedObs = getAllObservationsSelectedInList(qualityList);
+        const selectedObs = rowSelection.quality;
         for (const obs of selectedObs) {
           dispatch(removeQuality(stage, obs, colourToggle, false, ligandRepresentations));
         }

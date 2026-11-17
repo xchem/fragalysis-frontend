@@ -82,9 +82,7 @@ export const useColumns = (
         return currentColumns;
       }
 
-      return currentColumns.map(column =>
-        column.name === 'detail' ? { ...column, width: nextDetailWidth } : column
-      );
+      return currentColumns.map(column => (column.name === 'detail' ? { ...column, width: nextDetailWidth } : column));
     });
   }, [availableWidth, defaultWidth, preferredDetailWidth]);
 
@@ -106,15 +104,18 @@ export const useColumns = (
     setColumns(updateColumns);
   };
 
-  const getColumnWidth = name => {
-    const foundColumn = columns.find(column => column.name === name);
+  const getColumnWidth = useCallback(
+    name => {
+      const foundColumn = columns.find(column => column.name === name);
 
-    if (foundColumn) {
-      return foundColumn.width;
-    } else {
-      return defaultWidth;
-    }
-  };
+      if (foundColumn) {
+        return foundColumn.width;
+      } else {
+        return defaultWidth;
+      }
+    },
+    [columns, defaultWidth]
+  );
 
   return { columns, setColumns, handleColumnResize, getColumnWidth };
 };

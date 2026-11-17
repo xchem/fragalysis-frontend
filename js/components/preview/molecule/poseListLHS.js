@@ -18,6 +18,7 @@ import {
   addDensity,
   removeDensity,
   addLigand,
+  addLigandsBulk,
   removeLigand,
   initializeMolecules,
   applyDirectSelection,
@@ -138,6 +139,9 @@ export const PoseListLHS = memo(({}) => {
         skipTracking = false,
         ligandRepresentations = undefined
       ) => {
+        if (type === 'ligand' && selectedMolecules.length > 1) {
+          return dispatch(addLigandsBulk(selectedMolecules, ligandRepresentations));
+        }
         const addType = {
           ligand: addLigand,
           protein: addHitProtein,

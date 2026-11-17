@@ -19,7 +19,7 @@ import { moorhenProofConfig } from '../../config/moorhenProof';
 import { initializeMoorhenCcp4Module } from '../moorhenProof/moorhenCcp4';
 import { handleNglViewPick } from '../nglView/redux/dispatchActions';
 import { setOrientationByInteraction } from '../../reducers/ngl/dispatchActions';
-import { VIEWER_ENGINE, viewerConfig } from '../../config/viewer';
+import { viewerConfig } from '../../config/viewer';
 import { createViewerInitializationTelemetry } from '../../viewer/viewerTelemetry';
 import { installMoorhenWorkerBridge } from './moorhenWorkerBridge';
 import { useInitialViewerPresentation } from './useInitialViewerPresentation';
@@ -96,7 +96,7 @@ const MoorhenMainView = memo(({ div_id, dispatchAppAction, onInitializationFailu
 
   if (!initializationTelemetryRef.current) {
     initializationTelemetryRef.current = createViewerInitializationTelemetry({
-      engine: VIEWER_ENGINE,
+      engine: 'moorhen',
       viewId: div_id,
       role: 'main',
       viewerConfig

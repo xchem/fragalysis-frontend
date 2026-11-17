@@ -65,6 +65,7 @@ import { isCompoundFromVectorSelector } from '../../../../compounds/redux/dispat
 import { LHS_OBSERVATION_VIEW_CONFIG } from '../../viewConfigs';
 import { getDefaultComputedInspirations } from '../../../utils/computedInspirations';
 import { hasPoseTransferStateForPose } from '../../../poseTransfer';
+import { usePoseRowSelection } from '../../hooks/usePoseRowSelection';
 import { PoseTransferButtons } from '../../../poseTransferButtons';
 
 const DETAIL_TEXT_ACTION_BUFFER = 28;
@@ -652,37 +653,6 @@ export const DetailView = memo(
       return result;
     }, [data, observations]);
 
-    const getAllObservationsSelectedInList = list => {
-      let result = [];
-
-      if (list && list.length > 0 && observations && observations.length > 0) {
-        observations.forEach(obs => {
-          const isPresent = list.some(id => obs.id === id);
-          if (isPresent) {
-            result.push(obs);
-          }
-        });
-      }
-
-      return result;
-    };
-
-    const isAtLeastOneObservationOnInList = list => {
-      let result = false;
-
-      if (list && list.length > 0 && observations && observations.length > 0) {
-        for (const obs of observations) {
-          const isPresent = list.some(id => obs.id === id);
-          if (isPresent) {
-            result = true;
-            break;
-          }
-        }
-      }
-
-      return result;
-    };
-
     const isAtLeastOneObservationOnDensity = list => {
       let result = false;
 
@@ -714,13 +684,7 @@ export const DetailView = memo(
       }
     }, [observations]);
 
-    const fragmentDisplayList = useSelector(state => state.selectionReducers.fragmentDisplayList);
-    const proteinList = useSelector(state => state.selectionReducers.proteinList);
-    const artefactsChainList = useSelector(state => state.selectionReducers.artefactsChainList);
-    const complexList = useSelector(state => state.selectionReducers.complexList);
-    const surfaceList = useSelector(state => state.selectionReducers.surfaceList);
-    const densityList = useSelector(state => state.selectionReducers.densityList);
-    const vectorOnList = useSelector(state => state.selectionReducers.vectorOnList);
+    const rowSelection = usePoseRowSelection(observations);
     // const currentTarget = useSelector(state => getCurrentTarget(state));
     const aliasOrder = useSelector(state => state.apiReducers.target_on_aliases);
     const computedInspirations = useMemo(() => {
@@ -742,14 +706,14 @@ export const DetailView = memo(
     const defaultMapRendering =
       activeTarget?.settings?.electron_density_rendering_mode || MAP_RENDERING_MODES.WIREFRAME;
 
-    const isLigandOn = isAtLeastOneObservationOnInList(fragmentDisplayList);
-    const isProteinOn = isAtLeastOneObservationOnInList(proteinList);
-    const isArtefactChainOn = isAtLeastOneObservationOnInList(artefactsChainList);
+    const isLigandOn = rowSelection.ligands.length > 0;
+    const isProteinOn = rowSelection.proteins.length > 0;
+    const isArtefactChainOn = rowSelection.artefacts.length > 0;
     // C stands for contacts now
-    const isComplexOn = isAtLeastOneObservationOnInList(complexList);
-    const isSurfaceOn = isAtLeastOneObservationOnInList(surfaceList);
-    const isDensityOn = isAtLeastOneObservationOnDensity(densityList);
-    const isVectorOn = isAtLeastOneObservationOnInList(vectorOnList);
+    const isComplexOn = rowSelection.complexes.length > 0;
+    const isSurfaceOn = rowSelection.surfaces.length > 0;
+    const isDensityOn = rowSelection.densities.length > 0;
+    const isVectorOn = rowSelection.vectors.length > 0;
 
     const hasAllValuesOn = isLigandOn && isProteinOn && isArtefactChainOn && isComplexOn;
     const hasSomeValuesOn = !hasAllValuesOn && (isLigandOn || isProteinOn || isArtefactChainOn || isComplexOn);
@@ -1090,7 +1054,7 @@ export const DetailView = memo(
     };
 
     const removeSelectedLigand = (skipTracking = false) => {
-      const selectedObs = getAllObservationsSelectedInList(fragmentDisplayList);
+      const selectedObs = rowSelection.ligands;
       for (const obs of selectedObs) {
         dispatch(removeLigand(stage, obs, skipTracking));
       }
@@ -1119,7 +1083,7 @@ export const DetailView = memo(
     };
 
     const removeSelectedProtein = (skipTracking = false) => {
-      const selectedObs = getAllObservationsSelectedInList(proteinList);
+      const selectedObs = rowSelection.proteins;
       for (const obs of selectedObs) {
         dispatch(removeHitProtein(stage, obs, colourToggle, skipTracking));
       }
@@ -1127,7 +1091,7 @@ export const DetailView = memo(
     };
 
     const removeSelectedArtefactChain = (skipTracking = false) => {
-      const selectedObs = getAllObservationsSelectedInList(artefactsChainList);
+      const selectedObs = rowSelection.artefacts;
       for (const obs of selectedObs) {
         dispatch(removeArtefactChain(stage, obs, colourToggle, skipTracking));
       }
@@ -1216,7 +1180,7 @@ export const DetailView = memo(
     };
 
     const removeSelectedComplex = (skipTracking = false) => {
-      const selectedObs = getAllObservationsSelectedInList(complexList);
+      const selectedObs = rowSelection.complexes;
       for (const obs of selectedObs) {
         dispatch(removeComplex(stage, obs, colourToggle, skipTracking));
       }
@@ -1256,7 +1220,7 @@ export const DetailView = memo(
     };
 
     const removeSelectedSurface = () => {
-      const selectedObs = getAllObservationsSelectedInList(surfaceList);
+      const selectedObs = rowSelection.surfaces;
       for (const obs of selectedObs) {
         dispatch(removeSurface(stage, obs, colourToggle));
       }
@@ -1377,7 +1341,7 @@ export const DetailView = memo(
     };
 
     const removeSelectedVector = () => {
-      const selectedObs = getAllObservationsSelectedInList(vectorOnList);
+      const selectedObs = rowSelection.vectors;
       for (const obs of selectedObs) {
         dispatch(removeVector(stage, obs));
       }

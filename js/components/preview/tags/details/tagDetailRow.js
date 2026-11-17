@@ -1,4 +1,4 @@
-import React, { memo, useState, useEffect } from 'react';
+import React, { memo } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { PLURAL_TO_SINGULAR } from '../../../../constants/constants';
 import TagView from '../tagView';
@@ -99,7 +99,6 @@ const TagDetailRow = memo(({ tag, moleculesToEditIds, moleculesToEdit, side = 's
   const classes = useStyles();
   const dispatch = useDispatch();
   const showDiscourseButton = false;
-  const [allMoleculesOfTag, setAllMoleculesOfTag] = useState([]);
 
   const targetName = useSelector(state => state.apiReducers.target_on_name);
   const selectedTagList = useSelector(state => {
@@ -110,18 +109,9 @@ const TagDetailRow = memo(({ tag, moleculesToEditIds, moleculesToEdit, side = 's
   const allMolList = useSelector(state => state.apiReducers.all_mol_lists);
   const tagList = useSelector(state => state.apiReducers.tagList);
 
-  useEffect(() => {
-    if (allMolList.length) {
-      setAllMoleculesOfTag(
-        allMolList.filter(mol => {
-          const tags = mol.tags_set.filter(id => id === tag.id);
-          return tags && tags.length ? true : false;
-        })
-      );
-    }
-  }, [allMolList, tag]);
-
   const handleSelectHits = () => {
+    // Membership is only needed for this action, not while mounting every tag row.
+    const allMoleculesOfTag = allMolList.filter(mol => mol.tags_set.some(id => id === tag.id));
     if (hasSelectedMolecule(tag)) {
       // deselect all
       allMoleculesOfTag.forEach(mol => {

@@ -27,6 +27,58 @@ const deferred = () => {
 };
 
 describe('display effects during pose transfers', () => {
+  it('displays cached and newly downloaded ligands independently without waiting for the final download', async () => {
+    expect.hasAssertions();
+    jest.clearAllMocks();
+    const downloads = new Map([
+      [2, deferred()],
+      [3, deferred()]
+    ]);
+    const target = id => ({ name: `ligand_${id}`, sdf_info: `SDF ${id}`, moleculeId: id });
+    generateMoleculeObject.mockImplementation(data => () =>
+      downloads.get(data.id)?.promise || Promise.resolve(target(data.id))
+    );
+    loadObject.mockImplementation(() => async () => {});
+    const store = legacy_createStore(
+      combineReducers({
+        selectionReducers,
+        apiReducers: (state = { all_mol_lists: [1, 2, 3].map(id => ({ id, code: `ligand_${id}` })) }) => state
+      }),
+      applyMiddleware(thunk)
+    );
+    const stage = {};
+    const context = { getNglView: () => ({ stage }), getViewerAdapter: () => stage };
+    const wrapper = ({ children }) => (
+      <Provider store={store}>
+        <NglContext.Provider value={context}>{children}</NglContext.Provider>
+      </Provider>
+    );
+    [1, 2, 3].forEach(id => store.dispatch(appendToBeDisplayedList({ id, type: 'LIGAND', display: true })));
+    const { rerender } = renderHook(() => useDisplayLigandLHS(), { wrapper });
+    await act(async () => {});
+    expect(store.getState().selectionReducers.fragmentDisplayList).toStrictEqual([1]);
+    expect(
+      store
+        .getState()
+        .selectionReducers.toBeDisplayedList.filter(item => item.rendered)
+        .map(item => item.id)
+    ).toStrictEqual([1]);
+    await act(async () => {
+      downloads.get(3).resolve(target(3));
+    });
+    expect(store.getState().selectionReducers.fragmentDisplayList).toStrictEqual([1, 3]);
+    expect(store.getState().selectionReducers.toBeDisplayedList.find(item => item.id === 3).rendered).toBe(true);
+    expect(store.getState().selectionReducers.toBeDisplayedList.find(item => item.id === 2).rendered).not.toBe(true);
+    rerender();
+    await act(async () => {
+      downloads.get(2).resolve(target(2));
+    });
+    expect(store.getState().selectionReducers.fragmentDisplayList).toStrictEqual([1, 3, 2]);
+    expect(generateMoleculeObject).toHaveBeenCalledTimes(3);
+    expect(loadObject).toHaveBeenCalledTimes(3);
+    expect(store.getState().selectionReducers.toBeDisplayedList.every(item => item.rendered)).toBe(true);
+  });
+
   it.each([
     ['LIGAND', useDisplayLigandLHS, generateMoleculeObject, 'fragmentDisplayList'],
     ['PROTEIN', useDisplayProteinLHS, generateHitProteinObject, 'proteinList']

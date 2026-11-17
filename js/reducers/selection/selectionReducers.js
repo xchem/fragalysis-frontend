@@ -157,6 +157,9 @@ export function selectionReducers(state = INITIAL_STATE, action = {}) {
     case constants.APPEND_TO_BE_DISPLAYED_LIST:
       return { ...state, toBeDisplayedList: [...state.toBeDisplayedList, action.item] };
 
+    case constants.APPEND_TO_BE_DISPLAYED_LIST_BULK:
+      return { ...state, toBeDisplayedList: [...state.toBeDisplayedList, ...action.items] };
+
     case constants.REMOVE_FROM_TO_BE_DISPLAYED_LIST:
       return {
         ...state,

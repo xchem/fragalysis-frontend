@@ -10,5 +10,5 @@ export const asViewerAdapter = viewer => {
   if (viewer.viewerAdapter instanceof ViewerAdapter) {
     return viewer.viewerAdapter;
   }
-  throw new Error('The viewer is not registered through a MoorhenViewerAdapter');
+  throw new Error('The viewer is not registered through a viewer adapter');
 };

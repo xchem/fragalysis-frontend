@@ -8,6 +8,7 @@ import Markdown from 'markdown-to-jsx';
 import { getTooltip, interpolate } from './resolver';
 import { useTooltipPath } from './TooltipPathContext';
 import { useTootlipProvider } from './TooltipContext';
+import { isTooltipShiftPressed, subscribeToTooltipShiftKeys } from './shiftKeyListeners';
 
 const DEFAULT_LEAVE_DELAY = 40;
 const DEFAULT_TRANSITION_TIMEOUT = { enter: 160, exit: 60 };
@@ -35,8 +36,10 @@ const useStyles = makeStyles(theme => ({
   // Wrapper used ONLY when we must wrap (disabled anchor or non-single-element children)
   childWrapper: {
     display: 'inline-flex'
-  },
+  }
+}));
 
+const useContentStyles = makeStyles(theme => ({
   mdRoot: {
     whiteSpace: 'normal',
     wordBreak: 'break-word'
@@ -94,6 +97,36 @@ function mergeClassName(existing, extra) {
   if (!existing) return extra;
   return `${existing} ${extra}`;
 }
+
+const TooltipContent = memo(function TooltipContent({ text, showHelp, showDebugPath, fullPath, onMouseLeave }) {
+  const classes = useContentStyles();
+
+  return (
+    <div className={classes.mdRoot} onMouseLeave={onMouseLeave}>
+      <Markdown
+        options={{
+          forceBlock: true,
+          overrides: {
+            p: { props: { className: classes.p } },
+            h1: { props: { className: classes.h1 } },
+            h2: { props: { className: classes.h2 } },
+            h3: { props: { className: classes.h3 } },
+            ul: { props: { className: classes.ul } },
+            ol: { props: { className: classes.ol } },
+            li: { props: { className: classes.li } },
+            a: { props: { className: classes.a, target: '_blank', rel: 'noopener noreferrer' } },
+            pre: { props: { className: classes.pre } },
+            code: { props: { className: classes.codeInline } }
+          }
+        }}
+      >
+        {text}
+      </Markdown>
+      {showHelp && <div className={classes.footer}>{ALT_INTERACTION_HINT}</div>}
+      {showDebugPath && <div className={classes.debugPath}>{fullPath}</div>}
+    </div>
+  );
+});
 
 const RichTooltip = memo(function RichTooltip({
   tooltipProvider,
@@ -154,29 +187,35 @@ const RichTooltip = memo(function RichTooltip({
     };
   }, [transitionPropsProp]);
 
-  const openTooltip = useCallback(event => {
-    clearTimeout(popperLeaveTimerRef.current);
-    popperLeaveTimerRef.current = null;
+  const openTooltip = useCallback(
+    event => {
+      clearTimeout(popperLeaveTimerRef.current);
+      popperLeaveTimerRef.current = null;
 
-    if (isOpenRef.current) return;
-    isOpenRef.current = true;
-    setIsOpen(true);
-    if (onOpenProp) onOpenProp(event);
-  }, [onOpenProp]);
+      if (isOpenRef.current) return;
+      isOpenRef.current = true;
+      setIsOpen(true);
+      if (onOpenProp) onOpenProp(event);
+    },
+    [onOpenProp]
+  );
 
-  const closeTooltip = useCallback(event => {
-    clearTimeout(popperLeaveTimerRef.current);
-    popperLeaveTimerRef.current = null;
+  const closeTooltip = useCallback(
+    event => {
+      clearTimeout(popperLeaveTimerRef.current);
+      popperLeaveTimerRef.current = null;
 
-    tooltipHoveredRef.current = false;
-    tooltipInteractiveRef.current = false;
+      tooltipHoveredRef.current = false;
+      tooltipInteractiveRef.current = false;
 
-    if (!isOpenRef.current) return;
+      if (!isOpenRef.current) return;
 
-    isOpenRef.current = false;
-    setIsOpen(false);
-    if (onCloseProp) onCloseProp(event);
-  }, [onCloseProp]);
+      isOpenRef.current = false;
+      setIsOpen(false);
+      if (onCloseProp) onCloseProp(event);
+    },
+    [onCloseProp]
+  );
   const mergedPopperProps = {
     ...popperPropsProp,
     onMouseOver: event => {
@@ -221,7 +260,7 @@ const RichTooltip = memo(function RichTooltip({
   useEffect(() => {
     const onKeyDown = e => {
       if (e.key !== 'Shift') return;
-      setShiftDown(true);
+      if (isOpenRef.current || anchorHoveredRef.current || anchorFocusedRef.current) setShiftDown(true);
       if (!hasTooltipText && (anchorHoveredRef.current || anchorFocusedRef.current)) {
         openTooltip(e);
       }
@@ -231,13 +270,7 @@ const RichTooltip = memo(function RichTooltip({
       if (e.key === 'Shift') setShiftDown(false);
     };
 
-    window.addEventListener('keydown', onKeyDown, { passive: true });
-    window.addEventListener('keyup', onKeyUp, { passive: true });
-
-    return () => {
-      window.removeEventListener('keydown', onKeyDown);
-      window.removeEventListener('keyup', onKeyUp);
-    };
+    return subscribeToTooltipShiftKeys({ onKeyDown, onKeyUp });
   }, [hasTooltipText, openTooltip]);
 
   useEffect(() => {
@@ -258,6 +291,10 @@ const RichTooltip = memo(function RichTooltip({
     };
   }, []);
 
+  const handleContentMouseLeave = useCallback(() => {
+    tooltipHoveredRef.current = false;
+  }, []);
+
   // if (!interpolatedMarkdown) return children;
 
   const childIsElement = React.isValidElement(children);
@@ -271,16 +308,18 @@ const RichTooltip = memo(function RichTooltip({
     anchorChild = (
       <span
         className={classNames(classes.childWrapper, className)}
-        onMouseOver={() => {
+        onMouseOver={event => {
           anchorHoveredRef.current = true;
+          setShiftDown(event.shiftKey || isTooltipShiftPressed());
           clearTimeout(popperLeaveTimerRef.current);
           popperLeaveTimerRef.current = null;
         }}
         onMouseLeave={() => {
           anchorHoveredRef.current = false;
         }}
-        onFocus={() => {
+        onFocus={event => {
           anchorFocusedRef.current = true;
+          setShiftDown(event.shiftKey || isTooltipShiftPressed());
           clearTimeout(popperLeaveTimerRef.current);
           popperLeaveTimerRef.current = null;
         }}
@@ -296,6 +335,7 @@ const RichTooltip = memo(function RichTooltip({
       className: mergeClassName(children.props && children.props.className, className),
       onMouseOver: event => {
         anchorHoveredRef.current = true;
+        setShiftDown(event.shiftKey || isTooltipShiftPressed());
         clearTimeout(popperLeaveTimerRef.current);
         popperLeaveTimerRef.current = null;
         if (children.props && children.props.onMouseOver) children.props.onMouseOver(event);
@@ -306,6 +346,7 @@ const RichTooltip = memo(function RichTooltip({
       },
       onFocus: event => {
         anchorFocusedRef.current = true;
+        setShiftDown(event.shiftKey || isTooltipShiftPressed());
         clearTimeout(popperLeaveTimerRef.current);
         popperLeaveTimerRef.current = null;
         if (children.props && children.props.onFocus) children.props.onFocus(event);
@@ -333,34 +374,13 @@ const RichTooltip = memo(function RichTooltip({
         closeTooltip(e);
       }}
       title={
-        <div
-          className={classes.mdRoot}
-          onMouseLeave={() => {
-            tooltipHoveredRef.current = false;
-          }}
-        >
-          <Markdown
-            options={{
-              forceBlock: true,
-              overrides: {
-                p: { props: { className: classes.p } },
-                h1: { props: { className: classes.h1 } },
-                h2: { props: { className: classes.h2 } },
-                h3: { props: { className: classes.h3 } },
-                ul: { props: { className: classes.ul } },
-                ol: { props: { className: classes.ol } },
-                li: { props: { className: classes.li } },
-                a: { props: { className: classes.a, target: '_blank', rel: 'noopener noreferrer' } },
-                pre: { props: { className: classes.pre } },
-                code: { props: { className: classes.codeInline } }
-              }
-            }}
-          >
-            {tooltipText}
-          </Markdown>
-          {hasTooltipText && resolvedTooltipEntry.showHelp && <div className={classes.footer}>{ALT_INTERACTION_HINT}</div>}
-          {hasTooltipText && isOpen && shiftDown && <div className={classes.debugPath}>{fullPath}</div>}
-        </div>
+        <TooltipContent
+          text={tooltipText}
+          showHelp={hasTooltipText && resolvedTooltipEntry.showHelp}
+          showDebugPath={hasTooltipText && isOpen && shiftDown}
+          fullPath={fullPath}
+          onMouseLeave={handleContentMouseLeave}
+        />
       }
       {...tooltipProps}
     >

@@ -92,6 +92,7 @@ export const ViewerControls = memo(() => {
             </RichTooltip>
             <RichTooltip path="display">
               <Button
+                aria-label="Display controls"
                 size="small"
                 color="primary"
                 onClick={() => openDrawer(drawers.display)}

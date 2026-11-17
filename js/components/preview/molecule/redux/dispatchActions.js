@@ -20,6 +20,7 @@ import {
   setSelectVisiblePoses,
   setUnselectVisiblePoses,
   appendToBeDisplayedList,
+  appendToBeDisplayedListBulk,
   updateInToBeDisplayedList,
   setUnifiedFilterItem
 } from '../../../../reducers/selection/actions';
@@ -47,7 +48,12 @@ import {
   updateMoleculeInMolLists
 } from '../../../../reducers/api/actions';
 import { MOL_TYPE } from './constants';
-import { addImageToCache, disableMoleculeNglControlButton, enableMoleculeNglControlButton } from './actions';
+import {
+  addImageToCache,
+  disableMoleculeNglControlButton,
+  enableMoleculeNglControlButton,
+  setMoleculeNglControlButtons
+} from './actions';
 import { OBJECT_TYPE, DENSITY_MAPS, NGL_PARAMS } from '../../../nglView/constants';
 import { getRepresentationsByType } from '../../../nglView/generatingObjects';
 import { readQualityInformation } from '../../../../viewer/qualityInformation';
@@ -57,6 +63,7 @@ import { selectJoinedMoleculeList } from './selectors';
 import { compareTagsAsc, isTagVisibleOnSide, TAG_META_CATEGORIES } from '../../tags/utils/tagUtils';
 import { createPoseApi, updatePoseApi } from '../api/poseApi';
 import { NGL_OBJECTS } from '../../../../reducers/ngl/constants';
+import { markBulkLigand } from '../../../../reducers/ngl/bulkLigands';
 // import { molFile, pdbApo } from './testData';
 
 /**
@@ -451,6 +458,30 @@ export const addLigand = (
       representations: representations
     })
   );
+};
+
+// Publish the complete durable intent in one reducer pass. Runtime-only marks
+// opt these loads into bounded scheduling without changing snapshot records.
+export const addLigandsBulk = (observations, representations) => async dispatch => {
+  const ids = observations.map(observation => observation.id);
+  dispatch(setMoleculeNglControlButtons(ids, 'ligand', true));
+  try {
+    const items = observations.map(observation => {
+      const item = {
+        type: NGL_OBJECTS.LIGAND,
+        id: observation.id,
+        display: true,
+        center: false,
+        withQuality: true,
+        representations
+      };
+      markBulkLigand(item);
+      return item;
+    });
+    dispatch(appendToBeDisplayedListBulk(items));
+  } finally {
+    dispatch(setMoleculeNglControlButtons(ids, 'ligand', false));
+  }
 };
 
 export const removeLigand = (stage, data, skipTracking = false, withVector = true) => dispatch => {

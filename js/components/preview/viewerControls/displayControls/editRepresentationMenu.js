@@ -25,10 +25,13 @@ export const EditRepresentationMenu = memo(
   ({ editMenuAnchor, closeRepresentationEditMenu, representation, parentKey }) => {
     const classes = useStyles();
     const { getViewerAdapter } = useContext(NglContext);
-    const objectsInView = useSelector(state => state.nglReducers.objectsInView) || {};
     const [colorMenus, setColorMenus] = React.useState({});
+    const editorVisible = Boolean(editMenuAnchor) || Object.values(colorMenus).some(menu => Boolean(menu?.menu));
+    const objectsInView =
+      useSelector(state => state.nglReducers.objectsInView, (previous, next) => !editorVisible || previous === next) || {};
 
     const dispatch = useDispatch();
+    if (!objectsInView[parentKey]) return null;
     const oldRepresentation = JSON.parse(JSON.stringify(representation));
     const viewerAdapter = getViewerAdapter(objectsInView[parentKey].display_div);
     const component = viewerAdapter.getObject(parentKey);
