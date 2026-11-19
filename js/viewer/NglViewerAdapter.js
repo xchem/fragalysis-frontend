@@ -236,24 +236,32 @@ export class NglViewerAdapter extends ViewerAdapter {
   }
 
   centerOnObjects(components = []) {
-    const groups = [...new Set(components)]
-      .map(component => {
-        const atoms = [];
-        component.structure?.eachAtom(atom => atoms.push({ x: atom.x, y: atom.y, z: atom.z }));
-        return atoms;
-      })
-      .filter(atoms => atoms.length);
-    if (!groups.length) return false;
+    // Use NGL's displayed (world-space) geometry, just like the individual target icon.
+    const ligands = [...new Set(components.filter(Boolean))]
+      .map(component => ({ component, center: component.getCenter?.(), box: component.getBox?.() }))
+      .filter(({ center, box }) =>
+        center && box && !box.isEmpty() &&
+        [...center.toArray(), ...box.min.toArray(), ...box.max.toArray()].every(Number.isFinite)
+      );
+    if (!ligands.length) return false;
+    if (ligands.length === 1) {
+      this.centerOn(ligands[0].component);
+      return true;
+    }
     const current = new Matrix4().fromArray(this.getOrientation().elements);
     const position = new Vector3();
     const rotation = new Quaternion();
     const scale = new Vector3();
     current.decompose(position, rotation, scale);
-    const focus = getMoorhenLigandFocus(groups, rotation.toArray());
+    const focus = getMoorhenLigandFocus(ligands.map(({ center }) => [center]), rotation.toArray());
     const center = new Vector3().fromArray(focus.origin).negate();
-    const radius = Math.max(...groups.flat().map(atom => new Vector3(atom.x, atom.y, atom.z).distanceTo(center)), 1);
-    const bounds = new Box3(center.clone().addScalar(-radius), center.clone().addScalar(radius));
-    const distance = -this.stage.getZoomForBox(bounds);
+    const bounds = new Box3();
+    ligands.forEach(({ box }) => bounds.union(box));
+    // Fit around the equal-weight center (not the union box's midpoint), with
+    // the slightly tighter zoom used by the original NGL pose navigator.
+    const extent = center.clone().sub(bounds.min).max(bounds.max.clone().sub(center));
+    bounds.set(center.clone().sub(extent), center.clone().add(extent));
+    const distance = -this.stage.getZoomForBox(bounds) * 0.9;
     const matrix = new Matrix4().compose(
       center.negate(),
       new Quaternion().fromArray(focus.quat4),

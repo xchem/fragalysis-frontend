@@ -183,7 +183,7 @@
           },
           "centering": {
             "none": "Keep the viewer camera unchanged after transfer.",
-            "designLigand": "After rendering, center on the destination design ligand, as with its target icon. If it is not displayed, keep the camera unchanged.",
+            "designLigand": "After rendering, center on the ligand of the destination design pose (virtual observation), as with its target icon. If it is not displayed, keep the camera unchanged.",
             "visibleLigandCentroid": "After rendering, center between the displayed destination design and inspiration ligands, giving each ligand equal weight. Fit the group and show its widest separation horizontally. If only one ligand is displayed, focus it; if none are displayed, keep the camera unchanged."
           }
         },

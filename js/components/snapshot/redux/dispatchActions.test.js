@@ -7,6 +7,8 @@ import { VIEWS } from '../../../constants/constants';
 import { NGL_OBJECTS } from '../../../reducers/ngl/constants';
 import { reloadSelectionReducer } from '../../../reducers/selection/actions';
 import { setNglStateFromCurrentSnapshot } from '../../../reducers/ngl/actions';
+import nglReducer from '../../../reducers/ngl/nglReducers';
+import { getPdb } from '../../nglView/renderingFile';
 import { setSnapshotLoadingInProgress } from '../../../reducers/api/actions';
 import { setDatasetsStateFromSnapshot } from '../../datasets/redux/actions';
 import { setCurrentSnapshot } from '../../projects/redux/actions';
@@ -112,11 +114,13 @@ describe('in-place snapshot switching', () => {
     expect(JSON.stringify(state)).toBe(original);
 
     // A prior coordinate load completes while the camera moves.
+    const pdb = new Blob(['ATOM'], { type: 'text/plain' });
     state = {
       ...state,
       selectionReducers: { ...state.selectionReducers, fragmentDisplayList: [{ id: 1 }, { id: 2 }, { id: 3 }] },
       nglReducers: {
         ...state.nglReducers,
+        pdbCache: { ...state.nglReducers.pdbCache, 'cached.pdb': pdb },
         objectsInView: { shared: { id: 1 }, justLoaded: { id: 3 } },
         countOfPendingNglObjects: { [VIEWS.MAJOR_VIEW]: 0 }
       }
@@ -140,6 +144,11 @@ describe('in-place snapshot switching', () => {
       isSnapshotRendering: false,
       objectsInSnapshotToBeRendered: 0
     });
+    // Exercise the real reducer, including a binary file downloaded while
+    // the camera was moving. The snapshot clone cannot supply this Blob.
+    const restored = nglReducer(state.nglReducers, setNglStateFromCurrentSnapshot(ngl));
+    expect(restored.pdbCache).toBe(state.nglReducers.pdbCache);
+    expect(await getPdb('/media/cached.pdb')(jest.fn(), () => ({ nglReducers: restored }))).toBe(pdb);
     expect(actionsOf(store, setEntireState)).toHaveLength(0);
     await frame();
     expect(store.getActions()).toContainEqual(setSwitchingSnapshotWithinProject(false));

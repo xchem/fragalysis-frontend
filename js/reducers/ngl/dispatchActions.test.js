@@ -25,20 +25,18 @@ describe("testing ngl reducer's async actions", () => {
   const mockStore = configureStore(middlewares);
 
   it('waits for native multi-ligand focusing before recording the camera', async () => {
-    const store = mockStore({ nglReducers: { objectsInView: {
-      first: { moleculeId: 1, OBJECT_TYPE: OBJECT_TYPE.LIGAND },
-      protein: { moleculeId: 1, OBJECT_TYPE: OBJECT_TYPE.PROTEIN },
-      second: { moleculeId: 2, OBJECT_TYPE: OBJECT_TYPE.LIGAND }
-    } } });
+    expect.hasAssertions();
+    const store = mockStore({ apiReducers: { all_mol_lists: [{ id: 1, virtual_name: 'v1' }, { id: 2, code: 'hit' }] } });
     const adapter = new ViewerAdapter();
-    const objects = { first: {}, second: {} };
-    adapter.getObject = jest.fn(name => objects[name]);
+    const objects = { v1_LIGAND: {}, hit_LIGAND: {}, hit_LIGAND_5: {} };
+    jest.spyOn(adapter, 'getObject').mockImplementation(name => objects[name]);
     let finish;
-    adapter.centerOnObjects = jest.fn(() => new Promise(resolve => { finish = resolve; }));
+    jest.spyOn(adapter, 'centerOnObjects').mockImplementation(() => new Promise(resolve => { finish = resolve; }));
     const orientation = { elements: [0, 0, 0, 1, -5, 0, 0, 0.5] };
-    adapter.getOrientation = jest.fn(() => orientation);
+    jest.spyOn(adapter, 'getOrientation').mockReturnValue(orientation);
     const pending = store.dispatch(centerOnLigandsByMoleculeIDs(adapter, [1, 2, 2]));
-    expect(adapter.centerOnObjects).toHaveBeenCalledWith([objects.first, objects.second]);
+    expect(adapter.getObject.mock.calls).toStrictEqual([['v1_LIGAND'], ['hit_LIGAND']]);
+    expect(adapter.centerOnObjects).toHaveBeenCalledWith([objects.v1_LIGAND, objects.hit_LIGAND]);
     expect(store.getActions()).toStrictEqual([]);
     finish(true);
     expect(await pending).toBe(true);

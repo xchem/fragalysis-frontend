@@ -200,6 +200,9 @@ export default function nglReducers(state = INITIAL_STATE, action = {}) {
       delete snapshot.countOfPendingNglObjects;
       delete snapshot.countOfRemainingMoleculeGroups;
       delete snapshot.proteinsHasLoaded;
+      // PDB files are cached as live Blobs. Their JSON-cloned counterparts
+      // in the prepared snapshot are just {}, which NGL cannot load.
+      delete snapshot.pdbCache;
       return Object.assign({}, state, snapshot);
 
     case CONSTANTS.REMOVE_ALL_NGL_COMPONENTS:

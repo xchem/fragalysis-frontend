@@ -1,4 +1,5 @@
 import { cloneDeep, isEqual } from 'lodash';
+import { createSelector } from 'reselect';
 import {
   addArtefactChain,
   addComplex,
@@ -26,7 +27,7 @@ import {
   centerOnLigandsByMoleculeIDs
 } from '../../../reducers/ngl/dispatchActions';
 import { POSE_TRANSFER_CENTERING_MODES } from '../../../constants/poseNavigation';
-import { copyRepresentationSettingsList } from '../../../viewer/representationState';
+import { copyRepresentationSettings, copyRepresentationSettingsList } from '../../../viewer/representationState';
 
 const getMainObservation = pose =>
   pose?.associatedObs?.find(observation => observation.id === pose?.main_site_observation) ||
@@ -58,10 +59,20 @@ export const getPostTransferCenterLigandIds = ({
   ];
 };
 
-const getLatestQueueItem = (state, id, type) =>
-  [...(state.selectionReducers.toBeDisplayedList || [])]
-    .reverse()
-    .find(item => item.id === id && item.type === type && item.display !== false);
+const getDisplayQueueByType = createSelector(
+  state => state.selectionReducers.toBeDisplayedList,
+  items => {
+    const byType = new Map();
+    for (const item of items || []) {
+      if (item.display === false) continue;
+      if (!byType.has(item.type)) byType.set(item.type, new Map());
+      byType.get(item.type).set(item.id, item);
+    }
+    return byType;
+  }
+);
+
+const getLatestQueueItem = (state, id, type) => getDisplayQueueByType(state).get(type)?.get(id);
 
 const isQueueItemRendered = (state, id, type) => getLatestQueueItem(state, id, type)?.rendered === true;
 
@@ -178,6 +189,10 @@ const proteinControl = {
       (activeState.artefact && state.selectionReducers.artefactsChainList.includes(selectedItem.id))
     );
   },
+  getRemovalObjectTypes: ({ activeState }) => [
+    ...(activeState?.protein ? [OBJECT_TYPE.HIT_PROTEIN] : []),
+    ...(activeState?.artefact ? [OBJECT_TYPE.ARTEFACTS] : [])
+  ],
   captureCustomization: ({ state, item, activeState }) => {
     const proteinQueueItem = getLatestQueueItem(state, item.id, NGL_OBJECTS.PROTEIN);
     const artefactQueueItem = getLatestQueueItem(state, item.id, NGL_OBJECTS.ARTEFACTS);
@@ -339,29 +354,24 @@ const hasAvailableDensityMap = (item, densityObject) => {
   );
 };
 
+const copyDensitySettings = representations => representations?.map(rep => ({
+  ...copyRepresentationSettings(rep),
+  ...(rep.densityMap !== undefined && { densityMap: rep.densityMap })
+}));
+
 const densityControl = {
   key: 'density',
   getActiveState: (state, item) => state.selectionReducers.densityList.find(density => density.id === item.id) || false,
   getSelectedItems: state => (state.selectionReducers.densityList || []).map(density => ({ ...density })),
   captureCustomization: ({ state, item, activeState }) => {
     const queueItem = getLatestQueueItem(state, item.id, NGL_OBJECTS.DENSITY);
-    let renderedRepresentations;
-
-    try {
-      renderedRepresentations = getRepresentationsForDensities(
-        state.nglReducers.objectsInView || {},
-        item,
-        OBJECT_TYPE.DENSITY
-      );
-    } catch (error) {
-      renderedRepresentations = undefined;
-    }
+    const renderedRepresentations = getRepresentationsForDensities(state.nglReducers.objectsInView || {}, item);
 
     return {
       densityObject: cloneDeep(queueItem?.densityObject || activeState),
-      representations: copyRepresentationSettingsList(
-        renderedRepresentations?.length ? renderedRepresentations : queueItem?.representations
-      )
+      representations: renderedRepresentations.length
+        ? renderedRepresentations
+        : copyDensitySettings(queueItem?.representations)
     };
   },
   isAvailable: ({ item, snapshot }) => hasAvailableDensityMap(item, snapshot.customization?.densityObject),
@@ -401,7 +411,7 @@ const densityControl = {
       id: target.id
     };
 
-    return dispatch(addDensity(target, densityObject, copyRepresentationSettingsList(customization?.representations)));
+    return dispatch(addDensity(target, densityObject, copyDensitySettings(customization?.representations)));
   },
   isRendered: ({ state, item }) =>
     state.selectionReducers.densityList.some(density => density.id === item.id) &&
@@ -432,26 +442,27 @@ export const createRhsPoseTransferConfig = ({
   postTransferCenteringMode = POSE_TRANSFER_CENTERING_MODES.NONE,
   renderTimeout
 }) => {
-  // Moorhen deletion is asynchronous. A cleared checkbox can precede deletion of
-  // its native buffers; do not reload the same object until both acknowledgements arrive.
+  // A cleared checkbox can precede native buffer deletion, in either viewer.
   const awaitViewerRemoval = (control, objectTypes) => ({
     ...control,
-    isSelectedItemActive: context =>
-      Boolean(control.isSelectedItemActive?.(context) || control.getActiveState(context.state, context.selectedItem)) ||
-      hasRenderedNglObject(context.state, context.selectedItem.id, objectTypes)
+    isSelectedItemActive: context => {
+      const { state, selectedItem } = context;
+      return (
+        Boolean(control.isSelectedItemActive?.(context) ?? control.getActiveState(state, selectedItem)) ||
+        hasRenderedNglObject(state, selectedItem.id, control.getRemovalObjectTypes?.(selectedItem) ?? objectTypes)
+      );
+    }
   });
   const ligand = awaitViewerRemoval(ligandControl(ligandRepresentations), [OBJECT_TYPE.LIGAND]);
-  const poseControls = [
-    ligand,
-    awaitViewerRemoval(proteinControl, [OBJECT_TYPE.HIT_PROTEIN, OBJECT_TYPE.ARTEFACTS]),
-    awaitViewerRemoval(complexControl, [OBJECT_TYPE.COMPLEX]),
-    awaitViewerRemoval(surfaceControl, [OBJECT_TYPE.SURFACE])
-  ];
-  const inspirationControls = [
-    ...poseControls,
-    awaitViewerRemoval(densityControl, [OBJECT_TYPE.DENSITY]),
-    awaitViewerRemoval(vectorControl, [OBJECT_TYPE.ARROW, OBJECT_TYPE.CYLINDER])
-  ];
+  const protein = awaitViewerRemoval(proteinControl);
+  const complex = awaitViewerRemoval(complexControl, [OBJECT_TYPE.COMPLEX]);
+  const surface = awaitViewerRemoval(surfaceControl, [OBJECT_TYPE.SURFACE]);
+  const density = awaitViewerRemoval(densityControl, [OBJECT_TYPE.DENSITY]);
+  const vector = awaitViewerRemoval(vectorControl, [OBJECT_TYPE.ARROW, OBJECT_TYPE.CYLINDER]);
+  const poseControls = [ligand, protein, complex, surface];
+  // The source pose limits what we copy, not what we clear. A Hit and its
+  // inspiration row operate the same viewer object, including after snapshot restore.
+  const inspirationControls = [...poseControls, density, vector];
 
   const getInspirationIds = ({ pose }) =>
     getComputedInspirations({ data: pose, observations: pose?.associatedObs || [] });
@@ -463,7 +474,11 @@ export const createRhsPoseTransferConfig = ({
     return ids.map(id => observationsById.get(id)).filter(Boolean);
   };
 
-  const getInspirationStateItems = ({ pose }) => getInspirationIds({ pose }).map(id => ({ id }));
+  // An independently enabled Hit can also be an inspiration of several poses.
+  // Only the source's open F dialog contributes inspiration settings.
+  const includeSourceInspirations = context => dialogs?.hasTransferableState?.(context) ?? true;
+  const getInspirationStateItems = context =>
+    includeSourceInspirations(context) ? getInspirationIds(context).map(id => ({ id })) : [];
 
   return {
     poseControls,
@@ -477,6 +492,7 @@ export const createRhsPoseTransferConfig = ({
     getInspirationIds,
     getInspirationStateItems,
     getInspirationItems,
+    getSourceInspirationItems: context => includeSourceInspirations(context) ? getInspirationItems(context) : [],
     getTransferItem: ({ state, selectedItem }) =>
       (state.apiReducers.all_mol_lists || []).find(item => item.id === selectedItem.id) || selectedItem,
     postTransferFocus: {

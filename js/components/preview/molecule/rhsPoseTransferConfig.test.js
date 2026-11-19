@@ -1,9 +1,16 @@
-import { captureControlSnapshots, executePoseTransfer, POSE_TRANSFER_ORDERS, POSE_TRANSFER_SCHEDULING } from './poseTransfer';
+import {
+  captureControlSnapshots,
+  executePoseTransfer,
+  hasPoseTransferStateForPose,
+  POSE_TRANSFER_ORDERS,
+  POSE_TRANSFER_SCHEDULING
+} from './poseTransfer';
 import {
   createRhsPoseTransferConfig,
   getPostTransferCenterLigandIds
 } from './rhsPoseTransferConfig';
-import { POSE_TRANSFER_CENTERING_MODES } from '../../../constants/poseNavigation';
+import { POSE_TRANSFER_CENTERING_MODES, RHS_INSPIRATION } from '../../../constants/poseNavigation';
+import { addLigand } from './redux/dispatchActions';
 import {
   centerOnLigandByMoleculeID,
   centerOnLigandsByMoleculeIDs
@@ -54,10 +61,11 @@ describe('rhs pose transfer configuration', () => {
     ['surface', 'SURFACE', 'SURFACE', 'surfaceList', 'representations'],
     ['density', 'DENSITY', 'DENSITY', 'densityList', 'representations']
   ];
+
   it.each(representationControls.flatMap(fields => ['rendered', 'queued'].map(location => [...fields, location])))(
     'copies %s appearance (%s/%s, %s/%s, %s) without visiting Moorhen runtime data',
     (key, queueType, objectType, listKey, representationKey, location) => {
-    const source = { id: 11, code: 'source' };
+    const source = { id: 11, virtual_name: 'source' };
     const params = { colorValue: '#123456', opacity: 0.4, visible: false, sele: '/*/A/*/*' };
     const representation = { type: 'licorice', uuid: 'source-rep', lastKnownID: 'old-rep', params };
     const readRuntime = jest.fn(() => { throw new Error('Transfer traversed the Moorhen runtime'); });
@@ -67,14 +75,21 @@ describe('rhs pose transfer configuration', () => {
     const state = createState({
       selectionReducers: {
         [listKey]: [key === 'density' ? { id: source.id } : source.id],
-        toBeDisplayedList: [{ id: source.id, type: queueType, representations: location === 'queued' ? [representation] : undefined }]
+        toBeDisplayedList: [{
+          id: source.id,
+          type: queueType,
+          [RHS_INSPIRATION]: true,
+          representations: location === 'queued' ? [representation] : undefined
+        }]
       },
       nglReducers: { objectsInView: location === 'rendered' ? { [`source_${objectType}`]: { representations: [representation] } } : {} }
     });
     const control = createConfig().inspirationControls.find(control => control.key === key);
     const snapshot = captureControlSnapshots(state, [source], [control])[key];
 
-    expect(snapshot.customization[representationKey]).toStrictEqual([{ type: 'licorice', params }]);
+    expect(snapshot.customization[representationKey]).toStrictEqual([{
+      type: 'licorice', params, ...(key === 'density' && location === 'rendered' && { densityMap: '' })
+    }]);
     expect(readRuntime).not.toHaveBeenCalled();
     snapshot.customization[representationKey][0].params.opacity = 0.8;
     expect(params.opacity).toBe(0.4);
@@ -101,12 +116,12 @@ describe('rhs pose transfer configuration', () => {
     show(shared, { opacity });
     const config = createConfig({ transferScheduling: scheduling, transferOrder: POSE_TRANSFER_ORDERS.ADD_FIRST });
     const ligand = config.poseControls.find(control => control.key === 'ligand');
-    ligand.remove = jest.fn(({ selectedItem }) => {
+    jest.spyOn(ligand, 'remove').mockImplementation(({ selectedItem }) => {
       state.selectionReducers.fragmentDisplayList = state.selectionReducers.fragmentDisplayList.filter(id => id !== selectedItem.id);
       state.selectionReducers.toBeDisplayedList = state.selectionReducers.toBeDisplayedList.filter(item => item.id !== selectedItem.id);
       delete state.nglReducers.objectsInView[`${selectedItem.id === source.id ? source.code : shared.code}_LIGAND`];
     });
-    ligand.apply = jest.fn(({ target, customization }) => show(target, customization.representations[0].params));
+    jest.spyOn(ligand, 'apply').mockImplementation(({ target, customization }) => show(target, customization.representations[0].params));
 
     await executePoseTransfer({
       config, sourcePose: { associatedObs: [source, shared] }, destinationPose: { associatedObs: [shared] }
@@ -115,11 +130,12 @@ describe('rhs pose transfer configuration', () => {
     const sharedRemovals = ligand.remove.mock.calls.filter(([args]) => args.selectedItem.id === shared.id);
     expect(sharedRemovals).toHaveLength(opacity === 0.4 ? 0 : 1);
     expect(ligand.apply).toHaveBeenCalledTimes(opacity === 0.4 ? 0 : 1);
-    expect(state.selectionReducers.fragmentDisplayList).toEqual([shared.id]);
+    expect(state.selectionReducers.fragmentDisplayList).toStrictEqual([shared.id]);
     expect(state.nglReducers.objectsInView.shared_LIGAND.representations[0].params.opacity).toBe(0.4);
   });
 
   it('waits for Moorhen object deletion even after the selected checkbox has cleared', () => {
+    expect.hasAssertions();
     const ligand = createConfig().poseControls.find(control => control.key === 'ligand');
     const state = createState({ nglReducers: { objectsInView: {
       ligand: { moleculeId: 7, OBJECT_TYPE: 'LIGAND' }
@@ -127,6 +143,79 @@ describe('rhs pose transfer configuration', () => {
     expect(ligand.isSelectedItemActive({ state, selectedItem: { id: 7 } })).toBe(true);
     state.nglReducers.objectsInView = {};
     expect(ligand.isSelectedItemActive({ state, selectedItem: { id: 7 } })).toBe(false);
+  });
+
+  it.each(
+    Object.values(POSE_TRANSFER_SCHEDULING).flatMap(transferScheduling =>
+      Object.values(POSE_TRANSFER_ORDERS).map(transferOrder => [transferScheduling, transferOrder])
+    )
+  )('clears unrelated Hits and transfers only the open inspirations through %s %s navigation', async (transferScheduling, transferOrder) => {
+    expect.hasAssertions();
+    const source = { id: 1, code: 'source' };
+    const destination = { id: 2, code: 'destination' };
+    const hitsLigand = { id: 3, code: 'hits' };
+    const sourceInspiration = { id: 4, code: 'source-inspiration' };
+    const destinationInspiration = { id: 5, code: 'destination-inspiration' };
+    const existingDestinationHit = { id: 6, code: 'existing-destination-hit' };
+    let state = createState({
+      apiReducers: {
+        all_mol_lists: [source, destination, hitsLigand, sourceInspiration, destinationInspiration, existingDestinationHit]
+      }
+    });
+    let openPose;
+    const config = createConfig({ transferScheduling, transferOrder, dialogs: {
+      hasTransferableState: ({ pose }) => pose === openPose
+    } });
+    const sourcePose = { associatedObs: [source], computed_inspirations: [hitsLigand.id, sourceInspiration.id] };
+    const destinationPose = {
+      associatedObs: [destination],
+      computed_inspirations: [destinationInspiration.id, existingDestinationHit.id]
+    };
+    const dispatch = action => {
+      if (typeof action === 'function') return action(dispatch, () => state);
+      const { item } = action;
+      const selection = state.selectionReducers;
+      const toBeDisplayedList = selection.toBeDisplayedList.filter(entry => entry.id !== item.id);
+      const fragmentDisplayList = selection.fragmentDisplayList.filter(id => id !== item.id);
+      const objectsInView = { ...state.nglReducers.objectsInView };
+      if (item.display) {
+        toBeDisplayedList.push({ ...item, rendered: true });
+        fragmentDisplayList.push(item.id);
+        objectsInView[item.id] = { moleculeId: item.id, OBJECT_TYPE: 'LIGAND' };
+      } else {
+        delete objectsInView[item.id];
+      }
+      state = {
+        ...state,
+        selectionReducers: { ...selection, toBeDisplayedList, fragmentDisplayList },
+        nglReducers: { ...state.nglReducers, objectsInView }
+      };
+      return action;
+    };
+    const show = item => dispatch(addLigand(null, item));
+    const move = (from, to) => executePoseTransfer({ config, sourcePose: from, destinationPose: to })(dispatch, () => state);
+    const displayed = () => new Set(state.selectionReducers.fragmentDisplayList);
+
+    await show(hitsLigand);
+    await show(existingDestinationHit);
+    expect(hasPoseTransferStateForPose({ state, pose: sourcePose, config })).toBe(false);
+
+    await show(source);
+    await show(destination);
+    const originalDesignObject = state.nglReducers.objectsInView[destination.id];
+    await move(sourcePose, destinationPose);
+    expect(displayed()).toStrictEqual(new Set([destination.id]));
+    if (transferScheduling !== POSE_TRANSFER_SCHEDULING.PHASED || transferOrder !== POSE_TRANSFER_ORDERS.REMOVE_FIRST) {
+      expect(state.nglReducers.objectsInView[destination.id]).toBe(originalDesignObject);
+    }
+
+    openPose = destinationPose;
+    await show(destinationInspiration); // Works with legacy snapshot entries, without an ownership marker.
+    await move(destinationPose, sourcePose);
+    expect(displayed()).toStrictEqual(new Set([source.id, hitsLigand.id, sourceInspiration.id]));
+    openPose = sourcePose;
+    await move(sourcePose, destinationPose);
+    expect(displayed()).toStrictEqual(new Set([destination.id, destinationInspiration.id, existingDestinationHit.id]));
   });
 
   it('keeps post-transfer centering disabled when no mode is injected', () => {
@@ -243,6 +332,7 @@ describe('rhs pose transfer configuration', () => {
             id: source.id,
             type: 'LIGAND',
             display: true,
+            [RHS_INSPIRATION]: true,
             withQuality: true,
             representations
           }
@@ -278,10 +368,11 @@ describe('rhs pose transfer configuration', () => {
             id: first.id,
             type: 'PROTEIN',
             display: true,
+            [RHS_INSPIRATION]: true,
             withQuality: true,
             representations: firstRepresentations
           },
-          { id: first.id, type: 'ARTEFACTS', display: true, withQuality: false }
+          { id: first.id, type: 'ARTEFACTS', display: true, [RHS_INSPIRATION]: true, withQuality: false }
         ]
       }
     });
@@ -324,6 +415,7 @@ describe('rhs pose transfer configuration', () => {
             id: source.id,
             type: 'DENSITY',
             display: true,
+            [RHS_INSPIRATION]: true,
             densityObject,
             representations
           }
