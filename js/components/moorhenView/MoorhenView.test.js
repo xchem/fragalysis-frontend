@@ -7,6 +7,8 @@ import { NglContext } from '../nglView/nglProvider';
 import MoorhenViewerAdapter from '../../viewer/MoorhenViewerAdapter';
 import { initializeMoorhenCcp4Module } from '../moorhenProof/moorhenCcp4';
 import MoorhenView from './MoorhenView';
+import nglReducers from '../../reducers/ngl/nglReducers';
+import { setNglViewParams } from '../../reducers/ngl/actions';
 
 jest.mock('../nglView/nglProvider', () => ({ NglContext: require('react').createContext() }));
 jest.mock('../nglView/redux/dispatchActions', () => ({ handleNglViewPick: jest.fn() }));
@@ -115,7 +117,9 @@ describe('embedded Moorhen viewport', () => {
         viewParams: { backgroundColor: 'white', clipNear: 30, clipFar: 80, clipDist: '5', fogNear: 40, fogFar: 85 }
       }
     };
-    const appStore = legacy_createStore((state = initialState, action) => action.state || state);
+    const appStore = legacy_createStore((state = initialState, action) =>
+      action.state || { ...state, nglReducers: nglReducers(state.nglReducers, action) }
+    );
     const ui = designsOpen => (
       <Provider store={appStore}>
         <NglContext.Provider value={context}>
@@ -179,6 +183,10 @@ describe('embedded Moorhen viewport', () => {
       expect(adapter.destroy).not.toHaveBeenCalled();
       expect(interactionsSwitch).toBeChecked();
 
+      for (const color of ['black', '#ededed']) {
+        await act(async () => appStore.dispatch(setNglViewParams('backgroundColor', color)));
+        expect(adapter.setParameters).toHaveBeenLastCalledWith({ backgroundColor: color });
+      }
       const savedParameters = {
         backgroundColor: 'black',
         clipNear: 45,

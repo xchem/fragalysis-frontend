@@ -367,6 +367,19 @@ export class NglViewerAdapter extends ViewerAdapter {
   }
 
   setParameters(parameters) {
+    // Stage.setParameters replays clipping, fog, camera, sampling and lighting
+    // even for a single color. Keep its public parameter record and signal in sync.
+    if (parameters?.backgroundColor != null && Object.keys(parameters).length === 1) {
+      const { stage } = this;
+      const { fogColor, backgroundColor } = stage.viewer.parameters;
+      // NGL normally blends fog into the backdrop. Keep an independently tinted fog.
+      const fogTint = fogColor.equals(backgroundColor) ? null : fogColor.clone();
+      stage.parameters.backgroundColor = parameters.backgroundColor;
+      stage.viewer.setBackground(parameters.backgroundColor);
+      if (fogTint) stage.viewer.setFog(fogTint);
+      stage.signals.parametersChanged.dispatch(stage.getParameters());
+      return stage;
+    }
     return this.stage.setParameters(parameters);
   }
 

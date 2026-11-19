@@ -81,7 +81,7 @@ const getStructureUrl = data =>
 const getArtefactStructureUrl = data =>
   normalizeUrlForCurrentProtocol(data?.artefacts_file || data?.pdb_info || data?.virtual_pdb_info);
 
-const getMoleculeObjectName = data => data.code || data.name || data.virtual_name;
+export const getMoleculeObjectName = data => data.code || data.name || data.virtual_name;
 
 // Hit Protein
 export const generateHitProteinObject = (data, colourToggle, base_url, datasetID) => async dispatch => {

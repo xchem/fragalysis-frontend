@@ -11,6 +11,7 @@ import {
 } from './rhsPoseTransferConfig';
 import { POSE_TRANSFER_CENTERING_MODES, RHS_INSPIRATION } from '../../../constants/poseNavigation';
 import { addLigand } from './redux/dispatchActions';
+import ViewerAdapter from '../../../viewer/ViewerAdapter';
 import {
   centerOnLigandByMoleculeID,
   centerOnLigandsByMoleculeIDs
@@ -53,6 +54,21 @@ const createConfig = (overrides = {}) =>
   });
 
 describe('rhs pose transfer configuration', () => {
+  it('tracks only requested destination maps on adapters with native map load milestones', () => {
+    expect.hasAssertions();
+    const density = createConfig().inspirationControls.find(control => control.key === 'density');
+    const viewerAdapter = new ViewerAdapter();
+    const context = {
+      stage: { viewerAdapter },
+      item: { code: 'dest' },
+      snapshot: { customization: { densityObject: { render_event: true, render_2FoFc: true } } }
+    };
+    expect(density.getRenderProgressReader(context)).toBeNull();
+    Object.assign(viewerAdapter, { getMapLoadProgress: jest.fn(name => name === 'dest_DENSITY' ? 2 : 1) });
+    expect(density.getRenderProgressReader(context)()).toBe(3);
+    expect(viewerAdapter.getMapLoadProgress.mock.calls).toStrictEqual([['dest_DENSITY'], ['dest_DENSITY_MAP_sigmaa']]);
+  });
+
   const representationControls = [
     ['ligand', 'LIGAND', 'LIGAND', 'fragmentDisplayList', 'representations'],
     ['protein', 'PROTEIN', 'HIT_PROTEIN', 'proteinList', 'proteinRepresentations'],

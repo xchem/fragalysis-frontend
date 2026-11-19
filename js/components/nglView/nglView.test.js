@@ -7,6 +7,8 @@ import { createHtmlPortalNode, InPortal, OutPortal } from 'react-reverse-portal'
 import { NglContext } from './nglProvider';
 import NglViewerAdapter from '../../viewer/NglViewerAdapter';
 import NglView from './nglView';
+import nglReducers from '../../reducers/ngl/nglReducers';
+import { setNglViewParams } from '../../reducers/ngl/actions';
 
 jest.mock('./nglProvider', () => ({ NglContext: require('react').createContext() }));
 jest.mock('./redux/dispatchActions', () => ({ handleNglViewPick: jest.fn() }));
@@ -66,7 +68,9 @@ describe('restored NGL host', () => {
       nglReducers: { viewParams: { backgroundColor: 'white', clipNear: 30 } },
       selectionReducers: { unifiedFilter: {}, coordinateRadiusLHS: 5 }
     };
-    const store = legacy_createStore((state = initialState, action) => action.state || state);
+    const store = legacy_createStore((state = initialState, action) =>
+      action.state || { ...state, nglReducers: nglReducers(state.nglReducers, action) }
+    );
     const portal = createHtmlPortalNode();
     const theme = createTheme();
     const ui = moved => (
@@ -91,6 +95,22 @@ describe('restored NGL host', () => {
       expect(NglViewerAdapter.create).toHaveBeenCalledTimes(1);
       expect(context.registerNglView).toHaveBeenCalledWith('major_view', adapter);
       expect(adapter.setParameters).toHaveBeenCalledWith(expect.objectContaining(initialState.nglReducers.viewParams));
+      adapter.setParameters.mockClear();
+      for (const color of ['black', '#ededed']) {
+        await act(async () => store.dispatch(setNglViewParams('backgroundColor', color)));
+        expect(adapter.setParameters).toHaveBeenLastCalledWith({ backgroundColor: color });
+      }
+      // Restoring the same serialized clip value must still override a native gesture.
+      await act(async () => store.dispatch({ type: 'RESTORE', state: initialState }));
+      expect(adapter.setParameters).toHaveBeenLastCalledWith(initialState.nglReducers.viewParams);
+      await act(async () => {
+        store.dispatch({
+          type: 'RESTORE',
+          state: { ...initialState, nglReducers: { viewParams: { clipNear: 65, backgroundColor: 'white' } } }
+        });
+        store.dispatch(setNglViewParams('backgroundColor', 'black'));
+      });
+      expect(adapter.setParameters).toHaveBeenLastCalledWith({ clipNear: 65, backgroundColor: 'black' });
       await act(async () =>
         store.dispatch({
           type: 'UPDATE',

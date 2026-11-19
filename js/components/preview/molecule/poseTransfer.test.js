@@ -25,6 +25,53 @@ const createEligibilityConfig = controls => ({
 });
 
 describe('pose transfer helpers', () => {
+  it.each([true, false])('waits for advancing destination renders but not a stalled batch (finishes: %s)', async finishes => {
+    expect.hasAssertions();
+    jest.useFakeTimers();
+    try {
+      const state = { active: { density: { source: { value: 'maps' } } } };
+      let progress = 0;
+      let acknowledged = 0;
+      let rendered = false;
+      const density = {
+        ...createControl('density'),
+        remove: ({ selectedItem }) => { delete state.active.density[selectedItem.id]; },
+        apply: ({ target, activeState }) => { state.active.density[target.id] = activeState; },
+        isRendered: () => rendered,
+        getRenderProgressReader: () => () => progress,
+        countRenderAcknowledgements: () => acknowledged
+      };
+      const config = {
+        ...createEligibilityConfig([density]),
+        transferScheduling: POSE_TRANSFER_SCHEDULING.PHASED,
+        transferOrder: POSE_TRANSFER_ORDERS.REMOVE_FIRST,
+        renderTimeout: 100,
+        getPoseTargets: ({ pose }) => pose.poseItems
+      };
+      const result = executePoseTransfer({
+        config, sourcePose: { poseItems: [{ id: 'source' }] }, destinationPose: { poseItems: [{ id: 'dest' }] }
+      })(jest.fn(), () => state);
+      const outcome = result.then(() => null, error => error);
+      await jest.advanceTimersByTimeAsync(75);
+      progress = 1;
+      await jest.advanceTimersByTimeAsync(75);
+      acknowledged = 1;
+      await jest.advanceTimersByTimeAsync(75);
+      // More than two timeout periods elapsed. A milestone alone must never
+      // finish the transfer; only the rendered acknowledgement can do that.
+      if (finishes) rendered = true;
+      await jest.advanceTimersByTimeAsync(100);
+      if (finishes) {
+        expect(await outcome).toBeNull();
+        expect(state.active.density.dest).toBeDefined();
+      } else {
+        expect((await outcome).message).toMatch(/Timed out/);
+      }
+    } finally {
+      jest.useRealTimers();
+    }
+  });
+
   it('does not re-add a shared structure until asynchronous viewer deletion is acknowledged', async () => {
     expect.hasAssertions();
     const state = { active: { ligand: { shared: { value: 'old' } } }, deleting: false };
