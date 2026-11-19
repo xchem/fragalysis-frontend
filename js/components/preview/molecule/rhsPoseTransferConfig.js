@@ -18,8 +18,12 @@ import {
 } from './redux/dispatchActions';
 import { appendProteinSettings, appendToBeDisplayedList } from '../../../reducers/selection/actions';
 import { colourList } from './utils/color';
-import { getRepresentationsByType, getRepresentationsForDensities } from '../../nglView/generatingObjects';
-import { OBJECT_TYPE } from '../../nglView/constants';
+import {
+  getMoleculeObjectName,
+  getRepresentationsByType,
+  getRepresentationsForDensities
+} from '../../nglView/generatingObjects';
+import { DENSITY_MAPS, OBJECT_TYPE } from '../../nglView/constants';
 import { NGL_OBJECTS } from '../../../reducers/ngl/constants';
 import { VIEWS } from '../../../constants/constants';
 import {
@@ -28,6 +32,7 @@ import {
 } from '../../../reducers/ngl/dispatchActions';
 import { POSE_TRANSFER_CENTERING_MODES } from '../../../constants/poseNavigation';
 import { copyRepresentationSettings, copyRepresentationSettingsList } from '../../../viewer/representationState';
+import { asViewerAdapter } from '../../../viewer/viewerAdapterFactory';
 
 const getMainObservation = pose =>
   pose?.associatedObs?.find(observation => observation.id === pose?.main_site_observation) ||
@@ -361,6 +366,18 @@ const copyDensitySettings = representations => representations?.map(rep => ({
 
 const densityControl = {
   key: 'density',
+  getRenderProgressReader: ({ stage, item, snapshot }) => {
+    const adapter = asViewerAdapter(stage);
+    if (!adapter?.getMapLoadProgress) return null;
+    const settings = snapshot.customization?.densityObject || snapshot.activeState;
+    const base = `${getMoleculeObjectName(item)}_${OBJECT_TYPE.DENSITY}`;
+    const names = [
+      settings.render_event && base,
+      settings.render_2FoFc && base + DENSITY_MAPS.SIGMAA,
+      settings.render_FoFc && base + DENSITY_MAPS.DIFF
+    ].filter(Boolean);
+    return () => names.reduce((total, name) => total + adapter.getMapLoadProgress(name), 0);
+  },
   getActiveState: (state, item) => state.selectionReducers.densityList.find(density => density.id === item.id) || false,
   getSelectedItems: state => (state.selectionReducers.densityList || []).map(density => ({ ...density })),
   captureCustomization: ({ state, item, activeState }) => {
@@ -443,8 +460,10 @@ export const createRhsPoseTransferConfig = ({
   renderTimeout
 }) => {
   // A cleared checkbox can precede native buffer deletion, in either viewer.
-  const awaitViewerRemoval = (control, objectTypes) => ({
+  const awaitViewerRemoval = (control, objectTypes, ...queueTypes) => ({
     ...control,
+    countRenderAcknowledgements: (state, item) =>
+      queueTypes.reduce((count, type) => count + Number(isQueueItemRendered(state, item.id, type)), 0),
     isSelectedItemActive: context => {
       const { state, selectedItem } = context;
       return (
@@ -453,12 +472,12 @@ export const createRhsPoseTransferConfig = ({
       );
     }
   });
-  const ligand = awaitViewerRemoval(ligandControl(ligandRepresentations), [OBJECT_TYPE.LIGAND]);
-  const protein = awaitViewerRemoval(proteinControl);
-  const complex = awaitViewerRemoval(complexControl, [OBJECT_TYPE.COMPLEX]);
-  const surface = awaitViewerRemoval(surfaceControl, [OBJECT_TYPE.SURFACE]);
-  const density = awaitViewerRemoval(densityControl, [OBJECT_TYPE.DENSITY]);
-  const vector = awaitViewerRemoval(vectorControl, [OBJECT_TYPE.ARROW, OBJECT_TYPE.CYLINDER]);
+  const ligand = awaitViewerRemoval(ligandControl(ligandRepresentations), [OBJECT_TYPE.LIGAND], NGL_OBJECTS.LIGAND);
+  const protein = awaitViewerRemoval(proteinControl, undefined, NGL_OBJECTS.PROTEIN, NGL_OBJECTS.ARTEFACTS);
+  const complex = awaitViewerRemoval(complexControl, [OBJECT_TYPE.COMPLEX], NGL_OBJECTS.COMPLEX);
+  const surface = awaitViewerRemoval(surfaceControl, [OBJECT_TYPE.SURFACE], NGL_OBJECTS.SURFACE);
+  const density = awaitViewerRemoval(densityControl, [OBJECT_TYPE.DENSITY], NGL_OBJECTS.DENSITY);
+  const vector = awaitViewerRemoval(vectorControl, [OBJECT_TYPE.ARROW, OBJECT_TYPE.CYLINDER], NGL_OBJECTS.VECTOR);
   const poseControls = [ligand, protein, complex, surface];
   // The source pose limits what we copy, not what we clear. A Hit and its
   // inspiration row operate the same viewer object, including after snapshot restore.

@@ -21,7 +21,6 @@ import {
   removeMap,
   removeMolecule,
   removeVector,
-  setBackgroundColor,
   setClipStart,
   setClipEnd,
   setFogStart,
@@ -76,7 +75,6 @@ jest.mock('moorhen', () => {
     setDiffuse: action('moorhen/setDiffuse'),
     setSpecular: action('moorhen/setSpecular'),
     setSpecularPower: action('moorhen/setSpecularPower'),
-    setBackgroundColor: action('moorhen/setBackgroundColor'),
     setClipEnd: action('moorhen/setClipEnd'),
     setClipStart: action('moorhen/setClipStart'),
     setContourLevel: action('moorhen/setContourLevel'),
@@ -374,7 +372,7 @@ describe('moorhen scene settings', () => {
         fogNear: 0,
         fogFar: 100
       });
-      expect(store.dispatch).toHaveBeenCalledWith(setBackgroundColor([1, 1, 1, 1]));
+      expect(renderer.background_colour).toStrictEqual([1, 1, 1, 1]);
       expect(store.dispatch).toHaveBeenCalledWith(setResetClippingFogging(false));
       expect(store.dispatch).toHaveBeenCalledWith(setClipStart(20));
       expect(store.dispatch).toHaveBeenCalledWith(setClipEnd(20));
@@ -391,7 +389,6 @@ describe('moorhen scene settings', () => {
       expect(adapter.sceneParameters.clipDist).toBe(5);
       expect(adapter.sceneParameters.clipFar).toBe(100);
       expect(renderer.gl_clipPlane1[3]).toBe(270);
-      store.state.sceneSettings.backgroundColor = [1, 1, 1, 1];
       store.dispatch.mockClear();
       drawScene.mockClear();
       adapter.setParameters({ backgroundColor: 'white', clipNear: 75, fogNear: 40 });
@@ -430,6 +427,17 @@ describe('moorhen scene settings', () => {
       expect(renderer.gl_fog_start).toBe(240);
       // A native manual edit is still effective until the view/drawer changes.
       renderer.set_clip_range(-3, 8);
+      renderer.set_fog_range(230, 255);
+      store.dispatch.mockClear();
+      for (const [backgroundColor, channel] of [['#ededed', 237 / 255], ['black', 0]]) {
+        adapter.setParameters({ backgroundColor });
+        expect(renderer.background_colour).toStrictEqual([channel, channel, channel, 1]);
+        expect(renderer.gl_clipPlane0[3]).toBe(-247);
+        expect(renderer.gl_clipPlane1[3]).toBe(258);
+        expect(renderer.gl_fog_start).toBe(230);
+        expect(renderer.gl_fog_end).toBe(255);
+      }
+      expect(store.dispatch).not.toHaveBeenCalled();
       renderer.drawScene();
       expect(renderer.gl_clipPlane0[3]).toBe(-247);
     } finally {
@@ -704,11 +712,11 @@ describe('MoorhenViewerAdapter Stage 18 parity', () => {
 
   it('requires a runtime and is recovered by the generic adapter factory', () => {
     expect(() => new MoorhenViewerAdapter()).toThrow('requires commandCentre, glRef and store');
-    const { adapter, store } = createAdapter();
+    const { adapter, store, glRef } = createAdapter();
 
     expect(asViewerAdapter(adapter.getNativeViewer())).toBe(adapter);
     expect(asViewerAdapter(adapter)).toBe(adapter);
-    expect(store.dispatch).toHaveBeenCalledWith(setBackgroundColor([237 / 255, 237 / 255, 237 / 255, 1]));
+    expect(glRef.current.background_colour).toStrictEqual([0, 0, 0, 1]);
     expect(store.dispatch).toHaveBeenCalledWith(setDiffuse([1, 1, 1, 1]));
     expect(store.dispatch).toHaveBeenCalledWith(setSpecular([0, 0, 0, 1]));
     expect(store.dispatch).toHaveBeenCalledWith(setAmbient([0.2, 0.2, 0.2, 1]));
@@ -1076,6 +1084,33 @@ describe('MoorhenViewerAdapter Stage 18 parity', () => {
     expect(draw[4]).toBeCloseTo(-0.0257808287 + 2 * 0.3640211523);
   });
 
+  it('reuses a transferred full-map mesh only while its buffers and appearance are unchanged', async () => {
+    expect.hasAssertions();
+    const { adapter, map } = createAdapter();
+    const draw = map.doCootContour;
+    let id = 0;
+    draw.mockImplementation(async () => {
+      map.displayObjects = { Coot: [{ id: ++id }] };
+    });
+    const [{ repr: [handle] }] = await adapter.loadObject({
+      target: {
+        OBJECT_TYPE: 'DENSITY', name: 'event', event_url: createCcp4Map(), render_event: true,
+        boxSize_DENSITY: 0, isolevel_DENSITY: 1, contour_DENSITY: false
+      }
+    });
+    const redraw = () => map.doCootContour(100, 200, 300, 10, 1, 'lines');
+    await redraw();
+    expect(draw).toHaveBeenCalledTimes(1);
+    await adapter.setRepresentationParameters(handle, { opacity: 0.37 }).ready;
+    expect(draw).toHaveBeenCalledTimes(2);
+    map.hideMapContour();
+    await redraw();
+    expect(draw).toHaveBeenCalledTimes(3);
+    map.displayObjects.Coot = []; // A cleared mesh must be rebuilt even without a hide notification.
+    await redraw();
+    expect(draw).toHaveBeenCalledTimes(4);
+  });
+
   it('drains native map redraws and prevents delayed callbacks recreating deleted buffers', async () => {
     expect.hasAssertions();
     const map = createMap();
@@ -1171,13 +1206,98 @@ describe('MoorhenViewerAdapter Stage 18 parity', () => {
     expect(adapter.getObject('failed-map')).toBeUndefined();
   });
 
-  it('removes maps already loaded when a density batch partially fails', async () => {
+  it('counts a map registration and its first completed contour, never unrelated work or later redraws', async () => {
+    expect.hasAssertions();
+    const { adapter, map } = createAdapter();
+    let finish;
+    let started;
+    const contourStarted = new Promise(resolve => { started = resolve; });
+    map.doCootContour.mockImplementationOnce(() => new Promise(resolve => {
+      finish = resolve;
+      started();
+    }));
+    const loading = adapter.loadMap(new Uint8Array([1]), { name: 'event' });
+    await contourStarted;
+    expect(adapter.getMapLoadProgress('event')).toBe(1);
+    expect(adapter.getMapLoadProgress('sigmaa')).toBe(0);
+    finish();
+    await loading;
+    expect(adapter.getMapLoadProgress('event')).toBe(2);
+    await map.doCootContour(0, 0, 0, 10, 1, 'lines');
+    expect(adapter.getMapLoadProgress('event')).toBe(2);
+    await adapter.removeObjects('event');
+    expect(adapter.getMapLoadProgress('event')).toBe(0);
+  });
+
+  it.each([
+    [
+      'per-map edits',
+      [
+        { densityMap: '', params: { opacity: 0.37 } },
+        { densityMap: '_MAP_sigmaa', params: { opacity: 0.64 } }
+      ],
+      0.37,
+      0.64
+    ],
+    ['an unedited sibling and a transparent Event map', [{ densityMap: '', params: { opacity: 0 } }], 0, 0.9],
+    ['legacy untagged edits', [{ params: { opacity: 0.45 } }], 0.45, 0.45]
+  ])('renders Event and 2FoFc together with %s', async (_description, representations, eventAlpha, sigmaaAlpha) => {
+    expect.hasAssertions();
+    const { adapter, store } = createAdapter();
+    const sigmaa = createMap(19);
+    const event = createMap(20);
+    const mapsToLoad = [
+      { map: sigmaa, molNo: 19, alpha: sigmaaAlpha, contour: sigmaa.doCootContour },
+      { map: event, molNo: 20, alpha: eventAlpha, contour: event.doCootContour }
+    ];
+    for (const { map, molNo } of mapsToLoad) {
+      // At 12 prior maps the native automatic palette fails during suggested settings,
+      // after Coot allocated the map but before the adapter can register it.
+      map.setDefaultColour = async () => {
+        throw new TypeError('invalid automatic map hue');
+      };
+      map.loadToCootFromMapData.mockImplementation(async function() {
+        this.molNo = molNo;
+        await this.setDefaultColour();
+      });
+      MoorhenMap.mockImplementationOnce(() => map);
+    }
+    const data = new Uint8Array([1]);
+    const maps = await adapter.loadObject({
+      target: {
+        OBJECT_TYPE: 'DENSITY',
+        name: 'hit',
+        render_event: true,
+        event_url: data,
+        render_sigmaa: true,
+        sigmaa_url: data,
+        color_DENSITY: '#ff8000',
+        opacity_DENSITY: 1,
+        opacity_DENSITY_MAP_sigmaa: 0.9
+      },
+      representations
+    });
+
+    expect(maps.map(({ name }) => name)).toStrictEqual(['hit_MAP_sigmaa', 'hit']);
+    expect(event.defaultMapColour).toStrictEqual({ r: 1, g: 128 / 255, b: 0 });
+    for (const { map, alpha, contour } of mapsToLoad) {
+      expect(adapter.getRepresentations(map)[0].params.opacity).toBe(alpha);
+      expect(store.dispatch).toHaveBeenCalledWith(setMapAlpha({ molNo: map.molNo, alpha }));
+      if (alpha === 0) expect(store.dispatch).toHaveBeenCalledWith(hideMap(map));
+      else expect(contour).toHaveBeenCalledTimes(1);
+    }
+  });
+
+  it.each([null, 20])('removes only allocated maps when a density batch fails with native ID %s', async nativeId => {
+    expect.hasAssertions();
     const sigmaaMap = createMap(19);
     const differenceMap = createMap(20);
     const { adapter, store } = createAdapter();
     const error = new Error('difference map failed');
-    global.fetch = jest.fn(() => Promise.resolve({ ok: true, arrayBuffer: async () => new Uint8Array([1]).buffer }));
-    differenceMap.loadToCootFromMapData.mockRejectedValueOnce(error);
+    differenceMap.loadToCootFromMapData.mockImplementationOnce(async function() {
+      this.molNo = nativeId;
+      throw error;
+    });
     MoorhenMap.mockImplementationOnce(() => sigmaaMap).mockImplementationOnce(() => differenceMap);
 
     await expect(
@@ -1186,14 +1306,15 @@ describe('MoorhenViewerAdapter Stage 18 parity', () => {
           OBJECT_TYPE: 'DENSITY',
           name: 'density',
           render_sigmaa: true,
-          sigmaa_url: '/sigmaa.map',
+          sigmaa_url: new Uint8Array([1]),
           render_diff: true,
-          diff_url: '/difference.map'
+          diff_url: new Uint8Array([1])
         }
       })
     ).rejects.toBe(error);
 
     expect(sigmaaMap.delete).toHaveBeenCalledTimes(1);
+    expect(differenceMap.delete).toHaveBeenCalledTimes(nativeId == null ? 0 : 1);
     expect(store.dispatch).toHaveBeenCalledWith(removeMap(sigmaaMap));
     expect(adapter.getObject('density_MAP_sigmaa')).toBeUndefined();
   });

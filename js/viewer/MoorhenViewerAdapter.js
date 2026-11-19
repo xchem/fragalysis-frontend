@@ -2,7 +2,7 @@ import ViewerAdapter from './ViewerAdapter';
 import ContactWorkerClient from './contacts/ContactWorkerClient';
 import { USE_NGL_STYLE_INTERACTIONS } from '../config/viewer';
 import { getAbsoluteMapContour, readCcp4MapMetadata, transformCcp4MapMesh } from './moorhenMapUtils';
-import { NGL_VIEW_DEFAULT_VALUES } from '../components/nglView/constants';
+import { DENSITY_MAPS, NGL_VIEW_DEFAULT_VALUES } from '../components/nglView/constants';
 import { getSceneRadius, getSceneRanges } from './moorhenSceneSettings';
 import {
   MoorhenMap,
@@ -19,7 +19,6 @@ import {
   removeVector,
   setActiveMap,
   setAmbient,
-  setBackgroundColor,
   setClipEnd,
   setClipStart,
   setContourLevel,
@@ -132,15 +131,19 @@ const getRepresentationDefinition = (representation, fallbackType, fallbackParam
   lastKnownID: representation?.lastKnownID
 });
 
-const mapParametersForTarget = (target, mapKind) => {
-  const suffix = mapKind === 'event' ? 'DENSITY' : `DENSITY_MAP_${mapKind}`;
+const mapParametersForTarget = (target, mapSuffix, representations = []) => {
+  const suffix = `DENSITY${mapSuffix}`;
+  // Display controls edit the surface opacity, not the density dialog's defaults.
+  // Older snapshots have untagged surfaces. Moorhen has one alpha for both difference-map signs.
+  const perMap = representations?.some(rep => rep.densityMap !== undefined);
+  const surface = representations?.find(rep => (!perMap || rep.densityMap === mapSuffix) && !rep.params?.negateIsolevel);
   return {
     visible: true,
     color: target[`color_${suffix}`],
-    colorValue: normaliseMoorhenColour(target[`color_${suffix}`], mapKind === 'event' ? '#ffa500' : '#0000ff').integer,
+    colorValue: normaliseMoorhenColour(target[`color_${suffix}`], mapSuffix === '' ? '#ffa500' : '#0000ff').integer,
     isolevel: target[`isolevel_${suffix}`],
     boxSize: target[`boxSize_${suffix}`],
-    opacity: target[`opacity_${suffix}`],
+    opacity: surface?.params?.opacity ?? target[`opacity_${suffix}`],
     contour: target[`contour_${suffix}`]
   };
 };
@@ -367,7 +370,7 @@ export class MoorhenViewerAdapter extends ViewerAdapter {
               source: target.sigmaa_url,
               name: `${target.name}_MAP_sigmaa`,
               isDifference: false,
-              parameters: mapParametersForTarget(target, 'sigmaa')
+              parameters: mapParametersForTarget(target, DENSITY_MAPS.SIGMAA, options.representations)
             }
           : null,
         target.render_diff && target.diff_url
@@ -376,7 +379,7 @@ export class MoorhenViewerAdapter extends ViewerAdapter {
               name: `${target.name}_MAP_diff`,
               isDifference: true,
               parameters: {
-                ...mapParametersForTarget(target, 'diff'),
+                ...mapParametersForTarget(target, DENSITY_MAPS.DIFF, options.representations),
                 negativeColor: target.color_DENSITY_MAP_diff_negate
               }
             }
@@ -386,12 +389,12 @@ export class MoorhenViewerAdapter extends ViewerAdapter {
               source: target.event_url,
               name: target.name,
               isDifference: false,
-              parameters: mapParametersForTarget(target, 'event')
+              parameters: mapParametersForTarget(target, '', options.representations)
             }
           : null
       ].filter(Boolean);
       const mapResults = await Promise.allSettled(
-        mapRequests.map(request => this.loadMap(request.source, { ...request, ext: 'map' }))
+        mapRequests.map(request => this.loadMap(request.source, { ...request, ext: 'map', reuseDensityContour: true }))
       );
       const failedMap = mapResults.find(result => result.status === 'rejected');
       if (failedMap) {
@@ -817,7 +820,22 @@ export class MoorhenViewerAdapter extends ViewerAdapter {
         const header = new DataView(data.buffer);
         [49, 50, 51].forEach(word => header.setFloat32(word * 4, 0, metadata.littleEndian));
       }
-      await map.loadToCootFromMapData(data, name, options.isDifference === true);
+      const colour = options.parameters?.colorValue ?? options.parameters?.color;
+      if (colour != null && !options.isDifference) {
+        // Moorhen 0.22.7's automatic palette scans previous maps and throws at hue 360
+        // (12 prior non-difference maps). This map already has an application colour.
+        const { r, g, b } = normaliseMoorhenColour(colour).rgb;
+        map.setDefaultColour = async () => {
+          map.defaultMapColour = { r: r / 255, g: g / 255, b: b / 255 };
+        };
+      }
+      try {
+        await map.loadToCootFromMapData(data, name, options.isDifference === true);
+      } catch (error) {
+        // Suggested settings can fail after Coot allocates the map, before registration.
+        if (map.molNo != null && map.molNo >= 0) await Promise.allSettled([map.delete()]);
+        throw error;
+      }
     } else if (isUrl(source)) {
       await map.loadToCootFromMtzURL(source, name, options.selectedColumns, options.fetchOptions);
     } else if (isFileLike(source)) {
@@ -832,7 +850,7 @@ export class MoorhenViewerAdapter extends ViewerAdapter {
       throw new Error(`Moorhen failed to load map ${name}`);
     }
 
-    this.prepareMapRendering(map, metadata);
+    this.prepareMapRendering(map, metadata, options.reuseDensityContour);
     this.store.dispatch(addMap(map));
     this.store.dispatch(showMap(map));
     this.store.dispatch(setActiveMap(map));
@@ -841,6 +859,7 @@ export class MoorhenViewerAdapter extends ViewerAdapter {
     try {
       this.applyMapRepresentationParameters(handle, handle.params);
       await handle.ready;
+      this.mapRendering.get(map).initialContourReady = true;
       return registeredMap;
     } catch (error) {
       await this.removeObjectNow(map);
@@ -848,7 +867,13 @@ export class MoorhenViewerAdapter extends ViewerAdapter {
     }
   }
 
-  prepareMapRendering(map, metadata = null) {
+  getMapLoadProgress(name) {
+    // Two finite milestones for this load, never camera redraws or unrelated native commands.
+    const rendering = this.mapRendering.get(this.getObject(name));
+    return rendering ? (rendering.initialContourReady ? 2 : 1) : 0;
+  }
+
+  prepareMapRendering(map, metadata = null, reuseDensityContour = false) {
     // The native manager otherwise replaces application settings on mount with
     // EM-map suggestions (including a small radius around an unrelated peak).
     map.showOnLoad = false;
@@ -862,6 +887,7 @@ export class MoorhenViewerAdapter extends ViewerAdapter {
     // Moorhen 0.22.7 updates its buffer store without repainting the canvas.
     // Draw after each buffer change so maps appear/disappear without a mouse move.
     map.hideMapContour = (...args) => {
+      rendering.lastContour = null;
       hideContour(...args);
       this.glRef.current?.drawScene?.();
     };
@@ -896,7 +922,20 @@ export class MoorhenViewerAdapter extends ViewerAdapter {
               : (parameters.contour ?? parameters.wireframe) === false
               ? 'solid'
               : 'lines';
-          await contour(...centre, nativeRadius, nativeLevel, nativeStyle);
+          const args = [...centre, nativeRadius, nativeLevel, nativeStyle];
+          // Native map managers request the initial contour again on mount and
+          // on camera moves. A whole-map Fragalysis density has the same geometry
+          // at every origin. Reuse only its still-mounted buffers at identical
+          // geometry and appearance; native/editable maps always recompute.
+          const cacheable = reuseDensityContour && !map.otherMapForColouring;
+          const cached = rendering.lastContour;
+          const bufferId = map.displayObjects?.Coot?.[0]?.id;
+          if (
+            cacheable && bufferId != null && cached?.bufferId === bufferId && cached.parameters === parameters &&
+            args.every((value, index) => value === cached.args[index])
+          ) return;
+          await contour(...args);
+          rendering.lastContour = cacheable ? { parameters, args, bufferId: map.displayObjects?.Coot?.[0]?.id } : null;
         });
       return rendering.pending;
     };
@@ -1605,9 +1644,12 @@ export class MoorhenViewerAdapter extends ViewerAdapter {
     if (parameters.backgroundColor != null) {
       const { rgb } = normaliseMoorhenColour(parameters.backgroundColor, '#000000');
       const color = [rgb.r / 255, rgb.g / 255, rgb.b / 255, 1];
-      const currentColor = this.store.getState().sceneSettings.backgroundColor;
-      if (!color.every((value, index) => value === currentColor?.[index])) {
-        this.store.dispatch(setBackgroundColor(color));
+      // The store preference switches the page theme and redraws molecules.
+      // The native setBackground also rebuilds label and measurement buffers.
+      const renderer = this.glRef.current;
+      if (renderer && !color.every((value, index) => value === renderer.background_colour?.[index])) {
+        renderer.background_colour = color;
+        renderer.drawScene?.();
       }
     }
     let rangesChanged = false;

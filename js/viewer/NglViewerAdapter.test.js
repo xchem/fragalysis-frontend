@@ -1,6 +1,6 @@
 import { NglViewerAdapter } from './NglViewerAdapter';
 import { asViewerAdapter } from './viewerAdapterFactory';
-import { Box3, Matrix4, Quaternion, Vector3 } from 'ngl';
+import { Box3, Color, Matrix4, Quaternion, Vector3 } from 'ngl';
 
 const { fn } = jest;
 
@@ -162,15 +162,36 @@ describe('ngl viewer adapter', () => {
     const onComplete = fn();
     stage.tasks.count = 3;
 
-    adapter.setParameters({ backgroundColor: 'black' });
+    adapter.setParameters({ backgroundColor: 'black', clipNear: 30 });
     adapter.resize();
     expect(adapter.getRendererElement()).toBe(stage.viewer.renderer.domElement);
     expect(adapter.getTaskCount()).toBe(3);
     adapter.onTasksComplete(onComplete);
 
-    expect(stage.setParameters).toHaveBeenCalledWith({ backgroundColor: 'black' });
+    expect(stage.setParameters).toHaveBeenCalledWith({ backgroundColor: 'black', clipNear: 30 });
     expect(stage.handleResize).toHaveBeenCalledTimes(1);
     expect(stage.tasks.onZeroOnce).toHaveBeenCalledWith(onComplete);
+  });
+
+  it('paints the background and notifies stage listeners without replaying stage settings', () => {
+    expect.hasAssertions();
+    const stage = createStage();
+    stage.parameters = { backgroundColor: 'black', clipNear: 35 };
+    stage.getParameters = () => ({ ...stage.parameters });
+    stage.signals.parametersChanged = { dispatch: fn() };
+    const fogColor = new Color('red');
+    const backdrop = new Color('black');
+    stage.viewer.parameters = { fogColor, backgroundColor: backdrop };
+    stage.viewer.setBackground = fn(color => fogColor.copy(backdrop.set(color)));
+    stage.viewer.setFog = fn(color => fogColor.copy(color));
+    const adapter = new NglViewerAdapter(stage);
+    for (const backgroundColor of ['#ededed', 'black']) {
+      expect(adapter.setParameters({ backgroundColor })).toBe(stage);
+      expect(stage.viewer.setBackground).toHaveBeenLastCalledWith(backgroundColor);
+      expect(fogColor.getHexString()).toBe('ff0000');
+      expect(stage.signals.parametersChanged.dispatch).toHaveBeenLastCalledWith({ backgroundColor, clipNear: 35 });
+    }
+    expect(stage.setParameters).not.toHaveBeenCalled();
   });
 
   it('normalizes picks and manages viewer event handlers', () => {

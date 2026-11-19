@@ -1,6 +1,7 @@
 import { BACKGROUND_COLOR, NGL_PARAMS, NGL_VIEW_DEFAULT_VALUES } from '../../components/nglView/constants';
 import { CONSTANTS } from './constants';
 import { VIEWS } from '../../constants/constants';
+import { withBackgroundColor } from './viewParameters';
 
 export const INITIAL_STATE = {
   // NGL Scene properties
@@ -188,6 +189,9 @@ export default function nglReducers(state = INITIAL_STATE, action = {}) {
       });
 
     case CONSTANTS.SET_NGL_VIEW_PARAMS:
+      if (action.key === NGL_PARAMS.backgroundColor) {
+        return { ...state, viewParams: withBackgroundColor(state.viewParams, action.value) };
+      }
       const newViewParams = JSON.parse(JSON.stringify(state.viewParams));
       newViewParams[action.key] = action.value;
 

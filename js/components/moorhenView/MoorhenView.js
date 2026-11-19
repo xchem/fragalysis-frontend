@@ -25,6 +25,7 @@ import { installMoorhenWorkerBridge } from './moorhenWorkerBridge';
 import { useInitialViewerPresentation } from './useInitialViewerPresentation';
 import { useMoorhenInteractionPreferences } from './useMoorhenInteractionPreferences';
 import { NGL_VIEW_DEFAULT_VALUES } from '../nglView/constants';
+import { applyViewerParameters } from '../../reducers/ngl/viewParameters';
 import { normaliseMoorhenColour } from '../../viewer/moorhenAdapterUtils';
 
 const MOORHEN_INITIALIZATION_TIMEOUT_MS = 300000;
@@ -212,7 +213,7 @@ const MoorhenMainView = memo(({ div_id, dispatchAppAction, onInitializationFailu
         monomerLibraryPath,
         containerElement: containerRef
       });
-      adapter.setParameters({ ...NGL_VIEW_DEFAULT_VALUES, ...viewParamsRef.current });
+      applyViewerParameters(adapter, viewParamsRef.current, NGL_VIEW_DEFAULT_VALUES);
       registerNglView(div_id, adapter);
       handlePick = (viewerAdapter, pick) => dispatchAppAction(handleNglViewPick(viewerAdapter, pick, getViewerAdapter));
       handleOrientationChanged = () => dispatchAppAction(setOrientationByInteraction(div_id, adapter.getOrientation()));
@@ -267,7 +268,7 @@ const MoorhenMainView = memo(({ div_id, dispatchAppAction, onInitializationFailu
   ]);
 
   useEffect(() => {
-    getViewerAdapter(div_id)?.setParameters({ ...NGL_VIEW_DEFAULT_VALUES, ...viewParams });
+    applyViewerParameters(getViewerAdapter(div_id), viewParams, NGL_VIEW_DEFAULT_VALUES);
   }, [div_id, getViewerAdapter, viewParams]);
 
   return (

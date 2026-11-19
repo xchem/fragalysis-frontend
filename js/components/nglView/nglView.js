@@ -14,6 +14,7 @@ import { Popover, TextField, Button, Typography } from '@mui/material';
 import { makeStyles } from '../../ui/styles';
 import { VIEWS } from '../../constants/constants';
 import { INITIAL_STATE as NGL_INITIAL } from '../../reducers/ngl/nglReducers';
+import { applyViewerParameters } from '../../reducers/ngl/viewParameters';
 import { api } from '../../utils/api';
 import { base_url } from '../routes/constants';
 import NglViewerAdapter from '../../viewer/NglViewerAdapter';
@@ -312,11 +313,11 @@ const NglView = memo(
       let activeViewerAdapter;
       try {
         activeViewerAdapter = NglViewerAdapter.create(div_id);
-        activeViewerAdapter.setParameters(
-          div_id === VIEWS.MAJOR_VIEW
-            ? { ...NGL_INITIAL.viewParams, ...viewParamsRef.current }
-            : { [NGL_PARAMS.backgroundColor]: NGL_INITIAL.viewParams[NGL_PARAMS.backgroundColor] }
-        );
+        if (div_id === VIEWS.MAJOR_VIEW) {
+          applyViewerParameters(activeViewerAdapter, viewParamsRef.current, NGL_INITIAL.viewParams);
+        } else {
+          activeViewerAdapter.setParameters({ [NGL_PARAMS.backgroundColor]: NGL_INITIAL.viewParams.backgroundColor });
+        }
         registerNglView(div_id, activeViewerAdapter);
         setViewerAdapter(activeViewerAdapter);
         telemetry.ready();
@@ -339,7 +340,7 @@ const NglView = memo(
     }, [viewerAdapter, registerStageEvents, unregisterStageEvents]);
 
     useEffect(() => {
-      if (div_id === VIEWS.MAJOR_VIEW && viewerAdapter) viewerAdapter.setParameters(viewParams);
+      if (div_id === VIEWS.MAJOR_VIEW) applyViewerParameters(viewerAdapter, viewParams);
     }, [div_id, viewerAdapter, viewParams]);
 
     useEffect(() => {

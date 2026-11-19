@@ -252,8 +252,8 @@ export const centerOnLigandsByMoleculeIDs = (stage, moleculeIDs = []) => async (
   return Boolean(centered);
 };
 
-export const setNglBckGrndColor = (color, major) => (dispatch, getState) => {
-  dispatch(setNglViewParams(NGL_PARAMS.backgroundColor, color, asViewerAdapter(major), VIEWS.MAJOR_VIEW));
+export const setNglBckGrndColor = color => dispatch => {
+  dispatch(setNglViewParams(NGL_PARAMS.backgroundColor, color, undefined, VIEWS.MAJOR_VIEW));
   dispatch(setBackgroundColor(color));
 };
 
