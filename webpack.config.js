@@ -25,11 +25,12 @@ module.exports = {
 
   context: __dirname,
 
-  entry: ['babel-polyfill', './js/index'],
+  entry: ['babel-polyfill', './js/publicPath', './js/index'],
 
   output: {
     path: path.resolve(__dirname, 'bundles'),
     filename: '[name]-[fullhash].js',
+    chunkFilename: '[name]-[contenthash].js',
     publicPath: ''
   },
 
@@ -52,13 +53,18 @@ module.exports = {
   plugins: [
     new LegacyBundleTrackerPlugin({ path: __dirname }),
     new webpack.DefinePlugin({
-      __FRAGALYSIS_VIEWER_ENGINE__: JSON.stringify(process.env.VIEWER_ENGINE || '')
+      __FRAGALYSIS_MOORHEN_PROOF_ENABLED__: JSON.stringify(process.env.MOORHEN_PROOF_ENABLED || ''),
+      __FRAGALYSIS_MOORHEN_ASSET_URL__: JSON.stringify(process.env.MOORHEN_ASSET_URL || '')
     }),
     new Dotenv()
   ],
 
   module: {
     rules: [
+      {
+        test: /contacts[\\/]vendor[\\/]detector\.mjs$/,
+        type: 'asset/source'
+      },
       {
         test: /\.(js|jsx)$/,
         enforce: 'pre',

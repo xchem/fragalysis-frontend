@@ -27,7 +27,9 @@ describe('Moorhen migration safety smoke tests', () => {
     cy.screenshot('smoke/landing');
 
     cy.get('#open-menu-button').click();
-    cy.contains('.MuiListItemText-root', 'Management').should('be.visible').click();
+    cy.contains('.MuiListItemText-root', 'Management')
+      .should('be.visible')
+      .click();
     cy.location('pathname', { timeout: 30000 }).should('eq', managementRoute);
     cy.contains('Proposal List', { timeout: 30000 }).should('be.visible');
     cy.contains('Target List', { timeout: 30000 }).should('be.visible');
@@ -36,11 +38,13 @@ describe('Moorhen migration safety smoke tests', () => {
     cy.assertNoConsoleErrors();
   });
 
-  it('opens the first public target preview and renders the NGL viewer shell', () => {
+  it('opens the first public target preview and renders the Moorhen viewer shell', () => {
     cy.visitWithConsoleCheck(landingRoute);
     waitForLandingShell();
 
-    cy.get('#public-targets-item-0', { timeout: 60000 }).should('be.visible').click();
+    cy.get('#public-targets-item-0', { timeout: 60000 })
+      .should('be.visible')
+      .click();
     waitForPreviewShell();
     cy.screenshot('smoke/target-preview');
 

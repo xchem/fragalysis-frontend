@@ -1,5 +1,5 @@
 import React from 'react';
-import { act, render, screen, waitFor } from '@testing-library/react';
+import { act, cleanup, render, screen, waitFor } from '@testing-library/react';
 import { Provider } from 'react-redux';
 import { combineReducers, legacy_createStore } from 'redux';
 import { useRouteMatch } from 'react-router-dom';
@@ -62,6 +62,35 @@ describe('DirectDownload', () => {
     jest.clearAllMocks();
     jest.clearAllTimers();
     jest.useRealTimers();
+  });
+
+  it('stops polling and ignores a late successful status response after unmount', async () => {
+    jest.useFakeTimers();
+    let resolveStatus;
+    getDownloadStructuresTaskOrUrl.mockResolvedValue({ data: { task_status_url: '/api/task/status/1/' } });
+    getDownloadTaskStatusObject.mockReturnValue(new Promise(resolve => { resolveStatus = resolve; }));
+    const toastError = jest.fn();
+    const store = renderDirectDownload(toastError);
+    await act(async () => { await Promise.resolve(); });
+    expect(getDownloadTaskStatusObject).toHaveBeenCalledTimes(1);
+    cleanup();
+    await act(async () => {
+      resolveStatus({ data: { finished: true, status: 'SUCCESS', messages: '/late.zip' } });
+      await Promise.resolve();
+      jest.advanceTimersByTime(10000);
+    });
+    expect(downloadStructuresZip).not.toHaveBeenCalled();
+    expect(toastError).not.toHaveBeenCalled();
+    expect(getDownloadTaskStatusObject).toHaveBeenCalledTimes(1);
+    expect(store.getState().apiReducers.directDownloadInProgress).toBe(false);
+  });
+
+  it.each([null, {}, { additional_info: {} }])('reports malformed tag metadata: %s', async tagValue => {
+    getTagByName.mockResolvedValue(tagValue);
+    const store = renderDirectDownload(jest.fn());
+    expect(await screen.findByRole('alert')).toBeInTheDocument();
+    expect(store.getState().apiReducers.directDownloadInProgress).toBe(false);
+    expect(getDownloadStructuresTaskOrUrl).not.toHaveBeenCalled();
   });
 
   it('reports a backend message from an unsuccessful download request', async () => {

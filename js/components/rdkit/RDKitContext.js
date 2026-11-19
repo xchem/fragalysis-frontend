@@ -19,6 +19,7 @@ export const RDKitProvider = ({ children }) => {
     // https://github.com/rdkit/rdkit-js/blob/master/typescript/index.d.ts
     const script = document.createElement('script');
     script.src = 'https://unpkg.com/@rdkit/rdkit/dist/RDKit_minimal.js';
+    script.crossOrigin = 'anonymous';
     script.async = true;
 
     script.onload = async () => {

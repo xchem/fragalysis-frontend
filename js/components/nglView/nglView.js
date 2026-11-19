@@ -14,9 +14,13 @@ import { Popover, TextField, Button, Typography } from '@mui/material';
 import { makeStyles } from '../../ui/styles';
 import { VIEWS } from '../../constants/constants';
 import { INITIAL_STATE as NGL_INITIAL } from '../../reducers/ngl/nglReducers';
+import { applyViewerParameters } from '../../reducers/ngl/viewParameters';
 import { api } from '../../utils/api';
 import { base_url } from '../routes/constants';
-import { createViewerAdapter } from '../../viewer';
+import NglViewerAdapter from '../../viewer/NglViewerAdapter';
+import { useInitialViewerPresentation } from '../moorhenView/useInitialViewerPresentation';
+import { viewerConfig } from '../../config/viewer';
+import { createViewerInitializationTelemetry } from '../../viewer/viewerTelemetry';
 
 const useStyles = makeStyles(theme => ({
   paper: {
@@ -35,15 +39,19 @@ const useStyles = makeStyles(theme => ({
 const NglView = memo(
   ({
     div_id,
-    height,
+    deferInitialPresentation = false,
     setOrientation,
     handleNglViewPick,
     defaultRadius = 5,
     apiEndpoint = '/api/radius-selection'
   }) => {
     const dispatch = useDispatch();
-    const { registerNglView, getViewerAdapter } = useContext(NglContext);
+    const { registerNglView, unregisterNglView, getViewerAdapter } = useContext(NglContext);
     const [viewerAdapter, setViewerAdapter] = useState();
+    const viewParams = useSelector(state => state.nglReducers.viewParams);
+    const viewParamsRef = useRef(viewParams);
+    viewParamsRef.current = viewParams;
+    const sceneVisible = useInitialViewerPresentation(div_id, deferInitialPresentation);
     const classes = useStyles();
     const [ready, setReady] = useState(false);
 
@@ -59,21 +67,23 @@ const NglView = memo(
     const targetId = useSelector(state => state.apiReducers.target_on);
 
     const unifiedFilter = useSelector(state => state.selectionReducers.unifiedFilter);
-    const activeCoordinateFilterSide = useSelector(state => state.selectionReducers.activeCoordinateFilterSide || 'lhs');
+    const activeCoordinateFilterSide = useSelector(
+      state => state.selectionReducers.activeCoordinateFilterSide || 'lhs'
+    );
     const isCoordinateFilterApplied = useSelector(state =>
       activeCoordinateFilterSide === 'rhs'
-        ? (state.selectionReducers.isCoordinateFilterAppliedRHS ?? state.selectionReducers.isCoordinateFilterApplied)
-        : (state.selectionReducers.isCoordinateFilterAppliedLHS ?? state.selectionReducers.isCoordinateFilterApplied)
+        ? state.selectionReducers.isCoordinateFilterAppliedRHS ?? state.selectionReducers.isCoordinateFilterApplied
+        : state.selectionReducers.isCoordinateFilterAppliedLHS ?? state.selectionReducers.isCoordinateFilterApplied
     );
     const activeSphereCoordinates = useSelector(state =>
       activeCoordinateFilterSide === 'rhs'
-        ? (state.selectionReducers.sphereCoordinatesRHS ?? state.selectionReducers.sphereCoordinates)
-        : (state.selectionReducers.sphereCoordinatesLHS ?? state.selectionReducers.sphereCoordinates)
+        ? state.selectionReducers.sphereCoordinatesRHS ?? state.selectionReducers.sphereCoordinates
+        : state.selectionReducers.sphereCoordinatesLHS ?? state.selectionReducers.sphereCoordinates
     );
     const activeCoordinateRadius = useSelector(state =>
       activeCoordinateFilterSide === 'rhs'
-        ? (state.selectionReducers.coordinateRadiusRHS ?? state.selectionReducers.coordinateRadius)
-        : (state.selectionReducers.coordinateRadiusLHS ?? state.selectionReducers.coordinateRadius)
+        ? state.selectionReducers.coordinateRadiusRHS ?? state.selectionReducers.coordinateRadius
+        : state.selectionReducers.coordinateRadiusLHS ?? state.selectionReducers.coordinateRadius
     );
 
     const isCoordinateFilterPermitted =
@@ -187,15 +197,17 @@ const NglView = memo(
     }, [dispatch, parseRadius, radius, targetId]);
 
     useEffect(() => {
+      let timer;
       const monitor = () => {
         if (!ref.current?.isConnected) {
-          setTimeout(monitor, 100);
+          timer = setTimeout(monitor, 100);
         } else {
           setReady(true);
         }
       };
 
       monitor();
+      return () => clearTimeout(timer);
     }, []);
 
     const handleOrientationChanged = useCallback(
@@ -209,15 +221,17 @@ const NglView = memo(
       [div_id, getViewerAdapter, setOrientation]
     );
 
+    useEffect(() => () => handleOrientationChanged.cancel(), [handleOrientationChanged]);
+
     // Initialization of NGL View component
     const handleResize = useCallback(() => {
       getViewerAdapter(div_id)?.resize();
     }, [div_id, getViewerAdapter]);
 
-    const handleViewerPick = useCallback(
-      (adapter, pick) => handleNglViewPick(adapter, pick, getViewerAdapter),
-      [getViewerAdapter, handleNglViewPick]
-    );
+    const handleViewerPick = useCallback((adapter, pick) => handleNglViewPick(adapter, pick, getViewerAdapter), [
+      getViewerAdapter,
+      handleNglViewPick
+    ]);
 
     // Stable handler, always reads latest value from ref
     const handleStageClicked = useCallback(
@@ -294,47 +308,57 @@ const NglView = memo(
 
     useEffect(() => {
       if (!ready) return undefined;
-
-      let activeViewerAdapter = viewerAdapter || getViewerAdapter(div_id);
-      if (!activeViewerAdapter) {
-        activeViewerAdapter = createViewerAdapter(div_id);
+      const telemetry = createViewerInitializationTelemetry({ engine: 'ngl', viewId: div_id, viewerConfig });
+      telemetry.started();
+      let activeViewerAdapter;
+      try {
+        activeViewerAdapter = NglViewerAdapter.create(div_id);
         if (div_id === VIEWS.MAJOR_VIEW) {
-          for (const [key, value] of Object.entries(NGL_INITIAL.viewParams)) {
-            activeViewerAdapter.setParameters({ [key]: value });
-          }
+          applyViewerParameters(activeViewerAdapter, viewParamsRef.current, NGL_INITIAL.viewParams);
         } else {
-          activeViewerAdapter.setParameters({
-            [NGL_PARAMS.backgroundColor]: NGL_INITIAL.viewParams[NGL_PARAMS.backgroundColor]
-          });
+          activeViewerAdapter.setParameters({ [NGL_PARAMS.backgroundColor]: NGL_INITIAL.viewParams.backgroundColor });
         }
         registerNglView(div_id, activeViewerAdapter);
         setViewerAdapter(activeViewerAdapter);
+        telemetry.ready();
+      } catch (error) {
+        telemetry.failed(error);
+        throw error;
       }
+      return () => {
+        unregisterNglView(div_id);
+        activeViewerAdapter.destroy().catch(error => console.error('Unable to dispose NGL viewer', error));
+      };
+    }, [div_id, ready, registerNglView, unregisterNglView]);
 
-      registerStageEvents(activeViewerAdapter);
-      return () => unregisterStageEvents(activeViewerAdapter);
-    }, [
-      div_id,
-      registerNglView,
-      registerStageEvents,
-      unregisterStageEvents,
-      viewerAdapter,
-      getViewerAdapter,
-      ready
-    ]);
+    // Event callbacks can change as coordinate-search state changes. Only the
+    // owning mount effect above disposes the viewer, never listener cleanup.
+    useEffect(() => {
+      if (!viewerAdapter) return undefined;
+      registerStageEvents(viewerAdapter);
+      return () => unregisterStageEvents(viewerAdapter);
+    }, [viewerAdapter, registerStageEvents, unregisterStageEvents]);
+
+    useEffect(() => {
+      if (div_id === VIEWS.MAJOR_VIEW) applyViewerParameters(viewerAdapter, viewParams);
+    }, [div_id, viewerAdapter, viewParams]);
 
     useEffect(() => {
       const node = ref.current;
+      if (!viewerAdapter) return undefined;
+      let frame;
       const resizeObserver = new ResizeObserver(() => {
-        handleResize();
+        cancelAnimationFrame(frame);
+        frame = requestAnimationFrame(handleResize);
       });
 
       resizeObserver.observe(node);
 
       return () => {
-        resizeObserver.unobserve(node);
+        resizeObserver.disconnect();
+        cancelAnimationFrame(frame);
       };
-    }, [handleResize]);
+    }, [handleResize, viewerAdapter]);
 
     useEffect(() => {
       if (lastOriginRef.current && viewerAdapter) {
@@ -344,7 +368,13 @@ const NglView = memo(
 
     return (
       <>
-        <div ref={ref} id={div_id} className={div_id === VIEWS.MAJOR_VIEW ? classes.paper : {}} />
+        <div
+          ref={ref}
+          id={div_id}
+          data-viewer-engine="ngl"
+          className={div_id === VIEWS.MAJOR_VIEW ? classes.paper : undefined}
+          style={{ width: '100%', height: '100%', visibility: sceneVisible ? 'visible' : 'hidden' }}
+        />
 
         <Popover
           open={popoverOpen}

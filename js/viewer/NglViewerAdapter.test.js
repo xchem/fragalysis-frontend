@@ -1,74 +1,21 @@
 import { NglViewerAdapter } from './NglViewerAdapter';
 import { asViewerAdapter } from './viewerAdapterFactory';
-import { Matrix4, Quaternion, Vector3 } from 'ngl';
+import { Box3, Color, Matrix4, Quaternion, Vector3 } from 'ngl';
 
 const { fn } = jest;
 
 const createSignal = () => ({ add: fn(), remove: fn() });
-
-const createVector = (x, y, z) => ({
-  x,
-  y,
-  z,
-  add(value) {
-    this.x += value.x;
-    this.y += value.y;
-    this.z += value.z;
-    return this;
-  },
-  clone() {
-    return createVector(this.x, this.y, this.z);
-  },
-  divideScalar(value) {
-    this.x /= value;
-    this.y /= value;
-    this.z /= value;
-    return this;
-  },
-  set(nextX, nextY, nextZ) {
-    this.x = nextX;
-    this.y = nextY;
-    this.z = nextZ;
-    return this;
-  }
-});
-
-const createBox = (min, max) => ({
-  min: createVector(...min),
-  max: createVector(...max),
-  clone() {
-    return createBox(
-      [this.min.x, this.min.y, this.min.z],
-      [this.max.x, this.max.y, this.max.z]
-    );
-  },
-  union(value) {
-    this.min.set(
-      Math.min(this.min.x, value.min.x),
-      Math.min(this.min.y, value.min.y),
-      Math.min(this.min.z, value.min.z)
-    );
-    this.max.set(
-      Math.max(this.max.x, value.max.x),
-      Math.max(this.max.y, value.max.y),
-      Math.max(this.max.z, value.max.z)
-    );
-    return this;
-  }
-});
 
 const createStage = () => ({
   loadFile: fn(),
   addComponentFromObject: fn(),
   viewerControls: {
     orient: fn(),
-    getOrientation: fn()
+    getOrientation: fn(() => new Matrix4())
   },
   animationControls: {
-    orient: fn(),
-    zoomMove: fn()
+    orient: fn()
   },
-  getZoomForBox: fn(() => -50),
   getComponentsByName: fn(() => ({ first: undefined, list: [] })),
   compList: [],
   setParameters: fn(),
@@ -90,14 +37,17 @@ const createStage = () => ({
   dispose: fn()
 });
 
-describe('NglViewerAdapter', () => {
+describe('ngl viewer adapter', () => {
   it('requires an NGL stage', () => {
+    expect.hasAssertions();
     expect(() => new NglViewerAdapter()).toThrow('NglViewerAdapter requires an NGL stage');
   });
 
   it('returns a cached adapter for a legacy stage', () => {
+    expect.hasAssertions();
     const stage = createStage();
-    const adapter = asViewerAdapter(stage);
+    expect(() => asViewerAdapter(stage)).toThrow('not registered');
+    const adapter = new NglViewerAdapter(stage);
 
     expect(asViewerAdapter(stage)).toBe(adapter);
     expect(asViewerAdapter(adapter)).toBe(adapter);
@@ -105,6 +55,7 @@ describe('NglViewerAdapter', () => {
   });
 
   it('delegates molecule, map, surface and vector loading', () => {
+    expect.hasAssertions();
     const stage = createStage();
     const adapter = new NglViewerAdapter(stage);
     const molecule = { name: 'molecule' };
@@ -124,6 +75,7 @@ describe('NglViewerAdapter', () => {
   });
 
   it('delegates representation, visibility and centering operations', () => {
+    expect.hasAssertions();
     const adapter = new NglViewerAdapter(createStage());
     const component = {
       addRepresentation: fn(),
@@ -142,46 +94,8 @@ describe('NglViewerAdapter', () => {
     expect(component.autoView).toHaveBeenNthCalledWith(2);
   });
 
-  it('centers multiple objects on the equally weighted mean of their individual centers', () => {
-    expect.hasAssertions();
-    const stage = createStage();
-    stage.viewerControls.getOrientation.mockReturnValue(new Matrix4());
-    const adapter = new NglViewerAdapter(stage);
-    const first = {
-      getCenter: fn(() => createVector(0, 0, 0)),
-      getBox: fn(() => createBox([-1, -1, -1], [1, 1, 1]))
-    };
-    const second = {
-      getCenter: fn(() => createVector(6, 3, 9)),
-      getBox: fn(() => createBox([5, 2, 8], [7, 4, 10]))
-    };
-    const third = {
-      getCenter: fn(() => createVector(3, 6, 0)),
-      getBox: fn(() => createBox([2, 5, -1], [4, 7, 1]))
-    };
-
-    expect(adapter.centerOnObjects([first, second, third, second])).toBe(true);
-
-    const [orientation, duration] = stage.animationControls.orient.mock.calls[0];
-    const position = new Vector3();
-    const rotation = new Quaternion();
-    const scale = new Vector3();
-    orientation.decompose(position, rotation, scale);
-    const presentedWidestAxis = new Vector3(6, 3, 9).normalize().applyQuaternion(rotation);
-
-    expect(position.x).toBeCloseTo(-3);
-    expect(position.y).toBeCloseTo(-3);
-    expect(position.z).toBeCloseTo(-3);
-    expect(presentedWidestAxis.x).toBeCloseTo(1);
-    expect(presentedWidestAxis.y).toBeCloseTo(0);
-    expect(presentedWidestAxis.z).toBeCloseTo(0);
-    expect(scale.x).toBeCloseTo(45);
-    expect(stage.getZoomForBox).toHaveBeenCalledTimes(1);
-    expect(duration).toBe(0);
-    expect(second.getCenter).toHaveBeenCalledTimes(1);
-  });
-
   it('provides viewer-independent object and representation access', () => {
+    expect.hasAssertions();
     const stage = createStage();
     const firstRepresentation = {
       uuid: 'representation-1',
@@ -208,21 +122,22 @@ describe('NglViewerAdapter', () => {
     const adapter = new NglViewerAdapter(stage);
 
     expect(adapter.getObject('object-map')).toBe(component);
-    expect(adapter.getObjects('object-map')).toEqual([component]);
-    expect(adapter.getObjectsByNameSuffix('map')).toEqual([component]);
+    expect(adapter.getObjects('object-map')).toStrictEqual([component]);
+    expect(adapter.getObjectsByNameSuffix('map')).toStrictEqual([component]);
     expect(adapter.getRepresentation(component, { uuid: firstRepresentation.uuid })).toBe(firstRepresentation);
-    expect(adapter.getRepresentationsByType([component], 'surface')).toEqual([firstRepresentation]);
+    expect(adapter.getRepresentationsByType([component], 'surface')).toStrictEqual([firstRepresentation]);
     expect(adapter.getRepresentationCount(component)).toBe(2);
     expect(adapter.getRepresentationParameter(firstRepresentation, 'visible')).toBe(true);
     expect(adapter.getVisibility(firstRepresentation)).toBe(true);
 
     const representationState = adapter.createRepresentation(component, 'surface', { visible: true }, 'legacy-id');
-    expect(representationState).toEqual({
+    expect(representationState).toStrictEqual({
       lastKnownID: 'legacy-id',
       uuid: firstRepresentation.uuid,
       type: 'surface',
       params: { visible: true },
-      templateParams: firstRepresentation.repr.parameters
+      templateParams: firstRepresentation.repr.parameters,
+      ready: expect.any(Promise)
     });
 
     adapter.setVisibility(firstRepresentation, false);
@@ -231,28 +146,56 @@ describe('NglViewerAdapter', () => {
     expect(firstRepresentation.setVisibility).toHaveBeenCalledWith(false);
     expect(firstRepresentation.setParameters).toHaveBeenCalledWith({ opacity: 0.5 });
     expect(component.removeRepresentation).toHaveBeenCalledWith(firstRepresentation);
+    const qualityRepresentation = { uuid: 'quality-representation' };
+    stage.getComponentsByName.mockReturnValue({
+      first: component,
+      list: [component, { name: component.name, reprList: [qualityRepresentation] }]
+    });
+    expect(adapter.getRepresentation(component, { uuid: 'quality-representation' })).toBe(qualityRepresentation);
+    expect(adapter.getRepresentation(undefined, { uuid: 'quality-representation' })).toBeUndefined();
   });
 
   it('delegates stage parameters, resize, task and animated orientation operations', () => {
+    expect.hasAssertions();
     const stage = createStage();
     const adapter = new NglViewerAdapter(stage);
     const onComplete = fn();
     stage.tasks.count = 3;
 
-    adapter.setParameters({ backgroundColor: 'black' });
+    adapter.setParameters({ backgroundColor: 'black', clipNear: 30 });
     adapter.resize();
     expect(adapter.getRendererElement()).toBe(stage.viewer.renderer.domElement);
     expect(adapter.getTaskCount()).toBe(3);
     adapter.onTasksComplete(onComplete);
-    adapter.animateOrientation([1, 2, 3], 2000);
 
-    expect(stage.setParameters).toHaveBeenCalledWith({ backgroundColor: 'black' });
+    expect(stage.setParameters).toHaveBeenCalledWith({ backgroundColor: 'black', clipNear: 30 });
     expect(stage.handleResize).toHaveBeenCalledTimes(1);
     expect(stage.tasks.onZeroOnce).toHaveBeenCalledWith(onComplete);
-    expect(stage.animationControls.orient).toHaveBeenCalledWith([1, 2, 3], 2000);
+  });
+
+  it('paints the background and notifies stage listeners without replaying stage settings', () => {
+    expect.hasAssertions();
+    const stage = createStage();
+    stage.parameters = { backgroundColor: 'black', clipNear: 35 };
+    stage.getParameters = () => ({ ...stage.parameters });
+    stage.signals.parametersChanged = { dispatch: fn() };
+    const fogColor = new Color('red');
+    const backdrop = new Color('black');
+    stage.viewer.parameters = { fogColor, backgroundColor: backdrop };
+    stage.viewer.setBackground = fn(color => fogColor.copy(backdrop.set(color)));
+    stage.viewer.setFog = fn(color => fogColor.copy(color));
+    const adapter = new NglViewerAdapter(stage);
+    for (const backgroundColor of ['#ededed', 'black']) {
+      expect(adapter.setParameters({ backgroundColor })).toBe(stage);
+      expect(stage.viewer.setBackground).toHaveBeenLastCalledWith(backgroundColor);
+      expect(fogColor.getHexString()).toBe('ff0000');
+      expect(stage.signals.parametersChanged.dispatch).toHaveBeenLastCalledWith({ backgroundColor, clipNear: 35 });
+    }
+    expect(stage.setParameters).not.toHaveBeenCalled();
   });
 
   it('normalizes picks and manages viewer event handlers', () => {
+    expect.hasAssertions();
     const stage = createStage();
     const adapter = new NglViewerAdapter(stage);
     const pickHandler = fn();
@@ -312,29 +255,30 @@ describe('NglViewerAdapter', () => {
   });
 
   it('uses a supplied screenshot strategy without changing current image output', async () => {
+    expect.hasAssertions();
     const stage = createStage();
     const adapter = new NglViewerAdapter(stage);
     const capture = fn(() => Promise.resolve('data:image/png;base64,image'));
 
-    await expect(adapter.captureImage({ capture })).resolves.toBe('data:image/png;base64,image');
+    expect(await adapter.captureImage({ capture })).toBe('data:image/png;base64,image');
     expect(capture).toHaveBeenCalledTimes(1);
     expect(stage.makeImage).not.toHaveBeenCalled();
   });
 
-  it('delegates orientation, removal, capture and lifecycle operations', () => {
+  it('delegates orientation, removal, capture and lifecycle operations', async () => {
+    expect.hasAssertions();
     const stage = createStage();
     const adapter = new NglViewerAdapter(stage);
-    const orientation = { elements: [1, 2, 3] };
+    const orientation = new Matrix4();
     const component = { name: 'component' };
     const imageOptions = { factor: 2 };
     stage.viewerControls.getOrientation.mockReturnValue(orientation);
 
     adapter.setOrientation(orientation.elements);
     expect(adapter.getOrientation()).toBe(orientation);
-    adapter.removeObject(component);
-    adapter.removeAll();
+    await adapter.removeObject(component);
     adapter.captureImage(imageOptions);
-    adapter.destroy();
+    await adapter.destroy();
 
     expect(stage.viewerControls.orient).toHaveBeenCalledWith(orientation.elements);
     expect(stage.viewerControls.getOrientation).toHaveBeenCalledTimes(1);
@@ -342,5 +286,108 @@ describe('NglViewerAdapter', () => {
     expect(stage.removeAllComponents).toHaveBeenCalledTimes(1);
     expect(stage.makeImage).toHaveBeenCalledWith(imageOptions);
     expect(stage.dispose).toHaveBeenCalledTimes(1);
+  });
+
+  it('converts Moorhen snapshots into an NGL camera matrix without copying zoom into camera distance', () => {
+    expect.hasAssertions();
+    const stage = createStage();
+    const adapter = new NglViewerAdapter(stage);
+    const moorhen = [0, 0, 0, 1, -10, -20, -30, 0.5];
+    adapter.setOrientation(moorhen);
+    const result = new Matrix4().fromArray(stage.viewerControls.orient.mock.calls[0][0]);
+    const position = new Vector3();
+    const rotation = new Quaternion();
+    const scale = new Vector3();
+    result.decompose(position, rotation, scale);
+    expect(position.toArray()).toStrictEqual([-10, -20, -30]);
+    expect(rotation.toArray()).toStrictEqual([0, 0, 0, 1]);
+    expect(scale.z).toBeCloseTo(12 / Math.tan(Math.PI / 9));
+  });
+
+  it('centers ligands with equal weight and aligns their widest separation horizontally', () => {
+    expect.hasAssertions();
+    const stage = { ...createStage(), getZoomForBox: jest.fn(() => -100) };
+    const adapter = new NglViewerAdapter(stage);
+    const molecule = (x, y, z, size) => ({
+      getCenter: () => new Vector3().set(x, y, z),
+      getBox: () => new Box3(new Vector3(x - size, y, z), new Vector3(x + size, y, z)),
+      autoView: jest.fn()
+    });
+    const a = molecule(0, 0, 0, 3);
+    const b = molecule(0, 20, 0, 1);
+    expect(
+      adapter.centerOnObjects([a, b, a])
+    ).toBe(true);
+    const matrix = new Matrix4().fromArray(stage.viewerControls.orient.mock.calls[0][0]);
+    const position = new Vector3();
+    const rotation = new Quaternion();
+    const scale = new Vector3();
+    matrix.decompose(position, rotation, scale);
+    expect(position.distanceTo(new Vector3(0, -10, 0))).toBeCloseTo(0);
+    const separation = new Vector3(0, 20, 0).applyQuaternion(rotation);
+    expect(separation.x).toBeCloseTo(20);
+    expect(separation.y).toBeCloseTo(0);
+    expect(separation.z).toBeCloseTo(0);
+    scale.toArray().forEach(value => expect(value).toBeCloseTo(90));
+    expect(stage.getZoomForBox.mock.calls[0][0].getSize(new Vector3()).toArray()).toStrictEqual([6, 20, 0]);
+    expect(adapter.centerOnObjects([null, a, a])).toBe(true);
+    expect(a.autoView).toHaveBeenCalledWith();
+    expect(adapter.centerOnObjects([molecule(NaN, 0, 0, 1)])).toBe(false);
+    expect(adapter.centerOnObjects([])).toBe(false);
+  });
+
+  it('animates by elapsed time and cancels on manual input, supersession, abort and destruction', async () => {
+    expect.hasAssertions();
+    const frames = new Map();
+    let nextFrame = 0;
+    const request = jest.spyOn(global, 'requestAnimationFrame').mockImplementation(callback => {
+      frames.set(++nextFrame, callback);
+      return nextFrame;
+    });
+    const cancel = jest.spyOn(global, 'cancelAnimationFrame').mockImplementation(id => frames.delete(id));
+    const frame = time => {
+      const pending = [...frames.values()];
+      frames.clear();
+      pending.forEach(callback => callback(time));
+    };
+    const stage = createStage();
+    stage.viewer.renderer.domElement = document.createElement('canvas');
+    stage.viewerControls.orient.mockImplementation(elements => {
+      stage.viewerControls.getOrientation.mockReturnValue(new Matrix4().fromArray(elements));
+    });
+    stage.animationControls.clear = fn();
+    const adapter = new NglViewerAdapter(stage);
+    const destination = new Matrix4().makeTranslation(20, 0, 0).elements;
+    try {
+      const complete = adapter.animateOrientation(destination, 400);
+      frame(100);
+      frame(200);
+      expect(adapter.getOrientation().elements[12]).toBeCloseTo(3.125);
+      frame(500);
+      expect(await complete).toStrictEqual({ status: 'completed' });
+      const interrupted = adapter.animateOrientation(new Matrix4().elements);
+      frame(600);
+      frame(800);
+      const actual = adapter.getOrientation().elements.slice();
+      stage.viewer.renderer.domElement.dispatchEvent(new Event('wheel'));
+      expect(await interrupted).toStrictEqual({ status: 'interrupted' });
+      frame(1000);
+      expect(adapter.getOrientation().elements).toStrictEqual(actual);
+      const controller = new AbortController();
+      const aborted = adapter.animateOrientation(destination, 400, { signal: controller.signal });
+      controller.abort();
+      expect(await aborted).toStrictEqual({ status: 'cancelled' });
+      const old = adapter.animateOrientation(destination);
+      const newer = adapter.animateOrientation(new Matrix4().elements);
+      expect(await old).toStrictEqual({ status: 'cancelled' });
+      const cleanup = adapter.destroy();
+      expect(await newer).toStrictEqual({ status: 'destroyed' });
+      await cleanup;
+      expect(stage.animationControls.clear).toHaveBeenCalledWith();
+      expect(frames.size).toBe(0);
+    } finally {
+      request.mockRestore();
+      cancel.mockRestore();
+    }
   });
 });

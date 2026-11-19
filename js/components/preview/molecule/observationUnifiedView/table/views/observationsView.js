@@ -75,19 +75,18 @@ export const ObservationsView = memo(({ data, observations, isAnyObservationOn, 
               if (!isObservationDialogOpen || poseIdForObservationsDialog !== data.id) {
                 dispatch(setObservationsForLHSCmp(observations));
               }
-              const shouldOpenDialog =
+              if (
                 poseIdForObservationsDialog !== data.id ||
                 poseIdForObservationsDialog === 0 ||
-                (poseIdForObservationsDialog === data.id && !isObservationDialogOpen);
-
-              if (shouldOpenDialog) {
-                dispatch(setObservationsDialogSide(dialogSide));
+                (poseIdForObservationsDialog === data.id && !isObservationDialogOpen)
+              ) {
                 dispatch(setOpenObservationsDialog(true));
+                dispatch(setObservationsDialogSide(dialogSide));
                 dispatch(setObservationDialogAction(data.id, observations, true, 0, []));
               } else {
                 dispatch(setOpenObservationsDialog(false));
-                dispatch(setObservationDialogAction(0, [], false, data.id, observations));
                 dispatch(setObservationsDialogSide(null));
+                dispatch(setObservationDialogAction(0, [], false, data.id, observations));
               }
               dispatch(setPoseIdForObservationsDialog(data.id));
 

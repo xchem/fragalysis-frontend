@@ -24,21 +24,34 @@ const useStyles = makeStyles(theme => ({
     height: '100%',
     gap: theme.spacing(1),
     flexWrap: 'nowrap',
-    padding: theme.spacing()
+    padding: theme.spacing(),
+    flexDirection: 'column',
+    width: '100%',
+    minHeight: 0,
+    boxSizing: 'border-box'
+  },
+  targetPanel: {
+    flexBasis: 0,
+    minHeight: 0,
+    overflow: 'hidden'
+  },
+  resizer: {
+    cursor: 'row-resize',
+    width: '100%',
+    height: 3,
+    flexShrink: 0,
+    backgroundColor: '#eeeeee',
+    borderRadius: 3
   }
 }));
 
-const Landing = memo(
+export const Landing = memo(
   ({ resetSelectionState, resetTargetState, resetCurrentCompoundsSettings, resetProjectsReducer }) => {
     const dispatch = useDispatch();
     const classes = useStyles();
 
-    const [isResizing, setIsResizing] = useState(false);
-    const [resizer, setResizer] = useState(null);
-    // const [targetListWidth, setTargetListWidth] = useState(450);
-    const [publicTargetListWidth, setPublicTargetListWidth] = useState(window.innerWidth * 0.4);
-    const [privateTargetListWidth, setPrivateTargetListWidth] = useState(window.innerWidth * 0.4);
-    const [legacyTargetListWidth, setLegacyTargetListWidth] = useState(window.innerWidth * 0.2);
+    const [panelProportions, setPanelProportions] = useState([0.6, 0.2, 0.2]);
+    const [resizing, setResizing] = useState(null);
 
     const [privateTargets, setPrivateTargets] = useState([]);
     const [publicTargets, setPublicTargets] = useState([]);
@@ -109,18 +122,6 @@ const Landing = memo(
           </span>
         );
       }
-
-      const handleWindowResize = () => {
-        setPublicTargetListWidth(window.innerWidth * 0.4);
-        setPrivateTargetListWidth(window.innerWidth * 0.4);
-        setLegacyTargetListWidth(window.innerWidth * 0.2);
-      };
-
-      window.addEventListener('resize', handleWindowResize);
-
-      return () => {
-        window.removeEventListener('resize', handleWindowResize);
-      };
     }, []);
 
     useEffect(() => {
@@ -136,78 +137,74 @@ const Landing = memo(
       resetProjectsReducer();
     }, [resetTargetState, resetSelectionState, toast, loginText, resetCurrentCompoundsSettings, resetProjectsReducer]);
 
-    const handleMouseDownResizer = resizer => {
-      setIsResizing(true);
-      setResizer(resizer);
+    const handleMouseDownResizer = (event, index) => {
+      event.preventDefault();
+      const divider = event.currentTarget;
+      const adjacentHeight =
+        divider.previousElementSibling.getBoundingClientRect().height +
+        divider.nextElementSibling.getBoundingClientRect().height;
+      if (adjacentHeight > 0) {
+        setResizing({ index, startY: event.clientY, adjacentHeight, proportions: panelProportions });
+      }
     };
 
     const handleMouseMove = useCallback(
       e => {
-        if (!isResizing || resizer === null) return;
-        const leftPartWidth = e.clientX;
-        const rightPartWidth = window.innerWidth - leftPartWidth;
-        if (resizer === 1) {
-          setPublicTargetListWidth(leftPartWidth);
-          setPrivateTargetListWidth(rightPartWidth);
-        } else if (resizer === 2) {
-          setPrivateTargetListWidth(leftPartWidth);
-          setLegacyTargetListWidth(rightPartWidth);
-        }
+        if (!resizing) return;
+        const { index, startY, adjacentHeight, proportions } = resizing;
+        const total = proportions[index] + proportions[index + 1];
+        const minimum = (Math.min(70, adjacentHeight / 2) / adjacentHeight) * total;
+        const first = Math.max(
+          minimum,
+          Math.min(total - minimum, proportions[index] + ((e.clientY - startY) / adjacentHeight) * total)
+        );
+        const next = [...proportions];
+        next[index] = first;
+        next[index + 1] = total - first;
+        setPanelProportions(next);
       },
-      [isResizing, resizer]
+      [resizing]
     );
 
     const handleMouseUp = useCallback(() => {
-      setIsResizing(false);
-      setResizer(null);
-      window.removeEventListener('mousemove', handleMouseMove);
-      window.removeEventListener('mouseup', handleMouseUp);
-    }, [handleMouseMove]);
+      setResizing(null);
+    }, []);
 
     useEffect(() => {
-      if (isResizing) {
+      if (resizing) {
         window.addEventListener('mousemove', handleMouseMove);
         window.addEventListener('mouseup', handleMouseUp);
-      } else {
-        window.removeEventListener('mousemove', handleMouseMove);
-        window.removeEventListener('mouseup', handleMouseUp);
+        return () => {
+          window.removeEventListener('mousemove', handleMouseMove);
+          window.removeEventListener('mouseup', handleMouseUp);
+        };
       }
-    }, [isResizing, handleMouseMove, handleMouseUp]);
+    }, [resizing, handleMouseMove, handleMouseUp]);
 
     return (
       <TooltipPathProvider path="targetLists">
         <Grid container className={classes.root}>
-          <Grid item style={{ width: publicTargetListWidth }}>
+          <Grid item className={classes.targetPanel} style={{ flexGrow: panelProportions[0] }}>
             <TargetList list={publicTargets} title={'Public targets'} />
           </Grid>
           <div
-            style={{
-              cursor: 'col-resize',
-              width: 3,
-              minWidth: 3,
-              height: '100%',
-              backgroundColor: '#eeeeee',
-              borderRadius: '3px'
-            }}
-            className="resizer-left"
-            onMouseDown={() => handleMouseDownResizer(1)}
+            role="separator"
+            aria-label="Resize public and private targets"
+            aria-orientation="horizontal"
+            className={classes.resizer}
+            onMouseDown={event => handleMouseDownResizer(event, 0)}
           ></div>
-          <Grid item style={{ width: privateTargetListWidth }}>
+          <Grid item className={classes.targetPanel} style={{ flexGrow: panelProportions[1] }}>
             <TargetList list={privateTargets} title={'Private targets'} authRequired={true} />
           </Grid>
           <div
-            style={{
-              cursor: 'col-resize',
-              width: 3,
-              minWidth: 3,
-              height: '100%',
-              backgroundColor: '#eeeeee',
-              borderRadius: '3px'
-            }}
-            className="resizer-right"
-            onMouseDown={() => handleMouseDownResizer(2)}
+            role="separator"
+            aria-label="Resize private and legacy targets"
+            aria-orientation="horizontal"
+            className={classes.resizer}
+            onMouseDown={event => handleMouseDownResizer(event, 1)}
           ></div>
-          <Grid item style={{ width: legacyTargetListWidth }}>
+          <Grid item className={classes.targetPanel} style={{ flexGrow: panelProportions[2] }}>
             <TargetList list={legacy_target_id_list} title={'Legacy targets'} legacy={true} />
           </Grid>
         </Grid>

@@ -2,30 +2,21 @@ import axios from 'axios';
 import { isRemoteDebugging } from '../components/routes/constants';
 
 const CancelToken = axios.CancelToken;
-
-const CACHE_BUST_PARAM = '__cacheBust';
-const NO_CACHE_HEADERS = {
-  'Cache-Control': 'no-cache, no-store, max-age=0',
-  Pragma: 'no-cache'
-};
-
 let cacheBustSequence = 0;
 
-const getNoCacheHeaders = headers => {
-  const mergedHeaders = { ...(headers || {}) };
-
-  // Header names are case-insensitive. Remove caller-provided variants so the
-  // application-wide cache policy cannot be accidentally overridden.
-  Object.keys(mergedHeaders).forEach(header => {
-    if (header.toLowerCase() === 'cache-control' || header.toLowerCase() === 'pragma') {
-      delete mergedHeaders[header];
+const withNoCacheHeaders = (headers, data) => {
+  const result = { ...headers };
+  const isMultipart = typeof FormData !== 'undefined' && data instanceof FormData;
+  Object.keys(result).forEach(name => {
+    if (
+      ['cache-control', 'pragma'].includes(name.toLowerCase()) ||
+      (isMultipart && name.toLowerCase() === 'content-type')
+    ) {
+      delete result[name];
     }
   });
-
-  return { ...mergedHeaders, ...NO_CACHE_HEADERS };
+  return { ...result, 'Cache-Control': 'no-cache, no-store, max-age=0', Pragma: 'no-cache' };
 };
-
-const getCacheBustValue = () => `${Date.now()}-${cacheBustSequence++}`;
 
 const getCookie = name => {
   if (!document.cookie) {
@@ -49,29 +40,31 @@ export const api = ({ url, method, headers, data, cancel, params }) => {
   // url && console.log(`${url}`);
   // data && console.log(`${data}`);
   const requestMethod = method !== undefined ? method : METHOD.GET;
-  const shouldCacheBust = [METHOD.GET, METHOD.HEAD].includes(String(requestMethod).toUpperCase());
-  const defaultHeaders = isRemoteDebugging
-    ? {
-        //we need to not to add X-CSRFToken because it's forbidden by the server when CORS are enabled and origins doen't match
-        accept: 'application/json',
-        'content-type': 'application/json',
-        'X-Requested-With': 'XMLHttpRequest'
-        //'X-CSRFToken': getCsrfToken()
-      }
-    : {
-        accept: 'application/json',
-        'content-type': 'application/json',
-        'X-Requested-With': 'XMLHttpRequest',
-        'X-CSRFToken': getCsrfToken()
-      };
-
+  const isRead = [METHOD.GET, METHOD.HEAD].includes(String(requestMethod).toUpperCase());
   return axios({
-    // Axios 0.19 cannot append params to a URL object, so normalize URL inputs
-    // before adding the cache-busting query parameter.
     url: typeof url === 'string' ? url : url.toString(),
     method: requestMethod,
-    params: shouldCacheBust ? { ...(params || {}), [CACHE_BUST_PARAM]: getCacheBustValue() } : params,
-    headers: getNoCacheHeaders(headers !== undefined ? headers : defaultHeaders),
+    params: isRead ? { ...params, __cacheBust: `${Date.now()}-${cacheBustSequence++}` } : params,
+    headers: withNoCacheHeaders(
+      headers !== undefined
+        ? headers
+        : isRemoteDebugging
+        ? {
+            //we need to not to add X-CSRFToken because it's forbidden by the server when CORS are enabled and origins doen't match
+            accept: 'application/json',
+            'content-type': 'application/json',
+            'X-Requested-With': 'XMLHttpRequest'
+            //'X-CSRFToken': getCsrfToken()
+          }
+        : {
+            accept: 'application/json',
+            'content-type': 'application/json',
+            'X-Requested-With': 'XMLHttpRequest',
+            'X-CSRFToken': getCsrfToken()
+          },
+      // Preserve Axios 0.19's FormData pass-through and let the browser supply the boundary.
+      data
+    ),
     data,
     cancelToken: new CancelToken(function executor(c) {
       // An executor function receives a cancel function as a parameter

@@ -13,6 +13,7 @@ module.exports = {
   entry: [
     'babel-polyfill',
     `webpack-hot-middleware/client?reload=true&path=${DEV_SERVER_ORIGIN}/__webpack_hmr`,
+    './js/publicPath',
     './js/index'
   ],
 
@@ -20,6 +21,7 @@ module.exports = {
     crossOriginLoading: 'anonymous',
     path: path.resolve(__dirname, 'bundles'),
     filename: '[name]-[fullhash].js',
+    chunkFilename: '[name]-[contenthash].js',
     publicPath: `${DEV_SERVER_ORIGIN}/bundles/` // Tell django to use this URL to load packages and not use STATIC_URL + bundle_name
   },
 
@@ -45,7 +47,8 @@ module.exports = {
     new LegacyBundleTrackerPlugin({ path: __dirname }),
     new webpack.HotModuleReplacementPlugin(),
     new webpack.DefinePlugin({
-      __FRAGALYSIS_VIEWER_ENGINE__: JSON.stringify(process.env.VIEWER_ENGINE || '')
+      __FRAGALYSIS_MOORHEN_PROOF_ENABLED__: JSON.stringify(process.env.MOORHEN_PROOF_ENABLED || ''),
+      __FRAGALYSIS_MOORHEN_ASSET_URL__: JSON.stringify(process.env.MOORHEN_ASSET_URL || '')
     }),
     new Dotenv(),
     new ReactRefreshWebpackPlugin()
@@ -53,6 +56,10 @@ module.exports = {
 
   module: {
     rules: [
+      {
+        test: /contacts[\\/]vendor[\\/]detector\.mjs$/,
+        type: 'asset/source'
+      },
       {
         test: /\.(js|jsx)$/,
         enforce: 'pre',

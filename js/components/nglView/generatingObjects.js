@@ -1,8 +1,7 @@
-import { MOL_REPRESENTATION, OBJECT_TYPE, SELECTION_TYPE } from './constants';
+import { DENSITY_MAPS, MOL_REPRESENTATION, OBJECT_TYPE, SELECTION_TYPE } from './constants';
+import { copyRepresentationSettings } from '../../viewer/representationState';
 import * as listTypes from '../../constants/listTypes';
 import { getLigandData } from '../preview/tags/redux/dispatchActions';
-
-export { defaultFocus } from '../../viewer/ngl/representationHelpers';
 
 export const generateProteinObject = data => {
   // Now deal with this target
@@ -27,10 +26,12 @@ export const generateCompoundMolObject = (sdf_info, identifier) => ({
 });
 
 // Ligand
+export const observationLigandName = data => `${data.code || data.virtual_name}_${OBJECT_TYPE.LIGAND}`;
+
 export const generateMoleculeObject = (data, colourToggle, datasetID) => async dispatch => {
   if (data) {
     return {
-      name: `${data.code || data.virtual_name}_${OBJECT_TYPE.LIGAND}${datasetID ? '_' + datasetID : ''}`,
+      name: `${observationLigandName(data)}${datasetID ? '_' + datasetID : ''}`,
       OBJECT_TYPE: OBJECT_TYPE.LIGAND,
       colour: colourToggle,
       sdf_info: (await dispatch(getLigandData(data))) || data.sdf_info,
@@ -80,7 +81,7 @@ const getStructureUrl = data =>
 const getArtefactStructureUrl = data =>
   normalizeUrlForCurrentProtocol(data?.artefacts_file || data?.pdb_info || data?.virtual_pdb_info);
 
-const getMoleculeObjectName = data => data.code || data.name || data.virtual_name;
+export const getMoleculeObjectName = data => data.code || data.name || data.virtual_name;
 
 // Hit Protein
 export const generateHitProteinObject = (data, colourToggle, base_url, datasetID) => async dispatch => {
@@ -225,22 +226,14 @@ export const getVectorWithColorByCountOfCompounds = (item, currentVectorCompound
 };
 
 export const getRepresentationsByType = (objectsInView, object, objectType, datasetId) => {
-  let parentItem = `${object.code || object.name}_${objectType}${datasetId ? '_' + datasetId : ''}`;
-  let objectInView = objectsInView[parentItem];
-  var representations = (objectInView && objectInView.representations) || undefined;
-  return representations;
+  const name = objectType === OBJECT_TYPE.LIGAND && (object.code || object.virtual_name)
+    ? observationLigandName(object)
+    : `${getMoleculeObjectName(object)}_${objectType}`;
+  return objectsInView[name + (datasetId ? '_' + datasetId : '')]?.representations;
 };
 
-export const getRepresentationsForDensities = (objectsInView, object, objectType, datasetId) => {
-  const densKeys = Object.keys(objectsInView).filter(
-    i => i.includes(`${object.code || object.name}`) && i.includes('DENSITY')
-  );
-  let representations = [];
-  densKeys.forEach(key => {
-    let obj = objectsInView[key];
-    // representations = [...representations, ...obj.representations];
-    representations.push(...obj.representations);
+export const getRepresentationsForDensities = (objectsInView, object) =>
+  ['', DENSITY_MAPS.SIGMAA, DENSITY_MAPS.DIFF].flatMap(densityMap => {
+    const name = `${getMoleculeObjectName(object)}_${OBJECT_TYPE.DENSITY}${densityMap}`;
+    return (objectsInView[name]?.representations || []).map(rep => ({ ...copyRepresentationSettings(rep), densityMap }));
   });
-
-  return representations;
-};

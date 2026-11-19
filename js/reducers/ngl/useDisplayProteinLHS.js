@@ -1,3 +1,4 @@
+import { useStructureOperationQueue } from './useStructureOperationQueue';
 import { useCallback, useContext, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { NGL_OBJECTS } from './constants';
@@ -5,6 +6,7 @@ import {
   appendProteinList,
   appendQualityList,
   removeFromProteinList,
+  removeFromQualityList,
   removeFromToBeDisplayedList,
   updateInToBeDisplayedList
 } from '../selection/actions';
@@ -12,13 +14,14 @@ import { generateHitProteinObject, generateMoleculeId } from '../../components/n
 import { VIEWS } from '../../constants/constants';
 import { NglContext } from '../../components/nglView/nglProvider';
 import { getRandomColor } from '../../components/preview/molecule/utils/color';
-import { readQualityInformation } from '../../components/nglView/renderingHelpers';
-import { deleteObject, loadObject, setOrientation } from './dispatchActions';
+import { readQualityInformation } from '../../viewer/qualityInformation';
+import { deleteObject, loadObject } from './dispatchActions';
 import { base_url } from '../../components/routes/constants';
 import { getToBeDisplayedStructures } from './utils';
 
 export const useDisplayProteinLHS = () => {
   const dispatch = useDispatch();
+  const runStructureOperation = useStructureOperationQueue();
 
   const toBeDisplayedList = useSelector(state => state.selectionReducers.toBeDisplayedList);
   const displayedProteins = useSelector(state => state.selectionReducers.proteinList);
@@ -34,7 +37,6 @@ export const useDisplayProteinLHS = () => {
       const colourToggle = getRandomColor(data);
 
       const molId = generateMoleculeId(data);
-      dispatch(appendProteinList(molId));
       const hitProteinObject = await dispatch(generateHitProteinObject(data, colourToggle, base_url));
       const qualityInformation = dispatch(readQualityInformation(hitProteinObject.name, hitProteinObject.sdf_info));
 
@@ -43,23 +45,30 @@ export const useDisplayProteinLHS = () => {
         qualityInformation &&
         qualityInformation.badproteinids &&
         qualityInformation.badproteinids.length !== 0;
+      dispatch(appendProteinList(molId));
       if (hasAdditionalInformation) {
         dispatch(appendQualityList(molId, true));
       }
 
-      return dispatch(
-        loadObject({
-          target: Object.assign({ display_div: VIEWS.MAJOR_VIEW }, hitProteinObject),
-          stage,
-          previousRepresentations: proteinData.representations,
-          orientationMatrix: null,
-          loadQuality: hasAdditionalInformation,
-          quality: qualityInformation,
-          preserveColour: proteinData.preserveColour
-        })
-      ).then(() => {
+      try {
+        await dispatch(
+          loadObject({
+            target: Object.assign({ display_div: VIEWS.MAJOR_VIEW }, hitProteinObject),
+            stage,
+            previousRepresentations: proteinData.representations,
+            orientationMatrix: null,
+            loadQuality: hasAdditionalInformation,
+            quality: qualityInformation,
+            preserveColour: proteinData.preserveColour
+          })
+        );
         dispatch(updateInToBeDisplayedList({ id: data.id, rendered: true, type: NGL_OBJECTS.PROTEIN }));
-      });
+      } catch (error) {
+        console.error(`Unable to display protein for observation ${data.id}`, error);
+        dispatch(removeFromProteinList(molId));
+        dispatch(removeFromQualityList(molId));
+        dispatch(removeFromToBeDisplayedList({ id: data.id, type: NGL_OBJECTS.PROTEIN }));
+      }
     },
     [allObservations, dispatch, stage]
   );
@@ -69,7 +78,7 @@ export const useDisplayProteinLHS = () => {
       const data = allObservations.find(obs => obs.id === proteinData.id);
       if (!data) return;
       const colourToggle = getRandomColor(data);
-      dispatch(
+      await dispatch(
         deleteObject(
           Object.assign(
             { display_div: VIEWS.MAJOR_VIEW },
@@ -87,7 +96,7 @@ export const useDisplayProteinLHS = () => {
   useEffect(() => {
     const toBeDisplayedProteins = getToBeDisplayedStructures(toBeDisplayedList, displayedProteins, NGL_OBJECTS.PROTEIN);
     toBeDisplayedProteins?.forEach(data => {
-      displayProtein(data);
+      runStructureOperation(data, displayProtein);
     });
 
     const toBeRemovedProteins = getToBeDisplayedStructures(
@@ -97,9 +106,9 @@ export const useDisplayProteinLHS = () => {
       true
     );
     toBeRemovedProteins?.forEach(data => {
-      removeProtein(data);
+      runStructureOperation(data, removeProtein);
     });
-  }, [toBeDisplayedList, displayProtein, dispatch, stage, removeProtein, displayedProteins]);
+  }, [runStructureOperation, toBeDisplayedList, displayProtein, dispatch, stage, removeProtein, displayedProteins]);
 
   return {};
 };

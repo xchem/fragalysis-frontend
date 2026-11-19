@@ -113,7 +113,17 @@ docker-compose -f docker-compose.dev.vector.yml up -d
 
 `Please wait, it takes a minute until all containers are fully started.`
 
-Test if we are running at [http://localhost:8080](http://localhost:8080)
+Open the application at [http://127.0.0.1:8080](http://127.0.0.1:8080). The backend must supply COOP (`same-origin`) and
+COEP (`require-corp`) on the application document for Moorhen workers and `SharedArrayBuffer`. Development does not
+inject missing backend headers: a misconfigured backend must fail locally as it would in a deployed stack.
+
+When upgrading from a checkout with the former local nginx header mount, recreate the `web` container to remove it:
+
+```sh
+docker compose -f docker-compose.dev.vector.yml up -d --no-deps --force-recreate web
+```
+
+Production backend and platform requirements are listed in `docs/moorhen-static-deployment.md`.
 
 If needed stop containers
 
@@ -169,19 +179,14 @@ To create .env with token right away:
 echo "GITHUB_API_TOKEN=myGitHubToken" > .env
 ```
 
-The molecular viewer is selected with `VIEWER_ENGINE`. NGL is the default and the only enabled viewer during the
-early migration stages:
+Moorhen is the molecular viewer in all environments. There is no viewer selection or rollback flag. Its static asset
+root defaults to `/bundles/moorhen` relative to the frontend bundle; deployments can override it with
+`MOORHEN_ASSET_URL` at build time or `window.DJANGO_CONTEXT.moorhen_asset_url` before the bundle starts.
 
-```
-VIEWER_ENGINE=ngl
-```
-
-For local development, add the value to `.env`. Dev and staging builds can provide the same variable in the build
-environment. A deployed environment can override the build value at runtime by setting
-`window.DJANGO_CONTEXT.viewer_engine`. Runtime configuration takes precedence over build configuration.
-
-`moorhen` is reserved as a future value. Until the Moorhen implementation is enabled, that value and any unknown
-value safely fall back to NGL.
+Viewer selection, initialization duration, and errors are logged as `[viewer-telemetry]` records.
+The latest 100 records are available in `window.__FRAGALYSIS_VIEWER_TELEMETRY__` and are also dispatched as
+`fragalysis:viewer-telemetry` browser events. The completed replacement is documented in
+`docs/moorhen-migration-stages-20-21-moorhen-only.md`.
 
 # When backend and/or loader are updated
 

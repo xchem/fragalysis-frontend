@@ -7,7 +7,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { Button, GridLegacy as Grid, IconButton, Popper, CircularProgress } from '@mui/material';
 import { makeStyles } from '../../../../../../ui/styles';
 import { Panel } from '../../../../../common';
-import { ArrowDownward, ArrowUpward, MyLocation, Assignment } from '@mui/icons-material';
+import { MyLocation, Assignment } from '@mui/icons-material';
 import classNames from 'classnames';
 import { VIEWS } from '../../../../../../constants/constants';
 import { NglContext } from '../../../../../nglView/nglProvider';
@@ -65,6 +65,8 @@ import { isCompoundFromVectorSelector } from '../../../../compounds/redux/dispat
 import { LHS_OBSERVATION_VIEW_CONFIG } from '../../viewConfigs';
 import { getDefaultComputedInspirations } from '../../../utils/computedInspirations';
 import { hasPoseTransferStateForPose } from '../../../poseTransfer';
+import { usePoseRowSelection } from '../../hooks/usePoseRowSelection';
+import { PoseTransferButtons } from '../../../poseTransferButtons';
 
 const DETAIL_TEXT_ACTION_BUFFER = 28;
 const DETAIL_SINGLE_CONTROL_WIDTH = 24;
@@ -148,21 +150,6 @@ const useStyles = makeStyles(theme => ({
     // border: 'solid 1px',
     // borderColor: theme.palette.background.divider,
     // borderStyle: 'solid none none none'
-  },
-  poseTransferButtons: {
-    display: 'flex',
-    flexDirection: 'row',
-    flexWrap: 'nowrap'
-  },
-  poseTransferButton: {
-    width: 19,
-    height: 18,
-    padding: 1,
-    borderRadius: 0,
-    color: theme.palette.primary.main,
-    '& svg': {
-      fontSize: 15
-    }
   },
   buttonsTagsWrapper: {
     border: 'solid 1px',
@@ -560,10 +547,10 @@ export const DetailView = memo(
     getComputedInspirations = undefined,
     previousPose = null,
     nextPose = null,
-    poseTransferConfig = undefined,
+    poseTransferConfig,
     poseTransferInProgress = false,
     poseTransferResetKey = 0,
-    onPoseTransfer = undefined
+    onPoseTransfer
   }) => {
     const [proteinSettings, setProteinSettings] = useState(DEFAULT_PROTEIN_SETTINGS);
     const [densityPopoverAnchor, setDensityPopoverAnchor] = useState(null);
@@ -632,19 +619,6 @@ export const DetailView = memo(
       setProteinTooltipOpen(false);
     };
 
-    useEffect(() => {
-      if (!poseTransferResetKey) {
-        return;
-      }
-
-      setDensityPopoverOpen(false);
-      setDensityPopoverAnchor(null);
-      setDensityTooltipOpen(false);
-      setProteinPopoverOpen(false);
-      setProteinPopoverAnchor(null);
-      setProteinTooltipOpen(false);
-    }, [poseTransferResetKey]);
-
     // const [countOfVectors, setCountOfVectors] = useState('-');
     // const [cmpds, setCmpds] = useState('-');
     const selectedAll = useRef(false);
@@ -679,37 +653,6 @@ export const DetailView = memo(
       return result;
     }, [data, observations]);
 
-    const getAllObservationsSelectedInList = list => {
-      let result = [];
-
-      if (list && list.length > 0 && observations && observations.length > 0) {
-        observations.forEach(obs => {
-          const isPresent = list.some(id => obs.id === id);
-          if (isPresent) {
-            result.push(obs);
-          }
-        });
-      }
-
-      return result;
-    };
-
-    const isAtLeastOneObservationOnInList = list => {
-      let result = false;
-
-      if (list && list.length > 0 && observations && observations.length > 0) {
-        for (const obs of observations) {
-          const isPresent = list.some(id => obs.id === id);
-          if (isPresent) {
-            result = true;
-            break;
-          }
-        }
-      }
-
-      return result;
-    };
-
     const isAtLeastOneObservationOnDensity = list => {
       let result = false;
 
@@ -741,13 +684,7 @@ export const DetailView = memo(
       }
     }, [observations]);
 
-    const fragmentDisplayList = useSelector(state => state.selectionReducers.fragmentDisplayList);
-    const proteinList = useSelector(state => state.selectionReducers.proteinList);
-    const artefactsChainList = useSelector(state => state.selectionReducers.artefactsChainList);
-    const complexList = useSelector(state => state.selectionReducers.complexList);
-    const surfaceList = useSelector(state => state.selectionReducers.surfaceList);
-    const densityList = useSelector(state => state.selectionReducers.densityList);
-    const vectorOnList = useSelector(state => state.selectionReducers.vectorOnList);
+    const rowSelection = usePoseRowSelection(observations);
     // const currentTarget = useSelector(state => getCurrentTarget(state));
     const aliasOrder = useSelector(state => state.apiReducers.target_on_aliases);
     const computedInspirations = useMemo(() => {
@@ -759,13 +696,9 @@ export const DetailView = memo(
     }, [data, getComputedInspirations, observations]);
 
     const isAnyInspirationOn = useSelector(state => isAnyInspirationTurnedOn(state, computedInspirations));
-    const hasTransferableState = useSelector(state => {
-      if (!poseTransferConfig) {
-        return false;
-      }
-
-      return hasPoseTransferStateForPose({ state, pose: data, config: poseTransferConfig });
-    });
+    const hasTransferableState = useSelector(state =>
+      hasPoseTransferStateForPose({ state, pose: data, config: poseTransferConfig })
+    );
     const isFromVectorSelector = isCompoundFromVectorSelector(data);
 
     const activeTarget = useSelector(state => getCurrentTarget(state));
@@ -773,14 +706,14 @@ export const DetailView = memo(
     const defaultMapRendering =
       activeTarget?.settings?.electron_density_rendering_mode || MAP_RENDERING_MODES.WIREFRAME;
 
-    const isLigandOn = isAtLeastOneObservationOnInList(fragmentDisplayList);
-    const isProteinOn = isAtLeastOneObservationOnInList(proteinList);
-    const isArtefactChainOn = isAtLeastOneObservationOnInList(artefactsChainList);
+    const isLigandOn = rowSelection.ligands.length > 0;
+    const isProteinOn = rowSelection.proteins.length > 0;
+    const isArtefactChainOn = rowSelection.artefacts.length > 0;
     // C stands for contacts now
-    const isComplexOn = isAtLeastOneObservationOnInList(complexList);
-    const isSurfaceOn = isAtLeastOneObservationOnInList(surfaceList);
-    const isDensityOn = isAtLeastOneObservationOnDensity(densityList);
-    const isVectorOn = isAtLeastOneObservationOnInList(vectorOnList);
+    const isComplexOn = rowSelection.complexes.length > 0;
+    const isSurfaceOn = rowSelection.surfaces.length > 0;
+    const isDensityOn = rowSelection.densities.length > 0;
+    const isVectorOn = rowSelection.vectors.length > 0;
 
     const hasAllValuesOn = isLigandOn && isProteinOn && isArtefactChainOn && isComplexOn;
     const hasSomeValuesOn = !hasAllValuesOn && (isLigandOn || isProteinOn || isArtefactChainOn || isComplexOn);
@@ -793,12 +726,6 @@ export const DetailView = memo(
     const colourToggle = getRandomColor(getMainObservation());
 
     const [tagPopoverOpen, setTagPopoverOpen] = useState(null);
-
-    useEffect(() => {
-      if (poseTransferResetKey) {
-        setTagPopoverOpen(null);
-      }
-    }, [poseTransferResetKey]);
 
     const open = tagPopoverOpen ? true : false;
 
@@ -1127,7 +1054,7 @@ export const DetailView = memo(
     };
 
     const removeSelectedLigand = (skipTracking = false) => {
-      const selectedObs = getAllObservationsSelectedInList(fragmentDisplayList);
+      const selectedObs = rowSelection.ligands;
       for (const obs of selectedObs) {
         dispatch(removeLigand(stage, obs, skipTracking));
       }
@@ -1156,7 +1083,7 @@ export const DetailView = memo(
     };
 
     const removeSelectedProtein = (skipTracking = false) => {
-      const selectedObs = getAllObservationsSelectedInList(proteinList);
+      const selectedObs = rowSelection.proteins;
       for (const obs of selectedObs) {
         dispatch(removeHitProtein(stage, obs, colourToggle, skipTracking));
       }
@@ -1164,7 +1091,7 @@ export const DetailView = memo(
     };
 
     const removeSelectedArtefactChain = (skipTracking = false) => {
-      const selectedObs = getAllObservationsSelectedInList(artefactsChainList);
+      const selectedObs = rowSelection.artefacts;
       for (const obs of selectedObs) {
         dispatch(removeArtefactChain(stage, obs, colourToggle, skipTracking));
       }
@@ -1233,24 +1160,16 @@ export const DetailView = memo(
             }
             break;
           case 'both':
-            if (proteinSettings.protein) {
-              if (isProteinOn) {
-                removeSelectedProtein();
-              } else {
-                addNewProtein();
-              }
-            }
-            if (proteinSettings.artefact) {
-              if (isArtefactChainOn) {
-                removeSelectedArtefactChain();
-              } else {
-                addNewArtefactChain();
-              }
-            }
-            if (!proteinSettings.protein && !proteinSettings.artefact) {
+            if (isProteinOn || isArtefactChainOn) {
+              if (isProteinOn) removeSelectedProtein();
+              if (isArtefactChainOn) removeSelectedArtefactChain();
+            } else if (!proteinSettings.protein && !proteinSettings.artefact) {
               dispatch(removeProteinSettings({ id: getMainObservation()?.id }));
               setProteinSettings(DEFAULT_PROTEIN_SETTINGS);
               addNewProtein(false);
+            } else {
+              if (proteinSettings.protein) addNewProtein();
+              if (proteinSettings.artefact) addNewArtefactChain();
             }
             break;
           default:
@@ -1261,7 +1180,7 @@ export const DetailView = memo(
     };
 
     const removeSelectedComplex = (skipTracking = false) => {
-      const selectedObs = getAllObservationsSelectedInList(complexList);
+      const selectedObs = rowSelection.complexes;
       for (const obs of selectedObs) {
         dispatch(removeComplex(stage, obs, colourToggle, skipTracking));
       }
@@ -1301,7 +1220,7 @@ export const DetailView = memo(
     };
 
     const removeSelectedSurface = () => {
-      const selectedObs = getAllObservationsSelectedInList(surfaceList);
+      const selectedObs = rowSelection.surfaces;
       for (const obs of selectedObs) {
         dispatch(removeSurface(stage, obs, colourToggle));
       }
@@ -1422,7 +1341,7 @@ export const DetailView = memo(
     };
 
     const removeSelectedVector = () => {
-      const selectedObs = getAllObservationsSelectedInList(vectorOnList);
+      const selectedObs = rowSelection.vectors;
       for (const obs of selectedObs) {
         dispatch(removeVector(stage, obs));
       }
@@ -1540,10 +1459,7 @@ export const DetailView = memo(
         widths.push(DETAIL_CONTROL_BUTTON_WIDTH);
       }
 
-      if (poseTransferConfig) {
-        widths.push(19, 19);
-      }
-
+      if (poseTransferConfig) widths.push(19, 19);
       return widths;
     }, [hideFButton, poseTransferConfig, shouldRenderDetailTrailingButtons, showCrossReferenceModal]);
 
@@ -1553,8 +1469,7 @@ export const DetailView = memo(
       const codeWidth = measureTextWidth(mainObservation?.code || '', '700 14.4px Roboto, Arial, sans-serif');
       const displayNameWidth = measureTextWidth(getDisplayName() || '', '400 12.8px Roboto, Arial, sans-serif');
       const preferredTextWidth = Math.ceil(Math.max(codeWidth, displayNameWidth) + DETAIL_TEXT_ACTION_BUFFER);
-      const fullControlsWidth =
-        (DETAIL_CONTROLS_WIDTH[viewConfig.kind] || DETAIL_CONTROLS_WIDTH.lhs) +
+      const fullControlsWidth = (DETAIL_CONTROLS_WIDTH[viewConfig.kind] || DETAIL_CONTROLS_WIDTH.lhs) +
         (poseTransferConfig?.controlsWidth || 0);
 
       if (!availableWidth) {
@@ -1577,20 +1492,19 @@ export const DetailView = memo(
         controlsWidth: Math.ceil(controlsWidth),
         textColumnWidth: Math.max(DETAIL_MIN_TEXT_WIDTH, Math.min(preferredTextWidth, availableWidth - controlsWidth))
       };
-    }, [
-      detailWidth,
-      getDisplayName,
-      getMainObservation,
-      poseTransferConfig,
-      viewConfig.kind,
-      visibleControlButtonWidths
-    ]);
+    }, [detailWidth, getDisplayName, getMainObservation, poseTransferConfig, viewConfig.kind, visibleControlButtonWidths]);
 
     const [anchorElTable, setAnchorElTable] = useState(null);
     useEffect(() => {
-      if (poseTransferResetKey) {
-        setAnchorElTable(null);
-      }
+      if (!poseTransferResetKey) return;
+      setDensityPopoverOpen(false);
+      setDensityPopoverAnchor(null);
+      setDensityTooltipOpen(false);
+      setProteinPopoverOpen(false);
+      setProteinPopoverAnchor(null);
+      setProteinTooltipOpen(false);
+      setTagPopoverOpen(null);
+      setAnchorElTable(null);
     }, [poseTransferResetKey]);
     const handleTablePopoverOpen = event => {
       setAnchorElTable(anchorElTable ? null : event.currentTarget);
@@ -2017,25 +1931,13 @@ export const DetailView = memo(
               </RichTooltip>
               {generateLastButtons()}
               {poseTransferConfig && hasTransferableState && (
-                <Grid item className={classes.poseTransferButtons}>
-                  <IconButton
-                    className={classes.poseTransferButton}
-                    aria-label="Transfer settings to previous pose"
-                    title="Transfer settings to previous pose"
-                    disabled={!previousPose || poseTransferInProgress}
-                    onClick={() => onPoseTransfer?.({ sourcePose: data, destinationPose: previousPose })}
-                  >
-                    <ArrowUpward />
-                  </IconButton>
-                  <IconButton
-                    className={classes.poseTransferButton}
-                    aria-label="Transfer settings to next pose"
-                    title="Transfer settings to next pose"
-                    disabled={!nextPose || poseTransferInProgress}
-                    onClick={() => onPoseTransfer?.({ sourcePose: data, destinationPose: nextPose })}
-                  >
-                    <ArrowDownward />
-                  </IconButton>
+                <Grid item>
+                  <PoseTransferButtons
+                    previous={previousPose ? { sourcePose: data, destinationPose: previousPose } : null}
+                    next={nextPose ? { sourcePose: data, destinationPose: nextPose } : null}
+                    busy={poseTransferInProgress}
+                    onTransfer={onPoseTransfer}
+                  />
                 </Grid>
               )}
             </Grid>

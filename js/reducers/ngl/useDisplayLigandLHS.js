@@ -1,4 +1,5 @@
-import { useCallback, useContext, useEffect } from 'react';
+import { useStructureOperationQueue } from './useStructureOperationQueue';
+import { useCallback, useContext, useEffect, useRef, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { NGL_OBJECTS } from './constants';
 import {
@@ -13,14 +14,34 @@ import { generateMoleculeId, generateMoleculeObject } from '../../components/ngl
 import { VIEWS } from '../../constants/constants';
 import { NglContext } from '../../components/nglView/nglProvider';
 import { getRandomColor } from '../../components/preview/molecule/utils/color';
-import { readQualityInformation } from '../../components/nglView/renderingHelpers';
+import { readQualityInformation } from '../../viewer/qualityInformation';
 import { deleteObject, loadObject } from './dispatchActions';
 import { removeVector } from '../../components/preview/molecule/redux/dispatchActions';
 import { getToBeDisplayedStructures } from './utils';
 import { setNglOrientation } from './actions';
+import { isBulkLigand } from './bulkLigands';
+import { LHS_BULK_LIGAND_CONCURRENCY } from '../../config/viewer';
 
 export const useDisplayLigandLHS = () => {
   const dispatch = useDispatch();
+  const runStructureOperation = useStructureOperationQueue();
+  const bulkLoading = useRef(new Map());
+  const mounted = useRef(false);
+  const [bulkLoadVersion, setBulkLoadVersion] = useState(0);
+
+  useEffect(() => {
+    mounted.current = true;
+    const activeLoads = bulkLoading.current;
+    return () => {
+      mounted.current = false;
+      activeLoads.forEach((timer, id) => {
+        if (timer !== null) {
+          clearTimeout(timer);
+          activeLoads.delete(id);
+        }
+      });
+    };
+  }, []);
 
   const toBeDisplayedList = useSelector(state => state.selectionReducers.toBeDisplayedList);
   const displayedLigands = useSelector(state => state.selectionReducers.fragmentDisplayList);
@@ -38,36 +59,42 @@ export const useDisplayLigandLHS = () => {
       if (!data) return;
       const colourToggle = getRandomColor(data);
       const molId = generateMoleculeId(data);
-      dispatch(appendFragmentDisplayList(molId));
 
-      let moleculeObject = await dispatch(generateMoleculeObject(data, colourToggle));
-      let qualityInformation = dispatch(readQualityInformation(moleculeObject.name, moleculeObject.sdf_info));
+      try {
+        let moleculeObject = await dispatch(generateMoleculeObject(data, colourToggle));
+        let qualityInformation = dispatch(readQualityInformation(moleculeObject.name, moleculeObject.sdf_info));
 
-      let hasAdditionalInformation =
-        ligandData.withQuality === true &&
-        qualityInformation &&
-        qualityInformation.badids &&
-        qualityInformation.badids.length !== 0;
-      if (hasAdditionalInformation) {
-        dispatch(appendQualityList(molId));
-      }
+        let hasAdditionalInformation =
+          ligandData.withQuality === true &&
+          qualityInformation &&
+          qualityInformation.badids &&
+          qualityInformation.badids.length !== 0;
+        dispatch(appendFragmentDisplayList(molId));
+        if (hasAdditionalInformation) {
+          dispatch(appendQualityList(molId));
+        }
 
-      return dispatch(
-        loadObject({
-          target: Object.assign({ display_div: VIEWS.MAJOR_VIEW }, moleculeObject),
-          stage,
-          previousRepresentations: ligandData.representations,
-          loadQuality: hasAdditionalInformation,
-          quality: qualityInformation,
-          center: ligandData.center
-        })
-      ).then(() => {
+        await dispatch(
+          loadObject({
+            target: Object.assign({ display_div: VIEWS.MAJOR_VIEW }, moleculeObject),
+            stage,
+            previousRepresentations: ligandData.representations,
+            loadQuality: hasAdditionalInformation,
+            quality: qualityInformation,
+            center: ligandData.center
+          })
+        );
         if (ligandData.center) {
           const currentOrientation = viewerAdapter.getOrientation();
           dispatch(setNglOrientation(currentOrientation, VIEWS.MAJOR_VIEW));
         }
         dispatch(updateInToBeDisplayedList({ id: data.id, rendered: true, type: NGL_OBJECTS.LIGAND }));
-      });
+      } catch (error) {
+        dispatch(removeFromFragmentDisplayList(molId));
+        dispatch(removeFromQualityList(molId));
+        dispatch(removeFromToBeDisplayedList({ id: data.id, type: NGL_OBJECTS.LIGAND }));
+        throw error;
+      }
     },
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [allObservations, dispatch, stage, viewerAdapter] //skipOrientationChange and isLoadingCurrentSnapshot are not included in the dependencies by desing
@@ -77,8 +104,14 @@ export const useDisplayLigandLHS = () => {
     async ligandData => {
       const data = allObservations.find(obs => obs.id === ligandData.id);
       if (!data) return;
-      const ligandDataText = await dispatch(generateMoleculeObject(data));
-      dispatch(deleteObject(Object.assign({ display_div: VIEWS.MAJOR_VIEW }, ligandDataText), stage));
+      // A bulk ligand may be deselected before it starts downloading. Deletion
+      // needs only its name and must still await any native load/disposal by name.
+      await dispatch(
+        deleteObject(
+          { display_div: VIEWS.MAJOR_VIEW, name: `${generateMoleculeId(data).name}_${NGL_OBJECTS.LIGAND}` },
+          stage
+        )
+      );
       dispatch(removeFromFragmentDisplayList(generateMoleculeId(data)));
       dispatch(removeFromQualityList(generateMoleculeId(data)));
       if (ligandData.withVector === true) {
@@ -99,13 +132,49 @@ export const useDisplayLigandLHS = () => {
       true
     );
     toBeRemovedLigands?.forEach(data => {
-      removeLigand(data);
+      runStructureOperation(data, removeLigand);
     });
     const toBeDisplayedLigands = getToBeDisplayedStructures(toBeDisplayedList, displayedLigands, NGL_OBJECTS.LIGAND);
     toBeDisplayedLigands?.forEach(data => {
-      displayLigand(data);
+      if (!isBulkLigand(data)) {
+        runStructureOperation(data, displayLigand);
+        return;
+      }
+      if (
+        bulkLoading.current.has(data.id) ||
+        bulkLoading.current.size >= LHS_BULK_LIGAND_CONCURRENCY ||
+        !allObservations.some(observation => observation.id === data.id)
+      ) {
+        return;
+      }
+
+      // Hold a pool slot through coordinate fetching and native ready. Claim by
+      // observation ID so repeated effects/duplicate intents cannot spend slots.
+      // Leave waiting intents in Redux so deselection/snapshot replacement takes
+      // effect before they start, without retaining stale loading callbacks.
+      bulkLoading.current.set(data.id, null);
+      const resume = () => {
+        if (!mounted.current) return;
+        // Yield a browser task even when coordinates/native work were cached.
+        const timer = setTimeout(() => {
+          bulkLoading.current.delete(data.id);
+          setBulkLoadVersion(version => version + 1);
+        }, 0);
+        bulkLoading.current.set(data.id, timer);
+      };
+      runStructureOperation(data, displayLigand).then(resume, resume);
     });
-  }, [toBeDisplayedList, displayedLigands, displayLigand, dispatch, stage, removeLigand]);
+  }, [
+    runStructureOperation,
+    toBeDisplayedList,
+    displayedLigands,
+    displayLigand,
+    dispatch,
+    stage,
+    removeLigand,
+    allObservations,
+    bulkLoadVersion
+  ]);
 
   return {};
 };

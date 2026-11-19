@@ -1,6 +1,6 @@
 import React, { memo } from 'react';
 import { GridLegacy as Grid } from '@mui/material';
-import NGLView from '../nglView/nglView';
+import ViewerView from '../moorhenView/ViewerView';
 import { withLoadingEventList } from '../../hoc/withLoadingEventList';
 import { withLoadingPanddaSiteList } from '../../hoc/withPanddaSiteList';
 import PanddaSlider from './panddaSlider';
@@ -11,12 +11,12 @@ const Tindspect = memo(() => {
   return (
     <Grid container>
       <Grid item xs={4} md={4}>
-        <NGLView div_id={VIEWS.PANDDA_SUMMARY} height="200px" />
+        <ViewerView div_id={VIEWS.PANDDA_SUMMARY} height="200px" />
         <PanddaSlider />
         <EventSlider />
       </Grid>
       <Grid item xs={8} md={8}>
-        <NGLView div_id={VIEWS.PANDDA_MAJOR} height="600px" />
+        <ViewerView div_id={VIEWS.PANDDA_MAJOR} height="600px" />
       </Grid>
     </Grid>
   );

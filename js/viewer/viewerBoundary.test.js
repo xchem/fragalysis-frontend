@@ -3,10 +3,16 @@ import path from 'path';
 
 const jsRoot = path.resolve(__dirname, '..');
 const implementationFiles = new Set([
-  'components/nglView/renderingHelpers.js',
-  'components/nglView/renderingObjects.js',
+  'viewer/MoorhenViewerAdapter.js',
   'viewer/NglViewerAdapter.js',
-  'viewer/ngl/representationHelpers.js'
+  'viewer/ngl/representationHelpers.js',
+  'components/nglView/renderingObjects.js',
+  'components/nglView/renderingHelpers.js'
+]);
+const nglImportFiles = new Set([
+  'viewer/NglViewerAdapter.js',
+  'components/nglView/renderingObjects.js',
+  'components/nglView/renderingHelpers.js'
 ]);
 
 const getJavaScriptFiles = directory =>
@@ -24,16 +30,16 @@ const stripLineComments = source => source.replace(/\/\/.*$/gm, '');
 describe('viewer adapter boundary', () => {
   const files = getJavaScriptFiles(jsRoot);
 
-  it('keeps direct NGL imports inside the NGL implementation', () => {
+  it('keeps NGL imports inside the NGL viewer implementation', () => {
     const violations = files
       .filter(filePath => /from\s+['"]ngl['"]/.test(fs.readFileSync(filePath, 'utf8')))
       .map(toRelativePath)
-      .filter(filePath => !implementationFiles.has(filePath));
+      .filter(filePath => !nglImportFiles.has(filePath));
 
     expect(violations).toEqual([]);
   });
 
-  it('keeps direct viewer API calls inside the NGL implementation', () => {
+  it('keeps direct viewer API calls inside viewer implementations', () => {
     const directViewerApi = [
       /\b(?:stage|newStage)\.(?:loadFile|addComponentFromObject|removeComponent|removeAllComponents|getComponentsByName|setParameters|handleResize|makeImage|dispose)\s*\(/,
       /(?:\.stage|\bstage)\.(?:viewerControls|animationControls|tasks|compList)\b/,

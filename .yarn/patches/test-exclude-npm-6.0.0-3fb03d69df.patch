@@ -1,0 +1,13 @@
+diff --git a/is-outside-dir-win32.js b/is-outside-dir-win32.js
+index 05e34a9c396828d9dcd134278dc4975432be3dff..3bda746aa34a68e683616f8303c892a5f320174a 100644
+--- a/is-outside-dir-win32.js
++++ b/is-outside-dir-win32.js
+@@ -3,7 +3,7 @@
+ const path = require('path');
+ const minimatch = require('minimatch');
+ 
+-const dot = { dot: true };
++const dot = { dot: true, windowsPathsNoEscape: true };
+ 
+ module.exports = function(dir, filename) {
+     return !minimatch(path.resolve(dir, filename), path.join(dir, '**'), dot);

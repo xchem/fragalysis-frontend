@@ -448,14 +448,14 @@ export const saveAndShareSnapshot = (
   dispatch(setDisableRedirect(true));
 
   if (targetId) {
-    let imageFullscreen = await dispatch(captureScreenOfSnapshotFullScreen());
+    const majorViewer = nglViewList?.find(view => view.id === VIEWS.MAJOR_VIEW);
+    const viewerAdapter = asViewerAdapter(majorViewer?.stage);
+    let imageFullscreen = await dispatch(captureScreenOfSnapshotFullScreen(viewerAdapter));
     imageFullscreen = await rescaleImage(
       imageFullscreen,
       DEFAULT_SCREENSHOT_RESOLUTION.width,
       DEFAULT_SCREENSHOT_RESOLUTION.height
     );
-    const majorViewer = nglViewList?.find(view => view.id === VIEWS.MAJOR_VIEW);
-    const viewerAdapter = asViewerAdapter(majorViewer?.stage);
     let imageNgl = await dispatch(captureScreenOfSnapshotNglScreen(viewerAdapter));
     imageNgl = await rescaleImage(imageNgl, DEFAULT_SCREENSHOT_RESOLUTION.width, DEFAULT_SCREENSHOT_RESOLUTION.height);
     if (showDialog) {
@@ -552,48 +552,8 @@ const applySnapshotStateWithoutFullRefresh = (dispatch, newState) => {
   }
 };
 
-export const changeSnapshot = (projectID, snapshotID, stage, fromJobExec = false, loadingSnapshot = false) => async (
-  dispatch,
-  getState
-) => {
-  const isSwitchingSnapshotWithinProject = !fromJobExec && !loadingSnapshot;
-  if (isSwitchingSnapshotWithinProject) {
-    dispatch(setSwitchingSnapshotWithinProject(true));
-  }
-  dispatch(setSnapshotLoadingInProgress(true));
-  dispatch(setIsSnapshot(true));
-  if (loadingSnapshot || fromJobExec) {
-    dispatch(setLHSIsFullyRendered(false));
-  }
-  // A hacky way of changing the URL without triggering react-router
-  if (!fromJobExec) {
-    window.history.replaceState(null, null, `${URLS.projects}${projectID}/${snapshotID}`);
-  }
-
-  // Load the needed data
-  const snapshotResponse = await api({ url: `${base_url}/api/snapshots/${snapshotID}` });
-
-  const snapshotStateResponse = await api({ url: `${base_url}/api/snapshot_state/${snapshotID}/` });
-  let snapshotState = snapshotStateResponse.data.state;
-
-  if (!snapshotState) {
-    snapshotState = snapshotResponse.data.additional_info.snapshotState;
-  }
-
-  // const snapshotState = snapshotResponse.data.additional_info.snapshotState;
-
-  if (!fromJobExec) {
-    //orientation animation
-    const newOrientation = snapshotState?.nglReducers?.nglOrientations?.[VIEWS.MAJOR_VIEW];
-    if (stage && newOrientation?.elements) {
-      //log with timestamp
-      console.log(`Switch - Before smooth animation: ${new Date().toLocaleTimeString()}`);
-      await asViewerAdapter(stage).animateOrientation(newOrientation.elements, 2000); //.then(() => {
-      console.log(`Switch - After smooth animation: ${new Date().toLocaleTimeString()}`);
-    }
-  }
-
-  let currentState = deepClone(getState());
+const prepareSnapshotStateToApply = (liveState, snapshotState, fromJobExec, loadingSnapshot) => {
+  let currentState = deepClone(liveState);
   let snapshotStateToApply = deepClone(snapshotState);
   let toBeDisplayedLHSNewDeepCopy = null;
   let toBeDisplayedRHSNewDeepCopy = null;
@@ -660,9 +620,7 @@ export const changeSnapshot = (projectID, snapshotID, stage, fromJobExec = false
     toBeDisplayedRHSNewDeepCopy = deepClone(toBeDisplayedRHSNew) || {};
   }
 
-  currentState = getState();
-  currentState = deepClone(currentState);
-  console.log(`RenderingProgressDialog - merging state`);
+  currentState = liveState;
   const newState = mergeSnapshotStateWithCurrentData(currentState, snapshotStateToApply);
 
   newState.apiReducers = {
@@ -690,38 +648,109 @@ export const changeSnapshot = (projectID, snapshotID, stage, fromJobExec = false
     };
   }
 
-  if (!fromJobExec) {
-    applySnapshotStateWithoutFullRefresh(dispatch, newState);
-    dispatch(setIsSnapshotRendering(false));
-    dispatch(setNglObjectsInSnapshotToBeRendered(0));
-    dispatch(setIsNGLQueueEmpty(true));
-  } else {
-    dispatch(setEntireState(newState));
-  }
-  dispatch(
-    setCurrentSnapshot({
-      id: snapshotResponse.data.id,
-      type: snapshotResponse.data.type,
-      title: snapshotResponse.data.title,
-      author: snapshotResponse.data.author,
-      description: snapshotResponse.data.description,
-      created: snapshotResponse.data.created,
-      children: snapshotResponse.data.children,
-      parent: snapshotResponse.data.parent,
-      data: snapshotResponse.data.data
-    })
-  );
+  return newState;
+};
 
-  if (!fromJobExec) {
-    requestAnimationFrame(() => {
-      dispatch(setSwitchingSnapshotWithinProject(false));
-      dispatch(setSnapshotLoadingInProgress(false));
-    });
-  } else {
+// Scope request ownership to the application store, outside serialized Redux state.
+const snapshotSwitchRequests = new WeakMap();
+
+export const changeSnapshot = (projectID, snapshotID, stage, fromJobExec = false, loadingSnapshot = false) => async (
+  dispatch,
+  getState
+) => {
+  const previousRequest = snapshotSwitchRequests.get(dispatch);
+  const request = new AbortController();
+  snapshotSwitchRequests.set(dispatch, request);
+  previousRequest?.abort();
+  const isCurrent = () => snapshotSwitchRequests.get(dispatch) === request;
+  const isSwitchingSnapshotWithinProject = !fromJobExec && !loadingSnapshot;
+  const finishLoading = () => {
+    if (!isCurrent()) return;
+    dispatch(setSwitchingSnapshotWithinProject(false));
     dispatch(setSnapshotLoadingInProgress(false));
-  }
+    snapshotSwitchRequests.delete(dispatch);
+  };
+  let applied = false;
+  try {
+    if (isSwitchingSnapshotWithinProject) dispatch(setSwitchingSnapshotWithinProject(true));
+    dispatch(setSnapshotLoadingInProgress(true));
+    dispatch(setIsSnapshot(true));
+    if (loadingSnapshot || fromJobExec) dispatch(setLHSIsFullyRendered(false));
+    // Update the URL without remounting the live Preview.
+    if (!fromJobExec) window.history.replaceState(null, null, `${URLS.projects}${projectID}/${snapshotID}`);
 
-  return snapshotResponse;
+    const snapshotResponse = await api({ url: `${base_url}/api/snapshots/${snapshotID}` });
+    if (!isCurrent()) return false;
+    const snapshotStateResponse = await api({ url: `${base_url}/api/snapshot_state/${snapshotID}/` });
+    if (!isCurrent()) return false;
+    const snapshotState = snapshotStateResponse.data.state || snapshotResponse.data.additional_info.snapshotState;
+
+    // Do synchronous snapshot cloning/merging before the camera starts moving.
+    const preparedFrom = getState();
+    let newState = prepareSnapshotStateToApply(preparedFrom, snapshotState, fromJobExec, loadingSnapshot);
+    const orientation = snapshotState?.nglReducers?.nglOrientations?.[VIEWS.MAJOR_VIEW];
+    let cameraApplied = false;
+    let viewer;
+    if (!fromJobExec && stage && orientation?.elements) {
+      viewer = asViewerAdapter(stage);
+      if (isSwitchingSnapshotWithinProject) {
+        const result = await viewer.animateOrientation(orientation.elements, 400, { signal: request.signal });
+        if (!isCurrent() || result?.status === 'cancelled' || result?.status === 'destroyed') return false;
+        cameraApplied = true;
+        // Let the final camera frame paint before synchronous state application
+        // and the destination's representation work occupy the main thread.
+        await new Promise(resolve => requestAnimationFrame(resolve));
+      } else {
+        viewer.setOrientation(orientation.elements);
+      }
+    }
+    if (!isCurrent()) return false;
+
+    // Existing loads/removals can finish during motion. Rebase their queue
+    // acknowledgements and caches immediately before applying destination intent.
+    if (getState() !== preparedFrom) {
+      newState = prepareSnapshotStateToApply(getState(), snapshotState, fromJobExec, loadingSnapshot);
+    }
+    newState.nglReducers.snapshotOrientationApplied = cameraApplied;
+    if (cameraApplied) {
+      newState.nglReducers.reapplyOrientation = false;
+      newState.nglReducers.nglOrientations = {
+        ...newState.nglReducers.nglOrientations,
+        [VIEWS.MAJOR_VIEW]: viewer.getOrientation()
+      };
+    }
+    if (!fromJobExec) {
+      applySnapshotStateWithoutFullRefresh(dispatch, newState);
+      dispatch(setIsSnapshotRendering(false));
+      dispatch(setNglObjectsInSnapshotToBeRendered(0));
+      dispatch(setIsNGLQueueEmpty(true));
+    } else {
+      dispatch(setEntireState(newState));
+    }
+    dispatch(
+      setCurrentSnapshot({
+        id: snapshotResponse.data.id,
+        type: snapshotResponse.data.type,
+        title: snapshotResponse.data.title,
+        author: snapshotResponse.data.author,
+        description: snapshotResponse.data.description,
+        created: snapshotResponse.data.created,
+        children: snapshotResponse.data.children,
+        parent: snapshotResponse.data.parent,
+        data: snapshotResponse.data.data
+      })
+    );
+    applied = true;
+    return snapshotResponse;
+  } catch (error) {
+    if (isCurrent()) throw error;
+    return false;
+  } finally {
+    // An older request, including its delayed callback, must not clear the
+    // loading flags owned by a newer selection.
+    if (applied && !fromJobExec) requestAnimationFrame(finishLoading);
+    else finishLoading();
+  }
 };
 
 export const isSnapshotModified = snapshotID => async (dispatch, getState) => {

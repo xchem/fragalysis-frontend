@@ -1,3 +1,4 @@
+import { useStructureOperationQueue } from './useStructureOperationQueue';
 import { useCallback, useContext, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { NGL_OBJECTS } from './constants';
@@ -11,12 +12,13 @@ import { generateComplexObject, generateMoleculeId } from '../../components/nglV
 import { VIEWS } from '../../constants/constants';
 import { NglContext } from '../../components/nglView/nglProvider';
 import { getRandomColor } from '../../components/preview/molecule/utils/color';
-import { deleteObject, loadObject, setOrientation } from './dispatchActions';
+import { deleteObject, loadObject } from './dispatchActions';
 import { base_url } from '../../components/routes/constants';
 import { getToBeDisplayedStructures } from './utils';
 
 export const useDisplayComplexLHS = () => {
   const dispatch = useDispatch();
+  const runStructureOperation = useStructureOperationQueue();
 
   const toBeDisplayedList = useSelector(state => state.selectionReducers.toBeDisplayedList);
   const displayedComplexes = useSelector(state => state.selectionReducers.complexList);
@@ -30,22 +32,28 @@ export const useDisplayComplexLHS = () => {
       const data = allObservations.find(obs => obs.id === complexData.id);
       if (!data) return;
       const colourToggle = getRandomColor(data);
+      const moleculeId = generateMoleculeId(data);
+      const target = Object.assign(
+        { display_div: VIEWS.MAJOR_VIEW },
+        await dispatch(generateComplexObject(data, colourToggle, base_url))
+      );
 
-      dispatch(appendComplexList(generateMoleculeId(data)));
-      return dispatch(
-        loadObject({
-          target: Object.assign(
-            { display_div: VIEWS.MAJOR_VIEW },
-            await dispatch(generateComplexObject(data, colourToggle, base_url))
-          ),
-          stage,
-          previousRepresentations: complexData.representations,
-          orientationMatrix: null,
-          preserveColour: complexData.preserveColour
-        })
-      ).then(() => {
+      dispatch(appendComplexList(moleculeId));
+      try {
+        await dispatch(
+          loadObject({
+            target,
+            stage,
+            previousRepresentations: complexData.representations,
+            orientationMatrix: null,
+            preserveColour: complexData.preserveColour
+          })
+        );
         dispatch(updateInToBeDisplayedList({ id: data.id, rendered: true, type: NGL_OBJECTS.COMPLEX }));
-      });
+      } catch {
+        dispatch(removeFromComplexList(moleculeId));
+        dispatch(removeFromToBeDisplayedList({ id: data.id, type: NGL_OBJECTS.COMPLEX }));
+      }
     },
     [allObservations, dispatch, stage]
   );
@@ -56,7 +64,7 @@ export const useDisplayComplexLHS = () => {
       if (!data) return;
       const colourToggle = getRandomColor(data);
 
-      dispatch(
+      await dispatch(
         deleteObject(
           Object.assign(
             { display_div: VIEWS.MAJOR_VIEW },
@@ -79,7 +87,7 @@ export const useDisplayComplexLHS = () => {
       NGL_OBJECTS.COMPLEX
     );
     toBeDisplayedComplexes?.forEach(data => {
-      displayComplex(data);
+      runStructureOperation(data, displayComplex);
     });
 
     const toBeRemovedComplexes = getToBeDisplayedStructures(
@@ -89,9 +97,9 @@ export const useDisplayComplexLHS = () => {
       true
     );
     toBeRemovedComplexes?.forEach(data => {
-      removeComplex(data);
+      runStructureOperation(data, removeComplex);
     });
-  }, [toBeDisplayedList, displayComplex, dispatch, stage, removeComplex, displayedComplexes]);
+  }, [runStructureOperation, toBeDisplayedList, displayComplex, dispatch, stage, removeComplex, displayedComplexes]);
 
   return {};
 };

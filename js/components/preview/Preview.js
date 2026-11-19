@@ -5,7 +5,8 @@
 import React, { memo, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
 import { useTheme } from '@mui/material';
 import { makeStyles } from '../../ui/styles';
-import NGLView from '../nglView/nglView';
+import ViewerView from '../moorhenView/ViewerView';
+import { VIEWER_ENGINE } from '../../config/viewer';
 import HitNavigator from './molecule/hitNavigator';
 import { TagDetailsLHS } from './tags/details/tagDetailsLHS';
 import { withUpdatingTarget } from '../target/withUpdatingTarget';
@@ -378,7 +379,7 @@ const Preview = memo(({ isStateLoaded, hideProjects, isSnapshot = false }) => {
         </ReactGridLayout>
       </div>
       <InPortal node={nglPortal}>
-        <NGLView div_id={VIEWS.MAJOR_VIEW} />
+        <ViewerView div_id={VIEWS.MAJOR_VIEW} deferInitialPresentation />
       </InPortal>
       <NewSnapshotModal />
       <ModalShareSnapshot />
@@ -395,6 +396,20 @@ const Preview = memo(({ isStateLoaded, hideProjects, isSnapshot = false }) => {
   );
 });
 
-export default withLoadingJobSpecs(
+const PreviewContainer = withLoadingJobSpecs(
   withLoadingProjects(withSnapshotManagement(withUpdatingTarget(withLoadingProtein(Preview))))
 );
+
+export default memo(props => {
+  const { toastWarning } = useContext(ToastContext);
+  const hasShownViewerWarning = useRef(false);
+
+  useEffect(() => {
+    if (VIEWER_ENGINE === 'moorhen' && !hasShownViewerWarning.current) {
+      hasShownViewerWarning.current = true;
+      toastWarning('3D viewer is now moorhen; any molecule editing will not persist.');
+    }
+  }, [toastWarning]);
+
+  return <PreviewContainer {...props} />;
+});

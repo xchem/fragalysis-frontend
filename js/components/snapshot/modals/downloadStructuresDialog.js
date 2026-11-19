@@ -534,7 +534,7 @@ export const DownloadStructureDialog = memo(({}) => {
     <Modal open={isOpen} noPadding>
       <div className={classes.root}>
         {!zipPreparing && !(generalError || backendError) && (
-          <DialogTitle id="form-dialog-structures-title" disableTypography>
+          <DialogTitle id="form-dialog-structures-title" component="div">
             <Typography variant="h5">{`Download structures and data for target ${target?.display_name}`}</Typography>
           </DialogTitle>
         )}
@@ -544,19 +544,19 @@ export const DownloadStructureDialog = memo(({}) => {
               <LinearProgress />
             </Box>
             {!(generalError || backendError) && (
-              <DialogTitle id="form-dialog-structures-title" disableTypography>
+              <DialogTitle id="form-dialog-structures-title" component="div">
                 <Typography variant="h5">{'Preparing download... You can safely close this dialog'}</Typography>
               </DialogTitle>
             )}
           </>
         )}
         {(generalError || backendError) && (
-          <DialogTitle id="form-dialog-structures-title" disableTypography>
+          <DialogTitle id="form-dialog-structures-title" component="div">
             <ErrorMsg variant="h4">{errorMessage}</ErrorMsg>
           </DialogTitle>
         )}
         {alreadyInProgress && (
-          <DialogTitle id="form-dialog-structures-title" disableTypography>
+          <DialogTitle id="form-dialog-structures-title" component="div">
             <WarnMsg variant="h4">{'Same download is already being prepared. Try again in a minute.'}</WarnMsg>
           </DialogTitle>
         )}

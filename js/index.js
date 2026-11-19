@@ -1,10 +1,6 @@
 import React from 'react';
 import { createRoot } from 'react-dom/client';
 import Root from './components/root';
-import { DJANGO_CONTEXT } from './utils/djangoContext';
-// Sentry logging
-import { init, configureScope } from '@sentry/browser';
-// Setup log rocket logging
 import { Provider } from 'react-redux';
 import { applyMiddleware, legacy_createStore } from 'redux';
 import { rootReducer } from './reducers/rootReducer';

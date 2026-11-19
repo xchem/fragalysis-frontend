@@ -81,6 +81,7 @@ export const hasPoseTransferStateForPose = ({ state, pose, config }) => {
   if (!config || !pose) {
     return false;
   }
+  if (config.dialogs?.hasTransferableState?.({ state, pose })) return true;
 
   const inspirationItems = config.getInspirationStateItems
     ? config.getInspirationStateItems({ state, pose })
@@ -135,86 +136,27 @@ export const getFirstEligiblePoseTransfers = ({ orderedPoses = [], state, config
   return transfers;
 };
 
-const areControlsClear = (state, controls) =>
-  uniqueControls(controls).every(control => (control.getSelectedItems?.(state) || []).length === 0);
-
-const waitForControlsToClear = (getState, controls, timeout = DEFAULT_CLEAR_TIMEOUT) => {
-  if (areControlsClear(getState(), controls)) {
-    return Promise.resolve();
-  }
-
-  return new Promise(resolve => {
-    const startedAt = Date.now();
-
-    const poll = () => {
-      if (areControlsClear(getState(), controls) || Date.now() - startedAt >= timeout) {
-        resolve();
-        return;
-      }
-
-      setTimeout(poll, CLEAR_POLL_INTERVAL);
-    };
-
-    setTimeout(poll, CLEAR_POLL_INTERVAL);
-  });
-};
-
-const clearSelectedControls = async ({ dispatch, getState, stage, controls }) => {
-  const state = getState();
-
-  await Promise.all(
-    uniqueControls(controls).flatMap(control =>
-      (control.getSelectedItems?.(state) || []).map(selectedItem =>
-        Promise.resolve(control.remove({ dispatch, stage, selectedItem, state }))
-      )
-    )
-  );
-};
-
-const applySnapshots = async ({ dispatch, getState, stage, controls, snapshots, targets }) => {
-  const controlsByKey = new Map((controls || []).map(control => [control.key, control]));
-
-  await Promise.all(
-    Object.entries(snapshots).flatMap(([key, snapshot]) => {
-      const control = controlsByKey.get(key);
-
-      if (!control) {
-        return [];
-      }
-
-      return (targets || [])
-        .filter(target => control.isAvailable?.({ state: getState(), item: target, snapshot }) !== false)
-        .map(target =>
-          Promise.resolve(
-            control.apply({
-              dispatch,
-              getState,
-              stage,
-              target,
-              activeState: snapshot.activeState,
-              customization: snapshot.customization,
-              sourceItem: snapshot.sourceItem
-            })
-          )
-        );
-    })
-  );
-};
-
-const waitForCondition = ({ condition, timeout, timeoutMessage }) => {
+const waitForCondition = ({ condition, timeout, timeoutMessage, getProgress }) => {
   if (condition()) {
     return Promise.resolve();
   }
 
   return new Promise((resolve, reject) => {
-    const startedAt = Date.now();
+    let lastProgressAt = Date.now();
+    let highWaterMark = getProgress?.() ?? 0;
 
     const poll = () => {
       if (condition()) {
         resolve();
         return;
       }
-      if (Date.now() - startedAt >= timeout) {
+      const now = Date.now();
+      const progress = getProgress?.() ?? 0;
+      if (progress > highWaterMark) {
+        highWaterMark = progress;
+        lastProgressAt = now;
+      }
+      if (now - lastProgressAt >= timeout) {
         reject(new Error(timeoutMessage));
         return;
       }
@@ -344,12 +286,27 @@ const isOperationRendered = (state, operation) => {
   return Boolean(operation.control.getActiveState(state, operation.target));
 };
 
-const waitForOperationsToRender = ({ getState, operations, timeout }) => {
+const waitForOperationsToRender = ({ getState, stage, operations, timeout }) => {
   if (!operations.length) {
     return Promise.resolve();
   }
 
+  // A batch of solid maps can exceed a single timeout while individual maps are
+  // still finishing. Milestones for the requested objects renew the deadline;
+  // they never substitute for the final readiness checks.
+  const readers = operations
+    .map(({ control, target, snapshot }) => control.getRenderProgressReader?.({ stage, item: target, snapshot }))
+    .filter(Boolean);
+  const getProgress = () => {
+    const state = getState();
+    // Protein and ligand loads in the same transfer may finish after all maps.
+    const acknowledgements = operations.reduce(
+      (sum, { control, target }) => sum + (control.countRenderAcknowledgements?.(state, target) ?? 0), 0
+    );
+    return readers.reduce((total, read) => total + read(), acknowledgements);
+  };
   return waitForCondition({
+    getProgress: readers.length ? getProgress : undefined,
     condition: () => operations.every(operation => isOperationRendered(getState(), operation)),
     timeout,
     timeoutMessage: 'Timed out while waiting for the destination structures to render.'
@@ -464,6 +421,7 @@ const restoreMissingOperations = async ({
   await applyOperations({ dispatch, getState, stage, operations: missingOperations });
   await waitForOperationsToRender({
     getState,
+    stage,
     operations: missingOperations,
     timeout: renderTimeout
   });
@@ -489,7 +447,7 @@ const rollbackAddFirstTransfer = async ({
       });
       const originalOperations = restoreOperations({ operations: refreshedOperations });
       await applyOperations({ dispatch, getState, stage, operations: originalOperations });
-      await waitForOperationsToRender({ getState, operations: originalOperations, timeout: renderTimeout });
+      await waitForOperationsToRender({ getState, stage, operations: originalOperations, timeout: renderTimeout });
     } catch (rollbackError) {
       // Continue with removing new-only additions even if a shared structure cannot be restored.
     }
@@ -514,6 +472,7 @@ const executeRemoveFirstTransfer = async ({
   getState,
   stage,
   snapshot,
+  isSourceEntry,
   destinationPoseItems,
   destinationInspirationItems
 }) => {
@@ -522,25 +481,35 @@ const executeRemoveFirstTransfer = async ({
     ...(config.inspirationControls || [])
   ]);
 
-  await clearSelectedControls({ dispatch, getState, stage, controls: controlsToClear });
-  await waitForControlsToClear(getState, controlsToClear, config.clearTimeout);
+  const clearTimeout = config.clearTimeout ?? DEFAULT_CLEAR_TIMEOUT;
+  const entries = getSelectedEntries(getState(), controlsToClear).filter(isSourceEntry);
+  await removeSelectedEntries({ dispatch, getState, stage, entries });
+  await waitForSelectedEntriesToClear({ getState, entries, timeout: clearTimeout });
 
-  await applySnapshots({
-    dispatch,
-    getState,
-    stage,
-    controls: config.poseControls,
-    snapshots: snapshot.pose,
-    targets: destinationPoseItems
+  const state = getState();
+  const operations = createDestinationOperations({
+    state,
+    config,
+    snapshot,
+    destinationPoseItems,
+    destinationInspirationItems
   });
-  await applySnapshots({
-    dispatch,
-    getState,
-    stage,
-    controls: config.inspirationControls,
-    snapshots: snapshot.inspirations,
-    targets: destinationInspirationItems
+  const renderTimeout = config.renderTimeout ?? DEFAULT_RENDER_TIMEOUT;
+  const additions = [];
+  const refreshes = [];
+  operations.forEach(operation => {
+    const currentSnapshot = captureItemSnapshot(state, operation.target, operation.control);
+    if (!currentSnapshot) {
+      additions.push(operation);
+    } else if (!operationMatchesCurrent({ state, operation, currentSnapshot })) {
+      refreshes.push(operation);
+    }
   });
+
+  await Promise.all([
+    applyOperations({ dispatch, getState, stage, operations: additions }),
+    ...refreshes.map(operation => refreshOperation({ dispatch, getState, stage, operation, clearTimeout, renderTimeout }))
+  ]);
 };
 
 const executeAddFirstTransfer = async ({
@@ -549,6 +518,7 @@ const executeAddFirstTransfer = async ({
   getState,
   stage,
   snapshot,
+  isSourceEntry,
   destinationPoseItems,
   destinationInspirationItems
 }) => {
@@ -586,6 +556,7 @@ const executeAddFirstTransfer = async ({
     await applyOperations({ dispatch, getState, stage, operations: newOperations });
     await waitForOperationsToRender({
       getState,
+      stage,
       operations: [...newOperations, ...retainedOperations],
       timeout: renderTimeout
     });
@@ -602,6 +573,7 @@ const executeAddFirstTransfer = async ({
       await applyOperations({ dispatch, getState, stage, operations: changedOverlapOperations });
       await waitForOperationsToRender({
         getState,
+        stage,
         operations: changedOverlapOperations,
         timeout: renderTimeout
       });
@@ -619,7 +591,9 @@ const executeAddFirstTransfer = async ({
     throw error;
   }
 
-  const staleEntries = getSelectedEntries(getState(), controls).filter(entry => !desiredKeys.has(entry.key));
+  const staleEntries = getSelectedEntries(getState(), controls).filter(
+    entry => isSourceEntry(entry) && !desiredKeys.has(entry.key)
+  );
   await removeSelectedEntries({ dispatch, getState, stage, entries: staleEntries });
   await waitForSelectedEntriesToClear({ getState, entries: staleEntries, timeout: clearTimeout });
 };
@@ -633,7 +607,7 @@ const refreshOperation = async ({ dispatch, getState, stage, operation, clearTim
     timeout: clearTimeout
   });
   await applyOperations({ dispatch, getState, stage, operations: [operation] });
-  await waitForOperationsToRender({ getState, operations: [operation], timeout: renderTimeout });
+  await waitForOperationsToRender({ getState, stage, operations: [operation], timeout: renderTimeout });
 };
 
 const executeOverlappedTransfer = async ({
@@ -642,6 +616,7 @@ const executeOverlappedTransfer = async ({
   getState,
   stage,
   snapshot,
+  isSourceEntry,
   destinationPoseItems,
   destinationInspirationItems
 }) => {
@@ -656,7 +631,7 @@ const executeOverlappedTransfer = async ({
   });
   const desiredKeys = new Set(desiredOperations.map(operation => operation.key));
   const initialEntries = getSelectedEntries(initialState, controls);
-  const staleEntries = initialEntries.filter(entry => !desiredKeys.has(entry.key));
+  const staleEntries = initialEntries.filter(entry => isSourceEntry(entry) && !desiredKeys.has(entry.key));
   const staleOperations = staleEntries
     .map(entry => captureSelectedEntryOperation({ config, state: initialState, entry }))
     .filter(Boolean);
@@ -681,7 +656,7 @@ const executeOverlappedTransfer = async ({
   const startAdditions = () =>
     (async () => {
       await applyOperations({ dispatch, getState, stage, operations: newOperations });
-      await waitForOperationsToRender({ getState, operations: newOperations, timeout: renderTimeout });
+      await waitForOperationsToRender({ getState, stage, operations: newOperations, timeout: renderTimeout });
     })();
   const startRemovals = () => [
     (async () => {
@@ -707,6 +682,7 @@ const executeOverlappedTransfer = async ({
     ...operationTasks,
     waitForOperationsToRender({
       getState,
+      stage,
       operations: retainedOperations,
       timeout: renderTimeout
     })
@@ -767,6 +743,7 @@ const executePostTransferFocus = async ({
 
   await waitForOperationsToRender({
     getState,
+    stage,
     operations: destinationOperations,
     timeout: config.renderTimeout ?? DEFAULT_RENDER_TIMEOUT
   });
@@ -821,7 +798,10 @@ export const executePoseTransfer = ({ config, sourcePose, destinationPose, stage
 ) => {
   const initialState = getState();
   const sourcePoseItems = config.getPoseItems({ state: initialState, pose: sourcePose });
-  const sourceInspirationItems = config.getInspirationItems({ state: initialState, pose: sourcePose });
+  const sourceInspirationItems = (config.getSourceInspirationItems || config.getInspirationItems)({
+    state: initialState, pose: sourcePose
+  });
+  const isSourceEntry = config.getSourceEntryFilter?.({ sourcePoseItems, sourceInspirationItems }) || (() => true);
   const destinationPoseItems = config.getPoseTargets({ state: initialState, pose: destinationPose });
   const destinationInspirationItems = config.getInspirationItems({ state: initialState, pose: destinationPose });
   const snapshot = capturePoseTransferSnapshot({
@@ -866,6 +846,7 @@ export const executePoseTransfer = ({ config, sourcePose, destinationPose, stage
         getState,
         stage,
         snapshot,
+        isSourceEntry,
         destinationPoseItems,
         destinationInspirationItems
       });
@@ -876,6 +857,7 @@ export const executePoseTransfer = ({ config, sourcePose, destinationPose, stage
         getState,
         stage,
         snapshot,
+        isSourceEntry,
         destinationPoseItems,
         destinationInspirationItems
       });
@@ -886,11 +868,18 @@ export const executePoseTransfer = ({ config, sourcePose, destinationPose, stage
         getState,
         stage,
         snapshot,
+        isSourceEntry,
         destinationPoseItems,
         destinationInspirationItems
       });
     }
 
+    await waitForOperationsToRender({
+      getState,
+      stage,
+      operations: destinationOperations,
+      timeout: config.renderTimeout ?? DEFAULT_RENDER_TIMEOUT
+    });
     postTransferError = await executePostTransferFocus({
       config,
       dispatch,

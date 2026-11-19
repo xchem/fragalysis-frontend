@@ -12,6 +12,14 @@ export const getTheme = () => {
       fontSize: 12
     },
     components: {
+      MuiCssBaseline: {
+        styleOverrides: {
+          html: {
+            // Inherited by scrollable panels, independent of the browser or viewer color scheme.
+            scrollbarColor: `${palette.dividerDark} ${palette.white}`
+          }
+        }
+      },
       MuiButton: {
         defaultProps: {
           color: 'inherit'

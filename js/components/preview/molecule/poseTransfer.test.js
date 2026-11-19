@@ -25,6 +25,79 @@ const createEligibilityConfig = controls => ({
 });
 
 describe('pose transfer helpers', () => {
+  it.each([true, false])('waits for advancing destination renders but not a stalled batch (finishes: %s)', async finishes => {
+    expect.hasAssertions();
+    jest.useFakeTimers();
+    try {
+      const state = { active: { density: { source: { value: 'maps' } } } };
+      let progress = 0;
+      let acknowledged = 0;
+      let rendered = false;
+      const density = {
+        ...createControl('density'),
+        remove: ({ selectedItem }) => { delete state.active.density[selectedItem.id]; },
+        apply: ({ target, activeState }) => { state.active.density[target.id] = activeState; },
+        isRendered: () => rendered,
+        getRenderProgressReader: () => () => progress,
+        countRenderAcknowledgements: () => acknowledged
+      };
+      const config = {
+        ...createEligibilityConfig([density]),
+        transferScheduling: POSE_TRANSFER_SCHEDULING.PHASED,
+        transferOrder: POSE_TRANSFER_ORDERS.REMOVE_FIRST,
+        renderTimeout: 100,
+        getPoseTargets: ({ pose }) => pose.poseItems
+      };
+      const result = executePoseTransfer({
+        config, sourcePose: { poseItems: [{ id: 'source' }] }, destinationPose: { poseItems: [{ id: 'dest' }] }
+      })(jest.fn(), () => state);
+      const outcome = result.then(() => null, error => error);
+      await jest.advanceTimersByTimeAsync(75);
+      progress = 1;
+      await jest.advanceTimersByTimeAsync(75);
+      acknowledged = 1;
+      await jest.advanceTimersByTimeAsync(75);
+      // More than two timeout periods elapsed. A milestone alone must never
+      // finish the transfer; only the rendered acknowledgement can do that.
+      if (finishes) rendered = true;
+      await jest.advanceTimersByTimeAsync(100);
+      if (finishes) {
+        expect(await outcome).toBeNull();
+        expect(state.active.density.dest).toBeDefined();
+      } else {
+        expect((await outcome).message).toMatch(/Timed out/);
+      }
+    } finally {
+      jest.useRealTimers();
+    }
+  });
+
+  it('does not re-add a shared structure until asynchronous viewer deletion is acknowledged', async () => {
+    expect.hasAssertions();
+    const state = { active: { ligand: { shared: { value: 'old' } } }, deleting: false };
+    const apply = jest.fn(({ target }) => { state.active.ligand[target.id] = { value: 'old' }; });
+    const control = {
+      ...createControl('ligand'),
+      remove: ({ selectedItem }) => { delete state.active.ligand[selectedItem.id]; state.deleting = true; },
+      isSelectedItemActive: ({ state: current, selectedItem }) => current.deleting || Boolean(current.active.ligand[selectedItem.id]),
+      apply
+    };
+    const config = {
+      transferScheduling: POSE_TRANSFER_SCHEDULING.PHASED,
+      transferOrder: POSE_TRANSFER_ORDERS.REMOVE_FIRST,
+      poseControls: [control], inspirationControls: [],
+      getPoseItems: () => [{ id: 'shared' }], getPoseTargets: () => [{ id: 'shared' }], getInspirationItems: () => [],
+      clearTimeout: 1000
+    };
+    const pending = executePoseTransfer({ config, sourcePose: {}, destinationPose: {} })(jest.fn(), () => state);
+    await Promise.resolve();
+    await Promise.resolve();
+    expect(apply).not.toHaveBeenCalled();
+    state.deleting = false;
+    await pending;
+    expect(apply).toHaveBeenCalledTimes(1);
+  });
+
   it('uses the supplied displayed order and exposes null at list boundaries', () => {
     expect.hasAssertions();
     const displayedOrder = [{ id: 'filtered-third' }, { id: 'filtered-first' }, { id: 'filtered-second' }];
@@ -111,6 +184,21 @@ describe('pose transfer helpers', () => {
     expect(transfers).toStrictEqual({ previous: null, next: null });
   });
 
+  it('uses an injected open dialog as the sole transferable state of its owning row', () => {
+    expect.hasAssertions();
+    const orderedPoses = [{ id: 1 }, { id: 2 }, { id: 3 }];
+    const transfers = getFirstEligiblePoseTransfers({
+      orderedPoses,
+      state: { openPose: 2 },
+      config: {
+        ...createEligibilityConfig([]),
+        dialogs: { hasTransferableState: ({ state, pose }) => pose.id === state.openPose }
+      }
+    });
+    expect(transfers.previous).toStrictEqual({ sourcePose: orderedPoses[1], destinationPose: orderedPoses[0] });
+    expect(transfers.next).toStrictEqual({ sourcePose: orderedPoses[1], destinationPose: orderedPoses[2] });
+  });
+
   it('captures the first active source and its customization for each control', () => {
     expect.hasAssertions();
     const density = createControl('density');
@@ -184,6 +272,7 @@ describe('pose transfer helpers', () => {
       },
       apply: ({ target, customization }) => {
         events.push(`apply:${key}:${target.id}:${customization.value}`);
+        state.active[key][target.id] = { value: customization.value };
       }
     });
     const ligand = createExecutableControl('ligand');

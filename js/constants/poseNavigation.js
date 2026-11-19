@@ -14,6 +14,10 @@ export const POSE_TRANSFER_CENTERING_MODES = Object.freeze({
   VISIBLE_LIGAND_CENTROID: 'visible-ligand-centroid'
 });
 
+// Track F-dialog selections in the live display queue. JSON snapshots still
+// store the displayed structures without recording which control enabled them.
+export const RHS_INSPIRATION = Symbol('rhsInspiration');
+
 export const DEFAULT_RHS_POSE_NAVIGATION_CONFIG = Object.freeze({
   transferOrder: POSE_TRANSFER_ORDERS.REMOVE_FIRST,
   transferScheduling: POSE_TRANSFER_SCHEDULING.OVERLAPPED,

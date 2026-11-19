@@ -779,6 +779,11 @@ export const appendToBeDisplayedList = item => {
   };
 };
 
+export const appendToBeDisplayedListBulk = items => ({
+  type: constants.APPEND_TO_BE_DISPLAYED_LIST_BULK,
+  items
+});
+
 export const removeFromToBeDisplayedList = item => {
   return {
     type: constants.REMOVE_FROM_TO_BE_DISPLAYED_LIST,

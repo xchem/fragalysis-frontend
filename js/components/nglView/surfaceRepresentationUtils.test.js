@@ -1,8 +1,9 @@
 import { MOL_REPRESENTATION } from './constants';
 import { ensureSurfaceWorkerDisabled } from './surfaceRepresentationUtils';
 
-describe('ensureSurfaceWorkerDisabled', () => {
+describe('surface worker configuration', () => {
   it('forces molecular surfaces onto the non-worker path', () => {
+    expect.hasAssertions();
     const surfaceRepresentation = {
       type: MOL_REPRESENTATION.surface,
       params: {
@@ -22,7 +23,7 @@ describe('ensureSurfaceWorkerDisabled', () => {
 
     const result = ensureSurfaceWorkerDisabled([surfaceRepresentation, cartoonRepresentation]);
 
-    expect(result).toEqual([
+    expect(result).toStrictEqual([
       {
         type: MOL_REPRESENTATION.surface,
         params: {
@@ -40,6 +41,7 @@ describe('ensureSurfaceWorkerDisabled', () => {
   });
 
   it('returns the original empty value when nothing is provided', () => {
+    expect.hasAssertions();
     expect(ensureSurfaceWorkerDisabled(undefined)).toBeUndefined();
   });
 });

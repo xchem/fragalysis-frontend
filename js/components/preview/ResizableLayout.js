@@ -11,7 +11,7 @@ import { TagDetailsRHS } from './tags/details/tagDetailsRHS';
 import HitNavigator from './molecule/hitNavigator';
 import { ViewerControls } from './viewerControls';
 import { setActualRhsWidth } from '../../reducers/selection/actions';
-import { PlotlyView } from './plotly/plotlyView';
+import PlotlyView from './plotly/LazyPlotlyView';
 import { layoutItemNames } from '../../reducers/layout/constants';
 import { TooltipPathProvider } from '../tooltip/TooltipPathContext';
 import { PoseListRHS } from './molecule/poseListRHS';

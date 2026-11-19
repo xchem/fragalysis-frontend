@@ -1,7 +1,6 @@
 /**
  * Created by abradley on 24/09/2018.
  */
-import * as Sentry from '@sentry/browser';
 import React, { Fragment, Component } from 'react';
 import { Button } from '../common/Inputs/Button';
 import Modal from '../common/Modal';
@@ -18,15 +17,7 @@ export class ErrorBoundary extends Component {
       error: error,
       errorInfo: errorInfo
     });
-    // You can also log error messages to an error reporting service here
-    if (process.env.NODE_ENV === 'production') {
-      Sentry.configureScope(scope => {
-        Object.keys(errorInfo).forEach(key => {
-          scope.setExtra(key, errorInfo[key]);
-        });
-      });
-      Sentry.captureException(error);
-    }
+    console.error('Unhandled React render error', error, errorInfo);
   }
 
   render() {

@@ -2,8 +2,13 @@
  * Created by abradley on 03/03/2018.
  */
 import { CONSTANTS } from './constants';
+import { copyRepresentationState } from '../../viewer/representationState';
 
-export const loadNglObject = (target, representations) => ({ type: CONSTANTS.LOAD_OBJECT, target, representations });
+export const loadNglObject = (target, representations) => ({
+  type: CONSTANTS.LOAD_OBJECT,
+  target,
+  representations: representations?.map(copyRepresentationState)
+});
 
 export const deleteNglObject = target => ({
   type: CONSTANTS.DELETE_OBJECT,
@@ -19,7 +24,7 @@ export const updateComponentRepresentationVisibility = (
 ) => ({
   type: CONSTANTS.UPDATE_COMPONENT_REPRESENTATION_VISIBILITY,
   representationID,
-  representation,
+  representation: copyRepresentationState(representation),
   newVisibility,
   objectInViewID,
   skipTracking
@@ -41,7 +46,7 @@ export const updateComponentRepresentation = (
 ) => ({
   type: CONSTANTS.UPDATE_COMPONENT_REPRESENTATION,
   representationID,
-  newRepresentation,
+  newRepresentation: copyRepresentationState(newRepresentation),
   objectInViewID,
   change,
   skipTracking
@@ -49,22 +54,22 @@ export const updateComponentRepresentation = (
 
 export const addComponentRepresentation = (objectInViewID, newRepresentation, skipTracking = false) => ({
   type: CONSTANTS.ADD_COMPONENT_REPRESENTATION,
-  newRepresentation,
+  newRepresentation: copyRepresentationState(newRepresentation),
   objectInViewID,
   skipTracking
 });
 
 export const removeComponentRepresentation = (objectInViewID, representation, skipTracking = false) => ({
   type: CONSTANTS.REMOVE_COMPONENT_REPRESENTATION,
-  representation,
+  representation: copyRepresentationState(representation),
   objectInViewID,
   skipTracking
 });
 
 export const changeComponentRepresentation = (objectInViewID, oldRepresentation, newRepresentation) => ({
   type: CONSTANTS.CHANGE_COMPONENT_REPRESENTATION,
-  oldRepresentation,
-  newRepresentation,
+  oldRepresentation: copyRepresentationState(oldRepresentation),
+  newRepresentation: copyRepresentationState(newRepresentation),
   objectInViewID
 });
 

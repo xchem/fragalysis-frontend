@@ -1,4 +1,5 @@
 import React, { memo, useContext, useEffect } from 'react';
+import DOMPurify from 'dompurify';
 import { useDispatch, useSelector } from 'react-redux';
 import { useHistory, useRouteMatch } from 'react-router-dom';
 import { URLS } from '../routes/constants';
@@ -61,8 +62,10 @@ export const TASPreview = memo(props => {
       // use textarea to decode html entities
       const textArea = document.createElement('textarea');
       textArea.innerHTML = DJANGO_CONTEXT.target_warning_message;
-      // allow to display html in the warning message from the backend
-      toastWarning(<div dangerouslySetInnerHTML={{ __html: textArea.value }} />);
+      // Sanitize after decoding so encoded markup cannot bypass the sanitizer.
+      toastWarning(
+        <div dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(textArea.value, { ADD_ATTR: ['target'] }) }} />
+      );
     }
   }, [toastWarning]);
 

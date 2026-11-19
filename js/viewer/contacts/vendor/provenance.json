@@ -1,0 +1,375 @@
+{
+  "version": "2.0.0-dev.37",
+  "commit": "fc81766d4376275ff703f6d8a840dc4990b173dc",
+  "esbuild": "0.25.12",
+  "sha256": "32e042f26ebbc163ce96fb3cd52058a4fb9703a6b8035f4e90ec5bd6e1443916",
+  "inputs": [
+    {
+      "source": "three/src/math/Vector2.js",
+      "sha256": "08e1f26980590f14b8b66aa696f2077ab942650f2eb06d5a6d5a7c93e760dc27"
+    },
+    {
+      "source": "three/src/math/Box2.js",
+      "sha256": "13ada85ba56bbfe5f7c834c18efb37112b3815f206877787195cd13ce133fd80"
+    },
+    {
+      "source": "three/src/math/Math.js",
+      "sha256": "051117d2ee8085af6e4f713e5a887f832b4b257b32b57505bc4f74acdf9dbb16"
+    },
+    {
+      "source": "three/src/math/Matrix4.js",
+      "sha256": "7f75675f7221f95d1ddf3cbbf35b950c08007e748b126c763d8ffc2018a69697"
+    },
+    {
+      "source": "three/src/math/Quaternion.js",
+      "sha256": "228b926cf534da7777929c5a0a2265970f5e67a87804a9be302775137c4f63f5"
+    },
+    {
+      "source": "three/src/math/Vector3.js",
+      "sha256": "c1ba5d126780d93d024994c3fd3c0473c3736d02248d039438d9f9f96a1ce118"
+    },
+    {
+      "source": "three/src/math/Sphere.js",
+      "sha256": "d3d80f763c12572f4500428c16816f760f49f8de6965d99f86d0a6b5589ebf39"
+    },
+    {
+      "source": "three/src/math/Box3.js",
+      "sha256": "e0467edc7af62f446a1fa89dfc94da69735e465f5723c3b684f3d5cc0e558b0c"
+    },
+    {
+      "source": "three/src/math/Color.js",
+      "sha256": "261f55947b6696a77cf6e704867aa3bdd27abb33e3d74b45774a4e3626174ef2"
+    },
+    {
+      "source": "three/src/math/Cylindrical.js",
+      "sha256": "35e6d04e3063a1e0d2c8d3a5efca12bb880f84aad6af048037b37f832e3ffc6e"
+    },
+    {
+      "source": "three/src/math/Euler.js",
+      "sha256": "fc7b0590a8b32080f429f0f35d846bd09eecf23c263c9f515045b91a2ac7674e"
+    },
+    {
+      "source": "three/src/math/Matrix3.js",
+      "sha256": "0a343aae36c84e594cc84a68ae8b12720a4f75e798a726464b57c26d2bd88579"
+    },
+    {
+      "source": "three/src/math/Plane.js",
+      "sha256": "a9bd71b3cb1eaf388efb895eecffb48cb1c08356a38525626dea133a494735bc"
+    },
+    {
+      "source": "three/src/math/Frustum.js",
+      "sha256": "057c883bac1e8920c1809715960902d9e0f617021516d81a8aff3ad0f8eeebac"
+    },
+    {
+      "source": "three/src/math/Interpolant.js",
+      "sha256": "8cf48af6af5711d522c11993bc9bfdb74272db5d1cae77a7379a74da3a5550e2"
+    },
+    {
+      "source": "three/src/math/Line3.js",
+      "sha256": "4347dd514ee3893d2baa4fdfdd32d5cf335fe54e1e27a339a5ee02142dbbba19"
+    },
+    {
+      "source": "three/src/math/Ray.js",
+      "sha256": "4cb15da221482df6ed62efafa664d0194ecd3a06553c38651e7c484845a54412"
+    },
+    {
+      "source": "three/src/math/Spherical.js",
+      "sha256": "e61224f47e29f59018482b676fc03b10a8ff2d9aa0803ac7e304768f1c969dd4"
+    },
+    {
+      "source": "three/src/math/Triangle.js",
+      "sha256": "619891224936e0a53e5346d5322e8c0bf1770f3a50ef4797fc1e2ab5e823e626"
+    },
+    {
+      "source": "three/src/math/Vector4.js",
+      "sha256": "acf6680abe7bec6182edc797ae271871ff631acca72be1304781c6591bdee8b6"
+    },
+    {
+      "source": "fragalysis/scripts/contact-detector/globals.js",
+      "sha256": "7371ddead99ec6b74436932d2d1e50022c974cc64d829e31f416c18acd1869c8"
+    },
+    {
+      "source": "ngl/src/utils.ts",
+      "sha256": "1b05080da5964d21548b072291e66b7da22568f3b522844aabf3a0d7e6e3893e"
+    },
+    {
+      "source": "ngl/src/parser/parser.ts",
+      "sha256": "72e914538f77332b815f2ea1e82b06aabf0308a5c008d24c5ecce699ee00e29c"
+    },
+    {
+      "source": "signals/dist/signals.js",
+      "sha256": "6a125d66ab702275db3640af8c2ef83a7d775b4149489db4aad7f36922c51f11"
+    },
+    {
+      "source": "fragalysis/scripts/contact-detector/picker.js",
+      "sha256": "4cb75168278eecaa393a2250c09812816a1fb645986d5ff37f2cfdb80d1eb502"
+    },
+    {
+      "source": "ngl/src/math/math-constants.ts",
+      "sha256": "1a7e5aa1825eeb3d270055159fbfb752a8b75d539863307b15144c2ac5e8f4bc"
+    },
+    {
+      "source": "ngl/src/math/array-utils.ts",
+      "sha256": "154a97175e288c001176b95734a4779613f7790976dc45e778f45919f65b01ba"
+    },
+    {
+      "source": "ngl/src/utils/bitarray.ts",
+      "sha256": "09c4d5672b04ecc0171e17e11f0ea36479bbc7723da7566716067c27234165e6"
+    },
+    {
+      "source": "ngl/src/structure/structure-constants.ts",
+      "sha256": "9c7afa98f595a8e40b9d4826f0811b16ce3bc492c708fa1bdf8c72521d258343"
+    },
+    {
+      "source": "ngl/src/utils/radius-factory.ts",
+      "sha256": "741592c9f63e7d08f309a4105507862a136cfbab8fb0c1f64f22f12a2baed1ba"
+    },
+    {
+      "source": "ngl/src/math/vector-utils.ts",
+      "sha256": "df94aa088065a41d92ca0bb6796b6a842de94b92d240962ddd13febc5653322f"
+    },
+    {
+      "source": "ngl/src/math/matrix-utils.ts",
+      "sha256": "a440d689312c08e18d78d880ced590270106e2cda0e8991e57f9fff3f816d722"
+    },
+    {
+      "source": "ngl/src/math/principal-axes.ts",
+      "sha256": "0f13d7215f3a9f2493b65ebda80757615d01e7961c9fb37846004b8db56e4985"
+    },
+    {
+      "source": "ngl/src/geometry/spatial-hash.ts",
+      "sha256": "b54155937e8c5215476df4d9037843cb471a44fc691a583b048245d0ab48b2dd"
+    },
+    {
+      "source": "fragalysis/scripts/contact-detector/unsupported-volume.js",
+      "sha256": "3ea18b5a0875f6b3b7f7a2ab33280096de8e8372230e8ab7560ac939a46d9c5b"
+    },
+    {
+      "source": "ngl/src/math/math-utils.ts",
+      "sha256": "8302bf39a37f627733d489c98e2120c2b6f0fb764b1509d641be963cb63d8aed"
+    },
+    {
+      "source": "ngl/src/chemistry/geometry.ts",
+      "sha256": "8d0f1a3709b044ad45e521c82425040359bc1a4caf58e357d4f816781bb22603"
+    },
+    {
+      "source": "ngl/src/chemistry/valence-model.ts",
+      "sha256": "7f11f467571d7d73c9a00a400c77293b8e8daa400cf9b476dcc6e319f89f346f"
+    },
+    {
+      "source": "ngl/src/structure/data.ts",
+      "sha256": "3296671226dc7c411ec89067e77d55b43dbed0d1d59d623a72822ac35e3ba3f6"
+    },
+    {
+      "source": "ngl/src/utils/adjacency-list.ts",
+      "sha256": "c2fd1d7ba441ff7d0275b97c36802ad6d497ba1a0c06b7616e624f2bfea68b3e"
+    },
+    {
+      "source": "ngl/src/store/bond-hash.ts",
+      "sha256": "2ca56d03aea5a4f98f7d2c0f92d41a6eee827bbdaeaa63497c956e90b64dde23"
+    },
+    {
+      "source": "ngl/src/store/store.ts",
+      "sha256": "32084ebdcc5c49f67255c744751eec898c09e870351aab12373ea1ed17930fdf"
+    },
+    {
+      "source": "ngl/src/store/bond-store.ts",
+      "sha256": "793c717b8801b72259a8938e1fe469858b3abe0350e0cb2dcc6f6d79db02f64f"
+    },
+    {
+      "source": "ngl/src/store/atom-store.ts",
+      "sha256": "f4a658c1b249f4367b8b45f5193288f1a7dc48a65e97eb188a1ed529a423d218"
+    },
+    {
+      "source": "ngl/src/store/residue-store.ts",
+      "sha256": "f246a171736a5af3b4ecc026a6e61401a9851e9944b1613d306151bd0e664c5d"
+    },
+    {
+      "source": "ngl/src/store/chain-store.ts",
+      "sha256": "165999b7d364e7e2f411c0b35f1a9b4de62d526ed6457184b4d2554062b8cede"
+    },
+    {
+      "source": "ngl/src/store/model-store.ts",
+      "sha256": "258faa76b6473642d81ea303902af67eae6010dc36181831b5692b1f77ef1f50"
+    },
+    {
+      "source": "ngl/src/geometry/helixorient.ts",
+      "sha256": "9e0934a6fb5fefa0c116c9d49edd734b9df022b12a00980134731418861e0cdc"
+    },
+    {
+      "source": "ngl/src/geometry/helixbundle.ts",
+      "sha256": "9e419ce06a1fff4fb5e4842483f8ad00ae62bc5f88e437ec0a54365a24c118da"
+    },
+    {
+      "source": "ngl/src/utils/binary-heap.ts",
+      "sha256": "1ddf7eb3c523a2f2d57b2074f4848fa616ea6dd3af0404780c59a3f740a4afe8"
+    },
+    {
+      "source": "ngl/src/utils/kdtree.ts",
+      "sha256": "d8300d55d257e77c7e2bab0668d188a9b18490cc9a45729c552e9b7ea7c91f65"
+    },
+    {
+      "source": "ngl/src/proxy/atom-proxy.ts",
+      "sha256": "a7a5cab505c19ba49e0b5f92439a8de40ea0383e3c0c7ba2e055b544ac6ea656"
+    },
+    {
+      "source": "ngl/src/geometry/kdtree.ts",
+      "sha256": "c7ffdda6d9b198df6f7d3722d0fe5bda149c2f4e3b9283c0f1d3032058c3114c"
+    },
+    {
+      "source": "ngl/src/symmetry/symmetry-constants.ts",
+      "sha256": "bf039ec251ed70507a76c8cf4dfd0a6034da6103dcd9f843522e5fc44e630241"
+    },
+    {
+      "source": "ngl/src/symmetry/symmetry-utils.ts",
+      "sha256": "197277bc8776b1e94204ce94933c9e05bb75125be8fd94f5e5b975daf25bede2"
+    },
+    {
+      "source": "ngl/src/selection/selection-constants.ts",
+      "sha256": "ef1da11aa97d12dd0c8a45953e8b741a2bd81e4564d55c20b9511c51359edd9a"
+    },
+    {
+      "source": "ngl/src/selection/selection-parser.ts",
+      "sha256": "aab19a713cc032d18a1f395382e3b1d36df01e55f290a513cc8ee14c1fb95d87"
+    },
+    {
+      "source": "ngl/src/selection/selection-test.ts",
+      "sha256": "0da833d17753ec22e6b8dc71e11710de9d711ba2c9489b96626feda39af2507e"
+    },
+    {
+      "source": "ngl/src/selection/selection.ts",
+      "sha256": "eb6003184a8b702dd7792ff29a1864319bcfc0ab94f143a793ddbd19b0bf581d"
+    },
+    {
+      "source": "ngl/src/symmetry/assembly.ts",
+      "sha256": "a353ace28b46e4f1e8787b82425052d35f06792b92bde5ad633cea78a49f716e"
+    },
+    {
+      "source": "ngl/src/structure/structure-builder.ts",
+      "sha256": "b58f1f3ebdea0090fcccd212c9c57c230bff8a05fffd649dea73d29ef4e54e9c"
+    },
+    {
+      "source": "ngl/src/structure/structure-utils.ts",
+      "sha256": "c2f76f874692c5d551f5bac04a4044cdb4fddfe2cd4c44b114f048c7d006d642"
+    },
+    {
+      "source": "ngl/src/store/atom-type.ts",
+      "sha256": "3fc2b70e67be85236c3b5cf26f4663a41ff5a927b3618ea197aaa91de551a503"
+    },
+    {
+      "source": "ngl/src/store/atom-map.ts",
+      "sha256": "360e413ae0759e30d7a065c057f994035e8d8a9f147ae3b20556254577b0120c"
+    },
+    {
+      "source": "ngl/src/store/residue-type.ts",
+      "sha256": "0efde6ea8b6fdfd4d67b4f77d86445103991845a73b4f793dafc25e1ddc1440c"
+    },
+    {
+      "source": "ngl/src/store/residue-map.ts",
+      "sha256": "40339d583853ebb88442d0ad7266b69716358fff9c7418099d282c91c6db9e39"
+    },
+    {
+      "source": "ngl/src/proxy/bond-proxy.ts",
+      "sha256": "968821f56502e60afd0010c41ecefe8ba239ecc464a7a8cad0e3aea58b205948"
+    },
+    {
+      "source": "ngl/src/proxy/residue-proxy.ts",
+      "sha256": "ef1f6118a8b67992931189d316a0ad6beca9387274120d2facb5acf393397a1d"
+    },
+    {
+      "source": "ngl/src/proxy/polymer.ts",
+      "sha256": "2dce5b825606e6ad66428045c90dbcb2f7baf92ac31476a3b6e85a07f37a83d4"
+    },
+    {
+      "source": "ngl/src/proxy/chain-proxy.ts",
+      "sha256": "1f47e1dead3359223af1e069e405dc623e7ea7f20f5c95144326af1d942a7387"
+    },
+    {
+      "source": "ngl/src/proxy/model-proxy.ts",
+      "sha256": "7a83b4a405b509689eae4f6f4b7f36446f1c69fee804838de9c1a3a5e0ca20f4"
+    },
+    {
+      "source": "ngl/src/structure/structure.ts",
+      "sha256": "bd67bf9fff8a966305b5d9a46e32c2ff782f166c2a9a2afab88668e8437cf53b"
+    },
+    {
+      "source": "ngl/src/parser/structure-parser.ts",
+      "sha256": "0deb5651b8a074ad507fba11c0067d1af2e43fafc91e674a35bea5f6d4af4bac"
+    },
+    {
+      "source": "ngl/src/structure/entity.ts",
+      "sha256": "b3fc427277df3995eef0a8750405854ffb6fd96b9bb7ec37c15c67f2cc95d6a2"
+    },
+    {
+      "source": "ngl/src/symmetry/unitcell.ts",
+      "sha256": "3c8fe6f95c2e792463b1460cd9ae372972b0bd7ecb9390c69dfc2d84394ca160"
+    },
+    {
+      "source": "ngl/src/parser/pdb-parser.ts",
+      "sha256": "3b426ac2d57d81c6f671c3170cd19457ce7d93f7bf61d52eb74eedf58103ae94"
+    },
+    {
+      "source": "ngl/src/parser/sdf-parser.ts",
+      "sha256": "723f7446a88312f260a5d8c1c7e04b3cd81e3088543f24ab53ded2d10f64e32e"
+    },
+    {
+      "source": "fragalysis/scripts/contact-detector/sdf-v3000-parser.js",
+      "sha256": "a4ac39af9319dc4adf0c70b75868e7ef4330126f9a5872ab47e8f2dd5177a350"
+    },
+    {
+      "source": "ngl/src/streamer/streamer.ts",
+      "sha256": "e326937e58b9e056f7a83190b47b4554b2e269a1f7afd0a2de8be79ae9786422"
+    },
+    {
+      "source": "ngl/src/structure/structure-view.ts",
+      "sha256": "4af3a15bf411b521f6ead2cefab5cfadb019a1ce3064253b2b41a1ea16f40299"
+    },
+    {
+      "source": "ngl/src/store/contact-store.ts",
+      "sha256": "d17924fa8b7aad0d02d250ac2c60aea0707ef066f51b9c7a83b738f78e29cdc1"
+    },
+    {
+      "source": "ngl/src/chemistry/interactions/features.ts",
+      "sha256": "495414d7934bb2184b779bfe7fec152c2bcd0047a281e2bea419e8f0e4653e0a"
+    },
+    {
+      "source": "ngl/src/chemistry/functional-groups.ts",
+      "sha256": "9e49e3d63c358a04d51511a3dec0ea39d8fd238258f69a8e1b34d556178a36f4"
+    },
+    {
+      "source": "ngl/src/chemistry/interactions/charged.ts",
+      "sha256": "a591f4e4e463d62b032b9bfb00aef5ba07a2c7dfff4af22a1955f13665340b7d"
+    },
+    {
+      "source": "ngl/src/chemistry/interactions/hydrogen-bonds.ts",
+      "sha256": "a17a39d6b8aba3a3af2ac7eb405d3994c64a302dc43803855ef33069112dfd7e"
+    },
+    {
+      "source": "ngl/src/chemistry/interactions/metal-binding.ts",
+      "sha256": "76ad41cf370090ab62573fc87bd7f01586b7118104f913863bfd0c8fb0319519"
+    },
+    {
+      "source": "ngl/src/chemistry/interactions/hydrophobic.ts",
+      "sha256": "089e621f9d6ed6f9f26ab0921bdb4babc8d9e57242a0aebd9c166b70b4e62fc9"
+    },
+    {
+      "source": "ngl/src/chemistry/interactions/halogen-bonds.ts",
+      "sha256": "350ae50cb9ae542b07562c3fca6b5d22efb80fd0bb7affda2ccebfc96c8cda97"
+    },
+    {
+      "source": "ngl/src/chemistry/interactions/refine-contacts.ts",
+      "sha256": "f2b29b6a835578d05606f006ea54bd484ee9a2751911bded9fbbf345a5ceb801"
+    },
+    {
+      "source": "ngl/src/chemistry/interactions/contact.ts",
+      "sha256": "34d4f4f2b48e9308951a2198735faf6ff7f19526e8cd58fc0f61d8ecb4af0c00"
+    },
+    {
+      "source": "fragalysis/scripts/contact-detector/entry.js",
+      "sha256": "fb46c89b8f8793ea90fc4077eb7e13ae0fd12c80aece562fe625cd0e8a6c44e2"
+    }
+  ],
+  "modifications": [
+    "UUID entropy uses Web Crypto getRandomValues instead of Math.random"
+  ]
+}

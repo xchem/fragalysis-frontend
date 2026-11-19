@@ -3,10 +3,9 @@ import { GridLegacy as Grid, Slider, Switch, TextField, Typography } from '@mui/
 import { makeStyles } from '../../../ui/styles';
 import { ColorLens } from '@mui/icons-material';
 import { Drawer } from '../../common/Navigation/Drawer';
-import { BACKGROUND_COLOR, NGL_PARAMS, COMMON_PARAMS } from '../../nglView/constants';
+import { NGL_PARAMS, COMMON_PARAMS } from '../../nglView/constants';
 import { useDispatch, useSelector } from 'react-redux';
 import {
-  setNglBckGrndColor,
   setNglClipNear,
   setNglClipFar,
   setNglClipDist,
@@ -27,6 +26,7 @@ import { ColorPicker } from '../../common/Components/ColorPicker';
 import { InputFieldAvatar } from '../../projects/projectModal/inputFieldAvatar';
 import { Field } from 'formik';
 import { MAP_TYPE } from '../../../reducers/ngl/constants';
+import { BackgroundColorToggle } from './BackgroundColorToggle';
 
 const useStyles = makeStyles(theme => ({
   root: {
@@ -58,25 +58,12 @@ export const SettingControls = memo(({ open, onClose }) => {
 
   const { getNglView } = useContext(NglContext);
   const majorView = getNglView(VIEWS.MAJOR_VIEW) && getNglView(VIEWS.MAJOR_VIEW).stage;
-  const summaryView = getNglView(VIEWS.SUMMARY_VIEW) && getNglView(VIEWS.SUMMARY_VIEW).stage;
 
   const densityList = useSelector(state => state.selectionReducers.densityList);
 
   const eventMapShown = densityList.filter(m => m.render_event).length > 0;
   const sigmaaMapShown = densityList.filter(m => m.render_2FoFc).length > 0;
   const diffMapShown = densityList.filter(m => m.render_FoFc).length > 0;
-
-  const handleStageColor = () => {
-    if (viewParams[NGL_PARAMS.backgroundColor] === BACKGROUND_COLOR.white) {
-      dispatch(setNglBckGrndColor(BACKGROUND_COLOR.black, majorView, summaryView));
-      // dispatch(setNglViewParams(NGL_PARAMS.backgroundColor, BACKGROUND_COLOR.black, majorView, VIEWS.MAJOR_VIEW));
-      // dispatch(setNglViewParams(NGL_PARAMS.backgroundColor, BACKGROUND_COLOR.black, summaryView, VIEWS.SUMMARY_VIEW));
-    } else {
-      dispatch(setNglBckGrndColor(BACKGROUND_COLOR.white, majorView, summaryView));
-      // dispatch(setNglViewParams(NGL_PARAMS.backgroundColor, BACKGROUND_COLOR.white, majorView, VIEWS.MAJOR_VIEW));
-      // dispatch(setNglViewParams(NGL_PARAMS.backgroundColor, BACKGROUND_COLOR.white, summaryView, VIEWS.SUMMARY_VIEW));
-    }
-  };
 
   const handleRepresentation = mapType => {
     if (viewParams[NGL_PARAMS[`contour${mapType}`]] === false) {
@@ -102,12 +89,7 @@ export const SettingControls = memo(({ open, onClose }) => {
             <Typography variant="body1">Background colour</Typography>
           </Grid>
           <Grid item>
-            <Switch
-              size="small"
-              color="primary"
-              checked={viewParams[NGL_PARAMS.backgroundColor] === BACKGROUND_COLOR.white}
-              onChange={handleStageColor}
-            />
+            <BackgroundColorToggle />
           </Grid>
         </Grid>
         <Grid item container direction="row" justifyContent="space-between">

@@ -1,5 +1,5 @@
-import React, { memo, useContext, useEffect } from 'react';
-import { Box, useTheme } from '@mui/material';
+import React, { lazy, memo, Suspense, useContext, useEffect } from 'react';
+import { Box, CircularProgress, Typography, useTheme } from '@mui/material';
 import { makeStyles } from '../../ui/styles';
 import { Header } from '../header';
 import { Route, Switch, useLocation, useRouteMatch } from 'react-router-dom';
@@ -19,6 +19,18 @@ import { useDispatch } from 'react-redux';
 import { DirectDownload } from '../direct/directDownload';
 import { TASPreview } from '../preview/TASPreview';
 import { TooltipPathProvider } from '../tooltip/TooltipPathContext';
+import { moorhenProofConfig } from '../../config/moorhenProof';
+
+const MoorhenProofRoute = lazy(() =>
+  import(/* webpackChunkName: "moorhen-proof" */ '../moorhenProof/MoorhenProofRoute')
+);
+
+const MoorhenProofFallback = () => (
+  <Box height="100%" display="flex" alignItems="center" justifyContent="center" gap={1.5}>
+    <CircularProgress size={24} />
+    <Typography variant="body2">Loading Moorhen viewer...</Typography>
+  </Box>
+);
 
 const useStyles = makeStyles(theme => ({
   content: {
@@ -104,4 +116,21 @@ const Routes = memo(() => {
   );
 });
 
-export default withLoadingTargetList(Routes);
+const RoutesWithTargetList = withLoadingTargetList(Routes);
+
+const AppRoutes = memo(() => {
+  const location = useLocation();
+  const isMoorhenProofRoute = moorhenProofConfig.enabled && location.pathname === URLS.moorhenProof;
+
+  return isMoorhenProofRoute ? (
+    <Box width="100%" height="100vh" overflow="hidden">
+      <Suspense fallback={<MoorhenProofFallback />}>
+        <MoorhenProofRoute />
+      </Suspense>
+    </Box>
+  ) : (
+    <RoutesWithTargetList />
+  );
+});
+
+export default AppRoutes;

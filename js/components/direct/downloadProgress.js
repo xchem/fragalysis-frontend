@@ -21,9 +21,7 @@ export const DownloadProgress = memo(({ errorMessage }) => {
       <Grid item container direction="column" alignItems="center" justifyContent="center">
         <Grid item>
           {errorMessage ? (
-            <Typography variant="h4" color="error" role="alert">
-              {errorMessage}
-            </Typography>
+            <Typography variant="h4" color="error" role="alert">{errorMessage}</Typography>
           ) : (
             <Typography variant="h3">Preparing and downloading the download</Typography>
           )}

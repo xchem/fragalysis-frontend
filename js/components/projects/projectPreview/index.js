@@ -42,6 +42,7 @@ export const ProjectPreview = memo(({}) => {
   const displayedLigandsRHS = useSelector(state => state.datasetsReducers.ligandLists);
   const reapplyOrientation = useSelector(state => state.nglReducers.reapplyOrientation);
   const isNglViewFromSnapshotRendered = useSelector(state => state.nglReducers.nglViewFromSnapshotRendered);
+  const snapshotOrientationApplied = useSelector(state => state.nglReducers.snapshotOrientationApplied);
   const switchingSnapshotWithinProject = useSelector(state => state.snapshotReducers.switchingSnapshotWithinProject);
 
   const snapshotNglOrientation = useSelector(state => {
@@ -64,13 +65,12 @@ export const ProjectPreview = memo(({}) => {
 
   useEffect(() => {
     if (
-      (isNglViewFromSnapshotRendered && stage && snapshotNglOrientation && snapshotNglOrientation?.elements) ||
+      (!snapshotOrientationApplied && isNglViewFromSnapshotRendered && stage && snapshotNglOrientation?.elements) ||
       reapplyOrientation
     ) {
       try {
-        if (!switchingSnapshotWithinProject) {
-          viewerAdapter.setOrientation(snapshotNglOrientation.elements);
-        }
+        if (switchingSnapshotWithinProject) return;
+        viewerAdapter.setOrientation(snapshotNglOrientation.elements);
         dispatch(setSnapshotOrientationApplied(true));
         if (reapplyOrientation) {
           dispatch(setReapplyOrientation(false));
@@ -83,6 +83,7 @@ export const ProjectPreview = memo(({}) => {
     stage,
     snapshotNglOrientation,
     isNglViewFromSnapshotRendered,
+    snapshotOrientationApplied,
     dispatch,
     reapplyOrientation,
     switchingSnapshotWithinProject,

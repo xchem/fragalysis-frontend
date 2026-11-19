@@ -75,6 +75,10 @@ export class ViewerAdapter {
     return notImplemented('setRepresentationParameters');
   }
 
+  setNglStyleInteractions() {
+    return notImplemented('setNglStyleInteractions');
+  }
+
   removeRepresentation() {
     return notImplemented('removeRepresentation');
   }
@@ -107,8 +111,14 @@ export class ViewerAdapter {
     return notImplemented('getOrientation');
   }
 
+  // Animate to an orientation over elapsed milliseconds. The optional signal
+  // cancels superseded requests; the promise settles on completion/interruption.
   animateOrientation() {
     return notImplemented('animateOrientation');
+  }
+
+  prepareInitialView() {
+    return notImplemented('prepareInitialView');
   }
 
   setParameters() {
@@ -157,6 +167,10 @@ export class ViewerAdapter {
 
   removeObject() {
     return notImplemented('removeObject');
+  }
+
+  async removeObjects(name) {
+    await Promise.all(this.getObjects(name).map(object => this.removeObject(object)));
   }
 
   removeAll() {

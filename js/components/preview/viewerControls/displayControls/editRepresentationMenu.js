@@ -25,10 +25,13 @@ export const EditRepresentationMenu = memo(
   ({ editMenuAnchor, closeRepresentationEditMenu, representation, parentKey }) => {
     const classes = useStyles();
     const { getViewerAdapter } = useContext(NglContext);
-    const objectsInView = useSelector(state => state.nglReducers.objectsInView) || {};
     const [colorMenus, setColorMenus] = React.useState({});
+    const editorVisible = Boolean(editMenuAnchor) || Object.values(colorMenus).some(menu => Boolean(menu?.menu));
+    const objectsInView =
+      useSelector(state => state.nglReducers.objectsInView, (previous, next) => !editorVisible || previous === next) || {};
 
     const dispatch = useDispatch();
+    if (!objectsInView[parentKey]) return null;
     const oldRepresentation = JSON.parse(JSON.stringify(representation));
     const viewerAdapter = getViewerAdapter(objectsInView[parentKey].display_div);
     const component = viewerAdapter.getObject(parentKey);
@@ -38,18 +41,22 @@ export const EditRepresentationMenu = memo(
     const openColorMenu = (menuKey, anchorEl, previousColor) =>
       setColorMenus({ ...colorMenus, [menuKey]: { menu: anchorEl, previousColor } });
 
-    const handleRepresentationPropertyChange = throttle((key, value) => {
+    const handleRepresentationPropertyChange = throttle(async (key, value) => {
       const representationElement = viewerAdapter.getRepresentation(component, representation);
       if (representationElement) {
         let oldValue = oldRepresentation.params[key];
         let change = { key, value, oldValue };
 
-        // update in ngl
-        viewerAdapter.setRepresentationParameters(representationElement, { [key]: value });
-        //update in redux
-        oldRepresentation.params[key] = value;
-
-        dispatch(updateComponentRepresentation(parentKey, oldRepresentation.uuid, oldRepresentation, change));
+        try {
+          const updatedRepresentation = viewerAdapter.setRepresentationParameters(representationElement, {
+            [key]: value
+          });
+          await updatedRepresentation.ready;
+          oldRepresentation.params[key] = value;
+          dispatch(updateComponentRepresentation(parentKey, oldRepresentation.uuid, oldRepresentation, change));
+        } catch (error) {
+          console.error(error);
+        }
       }
     }, 250);
 
@@ -148,7 +155,8 @@ export const EditRepresentationMenu = memo(
           );
           break;
         case 'color':
-          const color = `#${representationItem.toString(16)}` || `#000`;
+          const numericColor = Number.isFinite(Number(representationItem)) ? Number(representationItem) : 0;
+          const color = `#${numericColor.toString(16).padStart(6, '0')}`;
           representationComponent = (
             <Fragment>
               <Box

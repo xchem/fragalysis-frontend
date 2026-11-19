@@ -1,19 +1,10 @@
 /**
  * Created by abradley on 14/03/2018.
  */
-import {
-  GridLegacy as Grid,
-  CircularProgress,
-  Typography,
-  IconButton,
-  Select,
-  MenuItem,
-  Checkbox,
-  Popover
-} from '@mui/material';
+import { GridLegacy as Grid, CircularProgress, Typography, IconButton, Select, MenuItem, Checkbox, Popover } from '@mui/material';
 import { makeStyles } from '../../../ui/styles';
 import React, { useState, useEffect, useCallback, memo, useRef, useContext, useMemo } from 'react';
-import { shallowEqual, useSelector, useDispatch } from 'react-redux';
+import { useSelector, useDispatch } from 'react-redux';
 import { colourList } from './utils/color';
 import { filterMolecules } from './moleculeListSortFilterDialog';
 import InfiniteScroll from 'react-infinite-scroller';
@@ -22,7 +13,7 @@ import { Panel } from '../../common/Surfaces/Panel';
 import { VIEWS } from '../../../constants/constants';
 import { NglContext } from '../../nglView/nglProvider';
 import classNames from 'classnames';
-import { ArrowDownward, ArrowUpward, Edit, FilterList } from '@mui/icons-material';
+import { Edit, FilterList } from '@mui/icons-material';
 import { setTagEditorOpen, setObservationsDialogSide } from '../../../reducers/selection/actions';
 import { useRouteMatch } from 'react-router-dom';
 import { AlertModal } from '../../common/Modal/AlertModal';
@@ -34,15 +25,17 @@ import { LoadingContext } from '../../loading';
 import { DJANGO_CONTEXT } from '../../../utils/djangoContext';
 import { ObservationsDialog } from './observationsDialog';
 import { ObservationInspirationDialog } from './observationInspirationDialog';
-import { getRequiredPageForIndex, poseListsDiffer, useScrollToSelectedPose } from './useScrollToSelectedPose';
+import { poseListsDiffer, useScrollToSelectedPose } from './useScrollToSelectedPose';
 import { SearchSettingsDialog } from './searchSettingsDialog';
 import { TOAST_LEVELS } from '../../toast/constants';
 import { FilterSettingsModal } from './observationUnifiedView/table';
 import ObservationUnifiedViewWrapper from './observationUnifiedView/observationUnifiedViewWrapper';
 import RichTooltip from '../../tooltip/RichTooltip';
 import { TooltipPathProvider } from '../../tooltip/TooltipPathContext';
-import { executePoseTransfer, getFirstEligiblePoseTransfers } from './poseTransfer';
+import { usePoseTransferNavigation } from './usePoseTransferNavigation';
+import { PoseTransferButtons } from './poseTransferButtons';
 import PoseNavigationConfigPopover from './poseNavigationConfigPopover';
+import { comparePoseText, createPoseMembershipSelector, prependSelectedObservations } from './poseListPerformance';
 
 const useStyles = makeStyles(theme => ({
   container: {
@@ -234,25 +227,6 @@ const useStyles = makeStyles(theme => ({
     marginTop: 4,
     marginLeft: 4
   },
-  poseTransferToolbarButtons: {
-    display: 'flex',
-    flex: '0 0 auto',
-    flexDirection: 'row',
-    flexWrap: 'nowrap',
-    alignItems: 'center',
-    marginTop: 4,
-    marginLeft: 2
-  },
-  poseTransferToolbarButton: {
-    width: 22,
-    height: 22,
-    padding: 2,
-    borderRadius: 0,
-    color: theme.palette.primary.main,
-    '& svg': {
-      fontSize: 16
-    }
-  },
   formControl: {
     color: 'inherit',
     margin: theme.spacing(1),
@@ -387,15 +361,10 @@ export const PoseList = memo(
     const [currentPage, setCurrentPage] = useState(0);
     const [itemsToBeDisplayed, setItemsToBeDisplayed] = useState([]);
     const [sortSettingsChanged, setSortSettingsChanged] = useState(false);
+    const [navigationConfigAnchor, setNavigationConfigAnchor] = useState(null);
     const [visuallyReadyPoseIds, setVisuallyReadyPoseIds] = useState(() => new Set());
-    const [poseTransferInProgress, setPoseTransferInProgress] = useState(false);
-    const [poseTransferResetKey, setPoseTransferResetKey] = useState(0);
-    const [pendingDialogAnchorPoseId, setPendingDialogAnchorPoseId] = useState(null);
-    const [orderedPoseTransferIds, setOrderedPoseTransferIds] = useState([]);
-    const [poseNavigationConfigAnchor, setPoseNavigationConfigAnchor] = useState(null);
 
     const selectedAll = useRef(false);
-    const poseTransferInProgressRef = useRef(false);
     const allMolListsLength = all_mol_lists?.length || 0;
 
     const sortDialogOpen = useSelector(instanceConfig.selectSortDialogOpen || (() => false));
@@ -419,63 +388,7 @@ export const PoseList = memo(
       'CONFORMERSITE_NUMBER',
       'OBSERVATION_COUNT'
     ];
-    const sortOptions = {
-      POSE_NAME: {
-        title: 'Pose name',
-        handler: (a, b, asc) => compareByPoseName(a, b, asc)
-      },
-      COMPOUND_CODE: {
-        title: 'Compound code',
-        handler: (a, b, asc) => compareByCompoundCode(a, b, asc)
-      },
-      CANONSITE_NUMBER: {
-        title: 'CanonSite number',
-        handler: (a, b, asc) => compareByCanonSiteNumber(a, b, asc)
-      },
-      CONFORMERSITE_NUMBER: {
-        title: 'ConformerSite number',
-        handler: (a, b, asc) => compareByConformerSiteNumber(a, b, asc)
-      },
-      OBSERVATION_COUNT: {
-        title: 'Observation count',
-        handler: (a, b, asc) => compareByObservationCount(a, b, asc)
-      }
-    };
     const [sortOption, setSortOption] = useState(SORT_OPTIONS[0]);
-
-    const compareByPoseName = (a, b, asc) => {
-      const aName = a.code;
-      const bName = b.code;
-      return asc
-        ? aName?.localeCompare(bName, undefined, { numeric: true, sensitivity: 'base' })
-        : bName?.localeCompare(aName, undefined, { numeric: true, sensitivity: 'base' });
-    };
-    const compareByCompoundCode = (a, b, asc) => {
-      const aName = a.main_site_observation_cmpd_code;
-      const bName = b.main_site_observation_cmpd_code;
-      return asc
-        ? aName?.localeCompare(bName, undefined, { numeric: true, sensitivity: 'base' })
-        : bName?.localeCompare(aName, undefined, { numeric: true, sensitivity: 'base' });
-    };
-    const compareByCanonSiteNumber = (a, b, asc) => {
-      const aName = getCanonSiteTagPrefix(a);
-      const bName = getCanonSiteTagPrefix(b);
-      return asc
-        ? aName?.localeCompare(bName, undefined, { numeric: true, sensitivity: 'base' })
-        : bName?.localeCompare(aName, undefined, { numeric: true, sensitivity: 'base' });
-    };
-    const compareByConformerSiteNumber = (a, b, asc) => {
-      const aName = getConformerSiteTagPrefix(a);
-      const bName = getConformerSiteTagPrefix(b);
-      return asc
-        ? aName?.localeCompare(bName, undefined, { numeric: true, sensitivity: 'base' })
-        : bName?.localeCompare(aName, undefined, { numeric: true, sensitivity: 'base' });
-    };
-    const compareByObservationCount = (a, b, asc) => {
-      const aCount = a.site_observations.length;
-      const bCount = b.site_observations.length;
-      return asc ? aCount - bCount : bCount - aCount;
-    };
 
     useEffect(() => {
       if (dataAreDownloaded && !errorOccuredDuringDownload && allMolListsLength <= 0) {
@@ -508,6 +421,32 @@ export const PoseList = memo(
         return conformerSite !== undefined ? conformerSite.tag_prefix : '';
       },
       [categories, tags]
+    );
+
+    const sortOptions = useMemo(
+      () => ({
+        POSE_NAME: { title: 'Pose name', handler: (a, b, asc) => comparePoseText(a.code, b.code, asc) },
+        COMPOUND_CODE: {
+          title: 'Compound code',
+          handler: (a, b, asc) => comparePoseText(a.main_site_observation_cmpd_code, b.main_site_observation_cmpd_code, asc)
+        },
+        CANONSITE_NUMBER: {
+          title: 'CanonSite number',
+          handler: (a, b, asc) => comparePoseText(getCanonSiteTagPrefix(a), getCanonSiteTagPrefix(b), asc)
+        },
+        CONFORMERSITE_NUMBER: {
+          title: 'ConformerSite number',
+          handler: (a, b, asc) => comparePoseText(getConformerSiteTagPrefix(a), getConformerSiteTagPrefix(b), asc)
+        },
+        OBSERVATION_COUNT: {
+          title: 'Observation count',
+          handler: (a, b, asc) =>
+            asc
+              ? a.site_observations.length - b.site_observations.length
+              : b.site_observations.length - a.site_observations.length
+        }
+      }),
+      [getCanonSiteTagPrefix, getConformerSiteTagPrefix]
     );
 
     const isActiveFilter = !!(filter || {}).active;
@@ -633,23 +572,7 @@ export const PoseList = memo(
     }, [searchString]);
 
     const addSelectedMoleculesFromUnselectedSites = useCallback(
-      (joinedMoleculeLists, list) => {
-        const addedMols = [...joinedMoleculeLists];
-        const onlyAlreadySelected = [];
-        list?.forEach(moleculeID => {
-          const foundJoinedMolecule = addedMols.find(mol => mol.id === moleculeID);
-          if (!foundJoinedMolecule) {
-            const molecule = allMoleculesList.find(mol => mol.id === moleculeID);
-            if (molecule) {
-              addedMols.push(molecule);
-              onlyAlreadySelected.push(molecule);
-            }
-          }
-        });
-
-        const result = [...onlyAlreadySelected, ...joinedMoleculeLists];
-        return result;
-      },
+      (joined, list) => prependSelectedObservations(joined, list, allMoleculesList),
       [allMoleculesList]
     );
 
@@ -708,23 +631,16 @@ export const PoseList = memo(
       moleculesToEditIds
     ]);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    joinedMoleculeLists = useMemo(() => {
-      const addedMols = [...joinedMoleculeLists];
-      const onlyAlreadySelected = [];
-      densityList?.forEach(d => {
-        const foundJoinedMolecule = addedMols.find(mol => mol.id === d.id);
-        if (!foundJoinedMolecule) {
-          const molecule = allMoleculesList.find(mol => mol.id === d.id);
-          if (molecule) {
-            addedMols.push(molecule);
-            onlyAlreadySelected.push(molecule);
-          }
-        }
-      });
+    joinedMoleculeLists = useMemo(
+      () =>
+        prependSelectedObservations(
+          joinedMoleculeLists,
+          densityList?.map(item => item.id),
+          allMoleculesList
+        ),
+      [joinedMoleculeLists, densityList, allMoleculesList]
+    );
 
-      const result = [...onlyAlreadySelected, ...joinedMoleculeLists];
-      return result;
-    }, [joinedMoleculeLists, densityList, allMoleculesList]);
     // eslint-disable-next-line react-hooks/exhaustive-deps
     joinedMoleculeLists = useMemo(() => addSelectedMoleculesFromUnselectedSites(joinedMoleculeLists, vectorOnList), [
       addSelectedMoleculesFromUnselectedSites,
@@ -958,13 +874,10 @@ export const PoseList = memo(
     });
     const uniqueSelectedMoleculeForHitNavigator = [...new Set(selectedMolecule)];
 
-    const joinedGivenMatch = useCallback(
-      givenList => {
-        return givenList.filter(element => lpcControlMolecules.filter(element2 => element2.id === element).length > 0)
-          .length;
-      },
-      [lpcControlMolecules]
-    );
+    const lpcControlIds = useMemo(() => new Set(lpcControlMolecules.map(molecule => molecule.id)), [lpcControlMolecules]);
+    const joinedGivenMatch = useCallback(givenList => givenList.filter(id => lpcControlIds.has(id)).length, [
+      lpcControlIds
+    ]);
 
     const joinedLigandMatchLength = useMemo(() => joinedGivenMatch(fragmentDisplayList), [
       fragmentDisplayList,
@@ -985,72 +898,14 @@ export const PoseList = memo(
       return null;
     };
 
-    let filteredLHSCompoundsList = useMemo(() => {
-      const compounds = [];
-      lhsCompoundsList.forEach(compound => {
-        const molsForCmp = joinedMoleculeLists.some(molecule => molecule.cmpd === compound.compound);
-        if (molsForCmp && compound.associatedObs.some(obs => joinedMoleculeLists.some(mol => mol.id === obs.id))) {
-          compounds.push(compound);
-        }
-      });
-      compounds.sort((a, b) => sortOptions[sortOption].handler(a, b, ascending));
-      return compounds;
-    }, [joinedMoleculeLists, lhsCompoundsList, sortOptions, sortOption, ascending]);
-
-    const handlePoseTransferNavigationItemsChange = useCallback(orderedItems => {
-      const nextIds = (orderedItems || []).map(item => item.id);
-      setOrderedPoseTransferIds(currentIds =>
-        poseListsDiffer(currentIds, nextIds) ? nextIds : currentIds
-      );
-    }, []);
-
-    const orderedPoseTransferItems = useMemo(() => {
-      const posesById = new Map(filteredLHSCompoundsList.map(pose => [pose.id, pose]));
-      return orderedPoseTransferIds.map(id => posesById.get(id)).filter(Boolean);
-    }, [filteredLHSCompoundsList, orderedPoseTransferIds]);
-
-    const toolbarPoseTransferIds = useSelector(
-      state => {
-        const transfers = getFirstEligiblePoseTransfers({
-          orderedPoses: orderedPoseTransferItems,
-          state,
-          config: poseTransferConfig
-        });
-
-        return {
-          previousSourceId: transfers.previous?.sourcePose.id ?? null,
-          previousDestinationId: transfers.previous?.destinationPose.id ?? null,
-          nextSourceId: transfers.next?.sourcePose.id ?? null,
-          nextDestinationId: transfers.next?.destinationPose.id ?? null
-        };
-      },
-      shallowEqual
+    const selectPoseMembership = useMemo(createPoseMembershipSelector, []);
+    const matchingPoses = selectPoseMembership(lhsCompoundsList, joinedMoleculeLists);
+    let filteredLHSCompoundsList = useMemo(
+      () => [...matchingPoses].sort((a, b) => sortOptions[sortOption].handler(a, b, ascending)),
+      [matchingPoses, sortOptions, sortOption, ascending]
     );
 
-    const toolbarPoseTransfers = useMemo(() => {
-      const posesById = new Map(orderedPoseTransferItems.map(pose => [pose.id, pose]));
-      const resolveTransfer = (sourceId, destinationId) => {
-        const sourcePose = posesById.get(sourceId);
-        const destinationPose = posesById.get(destinationId);
-
-        return sourcePose && destinationPose ? { sourcePose, destinationPose } : null;
-      };
-
-      return {
-        previous: resolveTransfer(
-          toolbarPoseTransferIds.previousSourceId,
-          toolbarPoseTransferIds.previousDestinationId
-        ),
-        next: resolveTransfer(toolbarPoseTransferIds.nextSourceId, toolbarPoseTransferIds.nextDestinationId)
-      };
-    }, [orderedPoseTransferItems, toolbarPoseTransferIds]);
-
-    const {
-      addMoleculeViewRef,
-      setScrollToMoleculeId,
-      getNode,
-      registeredMoleculeViewCount
-    } = useScrollToSelectedPose({
+    const { addMoleculeViewRef, registeredMoleculeViewCount, setScrollToMoleculeId, getNode } = useScrollToSelectedPose({
       poses: filteredLHSCompoundsList,
       moleculesPerPage,
       setCurrentPage,
@@ -1068,99 +923,17 @@ export const PoseList = memo(
       vectorIds: vectorOnList
     });
 
-    useEffect(() => {
-      if (pendingDialogAnchorPoseId === null) {
-        return;
-      }
-
-      const destinationNode = getNode(pendingDialogAnchorPoseId);
-      if (destinationNode) {
-        setTagEditorAnchorEl(destinationNode);
-        setPendingDialogAnchorPoseId(null);
-      }
-    }, [getNode, pendingDialogAnchorPoseId]);
-
-    const handlePoseTransfer = useCallback(
-      async ({ sourcePose, destinationPose }) => {
-        if (!poseTransferConfig || !destinationPose || poseTransferInProgressRef.current) {
-          return;
-        }
-
-        poseTransferInProgressRef.current = true;
-        const destinationIndex = filteredLHSCompoundsList.findIndex(pose => pose.id === destinationPose.id);
-        if (destinationIndex >= 0) {
-          setCurrentPage(current =>
-            Math.max(current, getRequiredPageForIndex(destinationIndex, moleculesPerPage))
-          );
-        }
-        setScrollToMoleculeId(destinationPose.id);
-        setTagEditorAnchorEl(null);
-        setPoseTransferResetKey(current => current + 1);
-        setPoseTransferInProgress(true);
-
-        try {
-          const result = await dispatch(
-            executePoseTransfer({
-              config: poseTransferConfig,
-              sourcePose,
-              destinationPose,
-              stage: majorViewStage
-            })
-          );
-
-          await Promise.resolve(
-            poseTransferConfig.dialogs?.afterTransfer?.({
-              dispatch,
-              dialogState: result.dialogState,
-              sourcePose,
-              destinationPose,
-              destinationInspirationIds: result.destinationInspirationIds,
-              requestAnchor: setPendingDialogAnchorPoseId
-            })
-          );
-
-          if (result.postTransferError) {
-            handlers.addToastMessage?.({
-              text:
-                poseTransferConfig.postTransferFocus?.failureMessage ||
-                `Pose settings were transferred, but the destination could not be focused: ${
-                  result.postTransferError.message || result.postTransferError
-                }`,
-              level: TOAST_LEVELS.ERROR
-            });
-          }
-        } catch (error) {
-          await Promise.resolve(
-            poseTransferConfig.dialogs?.onTransferFailure?.({
-              dispatch,
-              dialogState: error.poseTransferContext?.dialogState,
-              sourcePose,
-              destinationPose,
-              sourceInspirationIds: error.poseTransferContext?.sourceInspirationIds || [],
-              requestAnchor: setPendingDialogAnchorPoseId,
-              error
-            })
-          ).catch(() => undefined);
-
-          handlers.addToastMessage?.({
-            text: `Unable to transfer pose display settings: ${error.message || error}`,
-            level: TOAST_LEVELS.ERROR
-          });
-        } finally {
-          poseTransferInProgressRef.current = false;
-          setPoseTransferInProgress(false);
-        }
-      },
-      [
-        dispatch,
-        filteredLHSCompoundsList,
-        handlers,
-        majorViewStage,
-        moleculesPerPage,
-        poseTransferConfig,
-        setScrollToMoleculeId
-      ]
-    );
+    const poseNavigation = usePoseTransferNavigation({
+      config: poseTransferConfig,
+      poses: filteredLHSCompoundsList,
+      stage: majorViewStage,
+      moleculesPerPage,
+      setCurrentPage,
+      setScrollToMoleculeId,
+      getNode,
+      setAnchor: setTagEditorAnchorEl,
+      addToastMessage: handlers.addToastMessage
+    });
 
     useEffect(() => {
       if (dataAreDownloading || !dataAreDownloaded || !areLSHCompoundsInitialized) {
@@ -1711,27 +1484,14 @@ export const PoseList = memo(
               </Grid>
             </RichTooltip>
             {poseTransferConfig && (
-              <Grid item className={classes.poseTransferToolbarButtons}>
-                <IconButton
-                  id="hit-navigator-transfer-first-pose-up"
-                  className={classes.poseTransferToolbarButton}
-                  aria-label="Transfer first eligible pose settings upward"
-                  title="Transfer first eligible pose settings to the previous pose"
-                  disabled={!toolbarPoseTransfers.previous || poseTransferInProgress}
-                  onClick={() => toolbarPoseTransfers.previous && handlePoseTransfer(toolbarPoseTransfers.previous)}
-                >
-                  <ArrowUpward />
-                </IconButton>
-                <IconButton
-                  id="hit-navigator-transfer-first-pose-down"
-                  className={classes.poseTransferToolbarButton}
-                  aria-label="Transfer first eligible pose settings downward"
-                  title="Transfer first eligible pose settings to the next pose"
-                  disabled={!toolbarPoseTransfers.next || poseTransferInProgress}
-                  onClick={() => toolbarPoseTransfers.next && handlePoseTransfer(toolbarPoseTransfers.next)}
-                >
-                  <ArrowDownward />
-                </IconButton>
+              <Grid item className={classes.toolbarSmallButtons}>
+                <PoseTransferButtons
+                  toolbar
+                  previous={poseNavigation.toolbarTransfers.previous}
+                  next={poseNavigation.toolbarTransfers.next}
+                  busy={poseNavigation.busy}
+                  onTransfer={poseNavigation.onTransfer}
+                />
               </Grid>
             )}
             {poseNavigationConfig && (
@@ -1742,27 +1502,18 @@ export const PoseList = memo(
                     variant="outlined"
                     className={classes.contColButton}
                     aria-haspopup="dialog"
-                    aria-expanded={Boolean(poseNavigationConfigAnchor)}
-                    onClick={event =>
-                      setPoseNavigationConfigAnchor(
-                        poseNavigationConfigAnchor ? null : event.currentTarget
-                      )
-                    }
-                  >
-                    Nav config
-                  </Button>
+                    aria-expanded={Boolean(navigationConfigAnchor)}
+                    onClick={event => setNavigationConfigAnchor(navigationConfigAnchor ? null : event.currentTarget)}
+                  >Nav config</Button>
                 </RichTooltip>
                 <Popover
-                  open={Boolean(poseNavigationConfigAnchor)}
-                  anchorEl={poseNavigationConfigAnchor}
-                  onClose={() => setPoseNavigationConfigAnchor(null)}
+                  open={Boolean(navigationConfigAnchor)}
+                  anchorEl={navigationConfigAnchor}
+                  onClose={() => setNavigationConfigAnchor(null)}
                   anchorOrigin={{ vertical: 'center', horizontal: 'right' }}
                   transformOrigin={{ vertical: 'center', horizontal: 'left' }}
                 >
-                  <PoseNavigationConfigPopover
-                    value={poseNavigationConfig.value}
-                    onChange={poseNavigationConfig.onChange}
-                  />
+                  <PoseNavigationConfigPopover value={poseNavigationConfig.value} onChange={poseNavigationConfig.onChange} />
                 </Popover>
               </Grid>
             )}
@@ -1815,6 +1566,11 @@ export const PoseList = memo(
                       ligandRepresentations={ligandRepresentations}
                       items={itemsToBeDisplayed}
                       navigationItems={filteredLHSCompoundsList}
+                      poseTransferConfig={poseTransferConfig}
+                      poseTransferInProgress={poseNavigation.busy}
+                      poseTransferResetKey={poseNavigation.resetKey}
+                      onPoseTransfer={poseNavigation.onTransfer}
+                      onPoseTransferNavigationItemsChange={poseTransferConfig ? poseNavigation.onNavigationItemsChange : undefined}
                       allSelectedMolecules={allSelectedMolecules}
                       addMoleculeViewRef={addMoleculeViewRef}
                       onPoseVisuallyReady={handlePoseVisuallyReady}
@@ -1829,13 +1585,6 @@ export const PoseList = memo(
                       vectorOnList={vectorOnList}
                       informationList={informationList}
                       getComputedInspirations={getComputedInspirations}
-                      poseTransferConfig={poseTransferConfig}
-                      poseTransferInProgress={poseTransferInProgress}
-                      poseTransferResetKey={poseTransferResetKey}
-                      onPoseTransferNavigationItemsChange={
-                        poseTransferConfig ? handlePoseTransferNavigationItemsChange : undefined
-                      }
-                      onPoseTransfer={handlePoseTransfer}
                     />
                   </InfiniteScroll>
                 </Grid>

@@ -2,7 +2,7 @@
  * Row in Hit navigator
  */
 
-import React, { memo, forwardRef, useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import React, { memo, forwardRef, useCallback, useEffect, useMemo, useState, useRef } from 'react';
 import { Table, TableBody, TableCell, TableHead, TableRow } from '@mui/material';
 import { makeStyles } from '../../../../ui/styles';
 import { useSelector } from 'react-redux';
@@ -15,6 +15,7 @@ import RichTooltip from '../../../tooltip/RichTooltip';
 import { TooltipPathProvider } from '../../../tooltip/TooltipPathContext';
 import { LHS_OBSERVATION_VIEW_CONFIG } from './viewConfigs';
 import { COLUMN_TYPES } from './table';
+import { hasObservationMembership } from '../../../../reducers/selection/selectionMembership';
 import { getAdjacentPoses } from '../poseTransfer';
 
 const useStyles = makeStyles(theme => ({
@@ -143,17 +144,17 @@ const ObservationUnifiedViewWrapper = memo(
         informationList,
         items,
         navigationItems = items,
+        poseTransferConfig,
+        poseTransferInProgress = false,
+        poseTransferResetKey = 0,
+        onPoseTransfer,
+        onPoseTransferNavigationItemsChange,
         allSelectedMolecules,
         addMoleculeViewRef,
         onPoseVisuallyReady,
         handleSetTagEditorAnchorEl,
         availableWidth = 0,
-        getComputedInspirations = undefined,
-        poseTransferConfig = undefined,
-        poseTransferInProgress = false,
-        poseTransferResetKey = 0,
-        onPoseTransferNavigationItemsChange = undefined,
-        onPoseTransfer = undefined
+        getComputedInspirations = undefined
       },
       outsideRef
     ) => {
@@ -163,20 +164,10 @@ const ObservationUnifiedViewWrapper = memo(
       const classes = useStyles();
       const aliasOrder = useSelector(state => state.apiReducers.target_on_aliases);
       const [detailHeightsByRowId, setDetailHeightsByRowId] = useState({});
-      const reportedNavigationIdsRef = useRef([]);
 
       // setup jsme before to prevent window jumping when molecule filter opens first time
       jsmeSetup();
 
-      const containsAtLeastOne = (list, molsList) => {
-        for (const mol of molsList || []) {
-          if (list?.includes(mol.id)) {
-            return true;
-          }
-        }
-
-        return false;
-      };
       const preferredDetailWidth = useMemo(() => {
         const maxTextWidth = (items || []).reduce((maxWidth, item) => {
           const mainObservation = getMainObservation(item);
@@ -188,8 +179,7 @@ const ObservationUnifiedViewWrapper = memo(
 
           return Math.max(maxWidth, Math.max(codeWidth, displayNameWidth) + DETAIL_TEXT_ACTION_BUFFER);
         }, 0);
-        const controlsWidth =
-          (DETAIL_CONTROLS_WIDTH[viewConfig.kind] || DETAIL_CONTROLS_WIDTH.lhs) +
+        const controlsWidth = (DETAIL_CONTROLS_WIDTH[viewConfig.kind] || DETAIL_CONTROLS_WIDTH.lhs) +
           (poseTransferConfig?.controlsWidth || 0);
 
         return Math.ceil(maxTextWidth + controlsWidth + DETAIL_WIDTH_BUFFER);
@@ -202,27 +192,15 @@ const ObservationUnifiedViewWrapper = memo(
         preferredDetailWidth
       );
       const { filteredItems, getColumnFilter, applyFiltersAndSort } = useFilters(items, columns, viewConfig);
-      const orderedNavigationItems = useMemo(
-        () => applyFiltersAndSort(navigationItems || items),
-        [applyFiltersAndSort, items, navigationItems]
-      );
+      const orderedNavigationItems = useMemo(() => applyFiltersAndSort(navigationItems), [applyFiltersAndSort, navigationItems]);
+      const reportedIds = useRef(null);
       useEffect(() => {
-        if (!onPoseTransferNavigationItemsChange) {
-          return;
-        }
-
-        const nextIds = orderedNavigationItems.map(item => item.id);
-        const orderChanged =
-          reportedNavigationIdsRef.current.length !== nextIds.length ||
-          reportedNavigationIdsRef.current.some((id, index) => id !== nextIds[index]);
-
-        if (!orderChanged) {
-          return;
-        }
-
-        reportedNavigationIdsRef.current = nextIds;
-        onPoseTransferNavigationItemsChange?.(orderedNavigationItems);
-      }, [onPoseTransferNavigationItemsChange, orderedNavigationItems]);
+        if (!onPoseTransferNavigationItemsChange) return;
+        const ids = orderedNavigationItems.map(item => item.id);
+        if (reportedIds.current?.length === ids.length && ids.every((id, index) => reportedIds.current[index] === id)) return;
+        reportedIds.current = ids;
+        onPoseTransferNavigationItemsChange(orderedNavigationItems);
+      }, [orderedNavigationItems, onPoseTransferNavigationItemsChange]);
       const waitsForMoleculeImage = columns?.some(column => column.visible && column.type === COLUMN_TYPES.MOLECULE);
       const handleDetailHeightChange = useCallback((rowId, height) => {
         if (rowId === undefined || rowId === null) {
@@ -324,9 +302,7 @@ const ObservationUnifiedViewWrapper = memo(
             {filteredItems?.map((data, index) => {
               const molsForCmp = data.associatedObs;
               const { previousPose, nextPose } = getAdjacentPoses(orderedNavigationItems, data.id);
-              const selected = allSelectedMolecules?.some(molecule =>
-                data.associatedObs.some(obs => obs.id === molecule.id)
-              );
+              const selected = hasObservationMembership(allSelectedMolecules, data.associatedObs, true);
 
               return (
                 <ObservationUnifiedView
@@ -337,14 +313,14 @@ const ObservationUnifiedViewWrapper = memo(
                   data={data}
                   index={index}
                   setRef={handleSetTagEditorAnchorEl}
-                  L={containsAtLeastOne(fragmentDisplayList, molsForCmp)}
-                  P={containsAtLeastOne(proteinList, molsForCmp)}
-                  C={containsAtLeastOne(complexList, molsForCmp)}
-                  S={containsAtLeastOne(surfaceList, molsForCmp)}
-                  D={containsAtLeastOne(densityList, molsForCmp)}
-                  Q={containsAtLeastOne(qualityList, molsForCmp)}
-                  V={containsAtLeastOne(vectorOnList, molsForCmp)}
-                  I={containsAtLeastOne(informationList, molsForCmp)}
+                  L={hasObservationMembership(fragmentDisplayList, molsForCmp)}
+                  P={hasObservationMembership(proteinList, molsForCmp)}
+                  C={hasObservationMembership(complexList, molsForCmp)}
+                  S={hasObservationMembership(surfaceList, molsForCmp)}
+                  D={hasObservationMembership(densityList, molsForCmp)}
+                  Q={hasObservationMembership(qualityList, molsForCmp)}
+                  V={hasObservationMembership(vectorOnList, molsForCmp)}
+                  I={hasObservationMembership(informationList, molsForCmp)}
                   selected={selected}
                   disableL={false}
                   disableP={false}
@@ -365,7 +341,7 @@ const ObservationUnifiedViewWrapper = memo(
                   poseTransferConfig={poseTransferConfig}
                   poseTransferInProgress={poseTransferInProgress}
                   poseTransferResetKey={poseTransferResetKey}
-                  onPoseTransfer={onPoseTransfer}
+                  onPoseTransfer={poseTransferConfig ? onPoseTransfer : undefined}
                 />
               );
             })}

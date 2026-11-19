@@ -49,6 +49,9 @@ import { api, METHOD } from '../../utils/api';
 import { QualityStatusService } from '../preview/molecule/moleculeView/qualityStatus/QualityStatusService';
 import { TooltipPathProvider } from '../tooltip/TooltipPathContext';
 import RichTooltip from '../tooltip/RichTooltip';
+import { Visibility } from '@mui/icons-material';
+import { UserAccessDialog } from '../access/AccessDialog';
+import { canInspectAccess } from '../access/accessUtils';
 
 const { version } = packageMetadata;
 
@@ -121,6 +124,7 @@ export const Header = memo(
     const [openMenu, setOpenMenu] = useState(false);
     const [openFunders, setOpenFunders] = useState(false);
     const [openTargetSettings, setOpenTargetSettings] = useState(false);
+    const [openUserAccess, setOpenUserAccess] = useState(false);
     const [versions, setVersions] = useState({});
 
     const layoutEnabled = useSelector(state => state.layoutReducers.layoutEnabled);
@@ -559,6 +563,7 @@ export const Header = memo(
           <FundersModal openModal={openFunders} onModalClose={() => setOpenFunders(false)} />
         </TooltipPathProvider>
         <TargetSettingsModal openModal={openTargetSettings} onModalClose={() => setOpenTargetSettings(false)} />
+        <UserAccessDialog open={openUserAccess} onClose={() => setOpenUserAccess(false)} />
         <DiscourseErrorModal openModal={openDiscourseError} />
         <Drawer
           anchor="left"
@@ -625,6 +630,21 @@ export const Header = memo(
                   <ListItemText primary="Contributors" />
                 </ListItemButton>
               </RichTooltip>
+              {canInspectAccess() && (
+                <RichTooltip path="drawer.whatCanISee">
+                  <ListItemButton
+                    onClick={() => {
+                      setOpenMenu(false);
+                      setOpenUserAccess(true);
+                    }}
+                  >
+                    <ListItemIcon>
+                      <Visibility />
+                    </ListItemIcon>
+                    <ListItemText primary="What can I see" />
+                  </ListItemButton>
+                </RichTooltip>
+              )}
               {DJANGO_CONTEXT.pk && !!targetName && (
                 <>
                   <Divider />

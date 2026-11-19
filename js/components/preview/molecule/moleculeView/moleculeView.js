@@ -11,6 +11,7 @@ import { MyLocation, Warning, Assignment, AssignmentTurnedIn } from '@mui/icons-
 import SVGInline from 'react-svg-inline';
 import classNames from 'classnames';
 import { PLURAL_TO_SINGULAR, VIEWS } from '../../../../constants/constants';
+import { RHS_INSPIRATION } from '../../../../constants/poseNavigation';
 import { NGL_PARAMS, COMMON_PARAMS } from '../../../nglView/constants';
 import { NglContext } from '../../../nglView/nglProvider';
 import {
@@ -460,9 +461,11 @@ const MoleculeView = memo(
 
     const allMolecules = useSelector(state => state.apiReducers.all_mol_lists);
     const allPoses = useSelector(state => state.apiReducers.lhs_compounds_list);
+    const rhsInspiration = Boolean(data?.[RHS_INSPIRATION]);
 
     //for some reason when tags are changed for this molecule the data are stale so I need to retrieve them from list of all molecules
     data = allMolecules.filter(mol => mol.id === data?.id)[0];
+    const getDisplayObservation = () => (rhsInspiration ? { ...data, [RHS_INSPIRATION]: true } : data);
 
     const [isCopied, setCopied] = useClipboard(data?.smiles, { successDuration: 5000 });
 
@@ -977,7 +980,7 @@ const MoleculeView = memo(
       // }
       dispatch(
         withDisabledMoleculeNglControlButton(currentID, 'ligand', async () => {
-          await dispatch(addLigand(stage, data, colourToggle, false, true, skipTracking));
+          await dispatch(addLigand(stage, getDisplayObservation(), colourToggle, false, true, skipTracking));
         })
       );
     };
@@ -1023,7 +1026,7 @@ const MoleculeView = memo(
       // }
       dispatch(
         withDisabledMoleculeNglControlButton(currentID, 'protein', async () => {
-          await dispatch(addHitProtein(stage, data, colourToggle, true, skipTracking));
+          await dispatch(addHitProtein(stage, getDisplayObservation(), colourToggle, true, skipTracking));
         })
       );
     };
@@ -1031,7 +1034,7 @@ const MoleculeView = memo(
     const addNewArtefactChain = (skipTracking = false) => {
       dispatch(
         withDisabledMoleculeNglControlButton(currentID, 'protein', async () => {
-          await dispatch(addArtefactChain(stage, data, colourToggle, true, skipTracking));
+          await dispatch(addArtefactChain(stage, getDisplayObservation(), colourToggle, true, skipTracking));
         })
       );
     };
@@ -1105,7 +1108,7 @@ const MoleculeView = memo(
     const addNewComplex = (skipTracking = false) => {
       dispatch(
         withDisabledMoleculeNglControlButton(currentID, 'complex', async () => {
-          await dispatch(addComplex(stage, data, colourToggle, skipTracking));
+          await dispatch(addComplex(stage, getDisplayObservation(), colourToggle, skipTracking));
         })
       );
     };
@@ -1136,7 +1139,7 @@ const MoleculeView = memo(
     const addNewSurface = () => {
       dispatch(
         withDisabledMoleculeNglControlButton(currentID, 'surface', async () => {
-          await dispatch(addSurface(stage, data, colourToggle));
+          await dispatch(addSurface(stage, getDisplayObservation(), colourToggle));
         })
       );
     };
@@ -1161,7 +1164,7 @@ const MoleculeView = memo(
         withDisabledMoleculeNglControlButton(currentID, 'ligand', async () => {
           await dispatch(
             withDisabledMoleculeNglControlButton(currentID, 'density', async () => {
-              await dispatch(addDensity(data, densityObject));
+              await dispatch(addDensity(getDisplayObservation(), densityObject));
             })
           );
         })
@@ -1233,13 +1236,13 @@ const MoleculeView = memo(
     };
 
     const removeSelectedQuality = () => {
-      dispatch(removeQuality(stage, data, colourToggle));
+      dispatch(removeQuality(stage, getDisplayObservation(), colourToggle));
     };
 
     const addNewQuality = () => {
       dispatch(
         withDisabledMoleculeNglControlButton(currentID, 'ligand', async () => {
-          await dispatch(addQuality(stage, data, colourToggle));
+          await dispatch(addQuality(stage, getDisplayObservation(), colourToggle));
         })
       );
     };
@@ -1259,7 +1262,7 @@ const MoleculeView = memo(
     const addNewVector = () => {
       dispatch(
         withDisabledMoleculeNglControlButton(currentID, 'vector', async () => {
-          await dispatch(addVector(stage, data));
+          await dispatch(addVector(stage, getDisplayObservation()));
         })
       );
     };
@@ -1690,7 +1693,7 @@ const MoleculeView = memo(
                             anchorOrigin={{ vertical: 'center', horizontal: 'right' }}
                             transformOrigin={{ vertical: 'center', horizontal: 'left' }}
                           >
-                            <DensityButtonPopover mol={data} />
+                            <DensityButtonPopover mol={data} rhsInspiration={rhsInspiration} />
                           </Popover>
                         </Grid>
                       </RichTooltip>

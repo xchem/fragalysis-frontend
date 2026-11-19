@@ -82,7 +82,6 @@ services:
       POSTGRESQL_PORT: 5432
       NEO4J_AUTH: neo4j/test123
       # DISCOURSE_API_KEY: ${DISCOURSE_API_KEY}
-      FRAGALYSIS_BACKEND_SENTRY_DNS: https://27fa0675f555431aa02ca552e93d8cfb@o194333.ingest.sentry.io/1298290
       ISPYB_FLAG: "False"
       # DISCOURSE_DEV_POST_SUFFIX: '-boris-local'
       # DISCOURSE_HOST: 'https://discourse.xchem-dev.diamond.ac.uk'
@@ -168,8 +167,7 @@ services:
       INFECTIONS: ""
       # Celery tasks need to run synchronously
       CELERY_TASK_ALWAYS_EAGER: "False"
-      # Error reporting and default/root log-level
-      FRAGALYSIS_BACKEND_SENTRY_DNS: ${FRAGALYSIS_BACKEND_SENTRY_DNS}
+      # Default/root log-level
       LOGGING_FRAMEWORK_ROOT_LEVEL: ${LOGGING_FRAMEWORK_ROOT_LEVEL:-INFO}
       # Keycloak configuration
       OIDC_KEYCLOAK_REALM: ${OIDC_KEYCLOAK_REALM}

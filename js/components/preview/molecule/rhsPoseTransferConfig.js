@@ -1,4 +1,5 @@
 import { cloneDeep, isEqual } from 'lodash';
+import { createSelector } from 'reselect';
 import {
   addArtefactChain,
   addComplex,
@@ -17,8 +18,12 @@ import {
 } from './redux/dispatchActions';
 import { appendProteinSettings, appendToBeDisplayedList } from '../../../reducers/selection/actions';
 import { colourList } from './utils/color';
-import { getRepresentationsByType, getRepresentationsForDensities } from '../../nglView/generatingObjects';
-import { OBJECT_TYPE } from '../../nglView/constants';
+import {
+  getMoleculeObjectName,
+  getRepresentationsByType,
+  getRepresentationsForDensities
+} from '../../nglView/generatingObjects';
+import { DENSITY_MAPS, OBJECT_TYPE } from '../../nglView/constants';
 import { NGL_OBJECTS } from '../../../reducers/ngl/constants';
 import { VIEWS } from '../../../constants/constants';
 import {
@@ -26,6 +31,8 @@ import {
   centerOnLigandsByMoleculeIDs
 } from '../../../reducers/ngl/dispatchActions';
 import { POSE_TRANSFER_CENTERING_MODES } from '../../../constants/poseNavigation';
+import { copyRepresentationSettings, copyRepresentationSettingsList } from '../../../viewer/representationState';
+import { asViewerAdapter } from '../../../viewer/viewerAdapterFactory';
 
 const getMainObservation = pose =>
   pose?.associatedObs?.find(observation => observation.id === pose?.main_site_observation) ||
@@ -57,10 +64,20 @@ export const getPostTransferCenterLigandIds = ({
   ];
 };
 
-const getLatestQueueItem = (state, id, type) =>
-  [...(state.selectionReducers.toBeDisplayedList || [])]
-    .reverse()
-    .find(item => item.id === id && item.type === type && item.display !== false);
+const getDisplayQueueByType = createSelector(
+  state => state.selectionReducers.toBeDisplayedList,
+  items => {
+    const byType = new Map();
+    for (const item of items || []) {
+      if (item.display === false) continue;
+      if (!byType.has(item.type)) byType.set(item.type, new Map());
+      byType.get(item.type).set(item.id, item);
+    }
+    return byType;
+  }
+);
+
+const getLatestQueueItem = (state, id, type) => getDisplayQueueByType(state).get(type)?.get(id);
 
 const isQueueItemRendered = (state, id, type) => getLatestQueueItem(state, id, type)?.rendered === true;
 
@@ -95,7 +112,7 @@ const getRepresentations = (state, item, objectType, queueType) => {
   );
   const queuedRepresentations = getLatestQueueItem(state, item.id, queueType)?.representations;
 
-  return cloneDeep(renderedRepresentations || queuedRepresentations);
+  return copyRepresentationSettingsList(renderedRepresentations || queuedRepresentations);
 };
 
 const idsToSelectedItems = ids => (ids || []).map(id => ({ id }));
@@ -142,7 +159,7 @@ const ligandControl = fallbackRepresentations => ({
         false,
         customization?.withQuality ?? false,
         true,
-        cloneDeep(customization?.representations || fallbackRepresentations)
+        copyRepresentationSettingsList(customization?.representations || fallbackRepresentations)
       )
     ),
   isRendered: ({ state, item }) =>
@@ -177,6 +194,10 @@ const proteinControl = {
       (activeState.artefact && state.selectionReducers.artefactsChainList.includes(selectedItem.id))
     );
   },
+  getRemovalObjectTypes: ({ activeState }) => [
+    ...(activeState?.protein ? [OBJECT_TYPE.HIT_PROTEIN] : []),
+    ...(activeState?.artefact ? [OBJECT_TYPE.ARTEFACTS] : [])
+  ],
   captureCustomization: ({ state, item, activeState }) => {
     const proteinQueueItem = getLatestQueueItem(state, item.id, NGL_OBJECTS.PROTEIN);
     const artefactQueueItem = getLatestQueueItem(state, item.id, NGL_OBJECTS.ARTEFACTS);
@@ -253,7 +274,7 @@ const proteinControl = {
             colour,
             customization?.proteinWithQuality ?? false,
             true,
-            cloneDeep(customization?.proteinRepresentations),
+            copyRepresentationSettingsList(customization?.proteinRepresentations),
             false
           )
         )
@@ -268,7 +289,7 @@ const proteinControl = {
             colour,
             customization?.artefactWithQuality ?? false,
             true,
-            cloneDeep(customization?.artefactRepresentations),
+            copyRepresentationSettingsList(customization?.artefactRepresentations),
             false
           )
         )
@@ -297,7 +318,7 @@ const createStructureControl = ({ key, listKey, queueType, objectType, add, remo
         target,
         colourList[target.id % colourList.length],
         true,
-        cloneDeep(customization?.representations),
+        copyRepresentationSettingsList(customization?.representations),
         false
       )
     ),
@@ -338,27 +359,36 @@ const hasAvailableDensityMap = (item, densityObject) => {
   );
 };
 
+const copyDensitySettings = representations => representations?.map(rep => ({
+  ...copyRepresentationSettings(rep),
+  ...(rep.densityMap !== undefined && { densityMap: rep.densityMap })
+}));
+
 const densityControl = {
   key: 'density',
+  getRenderProgressReader: ({ stage, item, snapshot }) => {
+    const adapter = asViewerAdapter(stage);
+    if (!adapter?.getMapLoadProgress) return null;
+    const settings = snapshot.customization?.densityObject || snapshot.activeState;
+    const base = `${getMoleculeObjectName(item)}_${OBJECT_TYPE.DENSITY}`;
+    const names = [
+      settings.render_event && base,
+      settings.render_2FoFc && base + DENSITY_MAPS.SIGMAA,
+      settings.render_FoFc && base + DENSITY_MAPS.DIFF
+    ].filter(Boolean);
+    return () => names.reduce((total, name) => total + adapter.getMapLoadProgress(name), 0);
+  },
   getActiveState: (state, item) => state.selectionReducers.densityList.find(density => density.id === item.id) || false,
   getSelectedItems: state => (state.selectionReducers.densityList || []).map(density => ({ ...density })),
   captureCustomization: ({ state, item, activeState }) => {
     const queueItem = getLatestQueueItem(state, item.id, NGL_OBJECTS.DENSITY);
-    let renderedRepresentations;
-
-    try {
-      renderedRepresentations = getRepresentationsForDensities(
-        state.nglReducers.objectsInView || {},
-        item,
-        OBJECT_TYPE.DENSITY
-      );
-    } catch (error) {
-      renderedRepresentations = undefined;
-    }
+    const renderedRepresentations = getRepresentationsForDensities(state.nglReducers.objectsInView || {}, item);
 
     return {
       densityObject: cloneDeep(queueItem?.densityObject || activeState),
-      representations: cloneDeep(renderedRepresentations?.length ? renderedRepresentations : queueItem?.representations)
+      representations: renderedRepresentations.length
+        ? renderedRepresentations
+        : copyDensitySettings(queueItem?.representations)
     };
   },
   isAvailable: ({ item, snapshot }) => hasAvailableDensityMap(item, snapshot.customization?.densityObject),
@@ -398,7 +428,7 @@ const densityControl = {
       id: target.id
     };
 
-    return dispatch(addDensity(target, densityObject, cloneDeep(customization?.representations)));
+    return dispatch(addDensity(target, densityObject, copyDensitySettings(customization?.representations)));
   },
   isRendered: ({ state, item }) =>
     state.selectionReducers.densityList.some(density => density.id === item.id) &&
@@ -429,9 +459,29 @@ export const createRhsPoseTransferConfig = ({
   postTransferCenteringMode = POSE_TRANSFER_CENTERING_MODES.NONE,
   renderTimeout
 }) => {
-  const ligand = ligandControl(ligandRepresentations);
-  const poseControls = [ligand, proteinControl, complexControl, surfaceControl];
-  const inspirationControls = [...poseControls, densityControl, vectorControl];
+  // A cleared checkbox can precede native buffer deletion, in either viewer.
+  const awaitViewerRemoval = (control, objectTypes, ...queueTypes) => ({
+    ...control,
+    countRenderAcknowledgements: (state, item) =>
+      queueTypes.reduce((count, type) => count + Number(isQueueItemRendered(state, item.id, type)), 0),
+    isSelectedItemActive: context => {
+      const { state, selectedItem } = context;
+      return (
+        Boolean(control.isSelectedItemActive?.(context) ?? control.getActiveState(state, selectedItem)) ||
+        hasRenderedNglObject(state, selectedItem.id, control.getRemovalObjectTypes?.(selectedItem) ?? objectTypes)
+      );
+    }
+  });
+  const ligand = awaitViewerRemoval(ligandControl(ligandRepresentations), [OBJECT_TYPE.LIGAND], NGL_OBJECTS.LIGAND);
+  const protein = awaitViewerRemoval(proteinControl, undefined, NGL_OBJECTS.PROTEIN, NGL_OBJECTS.ARTEFACTS);
+  const complex = awaitViewerRemoval(complexControl, [OBJECT_TYPE.COMPLEX], NGL_OBJECTS.COMPLEX);
+  const surface = awaitViewerRemoval(surfaceControl, [OBJECT_TYPE.SURFACE], NGL_OBJECTS.SURFACE);
+  const density = awaitViewerRemoval(densityControl, [OBJECT_TYPE.DENSITY], NGL_OBJECTS.DENSITY);
+  const vector = awaitViewerRemoval(vectorControl, [OBJECT_TYPE.ARROW, OBJECT_TYPE.CYLINDER], NGL_OBJECTS.VECTOR);
+  const poseControls = [ligand, protein, complex, surface];
+  // The source pose limits what we copy, not what we clear. A Hit and its
+  // inspiration row operate the same viewer object, including after snapshot restore.
+  const inspirationControls = [...poseControls, density, vector];
 
   const getInspirationIds = ({ pose }) =>
     getComputedInspirations({ data: pose, observations: pose?.associatedObs || [] });
@@ -443,7 +493,11 @@ export const createRhsPoseTransferConfig = ({
     return ids.map(id => observationsById.get(id)).filter(Boolean);
   };
 
-  const getInspirationStateItems = ({ pose }) => getInspirationIds({ pose }).map(id => ({ id }));
+  // An independently enabled Hit can also be an inspiration of several poses.
+  // Only the source's open F dialog contributes inspiration settings.
+  const includeSourceInspirations = context => dialogs?.hasTransferableState?.(context) ?? true;
+  const getInspirationStateItems = context =>
+    includeSourceInspirations(context) ? getInspirationIds(context).map(id => ({ id })) : [];
 
   return {
     poseControls,
@@ -457,6 +511,7 @@ export const createRhsPoseTransferConfig = ({
     getInspirationIds,
     getInspirationStateItems,
     getInspirationItems,
+    getSourceInspirationItems: context => includeSourceInspirations(context) ? getInspirationItems(context) : [],
     getTransferItem: ({ state, selectedItem }) =>
       (state.apiReducers.all_mol_lists || []).find(item => item.id === selectedItem.id) || selectedItem,
     postTransferFocus: {
@@ -486,7 +541,7 @@ export const createRhsPoseTransferConfig = ({
             : await dispatch(centerOnLigandsByMoleculeIDs(stage, ligandIds));
 
         if (!centered) {
-          throw new Error('The destination ligands could not be found in the NGL view.');
+          throw new Error('The destination ligands could not be found in the viewer.');
         }
       },
       failureMessage: 'Pose settings were transferred, but the destination ligands could not be centered.'

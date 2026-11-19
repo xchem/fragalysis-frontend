@@ -39,6 +39,15 @@ export const molecule = (state = INITIAL_STATE, action = {}) => {
         }
       };
 
+    case constants.SET_NGL_CONTROL_BUTTONS: {
+      const { moleculeIds, type, disabled } = action.payload;
+      const disableNglControlButtons = { ...state.disableNglControlButtons };
+      moleculeIds.forEach(id => {
+        disableNglControlButtons[id] = { ...disableNglControlButtons[id], [type]: disabled };
+      });
+      return { ...state, disableNglControlButtons };
+    }
+
     case constants.DISABLE_NGL_CONTROL_BUTTON: {
       const { moleculeId, type } = action.payload;
       const disableNglControlButtons = { ...state.disableNglControlButtons };

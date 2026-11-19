@@ -24,7 +24,7 @@ import {
   setIsNGLQueueEmpty
 } from './actions';
 import { isEmpty, isEqual } from 'lodash';
-import { generateMoleculeObject } from '../../components/nglView/generatingObjects';
+import { generateMoleculeObject, observationLigandName } from '../../components/nglView/generatingObjects';
 import { COMMON_PARAMS, DENSITY_MAPS, OBJECT_TYPE, SELECTION_TYPE } from '../../components/nglView/constants';
 import {
   removeFromComplexList,
@@ -117,16 +117,17 @@ export const loadObject = ({
       })
       .catch(error => {
         console.error(error);
+        throw error;
       })
       .finally(() => dispatch(decrementCountOfPendingNglObjects(versionFixedTarget.display_div)));
   }
   return Promise.reject('Instance of NGL View is missing');
 };
 
-export const deleteObject = (target, stage, deleteFromSelections) => dispatch => {
+export const deleteObject = (target, stage, deleteFromSelections) => async dispatch => {
   const viewerAdapter = asViewerAdapter(stage);
   if (viewerAdapter && target) {
-    viewerAdapter.getObjects(target.name).forEach(component => viewerAdapter.removeObject(component));
+    await viewerAdapter.removeObjects(target.name);
 
     if (deleteFromSelections === true && target && target.selectionType && target.moleculeId) {
       const objectId = { id: target.moleculeId };
@@ -223,46 +224,36 @@ export const centerOnLigandByMoleculeID = (stage, moleculeID, datasetId = null) 
       }
       const component = viewerAdapter.getObject(obsObject.name);
       if (component) {
-        viewerAdapter.centerOn(component);
+        await viewerAdapter.centerOn(component);
+        dispatch(setNglOrientation(viewerAdapter.getOrientation(), VIEWS.MAJOR_VIEW));
+        return true;
       }
-      const currentOrientation = viewerAdapter.getOrientation();
-      dispatch(setNglOrientation(currentOrientation, VIEWS.MAJOR_VIEW));
-      return Boolean(component);
     }
   }
-
   return false;
 };
 
-export const centerOnLigandsByMoleculeIDs = (stage, moleculeIDs) => async (dispatch, getState) => {
+export const centerOnLigandsByMoleculeIDs = (stage, moleculeIDs = []) => async (dispatch, getState) => {
   const viewerAdapter = asViewerAdapter(stage);
-  if (!viewerAdapter) {
-    return false;
-  }
+  if (!viewerAdapter) return false;
 
+  // Dataset compounds can share numeric IDs with observations. Resolve by the
+  // same registered name as the target icon, without re-fetching coordinates.
   const state = getState();
-  const displayedLigandIds = new Set(state.selectionReducers.fragmentDisplayList || []);
-  const requestedIds = [...new Set(moleculeIDs || [])].filter(id => displayedLigandIds.has(id));
-  const objectsInView = Object.entries(state.nglReducers.objectsInView || {});
-  const components = requestedIds
-    .map(id => {
-      const entry = objectsInView.find(
-        ([, object]) => object.moleculeId === id && object.OBJECT_TYPE === OBJECT_TYPE.LIGAND
-      );
-      return entry ? viewerAdapter.getObject(entry[1].name || entry[0]) : null;
-    })
+  const observations = new Map(state.apiReducers.all_mol_lists.map(item => [item.id, item]));
+  const objects = [...new Set(moleculeIDs)]
+    .map(id => observations.get(id))
+    .filter(Boolean)
+    .map(item => viewerAdapter.getObject(observationLigandName(item)))
     .filter(Boolean);
 
-  if (!components.length || viewerAdapter.centerOnObjects(components) === false) {
-    return false;
-  }
-
-  dispatch(setNglOrientation(viewerAdapter.getOrientation(), VIEWS.MAJOR_VIEW));
-  return true;
+  const centered = await viewerAdapter.centerOnObjects(objects);
+  if (centered) dispatch(setNglOrientation(viewerAdapter.getOrientation(), VIEWS.MAJOR_VIEW));
+  return Boolean(centered);
 };
 
-export const setNglBckGrndColor = (color, major) => (dispatch, getState) => {
-  dispatch(setNglViewParams(NGL_PARAMS.backgroundColor, color, asViewerAdapter(major), VIEWS.MAJOR_VIEW));
+export const setNglBckGrndColor = color => dispatch => {
+  dispatch(setNglViewParams(NGL_PARAMS.backgroundColor, color, undefined, VIEWS.MAJOR_VIEW));
   dispatch(setBackgroundColor(color));
 };
 

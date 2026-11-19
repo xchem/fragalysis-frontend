@@ -1,3 +1,4 @@
+import { useStructureOperationQueue } from './useStructureOperationQueue';
 import { useCallback, useContext, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { NglContext } from '../../components/nglView/nglProvider';
@@ -16,6 +17,7 @@ import { deleteObject, loadObject } from './dispatchActions';
 
 export const useDisplayLigandRHS = () => {
   const dispatch = useDispatch();
+  const runStructureOperation = useStructureOperationQueue();
 
   const toBeDisplayedList = useSelector(state => state.datasetsReducers.toBeDisplayedList);
   const displayedLigands = useSelector(state => state.datasetsReducers.ligandLists);
@@ -31,22 +33,27 @@ export const useDisplayLigandRHS = () => {
       if (!data) return;
       const colourToggle = getRandomColor(data);
       const datasetID = ligandData.datasetID;
+      const moleculeId = generateMoleculeCompoundId(data);
 
-      dispatch(appendLigandList(datasetID, generateMoleculeCompoundId(data)));
       console.count(`Grabbed orientation before loading dataset ligand`);
       const ligandDataText = await dispatch(generateMoleculeObject(data, colourToggle, datasetID));
-      return dispatch(
-        loadObject({
-          target: Object.assign({ display_div: VIEWS.MAJOR_VIEW }, ligandDataText),
-          stage,
-          previousRepresentations: ligandData.representations,
-          markAsRightSideLigand: true
-        })
-      ).then(() => {
+      dispatch(appendLigandList(datasetID, moleculeId));
+      try {
+        await dispatch(
+          loadObject({
+            target: Object.assign({ display_div: VIEWS.MAJOR_VIEW }, ligandDataText),
+            stage,
+            previousRepresentations: ligandData.representations,
+            markAsRightSideLigand: true
+          })
+        );
         dispatch(
           updateInToBeDisplayedListForDataset(datasetID, { id: data.id, rendered: true, type: NGL_OBJECTS.LIGAND })
         );
-      });
+      } catch {
+        dispatch(removeFromLigandList(datasetID, moleculeId));
+        dispatch(removeFromToBeDisplayedListForDataset(datasetID, { id: data.id, type: NGL_OBJECTS.LIGAND }));
+      }
     },
     [allCompounds, dispatch, stage]
   );
@@ -59,7 +66,7 @@ export const useDisplayLigandRHS = () => {
       const datasetID = ligandData.datasetID;
 
       const ligandDataText = await dispatch(generateMoleculeObject(data, undefined, datasetID));
-      dispatch(deleteObject(Object.assign({ display_div: VIEWS.MAJOR_VIEW }, ligandDataText), stage));
+      await dispatch(deleteObject(Object.assign({ display_div: VIEWS.MAJOR_VIEW }, ligandDataText), stage));
       dispatch(removeFromLigandList(datasetID, generateMoleculeCompoundId(data)));
 
       dispatch(removeFromToBeDisplayedListForDataset(datasetID, { id: ligandData.id, type: NGL_OBJECTS.LIGAND }));
@@ -75,7 +82,7 @@ export const useDisplayLigandRHS = () => {
       true
     );
     toBeRemovedLigands?.forEach(data => {
-      removeLigand(data);
+      runStructureOperation(data, removeLigand);
     });
     const toBeDisplayedLigands = getToBeDisplayedStructuresDataset(
       toBeDisplayedList,
@@ -83,9 +90,9 @@ export const useDisplayLigandRHS = () => {
       NGL_OBJECTS.LIGAND
     );
     toBeDisplayedLigands?.forEach(data => {
-      displayLigand(data);
+      runStructureOperation(data, displayLigand);
     });
-  }, [toBeDisplayedList, displayedLigands, displayLigand, dispatch, stage, removeLigand]);
+  }, [runStructureOperation, toBeDisplayedList, displayedLigands, displayLigand, dispatch, stage, removeLigand]);
 
   return {};
 };

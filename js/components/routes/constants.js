@@ -6,6 +6,7 @@ export const URLS = {
   login: '/accounts/login/',
   logout: '/accounts/logout/',
   management: '/viewer/react/management/',
+  moorhenProof: '/viewer/react/moorhen-proof/',
   funders: '/viewer/react/funders/',
   target: '/viewer/react/preview/target/',
 

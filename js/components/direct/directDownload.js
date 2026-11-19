@@ -1,131 +1,98 @@
-import React, { memo, useCallback, useContext, useEffect, useRef, useState } from 'react';
+import React, { memo, useContext, useEffect, useRef, useState } from 'react';
 import { useRouteMatch } from 'react-router-dom';
 import { useDispatch } from 'react-redux';
 import { URL_TOKENS } from './constants';
 import { getTagByName } from '../preview/tags/api/tagsApi';
-import {
-  getDownloadStructuresTaskOrUrl,
-  downloadStructuresZip,
-  getDownloadTaskStatusObject
-} from '../snapshot/api/api';
+import { getDownloadStructuresTaskOrUrl, downloadStructuresZip, getDownloadTaskStatusObject } from '../snapshot/api/api';
 import { DownloadProgress } from './downloadProgress';
-import { setDirectDownloadInProgress, setSnapshotDownloadUrl } from '../../reducers/api/actions';
 import { ToastContext } from '../toast';
+import { setDirectDownloadInProgress, setSnapshotDownloadUrl } from '../../reducers/api/actions';
 
-const TASK_POLL_INTERVAL_MS = 2000;
-const TASK_ERROR_RETRY_INTERVAL_MS = 5000;
-const MAX_TASK_ERROR_RETRIES = 3;
+const POLL_INTERVAL = 2000;
+const RETRY_INTERVAL = 5000;
+const MAX_RETRIES = 3;
+const backendMessage = message =>
+  `Download failed, with backend error '${message}'. Please contact administrator.`;
 
-export const DirectDownload = memo(url => {
-  let match = useRouteMatch();
+export const DirectDownload = memo(() => {
+  const match = useRouteMatch();
+  const param = match?.params?.[0];
   const dispatch = useDispatch();
   const { toastError } = useContext(ToastContext);
-  const [downloadInProgress, setDownloadInProgress] = useState(false);
+  const reportToast = useRef(toastError);
   const [errorMessage, setErrorMessage] = useState('');
-  const taskErrorCounter = useRef(0);
 
-  const reportDownloadError = useCallback(
-    message => {
-      dispatch(setDirectDownloadInProgress(false));
-      setErrorMessage(message);
-      toastError(message);
-    },
-    [dispatch, toastError]
-  );
-
-  const reportRequestError = useCallback(
-    error => {
-      console.error(JSON.stringify(error?.response?.data));
-
-      const message = error?.response?.data?.message
-        ? `Download failed, with backend error '${error.response.data.message}'. Please contact administrator.`
-        : 'Download failed, please try again later. If error persists, contact administrator';
-
-      reportDownloadError(message);
-      console.error(error);
-    },
-    [reportDownloadError]
-  );
-
-  const handleTask = useCallback(
-    async taskUrl => {
-      try {
-        const taskStatusResponse = await getDownloadTaskStatusObject(taskUrl);
-        if (!taskStatusResponse?.data) {
-          throw new Error('Unexpected empty response from the download task status endpoint');
-        }
-
-        const taskStatus = taskStatusResponse.data;
-        if (taskStatus?.finished) {
-          if (taskStatus?.status === 'SUCCESS') {
-            const fileUrl = taskStatus.messages;
-            downloadStructuresZip(fileUrl);
-            dispatch(setDirectDownloadInProgress(false));
-          } else {
-            reportDownloadError(
-              `Download failed, with backend error '${taskStatus?.messages}'. Please contact administrator.`
-            );
-          }
-        } else {
-          setTimeout(() => handleTask(taskUrl), TASK_POLL_INTERVAL_MS);
-        }
-      } catch (error) {
-        if (taskErrorCounter.current < MAX_TASK_ERROR_RETRIES) {
-          taskErrorCounter.current += 1;
-          setTimeout(() => handleTask(taskUrl), TASK_ERROR_RETRY_INTERVAL_MS);
-        } else {
-          const message = `Download failed, with backend error. Please contact administrator. Error details: ${error?.message}`;
-          reportDownloadError(message);
-          console.error(error);
-        }
-      }
-    },
-    [dispatch, reportDownloadError]
-  );
+  useEffect(() => { reportToast.current = toastError; }, [toastError]);
 
   useEffect(() => {
-    if (!downloadInProgress) {
-      setDownloadInProgress(true);
-      setErrorMessage('');
-      taskErrorCounter.current = 0;
-      dispatch(setDirectDownloadInProgress(true));
-      const param = match.params[0];
-      if (param && param.startsWith(URL_TOKENS.tag)) {
-        let withoutKeyword = param.split(URL_TOKENS.tag);
-        if (withoutKeyword && withoutKeyword.length === 2) {
-          const splitParams = withoutKeyword[1].split('/');
-          if (splitParams && splitParams.length === 2) {
-            const tagName = splitParams[1];
-            getTagByName(tagName)
-              .then(tag => {
-                if (tag?.additional_info?.requestObject) {
-                  const requestObject = tag.additional_info.requestObject;
-                  const snapshotUrl = tag.additional_info.snapshot?.relativeUrl;
-                  if (snapshotUrl) {
-                    dispatch(setSnapshotDownloadUrl(snapshotUrl));
-                  }
-                  return getDownloadStructuresTaskOrUrl(requestObject);
-                }
-
-                throw new Error('Download tag does not contain a download request');
-              })
-              .then(resp => {
-                if (resp?.data?.file_url) {
-                  const url = resp.data.file_url;
-                  downloadStructuresZip(url);
-                  dispatch(setDirectDownloadInProgress(false));
-                } else if (resp?.data?.task_status_url) {
-                  /*await */ handleTask(resp.data.task_status_url);
-                } else {
-                  throw new Error('Unexpected response from the server: ' + JSON.stringify(resp?.data));
-                }
-              })
-              .catch(reportRequestError);
-          }
+    let active = true;
+    let timer;
+    let retries = 0;
+    const fail = message => {
+      if (!active) return;
+      dispatch(setDirectDownloadInProgress(false));
+      setErrorMessage(message);
+      reportToast.current(message);
+    };
+    const download = url => {
+      if (!active) return;
+      downloadStructuresZip(url);
+      dispatch(setDirectDownloadInProgress(false));
+    };
+    const poll = async taskUrl => {
+      try {
+        const response = await getDownloadTaskStatusObject(taskUrl);
+        if (!active) return;
+        if (!response?.data) throw new Error('Empty download task status response');
+        const task = response.data;
+        if (!task.finished) {
+          timer = setTimeout(() => poll(taskUrl), POLL_INTERVAL);
+        } else if (task.status === 'SUCCESS' && task.messages) {
+          download(task.messages);
+        } else {
+          fail(backendMessage(task.messages || 'Archive preparation failed'));
+        }
+      } catch (error) {
+        if (!active) return;
+        if (retries < MAX_RETRIES) {
+          retries += 1;
+          timer = setTimeout(() => poll(taskUrl), RETRY_INTERVAL);
+        } else {
+          fail(`Download failed, with backend error. Please contact administrator. Error details: ${error.message}`);
         }
       }
-    }
-  }, [dispatch, downloadInProgress, handleTask, match.params, reportRequestError]);
+    };
+    const start = async () => {
+      try {
+        const parts = param?.split('/');
+        if (parts?.length !== 2 || parts[0] !== URL_TOKENS.tag || !parts[1]) {
+          throw new Error('Invalid download link');
+        }
+        const tag = await getTagByName(parts[1]);
+        if (!active) return;
+        if (!tag?.additional_info?.requestObject) throw new Error('Download tag has no request');
+        const snapshotUrl = tag.additional_info.snapshot?.relativeUrl;
+        if (snapshotUrl) dispatch(setSnapshotDownloadUrl(snapshotUrl));
+        const response = await getDownloadStructuresTaskOrUrl(tag.additional_info.requestObject);
+        if (!active) return;
+        if (response?.data?.file_url) download(response.data.file_url);
+        else if (response?.data?.task_status_url) await poll(response.data.task_status_url);
+        else throw new Error('Invalid download response');
+      } catch (error) {
+        fail(error?.response?.data?.message ? backendMessage(error.response.data.message)
+          : 'Download failed, please try again later. If error persists, contact administrator');
+      }
+    };
+    setErrorMessage('');
+    dispatch(setSnapshotDownloadUrl(null));
+    dispatch(setDirectDownloadInProgress(true));
+    start();
+    return () => {
+      active = false;
+      clearTimeout(timer);
+      dispatch(setDirectDownloadInProgress(false));
+    };
+  }, [dispatch, param]);
 
   return <DownloadProgress errorMessage={errorMessage} />;
 });

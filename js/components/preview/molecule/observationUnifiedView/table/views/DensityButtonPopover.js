@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import Typography from '@mui/material/Typography';
 import Checkbox from '@mui/material/Checkbox';
 import FormControlLabel from '@mui/material/FormControlLabel';
@@ -14,10 +14,11 @@ import { getCurrentTarget } from '../../../../../../reducers/api/selectors';
 import { DENSITY_MAP_TYPES, MAP_RENDERING_MODES } from '../../../utils/constants';
 import { getRandomColor } from '../../../utils/color';
 import { NGL_OBJECTS } from '../../../../../../reducers/ngl/constants';
-import { throttle } from 'lodash';
+import { RHS_INSPIRATION } from '../../../../../../constants/poseNavigation';
+import { isEqual, throttle } from 'lodash';
 import { appendToBeDisplayedList, updateInToBeDisplayedList } from '../../../../../../reducers/selection/actions';
 
-export const DensityButtonPopover = ({ mol }) => {
+export const DensityButtonPopover = ({ mol, rhsInspiration = false }) => {
   const dispatch = useDispatch();
 
   const densityList = useSelector(state => state.selectionReducers.densityList);
@@ -27,7 +28,9 @@ export const DensityButtonPopover = ({ mol }) => {
   const defaultMapRendering = activeTarget?.settings?.electron_density_rendering_mode || MAP_RENDERING_MODES.WIREFRAME;
   const colourToggle = getRandomColor(mol);
 
-  const currentDensity = densityList.find(d => d.id === mol.id);
+  const currentDensity =
+    toBeDisplayedList.find(d => d.id === mol.id && d.type === NGL_OBJECTS.DENSITY)?.densityObject ||
+    densityList.find(d => d.id === mol.id);
 
   const densityData = mol.proteinData;
 
@@ -41,11 +44,11 @@ export const DensityButtonPopover = ({ mol }) => {
   const checkDensity = mapType => {
     if (currentDensity) {
       if (mapType === DENSITY_MAP_TYPES.EVENT) {
-        return currentDensity.render_event;
+        return !!currentDensity.render_event;
       } else if (mapType === DENSITY_MAP_TYPES._2FoFc) {
-        return currentDensity.render_2FoFc;
+        return !!currentDensity.render_2FoFc;
       } else if (mapType === DENSITY_MAP_TYPES.FoFC) {
-        return currentDensity.render_FoFc;
+        return !!currentDensity.render_FoFc;
       }
     } else {
       const defaultChecked = { render_event: false, render_2FoFc: false, render_FoFc: false };
@@ -96,11 +99,11 @@ export const DensityButtonPopover = ({ mol }) => {
   const resolveContour = mapType => {
     if (currentDensity) {
       if (mapType === DENSITY_MAP_TYPES.EVENT) {
-        return currentDensity.contour_event || 1.0;
+        return currentDensity.contour_event ?? 1.0;
       } else if (mapType === DENSITY_MAP_TYPES._2FoFc) {
-        return currentDensity.contour_2FoFc || 1.0;
+        return currentDensity.contour_2FoFc ?? 1.0;
       } else if (mapType === DENSITY_MAP_TYPES.FoFC) {
-        return currentDensity.contour_FoFc || 3.0;
+        return currentDensity.contour_FoFc ?? 3.0;
       }
     } else {
       if (mapType === DENSITY_MAP_TYPES.EVENT) {
@@ -144,6 +147,7 @@ export const DensityButtonPopover = ({ mol }) => {
         type: NGL_OBJECTS.DENSITY,
         id: mol.id,
         display: true,
+        ...(rhsInspiration && { [RHS_INSPIRATION]: true }),
         representations: representations,
         densityData: mol.proteinData,
         densityObject: {
@@ -157,72 +161,36 @@ export const DensityButtonPopover = ({ mol }) => {
         }
       };
     },
-    [mol, mode, color, checked, contour]
+    [mol, rhsInspiration, mode, color, checked, contour]
   );
 
-  useEffect(() => {
-    const existingDensity = densityList.find(d => d.id === mol.id);
-    let densityToEdit = null;
-    let needsToUpdate = true;
-    if (existingDensity) {
-      const densityRenderObject = toBeDisplayedList.find(d => d.id === mol.id && d.type === NGL_OBJECTS.DENSITY);
-      if (
-        densityRenderObject &&
-        densityRenderObject.densityObject.isWireframeStyle === (mode === MAP_RENDERING_MODES.WIREFRAME) &&
-        densityRenderObject.densityObject.color === color &&
-        densityRenderObject.densityObject.render_event === checked.render_event &&
-        densityRenderObject.densityObject.render_2FoFc === checked.render_2FoFc &&
-        densityRenderObject.densityObject.render_FoFc === checked.render_FoFc &&
-        densityRenderObject.densityObject.contour_event === contour.render_event &&
-        densityRenderObject.densityObject.contour_2FoFc === contour.render_2FoFc &&
-        densityRenderObject.densityObject.contour_FoFc === contour.render_FoFc
-      ) {
-        needsToUpdate = false;
-      }
-      densityToEdit = { ...existingDensity };
-      // hide existing density
-      if (needsToUpdate && densityRenderObject) {
-        dispatch(updateInToBeDisplayedList({ ...densityRenderObject, display: false }));
-      }
-    } else {
-      const densityRenderObject = toBeDisplayedList.find(d => d.id === mol.id && d.type === NGL_OBJECTS.DENSITY);
-      if (densityRenderObject) {
-        needsToUpdate = false;
-      }
-      densityToEdit = createDefaultDensityObject();
-    }
+  // Opening the editor normalizes omitted flags/defaults for its controls.
+  // Treat that initial appearance as unchanged so an existing map stays loaded.
+  const lastSubmittedDensity = useRef(currentDensity ? createDefaultDensityObject().densityObject : null);
 
-    densityToEdit = {
-      ...densityToEdit,
-      densityObject: {
-        ...densityToEdit.densityObject,
-        isWireframeStyle: mode === MAP_RENDERING_MODES.WIREFRAME,
-        color: color,
-        ...checked,
-        contour_event: contour.render_event,
-        contour_2FoFc: contour.render_2FoFc,
-        contour_FoFc: contour.render_FoFc
-      }
-    };
-    if (needsToUpdate) {
-      if (existingDensity) {
-        dispatch(updateInToBeDisplayedList(densityToEdit));
-      } else {
+  useEffect(() => {
+    const densityToEdit = createDefaultDensityObject();
+    if (!densityToEdit.id || isEqual(lastSubmittedDensity.current, densityToEdit.densityObject)) return;
+    lastSubmittedDensity.current = densityToEdit.densityObject;
+    // Submit local edits once. Queue acknowledgements must not resubmit stale
+    // settings or retry a failed map load while the popover remains open.
+    dispatch((dispatch, getState) => {
+      const densityRenderObject = getState().selectionReducers.toBeDisplayedList.find(
+        d => d.id === densityToEdit.id && d.type === NGL_OBJECTS.DENSITY
+      );
+      if (!densityRenderObject) {
         dispatch(appendToBeDisplayedList(densityToEdit));
+      } else if (!isEqual(densityRenderObject.densityObject, densityToEdit.densityObject)) {
+        dispatch(
+          updateInToBeDisplayedList({
+            ...densityRenderObject,
+            densityObject: densityToEdit.densityObject,
+            rendered: false
+          })
+        );
       }
-    }
-  }, [
-    checked,
-    mode,
-    contour,
-    color,
-    createDefaultDensityObject,
-    densityList,
-    mol.id,
-    dispatch,
-    mol,
-    toBeDisplayedList
-  ]);
+    });
+  }, [createDefaultDensityObject, dispatch]);
 
   const handleCheckbox = name => event => {
     setChecked({ ...checked, [name]: event.target.checked });

@@ -20,6 +20,7 @@ import {
   setSelectVisiblePoses,
   setUnselectVisiblePoses,
   appendToBeDisplayedList,
+  appendToBeDisplayedListBulk,
   updateInToBeDisplayedList,
   setUnifiedFilterItem
 } from '../../../../reducers/selection/actions';
@@ -47,16 +48,23 @@ import {
   updateMoleculeInMolLists
 } from '../../../../reducers/api/actions';
 import { MOL_TYPE } from './constants';
-import { addImageToCache, disableMoleculeNglControlButton, enableMoleculeNglControlButton } from './actions';
+import {
+  addImageToCache,
+  disableMoleculeNglControlButton,
+  enableMoleculeNglControlButton,
+  setMoleculeNglControlButtons
+} from './actions';
 import { OBJECT_TYPE, DENSITY_MAPS, NGL_PARAMS } from '../../../nglView/constants';
 import { getRepresentationsByType } from '../../../nglView/generatingObjects';
-import { readQualityInformation } from '../../../nglView/renderingHelpers';
+import { readQualityInformation } from '../../../../viewer/qualityInformation';
 import { getLigandData } from '../../tags/redux/dispatchActions';
 import { appendRHSSelectedTag, appendLHSSelectedTag } from '../../../../reducers/selection/actions';
 import { selectJoinedMoleculeList } from './selectors';
 import { compareTagsAsc, isTagVisibleOnSide, TAG_META_CATEGORIES } from '../../tags/utils/tagUtils';
 import { createPoseApi, updatePoseApi } from '../api/poseApi';
 import { NGL_OBJECTS } from '../../../../reducers/ngl/constants';
+import { markBulkLigand } from '../../../../reducers/ngl/bulkLigands';
+import { RHS_INSPIRATION } from '../../../../constants/poseNavigation';
 // import { molFile, pdbApo } from './testData';
 
 /**
@@ -156,9 +164,12 @@ export const handleVector = (json, stage, data) => (dispatch, getState) => {
   dispatch(updateBondColorMapOfCompounds(data.smiles, vectorBondColorMap));
 };
 
+const appendObservationDisplay = (data, item) =>
+  appendToBeDisplayedList(data[RHS_INSPIRATION] ? { ...item, [RHS_INSPIRATION]: true } : item);
+
 export const addVector = (stage, data, skipTracking = false) => async (dispatch, getState) => {
   dispatch(
-    appendToBeDisplayedList({
+    appendObservationDisplay(data, {
       type: NGL_OBJECTS.VECTOR,
       id: data.id,
       display: true,
@@ -189,7 +200,7 @@ export const addComplex = (
   preserveColour = false
 ) => async dispatch => {
   dispatch(
-    appendToBeDisplayedList({
+    appendObservationDisplay(data, {
       type: NGL_OBJECTS.COMPLEX,
       id: data.id,
       display: true,
@@ -213,7 +224,7 @@ export const addSurface = (
   preserveColour = false
 ) => async dispatch => {
   dispatch(
-    appendToBeDisplayedList({
+    appendObservationDisplay(data, {
       type: NGL_OBJECTS.SURFACE,
       id: data.id,
       display: true,
@@ -255,7 +266,7 @@ export const addDensity = (data, densityObject, representations = undefined) => 
 
 const setDensity = (data, densityObject, representations = undefined) => async (dispatch, getState) => {
   dispatch(
-    appendToBeDisplayedList({
+    appendObservationDisplay(data, {
       type: NGL_OBJECTS.DENSITY,
       id: data.id,
       display: true,
@@ -371,13 +382,11 @@ export const removeDensity = (
 
 export const deleteDensityObject = (data, stage, densitySettingsObject) => async dispatch => {
   const densityObject = await dispatch(generateDensityObject(data, densitySettingsObject));
-  dispatch(deleteObject(Object.assign({ display_div: VIEWS.MAJOR_VIEW }, densityObject), stage));
-
-  let sigmaDensityObject = Object.assign({ ...densityObject, name: densityObject.name + DENSITY_MAPS.SIGMAA });
-  dispatch(deleteObject(Object.assign({ display_div: VIEWS.MAJOR_VIEW }, sigmaDensityObject), stage));
-
-  let diffDensityObject = Object.assign({ ...densityObject, name: densityObject.name + DENSITY_MAPS.DIFF });
-  dispatch(deleteObject(Object.assign({ display_div: VIEWS.MAJOR_VIEW }, diffDensityObject), stage));
+  await Promise.all(
+    ['', DENSITY_MAPS.SIGMAA, DENSITY_MAPS.DIFF].map(suffix =>
+      dispatch(deleteObject({ ...densityObject, display_div: VIEWS.MAJOR_VIEW, name: densityObject.name + suffix }, stage))
+    )
+  );
 
   return densityObject;
 };
@@ -392,7 +401,7 @@ export const addHitProtein = (
   preserveColour = false
 ) => async dispatch => {
   dispatch(
-    appendToBeDisplayedList({
+    appendObservationDisplay(data, {
       type: NGL_OBJECTS.PROTEIN,
       id: data.id,
       display: true,
@@ -418,7 +427,7 @@ export const addArtefactChain = (
   preserveColour = false
 ) => async dispatch => {
   dispatch(
-    appendToBeDisplayedList({
+    appendObservationDisplay(data, {
       type: NGL_OBJECTS.ARTEFACTS,
       id: data.id,
       display: true,
@@ -444,7 +453,7 @@ export const addLigand = (
   representations = undefined
 ) => async (dispatch, getState) => {
   dispatch(
-    appendToBeDisplayedList({
+    appendObservationDisplay(data, {
       type: NGL_OBJECTS.LIGAND,
       id: data.id,
       display: true,
@@ -453,6 +462,30 @@ export const addLigand = (
       representations: representations
     })
   );
+};
+
+// Publish the complete durable intent in one reducer pass. Runtime-only marks
+// opt these loads into bounded scheduling without changing snapshot records.
+export const addLigandsBulk = (observations, representations) => async dispatch => {
+  const ids = observations.map(observation => observation.id);
+  dispatch(setMoleculeNglControlButtons(ids, 'ligand', true));
+  try {
+    const items = observations.map(observation => {
+      const item = {
+        type: NGL_OBJECTS.LIGAND,
+        id: observation.id,
+        display: true,
+        center: false,
+        withQuality: true,
+        representations
+      };
+      markBulkLigand(item);
+      return item;
+    });
+    dispatch(appendToBeDisplayedListBulk(items));
+  } finally {
+    dispatch(setMoleculeNglControlButtons(ids, 'ligand', false));
+  }
 };
 
 export const removeLigand = (stage, data, skipTracking = false, withVector = true) => dispatch => {
@@ -472,7 +505,13 @@ export const addQuality = (stage, data, colourToggle, skipTracking = false, repr
   return dispatch(addLigand(stage, data, colourToggle, false, true, true, representations));
 };
 
-export const removeQuality = (stage, data, colourToggle, skipTracking = false, representations = undefined) => dispatch => {
+export const removeQuality = (
+  stage,
+  data,
+  colourToggle,
+  skipTracking = false,
+  representations = undefined
+) => dispatch => {
   dispatch(removeFromFragmentDisplayList(generateMoleculeId(data)));
   dispatch(removeFromQualityList(generateMoleculeId(data)));
   dispatch(updateInToBeDisplayedList({ id: data.id, display: false, type: NGL_OBJECTS.LIGAND }));
@@ -565,8 +604,19 @@ export const initializeRHSMolecules = () => (dispatch, getState) => {
   const state = getState();
   const isSnapshot = state.apiReducers.isSnapshot;
   const isDirectDisplay = Object.keys(state.apiReducers.direct_access || {})?.length > 0;
+  const selection = state.selectionReducers;
+  // A snapshot captured before Designs was opened has no RHS tag choice yet.
+  // Initialize that UI filter only; saved choices (including a cleared list)
+  // and structure/camera restoration must remain untouched.
+  const needsSnapshotTagDefault =
+    isSnapshot &&
+    selection?.areRHSCompoundsInitialized === false &&
+    selection.rhs_selectedTagList?.length === 0 &&
+    !selection.rhs_displayAllMolecules &&
+    !selection.rhs_displayUntaggedMolecules &&
+    !selection.isCoordinateFilterAppliedRHS;
 
-  if (!isSnapshot && !isDirectDisplay) {
+  if ((!isSnapshot || needsSnapshotTagDefault) && !isDirectDisplay) {
     const firstTag = dispatch(getFirstRHSTagAlphabetically());
     if (firstTag) {
       dispatch(appendRHSSelectedTag(firstTag));
@@ -741,7 +791,9 @@ export const moveSelectedMolSettings = (stage, item, newItem, data, skipTracking
     }
     if (data.isProteinOn) {
       const proteinRepresentations = getRepresentationsByType(data.objectsInView, item, OBJECT_TYPE.HIT_PROTEIN);
-      promises.push(dispatch(addHitProtein(stage, newItem, data.colourToggle, false, skipTracking, proteinRepresentations)));
+      promises.push(
+        dispatch(addHitProtein(stage, newItem, data.colourToggle, false, skipTracking, proteinRepresentations))
+      );
     }
     if (data.isArtefactChainOn) {
       const artefactChainRepresentations = getRepresentationsByType(data.objectsInView, item, OBJECT_TYPE.ARTEFACTS);

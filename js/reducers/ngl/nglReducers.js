@@ -1,6 +1,7 @@
 import { BACKGROUND_COLOR, NGL_PARAMS, NGL_VIEW_DEFAULT_VALUES } from '../../components/nglView/constants';
 import { CONSTANTS } from './constants';
 import { VIEWS } from '../../constants/constants';
+import { withBackgroundColor } from './viewParameters';
 
 export const INITIAL_STATE = {
   // NGL Scene properties
@@ -82,7 +83,7 @@ export default function nglReducers(state = INITIAL_STATE, action = {}) {
 
     case CONSTANTS.LOAD_OBJECT:
       // at first check if object was already stashed
-      const objectsInViewStashTemp = JSON.parse(JSON.stringify(state.objectsInViewStash));
+      const objectsInViewStashTemp = { ...state.objectsInViewStash };
       const newStateObject = {};
       if (objectsInViewStashTemp.hasOwnProperty(action.target.name)) {
         // delete object (it was/could be already loaded in loadObject() call)
@@ -91,32 +92,41 @@ export default function nglReducers(state = INITIAL_STATE, action = {}) {
         newStateObject['objectsInViewStash'] = objectsInViewStashTemp;
       }
       // Add object into view list
-      const newObjectsInView = JSON.parse(JSON.stringify(state.objectsInView));
-      newObjectsInView[action.target.name] = { ...action.target, representations: action.representations };
+      const newObjectsInView = {
+        ...state.objectsInView,
+        [action.target.name]: { ...action.target, representations: action.representations }
+      };
 
       newStateObject['objectsInView'] = newObjectsInView;
 
       return Object.assign({}, state, newStateObject);
 
     case CONSTANTS.UPDATE_COMPONENT_REPRESENTATION:
-      const newObjInView = JSON.parse(JSON.stringify(state.objectsInView));
-      let newRepresentations = [];
-      newObjInView[action.objectInViewID].representations.forEach(r => {
-        if (r.uuid === action.representationID) {
-          newRepresentations.push(action.newRepresentation);
-        } else {
-          newRepresentations.push(r);
+      const objectToUpdate = state.objectsInView[action.objectInViewID];
+      const newRepresentations = objectToUpdate.representations.map(representation =>
+        representation.uuid === action.representationID ? action.newRepresentation : representation
+      );
+      const newObjInView = {
+        ...state.objectsInView,
+        [action.objectInViewID]: {
+          ...objectToUpdate,
+          representations: newRepresentations
         }
-      });
-      newObjInView[action.objectInViewID].representations = newRepresentations;
+      };
 
       return Object.assign({}, state, {
         objectsInView: newObjInView
       });
 
     case CONSTANTS.ADD_COMPONENT_REPRESENTATION:
-      const newObjInView2 = JSON.parse(JSON.stringify(state.objectsInView));
-      newObjInView2[action.objectInViewID].representations.push(action.newRepresentation);
+      const objectToExtend = state.objectsInView[action.objectInViewID];
+      const newObjInView2 = {
+        ...state.objectsInView,
+        [action.objectInViewID]: {
+          ...objectToExtend,
+          representations: [...objectToExtend.representations, action.newRepresentation]
+        }
+      };
 
       return Object.assign({}, state, {
         objectsInView: newObjInView2
@@ -124,26 +134,26 @@ export default function nglReducers(state = INITIAL_STATE, action = {}) {
 
     case CONSTANTS.REMOVE_COMPONENT_REPRESENTATION:
       const representationID = action.representation && action.representation.uuid;
-      const newObjInViewWithRemovedRepresentation = JSON.parse(JSON.stringify(state.objectsInView));
-      if (newObjInViewWithRemovedRepresentation[action.objectInViewID].representations) {
-        for (let i = 0; i < newObjInViewWithRemovedRepresentation[action.objectInViewID].representations.length; i++) {
-          if (
-            newObjInViewWithRemovedRepresentation[action.objectInViewID].representations[i].uuid === representationID
-          ) {
-            newObjInViewWithRemovedRepresentation[action.objectInViewID].representations.splice(i, 1);
-            break;
-          }
+      const objectToTrim = state.objectsInView[action.objectInViewID];
+      const remainingRepresentations = (objectToTrim.representations || []).filter(
+        representation => representation.uuid !== representationID
+      );
+      const newObjInViewWithRemovedRepresentation = {
+        ...state.objectsInView,
+        [action.objectInViewID]: {
+          ...objectToTrim,
+          representations: remainingRepresentations
         }
-      }
+      };
       return Object.assign({}, state, {
         objectsInView: newObjInViewWithRemovedRepresentation
       });
 
     case CONSTANTS.DELETE_OBJECT:
-      const objectsInViewTemp = JSON.parse(JSON.stringify(state.objectsInView));
+      const objectsInViewTemp = { ...state.objectsInView };
 
       // stash state of the object
-      let newObjectsInViewStash = JSON.parse(JSON.stringify(state.objectsInViewStash));
+      const newObjectsInViewStash = { ...state.objectsInViewStash };
       if (objectsInViewTemp.hasOwnProperty(action.target.name)) {
         newObjectsInViewStash[action.target.name] = {
           ...objectsInViewTemp[action.target.name],
@@ -179,6 +189,9 @@ export default function nglReducers(state = INITIAL_STATE, action = {}) {
       });
 
     case CONSTANTS.SET_NGL_VIEW_PARAMS:
+      if (action.key === NGL_PARAMS.backgroundColor) {
+        return { ...state, viewParams: withBackgroundColor(state.viewParams, action.value) };
+      }
       const newViewParams = JSON.parse(JSON.stringify(state.viewParams));
       newViewParams[action.key] = action.value;
 
@@ -191,6 +204,9 @@ export default function nglReducers(state = INITIAL_STATE, action = {}) {
       delete snapshot.countOfPendingNglObjects;
       delete snapshot.countOfRemainingMoleculeGroups;
       delete snapshot.proteinsHasLoaded;
+      // PDB files are cached as live Blobs. Their JSON-cloned counterparts
+      // in the prepared snapshot are just {}, which NGL cannot load.
+      delete snapshot.pdbCache;
       return Object.assign({}, state, snapshot);
 
     case CONSTANTS.REMOVE_ALL_NGL_COMPONENTS:

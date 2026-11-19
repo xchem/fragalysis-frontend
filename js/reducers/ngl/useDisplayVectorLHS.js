@@ -1,3 +1,4 @@
+import { useStructureOperationQueue } from './useStructureOperationQueue';
 import { useCallback, useContext, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { NGL_OBJECTS } from './constants';
@@ -22,6 +23,7 @@ import { getViewUrl, handleVector, removeCurrentVector } from '../../components/
 
 export const useDisplayVectorLHS = () => {
   const dispatch = useDispatch();
+  const runStructureOperation = useStructureOperationQueue();
 
   const toBeDisplayedList = useSelector(state => state.selectionReducers.toBeDisplayedList);
   const displayedVectors = useSelector(state => state.selectionReducers.vectorOnList);
@@ -74,13 +76,15 @@ export const useDisplayVectorLHS = () => {
   );
 
   const removeVector = useCallback(
-    vectorData => {
+    async vectorData => {
       const data = allObservations.find(obs => obs.id === vectorData.id);
       if (!data) return;
 
-      vector_list
-        .filter(item => item.moleculeId === data.id)
-        .forEach(item => dispatch(deleteObject(Object.assign({ display_div: VIEWS.MAJOR_VIEW }, item), stage)));
+      await Promise.all(
+        vector_list
+          .filter(item => item.moleculeId === data.id)
+          .map(item => dispatch(deleteObject(Object.assign({ display_div: VIEWS.MAJOR_VIEW }, item), stage)))
+      );
 
       dispatch(removeCurrentVector(data.smiles));
 
@@ -98,7 +102,7 @@ export const useDisplayVectorLHS = () => {
   useEffect(() => {
     const toBeDisplayedVectors = getToBeDisplayedStructures(toBeDisplayedList, displayedVectors, NGL_OBJECTS.VECTOR);
     toBeDisplayedVectors?.forEach(data => {
-      displayVector(data);
+      runStructureOperation(data, displayVector);
     });
 
     const toBeRemovedVectors = getToBeDisplayedStructures(
@@ -108,9 +112,9 @@ export const useDisplayVectorLHS = () => {
       true
     );
     toBeRemovedVectors?.forEach(data => {
-      removeVector(data);
+      runStructureOperation(data, removeVector);
     });
-  }, [toBeDisplayedList, displayVector, dispatch, stage, removeVector, displayedVectors]);
+  }, [runStructureOperation, toBeDisplayedList, displayVector, dispatch, stage, removeVector, displayedVectors]);
 
   return {};
 };

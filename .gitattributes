@@ -1,0 +1,4 @@
+# Contact detector provenance and reference fixtures are hashed byte-for-byte.
+/js/viewer/contacts/vendor/* text eol=lf
+/js/viewer/contacts/fixtures/* text eol=lf
+/scripts/contact-detector/* text eol=lf

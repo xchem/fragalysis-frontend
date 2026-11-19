@@ -237,13 +237,11 @@ export const normalizeSnapshotRenderState = snapshotState => {
   const normalizedSnapshotState = deepClone(snapshotState);
 
   normalizedSnapshotState.selectionReducers = normalizedSnapshotState.selectionReducers || {};
-  normalizedSnapshotState.datasetsReducers = normalizedSnapshotState.datasetsReducers || {};
-  normalizedSnapshotState.nglReducers = normalizedSnapshotState.nglReducers || {};
-  // Older snapshots predate navigation settings. Missing or invalid values restore defaults,
-  // rather than leaking whatever configuration happens to be active before the switch.
   normalizedSnapshotState.selectionReducers.rhsPoseNavigationConfig = normalizeRhsPoseNavigationConfig(
     normalizedSnapshotState.selectionReducers.rhsPoseNavigationConfig
   );
+  normalizedSnapshotState.datasetsReducers = normalizedSnapshotState.datasetsReducers || {};
+  normalizedSnapshotState.nglReducers = normalizedSnapshotState.nglReducers || {};
 
   const normalizedLhsObjects = normalizeObjectsToBeDisplayed(normalizedSnapshotState.selectionReducers.toBeDisplayedList);
   const normalizedRhsObjects = normalizeObjectsToBeDisplayedByDataset(

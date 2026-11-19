@@ -1,4 +1,4 @@
-import React, { memo, useEffect, useState } from 'react';
+import React, { memo, useEffect, useMemo, useState } from 'react';
 import { LoadingContext } from './LoadingContext';
 import { LinearProgress } from '@mui/material';
 import { makeStyles } from '../../ui/styles';
@@ -27,6 +27,15 @@ export const LoadingProvider = memo(props => {
   const [isSingleItemRendering, setIsSingleItemRendering] = useState(false);
 
   const classes = useStyles();
+  const contextValue = useMemo(
+    () => ({
+      moleculesAndTagsAreLoading,
+      setMoleculesAndTagsAreLoading,
+      isLoading,
+      setIsLoading
+    }),
+    [moleculesAndTagsAreLoading, isLoading]
+  );
 
   useEffect(() => {
     const lhs = howManyInQueueRendered(toBeDisplayedListLHS);
@@ -60,25 +69,13 @@ export const LoadingProvider = memo(props => {
   ]);
 
   return (
-    <LoadingContext.Provider
-      value={{
-        moleculesAndTagsAreLoading,
-        setMoleculesAndTagsAreLoading,
-        isLoading,
-        setIsLoading
-      }}
-    >
+    <LoadingContext.Provider value={contextValue}>
       {props.children}
       {(isLoading === true || moleculesAndTagsAreLoading === true || isSingleItemRendering) && (
         <LinearProgress color="secondary" className={classes.loadingProgress} variant="query" />
       )}
       {false && isSnapshotRendering && (
-        <LinearProgress
-          variant="determinate"
-          color="secondary"
-          className={classes.loadingProgress}
-          value={0}
-        />
+        <LinearProgress variant="determinate" color="secondary" className={classes.loadingProgress} value={0} />
       )}
     </LoadingContext.Provider>
   );

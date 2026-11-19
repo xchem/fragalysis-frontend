@@ -352,22 +352,26 @@ export const useFilters = (initialItems, columns, viewConfig = {}) => {
         setSortings(prev => ({ ...prev, [name]: value }));
     };
 
-    // Apply the same filters and sortings to both the rendered slice and the full navigation list.
+    // Reuse the column rules for the complete navigation list and the rendered page.
     const applyFiltersAndSort = useCallback((sourceItems = []) => {
         // filter first
-        let items = sourceItems.filter(item =>
-            columns.every(col => {
-                // always show displayed hits
+        let items = sourceItems.filter(item => {
+            // A displayed pose bypasses all column filters. Check it once, and
+            // only while that override is enabled.
+            if (showDisplayedMolecules && columns.length > 0) {
                 const isDisplayedItem = viewConfig.matchesDisplayedObservations?.(item, displayedObservationIds)
                     ?? displayedObservationIds.includes(item.main_site_observation);
-                if (showDisplayedMolecules && isDisplayedItem) return true;
+                if (isDisplayedItem) return true;
+            }
+            return columns.every(col => {
                 const value = filters[col.name];
                 if (value === undefined) return true;
                 const fn = filterFunctions[col.type];
                 return fn ? fn(item, col.name, value) : true;
-            })
-        );
+            });
+        });
         // sort items based on sortings
+        if (!columns.some(col => sortings[col.name]?.enabled)) return items;
         items = items.sort((a, b) =>
             columns.map(col => {
                 const sortSettings = sortings[col.name];
@@ -379,7 +383,7 @@ export const useFilters = (initialItems, columns, viewConfig = {}) => {
         return items;
     }, [columns, filterFunctions, sortFunctions, filters, sortings, showDisplayedMolecules, displayedObservationIds, viewConfig]);
 
-    const filteredItems = useMemo(() => applyFiltersAndSort(initialItems), [applyFiltersAndSort, initialItems]);
+    const filteredItems = useMemo(() => applyFiltersAndSort(initialItems), [initialItems, applyFiltersAndSort]);
 
     const getColumnFilter = (type, name) => {
         switch (type) {

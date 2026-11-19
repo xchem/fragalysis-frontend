@@ -1,3 +1,4 @@
+import { useStructureOperationQueue } from './useStructureOperationQueue';
 import { useCallback, useContext, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { NglContext } from '../../components/nglView/nglProvider';
@@ -12,11 +13,12 @@ import {
   updateInToBeDisplayedListForDataset
 } from '../../components/datasets/redux/actions';
 import { generateHitProteinObject, generateMoleculeCompoundId } from '../../components/nglView/generatingObjects';
-import { deleteObject, loadObject, setOrientation } from './dispatchActions';
+import { deleteObject, loadObject } from './dispatchActions';
 import { base_url } from '../../components/routes/constants';
 
 export const useDisplayProteinRHS = () => {
   const dispatch = useDispatch();
+  const runStructureOperation = useStructureOperationQueue();
 
   const toBeDisplayedList = useSelector(state => state.datasetsReducers.toBeDisplayedList);
   const displayedProteins = useSelector(state => state.datasetsReducers.proteinLists);
@@ -32,23 +34,29 @@ export const useDisplayProteinRHS = () => {
       if (!data) return;
       const colourToggle = getRandomColor(data);
       const datasetID = proteinData.datasetID;
+      const moleculeId = generateMoleculeCompoundId(data);
+      const target = Object.assign(
+        { display_div: VIEWS.MAJOR_VIEW },
+        await dispatch(generateHitProteinObject(data, colourToggle, base_url, datasetID))
+      );
 
-      dispatch(appendProteinList(datasetID, generateMoleculeCompoundId(data)));
-      return dispatch(
-        loadObject({
-          target: Object.assign(
-            { display_div: VIEWS.MAJOR_VIEW },
-            await dispatch(generateHitProteinObject(data, colourToggle, base_url, datasetID))
-          ),
-          stage,
-          previousRepresentations: proteinData.representations,
-          orientationMatrix: null
-        })
-      ).then(() => {
+      dispatch(appendProteinList(datasetID, moleculeId));
+      try {
+        await dispatch(
+          loadObject({
+            target,
+            stage,
+            previousRepresentations: proteinData.representations,
+            orientationMatrix: null
+          })
+        );
         dispatch(
           updateInToBeDisplayedListForDataset(datasetID, { id: data.id, rendered: true, type: NGL_OBJECTS.PROTEIN })
         );
-      });
+      } catch {
+        dispatch(removeFromProteinList(datasetID, moleculeId));
+        dispatch(removeFromToBeDisplayedListForDataset(datasetID, { id: data.id, type: NGL_OBJECTS.PROTEIN }));
+      }
     },
     [allCompounds, dispatch, stage]
   );
@@ -61,7 +69,7 @@ export const useDisplayProteinRHS = () => {
       const datasetID = proteinData.datasetID;
       const colourToggle = getRandomColor(data);
 
-      dispatch(
+      await dispatch(
         deleteObject(
           Object.assign(
             { display_div: VIEWS.MAJOR_VIEW },
@@ -85,7 +93,7 @@ export const useDisplayProteinRHS = () => {
       true
     );
     toBeRemovedProteins?.forEach(data => {
-      removeProtein(data);
+      runStructureOperation(data, removeProtein);
     });
     const toBeDisplayedProteins = getToBeDisplayedStructuresDataset(
       toBeDisplayedList,
@@ -93,9 +101,9 @@ export const useDisplayProteinRHS = () => {
       NGL_OBJECTS.PROTEIN
     );
     toBeDisplayedProteins?.forEach(data => {
-      displayProtein(data);
+      runStructureOperation(data, displayProtein);
     });
-  }, [toBeDisplayedList, displayedProteins, displayProtein, dispatch, stage, removeProtein]);
+  }, [runStructureOperation, toBeDisplayedList, displayedProteins, displayProtein, dispatch, stage, removeProtein]);
 
   return {};
 };

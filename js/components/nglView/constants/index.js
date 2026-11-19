@@ -2,7 +2,8 @@ import { MAP_TYPE } from '../../../reducers/ngl/constants';
 
 export const BACKGROUND_COLOR = {
   black: 'black',
-  white: 'white'
+  white: 'white',
+  light: '#ededed'
 };
 
 export const NGL_PARAMS = {

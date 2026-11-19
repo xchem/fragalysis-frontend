@@ -174,17 +174,17 @@
         "navConfig": {
           "button": "Configure how the pose navigation arrows transfer displayed structures and settings.",
           "transferOrder": {
-            "removeFirst": "Launch removal of the old structures before adding the destination structures. In **phased** scheduling removal completes first; in **overlapped** scheduling additions start immediately after removals are launched.",
-            "addFirst": "Launch addition of the destination structures before removing the old structures. In **phased** scheduling rendering completes first; in **overlapped** scheduling removals start immediately after additions are launched. Shared structures with changed settings always remove before being re-added."
+            "removeFirst": "Start removing the old structures first. Phased scheduling completes removal before adding the destination; overlapped scheduling starts independent additions immediately.",
+            "addFirst": "Start adding the destination structures first. Phased scheduling waits for rendering before removing old structures; overlapped scheduling starts independent removals immediately. Shared structures with changed settings always remove before being re-added."
           },
           "scheduling": {
-            "overlapped": "Run independent addition and removal work concurrently. Transfer order controls which operation group is attempted first, without waiting before launching the second group.",
-            "phased": "Complete the selected first phase before starting the second phase. This gives strict add-first or remove-first behavior but may feel slower."
+            "overlapped": "Run independent additions and removals concurrently. Transfer order chooses which group starts first.",
+            "phased": "Complete the first phase before starting the second, following the selected transfer order."
           },
           "centering": {
-            "none": "Leave the NGL camera unchanged after the destination structures finish rendering.",
-            "designLigand": "After rendering, center the NGL view on the ligand of the destination design pose/virtual observation, just like using its target icon. If that ligand is not displayed, do nothing.",
-            "visibleLigandCentroid": "After rendering, center the NGL view on the equally weighted average of the individual centers of the displayed destination design and inspiration ligands. If only one group is displayed, center on that group; if no destination ligand is displayed, do nothing."
+            "none": "Keep the viewer camera unchanged after transfer.",
+            "designLigand": "After rendering, center on the ligand of the destination design pose (virtual observation), as with its target icon. If it is not displayed, keep the camera unchanged.",
+            "visibleLigandCentroid": "After rendering, center between the displayed destination design and inspiration ligands, giving each ligand equal weight. Fit the group and show its widest separation horizontally. If only one ligand is displayed, focus it; if none are displayed, keep the camera unchanged."
           }
         },
         "filterSettings": {
@@ -266,6 +266,9 @@
         "companyContributor": "{{companyTitle}}"
       },
       "menu": "Open main menu",
+      "drawer": {
+        "whatCanISee": "List the target access strings (TAS) available to your account"
+      },
       "targetSettings": "Open target settings",
       "saveSnapshot": "Save snapshot",
       "shareSnapshot": "Share current view",
@@ -288,6 +291,12 @@
       "cmd": "{{companyTitle}}"
     },
     "components": {
+      "accessDialog": {
+        "whoCanSeeMe": "Who can see this data",
+        "missingTas": "Access information is unavailable because this target has no TAS",
+        "retry": "Retry loading access information",
+        "close": "Close access information"
+      },
       "filterWrapper": {
         "openFilter": "Open {{title}}",
         "closeFilter": "Close filter",

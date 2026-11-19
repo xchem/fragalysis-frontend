@@ -1,11 +1,12 @@
 import ViewerAdapter from './ViewerAdapter';
-import { Matrix4, Quaternion, Shape, Stage, Vector3 } from 'ngl';
+import { Box3, Matrix4, Quaternion, Shape, Stage, Vector3 } from 'ngl';
 import { nglObjectDictionary } from '../components/nglView/renderingObjects';
+import { DENSITY_MAPS, OBJECT_TYPE } from '../components/nglView/constants';
 import { PREFIX } from '../constants/constants';
+import { copyRepresentationState } from './representationState';
+import { getMoorhenLigandFocus } from './moorhenAdapterUtils';
 
 const adaptersByStage = new WeakMap();
-const MULTI_OBJECT_ZOOM_FACTOR = 0.9;
-const MIN_AXIS_LENGTH_SQUARED = 1e-8;
 
 const toCoordinateArray = value => {
   if (Array.isArray(value)) {
@@ -29,6 +30,12 @@ export class NglViewerAdapter extends ViewerAdapter {
     this.pickHandlers = new Map();
     this.clickHandlers = new Map();
     this.orientationHandlers = new Set();
+    this.objectOperations = new Map();
+    this.objectOwners = new Map();
+    this.componentsByOwner = new Map();
+    this.disposedComponents = new WeakSet();
+    this.destroyed = false;
+    stage.viewerAdapter = this;
     adaptersByStage.set(stage, this);
   }
 
@@ -44,12 +51,90 @@ export class NglViewerAdapter extends ViewerAdapter {
     return this.stage;
   }
 
+  enqueueObject(name, operation) {
+    const previous = this.objectOperations.get(name);
+    const pending = Promise.resolve(previous)
+      .catch(() => undefined)
+      .then(operation);
+    this.objectOperations.set(name, pending);
+    const clear = () => {
+      if (this.objectOperations.get(name) === pending) this.objectOperations.delete(name);
+    };
+    pending.then(clear, clear);
+    return pending;
+  }
+
+  waitForTasks(counter = this.stage.tasks) {
+    return counter?.count > 0 ? new Promise(resolve => counter.onZeroOnce(resolve)) : Promise.resolve();
+  }
+
+  async waitForComponents(components) {
+    // The stage counter includes unrelated coordinate loads and representations.
+    // Waiting for it here prevents downloaded ligands from appearing incrementally.
+    // Include NGL's hidden measurement representations when draining an object.
+    const objects = Array.from(components);
+    while (true) {
+      const counters = new Set(
+        objects
+          .flatMap(component => [...(component.reprList || []), ...(component.measureRepresentations?.list || [])])
+          .map(representation => representation.repr?.tasks)
+          .filter(counter => counter?.count > 0)
+      );
+      if (counters.size === 0) return;
+      await Promise.all(Array.from(counters, counter => this.waitForTasks(counter)));
+    }
+  }
+
   loadObject(options) {
     const renderer = options?.target && nglObjectDictionary[options.target.OBJECT_TYPE];
     if (!renderer) {
       return Promise.reject(new Error(`Unsupported viewer object type: ${options?.target?.OBJECT_TYPE}`));
     }
-    return renderer({ ...options, stage: this.stage });
+    if (this.destroyed) return Promise.reject(new Error('The NGL viewer has been destroyed'));
+    const name = options.object_name;
+    if (options.target.OBJECT_TYPE === OBJECT_TYPE.DENSITY) {
+      [DENSITY_MAPS.SIGMAA, DENSITY_MAPS.DIFF].forEach(suffix => this.objectOwners.set(name + suffix, name));
+    }
+    return this.enqueueObject(name, async () => {
+      await this.disposeOwnedObjects(name);
+      const owned = new Set();
+      this.componentsByOwner.set(name, owned);
+      // Track temporary protein/ligand components as well as all maps and quality
+      // shapes. A logical removal must drain loads before disposing their buffers.
+      const stage = Object.create(this.stage);
+      stage.pendingLoads = [];
+      stage.loadFile = async (...args) => {
+        const pending = this.stage.loadFile(...args).then(component => {
+          owned.add(component);
+          return component;
+        });
+        stage.pendingLoads.push(pending);
+        return pending;
+      };
+      stage.addComponentFromObject = (...args) => {
+        const component = this.stage.addComponentFromObject(...args);
+        owned.add(component);
+        return component;
+      };
+      try {
+        const representations = await renderer({ ...options, stage });
+        await this.waitForComponents(owned);
+        for (const component of owned) {
+          if (component.name !== name && this.objectOwners.get(component.name) !== name) {
+            this.disposeComponent(component);
+            owned.delete(component);
+          }
+        }
+        return options.target.OBJECT_TYPE === OBJECT_TYPE.DENSITY
+          ? representations.map(item => ({ name: item.name, repr: item.repr.map(copyRepresentationState) }))
+          : representations?.map(copyRepresentationState);
+      } catch (error) {
+        // Parallel coordinate loads may still finish after one rejects.
+        await Promise.allSettled(Array.from(stage.pendingLoads || []));
+        await this.disposeOwnedObjects(name);
+        throw error;
+      }
+    });
   }
 
   loadMolecule(source, options) {
@@ -95,14 +180,16 @@ export class NglViewerAdapter extends ViewerAdapter {
       uuid: representation.uuid,
       type,
       params: representation.getParameters(),
-      templateParams: representation.repr.parameters
+      templateParams: representation.repr.parameters,
+      ready: this.waitForTasks(representation.repr?.tasks || null)
     };
   }
 
   getRepresentation(component, representation) {
-    return this.getRepresentations(component).find(
-      item => item.uuid === representation.uuid || item.uuid === representation.lastKnownID
-    );
+    if (!component) return undefined;
+    return [...new Set([component, ...this.getObjects(component.name)])]
+      .flatMap(item => this.getRepresentations(item))
+      .find(item => item.uuid === representation.uuid || item.uuid === representation.lastKnownID);
   }
 
   getRepresentations(component) {
@@ -124,7 +211,8 @@ export class NglViewerAdapter extends ViewerAdapter {
   }
 
   setRepresentationParameters(representation, parameters) {
-    return representation.setParameters(parameters);
+    representation.setParameters(parameters);
+    return { ready: this.waitForTasks(representation.repr?.tasks || null) };
   }
 
   removeRepresentation(component, representation) {
@@ -147,118 +235,151 @@ export class NglViewerAdapter extends ViewerAdapter {
     return selection === undefined ? component.autoView() : component.autoView(selection);
   }
 
-  centerOnObjects(components) {
-    const uniqueComponents = [...new Set((components || []).filter(Boolean))];
-
-    if (!uniqueComponents.length) {
-      return false;
-    }
-    if (uniqueComponents.length === 1) {
-      this.centerOn(uniqueComponents[0]);
+  centerOnObjects(components = []) {
+    // Use NGL's displayed (world-space) geometry, just like the individual target icon.
+    const ligands = [...new Set(components.filter(Boolean))]
+      .map(component => ({ component, center: component.getCenter?.(), box: component.getBox?.() }))
+      .filter(({ center, box }) =>
+        center && box && !box.isEmpty() &&
+        [...center.toArray(), ...box.min.toArray(), ...box.max.toArray()].every(Number.isFinite)
+      );
+    if (!ligands.length) return false;
+    if (ligands.length === 1) {
+      this.centerOn(ligands[0].component);
       return true;
     }
-
-    const componentGeometry = uniqueComponents
-      .map(component => ({
-        component,
-        box: component.getBox?.(),
-        center: component.getCenter?.()
-      }))
-      .filter(
-        ({ box, center }) =>
-          box &&
-          center &&
-          [center.x, center.y, center.z].every(coordinate => Number.isFinite(coordinate))
-      );
-
-    if (!componentGeometry.length) {
-      return false;
-    }
-    if (componentGeometry.length === 1) {
-      this.centerOn(componentGeometry[0].component);
-      return true;
-    }
-
-    // Each displayed ligand contributes one center, regardless of its atom count.
-    const center = new Vector3();
-    componentGeometry.forEach(item => center.add(item.center));
-    center.divideScalar(componentGeometry.length);
-
-    const box = componentGeometry[0].box.clone();
-    componentGeometry.slice(1).forEach(item => box.union(item.box));
-
-    // Make the fitting box symmetric around the equal-weight center so the camera is
-    // centered on that point while still zooming far enough to include every ligand.
-    const radius = {
-      x: Math.max(Math.abs(box.min.x - center.x), Math.abs(box.max.x - center.x)),
-      y: Math.max(Math.abs(box.min.y - center.y), Math.abs(box.max.y - center.y)),
-      z: Math.max(Math.abs(box.min.z - center.z), Math.abs(box.max.z - center.z))
-    };
-    box.min.set(center.x - radius.x, center.y - radius.y, center.z - radius.z);
-    box.max.set(center.x + radius.x, center.y + radius.y, center.z + radius.z);
-
-    const zoom = this.stage.getZoomForBox(box) * MULTI_OBJECT_ZOOM_FACTOR;
-    const currentOrientation = this.getOrientation();
-    let widestAxis = null;
-    let widestAxisLengthSquared = 0;
-
-    for (let firstIndex = 0; firstIndex < componentGeometry.length - 1; firstIndex++) {
-      for (let secondIndex = firstIndex + 1; secondIndex < componentGeometry.length; secondIndex++) {
-        const axis = new Vector3().subVectors(
-          componentGeometry[secondIndex].center,
-          componentGeometry[firstIndex].center
-        );
-        const axisLengthSquared = axis.lengthSq();
-
-        if (axisLengthSquared > widestAxisLengthSquared) {
-          widestAxis = axis;
-          widestAxisLengthSquared = axisLengthSquared;
-        }
-      }
-    }
-
-    if (
-      widestAxisLengthSquared > MIN_AXIS_LENGTH_SQUARED &&
-      typeof currentOrientation?.decompose === 'function'
-    ) {
-      const currentPosition = new Vector3();
-      const currentRotation = new Quaternion();
-      const currentScale = new Vector3();
-      currentOrientation.decompose(currentPosition, currentRotation, currentScale);
-
-      // Apply the smallest additional rotation that puts the widest ligand separation
-      // on the horizontal screen axis. This avoids looking along the separation axis,
-      // where distinct ligands can overlap in projection.
-      const currentViewAxis = widestAxis.clone().normalize().applyQuaternion(currentRotation);
-      const presentationRotation = new Quaternion()
-        .setFromUnitVectors(currentViewAxis, new Vector3(1, 0, 0))
-        .multiply(currentRotation);
-      const orientation = new Matrix4().compose(
-        center.clone().negate(),
-        presentationRotation,
-        new Vector3(-zoom, -zoom, -zoom)
-      );
-
-      this.stage.animationControls.orient(orientation, 0);
-    } else {
-      this.stage.animationControls.zoomMove(center, zoom, 0);
-    }
+    const current = new Matrix4().fromArray(this.getOrientation().elements);
+    const position = new Vector3();
+    const rotation = new Quaternion();
+    const scale = new Vector3();
+    current.decompose(position, rotation, scale);
+    const focus = getMoorhenLigandFocus(ligands.map(({ center }) => [center]), rotation.toArray());
+    const center = new Vector3().fromArray(focus.origin).negate();
+    const bounds = new Box3();
+    ligands.forEach(({ box }) => bounds.union(box));
+    // Fit around the equal-weight center (not the union box's midpoint), with
+    // the slightly tighter zoom used by the original NGL pose navigator.
+    const extent = center.clone().sub(bounds.min).max(bounds.max.clone().sub(center));
+    bounds.set(center.clone().sub(extent), center.clone().add(extent));
+    const distance = -this.stage.getZoomForBox(bounds) * 0.9;
+    const matrix = new Matrix4().compose(
+      center.negate(),
+      new Quaternion().fromArray(focus.quat4),
+      new Vector3(distance, distance, distance)
+    );
+    this.setOrientation(matrix.elements);
     return true;
   }
 
+  normaliseOrientation(orientation) {
+    const elements = orientation?.elements || orientation;
+    if (elements?.length === 16) return new Matrix4().fromArray(elements);
+    if (elements?.length === 8 || orientation?.quat4) {
+      const quat = orientation.quat4 || Array.from(elements).slice(0, 4);
+      const origin = orientation.origin || Array.from(elements).slice(4, 7);
+      const zoom = orientation.zoom ?? elements[7];
+      // Match Moorhen's 48-Angstrom orthographic view height to NGL's
+      // perspective field of view; a Moorhen zoom is never a camera distance.
+      const fov = this.stage.viewer?.perspectiveCamera?.fov || 40;
+      const distance = (24 * zoom) / Math.tan((fov * Math.PI) / 360);
+      return new Matrix4().compose(
+        new Vector3().fromArray(origin),
+        new Quaternion().fromArray(quat),
+        new Vector3(distance, distance, distance)
+      );
+    }
+    throw new TypeError('Unsupported viewer orientation');
+  }
+
   setOrientation(orientation) {
-    return this.stage.viewerControls.orient(orientation);
+    this.orientationAnimation?.finish('cancelled');
+    this.stage.animationControls.clear?.();
+    return this.stage.viewerControls.orient(this.normaliseOrientation(orientation).elements);
   }
 
   getOrientation() {
     return this.stage.viewerControls.getOrientation();
   }
 
-  animateOrientation(orientation, duration) {
-    return this.stage.animationControls.orient(orientation, duration);
+  animateOrientation(orientation, duration = 400, { signal } = {}) {
+    this.orientationAnimation?.finish('cancelled');
+    if (this.destroyed) return Promise.resolve({ status: 'destroyed' });
+    if (signal?.aborted) return Promise.resolve({ status: 'cancelled' });
+    const startPosition = new Vector3();
+    const startRotation = new Quaternion();
+    const startScale = new Vector3();
+    new Matrix4().fromArray(this.getOrientation().elements).decompose(startPosition, startRotation, startScale);
+    const endPosition = new Vector3();
+    const endRotation = new Quaternion();
+    const endScale = new Vector3();
+    const destination = this.normaliseOrientation(orientation);
+    destination.decompose(endPosition, endRotation, endScale);
+    const unchanged = this.getOrientation().elements.every(
+      (value, i) => Math.abs(value - destination.elements[i]) < 1e-6
+    );
+    this.stage.animationControls.clear?.();
+    const canvas = this.getRendererElement();
+    return new Promise((resolve, reject) => {
+      let frameId;
+      let startTime;
+      let finished = false;
+      const abort = () => finish('cancelled');
+      const interrupt = () => finish('interrupted');
+      const finish = (status, error) => {
+        if (finished) return;
+        finished = true;
+        cancelAnimationFrame(frameId);
+        signal?.removeEventListener('abort', abort);
+        ['pointerdown', 'wheel', 'keydown'].forEach(event => canvas?.removeEventListener?.(event, interrupt, true));
+        this.orientationAnimation = null;
+        if (error) reject(error);
+        else resolve({ status });
+      };
+      const frame = time => {
+        if (finished) return;
+        try {
+          if (startTime == null) startTime = time;
+          const progress = unchanged || duration <= 0 ? 1 : Math.min(1, (time - startTime) / duration);
+          const eased = progress * progress * (3 - 2 * progress);
+          const matrix = new Matrix4().compose(
+            startPosition.clone().lerp(endPosition, eased),
+            startRotation.clone().slerp(endRotation, eased),
+            startScale.clone().lerp(endScale, eased)
+          );
+          this.stage.viewerControls.orient(matrix.elements);
+          if (progress === 1) finish('completed');
+          else frameId = requestAnimationFrame(frame);
+        } catch (error) {
+          finish('failed', error);
+        }
+      };
+      this.orientationAnimation = { finish };
+      signal?.addEventListener('abort', abort);
+      ['pointerdown', 'wheel', 'keydown'].forEach(event => canvas?.addEventListener?.(event, interrupt, true));
+      frameId = requestAnimationFrame(frame);
+    });
+  }
+
+  prepareInitialView() {
+    return (
+      !this.destroyed && !this.orientationAnimation && this.objectOperations.size === 0 && this.getTaskCount() === 0
+    );
   }
 
   setParameters(parameters) {
+    // Stage.setParameters replays clipping, fog, camera, sampling and lighting
+    // even for a single color. Keep its public parameter record and signal in sync.
+    if (parameters?.backgroundColor != null && Object.keys(parameters).length === 1) {
+      const { stage } = this;
+      const { fogColor, backgroundColor } = stage.viewer.parameters;
+      // NGL normally blends fog into the backdrop. Keep an independently tinted fog.
+      const fogTint = fogColor.equals(backgroundColor) ? null : fogColor.clone();
+      stage.parameters.backgroundColor = parameters.backgroundColor;
+      stage.viewer.setBackground(parameters.backgroundColor);
+      if (fogTint) stage.viewer.setFog(fogTint);
+      stage.signals.parametersChanged.dispatch(stage.getParameters());
+      return stage;
+    }
     return this.stage.setParameters(parameters);
   }
 
@@ -365,12 +486,48 @@ export class NglViewerAdapter extends ViewerAdapter {
     }
   }
 
-  removeObject(component) {
-    return this.stage.removeComponent(component);
+  disposeComponent(component) {
+    if (!component || this.disposedComponents.has(component)) return;
+    this.disposedComponents.add(component);
+    this.stage.removeComponent(component);
   }
 
-  removeAll() {
-    return this.stage.removeAllComponents();
+  async disposeOwnedObjects(name) {
+    const objects = new Set([...(this.componentsByOwner.get(name) || []), ...this.getObjects(name)]);
+    await this.waitForComponents(objects);
+    objects.forEach(component => this.disposeComponent(component));
+    this.componentsByOwner.delete(name);
+  }
+
+  removeObject(component) {
+    return this.enqueueObject(this.objectOwners.get(component.name) || component.name, async () => {
+      await this.waitForComponents([component]);
+      this.disposeComponent(component);
+      this.componentsByOwner.forEach(owned => owned.delete(component));
+    });
+  }
+
+  removeObjects(name) {
+    const owner = this.objectOwners.get(name) || name;
+    return this.enqueueObject(owner, async () => {
+      if (owner === name) await this.disposeOwnedObjects(name);
+      else {
+        const components = this.getObjects(name);
+        await this.waitForComponents(components);
+        components.forEach(component => {
+          this.disposeComponent(component);
+          this.componentsByOwner.get(owner)?.delete(component);
+        });
+      }
+    });
+  }
+
+  async removeAll() {
+    await Promise.allSettled(Array.from(this.objectOperations.values()));
+    await this.waitForTasks();
+    this.stage.removeAllComponents();
+    this.componentsByOwner.clear();
+    this.objectOwners.clear();
   }
 
   captureImage(options) {
@@ -381,10 +538,18 @@ export class NglViewerAdapter extends ViewerAdapter {
   }
 
   destroy() {
+    if (this.destroyPromise) return this.destroyPromise;
+    this.destroyed = true;
+    this.orientationAnimation?.finish('destroyed');
     Array.from(this.pickHandlers.keys()).forEach(handler => this.removePickHandler(handler));
     Array.from(this.clickHandlers.keys()).forEach(handler => this.removeClickHandler(handler));
     Array.from(this.orientationHandlers).forEach(handler => this.removeOrientationChangeHandler(handler));
-    return this.stage.dispose();
+    this.destroyPromise = this.removeAll().then(() => {
+      delete this.stage.viewerAdapter;
+      adaptersByStage.delete(this.stage);
+      this.stage.dispose();
+    });
+    return this.destroyPromise;
   }
 }
 

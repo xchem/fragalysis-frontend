@@ -14,6 +14,7 @@ import { MouseControls } from './mouseControls';
 import { NglContext } from '../../nglView/nglProvider';
 import { turnSide } from './redux/actions';
 import RichTooltip from '../../tooltip/RichTooltip';
+import { BackgroundColorToggle } from './BackgroundColorToggle';
 
 const drawers = {
   settings: 'settings',
@@ -91,6 +92,7 @@ export const ViewerControls = memo(() => {
             </RichTooltip>
             <RichTooltip path="display">
               <Button
+                aria-label="Display controls"
                 size="small"
                 color="primary"
                 onClick={() => openDrawer(drawers.display)}
@@ -105,6 +107,7 @@ export const ViewerControls = memo(() => {
               </Button>
             </RichTooltip>
           </ButtonGroup>
+          <BackgroundColorToggle showLabel />
         </div>
 
         <RichTooltip path={sidesOpen.RHS ? 'rhs.close' : 'rhs.open'}>

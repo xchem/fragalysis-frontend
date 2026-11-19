@@ -1,3 +1,4 @@
+import { useStructureOperationQueue } from './useStructureOperationQueue';
 import { useCallback, useContext, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { NGL_OBJECTS } from './constants';
@@ -11,13 +12,13 @@ import { generateMoleculeId, generateSurfaceObject } from '../../components/nglV
 import { VIEWS } from '../../constants/constants';
 import { NglContext } from '../../components/nglView/nglProvider';
 import { getRandomColor } from '../../components/preview/molecule/utils/color';
-import { deleteObject, loadObject, setOrientation } from './dispatchActions';
+import { deleteObject, loadObject } from './dispatchActions';
 import { base_url } from '../../components/routes/constants';
 import { getToBeDisplayedStructures } from './utils';
-import { use } from 'react';
 
 export const useDisplaySurfaceLHS = () => {
   const dispatch = useDispatch();
+  const runStructureOperation = useStructureOperationQueue();
 
   const toBeDisplayedList = useSelector(state => state.selectionReducers.toBeDisplayedList);
   const displayedSurfaces = useSelector(state => state.selectionReducers.surfaceList);
@@ -31,22 +32,28 @@ export const useDisplaySurfaceLHS = () => {
       const data = allObservations.find(obs => obs.id === surfaceData.id);
       if (!data) return;
       const colourToggle = getRandomColor(data);
+      const moleculeId = generateMoleculeId(data);
+      const target = Object.assign(
+        { display_div: VIEWS.MAJOR_VIEW },
+        await dispatch(generateSurfaceObject(data, colourToggle, base_url))
+      );
 
-      dispatch(appendSurfaceList(generateMoleculeId(data)));
-      return dispatch(
-        loadObject({
-          target: Object.assign(
-            { display_div: VIEWS.MAJOR_VIEW },
-            await dispatch(generateSurfaceObject(data, colourToggle, base_url))
-          ),
-          stage,
-          previousRepresentations: surfaceData.representations,
-          orientationMatrix: null,
-          preserveColour: surfaceData.preserveColour
-        })
-      ).then(() => {
+      dispatch(appendSurfaceList(moleculeId));
+      try {
+        await dispatch(
+          loadObject({
+            target,
+            stage,
+            previousRepresentations: surfaceData.representations,
+            orientationMatrix: null,
+            preserveColour: surfaceData.preserveColour
+          })
+        );
         dispatch(updateInToBeDisplayedList({ id: data.id, rendered: true, type: NGL_OBJECTS.SURFACE }));
-      });
+      } catch {
+        dispatch(removeFromSurfaceList(moleculeId));
+        dispatch(removeFromToBeDisplayedList({ id: data.id, type: NGL_OBJECTS.SURFACE }));
+      }
     },
     [allObservations, dispatch, stage]
   );
@@ -57,7 +64,7 @@ export const useDisplaySurfaceLHS = () => {
       if (!data) return;
       const colourToggle = getRandomColor(data);
 
-      dispatch(
+      await dispatch(
         deleteObject(
           Object.assign(
             { display_div: VIEWS.MAJOR_VIEW },
@@ -76,7 +83,7 @@ export const useDisplaySurfaceLHS = () => {
   useEffect(() => {
     const toBeDisplayedSurfaces = getToBeDisplayedStructures(toBeDisplayedList, displayedSurfaces, NGL_OBJECTS.SURFACE);
     toBeDisplayedSurfaces?.forEach(data => {
-      displaySurface(data);
+      runStructureOperation(data, displaySurface);
     });
 
     const toBeRemovedSurfaces = getToBeDisplayedStructures(
@@ -86,9 +93,9 @@ export const useDisplaySurfaceLHS = () => {
       true
     );
     toBeRemovedSurfaces?.forEach(data => {
-      removeSurface(data);
+      runStructureOperation(data, removeSurface);
     });
-  }, [toBeDisplayedList, displaySurface, dispatch, stage, removeSurface, displayedSurfaces]);
+  }, [runStructureOperation, toBeDisplayedList, displaySurface, dispatch, stage, removeSurface, displayedSurfaces]);
 
   return {};
 };

@@ -4,11 +4,9 @@ import {
   createRepresentationsArray,
   createRepresentationStructure
 } from '../../viewer/ngl/representationHelpers';
-import { Shape, Matrix4, MeshBuffer } from 'ngl';
+import { Shape, MeshBuffer, Vector3 } from 'ngl';
 import { refmesh } from './constants/mesh';
-import { addToQualityCache } from '../../reducers/ngl/actions';
 import { hexToRgb } from '../../utils/colors';
-import * as THREE from 'three';
 import { QUALITY_TYPES } from './constants/index';
 
 const drawStripyBond = (atom_a, atom_b, color_a, color_b, label, size = 0.1, shape, alt) => {
@@ -69,9 +67,6 @@ export const loadQualityFromFile = async (
     for (var key in atom_info) {
       atom_info_array.push(key.split('|')[0]);
     }
-    if (qualityType === QUALITY_TYPES.LIGAND) {
-      comp.autoView();
-    }
 
     // Draw Good Atoms + Bonds
     const repr2 = createRepresentationStructure(MOL_REPRESENTATION.ballPlusStick, {
@@ -91,7 +86,7 @@ export const loadQualityFromFile = async (
     let m = bonds.atomIndex2;
     let order = bonds.bondOrder;
 
-    const vShift = new THREE.Vector3();
+    const vShift = new Vector3();
     const absOffset = (1 - 0.4) * 0.3; // .2 works swell - this needs better defining
     comp.object.getBondProxy().calculateShiftDir(vShift);
     vShift.multiplyScalar(absOffset);
@@ -156,7 +151,6 @@ export const loadQualityFromFile = async (
       }
     });
 
-    stage.addComponentFromObject(shape, { isShape: true });
     for (let badIndex in badids) {
       let id = badids[badIndex];
       let comment = badcomments.length > badIndex ? badcomments[badIndex] : '';
@@ -202,10 +196,11 @@ export const loadQualityFromFile = async (
         });
 
         shape.addBuffer(meshBuffer);
-        var shapeComp = stage.addComponentFromObject(shape);
-        shapeComp.addRepresentation(MOL_REPRESENTATION_BUFFER, { isShape: true });
       }
     }
+
+    const shapeComp = stage.addComponentFromObject(shape);
+    shapeComp.addRepresentation(MOL_REPRESENTATION_BUFFER, { isShape: true });
 
     // if (!skipOrientation) {
     //   if (orientationMatrix && orientationMatrix.elements) {
@@ -226,142 +221,3 @@ export const loadQualityFromFile = async (
     return assignRepresentationArrayToComp(reprArray, comp);
   });
 };
-
-export const readQualityInformation = (name, text) => (dispatch, getState) => {
-  const state = getState();
-  const qualityCache = state.nglReducers.qualityCache;
-  let qualityInformation = {};
-
-  if (qualityCache.hasOwnProperty(name)) {
-    qualityInformation = qualityCache[name];
-  } else {
-    qualityInformation = loadQualityInformation(text);
-    dispatch(addToQualityCache(name, qualityInformation));
-  }
-  return qualityInformation;
-};
-
-const loadQualityInformation = text => {
-  let badidsRegex = /[\n\r].*<BADATOMS>\s*([^\n\r]*)/;
-  let badcommentsRegex = /[\n\r].*<BADCOMMENTS>\s*([^\n\r]*)/;
-  let badatomsnamesRegex = /[\n\r].*<BADATOMNAMES>\s*([^\n\r]*)/;
-  let getfirstNumberRegex = /^[^\d]*(\d+)/;
-  let badidsRegexResult = badidsRegex.exec(text);
-  let badcommentsRegexResult = badcommentsRegex.exec(text);
-  let badatomsnamesRegexResult = badatomsnamesRegex.exec(text);
-
-  let badidsValue =
-    badidsRegexResult != null && badidsRegexResult && badidsRegexResult.length > 1 ? badidsRegexResult[1] : '';
-  let badcommentsValue =
-    badcommentsRegexResult != null && badcommentsRegexResult && badcommentsRegexResult.length > 1
-      ? badcommentsRegexResult[1]
-      : '';
-  let badatomsnamesValue =
-    badatomsnamesRegexResult != null && badatomsnamesRegexResult && badatomsnamesRegexResult.length > 1
-      ? badatomsnamesRegexResult[1]
-      : '';
-
-  let badidsAll = badidsValue === '' ? [] : badidsValue.split(';').map(x => parseInt(x));
-  let badcommentsAll = badcommentsValue === '' ? [] : badcommentsValue.split(';');
-  let badatomsnamesAll = badatomsnamesValue === '' ? [] : badatomsnamesValue.split(';');
-  let goodidsAll = readGoodAtomsFromFile(text, badidsAll);
-
-  let allAtomsCount = badidsAll?.length + goodidsAll?.length;
-
-  let goodids = [];
-  let badids = [];
-  let badcomments = [];
-  let badatomsnames = [];
-
-  let goodproteinids = [];
-  let badproteinids = [];
-  let badproteincomments = [];
-  let badproteinatomnames = [];
-
-  if (badatomsnamesAll.length > 0) {
-    // for (let i = 0; i < badatomsnamesAll?.length; i++) {
-    //   let atomName = badatomsnamesAll[i];
-    //   if (atomName.startsWith('[HET]')) {
-    //     badproteinids.push(badidsAll[i]);
-    //     badproteinatomnames.push(badatomsnamesAll[i]);
-    //     badproteincomments.push(badcommentsAll[i]);
-    //   } else {
-    //     if (atomName.startsWith('[')) {
-    //       atomName = atomName.split(']');
-    //       atomName = atomName && atomName.length > 1 ? atomName[1] : '';
-    //     }
-    //     let atomNumber = atomName.split('.');
-    //     atomNumber = atomNumber && atomNumber.length > 1 ? atomNumber[1] : '0';
-    //     atomNumber = parseInt(atomNumber);
-    //     if (atomNumber > allAtomsCount) {
-    //       badproteinids.push(badidsAll[i]);
-    //       badproteinatomnames.push(badatomsnamesAll[i]);
-    //       badproteincomments.push(badcommentsAll[i]);
-    //     } else {
-    //       badids.push(badidsAll[i]);
-    //       badatomsnames.push(badatomsnamesAll[i]);
-    //       badcomments.push(badcommentsAll[i]);
-    //     }
-    //   }
-    // }
-
-    for (let i = 0; i < badatomsnamesAll?.length; i++) {
-      let atomName = badatomsnamesAll[i];
-      if (!atomName.startsWith('[HET]') /*|| atomName.startsWith('[MET]')*/) {
-        badproteinids.push(badidsAll[i]);
-        badproteinatomnames.push(badatomsnamesAll[i]);
-        badproteincomments.push(badcommentsAll[i]);
-      } else {
-        let firstNumberRegexResult = getfirstNumberRegex.exec(atomName);
-        let atomNumber =
-          firstNumberRegexResult != null && firstNumberRegexResult && firstNumberRegexResult.length > 1
-            ? firstNumberRegexResult[1]
-            : '';
-        if (atomNumber > allAtomsCount) {
-          badproteinids.push(badidsAll[i]);
-          badproteinatomnames.push(badatomsnamesAll[i]);
-          badproteincomments.push(badcommentsAll[i]);
-        } else {
-          badids.push(badidsAll[i]);
-          badatomsnames.push(badatomsnamesAll[i]);
-          badcomments.push(badcommentsAll[i]);
-        }
-      }
-    }
-
-    goodids = readGoodAtomsFromFile(text, badids);
-    goodproteinids = readGoodAtomsFromFile(text, badproteinids);
-  } else {
-    goodids = goodidsAll;
-    badids = badidsAll;
-    badcomments = badcommentsAll;
-    badatomsnames = badatomsnamesAll;
-  }
-
-  return {
-    goodids,
-    badids,
-    badcomments,
-    badatomsnames,
-    goodproteinids,
-    badproteinids,
-    badproteincomments,
-    badproteinatomnames
-  };
-};
-
-function readGoodAtomsFromFile(text, badids) {
-  if (badids && badids.length > 0) {
-    var regexp = /[CSONF]/g;
-    var match,
-      matches = [];
-    while ((match = regexp.exec(text)) != null) {
-      matches.push(match[0]);
-    }
-    var idx = [...Array(matches.length).keys()];
-    let diff = idx.filter(x => !badids.includes(x));
-    return diff;
-  } else {
-    return [];
-  }
-}

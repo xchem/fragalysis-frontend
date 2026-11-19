@@ -17,7 +17,6 @@ import {
   getCategoriesToBeRemovedFromTagDetails
 } from '../utils/tagUtils';
 import { UnfoldMore, KeyboardArrowDown, KeyboardArrowUp } from '@mui/icons-material';
-import { getMoleculeForId } from '../redux/dispatchActions';
 import classNames from 'classnames';
 import SearchField from '../../../common/Components/SearchField';
 import { setPanelsExpanded } from '../../../../reducers/layout/actions';
@@ -134,6 +133,20 @@ const useStyles = makeStyles(theme => ({
   }
 }));
 
+const TagModeSwitch = withStyles({
+  switchBase: {
+    color: blue[300],
+    '&$checked': {
+      color: blue[500]
+    },
+    '&$checked + $track': {
+      backgroundColor: blue[500]
+    }
+  },
+  checked: {},
+  track: {}
+})(Switch);
+
 const TagDetails = memo(
   ({
     expandHandler = null,
@@ -203,12 +216,17 @@ const TagDetails = memo(
     }, [panelLayoutItemName, preTagList, tagCategories]);
 
     const moleculesToEditIds = useSelector(state => state.selectionReducers.moleculesToEdit);
-    const moleculesToEdit =
-      moleculesToEditIds &&
-      moleculesToEditIds.length > 0 &&
-      !(moleculesToEditIds.length === 1 && moleculesToEditIds[0] === null)
-        ? moleculesToEditIds.map(id => dispatch(getMoleculeForId(id)))
-        : [];
+    const allMolecules = useSelector(state => state.apiReducers.all_mol_lists);
+    const moleculesToEdit = useMemo(() => {
+      if (!moleculesToEditIds?.length || (moleculesToEditIds.length === 1 && moleculesToEditIds[0] === null)) {
+        return [];
+      }
+      const byId = new Map();
+      allMolecules.forEach(molecule => {
+        if (!Number.isNaN(molecule.id) && !byId.has(molecule.id)) byId.set(molecule.id, molecule);
+      });
+      return moleculesToEditIds.map(id => byId.get(id));
+    }, [allMolecules, moleculesToEditIds]);
 
     /*const moleculesToEditIds = useSelector(state => state.selectionReducers.moleculesToEdit);
   const [moleculesToEdit, setMoleculesToEdit] = useState([]);
@@ -303,24 +321,6 @@ const TagDetails = memo(
     const viewModeSwitched = () => {
       onTagDetailViewChange(!tagDetailView);
     };
-
-    const TagModeSwitch = withStyles({
-      // '& .MuiFormControlLabel-root': {
-      //   marginLeft: '0px',
-      //   marginRight: '0px'
-      // },
-      switchBase: {
-        color: blue[300],
-        '&$checked': {
-          color: blue[500]
-        },
-        '&$checked + $track': {
-          backgroundColor: blue[500]
-        }
-      },
-      checked: {},
-      track: {}
-    })(Switch);
 
     const handleAllMoleculesButton = () => {
       onDisplayUntaggedMoleculesChange(false);

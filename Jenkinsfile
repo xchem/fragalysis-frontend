@@ -39,6 +39,7 @@ pipeline {
     stage('Build') {
       steps {
         sh 'yarn build'
+        sh 'yarn verify:moorhen-assets'
       }
     }
 

@@ -1,11 +1,6 @@
 import configureStore from 'redux-mock-store';
 import { thunk } from 'redux-thunk';
-import {
-  centerOnLigandsByMoleculeIDs,
-  deleteObject,
-  loadObject,
-  setOrientation
-} from './dispatchActions';
+import { centerOnLigandsByMoleculeIDs, deleteObject, loadObject, setOrientation } from './dispatchActions';
 import { getAction } from '../../utils/testUtils';
 import {
   decrementCountOfPendingNglObjects,
@@ -22,51 +17,31 @@ import {
   removeFromVectorOnList
 } from '../selection/actions';
 import { VIEWS } from '../../constants/constants';
+import ViewerAdapter from '../../viewer/ViewerAdapter';
 const { fn } = jest;
-
-const createVector = (x, y, z) => ({
-  x,
-  y,
-  z,
-  add(value) {
-    this.x += value.x;
-    this.y += value.y;
-    this.z += value.z;
-    return this;
-  },
-  clone() {
-    return createVector(this.x, this.y, this.z);
-  },
-  divideScalar(value) {
-    this.x /= value;
-    this.y /= value;
-    this.z /= value;
-    return this;
-  },
-  set(nextX, nextY, nextZ) {
-    this.x = nextX;
-    this.y = nextY;
-    this.z = nextZ;
-    return this;
-  }
-});
-
-const createBox = (minX, maxX) => ({
-  min: createVector(minX, -1, -1),
-  max: createVector(maxX, 1, 1),
-  clone() {
-    return createBox(this.min.x, this.max.x);
-  },
-  union(value) {
-    this.min.x = Math.min(this.min.x, value.min.x);
-    this.max.x = Math.max(this.max.x, value.max.x);
-    return this;
-  }
-});
 
 describe("testing ngl reducer's async actions", () => {
   const middlewares = [thunk]; // add your middlewares like `redux-thunk`
   const mockStore = configureStore(middlewares);
+
+  it('waits for native multi-ligand focusing before recording the camera', async () => {
+    expect.hasAssertions();
+    const store = mockStore({ apiReducers: { all_mol_lists: [{ id: 1, virtual_name: 'v1' }, { id: 2, code: 'hit' }] } });
+    const adapter = new ViewerAdapter();
+    const objects = { v1_LIGAND: {}, hit_LIGAND: {}, hit_LIGAND_5: {} };
+    jest.spyOn(adapter, 'getObject').mockImplementation(name => objects[name]);
+    let finish;
+    jest.spyOn(adapter, 'centerOnObjects').mockImplementation(() => new Promise(resolve => { finish = resolve; }));
+    const orientation = { elements: [0, 0, 0, 1, -5, 0, 0, 0.5] };
+    jest.spyOn(adapter, 'getOrientation').mockReturnValue(orientation);
+    const pending = store.dispatch(centerOnLigandsByMoleculeIDs(adapter, [1, 2, 2]));
+    expect(adapter.getObject.mock.calls).toStrictEqual([['v1_LIGAND'], ['hit_LIGAND']]);
+    expect(adapter.centerOnObjects).toHaveBeenCalledWith([objects.v1_LIGAND, objects.hit_LIGAND]);
+    expect(store.getActions()).toStrictEqual([]);
+    finish(true);
+    expect(await pending).toBe(true);
+    expect(store.getActions()).toContainEqual(setNglOrientation(orientation, VIEWS.MAJOR_VIEW));
+  });
 
   it('should load object', () => {
     expect.hasAssertions();
@@ -82,18 +57,16 @@ describe("testing ngl reducer's async actions", () => {
       property: { a: 'sdff' }
     };
 
-    const stage = {
-      loadFile: fn(() =>
-        Promise.resolve({
-          addRepresentation: fn(() => ({
-            uuid: null,
-            getParameters: fn(() => {}),
-            repr: { parameters: {} }
-          })),
-          autoView: fn()
-        })
-      )
-    };
+    const stage = new ViewerAdapter();
+    stage.loadObject = fn(() =>
+      Promise.resolve([
+        {
+          uuid: null,
+          getParameters: fn(() => {}),
+          repr: { parameters: {} }
+        }
+      ])
+    );
 
     // eslint-disable-next-line jest/no-test-return-statement
     return store
@@ -108,6 +81,33 @@ describe("testing ngl reducer's async actions", () => {
         expect(await getAction(store, incrementCountOfPendingNglObjects)).not.toBeNull();
         expect(await getAction(store, decrementCountOfPendingNglObjects)).not.toBeNull();
       });
+  });
+
+  it('should propagate object loading failures and clear the pending counter', async () => {
+    expect.hasAssertions();
+    const store = mockStore({
+      nglReducers: {
+        objectsInViewStash: {}
+      }
+    });
+    const target = {
+      name: 'Broken protein',
+      OBJECT_TYPE: OBJECT_TYPE.PROTEIN,
+      display_div: VIEWS.MAJOR_VIEW
+    };
+    const error = new Error('Moorhen failed to load molecule');
+    const stage = new ViewerAdapter();
+    stage.loadObject = fn(() => Promise.reject(error));
+    const consoleError = jest.spyOn(console, 'error').mockImplementation(() => {});
+
+    try {
+      await expect(store.dispatch(loadObject({ target, stage }))).rejects.toBe(error);
+      expect(await getAction(store, incrementCountOfPendingNglObjects)).not.toBeNull();
+      expect(await getAction(store, decrementCountOfPendingNglObjects)).not.toBeNull();
+      expect(await getAction(store, loadNglObject)).toBeNull();
+    } finally {
+      consoleError.mockRestore();
+    }
   });
 
   it('should delete object', async () => {
@@ -130,22 +130,9 @@ describe("testing ngl reducer's async actions", () => {
       moleculeId: 4
     };
 
-    const stage = {
-      loadFile: fn(() =>
-        Promise.resolve({
-          addRepresentation: fn(() => ({
-            uuid: null,
-            getParameters: fn(() => {}),
-            repr: { parameters: {} }
-          })),
-          autoView: fn()
-        })
-      ),
-      getComponentsByName: fn(() => ({
-        list: [1, 2, 3]
-      })),
-      removeComponent: fn(() => {})
-    };
+    const stage = new ViewerAdapter();
+    stage.getObjects = fn(() => [1, 2, 3]);
+    stage.removeObject = fn();
 
     await store.dispatch(deleteObject(targetLigand, stage, true));
     expect(await getAction(store, removeFromFragmentDisplayList)).not.toBeNull();
@@ -165,6 +152,7 @@ describe("testing ngl reducer's async actions", () => {
 
     await store.dispatch(deleteObject(targetLigand, stage, false));
     expect(await getAction(store, deleteNglObject)).not.toBeNull();
+    expect(stage.removeObject).toHaveBeenCalledTimes(15);
   });
 
   it('should set orientation', async () => {
@@ -221,47 +209,4 @@ describe("testing ngl reducer's async actions", () => {
     await storeWithNotAllOrientations.dispatch(setOrientation(div_id, orientation));
     expect(await getAction(storeWithNotAllOrientations, setNglOrientation)).not.toBeNull();
   });
-
-  it('centers on unique displayed ligand objects selected by molecule id', async () => {
-    expect.hasAssertions();
-    const designComponent = {
-      getCenter: fn(() => createVector(0, 0, 0)),
-      getBox: fn(() => createBox(-1, 1))
-    };
-    const inspirationComponent = {
-      getCenter: fn(() => createVector(10, 0, 0)),
-      getBox: fn(() => createBox(9, 11))
-    };
-    const components = {
-      design_ligand: designComponent,
-      inspiration_ligand: inspirationComponent
-    };
-    const orientation = { elements: [1, 0, 0, 1] };
-    const stage = {
-      animationControls: { zoomMove: fn() },
-      getComponentsByName: fn(name => ({ first: components[name], list: [] })),
-      getZoomForBox: fn(() => -25),
-      viewerControls: { getOrientation: fn(() => orientation) }
-    };
-    const store = mockStore({
-      selectionReducers: { fragmentDisplayList: [1, 2, 3] },
-      nglReducers: {
-        objectsInView: {
-          design_ligand: { moleculeId: 1, OBJECT_TYPE: OBJECT_TYPE.LIGAND },
-          inspiration_ligand: { moleculeId: 2, OBJECT_TYPE: OBJECT_TYPE.LIGAND },
-          unrelated_ligand: { moleculeId: 3, OBJECT_TYPE: OBJECT_TYPE.LIGAND }
-        }
-      }
-    });
-
-    expect(await store.dispatch(centerOnLigandsByMoleculeIDs(stage, [1, 2, 2]))).toBe(true);
-
-    const centeredPosition = stage.animationControls.zoomMove.mock.calls[0][0];
-    expect(centeredPosition).toStrictEqual(expect.objectContaining({ x: 5, y: 0, z: 0 }));
-    expect(stage.getComponentsByName).toHaveBeenCalledTimes(2);
-    expect(await getAction(store, setNglOrientation)).toStrictEqual(
-      expect.objectContaining({ orientation, div_id: VIEWS.MAJOR_VIEW })
-    );
-  });
-
 });

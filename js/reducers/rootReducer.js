@@ -35,7 +35,7 @@ const rootReducer = (state, action) => {
     return {
       ...action.newState,
       selectionReducers: {
-        ...(action.newState.selectionReducers || {}),
+        ...action.newState.selectionReducers,
         rhsPoseNavigationConfig: normalizeRhsPoseNavigationConfig(
           action.newState.selectionReducers?.rhsPoseNavigationConfig
         )

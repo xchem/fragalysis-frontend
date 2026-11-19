@@ -4,10 +4,7 @@
 import { parse } from 'date-fns';
 import { setPoseIdForObservationsDialog } from './actions';
 import { constants } from './constants';
-import {
-  DEFAULT_RHS_POSE_NAVIGATION_CONFIG,
-  normalizeRhsPoseNavigationConfig
-} from '../../constants/poseNavigation';
+import { DEFAULT_RHS_POSE_NAVIGATION_CONFIG, normalizeRhsPoseNavigationConfig } from '../../constants/poseNavigation';
 
 export const INITIAL_STATE = {
   to_buy_list: [],
@@ -159,6 +156,9 @@ export function selectionReducers(state = INITIAL_STATE, action = {}) {
 
     case constants.APPEND_TO_BE_DISPLAYED_LIST:
       return { ...state, toBeDisplayedList: [...state.toBeDisplayedList, action.item] };
+
+    case constants.APPEND_TO_BE_DISPLAYED_LIST_BULK:
+      return { ...state, toBeDisplayedList: [...state.toBeDisplayedList, ...action.items] };
 
     case constants.REMOVE_FROM_TO_BE_DISPLAYED_LIST:
       return {
@@ -326,11 +326,11 @@ export function selectionReducers(state = INITIAL_STATE, action = {}) {
 
     case constants.SET_OBSERVATIONS_FOR_LHS_CMP: {
       const observations = action.observations || [];
-      const observationsAreUnchanged =
-        state.observationsForLHSCmp.length === observations.length &&
-        state.observationsForLHSCmp.every((observation, index) => observation === observations[index]);
-
-      return observationsAreUnchanged ? state : { ...state, observationsForLHSCmp: [...observations] };
+      const previous = state.observationsForLHSCmp || [];
+      if (previous.length === observations.length && previous.every((item, index) => item === observations[index])) {
+        return state;
+      }
+      return { ...state, observationsForLHSCmp: [...observations] };
     }
 
     case constants.UPDATE_MOL_IN_LHS_OBSERVATIONS:
@@ -472,9 +472,7 @@ export function selectionReducers(state = INITIAL_STATE, action = {}) {
 
       return Object.assign({}, state, {
         ...action.payload,
-        rhsPoseNavigationConfig: normalizeRhsPoseNavigationConfig(
-          action.payload.rhsPoseNavigationConfig
-        ),
+        rhsPoseNavigationConfig: normalizeRhsPoseNavigationConfig(action.payload.rhsPoseNavigationConfig),
         fragmentDisplayList: [...newFraments],
         proteinList: [...newProteins],
         complexList: [...newComplexes],

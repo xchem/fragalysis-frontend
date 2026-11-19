@@ -1,7 +1,7 @@
 /**
  * Created by abradley on 07/03/2018.
  */
-import React, { memo } from 'react';
+import React, { memo, useEffect } from 'react';
 import 'typeface-roboto';
 import Routes from './routes/Routes';
 import { BrowserRouter } from 'react-router-dom';
@@ -19,16 +19,16 @@ import { RDKitProvider } from './rdkit/RDKitContext';
 import { TooltipPathProvider } from './tooltip/TooltipPathContext';
 import { TooltipProvider } from './tooltip/TooltipContext';
 import { tootlipProvider } from './tooltip/resolver';
-import { viewerEngine, VIEWER_ENGINES } from '../config/viewerEngine';
+import { viewerConfig } from '../config/viewer';
+import { reportViewerSelection } from '../viewer/viewerTelemetry';
 
-const VIEWER_PROVIDERS = {
-  [VIEWER_ENGINES.NGL]: NglProvider
-};
-
-const ViewerProvider = VIEWER_PROVIDERS[viewerEngine];
 const muiCache = createCache({ key: 'mui', prepend: true });
 
 const Root = memo(() => {
+  useEffect(() => {
+    reportViewerSelection(viewerConfig);
+  }, []);
+
   return (
     <CacheProvider value={muiCache}>
       <ThemeProvider theme={getTheme()}>
@@ -40,11 +40,11 @@ const Root = memo(() => {
                 <ToastProvider>
                   <LoadingProvider>
                     <HeaderProvider>
-                      <ViewerProvider>
+                      <NglProvider>
                         <BrowserRouter>
                           <Routes />
                         </BrowserRouter>
-                      </ViewerProvider>
+                      </NglProvider>
                     </HeaderProvider>
                   </LoadingProvider>
                 </ToastProvider>

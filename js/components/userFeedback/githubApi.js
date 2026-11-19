@@ -51,7 +51,6 @@ const uploadFile = ({ data64Based, formType, name, extension, raw = false }) => 
     }).catch(error => {
       console.error(error);
       dispatch(setResponse('Error occured: ' + error.message));
-      // TODO: sentry?
     });
     fileUrl = `${result.data.content.html_url}?raw=${raw}`;
   }
@@ -127,6 +126,5 @@ export const createIssue = ({
     .catch(error => {
       console.error(error);
       dispatch(setResponse('Error occured: ' + error.message));
-      // TODO: sentry?
     });
 };

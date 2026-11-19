@@ -30,6 +30,11 @@ export const enableMoleculeNglControlButton = (moleculeId, type) => ({
   payload: { moleculeId, type }
 });
 
+export const setMoleculeNglControlButtons = (moleculeIds, type, disabled) => ({
+  type: constants.SET_NGL_CONTROL_BUTTONS,
+  payload: { moleculeIds, type, disabled }
+});
+
 export const setSearchStringOfHitNavigator = (searchStringHitNavigator, side = 'lhs') => ({
   type: constants.SET_SEARCH_STRING_HIT_NAVIGATOR,
   payload: {

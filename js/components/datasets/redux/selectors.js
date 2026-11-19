@@ -2,6 +2,7 @@ import { createSelector } from 'reselect';
 import { isString, isInteger, create } from 'lodash';
 import { sortMoleculesByDragDropState } from '../helpers';
 import { AUX_VECTOR_SELECTOR_DATASET_ID } from '../../preview/compounds/redux/constants';
+import { hasIdMembership } from '../../../reducers/selection/selectionMembership';
 
 const moleculeLists = state => state.datasetsReducers.moleculeLists;
 const scoreCompoundMap = state => state.datasetsReducers.scoreCompoundMap;
@@ -165,20 +166,9 @@ export const isAnyInspirationTurnedOn = createSelector(
   densityList,
   vectorOnList,
   (inspirations, ligands, proteins, complexis, surfaces, densities, vectors) => {
-    const allLists = new Set(ligands);
-    proteins.forEach(p => allLists.add(p));
-    complexis.forEach(p => allLists.add(p));
-    surfaces.forEach(p => allLists.add(p));
-    densities.forEach(p => allLists.add(p.id));
-    vectors.forEach(p => allLists.add(p));
-    let hasInspiration = false;
-    inspirations.forEach(moleculeID => {
-      if (allLists.has(moleculeID)) {
-        hasInspiration = true;
-        return hasInspiration;
-      }
-    });
-    return hasInspiration;
+    if (inspirations.length === 0) return false;
+    return [ligands, proteins, complexis, surfaces, vectors].some(list => hasIdMembership(list, inspirations)) ||
+      hasIdMembership(densities, inspirations, true);
   }
 );
 

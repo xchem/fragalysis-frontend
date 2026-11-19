@@ -14,4 +14,5 @@ RUN if [ ! -f yarn.lock ]; then \
         exit 1; \
     fi && \
     yarn install --immutable && \
-    yarn run build
+    yarn run build && \
+    yarn verify:moorhen-assets

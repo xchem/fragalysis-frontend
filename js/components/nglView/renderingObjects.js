@@ -5,13 +5,11 @@ import {
   createRepresentationStructure,
   defaultFocus
 } from '../../viewer/ngl/representationHelpers';
-import { concatStructures, Selection, Shape, Matrix4 } from 'ngl';
+import { concatStructures, Selection, Shape } from 'ngl';
 import { loadQualityFromFile } from './renderingHelpers';
 import { getPdb } from './renderingFile';
 import { ensureSurfaceWorkerDisabled } from './surfaceRepresentationUtils';
-import { NGL_PARAMS, QUALITY_TYPES } from './constants/index';
-import { VIEWS } from '../../constants/constants';
-import { MAP_TYPE } from '../../reducers/ngl/constants';
+import { QUALITY_TYPES } from './constants/index';
 // import { molFile, pdbApo } from '../preview/molecule/redux/testData';
 
 const showSphere = ({ stage, input_dict, object_name, representations }) => {
@@ -106,11 +104,7 @@ const loadLigandFromFile = (
 };
 
 const renderHitProtein = (ol, representations, orientationMatrix) => {
-  let cs = concatStructures(
-    ol[4],
-    ol[0].structure.getView(new Selection('not ligand')),
-    ol[1].structure.getView(new Selection(''))
-  );
+  let cs = concatStructures(ol[4], ol[0].structure.getView(new Selection('not LIG')));
   let stage = ol[2];
   //let focus_let_temp = ol[3];
   let colour = ol[5];
@@ -130,11 +124,7 @@ const renderHitProtein = (ol, representations, orientationMatrix) => {
 };
 
 const renderArtefactChains = (ol, representations, orientationMatrix) => {
-  let cs = concatStructures(
-    ol[4],
-    ol[0].structure.getView(new Selection('not ligand')),
-    ol[1].structure.getView(new Selection(''))
-  );
+  let cs = concatStructures(ol[4], ol[0].structure.getView(new Selection('not LIG')));
   let stage = ol[2];
   let colour = ol[5];
   let comp = stage.addComponentFromObject(cs);
@@ -161,8 +151,6 @@ const showHitProtein = async ({
   loadQuality,
   quality
 }) => {
-  let stringBlob = new Blob([input_dict.sdf_info], { type: 'text/plain' });
-
   const pdbBlob = await dispatch(getPdb(input_dict.prot_url));
   // const pdbBlob = new Blob([pdbApo], { type: 'text/plain' });
 
@@ -170,7 +158,7 @@ const showHitProtein = async ({
     if (loadQuality && quality && quality.badproteinids?.length > 0) {
       const ol = await Promise.all([
         stage.loadFile(pdbBlob, { ext: 'pdb', defaultAssembly: 'BU1' }),
-        stage.loadFile(stringBlob, { ext: 'sdf' }),
+        null,
         stage,
         defaultFocus,
         object_name,
@@ -190,7 +178,7 @@ const showHitProtein = async ({
     } else {
       const ol = await Promise.all([
         stage.loadFile(pdbBlob, { ext: 'pdb', defaultAssembly: 'BU1' }),
-        stage.loadFile(stringBlob, { ext: 'sdf' }),
+        null,
         stage,
         defaultFocus,
         object_name,
@@ -211,15 +199,13 @@ const showArtefactChains = async ({
   loadQuality,
   quality
 }) => {
-  let stringBlob = new Blob([input_dict.sdf_info], { type: 'text/plain' });
-
   const pdbBlob = await dispatch(getPdb(input_dict.artefacts_url));
 
   if (pdbBlob) {
     if (loadQuality && quality && quality.badproteinids?.length > 0) {
       const ol = await Promise.all([
         stage.loadFile(pdbBlob, { ext: 'pdb', defaultAssembly: 'BU1' }),
-        stage.loadFile(stringBlob, { ext: 'sdf' }),
+        null,
         stage,
         defaultFocus,
         object_name,
@@ -238,7 +224,7 @@ const showArtefactChains = async ({
     } else {
       const ol = await Promise.all([
         stage.loadFile(pdbBlob, { ext: 'pdb', defaultAssembly: 'BU1' }),
-        stage.loadFile(stringBlob, { ext: 'sdf' }),
+        null,
         stage,
         defaultFocus,
         object_name,
@@ -256,7 +242,6 @@ const renderComplex = (ol, representations, orientationMatrix) => {
     ol[1].structure.getView(new Selection(''))
   );
   let stage = ol[2];
-  let focus_let_temp = ol[3];
   // Set the object name
   let comp = stage.addComponentFromObject(cs);
   // duplication of protein
@@ -311,69 +296,67 @@ const showSurface = ({ stage, input_dict, object_name, representations, orientat
 
 // ligand
 const showEvent = ({ stage, input_dict, object_name, representations, orientationMatrix }) => {
-  return Promise.all(
-    [
-      stage.loadFile(input_dict.pdb_info, { name: object_name, ext: 'pdb', defaultAssembly: 'BU1' }).then(comp => {
-        const repr1 = createRepresentationStructure(MOL_REPRESENTATION.cartoon, {});
-        let selection = new Selection('LIG');
-        let radius = 5;
-        let atomSet = comp.structure.getAtomSetWithinSelection(selection, radius);
-        let atomSet2 = comp.structure.getAtomSetWithinGroup(atomSet);
-        let sele2 = atomSet2.toSeleString();
-        let sele1 = atomSet.toSeleString();
+  return Promise.all([
+    stage.loadFile(input_dict.pdb_info, { name: object_name, ext: 'pdb', defaultAssembly: 'BU1' }).then(comp => {
+      const repr1 = createRepresentationStructure(MOL_REPRESENTATION.cartoon, {});
+      let selection = new Selection('LIG');
+      let radius = 5;
+      let atomSet = comp.structure.getAtomSetWithinSelection(selection, radius);
+      let atomSet2 = comp.structure.getAtomSetWithinGroup(atomSet);
+      let sele2 = atomSet2.toSeleString();
+      let sele1 = atomSet.toSeleString();
 
-        const repr2 = createRepresentationStructure(MOL_REPRESENTATION.contact, {
-          masterModelIndex: 0,
-          weakHydrogenBond: true,
-          maxHbondDonPlaneAngle: 35,
-          linewidth: 1,
-          sele: sele2 + ' or LIG'
-        });
+      const repr2 = createRepresentationStructure(MOL_REPRESENTATION.contact, {
+        masterModelIndex: 0,
+        weakHydrogenBond: true,
+        maxHbondDonPlaneAngle: 35,
+        linewidth: 1,
+        sele: sele2 + ' or LIG'
+      });
 
-        const repr3 = createRepresentationStructure(MOL_REPRESENTATION.line, {
-          sele: sele1
-        });
+      const repr3 = createRepresentationStructure(MOL_REPRESENTATION.line, {
+        sele: sele1
+      });
 
-        const repr4 = createRepresentationStructure(MOL_REPRESENTATION.ballPlusStick, {
-          sele: 'LIG'
-        });
+      const repr4 = createRepresentationStructure(MOL_REPRESENTATION.ballPlusStick, {
+        sele: 'LIG'
+      });
 
-        // if (orientationMatrix) {
-        //   stage.viewerControls.orient(orientationMatrix);
-        // } else if (orientationMatrix === undefined) {
-        //   comp.autoView('LIG');
-        // }
+      // if (orientationMatrix) {
+      //   stage.viewerControls.orient(orientationMatrix);
+      // } else if (orientationMatrix === undefined) {
+      //   comp.autoView('LIG');
+      // }
 
-        const reprArray = representations || createRepresentationsArray([repr1, repr2, repr3, repr4]);
-        return assignRepresentationArrayToComp(reprArray, comp);
-      }),
+      const reprArray = representations || createRepresentationsArray([repr1, repr2, repr3, repr4]);
+      return assignRepresentationArrayToComp(reprArray, comp);
+    }),
 
-      stage.loadFile(input_dict.map_info, { name: object_name, ext: 'ccp4' }).then(comp => {
-        const repr1 = createRepresentationStructure(MOL_REPRESENTATION.surface, {
-          color: 'mediumseagreen',
-          isolevel: 3,
-          boxSize: 10,
-          useWorker: false,
-          contour: true,
-          opaqueBack: false,
-          isolevelScroll: false
-        });
+    stage.loadFile(input_dict.map_info, { name: object_name, ext: 'ccp4' }).then(comp => {
+      const repr1 = createRepresentationStructure(MOL_REPRESENTATION.surface, {
+        color: 'mediumseagreen',
+        isolevel: 3,
+        boxSize: 10,
+        useWorker: false,
+        contour: true,
+        opaqueBack: false,
+        isolevelScroll: false
+      });
 
-        const repr2 = createRepresentationStructure(MOL_REPRESENTATION.surface, {
-          color: 'tomato',
-          isolevel: 3,
-          negateIsolevel: true,
-          boxSize: 10,
-          useWorker: false,
-          contour: true,
-          opaqueBack: false,
-          isolevelScroll: false
-        });
-        const reprArray = representations || createRepresentationsArray([repr1, repr2]);
-        return assignRepresentationArrayToComp(reprArray, comp);
-      })
-    ].then(values => [...values])
-  );
+      const repr2 = createRepresentationStructure(MOL_REPRESENTATION.surface, {
+        color: 'tomato',
+        isolevel: 3,
+        negateIsolevel: true,
+        boxSize: 10,
+        useWorker: false,
+        contour: true,
+        opaqueBack: false,
+        isolevelScroll: false
+      });
+      const reprArray = representations || createRepresentationsArray([repr1, repr2]);
+      return assignRepresentationArrayToComp(reprArray, comp);
+    })
+  ]).then(values => values.flat());
 };
 
 // vector
@@ -427,8 +410,6 @@ const showProtein = ({ stage, input_dict, object_name, representations, orientat
   return stage.loadFile(input_dict.prot_url, { name: object_name, ext: 'pdb', defaultAssembly: 'BU1' }).then(comp => {
     const reprArray =
       representations || createRepresentationsArray([createRepresentationStructure(input_dict.nglProtStyle, {})]);
-
-    const skipOrientation = false; //state.trackingReducers.skipOrientationChange;
 
     // if (!skipOrientation) {
     //   if (orientationMatrix) {
@@ -546,37 +527,33 @@ const showDensity = ({ stage, input_dict, object_name, representations }) => {
     negateIsolevel: true
   };
 
-  return Promise.all([
-    input_dict.sigmaa_url &&
-      input_dict.render_sigmaa &&
-      stage.loadFile(input_dict.sigmaa_url, { name: object_name + DENSITY_MAPS.SIGMAA, ext: 'map' }).then(comp => {
-        const repr = createRepresentationStructure(MOL_REPRESENTATION.surface, densityParams_sigmaa);
-        const reprArray = representations || createRepresentationsArray([repr]);
-        return { repr: assignRepresentationArrayToComp(reprArray, comp), name: object_name + DENSITY_MAPS.SIGMAA };
-      }),
-    input_dict.diff_url &&
-      input_dict.render_diff &&
-      stage.loadFile(input_dict.diff_url, { name: object_name + DENSITY_MAPS.DIFF, ext: 'map' }).then(comp => {
-        const repr = createRepresentationStructure(MOL_REPRESENTATION.surface, densityParams_diff);
-        const reprArray = representations || createRepresentationsArray([repr]);
-        return { repr: assignRepresentationArrayToComp(reprArray, comp), name: object_name + DENSITY_MAPS.DIFF };
-      }) &&
-      stage.loadFile(input_dict.diff_url, { name: object_name + DENSITY_MAPS.DIFF, ext: 'map' }).then(comp => {
-        const repr = createRepresentationStructure(MOL_REPRESENTATION.surface, densityParams_diff_negate);
-        const reprArray = representations || createRepresentationsArray([repr]);
-        return { repr: assignRepresentationArrayToComp(reprArray, comp), name: object_name + DENSITY_MAPS.DIFF };
-      }),
-    input_dict.event_url &&
-      input_dict.render_event &&
-      stage.loadFile(input_dict.event_url, { name: object_name, ext: 'ccp4' }).then(comp => {
-        const repr = createRepresentationStructure(MOL_REPRESENTATION.surface, densityParams_event);
-        const reprArray = representations || createRepresentationsArray([repr]);
-        return { repr: assignRepresentationArrayToComp(reprArray, comp), name: object_name };
-      })
-  ]).then(values => {
-    let val = [...values].filter(v => v !== undefined);
-    return val;
-  });
+  // Old snapshots use one untagged list. New transfers keep each map's edited
+  // surfaces (including both signs of the difference map) with that map only.
+  const perMap = representations?.some(rep => rep.densityMap !== undefined);
+  const loadMap = (url, suffix, parameters) => {
+    const name = object_name + suffix;
+    const saved = perMap ? representations.filter(rep => rep.densityMap === suffix) : representations;
+    const definitions = saved && (!perMap || saved.length)
+      ? saved
+      : createRepresentationsArray(parameters.map(params => createRepresentationStructure(MOL_REPRESENTATION.surface, params)));
+    return stage.loadFile(url, { name, ext: 'ccp4' }).then(comp => ({
+      name,
+      repr: assignRepresentationArrayToComp(definitions, comp)
+    }));
+  };
+  const maps = [];
+  if (input_dict.sigmaa_url && input_dict.render_sigmaa) {
+    maps.push(loadMap(input_dict.sigmaa_url, DENSITY_MAPS.SIGMAA, [densityParams_sigmaa]));
+  }
+  if (input_dict.diff_url && input_dict.render_diff) {
+    maps.push(
+      loadMap(input_dict.diff_url, DENSITY_MAPS.DIFF, [densityParams_diff, densityParams_diff_negate])
+    );
+  }
+  if (input_dict.event_url && input_dict.render_event) {
+    maps.push(loadMap(input_dict.event_url, '', [densityParams_event]));
+  }
+  return Promise.all(maps);
 };
 
 // Refactor this out into a utils directory

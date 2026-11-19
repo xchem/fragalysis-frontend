@@ -44,14 +44,14 @@ import {
   setTagEditorOpen,
   setTagEditorOpenObs,
   setMoleculeForTagEdit,
-  setIsTagGlobalEdit,
-  setIsLHSCmpTagEdit,
   setIsObsInspirationDialogOpen,
   setObsInspirationDialogObsIds,
   setObsInspirationDialogPoseId,
+  setRhsPoseNavigationConfig,
+  setIsTagGlobalEdit,
+  setIsLHSCmpTagEdit,
   updateMoleculeInLHSObservations,
-  addToastMessage,
-  setRhsPoseNavigationConfig
+  addToastMessage
 } from '../../../reducers/selection/actions';
 import { initializeFilter } from '../../../reducers/selection/dispatchActions';
 import { setSortDialogOpen, setSearchStringOfHitNavigator } from './redux/actions';
@@ -65,6 +65,41 @@ import { getDefaultComputedInspirations, getFilteredComputedInspirations } from 
 import { TAG_META_CATEGORIES } from '../tags/utils/tagUtils';
 import { setIsOpenCrossReferenceDialog } from '../../datasets/redux/actions';
 import { createRhsPoseTransferConfig } from './rhsPoseTransferConfig';
+
+const restoreInspirationDialog = ({ dispatch, pose, ids, requestAnchor }) => {
+  dispatch(setObsInspirationDialogObsIds(ids));
+  dispatch(setObsInspirationDialogPoseId(pose.id));
+  dispatch(setIsObsInspirationDialogOpen(true));
+  requestAnchor(pose.id);
+};
+
+const isInspirationDialogForPose = ({ state, pose }) =>
+  state.selectionReducers.isObsInspirationDialogOpen && state.selectionReducers.obsInspirationDialogPoseId === pose.id;
+
+const RHS_TRANSFER_DIALOGS = {
+  hasTransferableState: isInspirationDialogForPose,
+  capture: ({ state, sourcePose }) => ({
+    transferInspirations: isInspirationDialogForPose({ state, pose: sourcePose })
+  }),
+  beforeTransfer: ({ dispatch }) => {
+    [
+      setTagEditorOpen(false), setTagEditorOpenObs(false), setMoleculeForTagEdit([]), setIsTagGlobalEdit(false),
+      setObservationsForLHSCmp([]), setOpenObservationsDialog(false), setPoseIdForObservationsDialog(0),
+      setIsOpenCrossReferenceDialog(false), setSearchSettingsDialogOpen(false), setSortDialogOpen(false),
+      setIsObsInspirationDialogOpen(false), setObsInspirationDialogObsIds([]), setObsInspirationDialogPoseId(0)
+    ].forEach(action => dispatch(action));
+  },
+  afterTransfer: ({ dispatch, dialogState, destinationPose, destinationInspirationIds, requestAnchor }) => {
+    if (dialogState?.transferInspirations) {
+      restoreInspirationDialog({ dispatch, pose: destinationPose, ids: destinationInspirationIds, requestAnchor });
+    }
+  },
+  onTransferFailure: ({ dispatch, dialogState, sourcePose, sourceInspirationIds, requestAnchor }) => {
+    if (dialogState?.transferInspirations) {
+      restoreInspirationDialog({ dispatch, pose: sourcePose, ids: sourceInspirationIds, requestAnchor });
+    }
+  }
+};
 
 const RHS_LIGAND_REPRESENTATIONS = [
   {
@@ -499,79 +534,16 @@ export const PoseListRHS = memo(({ expandHandler }) => {
     [rhsSelectedTags]
   );
 
-  const poseTransferConfig = useMemo(
-    () =>
-      createRhsPoseTransferConfig({
-        getComputedInspirations,
-        ligandRepresentations: RHS_LIGAND_REPRESENTATIONS,
-        transferOrder: rhsPoseNavigationConfig.transferOrder,
-        transferScheduling: rhsPoseNavigationConfig.transferScheduling,
-        postTransferCenteringMode: rhsPoseNavigationConfig.postTransferCenteringMode,
-        dialogs: {
-          capture: ({ state, sourcePose }) => ({
-            transferInspirations:
-              state.selectionReducers.isObsInspirationDialogOpen &&
-              state.selectionReducers.obsInspirationDialogPoseId === sourcePose.id
-          }),
-          beforeTransfer: ({ dispatch: transferDispatch }) => {
-            transferDispatch(setTagEditorOpen(false));
-            transferDispatch(setTagEditorOpenObs(false));
-            transferDispatch(setMoleculeForTagEdit([]));
-            transferDispatch(setIsTagGlobalEdit(false));
-            transferDispatch(setObservationsForLHSCmp([]));
-            transferDispatch(setOpenObservationsDialog(false));
-            transferDispatch(setPoseIdForObservationsDialog(0));
-            transferDispatch(setIsOpenCrossReferenceDialog(false));
-            transferDispatch(setSearchSettingsDialogOpen(false));
-            transferDispatch(setSortDialogOpen(false));
-            transferDispatch(setIsObsInspirationDialogOpen(false));
-            transferDispatch(setObsInspirationDialogObsIds([]));
-            transferDispatch(setObsInspirationDialogPoseId(0));
-          },
-          afterTransfer: ({
-            dispatch: transferDispatch,
-            dialogState,
-            destinationPose,
-            destinationInspirationIds,
-            requestAnchor
-          }) => {
-            if (dialogState?.transferInspirations) {
-              transferDispatch(setObsInspirationDialogObsIds(destinationInspirationIds));
-              transferDispatch(setObsInspirationDialogPoseId(destinationPose.id));
-              transferDispatch(setIsObsInspirationDialogOpen(true));
-              requestAnchor(destinationPose.id);
-            } else {
-              transferDispatch(setIsObsInspirationDialogOpen(false));
-              transferDispatch(setObsInspirationDialogObsIds([]));
-              transferDispatch(setObsInspirationDialogPoseId(0));
-            }
-          },
-          onTransferFailure: ({
-            dispatch: transferDispatch,
-            dialogState,
-            sourcePose,
-            sourceInspirationIds,
-            requestAnchor
-          }) => {
-            if (dialogState?.transferInspirations) {
-              transferDispatch(setObsInspirationDialogObsIds(sourceInspirationIds));
-              transferDispatch(setObsInspirationDialogPoseId(sourcePose.id));
-              transferDispatch(setIsObsInspirationDialogOpen(true));
-              requestAnchor(sourcePose.id);
-            }
-          }
-        }
-      }),
-    [getComputedInspirations, rhsPoseNavigationConfig]
-  );
-
-  const poseNavigationConfig = useMemo(
-    () => ({
-      value: rhsPoseNavigationConfig,
-      onChange: changes => dispatch(setRhsPoseNavigationConfig(changes))
-    }),
-    [dispatch, rhsPoseNavigationConfig]
-  );
+  const poseTransferConfig = useMemo(() => createRhsPoseTransferConfig({
+    getComputedInspirations,
+    ligandRepresentations: RHS_LIGAND_REPRESENTATIONS,
+    ...rhsPoseNavigationConfig,
+    dialogs: RHS_TRANSFER_DIALOGS
+  }), [getComputedInspirations, rhsPoseNavigationConfig]);
+  const poseNavigationConfig = useMemo(() => ({
+    value: rhsPoseNavigationConfig,
+    onChange: changes => dispatch(setRhsPoseNavigationConfig(changes))
+  }), [dispatch, rhsPoseNavigationConfig]);
 
   return (
     <TooltipPathProvider absolute path="fragalysis.preview.hitnavigator">

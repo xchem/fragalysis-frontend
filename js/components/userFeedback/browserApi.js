@@ -82,18 +82,23 @@ export const captureScreen = () => async dispatch => {
   dispatch(setIsOpenForm(true));
 };
 
-export const captureScreenOfSnapshotNglScreen = viewerAdapter => async dispatch => {
-  const node = document.getElementById('major_view');
-  if (!node) return null;
-
-  // Force pixel ratio = 1 to avoid huge canvases on HiDPI
-  const width = node.scrollWidth;
-  const height = node.scrollHeight;
-
-  const capture = () =>
+const captureSnapshotNode = (node, width, height, viewerAdapter) => {
+  const renderer = viewerAdapter?.getRendererElement();
+  const capture = image =>
     domtoimage.toPng(node, {
       width,
       height,
+      adjustClonedNode: (original, clone, afterChildren) => {
+        // dom-to-image converts canvases to images. Substitute the frozen frame
+        // only in its clone, retaining labels/overlays and the live viewer DOM.
+        if (image && original === renderer && !afterChildren) {
+          // Its first load already removed dom-to-image's temporary SVG.
+          // Replacing src must not run those one-shot cleanup handlers again.
+          clone.onload = null;
+          clone.onerror = null;
+          clone.src = image;
+        }
+      },
       style: {
         // neutralize DPR scaling and ensure layout size matches our width/height
         transform: 'scale(1)',
@@ -103,28 +108,23 @@ export const captureScreenOfSnapshotNglScreen = viewerAdapter => async dispatch 
       }
     });
 
-  const dataUrl = await (viewerAdapter ? viewerAdapter.captureImage({ capture }) : capture());
-
-  return dataUrl;
+  return viewerAdapter ? viewerAdapter.captureImage({ capture }) : capture();
 };
 
-export const captureScreenOfSnapshotFullScreen = () => async dispatch => {
+export const captureScreenOfSnapshotNglScreen = viewerAdapter => async dispatch => {
+  const node = document.getElementById('major_view');
+  if (!node) return null;
+
+  // Force pixel ratio = 1 to avoid huge canvases on HiDPI
+  return captureSnapshotNode(node, node.scrollWidth, node.scrollHeight, viewerAdapter);
+};
+
+export const captureScreenOfSnapshotFullScreen = viewerAdapter => async dispatch => {
   const node = document.documentElement; // whole page, not just body
   const width = Math.max(document.documentElement.scrollWidth, document.body?.scrollWidth || 0);
   const height = Math.max(document.documentElement.scrollHeight, document.body?.scrollHeight || 0);
 
-  const dataUrl = await domtoimage.toPng(node, {
-    width,
-    height,
-    style: {
-      transform: 'scale(1)',
-      transformOrigin: 'top left',
-      width: `${width}px`,
-      height: `${height}px`
-    }
-  });
-
-  return dataUrl;
+  return captureSnapshotNode(node, width, height, viewerAdapter);
 };
 
 export const rescaleImage = async (imageDataUrl, width, height) => {
