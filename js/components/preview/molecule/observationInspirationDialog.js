@@ -17,6 +17,7 @@ import MoleculeView from './moleculeView';
 import { colourList } from './utils/color';
 import { NglContext } from '../../nglView/nglProvider';
 import { VIEWS } from '../../../constants/constants';
+import { RHS_INSPIRATION } from '../../../constants/poseNavigation';
 import {
   addLigand,
   addHitProtein,
@@ -93,6 +94,8 @@ const useStyles = makeStyles(theme => ({
     paddingTop: 10
   }
 }));
+
+const asInspiration = molecule => ({ ...molecule, isInspiration: true, [RHS_INSPIRATION]: true });
 
 export const ObservationInspirationDialog = memo(
   forwardRef(({ open = false, anchorEl, ligandRepresentations = undefined }, ref) => {
@@ -171,18 +174,18 @@ export const ObservationInspirationDialog = memo(
       selectedAll.current = false;
     };
 
-    const addNewType = (type, skipTracking = false) => {
+    const addNewType = (type, molecules = allSelectedMolecules, skipTracking = false) => {
       dispatch(
         withDisabledMoleculesNglControlButtons(
-          allSelectedMolecules.map(mol => mol.id),
+          molecules.map(mol => mol.id),
           type,
           async () => {
-            const promises = allSelectedMolecules.map(mol =>
+            const promises = molecules.map(mol =>
               type === 'ligand'
                 ? dispatch(
                     addType[type](
                       stage,
-                      mol,
+                      asInspiration(mol),
                       colourList[mol.id % colourList.length],
                       false,
                       true,
@@ -190,7 +193,7 @@ export const ObservationInspirationDialog = memo(
                       ligandRepresentations
                     )
                   )
-                : dispatch(addType[type](stage, mol, colourList[mol.id % colourList.length], skipTracking))
+                : dispatch(addType[type](stage, asInspiration(mol), colourList[mol.id % colourList.length], skipTracking))
             );
             await Promise.all(promises);
           }
@@ -225,7 +228,7 @@ export const ObservationInspirationDialog = memo(
         if (eval('is' + ucfirst(type) + 'On') === false) {
           const molecules = getSelectedMoleculesByType(type, true);
           dispatch(setSelectedAllByType(type, molecules, true));
-          addNewType(type);
+          addNewType(type, molecules);
         } else {
           const molecules = getSelectedMoleculesByType(type, false);
           dispatch(setDeselectedAllByType(type, molecules, true));
@@ -321,10 +324,9 @@ export const ObservationInspirationDialog = memo(
             {moleculeList.length > 0 &&
               moleculeList.map((molecule, index, array) => {
                 if (!molecule) return null;
-                const data = { ...molecule, isInspiration: true };
-                const previousData = index > 0 ? { ...array[index - 1], isInspiration: true } : undefined;
-                const nextData =
-                  index < array.length - 1 ? { ...array[index + 1], isInspiration: true } : undefined;
+                const data = asInspiration(molecule);
+                const previousData = index > 0 ? asInspiration(array[index - 1]) : undefined;
+                const nextData = index < array.length - 1 ? asInspiration(array[index + 1]) : undefined;
                 const selected = allSelectedMolecules.some(m => m.id === data.id);
 
                 return (

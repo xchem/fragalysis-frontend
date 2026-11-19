@@ -24,7 +24,7 @@ import {
   setIsNGLQueueEmpty
 } from './actions';
 import { isEmpty, isEqual } from 'lodash';
-import { generateMoleculeObject } from '../../components/nglView/generatingObjects';
+import { generateMoleculeObject, observationLigandName } from '../../components/nglView/generatingObjects';
 import { COMMON_PARAMS, DENSITY_MAPS, OBJECT_TYPE, SELECTION_TYPE } from '../../components/nglView/constants';
 import {
   removeFromComplexList,
@@ -237,10 +237,14 @@ export const centerOnLigandsByMoleculeIDs = (stage, moleculeIDs = []) => async (
   const viewerAdapter = asViewerAdapter(stage);
   if (!viewerAdapter) return false;
 
-  const ids = new Set(moleculeIDs);
-  const objects = Object.entries(getState().nglReducers.objectsInView || {})
-    .filter(([, object]) => object.OBJECT_TYPE === OBJECT_TYPE.LIGAND && ids.has(object.moleculeId))
-    .map(([name]) => viewerAdapter.getObject(name))
+  // Dataset compounds can share numeric IDs with observations. Resolve by the
+  // same registered name as the target icon, without re-fetching coordinates.
+  const state = getState();
+  const observations = new Map(state.apiReducers.all_mol_lists.map(item => [item.id, item]));
+  const objects = [...new Set(moleculeIDs)]
+    .map(id => observations.get(id))
+    .filter(Boolean)
+    .map(item => viewerAdapter.getObject(observationLigandName(item)))
     .filter(Boolean);
 
   const centered = await viewerAdapter.centerOnObjects(objects);

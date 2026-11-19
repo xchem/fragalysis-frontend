@@ -1,6 +1,7 @@
 import { autoLoad, Counter } from 'ngl';
 import NglViewerAdapter from './NglViewerAdapter';
 import { DENSITY_MAPS, OBJECT_TYPE } from '../components/nglView/constants';
+import { getRepresentationsForDensities } from '../components/nglView/generatingObjects';
 
 jest.mock('../components/nglView/renderingFile', () => ({ getPdb: source => async () => source }));
 
@@ -228,6 +229,30 @@ describe('ngl loading through the current display queue contract', () => {
     expect(stage.removeComponent).toHaveBeenCalledTimes(1);
     expect(stage.compList).toHaveLength(0);
     expect(map.buffers).toBeNull();
+  });
+
+  it('transfers exact per-map NGL settings and still accepts legacy untagged density settings', async () => {
+    expect.hasAssertions();
+    const rep = opacity => ({ type: 'surface', params: { opacity } });
+    const source = {
+      hit_DENSITY: { representations: [rep(0.1)] },
+      hit_DENSITY_MAP_diff: { representations: [rep(0.2), rep(0.3)] },
+      hit2_DENSITY: { representations: [rep(1)] }
+    };
+    const representations = getRepresentationsForDensities(source, { virtual_name: 'hit' });
+    const adapter = new NglViewerAdapter(createStage());
+    const maps = options('destination', OBJECT_TYPE.DENSITY, {
+      event_url: '/event.map', render_event: true, diff_url: '/diff.map', render_diff: true,
+      sigmaa_url: '/sigma.map', render_sigmaa: true, opacity_DENSITY_MAP_sigmaa: 0.75
+    });
+    const load = async reps => Object.fromEntries((await adapter.loadObject({ ...maps, representations: reps }))
+      .map(({ name, repr }) => [name, repr.map(item => item.params.opacity)]));
+    expect(await load(representations)).toStrictEqual({
+      destination: [0.1], destination_MAP_diff: [0.2, 0.3], destination_MAP_sigmaa: [0.75]
+    });
+    expect(await load([rep(0.5)])).toStrictEqual({
+      destination: [0.5], destination_MAP_diff: [0.5], destination_MAP_sigmaa: [0.5]
+    });
   });
 
   it('waits for late parallel coordinate loads before cleaning up a failed composite', async () => {

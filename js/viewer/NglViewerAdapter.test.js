@@ -1,6 +1,6 @@
 import { NglViewerAdapter } from './NglViewerAdapter';
 import { asViewerAdapter } from './viewerAdapterFactory';
-import { Matrix4, Quaternion, Vector3 } from 'ngl';
+import { Box3, Matrix4, Quaternion, Vector3 } from 'ngl';
 
 const { fn } = jest;
 
@@ -285,18 +285,17 @@ describe('ngl viewer adapter', () => {
 
   it('centers ligands with equal weight and aligns their widest separation horizontally', () => {
     expect.hasAssertions();
-    const stage = createStage();
-    stage.getZoomForBox = () => -100;
+    const stage = { ...createStage(), getZoomForBox: jest.fn(() => -100) };
     const adapter = new NglViewerAdapter(stage);
-    const molecule = atoms => ({ structure: { eachAtom: callback => atoms.forEach(callback) } });
+    const molecule = (x, y, z, size) => ({
+      getCenter: () => new Vector3().set(x, y, z),
+      getBox: () => new Box3(new Vector3(x - size, y, z), new Vector3(x + size, y, z)),
+      autoView: jest.fn()
+    });
+    const a = molecule(0, 0, 0, 3);
+    const b = molecule(0, 20, 0, 1);
     expect(
-      adapter.centerOnObjects([
-        molecule([
-          { x: -3, y: 0, z: 0 },
-          { x: 3, y: 0, z: 0 }
-        ]),
-        molecule([{ x: 0, y: 20, z: 0 }])
-      ])
+      adapter.centerOnObjects([a, b, a])
     ).toBe(true);
     const matrix = new Matrix4().fromArray(stage.viewerControls.orient.mock.calls[0][0]);
     const position = new Vector3();
@@ -308,7 +307,11 @@ describe('ngl viewer adapter', () => {
     expect(separation.x).toBeCloseTo(20);
     expect(separation.y).toBeCloseTo(0);
     expect(separation.z).toBeCloseTo(0);
-    scale.toArray().forEach(value => expect(value).toBeCloseTo(100));
+    scale.toArray().forEach(value => expect(value).toBeCloseTo(90));
+    expect(stage.getZoomForBox.mock.calls[0][0].getSize(new Vector3()).toArray()).toStrictEqual([6, 20, 0]);
+    expect(adapter.centerOnObjects([null, a, a])).toBe(true);
+    expect(a.autoView).toHaveBeenCalledWith();
+    expect(adapter.centerOnObjects([molecule(NaN, 0, 0, 1)])).toBe(false);
     expect(adapter.centerOnObjects([])).toBe(false);
   });
 

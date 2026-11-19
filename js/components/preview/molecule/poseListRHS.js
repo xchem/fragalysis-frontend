@@ -73,10 +73,13 @@ const restoreInspirationDialog = ({ dispatch, pose, ids, requestAnchor }) => {
   requestAnchor(pose.id);
 };
 
+const isInspirationDialogForPose = ({ state, pose }) =>
+  state.selectionReducers.isObsInspirationDialogOpen && state.selectionReducers.obsInspirationDialogPoseId === pose.id;
+
 const RHS_TRANSFER_DIALOGS = {
+  hasTransferableState: isInspirationDialogForPose,
   capture: ({ state, sourcePose }) => ({
-    transferInspirations: state.selectionReducers.isObsInspirationDialogOpen &&
-      state.selectionReducers.obsInspirationDialogPoseId === sourcePose.id
+    transferInspirations: isInspirationDialogForPose({ state, pose: sourcePose })
   }),
   beforeTransfer: ({ dispatch }) => {
     [

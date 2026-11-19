@@ -527,28 +527,31 @@ const showDensity = ({ stage, input_dict, object_name, representations }) => {
     negateIsolevel: true
   };
 
-  const loadMap = (url, name, parameters) =>
-    stage.loadFile(url, { name, ext: 'ccp4' }).then(comp => ({
+  // Old snapshots use one untagged list. New transfers keep each map's edited
+  // surfaces (including both signs of the difference map) with that map only.
+  const perMap = representations?.some(rep => rep.densityMap !== undefined);
+  const loadMap = (url, suffix, parameters) => {
+    const name = object_name + suffix;
+    const saved = perMap ? representations.filter(rep => rep.densityMap === suffix) : representations;
+    const definitions = saved && (!perMap || saved.length)
+      ? saved
+      : createRepresentationsArray(parameters.map(params => createRepresentationStructure(MOL_REPRESENTATION.surface, params)));
+    return stage.loadFile(url, { name, ext: 'ccp4' }).then(comp => ({
       name,
-      repr: assignRepresentationArrayToComp(
-        representations ||
-          createRepresentationsArray(
-            parameters.map(params => createRepresentationStructure(MOL_REPRESENTATION.surface, params))
-          ),
-        comp
-      )
+      repr: assignRepresentationArrayToComp(definitions, comp)
     }));
+  };
   const maps = [];
   if (input_dict.sigmaa_url && input_dict.render_sigmaa) {
-    maps.push(loadMap(input_dict.sigmaa_url, object_name + DENSITY_MAPS.SIGMAA, [densityParams_sigmaa]));
+    maps.push(loadMap(input_dict.sigmaa_url, DENSITY_MAPS.SIGMAA, [densityParams_sigmaa]));
   }
   if (input_dict.diff_url && input_dict.render_diff) {
     maps.push(
-      loadMap(input_dict.diff_url, object_name + DENSITY_MAPS.DIFF, [densityParams_diff, densityParams_diff_negate])
+      loadMap(input_dict.diff_url, DENSITY_MAPS.DIFF, [densityParams_diff, densityParams_diff_negate])
     );
   }
   if (input_dict.event_url && input_dict.render_event) {
-    maps.push(loadMap(input_dict.event_url, object_name, [densityParams_event]));
+    maps.push(loadMap(input_dict.event_url, '', [densityParams_event]));
   }
   return Promise.all(maps);
 };

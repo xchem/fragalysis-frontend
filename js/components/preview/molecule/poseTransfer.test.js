@@ -26,6 +26,7 @@ const createEligibilityConfig = controls => ({
 
 describe('pose transfer helpers', () => {
   it('does not re-add a shared structure until asynchronous viewer deletion is acknowledged', async () => {
+    expect.hasAssertions();
     const state = { active: { ligand: { shared: { value: 'old' } } }, deleting: false };
     const apply = jest.fn(({ target }) => { state.active.ligand[target.id] = { value: 'old' }; });
     const control = {
@@ -134,6 +135,21 @@ describe('pose transfer helpers', () => {
     });
 
     expect(transfers).toStrictEqual({ previous: null, next: null });
+  });
+
+  it('uses an injected open dialog as the sole transferable state of its owning row', () => {
+    expect.hasAssertions();
+    const orderedPoses = [{ id: 1 }, { id: 2 }, { id: 3 }];
+    const transfers = getFirstEligiblePoseTransfers({
+      orderedPoses,
+      state: { openPose: 2 },
+      config: {
+        ...createEligibilityConfig([]),
+        dialogs: { hasTransferableState: ({ state, pose }) => pose.id === state.openPose }
+      }
+    });
+    expect(transfers.previous).toStrictEqual({ sourcePose: orderedPoses[1], destinationPose: orderedPoses[0] });
+    expect(transfers.next).toStrictEqual({ sourcePose: orderedPoses[1], destinationPose: orderedPoses[2] });
   });
 
   it('captures the first active source and its customization for each control', () => {

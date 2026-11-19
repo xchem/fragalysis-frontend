@@ -64,6 +64,7 @@ import { compareTagsAsc, isTagVisibleOnSide, TAG_META_CATEGORIES } from '../../t
 import { createPoseApi, updatePoseApi } from '../api/poseApi';
 import { NGL_OBJECTS } from '../../../../reducers/ngl/constants';
 import { markBulkLigand } from '../../../../reducers/ngl/bulkLigands';
+import { RHS_INSPIRATION } from '../../../../constants/poseNavigation';
 // import { molFile, pdbApo } from './testData';
 
 /**
@@ -163,9 +164,12 @@ export const handleVector = (json, stage, data) => (dispatch, getState) => {
   dispatch(updateBondColorMapOfCompounds(data.smiles, vectorBondColorMap));
 };
 
+const appendObservationDisplay = (data, item) =>
+  appendToBeDisplayedList(data[RHS_INSPIRATION] ? { ...item, [RHS_INSPIRATION]: true } : item);
+
 export const addVector = (stage, data, skipTracking = false) => async (dispatch, getState) => {
   dispatch(
-    appendToBeDisplayedList({
+    appendObservationDisplay(data, {
       type: NGL_OBJECTS.VECTOR,
       id: data.id,
       display: true,
@@ -196,7 +200,7 @@ export const addComplex = (
   preserveColour = false
 ) => async dispatch => {
   dispatch(
-    appendToBeDisplayedList({
+    appendObservationDisplay(data, {
       type: NGL_OBJECTS.COMPLEX,
       id: data.id,
       display: true,
@@ -220,7 +224,7 @@ export const addSurface = (
   preserveColour = false
 ) => async dispatch => {
   dispatch(
-    appendToBeDisplayedList({
+    appendObservationDisplay(data, {
       type: NGL_OBJECTS.SURFACE,
       id: data.id,
       display: true,
@@ -262,7 +266,7 @@ export const addDensity = (data, densityObject, representations = undefined) => 
 
 const setDensity = (data, densityObject, representations = undefined) => async (dispatch, getState) => {
   dispatch(
-    appendToBeDisplayedList({
+    appendObservationDisplay(data, {
       type: NGL_OBJECTS.DENSITY,
       id: data.id,
       display: true,
@@ -397,7 +401,7 @@ export const addHitProtein = (
   preserveColour = false
 ) => async dispatch => {
   dispatch(
-    appendToBeDisplayedList({
+    appendObservationDisplay(data, {
       type: NGL_OBJECTS.PROTEIN,
       id: data.id,
       display: true,
@@ -423,7 +427,7 @@ export const addArtefactChain = (
   preserveColour = false
 ) => async dispatch => {
   dispatch(
-    appendToBeDisplayedList({
+    appendObservationDisplay(data, {
       type: NGL_OBJECTS.ARTEFACTS,
       id: data.id,
       display: true,
@@ -449,7 +453,7 @@ export const addLigand = (
   representations = undefined
 ) => async (dispatch, getState) => {
   dispatch(
-    appendToBeDisplayedList({
+    appendObservationDisplay(data, {
       type: NGL_OBJECTS.LIGAND,
       id: data.id,
       display: true,

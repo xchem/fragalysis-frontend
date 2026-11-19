@@ -14,10 +14,11 @@ import { getCurrentTarget } from '../../../../../../reducers/api/selectors';
 import { DENSITY_MAP_TYPES, MAP_RENDERING_MODES } from '../../../utils/constants';
 import { getRandomColor } from '../../../utils/color';
 import { NGL_OBJECTS } from '../../../../../../reducers/ngl/constants';
+import { RHS_INSPIRATION } from '../../../../../../constants/poseNavigation';
 import { isEqual, throttle } from 'lodash';
 import { appendToBeDisplayedList, updateInToBeDisplayedList } from '../../../../../../reducers/selection/actions';
 
-export const DensityButtonPopover = ({ mol }) => {
+export const DensityButtonPopover = ({ mol, rhsInspiration = false }) => {
   const dispatch = useDispatch();
 
   const densityList = useSelector(state => state.selectionReducers.densityList);
@@ -146,6 +147,7 @@ export const DensityButtonPopover = ({ mol }) => {
         type: NGL_OBJECTS.DENSITY,
         id: mol.id,
         display: true,
+        ...(rhsInspiration && { [RHS_INSPIRATION]: true }),
         representations: representations,
         densityData: mol.proteinData,
         densityObject: {
@@ -159,7 +161,7 @@ export const DensityButtonPopover = ({ mol }) => {
         }
       };
     },
-    [mol, mode, color, checked, contour]
+    [mol, rhsInspiration, mode, color, checked, contour]
   );
 
   // Opening the editor normalizes omitted flags/defaults for its controls.
