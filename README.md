@@ -188,6 +188,78 @@ The latest 100 records are available in `window.__FRAGALYSIS_VIEWER_TELEMETRY__`
 `fragalysis:viewer-telemetry` browser events. The completed replacement is documented in
 `docs/moorhen-migration-stages-20-21-moorhen-only.md`.
 
+# Security patches
+
+The `security` branch is a patch branch of `production` (issue #561).
+Dependabot dependency updates collect on `security`. We can release them to
+`production` when we need to, independently of the state of `staging`.
+The backend uses the same process (see the "Security patches" section of the
+[backend README](https://github.com/xchem/fragalysis-backend#security-patches)).
+
+## How updates reach `security`
+
+- `.github/dependabot.yml` (read only from `staging`, the default branch) sends
+  Dependabot *version*-update pull requests to `security`. GitHub ignores
+  `target-branch` for Dependabot *security* updates, so those still target
+  `staging`.
+- The **dependabot auto-merge** workflow enables auto-merge on a pull request
+  when an open Dependabot alert for an updated package is at or above a
+  minimum severity. The pull request merges (squashed) when its required checks
+  pass. A pull request below the minimum severity stays open for manual review.
+- The **build security (daily)** workflow starts the **build dev** workflow on
+  `security` each day at 05:30 (UTC). **build dev** pushes the
+  `xchem/fragalysis-frontend:security` image. It does not push the images of
+  other branches.
+- At 07:30 (UTC), the fragalysis-stack **build security** workflow builds a
+  stack from the backend and frontend `security` images. It deploys the stack
+  to the developer cluster for testing.
+
+## Configuration
+
+- Secret `DEPENDABOT_ALERTS_TOKEN` (a **Dependabot** secret): a fine-grained
+  personal access token, or a GitHub App token, with
+  "Dependabot alerts: Read-only" on this repository. The default `GITHUB_TOKEN`
+  cannot read Dependabot alerts.
+- Secrets `DOCKERHUB_USERNAME` and `DOCKERHUB_TOKEN` (**Actions** secrets),
+  to push the `security` image.
+- Variable `DEPENDABOT_AUTO_MERGE_MIN_SEVERITY`: `low`, `medium`, `high` or
+  `critical` (default `high`).
+- Repository setting "Allow auto-merge" must be on.
+- The `security` branch protection must require the **build** check, so that
+  auto-merge waits for the build. It must not require a linear history (see
+  step 5 below).
+
+## Releasing a patch
+
+1. Open a pull request from `security` to `production`. Merge it with a
+   **merge commit** (not a squash).
+2. Tag `production` with the next production release number. The tag starts
+   the **build production** workflow.
+3. Open a pull request from `production` to `staging` (the back-merge). If
+   `staging` changed dependencies, fix the `yarn.lock` conflicts with
+   `yarn install`.
+4. Fast-forward `security` to `production`:
+
+        git fetch origin
+        git push origin origin/production:refs/heads/security
+
+5. After a normal `staging` → `production` release, update `security` again.
+   If `security` has no unreleased patches, fast-forward it (as in step 4).
+   If it has unreleased patches, merge `production` into `security`.
+
+The **check back-merge** workflow fails a pull request to `production` if
+`production` has a commit that is not in the pull request's branch. This stops
+a release from `staging` before a back-merge is done.
+
+## Where the workflow files must be
+
+GitHub reads `dependabot.yml` and runs the **build security (daily)** and
+**dependabot auto-merge** workflows only from `staging`, the default branch.
+(GitHub runs a `pull_request_target` workflow from the default branch, not
+from the pull request's base branch.) The dispatched **build dev** workflow
+runs from `security`, so `security` must have the `workflow_dispatch` trigger
+and the push steps in `build-dev.yaml`.
+
 # When backend and/or loader are updated
 
 Update backend repo from xchem/fragalysis-backend master branch
