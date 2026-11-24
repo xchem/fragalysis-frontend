@@ -2,13 +2,19 @@
 name: build dev
 
 # Actions that take place after every commit that's not on either the
-# staging ore production branches.
+# staging or production branches.
+#
+# Only the 'security' branch image is pushed (issue #561),
+# and only if a DOCKERHUB_USERNAME secret is defined.
 
 # ---------------
 # Control secrets
 # ---------------
 #
-# (none)
+# FE_NAMESPACE            optional - default xchem
+#
+# DOCKERHUB_USERNAME      optional
+# DOCKERHUB_TOKEN         optional - required if DOCKERHUB_USERNAME
 #
 # -----------
 # Environment (GitHub Environments)
@@ -23,6 +29,9 @@ on:
       - 'production'
     tags-ignore:
       - '**'
+  # Lets 'build security (daily)' start this build on the 'security' branch
+  # (issue #561).
+  workflow_dispatch:
 
 env:
   # The following 'defaults' are used in the 'Initialise workflow variables' step,
@@ -42,14 +51,23 @@ jobs:
         uses: rlespinasse/github-slug-action@v4
       - name: Initialise workflow variables
         id: vars
+        env:
+          DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
         run: |
           # FE_NAMESPACE
           FE_NAMESPACE="${{ env.FE_NAMESPACE }}"
           if [ -n "${{ secrets.FE_NAMESPACE }}" ]; then FE_NAMESPACE="${{ secrets.FE_NAMESPACE }}"; fi
           echo FE_NAMESPACE=${FE_NAMESPACE}
           echo "FE_NAMESPACE=${FE_NAMESPACE}" >> $GITHUB_OUTPUT
+
+          # Do we push? Only the 'security' branch, and only if DOCKERHUB_USERNAME is defined.
+          echo push=${{ env.DOCKERHUB_USERNAME != '' && github.ref == 'refs/heads/security' }}
+          echo "push=${{ env.DOCKERHUB_USERNAME != '' && github.ref == 'refs/heads/security' }}" >> $GITHUB_OUTPUT
       - name: Checkout
         uses: actions/checkout@v4
+      - name: Test the workflow scripts
+        # Standard-library tests for the scripts in .github/scripts (issue #561)
+        run: python3 -m unittest discover -s .github/scripts
       - name: Build
         uses: docker/build-push-action@v5
         with:
@@ -71,3 +89,12 @@ jobs:
           ./osv-scanner scan image ${{ steps.vars.outputs.FE_NAMESPACE }}/fragalysis-frontend:${{ env.GITHUB_REF_SLUG }} \
               --format markdown --output scan.md || true
           cat scan.md >> $GITHUB_STEP_SUMMARY
+      - name: Login to DockerHub
+        if: steps.vars.outputs.push == 'true'
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+      - name: Push
+        if: steps.vars.outputs.push == 'true'
+        run: docker push ${{ steps.vars.outputs.FE_NAMESPACE }}/fragalysis-frontend:${{ env.GITHUB_REF_SLUG }}
